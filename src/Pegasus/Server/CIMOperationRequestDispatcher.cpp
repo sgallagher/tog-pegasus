@@ -1920,33 +1920,32 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
         (request->includeQualifiers == true ? "true" : "false"),
         (request->includeClassOrigin == true ? "true" : "false"));
 
+    Array<CIMInstance> normalizedInstances;
+
     // normalize responses
     for(Uint32 i = 0, n = toResponse->cimNamedInstances.size(); i < n; i++)
     {
-        CIMInstance cimInstance = toResponse->cimNamedInstances[i];
-
         // update the namespace and class name elements in the object's embedded object path as
         // as the normalizer expects.
-        CIMObjectPath objectPath = cimInstance.getPath();
+        CIMObjectPath objectPath = toResponse->cimNamedInstances[i].getPath();
 
-        objectPath.setNameSpace(request->nameSpace);           // get from request
-        objectPath.setClassName(cimInstance.getClassName());// get from object
+        objectPath.setNameSpace(request->nameSpace);                                    // get from request
+        objectPath.setClassName(toResponse->cimNamedInstances[i].getClassName());       // get from object
 
-        cimInstance.setPath(objectPath);
+        toResponse->cimNamedInstances[i].setPath(objectPath);
 
         try
         {
             // normalize instance
             CIMInstance normalizedInstance =
                 _normalizer.normalizeInstance(
-                    cimInstance,
+                    toResponse->cimNamedInstances[i],
                     request->localOnly,
                     request->includeQualifiers,
                     request->includeClassOrigin,
                     request->propertyList);
 
-            // replace existing instance
-            toResponse->cimNamedInstances[i] = normalizedInstance;
+            normalizedInstances.append(normalizedInstance);
         }
         catch(...)
         {
@@ -1956,10 +1955,10 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Failed to normalize object: $0",
                 toResponse->cimNamedInstances[i].getPath().toString());
-
-            toResponse->cimNamedInstances.remove(i);
         }
     }
+
+    toResponse->cimNamedInstances = normalizedInstances;
 
     PEG_METHOD_EXIT();
 }
@@ -2012,7 +2011,8 @@ void CIMOperationRequestDispatcher::handleOperationResponseAggregation(
 
        PEG_METHOD_EXIT();
        return;
-   }
+    }
+
    //if (getenv("CMPI_DEBUG")) asm("int $3");
 
     /* Determine if there any "good" responses. If all responses are error

@@ -46,9 +46,6 @@
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Linkage.h>
 
-const char STRING_FLAG_ASCII[] = "ASCII";
-const char STRING_FLAG_UTF8[]  = "UTF8"; 
-
 // Locale constants
 // These constants need to be defined as follows:
 // lower case language; underscore; Uppercase Country
@@ -146,14 +143,6 @@ public:
     API supports UTF8
     */
     String(const char* str);
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** Initialize from a plain C-String that allows UTF-8:
-    @param str Specifies the name of the String instance.
-    @param utfFlag Specifies the name of the character constructor.
-    */
-    String(const char* str, const char* utfFlag);
-#endif
 
     /** Initialize from the first n characters of a plain C-String:
     @param str Specifies the name of the String instance.

@@ -986,7 +986,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
          //     considerations specified in Errors.
 
          // Extrinic methods can have UTF-8!
-         String cimMethodNameUTF16(cimMethodName, STRING_FLAG_UTF8);
+         String cimMethodNameUTF16(cimMethodName);
          if (cimMethodNameUTF16 != cimMethodInHeader)
          {
             // ATTN-RK-P3-20020304: How to decode cimMethodInHeader?

@@ -296,7 +296,7 @@ int main(int argc, char** argv)
                             };  // utf16 representation of the utf8 string
 
 	String utf16string(utf16chr);
-	String utf8string(utf8chr,STRING_FLAG_UTF8);
+	String utf8string(utf8chr);
 	String utf16merge(utf8string.getChar16Data());
 
 	CString temp = utf8string.getCString();

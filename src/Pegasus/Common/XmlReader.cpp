@@ -994,7 +994,7 @@ String XmlReader::decodeURICharacters(String uriString)
     {
         // Convert UTF-8 to UTF-16 and return the String
         utf8Chars.append('\0');
-        return String((char *)utf8Chars.getData(),STRING_FLAG_UTF8);
+        return String((char *)utf8Chars.getData());
     }
     else
     {
@@ -1269,7 +1269,7 @@ CIMValue XmlReader::stringToValue(
 
 	case CIMTYPE_STRING:
 	{
-	    return CIMValue(String(valueString, STRING_FLAG_UTF8));
+	    return CIMValue(String(valueString));
 	}
 
 	case CIMTYPE_CHAR16:
@@ -1289,7 +1289,7 @@ CIMValue XmlReader::stringToValue(
 	  }
 */
           // Converts UTF-8 to UTF-16
-          String tmp(valueString, STRING_FLAG_UTF8);
+          String tmp(valueString);
           if (tmp.size() != 1)
           {
 	    // l10n
@@ -1668,7 +1668,7 @@ Boolean XmlReader::getStringValueElement(
 	expectEndTag(parser, "VALUE");
     }
 
-    str = String(valueString,STRING_FLAG_UTF8);
+    str = String(valueString);
     return true;
 }
 
@@ -2311,7 +2311,7 @@ Boolean XmlReader::getHostElement(
 	    throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
 
 	if (entry.type == XmlEntry::CONTENT)
-	    host = String(entry.text,STRING_FLAG_UTF8);
+	    host = String(entry.text);
 	else
     {
 	    parser.putBack(entry);
@@ -2335,7 +2335,7 @@ Boolean XmlReader::getHostElement(
 	
     }
 
-    host = String(entry.text,STRING_FLAG_UTF8);
+    host = String(entry.text);
 #endif
     expectEndTag(parser, "HOST");
     return true;
@@ -2593,7 +2593,7 @@ Boolean XmlReader::getKeyValueElement(
 	    throw XmlException(XmlException::UNCLOSED_TAGS, parser.getLine());
 
 	if (entry.type == XmlEntry::CONTENT)
-	    value = String(entry.text,STRING_FLAG_UTF8);
+	    value = String(entry.text);
 	else
 	    parser.putBack(entry);
 

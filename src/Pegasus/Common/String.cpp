@@ -227,20 +227,6 @@ String::String(const char* str)
     assign(str);
 }
 
-String::String(const char* str, const char* utfFlag)
-{
-    _rep = new StringRep;
-
-    if(!memcmp(utfFlag,STRING_FLAG_UTF8,sizeof(STRING_FLAG_UTF8)))
-    {
-	assign(str);
-    }
-    else
-    {
-	assign(str);
-    }
-}
-
 String::String(const char* str, Uint32 n)
 {
     _rep = new StringRep;

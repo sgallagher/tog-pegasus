@@ -1133,7 +1133,7 @@ Boolean XmlEntry::getAttributeValue(const char* name, String& value) const
     if (!getAttributeValue(name, tmp))
 	return false;
 
-    value = String(tmp,STRING_FLAG_UTF8);
+    value = String(tmp);
     return true;
 }
 

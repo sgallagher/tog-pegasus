@@ -14,7 +14,7 @@ DOCUMENT=CLI
 SOURCE=$(DOCUMENT).nroff
 
 html:
-	man2html $(SOURCE) >$(DOCUMENT).html
+	man2html <$(SOURCE) >$(DOCUMENT).html
 
 
 ascii:

@@ -2,6 +2,8 @@
 				TO-DO List
 				==========
 
+    - 	Finalize the headers (put authors in all the modules).
+
     -   Fix the trace function so that it prints out the messages going
 	both ways.
 

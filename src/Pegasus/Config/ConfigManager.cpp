@@ -45,7 +45,6 @@
 //  ConfigManager 
 /////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -71,20 +70,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 
-/////////////////////////////////////////////////////////////////////////////
-//  PropertyTable 
-/////////////////////////////////////////////////////////////////////////////
-
-typedef HashTable<String,
-    ConfigPropertyOwner*,EqualFunc<String>,HashFunc<String> > OwnerTable;
-typedef HashTable<String,
-    const char*,EqualFunc<String>,HashFunc<String> > FixedValueTable;
-
-struct PropertyTable
-{
-    OwnerTable ownerTable;
-    FixedValueTable fixedValueTable;
-};
 
 
 /////////////////////////////////////////////////////////////////////////////

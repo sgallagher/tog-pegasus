@@ -49,6 +49,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Config/ConfigPropertyOwner.h>
 #include <Pegasus/Config/ConfigFileHandler.h>
 
@@ -62,8 +63,6 @@
 #include <Pegasus/Config/ProviderDirPropertyOwner.h>
 
 PEGASUS_NAMESPACE_BEGIN
-
-struct PropertyTable;
 
 /**
   This class reads configuration properties from the config file, maps the 
@@ -117,6 +116,26 @@ private:
     */
     void _initPropertyTable();
 
+    /**
+    HashTable used to identify owners.
+    */
+    typedef HashTable<String,
+        ConfigPropertyOwner*,EqualFunc<String>,HashFunc<String> > OwnerTable;
+
+    /**
+    HashTable used to identify fixed values.
+    */
+    typedef HashTable<String,
+        const char*,EqualFunc<String>,HashFunc<String> > FixedValueTable;
+
+    /**
+    Structure used to identify properties.
+    */
+    struct PropertyTable
+    {
+        OwnerTable ownerTable;
+        FixedValueTable fixedValueTable;
+    };
 
     /** 
     HashTable to store the config property names and 

@@ -305,7 +305,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	  if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL, 1)) {
 	      // previous call's message was suppressed,
               // server is running, send escape message and return
-	      ycmSend_Message_Escape(CPFDF81_RC, "01", "QYCMMOFL",4);
+	      ycmSend_Message_Escape(CPFDF81_RC, "01", "QYCMMOFL", "*CTLBDY   ", 1);
 	      return CPFDF81_RC;
 	  }
       }

@@ -93,6 +93,7 @@ main(int argc, char ** argv) {
     }
 
   // check what environment we are running in, native or qsh
+    Boolean qsh = false;
     if( getenv(
 #pragma convert(37)
 	       "SHLVL"
@@ -101,13 +102,18 @@ main(int argc, char ** argv) {
 	// Check to ensure the user is authorized to use the command,
 	// suppress diagnostic message, send escape message
 	if(FALSE == ycmCheckCmdAuthorities(1)){
-	  ycmSend_Message_Escape(CPFDF80_RC);
+	  ycmSend_Message_Escape(CPFDF80_RC,
+				 NULL,
+				 NULL,
+				 "*CTLBDY   ",
+				 1);
 	  return CPFDF80_RC;
 	}
     }
     else{ // qsh mode
 	// Check to ensure the user is authorized to use the command
 	// ycmCheckCmdAuthorities() will send a diagnostic message to qsh
+        qsh = true;
 	if(FALSE == ycmCheckCmdAuthorities()){
 	  return CPFDF80_RC;
 	}
@@ -199,7 +205,15 @@ main(int argc, char ** argv) {
 	    ret = -6;
 	}
       } else {
-	  msg_ = String("Can't open file ").append(filespecs[i]);
+	  //l10n
+// l10n TODO - this path was not localized by the msg freeze for R2.3.  So, use an
+// internal exception msg for now.  But, need to replace this with
+// a new cimmof msg in release 2.4.
+	  parms.msg_id = "Common.InternalException.CANNOT_OPEN_FILE";
+	  parms.default_msg = "Can't open file $0";
+          parms.arg0 = filespecs[i];
+	  //msg_ = String("Can't open file ").append(filespecs[i]);
+	  msg_ = MessageLoader::getMessage(parms);
           ret = -7;
       }
     }
@@ -227,36 +241,45 @@ main(int argc, char ** argv) {
 #ifdef PEGASUS_OS_OS400
   // Send good completion message to stdout if the compile worked.
   // Callers of QYCMMOFL *PGM from the native command line will want to see this.
+  // Note: in PTF mode the quiet option should be used.
   if (ret == 0)
-  		//l10n
+  {
+      //l10n
       //cout << "Compile completed successfully." << endl;
       parms.msg_id = "Compiler.cmdline.cimmof.main.COMPILE_SUCCESSFUL";
       parms.default_msg = "Compile completed successfully.";
       cout << MessageLoader::getMessage(parms) << endl;
+  }
 
-  // Send a CPDDF83 and CPFDF81 OS/400 program message if an error occurred
+  // Send a CPDDF83 and CPFDF81 OS/400 program message if an error occurred,
+  // and we are running in native mode.
   // This will allow PTFs to monitor for this message.
-  if (ret != 0)
+  if (ret != 0 && !qsh)
   {
-#pragma convert(37)
       message_t    message_;	// Message information
       cmd_msg_t    cmdMSG;
       memset((char *)&cmdMSG, ' ', sizeof(cmd_msg_t) ); // init to blanks
-      memcpy(cmdMSG.commandName, "QYCMMOFL", 7);
-      CString asc = msg_.getCString();
-      const char * ebcdic = (const char *)asc;
-      AtoE((char *)ebcdic);
-      memcpy(cmdMSG.message, ebcdic, sizeof(ebcdic) );
+      memcpy(cmdMSG.commandName, "QYCMMOFL", 7);  // must be in utf-8
+      CString utf8 = msg_.getCStringUTF8();
+      if (strlen((const char *)utf8) <= 200)            // max repl data is 200 chars  
+	  memcpy(cmdMSG.message, utf8, strlen((const char *)utf8));
+      else
+	  memcpy(cmdMSG.message, utf8, 200);
+#pragma convert(37)
       memcpy(message_.MsgId, "CPDDF83", 7);
       memcpy(message_.MsgData, (char *)&cmdMSG, sizeof(cmd_msg_t));
       message_.MsgLen = sizeof(cmd_msg_t);
       memcpy(message_.MsgType, "*DIAG     ", 10); 
-      ycmSend_Message(&message_);
+      ycmSend_Message(&message_,
+		      "*PGMBDY   ",
+		      1,
+		      true);                     // repl data is utf-8 
 
       ycmSend_Message_Escape(CPFDF81_RC,
-			     "03",
-			     "QYCMMOFL"
-			     );
+			     "03",               // must be in ccsid 37
+			     "QYCMMOFL",         // must be in ccsid 37
+			     "*CTLBDY   ",
+			     1);
 #pragma convert(0)
   }
 #endif

@@ -46,7 +46,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 
 	String MessageLoader::getMessage(MessageLoaderParms &parms){
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
-		
+		try{
 		String msg;
 		parms.contentlanguages.clear();
 		
@@ -74,7 +74,9 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			//cout << "PEGASUS_HAS_ICU is NOT defined, using default message" << endl;
 			return formatDefaultMessage(parms);
 		#endif	
-				
+		}catch(Exception e){
+			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(parms.default_msg);	
+		}	
 		PEG_METHOD_EXIT();			
 	}
 	

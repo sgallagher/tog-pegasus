@@ -50,6 +50,7 @@ PEGASUS_USING_STD;
 #define MYASSERT PEGASUS_ASSERT
 
 static const char* programVersion =  "1.0";
+Boolean skipICU = false;
 
 // Array of UTF-16 chars to be sent and received to the server.
 // Note: the dbc0/dc01 pair are surrogates
@@ -488,7 +489,9 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 #ifdef PEGASUS_HAS_MESSAGES	
           if (verboseTest)
               cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
-
+	if(skipICU){
+		MYASSERT(CL_EN == client.getResponseContentLanguages());
+	}else
           MYASSERT(CL_DE == client.getResponseContentLanguages());
 #else
           if (verboseTest)
@@ -507,7 +510,10 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
                       getValue().
                       get(enumString);
 
-#ifdef PEGASUS_HAS_MESSAGES        	    
+#ifdef PEGASUS_HAS_MESSAGES  
+	if(skipICU){
+		MYASSERT(expectedDftString == enumString);
+	}else      	    
               MYASSERT(expectedDEString == enumString);  
 #else
               MYASSERT(expectedDftString == enumString);
@@ -542,7 +548,9 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 #ifdef PEGASUS_HAS_MESSAGES	
           if (verboseTest)
               cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
-
+	if(skipICU){
+		MYASSERT(CL_EN == client.getResponseContentLanguages());
+	}else
           MYASSERT(CL_DE == client.getResponseContentLanguages());
 #else
           if (verboseTest)
@@ -682,9 +690,13 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 #ifdef PEGASUS_HAS_MESSAGES	
           if (verboseTest)	
                 cout << "Checking for fr returned" << endl;
-	
+	if(skipICU){
+		MYASSERT(CL_EN == client.getResponseContentLanguages());
+          MYASSERT(expectedDftString == returnedString); 		
+	}else{
           MYASSERT(CL_FR == client.getResponseContentLanguages());
           MYASSERT(expectedFRString == returnedString); 		
+	}
 #else
           if (verboseTest)
                 cout << "Checking for default language returned" << endl;
@@ -889,9 +901,15 @@ static void TestLocalizedInstances( CIMClient& client, Boolean verboseTest )
 #ifdef PEGASUS_HAS_MESSAGES
               if (verboseTest)		
                   cout << "Checking for es returned in the exception" << endl;	
+              if(skipICU){
+              	MYASSERT(CL_Dft == client.getResponseContentLanguages());
+              	Uint32 n = message.find("default");
+              	MYASSERT(n != PEG_NOT_FOUND);	
+              }else{
               MYASSERT(CL_ES == client.getResponseContentLanguages());
               Uint32 n = message.find("ES");
               MYASSERT(n != PEG_NOT_FOUND);			
+              }
 #else
               if (verboseTest)
                   cout << "Checking for default language returned in the exception" << endl;
@@ -960,6 +978,9 @@ void GetOptions(
 		 		 		 "Use local connection mechanism"},
 		 {"user", "", false, Option::STRING, 0, 0, "user",
 		 		 		 "Specifies user name" },
+
+		{"noicu", "false", false, Option::BOOLEAN, 0, 0, "noicu",
+		 		 		 "Use default messages, disable all message loading code"},
 
 		 {"password", "", false, Option::STRING, 0, 0, "password",
 		 		 		 "Specifies password" }
@@ -1033,6 +1054,10 @@ int main(int argc, char** argv)
                 om.printOptionsHelpTxt(header, trailer);
 
 		 exit(0);
+    }
+    if(om.valueEquals("noicu","true")){
+    	skipICU = true;
+    	cout << "No ICU option" << endl;	
     }
     if (om.valueEquals("version","true"))
     {

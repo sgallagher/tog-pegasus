@@ -26,8 +26,9 @@ Contents:
 14. Development with Pegasus and Pegasus Tools
 15. Commands
 16. Creating SSL certifications.
-17. Documentation
-18. Participate
+17. Testing with ICU enabled
+18. Documentation
+19. Participate
 
 
 
@@ -521,8 +522,34 @@ cat $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem > $PEGASUS_HOME/server.pem
 rm $PEGASUS_HOME/key.pem $PEGASUS_HOME/cert.pem
 cp $PEGASUS_HOME/cert.pem $PEGASUS_HOME/client.pem
 
+17. Testing with ICU enabled:
+==============================
 
-17. Documentation:
+ICU (International Compoments for Unicode) refers to the set of libraries that
+Pegasus uses to run globalized.  For example: these libraries are used to
+load messages in different languages, format currency and numbers according to
+a specific locale etc.  In order to enable globalization in Pegasus, Pegasus
+must be built with ICU enabled, ie. the right environment variables must be
+set prior to running "make". Refer to the GlobalizationHOWTO.htm in the docs
+directory for details.  That said, when users run "make poststarttests" 
+to verify the integrity of a Pegasus download, a series of tests are run that 
+require the cimserver to be running. These tests currently depend on specific 
+messages returned from the server. When ICU is enabled, all messages come 
+from the resource bundles and these usually do not match the hardcoded 
+default messages within Pegasus.  These hardcoded default messages 
+are what the various test programs expect in order to complete 
+successfully.  If the ICU enabled server is started without
+disabling message loading from the bundles, "make poststartests" will fail.
+In order to run "make poststarttests" successfully with ICU enabled, an
+environment variable called PEGASUS_USE_DEFAULT_MESSAGES must exist prior to
+starting the server.  Once this is defined, when the cimserver starts, all
+messages generated will be the default hardcoded messages.  This will enable
+"make poststarttests" to complete successfully.  Once "make poststarttests" is
+complete, you should stop the cimserver and then undefine PEGASUS_USE_DEFAULT_MESSAGES. 
+If this variable is left defined, Pegasus will not be able to load messages
+using ICU resource bundles. 
+
+18. Documentation:
 ===================
 
 The documentation is currently in preperation. The preliminary documentation
@@ -536,7 +563,7 @@ documentation in the future and today is the source of most discussion and
 design documentation.
 
 
-18. Participate!
+19. Participate!
 =================
 
 We are looking for people who want to join the Pegasus work group and

@@ -61,8 +61,12 @@ public:
 // l10n
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(const MessageLoaderParms& msgParms);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	String id, 
 	String msg, 
@@ -77,21 +81,29 @@ public:
 	Formatter::Arg arg8 = Formatter::DEFAULT_ARG,
 	Formatter::Arg arg9 = Formatter::DEFAULT_ARG);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	String id, 
 	String msg);
     
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	String id, 
 	String msg, 
 	Formatter::Arg arg0);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	String id, 
 	String msg, 
 	Formatter::Arg arg0,
 	Formatter::Arg arg1);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	String id, 
 	String msg, 
@@ -99,6 +111,8 @@ public:
 	Formatter::Arg arg1,
 	Formatter::Arg arg2);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	String id, 
 	String msg, 
@@ -107,15 +121,21 @@ public:
 	Formatter::Arg arg2,
 	Formatter::Arg arg3);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	const char* id, 
 	const char* msg);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	const char* id, 
 	const char* msg, 
 	const String& arg0);
 
+    /** <I><B>Experimental Interface</B></I><BR>
+    */
     Exception(
 	const char* id, 
 	const char* msg, 

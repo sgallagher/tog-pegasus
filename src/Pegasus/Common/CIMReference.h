@@ -413,7 +413,7 @@ public:
 	throw(IllformedObjectName, IllegalName);
 
     /** Set the reference from an object name . */
-      void set(const String& objectName);
+      void set(const String& objectName) throw(IllformedObjectName);
 
     /** Same as set() above except that it is an assignment operator */
     CIMReference& operator=(const String& objectName);

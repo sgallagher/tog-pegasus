@@ -251,9 +251,8 @@ static void TestGetClass(CIMOMHandle & handle)
    ComputerSystemProvider *myself = 
       reinterpret_cast<ComputerSystemProvider *>(th->get_parm());
    pegasus_sleep(1000);
-   while(unload_flag.value() == 0)
+   if(unload_flag.value() == 0)
    {
-      // if(unload_flag.value() == 0)   
       TestNameSpaceOperations(myself->_ch);
       pegasus_sleep(1000);
       if(unload_flag.value() == 0)   

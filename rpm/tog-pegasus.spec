@@ -165,6 +165,7 @@ install -D -m 0544  $PEGASUS_HOME/bin/cimserver $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR
 install -D -m 0544  $PEGASUS_HOME/bin/cimservera $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimservera
 install -D -m 0544  $PEGASUS_HOME/bin/cimuser   $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimuser
 install -D -m 0544  $PEGASUS_HOME/bin/cimconfig $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimconfig
+install -D -m 0544  $PEGASUS_HOME/bin/cimprovagt $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/cimprovagt
 install -D -m 0555  $PEGASUS_HOME/bin/cimmof    $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimmof
 install -D -m 0555  $PEGASUS_HOME/bin/cimmofl   $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimmofl
 install -D -m 0555  $PEGASUS_HOME/bin/cimprovider $RPM_BUILD_ROOT%PEGASUS_BIN_DIR/cimprovider
@@ -816,6 +817,7 @@ fi
 %attr(-,root,root) %PEGASUS_SBIN_DIR/cimconfig
 %attr(-,root,root) %PEGASUS_SBIN_DIR/init_repository
 %attr(-,root,root) %PEGASUS_SBIN_DIR/settogpath
+%attr(-,root,root) %PEGASUS_SBIN_DIR/cimprovagt
 %attr(-,root,root) %PEGASUS_BIN_DIR/cimmof
 %attr(-,root,root) %PEGASUS_BIN_DIR/cimmofl
 %attr(-,root,root) %PEGASUS_BIN_DIR/cimprovider

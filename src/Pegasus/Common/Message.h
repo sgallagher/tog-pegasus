@@ -60,7 +60,8 @@ class PEGASUS_COMMON_LINKAGE message_mask
       static Uint32 type_reply;
       static Uint32 type_control;
 
-// more for documentation than for use 
+      // more for documentation than for use 
+
       inline Uint32 get_classification(Uint32 flags)
       {
 	 return (flags & 0x000fffff);
@@ -113,17 +114,10 @@ public:
 
     void setKey(Uint32 key) { _key = key; }
 
-      Uint32 getMask() const 
-      {
-	 return _mask;
-      }
+    Uint32 getMask() const { return _mask; }
       
-      void setMask(Uint32 mask) 
-      {
-	 _mask = mask;
-      }
+    void setMask(Uint32 mask) { _mask = mask; }
       
-
     Message* getNext() { return _next; }
 
     const Message* getNext() const { return _next; }

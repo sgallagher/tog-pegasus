@@ -92,7 +92,7 @@ static Boolean _MakeAddress(
    struct hostent *entry;
    if (isalpha(hostname[0]))
    {
-#ifdef PEGASUS_PLATFORM_SOLOARIS_SPARC_CC
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 #define HOSTENT_BUFF_SIZE        8192
       char      buf[HOSTENT_BUFF_SIZE];
       int       h_errorp;

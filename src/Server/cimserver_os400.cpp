@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Logger.h>
+#include "OS400ConvertChar.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <except.h>
 
@@ -91,14 +92,15 @@ void notify_parent(int id)
 ///////////////////////////////////////////////////////////////////////
 int cimserver_fork(void) 
 {
+#pragma convert(37)
   char rc5[3] = "05"; // rc5 means the CIMOM Server failed to start
   char cppServ[10] = "QYCMCIMOM";
-  ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10);
+  ycmJob cppJob(YCMJOB_SRVNAME_10, YCMJOB_SRVUSER_10); 
 
   // Submit the server job (QYCMCIMOM).  The job is submitted with the
   // daemon=false parameter to avoid an infinite loop of jobs being
   // submitted by this code!
-  if (YCMJOB_SUBMIT_FAILED == cppJob.submit(YCMJOB_SRVR_PGM,
+  if (YCMJOB_SUBMIT_FAILED == cppJob.submit(YCMJOB_SRVR_PGM,  
 					    YCMJOB_QSYS_LIB,
 					    "daemon=false",
 					    YCMJOB_JOBD,
@@ -106,6 +108,8 @@ int cimserver_fork(void)
 					    YCMJOB_CCSID_37,
 					    YCMJOB_THREAD_YES))
   {  // QYCMCIMOM Server Failed on Submit Job
+#pragma convert(0)
+
       //l10n
       //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
 		 //"cimserver_os400::cimserver_fork() - SBMJOB failed to start the QYCMCIMOM server program!!");
@@ -119,12 +123,15 @@ int cimserver_fork(void)
      std::string srvName = cppServ;
      std::string replacementData = errCode + srvName;
 
+#pragma convert(37)
      ycmMessage message(msgCPDDF80,
                         CPDprefix,
                         replacementData,
                         "cimserver_os400::cimserver_fork()",
-                        ycmCTLCIMID);
+                        ycmCTLCIMID,
+			utf8);
      message.joblogIt(UserError,ycmMessage::Diagnostic);
+#pragma convert(0)
 
      // save the job log
      system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
@@ -168,8 +175,9 @@ int cimserver_initialize(void)
    //        (it's a known problem) and we can uncomment this #pragma. 
 //   #pragma cancel_handler (CancelHandler, NULL)
     try {
-
    system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
+
+#pragma convert(37)
    //////////////////////////////////////////
    // Change Job API call
    // Change the server type to QICM_CIMOM
@@ -190,7 +198,8 @@ int cimserver_initialize(void)
             "                ",
             "JOBC0200",
             &chg,
-            &errorCode), OFF, OFF); 
+            &errorCode), OFF, OFF);
+#pragma convert(0)
 
    ////////////////////////////////////////////////////
    // Change authority to the qypsjobd job description
@@ -244,6 +253,7 @@ int cimserver_initialize(void)
 ///////////////////////////////////////////////////////////////////////
 int cimserver_kill(void)
 {  // Need to kill the server
+#pragma convert(37)
   char rc2[3] = "02"; // CIMOM server failed to end
   char cppServ[10] = "QYCMCIMOM";
   std::string number = YCMJOB_ALL_NUMBERS; // parameter passed to job::find method
@@ -265,8 +275,11 @@ int cimserver_kill(void)
                          CPDprefix,
                          replacementData,
                          "cimserver_os400::cimserver_kill()",
-                         ycmCTLCIMID);
+                         ycmCTLCIMID,
+			 utf8);
       message.joblogIt(UserError,ycmMessage::Diagnostic);
+
+#pragma convert(0)
 
       //l10n
       //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
@@ -276,6 +289,7 @@ int cimserver_kill(void)
 		  	"$0 FAILED to end the $1 job!!",
 		  	"cimserver_os400::cimserver_kill -",
 		  	"QYCMCIMOM");
+
 
       return -1; // Note: this return code is ignored by the CIMOM server.
     }
@@ -311,13 +325,20 @@ Boolean isCIMServerRunning(void)
 int init_fifo(const char * fifo_name){
     int fifo = -1;
     struct stat FIFO_STAT;
-    int stat_rc = stat( fifo_name, &FIFO_STAT );
+
+    // Need to convert the fifo name to ebcdic because
+    // that is what stat and open want.   
+    char tmp[256];
+    strcpy(tmp, fifo_name);
+    AtoE(tmp);
+    
+    int stat_rc = stat( tmp, &FIFO_STAT );
 
     // check if the FIFO already exists
     if( S_ISFIFO( FIFO_STAT.st_mode ) ){
 	// prep FIFO, on this end we only want to write to it,
 	// set its I/O mode to not block on any reads
-	fifo = open(fifo_name, O_RDWR | O_NONBLOCK);
+	fifo = open(tmp, O_RDWR | O_NONBLOCK);
     }
     return fifo;
 }
@@ -333,6 +354,7 @@ void cimserver_exitRC(int rc){
 	char rc_tmp[3];
 	memset(rc_tmp, 0, 3);
  	sprintf(rc_tmp,"%d",rc);
+	AtoE(rc_tmp);  // qycmctlcim wants ebcdic
  	write(fifo,rc_tmp,strlen(rc_tmp));
     }
 }

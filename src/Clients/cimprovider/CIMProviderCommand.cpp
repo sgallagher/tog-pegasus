@@ -52,6 +52,7 @@
 #include "qycmutiltyUtility.H"
 #include "vfyptrs.cinc"
 #include <stdio.h>
+#include "OS400ConvertChar.h"
 #endif
 
 PEGASUS_USING_STD;
@@ -1872,8 +1873,18 @@ int main (int argc, char* argv [])
       }
   #pragma disable_handler
 
+    // Convert the args to ASCII
+    for(Uint32 i = 0;i< argc;++i)
+    {
+	EtoA(argv[i]);
+    }
+
     // check what environment we are running in, native or qsh
-    if( getenv("SHLVL") == NULL ){  // native mode
+    if( getenv(
+#pragma convert(37)
+	       "SHLVL"
+#pragma convert(0)
+	       ) == NULL ){  // native mode
 	// Check to ensure the user is authorized to use the command,
 	// suppress diagnostic message
 	if(FALSE == ycmCheckCmdAuthorities(1)){

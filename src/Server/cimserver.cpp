@@ -114,6 +114,7 @@
 # include "cimserver_windows.cpp"
 #elif defined(PEGASUS_OS_TYPE_UNIX)
 # if defined(PEGASUS_OS_OS400)
+#  include "OS400ConvertChar.h"
 #  include "cimserver_os400.cpp"
 # else
 #  include "cimserver_unix.cpp"
@@ -522,6 +523,12 @@ MessageLoader::_useProcessLocale = true;
 //l10n
 
 #ifdef PEGASUS_OS_OS400
+    // Convert the args to ASCII
+    for(Uint32 i = 0;i< argc;++i)
+    {
+	EtoA(argv[i]);
+    }
+
     // Initialize Pegasus home to the shipped OS/400 directory.
     pegasusHome = OS400_DEFAULT_PEGASUS_HOME;
 #endif
@@ -530,12 +537,25 @@ MessageLoader::_useProcessLocale = true;
     //
     // Get environment variables:
     //
+#ifdef PEGASUS_OS_OS400
+#pragma convert(37)
+    const char* tmp = getenv("PEGASUS_HOME");
+#pragma convert(0)
+    char home[256] = {0};
+    if (tmp && strlen(tmp) < 256)
+    {
+	strcpy(home, tmp);
+	EtoA(home);
+	pegasusHome = home;
+    }
+#else
     const char* tmp = getenv("PEGASUS_HOME");
 
     if (tmp)
     {
         pegasusHome = tmp;
     }
+#endif
 
     FileSystem::translateSlashes(pegasusHome);
 #else
@@ -1266,6 +1286,7 @@ MessageLoader::_useProcessLocale = false;
     }
     catch(Exception& e)
     {
+
 	//l10n
 	//Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
 		    //"Error: $0", e.getMessage()); 
@@ -1279,6 +1300,7 @@ MessageLoader::_useProcessLocale = false;
 	MessageLoaderParms parms("src.Server.cimserver.ERROR",
 							 "Error: $0", e.getMessage());
 	PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
+
 #endif
 
 	//

@@ -95,10 +95,15 @@ Boolean _evaluate(Array<CQLSelectStatement>& _statements, Array<CIMInstance>& _i
 	for(Uint32 i = 0; i < _statements.size(); i++){
         	printf("Evaluating query %d...\n",i);
            	for(Uint32 j = 0; j < _instances.size(); j++){
+		  try
+		    {
         		Boolean result = _statements[i].evaluate(_instances[j]);
 			cout << _statements[i].toString() << " = ";
 			if(result) printf("TRUE\n");
                 	else printf("FALSE\n");
+		    }
+		  catch(Exception e){ cout << e.getMessage() << endl;}
+		  catch(...){ cout << "Unknown Exception" << endl;}
 	   	}
 	}                                                                            
 	return true;

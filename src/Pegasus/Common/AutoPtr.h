@@ -122,11 +122,11 @@ public:
      // The copy constructor takes the ownership of the heap object from
      // the source AutoPtr object. And since there should be only one
      // legitimate owner, it sets the _ptr of the source to "0"
-    // inline AutoPtr(AutoPtr &a) throw()
-    //     : _ptr(a._ptr)
-    // {
-    //     a._ptr = 0;
-    // }
+     inline AutoPtr(AutoPtrRef<X> &a) throw()
+         : _ptr((a.get()).release())
+     {
+         //a._ptr = 0;
+     }
  
      template<class Y> AutoPtr(AutoPtr<Y> &a) throw()
          : _ptr(a._ptr)
@@ -137,11 +137,11 @@ public:
      // Overloading of "=" operator makes sure that the ownership of the memory
      // gets transferred properly to 'this' AutoPtr object.
      // Example:   AutoPtr<HTTPConnection> httpConnectionB = httpConnectionA;
-   // inline AutoPtr &operator=(AutoPtr &a) throw()
-   // {
-   //     reset(a.release());
-   //      return(*this);
-   //  }
+    inline AutoPtr<X> &operator=(AutoPtrRef<X> &a) throw()
+    {
+        reset((a.get()).release());
+         return(*this);
+    }
 
 	 template<class Y> AutoPtr &operator=(AutoPtr<Y> &a) throw()
      {
@@ -234,23 +234,23 @@ public:
          reset();
      }
  
-    // inline AutoArrayPtr(AutoArrayPtr &a) throw()
-    //     : _ptr(a.ptr)
-    // {
-    //     a._ptr = 0;
-    // }
+     inline AutoArrayPtr(AutoArrayPtrRef<X> &a) throw()
+         : _ptr((a.get()).release())
+     {
+         //a._ptr = 0;
+     }
  
      template<class Y> AutoArrayPtr(AutoArrayPtr<Y> &a) throw()
-         : _ptr(a.ptr)
+         : _ptr(a._ptr)
      {
          a._ptr = 0;
      }
  
-    // inline AutoArrayPtr &operator=(AutoArrayPtr &a) throw()
-    // {
-    //     reset(a.release());
-    //     return(*this);
-    // }
+     inline AutoArrayPtr<X> &operator=(AutoArrayPtrRef<X> &a) throw()
+     {
+         reset((a.get()).release());
+         return(*this);
+     }
 
      template<class Y> AutoArrayPtr &operator=(AutoArrayPtr<Y> &a) throw()
      {

@@ -491,7 +491,7 @@ void DefaultInstanceProvider::enumerateInstances(
               localOnly,
               includeQualifiers,
               includeClassOrigin,
-              true,
+              false,
               propertyList);
         }
         catch( Exception& ex )

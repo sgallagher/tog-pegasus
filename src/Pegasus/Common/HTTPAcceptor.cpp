@@ -665,7 +665,9 @@ void HTTPAcceptor::_acceptConnection()
    AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, _sslcontext, _exportConnection));
 
    {
-       ReadLock rlock(*_sslContextObjectLock);
+       //ATTN: This seem to make the client tests fail. Need to debug and fix the problem 
+       // before including the locking here...
+       //ReadLock rlock(*_sslContextObjectLock);
 
        if (mp_socket->accept() < 0) 
        {

@@ -82,7 +82,6 @@ public:
 // Time values used in ThreadPool construction
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {300, 0};
-static struct timeval deadlock_time = {0, 0};
 
 ProviderAgent* ProviderAgent::_providerAgent = 0;
 
@@ -90,7 +89,7 @@ ProviderAgent::ProviderAgent(
     const String& agentId,
     AnonymousPipe* pipeFromServer,
     AnonymousPipe* pipeToServer)
-  : _threadPool(0, "ProviderAgent", 0, 0, create_time, destroy_time, deadlock_time),
+  : _threadPool(0, "ProviderAgent", 0, 0, create_time, destroy_time),
     _providerManagerRouter(_indicationCallback)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");
@@ -112,26 +111,6 @@ ProviderAgent::~ProviderAgent()
     _providerAgent = 0;
 
     PEG_METHOD_EXIT();
-}
-
-// Private, unimplemented constructor
-ProviderAgent::ProviderAgent()
-  : _threadPool(0, "null", 0, 0, create_time, destroy_time, deadlock_time),
-    _providerManagerRouter(0)
-{
-}
-
-// Private, unimplemented constructor
-ProviderAgent::ProviderAgent(const ProviderAgent&)
-  : _threadPool(0, "null", 0, 0, create_time, destroy_time, deadlock_time),
-    _providerManagerRouter(0)
-{
-}
-
-// Private, unimplemented assignment operator
-ProviderAgent& ProviderAgent::operator=(const ProviderAgent&)
-{
-    return *this;
 }
 
 void ProviderAgent::run()

@@ -472,8 +472,7 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 		 Sint16 min,
 		 Sint16 max,
 		 struct timeval & alloc_wait,
-		 struct timeval & dealloc_wait, 
-		 struct timeval & deadlock_detect);
+		 struct timeval & dealloc_wait);
       
       ~ThreadPool(void);
 
@@ -562,12 +561,6 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
 	 return buffer;
       }
 
-      inline void set_deadlock_detect(const struct timeval & deadlock)
-      {
-	 _deadlock_detect.tv_sec = deadlock.tv_sec;
-	 _deadlock_detect.tv_usec = deadlock.tv_usec;
-      }
-      
       inline Uint32 running_count(void)
       {
 	 return _running.count();
@@ -606,7 +599,6 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       AtomicInt _current_threads;
       struct timeval _allocate_wait;
       struct timeval _deallocate_wait;
-      struct timeval _deadlock_detect;
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _loop(void *);
       char _key[17];
       DQueue<Thread> _pool;
@@ -616,8 +608,6 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       
       static void _sleep_sem_del(void *p);
       
-      void _check_deadlock(struct timeval *start) throw(Deadlock);
-      Boolean _check_deadlock_no_throw(struct timeval *start);
       Boolean _check_dealloc(struct timeval *start);
       Thread *_init_thread(void) throw(IPCException);
       void _link_pool(Thread *th) throw(IPCException);

@@ -64,7 +64,6 @@ const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 //thread pool settings
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {15, 0};
-static struct timeval deadlock_time = {0, 0};
 
 //retry settings
 //ATTN: Do we want to make these configurable?  If so, is a global setting for all the consumers ok?
@@ -94,7 +93,7 @@ _forceShutdown(true)
     _optionMgr.registerOptions(optionsTable, NUM_OPTIONS);
 
     _thread_pool = new ThreadPool(0, "ConsumerManager", 0, 0,
-                                  create_time, destroy_time, deadlock_time);
+                                  create_time, destroy_time);
 
     _init();
 

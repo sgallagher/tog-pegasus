@@ -314,7 +314,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine
 }
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {15, 0};
-static struct timeval deadlock_time = {0, 0};
 
 /////////////////////////////////////////////////////////////////////////////
 // CIMListenerRep
@@ -426,7 +425,7 @@ void CIMListenerRep::start()
     }
 
     _thread_pool = new ThreadPool(0, "Listener", 0, 1, 
-				  create_time, destroy_time, deadlock_time);
+				  create_time, destroy_time);
 
     _listener_sem = new Semaphore(0);
     _thread_pool->allocate_and_awaken(svc,

@@ -336,8 +336,7 @@ ThreadPool::ThreadPool(Sint16 initial_size,
 		       Sint16 min,
 		       Sint16 max,
 		       struct timeval & alloc_wait,
-		       struct timeval & dealloc_wait,
-		       struct timeval & deadlock_detect)
+		       struct timeval & dealloc_wait)
    : _max_threads(max), _min_threads(min),
      _current_threads(0),
      _pool(true), _running(true),
@@ -347,8 +346,6 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    _allocate_wait.tv_usec = alloc_wait.tv_usec;
    _deallocate_wait.tv_sec = dealloc_wait.tv_sec;
    _deallocate_wait.tv_usec = dealloc_wait.tv_usec;
-   _deadlock_detect.tv_sec = deadlock_detect.tv_sec;
-   _deadlock_detect.tv_usec = deadlock_detect.tv_usec;
    memset(_key, 0x00, 17);
    if(key != 0)
       strncpy(_key, key, 16);
@@ -745,9 +742,6 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
    
       if (th == 0)
       {
-         // will throw an IPCException& 
-         _check_deadlock(&start) ;
-      
          if(_max_threads == 0 || _current_threads < _max_threads)
          {
 	    th = _init_thread();
@@ -815,8 +809,7 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
 }
 
 // caller is responsible for only calling this routine during slack periods
-// but should call it at least once per _deadlock_detect with the running q
-// and at least once per _deallocate_wait for the pool q
+// but should call it at least once per _deallocate_wait for the pool q
 
 Uint32 ThreadPool::kill_dead_threads(void)
 	 throw(IPCException)
@@ -1051,19 +1044,6 @@ PEGASUS_THREAD_RETURN ThreadPool::_graveyard(Thread *t)
    {
       delete (Semaphore *)p;
    }
-}
-
- void ThreadPool::_check_deadlock(struct timeval *start) throw(Deadlock)
-{
-   if (true == check_time(start, &_deadlock_detect))
-      throw Deadlock(pegasus_thread_self());
-   return;
-}
-
-
- Boolean ThreadPool::_check_deadlock_no_throw(struct timeval *start)
-{
-   return(check_time(start, &_deadlock_detect));
 }
 
  Boolean ThreadPool::_check_dealloc(struct timeval *start)

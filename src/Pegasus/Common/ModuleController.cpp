@@ -336,7 +336,6 @@ Boolean ModuleController::client_handle::authorized(Uint32 index, Uint32 operati
 // NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
 static struct timeval createTime = {0, 50000};
 static struct timeval destroyTime = {15, 0};
-static struct timeval deadlockTime = {5, 0};
 
 ModuleController::ModuleController(const char *name )
    :Base(name, MessageQueue::getNextQueueId(), 
@@ -352,8 +351,7 @@ ModuleController::ModuleController(const char *name )
 // 				   Sint16 min_threads, 
 // 				   Sint16 max_threads,
 // 				   struct timeval & create_thread,
-// 				   struct timeval & destroy_thread,
-// 				   struct timeval & deadlock)
+// 				   struct timeval & destroy_thread)
 //    :Base(name, MessageQueue::getNextQueueId(),
 // 	 module_capabilities::module_controller |
 // 	 module_capabilities::async),
@@ -362,8 +360,7 @@ ModuleController::ModuleController(const char *name )
 // 		 name, min_threads, 
 // 		 max_threads, 
 // 		 create_thread, 
-// 		 destroy_thread, 
-// 		 deadlock)   
+// 		 destroy_thread)
 // { 
 
 // }

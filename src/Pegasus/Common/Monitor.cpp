@@ -85,10 +85,6 @@ typedef int PEGASUS_SOCKLEN_T;
 
 static AtomicInt _connections = 0;
 
-static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {300, 0};
-static struct timeval deadlock_time = {0, 0};
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Monitor

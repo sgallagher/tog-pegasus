@@ -48,7 +48,6 @@ Mutex MessageQueueService::_meta_dispatcher_mutex;
 
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {300, 0}; 
-static struct timeval deadlock_time = {0, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
@@ -219,7 +218,7 @@ MessageQueueService::MessageQueueService(const char *name,
          throw NullPointer();
       }
       _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 0,
-				    create_time, destroy_time, deadlock_time);  
+				    create_time, destroy_time);  
       
    }
    _service_count++;

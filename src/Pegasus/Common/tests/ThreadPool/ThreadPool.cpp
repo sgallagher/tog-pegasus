@@ -72,7 +72,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL thread_routine( void* param )
 
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {0, 0};
-static struct timeval deadlock_time = {0, 0};
 
 void TestThreadPool()
 {
@@ -80,7 +79,7 @@ void TestThreadPool()
 
 	ThreadPool* pool = new ThreadPool(
 		0, "Tester", 0, 1, 
-		create_time, destroy_time, deadlock_time );
+		create_time, destroy_time);
 
 	pool->allocate_and_awaken( 0, thread_routine );
 
@@ -104,7 +103,8 @@ void TestThreadPool2()
    int limit = 10000;
 	while( done < limit )
 	{
-	  TestThreadPool(); done++;
+          TestThreadPool();
+          done++;
 	  if (verbose)
 	    printf( "ThreadPool crash test, iteration:  %d of: %d \n", done, limit);
 	  else
@@ -173,9 +173,8 @@ int main(int argc, char **argv)
 #endif
    struct timeval await = { 0, 4 };
    struct timeval dwait = { 5, 0 };
-   struct timeval deadwait = { 0, 80000 }; 
 
-   ThreadPool tp(0, "test pool ",  0, 6, await, dwait, deadwait);   
+   ThreadPool tp(0, "test pool ",  0, 6, await, dwait);   
   
    int i ;
    

@@ -294,8 +294,7 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 /* 		       Sint16 min_threads,  */
 /* 		       Sint16 max_threads, */
 /* 		       struct timeval & create_thread, */
-/* 		       struct timeval & destroy_thread, */
-/* 		       struct timeval & deadlock); */
+/* 		       struct timeval & destroy_thread); */
       
 
       ~ModuleController(void);

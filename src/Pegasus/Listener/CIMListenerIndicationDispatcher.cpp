@@ -127,12 +127,11 @@ private:
 
 static struct timeval create_time = {0, 1};
 static struct timeval destroy_time = {15, 0};
-static struct timeval deadlock_time = {0, 0};
 
 
 CIMListenerIndicationDispatcherRep::CIMListenerIndicationDispatcherRep()
 :_thread_pool(new ThreadPool(0, "ListenerIndicationDispatcher", 0, 0,
-	create_time, destroy_time, deadlock_time))
+	create_time, destroy_time))
 ,_consumers(new PtrList())
 {
 	      

@@ -154,6 +154,19 @@ PEGASUS_NAMESPACE_END
 
 %%
 
+	/**
+		The general pattern:  We construct small objects first (CQLIdentifiers, CQLValues etc) which
+		get forwared to more complex rules where more complex objects are made.  Eventually we have constructed
+		a top level CQLPredicate that gets added to the globalParserState select statement.
+
+		Along the way we keep track of which rule we are processing so that any errors encountered are specific
+		enough to actually do us some good.
+
+		The CQLFactory object is used primarily to save space/coding efforts.  It enables us to build complex CQL
+		objects with one simple call, or query complex objects through one simple call.
+		
+	*/
+
 /* CQLIdentifier */
 identifier  : IDENTIFIER 
              { 

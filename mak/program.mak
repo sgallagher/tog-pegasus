@@ -19,9 +19,12 @@ ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
 ## files
 ##
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) -L$(LIB_DIR) $(EXE_OUT)$(FULL_PROGRAM) $(OBJECTS) $(DYNAMIC_LIBRARIES) $(SYS_LIBS)
+	$(TOUCH) $(FULL_PROGRAM)
+	@ $(ECHO)
 else
 	$(LINK_WRAPPER) $(CXX) $(FLAGS) $(EXE_OUT) $(FULL_PROGRAM) $(OBJECTS) $(LIBRARIES) $(SYS_LIBS)
 endif
+	$(TOUCH) $(FULL_PROGRAM)
 	@ $(ECHO)
 
 include $(ROOT)/mak/objects.mak

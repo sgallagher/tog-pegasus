@@ -32,7 +32,8 @@ endif
 FULL_LIB=$(LIB_DIR)/lib$(LIBRARY)$(LIB_SUFFIX)
 
 ## Rule for all UNIX library builds
-$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) $(ERROR)
+$(FULL_LIB): $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(LIBRARIES) \
+    $(ERROR)
 ifneq ($(COMPILER),xlc)
   ## Actions for all UNIX compilers except xlc
   ifeq ($(PEGASUS_SUPPORTS_DYNLIB),yes)
@@ -45,12 +46,13 @@ ifneq ($(COMPILER),xlc)
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) -L$(LIB_DIR) $(LINK_OUT)$(FULL_LIB) $(OBJECTS) $(DYNAMIC_LIBRARIES)
   else
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT) $(FULL_LIB) $(OBJECTS) $(LIBRARIES)
+	$(TOUCH) $(FULL_LIB)
   endif
 else
-  ## Actions for xlc compiler only
 	ar crv $(PEGASUS_PLATFORM).lib $(OBJECTS) $(LIBRARIES)
 	$(LINK_COMMAND) $(LINK_ARGUMENTS) $(LINK_OUT)$(FULL_LIB) $(PEGASUS_PLATFORM).lib
 	rm -f $(PEGASUS_PLATFORM).lib
+	$(TOUCH) $(FULL_LIB)
 endif
 	@ $(ECHO)
 

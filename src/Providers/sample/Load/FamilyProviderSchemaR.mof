@@ -38,6 +38,19 @@ instance of PG_ProviderCapabilities
     SupportedMethods = NULL;
 };
 
+
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleFamilyProviderModule";
+    ProviderName = "SampleFamilyProvider";
+    CapabilityID = "SampleFamilyProviderPersonDynamicSubclass";
+    ClassName = "TST_PersonDynamicSubClass";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2};
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
 // Include the instance provider for the TST_LineageDynamic
 // Class. Note that this is instance Provider only.
 // Note that there a problem here in that we should only register the
@@ -67,7 +80,7 @@ instance of PG_ProviderCapabilities
     CapabilityID = "SampleFamilyProviderLabledLineageDyanic";
     ClassName = "TST_LabeledLineageDynamic";
     Namespaces = { "root/SampleProvider" };
-    ProviderType = { 2 };
+    ProviderType = { 2, 3 };
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };

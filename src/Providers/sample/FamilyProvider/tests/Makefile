@@ -34,15 +34,15 @@ poststarttests:
 	$(SHH)CLI ec "TST_LineageDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 0
 	@$(ECHO) 2. +++++ Test all enumerate operations on the classes
 	
-	$(SHH)CLI ei "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
-	$(SHH)CLI ni "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
+	$(SHH)CLI ei "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 14
+	$(SHH)CLI ni "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 14
 	$(SHH)CLI ei "TST_PersonS" -n "$(SAMPLEPROVIDERNS)" -s -count 4
 	$(SHH)CLI ni "TST_PersonS" -n "$(SAMPLEPROVIDERNS)" -s -count 4
-	$(SHH)CLI ei "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
-	$(SHH)CLI ni "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
+	$(SHH)CLI ei "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	$(SHH)CLI ni "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
 
-	$(SHH)CLI ei "TST_PersonDynamicSubclass" -n "$(SAMPLEPROVIDERNS)" -s -count 0
-	$(SHH)CLI ni "TST_PersonDynamicSubClass" -n "$(SAMPLEPROVIDERNS)" -s -count 0
+	$(SHH)CLI ei "TST_PersonDynamicSubclass" -n "$(SAMPLEPROVIDERNS)" -s -count 1
+	$(SHH)CLI ni "TST_PersonDynamicSubClass" -n "$(SAMPLEPROVIDERNS)" -s -count 1
 	
 	$(SHH)CLI ei "TST_Lineage" -n "$(SAMPLEPROVIDERNS)" -s -count 4
 	$(SHH)CLI ni "TST_Lineage" -n "$(SAMPLEPROVIDERNS)" -s -count 4
@@ -57,8 +57,8 @@ poststarttests:
 	
 	@$(ECHO) 3. +++++ TST_Person Testing Family provider in  $(SAMPLEPROVIDERNS)
 
-	$(SHH)CLI ei "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
-	$(SHH)CLI ni "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 13
+	$(SHH)CLI ei "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 14
+	$(SHH)CLI ni "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 14
 	$(SHH)CLI rn "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 4
 	$(SHH)CLI r  "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 4
 	$(SHH)CLI an "TST_Person" -n "$(SAMPLEPROVIDERNS)" -s -count 1
@@ -118,17 +118,16 @@ poststarttests:
 
 	@$(ECHO) 9. ++++ add tests for associations with  result class and result role.
 
-# The following actually generates a CIMException. Investigate why KS 20030608.
 	$(SHH)CLI an  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r -s -count 0
 	$(SHH)CLI an  "TST_Person.name=@Mike@" -n "$(SAMPLEPROVIDERNS)" -rc  "TST_Lineage" -r junk -s -count 0
 
 	@$(ECHO) 10. +++++ TST_Person with result Class filters but with bad Class
-#To Be Done.
+#Note that we can add more tests here.
 
 	@$(ECHO) 11. +++++ TST_PersonDynamic Family class Operations in  $(SAMPLEPROVIDERNS)
 
-	$(SHH)CLI ei "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
-	$(SHH)CLI ni "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
+	$(SHH)CLI ei "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	$(SHH)CLI ni "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 6
 	$(SHH)CLI rn "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
 	$(SHH)CLI r  "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 5
 	$(SHH)CLI an "TST_PersonDynamic" -n "$(SAMPLEPROVIDERNS)" -s -count 2
@@ -136,10 +135,10 @@ poststarttests:
 
 	@$(ECHO) 12. +++++ TST_PersonDynamic and Family provider with simple class operations
  
-	$(SHH)CLI rn "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
-	$(SHH)CLI r "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
-	$(SHH)CLI an "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
-	$(SHH)CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 3
+	$(SHH)CLI rn "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	$(SHH)CLI r "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	$(SHH)CLI an "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 6
+	$(SHH)CLI a "TST_PersonDynamic.name=@Father@" -n "$(SAMPLEPROVIDERNS)" -s -count 6
 
 	@$(ECHO) "TST_PersonDynamic with bad object name (lower case)"
 

@@ -75,8 +75,9 @@
 
     7. Need to complete the references with host name and namespace.
     
-    8. Consider using only a single instance list representing the built instances
-    to make the code simpler and more dynamic.
+    8. Use only a single instance list representing the built instances
+    to make the code simpler and more dynamic. This will make the provider much
+    more general and maintainable.
 */
 
 #include <Pegasus/Common/System.h>
@@ -107,6 +108,7 @@ PEGASUS_USING_PEGASUS;
 // Class Names used by this Provider
 
 const CIMName personDynamicClassName = "TST_PersonDynamic";
+const CIMName personDynamicSubclassClassName = "TST_PersonDynamicSubClass";
 const CIMName lineageDynamicAssocClassName = "TST_LineageDynamic";
 const CIMName labeledLineageDynamicAssocClassName = "TST_LabeledLineageDynamic";
 
@@ -123,7 +125,8 @@ String SampleFamilyProviderName = "SampleFamilyProvider";
 enum targetClass{
      TST_PERSONDYNAMIC = 1,
      TST_LINEAGEDYNAMIC = 2,
-     TST_LABELEDLINEAGEDYNAMIC = 3
+     TST_LABELEDLINEAGEDYNAMIC = 3,
+     TST_PERSONDYNAMICSUBCLASS = 4
      };
 
 //**************************************************
@@ -166,6 +169,12 @@ targetClass _verifyValidClassInput(const struct & _validClassType, const Uint32&
             (className.getString() + " not supported by " + SampleFamilyProviderName);
 
 } */
+
+
+String _showBool(Boolean x)
+{
+    return(x? "true" : "false");
+}
 String _showPathArray(Array<CIMObjectPath>& p)
 {
     String rtn;
@@ -182,6 +191,8 @@ targetClass _verifyValidClassInput(const CIMName& className)
     if (className.equal(personDynamicClassName))
         return TST_PERSONDYNAMIC;
 
+    if (className.equal(personDynamicSubclassClassName))
+        return TST_PERSONDYNAMICSUBCLASS;
     if (className.equal(lineageDynamicAssocClassName))
         return TST_LINEAGEDYNAMIC;
 
@@ -190,7 +201,6 @@ targetClass _verifyValidClassInput(const CIMName& className)
 
     throw CIMNotSupportedException
             (className.getString() + " not supported by " + SampleFamilyProviderName);
-
 }
 
 targetClass _verifyValidAssocClassInput(const CIMName& className)
@@ -465,6 +475,20 @@ CIMInstance _buildPersonDynamicInstance(const CIMClass& thisClass, const String&
     return(instance);
 }
 
+
+CIMInstance _buildPersonDynamicSubClassInstance(const CIMClass& thisClass, const String& name,
+    const String& secondProperty, const Uint32 counterProperty, const String& thirdProperty)
+{
+    CIMInstance instance(personDynamicSubclassClassName);
+    instance.addProperty(CIMProperty("Name", name));   // key
+    instance.addProperty(CIMProperty("secondProperty", secondProperty));
+    instance.addProperty(CIMProperty("instanceCounter", counterProperty));
+    instance.addProperty(CIMProperty("thirdProperty", thirdProperty));
+
+    CIMObjectPath p = instance.buildPath(thisClass);
+    instance.setPath(p);
+    return(instance);
+}
 CIMInstance _buildInstanceLineageDynamic(const CIMClass& thisClass, 
     const CIMObjectPath& parent, const CIMObjectPath& child)
 {
@@ -553,8 +577,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 	_cimomHandle = cimom;
     {   
         /*
-        // Create the classes so we have something to build from. This should not have to 
-        // be here but we cannot get to repository yet.
+        // Create the classes so we have something to build from. 
         */
         
         CIMClass class1 = _getClass(personDynamicClassName);
@@ -564,6 +587,13 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         }
         _personDynamicClass = class1;
 
+        // Get the subclass from the repository.
+        CIMClass class2 = _getClass(personDynamicSubclassClassName);
+        if (class1.isUninitialized())
+        {
+            _initError = true;
+        }
+        _personDynamicSubclass = class2;
 		//XmlWriter::printClassElement(_referencedClass);
 		//MofWriter::printClassElement(_referencedClass);
 
@@ -581,8 +611,6 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         if (a2.isUninitialized())
 
             _initError = true;
-        else
-            CDEBUG ("Initialize - Association Class built");
 
 		//XmlWriter::printClassElement(_assocLabeledClass);
 		//MofWriter::printClassElement(_assocLabeledClass);
@@ -611,18 +639,18 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
     _instances.append(_buildPersonDynamicInstance(_personDynamicClass, 
         String("Daughter1"), String( "five"), 5));
 
-    CDEBUG ("initialize - referenced Class Instances Built");
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
         // Create Instance Names
         _instanceNames.append(_instances[i].buildPath(_personDynamicClass));
     }
-    _delay = 3000;
+    //_delay = 3000;
+    _instancesSubclass.append(_buildPersonDynamicSubClassInstance(_personDynamicSubclass,
+        String("AnotherKid"), String("six"), 6, "SubclassInstance1"));
 
     //
     // Now make the instances for the associations
     //
-    CDEBUG ("Initialise - Building Assoc Class instances");
     {
         CIMName thisClassReference = "TST_PersonDynamic";
         CIMName assocClassName = "TST_LineageDynamic";
@@ -645,8 +673,6 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
             // Create Instance Names
             _instanceNamesLineageDynamic.append(_instancesLineageDynamic[i].buildPath(assocClassName));
         }
-        CDEBUG("LineageDynamic " << _instancesLineageDynamic.size() << " instances ");
-
     }
     {
         CIMName thisClassReference = "TST_PersonDynamic";
@@ -690,8 +716,7 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
 void SampleFamilyProvider::terminate(void)
 {
     
-    // TODO Additional cleanup needed
-    CDEBUG("Terminate SampleFamilyProvider ");
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Iterminate");
     delete this;
 }
 
@@ -811,8 +836,10 @@ void SampleFamilyProvider::enumerateInstances(
 {
     // ATTN: Should we validate namespace???
     CIMNamespaceName nameSpace = classReference.getNameSpace();
-
     //CIMName myClassName = classReference.getClassName();
+
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstances. Class= %s. IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
+        classReference.toString(), _showBool(includeQualifiers), _showBool(includeClassOrigin), propertyList);
 
     // begin processing the request
 	handler.processing();
@@ -821,6 +848,10 @@ void SampleFamilyProvider::enumerateInstances(
     {
         case TST_PERSONDYNAMIC:
             _enumerateInstances( _instances, context, classReference,
+                includeQualifiers, includeClassOrigin, propertyList, handler);
+            break;
+        case TST_PERSONDYNAMICSUBCLASS:
+            _enumerateInstances( _instancesSubclass, context, classReference,
                 includeQualifiers, includeClassOrigin, propertyList, handler);
             break;
         case TST_LINEAGEDYNAMIC:
@@ -858,7 +889,9 @@ void SampleFamilyProvider::enumerateInstanceNames(
 	const CIMObjectPath & classReference,
 	ObjectPathResponseHandler & handler)
 {
-	CDEBUG("Enumerate InstanceNames of " << classReference.toString());
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstanceNames. Class= %s",
+        classReference.toString());
+
     // begin processing the request
 
     CIMName myClassName = classReference.getClassName();
@@ -874,6 +907,10 @@ void SampleFamilyProvider::enumerateInstanceNames(
     {
         case TST_PERSONDYNAMIC:
             _enumerateInstanceNames( _instances, context, classReference,
+                handler);
+            break;
+        case TST_PERSONDYNAMICSUBCLASS:
+            _enumerateInstanceNames( _instancesSubclass, context, classReference,
                 handler);
             break;
         case TST_LINEAGEDYNAMIC:
@@ -910,6 +947,8 @@ void SampleFamilyProvider::_modifyInstance(
             // overwrite existing instance
             // ATTN:too simplistic.  Does not take into accout
             // include qualifers, property list.
+            // But we are not really using this right now as
+            // part of tests so leave for the future.
             instanceArray[i] = instanceObject;
             break;
         }
@@ -935,6 +974,12 @@ void SampleFamilyProvider::modifyInstance(
     if (myClassEnum == TST_PERSONDYNAMIC)
     {
         _modifyInstance(_instances, context, localReference,
+            instanceObject, includeQualifiers, propertyList,
+            handler);
+     }
+    if (myClassEnum == TST_PERSONDYNAMICSUBCLASS)
+    {
+        _modifyInstance(_instancesSubclass, context, localReference,
             instanceObject, includeQualifiers, propertyList,
             handler);
      }
@@ -1000,6 +1045,10 @@ void SampleFamilyProvider::createInstance(
             _createInstance(_instances, _instanceNames, context,
                 localReference, instanceObject, handler);
             break;
+        case TST_PERSONDYNAMICSUBCLASS:
+            _createInstance(_instancesSubclass, _instanceNames, context,
+                localReference, instanceObject, handler);
+            break;
         case TST_LINEAGEDYNAMIC:
             _createInstance(_instancesLabeledLineageDynamic, _instanceNamesLabeledLineageDynamic, context,
                 localReference, instanceObject, handler);
@@ -1055,7 +1104,11 @@ void SampleFamilyProvider::deleteInstance(
     switch (myClassEnum)
     {
         case TST_PERSONDYNAMIC:
-            _deleteInstance(_instances,_instanceNames, context,
+            _deleteInstance(_instances, _instanceSubclassNames, context,
+                localReference, handler);
+            break;
+        case TST_PERSONDYNAMICSUBCLASS:
+            _deleteInstance(_instancesSubclass, _instanceSubclassNames, context,
                 localReference, handler);
             break;
         case TST_LINEAGEDYNAMIC:
@@ -1133,7 +1186,11 @@ void SampleFamilyProvider::associators(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
-	CDEBUG("Associators object= " << objectName.toString() << " associationClass= " << associationClass.getString() << " resultClass= " << resultClass.getString());
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        "associators. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole=%s IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
+        objectName.toString(), associationClass.getString(), resultClass.getString(), role, resultRole,
+        _showBool(includeQualifiers), _showBool(includeClassOrigin), propertyList);
+
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
 
@@ -1219,14 +1276,16 @@ void SampleFamilyProvider::associatorNames(
 	const String & resultRole,
 	ObjectPathResponseHandler & handler)
 {
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        "associatorNames. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole=%s",
+        objectName.toString(), associationClass.getString(), resultClass.getString(), role, resultRole);
+
     // Get the namespace and host names to create the CIMObjectPath
     String host = System::getHostName();
     CIMNamespaceName nameSpace = objectName.getNameSpace();
 
     CIMObjectPath localObjectName = _makeRefLocal(objectName);
 
-	CDEBUG("AssociationNames Operation. objectName= " << objectName.toString() << " assocClass= " << associationClass  << " resultClass= " << resultClass << " role= " << role);
-    
     handler.processing();
     Array<CIMInstance> assocInstances;
     
@@ -1250,7 +1309,6 @@ void SampleFamilyProvider::associatorNames(
 	// complete processing the request
 	handler.complete();
 }
-
 
 void SampleFamilyProvider::_references(
     Array<CIMInstance> & instanceArray,
@@ -1299,6 +1357,10 @@ void SampleFamilyProvider::references(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        "references. object= %s, resultClass= %s, role= %s, IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
+        objectName.toString(), resultClass.getString(), role,
+        _showBool(includeQualifiers), _showBool(includeClassOrigin), propertyList);
 	CDEBUG("references" << " PropertyList = " << _showPropertyList(propertyList));
 
     //CIMNamespaceName nameSpace = objectName.getNameSpace();
@@ -1378,11 +1440,15 @@ void SampleFamilyProvider::referenceNames(
 	const String & role,
 	ObjectPathResponseHandler & handler)
 {
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        "referenceNames. object= %s, resultClass= %s, role= %s",
+        objectName.toString(), resultClass.getString(), role);
+
 	CDEBUG("ReferenceNames Operation. objectName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
     CIMNamespaceName nameSpace = objectName.getNameSpace().getString();
 
     targetClass myClassEnum  = _verifyValidAssocClassInput(resultClass);
-
+                                                       
     handler.processing();
     switch (myClassEnum)
     {

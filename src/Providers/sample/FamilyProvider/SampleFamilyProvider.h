@@ -138,11 +138,14 @@ protected:
     CIMClass _personDynamicClass;
     CIMClass _assocClass;
     CIMClass _assocLabeledClass;
+    CIMClass _personDynamicSubclass;
 
     // Built arrays of instances for each type
     // corresponds to referencedClass
     Array<CIMObjectPath> _instanceNames;
+    Array<CIMObjectPath> _instanceSubclassNames;
 	Array<CIMInstance> _instances;
+    Array<CIMInstance> _instancesSubclass;
 
     // Corresponds to Lineage association class
     Array<CIMObjectPath> _instanceNamesLineageDynamic;

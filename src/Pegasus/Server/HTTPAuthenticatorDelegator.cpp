@@ -46,12 +46,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-/**
-    Constant representing the Kerberos authentication challenge header.
-*/
-static const String KERBEROS_CHALLENGE_HEADER = "WWW-Authenticate: Negotiate ";
-#endif
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
@@ -356,20 +350,23 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
         }
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+	// The presence of a Security Association indicates that Kerberos is being used
+	// Reset flag for subsequent calls to indicate that no Authorization
+        // record was sent. If one was sent the flag will be appropriately reset later.
+	// The sa is maintained while the connection is active.
+        CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
+        if (sa)
+        {
+            sa->setClientSentAuthorization(false);
+        }
+#endif	
+
         if ( HTTPMessage::lookupHeader(
              headers, "Authorization", authorization, false) &&
              enableAuthentication
            )
         {
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-	    // The presence of a Security Association indicates that Kerberos is being
-	    // used.
-	    CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
-	    if (sa)
-	    {
-		sa->setClientSentAuthorization(true);
-	    }
-#endif	
             //
             // Do http authentication if not authenticated already
             //
@@ -414,184 +411,40 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	}  // "Authorization" header check
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-	// The presence of a Security Association indicates that Kerberos is being
-	// used.
-	CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
-
-	// This will process a request with no content.
-	if (sa && authenticated)
+	// The pointer to the sa is created in the authenticator so we need to also
+	// assign it here.
+	sa = httpMessage->authInfo->getSecurityAssociation();
+	if (sa)
 	{
-	    if (sa->getServerToken().size())
+	    Uint32 sendAction = 0;  // 0 - continue, 1 = send success, 2 = send response
+	     // The following is processing to unwrap (decrypt) the request from the
+	     // client when using kerberos authentication.
+	    sa->unwrapRequestMessage(httpMessage->message, contentLength,
+				     authenticated, sendAction);
+	    if (sendAction)  // send success or send response
 	    {
-		// This will handle the scenario where client did not send data (content) but
-		// is authenticated.  After the client receives the success it should will
-		// send the request.  For mutual authentication the client may choose not to
-		// send request data until the context is fully established.
-		// Note:  if mutual authentication wass not requested by the client then
-		// no server token will be available.
-		if (contentLength == 0)
+		if (httpMessage->message.size() == 0)
 		{
-                    String authResp =   
-                        _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
-                    if (!String::equal(authResp, String::EMPTY))
-                    {
-                        _sendSuccess(queueId, authResp);
-                    }
-                    else
-                    {
-                        _sendHttpError(queueId,
-                                       HTTP_STATUS_BADREQUEST,
-                                       String::EMPTY,
-                                       "Authorization header error");
-                    }
-
-                    PEG_METHOD_EXIT();
-                    return;
+		    _sendHttpError(queueId,
+				   HTTP_STATUS_BADREQUEST,
+				   String::EMPTY,
+				   "Authorization header error");
 		}
-	    }
-	}
 
-	// This will process a request without an authorization record.
-	if (sa && !authenticated)
-	{
-	    // Not authenticated can result from the client not sending an authorization
-	    // record due to a previous authentication.  In this scenario the client
-            // was previous authenticated but chose not to send an authorization
-            // record.  The Security Association maintains state so a request will not
-            // be processed unless the Security association thinks the client is authenticated.
+		if (sendAction == 1)  // Send success
+		{
+		    _sendSuccess(queueId, httpMessage->message.getData());
+		}
 
-	    // This will handle the scenario where the client was authenticated in the
-	    // previous request but choose not to send an authorization record.
-	    if (sa->getClientAuthenticated())
-	    {	
-		authenticated = true;
-	    }
-	}
+		if (sendAction == 2)  // Send response
+		{
+		    _sendResponse(queueId, httpMessage->message);
+		}
 
-	// The following is processing to unwrap (unencrypt) the message received from the
-	// client when using kerberos authentication.
-	// For Kerberos there should always be an "Authorization" record sent with the request
-	// so the authenticated flag in the method should always be checked to verify that
-	// the client is actually authenticated.  If no "Authoriztion" was sent then the
-	// client can't be authenticated.  The "Authorization" record was processed above
-	// and if the "Authorization" record was successfully processed then the client
-	// is authenticated.
-	if (sa  &&  authenticated)
-	{
-	    Uint32 rc;  // return code for the wrap
-	    Array<Sint8> final_buffer;
-	    final_buffer.clear();
-	    Array<Sint8> header_buffer;
-	    header_buffer.clear();
-	    Array<Sint8> inWrappedMessage;
-	    inWrappedMessage.clear();
-	    Array<Sint8> outUnwrappedMessage;
-	    outUnwrappedMessage.clear();
-
-	    // The message needs to be parsed in order to distinguise between the
-	    // headers and content. The message was parsed earlier in this method
-	    // so we can use the contentLength set during that parse. When parsing
-	    // the code breaks out of the loop as soon as it finds the double
-	    // separator that terminates the headers so the headers and content
-	    // can be easily separated.
-
-	    // IMPORTANT - NOTE NOTE NOTE - IMPORTANT
-	    // Need to increase the content size by one because earlier a
-	    // NULL terminator was added causing the unwrap to think that the
-	    // wrapped message has a bad signature.  Anything that was added
-	    // to the content portion must be handled otherwise unwrap will
-	    // return an error.  So if additional characters are added in the
-	    // future the content size needs to be adjusted.
-	    int charsAdded = 1; // increase by the number of chars added to content
-	    contentLength = contentLength + charsAdded;
-
-	    // Extract the unwrapped headers
-	    for (Uint32 i = 0; i < (httpMessage->message.size()-contentLength); i++)
-	    {
-		header_buffer.append(httpMessage->message[i]);
-	    }
-
-	    // Extract the wrapped content
-	    // Note: Need to decrease the message size by the number of characters
-	    // added to content.  See important note above regarding content size.
-	    for (Uint32 i = (httpMessage->message.size()-contentLength);
-		 i < (httpMessage->message.size()-charsAdded); i++)
-	    {
-		inWrappedMessage.append(httpMessage->message[i]);
-	    }
-
-	    rc = sa->unwrap_message(inWrappedMessage,	  
-				    outUnwrappedMessage);  // ASCII
-
-	    if (rc) 
-	    {
-		// clear out the outUnwrappedMessage; if unwrapping is required
-		// and it fails we need to send back a bad request.  A message
-		// left in an wrapped state will be a severe failue later.  Reason
-		// for unwrap failing may be due to a problem with the credentials
-		// or context or some other failure may have occurred.
-		outUnwrappedMessage.clear();
-		// build a bad request.  We do not want to risk sending back
-		// data that can't be authenticated.
-		final_buffer = 
-		  XmlWriter::formatHttpErrorRspMessage(HTTP_STATUS_BADREQUEST);
-		//remove the last separater; the authentication record still
-		// needs to be added.
-		final_buffer.remove(final_buffer.size());  // "\n"
-		final_buffer.remove(final_buffer.size());  // "\r"
-
-		// Build the WWW_Authenticate record with token.
-		String authResp =   
-		  _authenticationManager->getHttpAuthResponseHeader(httpMessage->authInfo);
-		// error occurred on wrap so the final_buffer needs to be built
-		// differently
-		final_buffer << authResp;
-		// add double separaters to end
-		final_buffer << "\r\n";
-		final_buffer << "\r\n";
-
-		_sendResponse(queueId, final_buffer);
 		PEG_METHOD_EXIT();
 		return;
 	    }
-
-            // If outUnwrappedMessage does not have any content data this is a result
-            // of no data available.  This could be a result of the client not sending
-            // any content data.  This is not unique to Kerberos so this will not be
-            // handled here but it will be handled when the content is processed. Or,
-	    // the client did not wrap message...this is okay.
-            // If the unwrap resulted in no data when there should have been data then
-            // this should have been caught above when the unwrap returned a bad return
-            // code
-            if (final_buffer.size() == 0)
-            {
-		// if outUnwrappedMessage is empty that indicates client did not
-		// wrap the message.  The original message will be used.
-		if (outUnwrappedMessage.size())
-		{
-		    final_buffer.appendArray(header_buffer);
-		    final_buffer.appendArray(outUnwrappedMessage);
-		    final_buffer.append('\0'); // add back char that was appended earlier
-		    // Note: if additional characters added in future add back here
-		}
-            }
-            else
-            {
-		// The final buffer should not have any data at this point. If it
-		// does end the server because something bad happened.
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPAuthenticatorDelegator - the final buffer should not have data");
-                PEGASUS_ASSERT(0);
-            }
-
-	    // replace the existing httpMessage with the headers and unwrapped message
-	    // If the final buffer has not been set then the original httpMessage will be used.
-	    if (final_buffer.size())
-	    {
-		    httpMessage->message.clear();
-		    httpMessage->message = final_buffer;
-	    }
-	} // if not kerberos and client not authenticated
+	}
 #endif
 
         if ( authenticated || !enableAuthentication )

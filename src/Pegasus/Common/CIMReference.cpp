@@ -776,7 +776,7 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
 	else if (_nameSpace.size())
 	{
 	    out << "<LOCALCLASSPATH>\n";
-	    nameSpaceToXml(out);
+	    localNameSpaceToXml(out);
 	    classNameToXml(out);
 	    out << "</LOCALCLASSPATH>";
 	}
@@ -787,6 +787,32 @@ void CIMReference::toXml(Array<Sint8>& out, Boolean putValueWrapper) const
     if (putValueWrapper)
 	out << "</VALUE.REFERENCE>\n";
 }
+
+
+//
+// InvokeMethod requires that the hostname be ignored
+//
+void CIMReference::localObjectPathtoXml(Array<Sint8>& out) const
+{
+    // See if it is a class or instance reference (instance references have
+    // key-bindings; class references do not).
+
+    if (_keyBindings.size())
+    {
+        out << "<LOCALINSTANCEPATH>\n";
+        localNameSpaceToXml(out);
+        instanceNameToXml(out);
+        out << "</LOCALINSTANCEPATH>\n";
+    }
+    else
+    {
+        out << "<LOCALCLASSPATH>\n";
+        localNameSpaceToXml(out);
+        classNameToXml(out);
+        out << "</LOCALCLASSPATH>";
+    }
+}
+
 //ATTNKS: At this point, I simply created the function
 void CIMReference::toMof(Array<Sint8>& out, Boolean putValueWrapper) const
 {

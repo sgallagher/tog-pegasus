@@ -563,6 +563,11 @@ public:
     */
     void toXml(Array<Sint8>& out, Boolean putValueWrapper = true) const;
 
+    /** Encodes this CIMreference object as XML. Ignores the host.
+	@param out argument in which to place results
+    */
+    void localObjectPathtoXml(Array<Sint8>& out) const;
+
     /** Encodes this CIMreference object as MOF.
 	@param out argument in which to place results
     */

@@ -630,7 +630,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 {
     Array<Sint8> params;
 
-    message->instanceName.toXml(params, false);
+    message->instanceName.localObjectPathtoXml(params);
 
     for (int i=0; i<message->inParameters.size();i++)
     {

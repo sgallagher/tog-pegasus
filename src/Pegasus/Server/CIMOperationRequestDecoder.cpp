@@ -34,6 +34,7 @@
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/XmlConstants.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
 #include "CIMOperationRequestDecoder.h"
@@ -363,15 +364,40 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	// Expect <METHODCALL ...>
 	else if (XmlReader::getMethodCallStartTag(parser, cimMethodName))
 	{	    
-	    // Expect <LOCALINSTANCEPATH ...>
+            CIMReference reference;
+            XmlEntry        entry;
 
-	    CIMReference reference;
-
-	    if (!XmlReader::getLocalInstancePathElement(parser, reference))
-	    {
-	    	throw XmlValidationError(parser.getLine(), 
-	    	    "expected LOCALINSTANCEPATH element");
-	    }
+            //
+            // Check for <LOCALINSTANCEPATHELEMENT ...>
+            //
+            if ( XmlReader::testStartTag (parser, entry,
+                                    XML_ELEMENT_LOCALINSTANCEPATH))
+            {
+                parser.putBack(entry);
+                if (!XmlReader::getLocalInstancePathElement(parser, reference))
+                {
+                        throw XmlValidationError(parser.getLine(),
+                            "expected LOCALINSTANCEPATH element");
+                }
+            }
+            //
+            // Check for <LOCALCLASSPATHELEMENT ...>
+            //
+            else if ( XmlReader::testStartTag( parser, entry,
+                                    XML_ELEMENT_LOCALCLASSPATH))
+            {
+                parser.putBack(entry);
+                if (!XmlReader::getLocalClassPathElement(parser, reference))
+                {
+                        throw XmlValidationError(parser.getLine(),
+                            "expected LOCALCLASSPATH element");
+                }
+            }
+            else
+            {
+                throw XmlValidationError(parser.getLine(),
+                                         MISSING_ELEMENT_LOCALPATH);
+            }
 
 	    // Delegate to appropriate method to handle:
 

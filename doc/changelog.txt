@@ -305,6 +305,12 @@ repository implementation.
     often replacing with CIMValue.get(String&) or CIMValue.toXml().
     Also added some error handling in the indication handlers.
 
+43. (Sushma Fernandes - HP) 16 Nov 2001 Added a function 
+    localObjectPathtoXml(Array<Sint8>& out) to the CIMReference class 
+    to handle local instance path and local classpath. Modified the 
+    CIMOperationRequestDecoder to handle <LOCALCLASSPATHELEMENT ...>. 
+    Changed the CIMOperationRequestEncoder to call the localObjectPathtoXml.
+
 ---------------------------------------------------------------------------
 Version 1.1 - July 2001 Development branch
               Tagged as version_1_01 on 3 August 2001 (sorry should have been

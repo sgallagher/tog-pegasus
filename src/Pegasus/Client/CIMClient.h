@@ -1812,8 +1812,17 @@ public:
     */
     void deregisterClientOpPerformanceDataHandler();
 
-
 private:
+
+    /**
+        The copy constructor is not available for the CIMClient class.
+    */
+    CIMClient(const CIMClient&);
+
+    /**
+        The assignment operator is not available for the CIMClient class.
+    */
+    CIMClient& operator=(const CIMClient&);
 
     CIMClientInterface* _rep;
 };

@@ -226,7 +226,15 @@ private:
     CIMInstance _buildInstanceCIMObjectManager(const Boolean includeQualifiers,
                                            const Boolean includeClassOrigin,
                                            const CIMPropertyList& propertyList);
+
+    Array<CIMInstance> _getInstancesCIMNamespace(const Boolean& includeQualifiers,
+                                            const Boolean& includeClassOrigin,
+                                            const CIMPropertyList& propertyList);
+
+
+    CIMInstance _getInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
     //
+    CIMInstance _buildInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
     // Repository Instance variable
     //
        CIMRepository*   _repository;

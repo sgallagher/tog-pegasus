@@ -43,39 +43,36 @@
 PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
-#include <io.h>
+ #include <io.h>
 typedef struct 
 {
     long file;
     struct _finddata_t findData;
 } DirRep;
-#elif defined(PEGASUS_OS_SOLARIS)
-#include <sys/param.h>
-#elif defined(PEGASUS_OS_VMS)
-#include <dirent.h>
-#endif
+#elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS)
+ #if defined(PEGASUS_OS_SOLARIS)
+  #include <sys/param.h>
+ #endif /* if defined(PEGASUS_OS_SOLARIS) */
 
-// ATTN: If a platform is found that does not have the readdir_r interface,
-// this next line should be conditionally compiled out for that platform.
-// Otherwise, the old readdir code can be removed.
+ #include <dirent.h>
 
-#ifndef PEGASUS_OS_VMS
-#define PEGASUS_HAS_READDIR_R
-#endif
+ #ifndef PEGASUS_OS_VMS
+  #define PEGASUS_HAS_READDIR_R
+ #endif /* ifndef PEGASUS_OS_VMS */
 
 typedef struct
 {
     DIR* dir;
-#ifdef PEGASUS_OS_OS400
-    struct dirent_lg* entry;
-#else
-    struct dirent* entry;
-#endif
-#ifdef PEGASUS_HAS_READDIR_R
  #ifdef PEGASUS_OS_OS400
+    struct dirent_lg* entry;
+ #else /* ifdef PEGASUS_OS_OS400 */
+    struct dirent* entry;
+ #endif /* ifdef PEGASUS_OS_OS400 */
+ #ifdef PEGASUS_HAS_READDIR_R
+  #ifdef PEGASUS_OS_OS400
     struct dirent_lg buffer;
- #else
-  #ifdef PEGASUS_OS_SOLARIS
+  #else /* ifdef PEGASUS_OS_OS400 */
+   #ifdef PEGASUS_OS_SOLARIS
 private:
         char buf[sizeof(dirent) + MAXNAMELEN];
 public:
@@ -83,12 +80,13 @@ public:
         inline DirRep()
                 : buffer(*reinterpret_cast<struct dirent *>(buf))
         { }
-  #else
+   #else /* ifdef PEGASUS_OS_SOLARIS */
     struct dirent buffer;
-  #endif
- #endif
-#endif
+   #endif /* ifdef PEGASUS_OS_SOLARIS */
+  #endif /* ifdef PEGASUS_OS_OS400 */
+ #endif /* ifdef PEGASUS_HAS_READDIR_R */
 } DirRep;
+#endif /* elif defined(PEGASUS_OS_TYPE_UNIX) || defined (PEGASUS_OS_VMS) */
 
 /** The Dir class provides a platform independent way of iterating the
     files in a directory.

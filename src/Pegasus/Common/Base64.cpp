@@ -38,6 +38,10 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
+#ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
+#define inline
+#endif
+
 //*************************************************************
 /*  Encode static method takes an array of 8-bit values and
     returns a base-64 stream.

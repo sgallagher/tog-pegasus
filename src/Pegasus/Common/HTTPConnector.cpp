@@ -332,6 +332,9 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 	   Sint32 socket = _rep->connections[i]->getSocket();
 	   _monitor->unsolicitSocketMessages(socket);
 	   _rep->connections.remove(i);
+
+            // add a close socket
+            closesocket(socket);
             return;
         }
     }

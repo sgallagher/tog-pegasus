@@ -121,7 +121,14 @@ Condition::Condition(void) : _disallow(0)
 { 
    _cond_mutex = new Mutex();
    _destroy_mut = true;
-   _condition = CreateEvent( NULL, TRUE, FALSE, NULL);
+
+    // Change from PulseEvent to SetEvent, this is part of 
+    //    fix to avoid deadlock in CIMClient Constructor.
+
+    // Change 2nd parm to FALSE (create an auto-reset event)
+
+    _condition = CreateEvent( NULL, FALSE, FALSE, NULL);
+
 
 } 
 
@@ -129,7 +136,12 @@ Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
 {
    _cond_mutex = const_cast<Mutex *>(&mutex);
    _destroy_mut = false;
-   _condition = CreateEvent( NULL, TRUE, FALSE, NULL);
+
+    // Change from PulseEvent to SetEvent, this is part of 
+    //    fix to avoid deadlock in CIMClient Constructor.
+   
+    // Change 2nd parm to FALSE (create an auto-reset event)
+    _condition = CreateEvent( NULL, FALSE, FALSE, NULL);
 }
 
 
@@ -138,9 +150,21 @@ Condition::~Condition(void)
    // don't allow any new waiters
    _disallow++;
    
-   PulseEvent(_condition);
+    // Change from PulseEvent to SetEvent, this is part of 
+    //    fix to avoid deadlock in CIMClient Constructor.
+    // Change from PulseEvent to SetEvent
+    //PulseEvent(_condition);
+    SetEvent(_condition);
+
+
    if(_destroy_mut == true)
       delete _cond_mutex;
+
+    // Change from PulseEvent to SetEvent, this is part of 
+    //    fix to avoid deadlock in CIMClient Constructor.
+    // Change Added next line to cleanup handle
+    CloseHandle(_condition);
+
 }
 
 #endif // native conditional semaphore

@@ -276,7 +276,12 @@ inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 {
    if(_cond_mutex->_mutex.owner != caller)
       throw Permission((PEGASUS_THREAD_TYPE)caller);
-   PulseEvent(_condition);
+
+    // Change from PulseEvent to SetEvent, this is part of 
+    //    fix to avoid deadlock in CIMClient Constructor.
+    //PulseEvent(_condition);
+    SetEvent(_condition);
+
 }
 
 inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
@@ -339,6 +344,13 @@ inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE
       throw Permission((PEGASUS_THREAD_TYPE)caller);
    if(milliseconds == -1)
       milliseconds = INFINITE;
+
+    // Change from PulseEvent to SetEvent, this is part of 
+    //    fix to avoid deadlock in CIMClient Constructor.
+    // Change added next line since SignalObjectAndWait
+    //       releases the mutex
+    _cond_mutex->_mutex.owner = 0;
+
    
    DWORD retcode = SignalObjectAndWait(_cond_mutex->_mutex.mut,
 				       _condition,

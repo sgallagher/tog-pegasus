@@ -581,7 +581,22 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         throw e;
     }
 
-    httpResponse = client.issueRequest( message );
+    try
+    {
+        httpResponse = client.issueRequest( message );
+    }
+    catch (TimedOut& ex)
+    {
+        WbemExecException e
+            (WbemExecException::TIMED_OUT, ex.getMessage ());
+        throw e;
+    }
+    catch (Exception& ex)
+    {
+        WbemExecException e
+            (WbemExecException::CONNECT_FAIL, ex.getMessage ());
+        throw e;
+    }
 
     //
     // Process the response message

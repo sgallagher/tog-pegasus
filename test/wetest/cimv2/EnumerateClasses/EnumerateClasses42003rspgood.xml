@@ -367,7 +367,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-In processing or &apos;conditioning&apos; a packet at a network device, that packet is handled by a variety of ConditioningServices (such as Classifiers, Meters, Droppers, etc.). The Services may feed one another directly, or be more discretely mapped to multiple &apos;next&apos; Services (for example, queues) based on the characteristics of the packet. \n There is a need to indicate the sequence of Services when conditioning packets in a network device. This is accomplished via the NextService association. Both one-to-one and fan in/fan out relationships can be described. \n Note that this relationship is truly a Dependency association, but can not be modeled as such - since an additional key property is required. This key allows a ConditioningService to forward multiple traffic flows to the same &apos;next&apos; Service but maintain their traffic &apos;identity&apos;. This identity must be maintained to allow a later step in the conditioning process to &apos;fan out&apos; from one to many &apos;next&apos; Services. The TrafficClass key property uniquely distinguishes potentially multiple NextService instances between the same ConditioningServices.
+In processing or &apos;conditioning&apos; a packet at a network device, that packet is handled by a variety of ConditioningServices (such as Classifiers, Meters, Droppers, etc.). The Services may feed one another directly, or be more discretely mapped to multiple &apos;next&apos; Services (for example, queues) based on the characteristics of the packet. There is a need to indicate the sequence of Services when conditioning packets in a network device. This is accomplished via the NextService association. Both one-to-one and fan in/fan out relationships can be described. Note that this relationship is truly a Dependency association, but can not be modeled as such - since an additional key property is required. This key allows a ConditioningService to forward multiple traffic flows to the same &apos;next&apos; Service but maintain their traffic &apos;identity&apos;. This identity must be maintained to allow a later step in the conditioning process to &apos;fan out&apos; from one to many &apos;next&apos; Services. The TrafficClass key property uniquely distinguishes potentially multiple NextService instances between the same ConditioningServices.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="PreceedingService" REFERENCECLASS="CIM_ConditioningService" CLASSORIGIN="CIM_NextService">
@@ -524,7 +524,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_Indication is the abstract root class for all notifications about changes in schema, objects and their data, and about events detected by providers and instrumentation. Subclasses represent specific types of notifications. \n\nTo receive an Indication, a consumer (or subscriber) must create an instance of CIM_IndicationFilter describing the criteria of the notification, an instance of CIM_IndicationHandler describing the delivery of the notification, and an instance of CIM_IndicationSubscription associating the Filter and Handler.
+CIM_Indication is the abstract root class for all notifications about changes in schema, objects and their data, and about events detected by providers and instrumentation. Subclasses represent specific types of notifications. To receive an Indication, a consumer (or subscriber) must create an instance of CIM_IndicationFilter describing the criteria of the notification, an instance of CIM_IndicationHandler describing the delivery of the notification, and an instance of CIM_IndicationSubscription associating the Filter and Handler.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="IndicationTime" CLASSORIGIN="CIM_Indication" TYPE="datetime">
@@ -950,7 +950,7 @@ The Handler addressing delivery of the possible Indications of this subscription
 <CLASS NAME="CIM_DiagnosticResult">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-When a DiagnosticTest Service is running, test results are reported using a DiagnosticResult object, or one of its subclasses. A DiagnosticTest may be running because its Service is Started or due to an invocation of the RunTest method. DiagnosticResults are related to their Test via an instance of the DiagnosticResultsForMSE association.\nFor every running of DiagnosticTest, a new instance of DiagnosticResult, or one of it&apos;s subclasses should be created.
+When a DiagnosticTest Service is running, test results are reported using a DiagnosticResult object, or one of its subclasses. A DiagnosticTest may be running because its Service is Started or due to an invocation of the RunTest method. DiagnosticResults are related to their Test via an instance of the DiagnosticResultsForMSE association.&#10;For every running of DiagnosticTest, a new instance of DiagnosticResult, or one of it&apos;s subclasses should be created.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="DiagnosticCreationClassName" CLASSORIGIN="CIM_DiagnosticResult" TYPE="string">
@@ -1158,7 +1158,7 @@ CIM_DiagnosticTestForMSE.EstimatedTimeOfPerforming
 <PROPERTY.ARRAY NAME="TestResults" TYPE="string" CLASSORIGIN="CIM_DiagnosticResult">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-TestResults stores one or more textual results from the execution of the DiagnosticTest(s) referenced by the DiagnosticCreationClassName and DiagnosticName properties. One entry is considered a cell location in the array. Each entry is time stamped and contains the following information, in the following format: \n yyymmddhhttssoutc|DiagnosticName|Textual message \nWhere: \n yyy = year, e.g. 2000 \n mm = month (01 - 12) \n dd = day (01 - 31) \n hh = hour (00 - 24) \n tt = minute (00-59) \n ss = second (00-59) \n o = &quot;+&quot; or &quot;-&quot; indicating the sign of the UTC correction field \n utc = offset from UTC (Universal Coordinated Time) in minutes \n DiagnosticName = string reference to the DiagnosticTest object which was executed\n Textual message = free form string that is the &apos;test result&apos;.
+TestResults stores one or more textual results from the execution of the DiagnosticTest(s) referenced by the DiagnosticCreationClassName and DiagnosticName properties. One entry is considered a cell location in the array. Each entry is time stamped and contains the following information, in the following format: yyymmddhhttssoutc|DiagnosticName|Textual message Where: yyy = year, e.g. 2000 mm = month (01 - 12) dd = day (01 - 31) hh = hour (00 - 24) tt = minute (00-59) ss = second (00-59) o = &quot;+&quot; or &quot;-&quot; indicating the sign of the UTC correction field utc = offset from UTC (Universal Coordinated Time) in minutes DiagnosticName = string reference to the DiagnosticTest object which was executed Textual message = free form string that is the &apos;test result&apos;.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ArrayType" TYPE="string">
@@ -1283,7 +1283,7 @@ Percent
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-Requests the diagnostic software to reduce test coverage to the specified percentage. For example, a hard drive scan test could be asked to run at 50%. The most effective way to accomplish this is for the test software to scan every other track, as opposed to only scanning the first half of a drive. It is assumed that the effectiveness of the test is impacted proportional to the percentage of testing requested. Permissible values for this property range from 0 to 100. \nThis property may not be applicable to all tests. If it can be set for a test, the value 7 (&quot;Supports PercentOfTestCoverage&quot;) should be entered into the DiagnosticTest&apos;s Characteristics array.
+Requests the diagnostic software to reduce test coverage to the specified percentage. For example, a hard drive scan test could be asked to run at 50%. The most effective way to accomplish this is for the test software to scan every other track, as opposed to only scanning the first half of a drive. It is assumed that the effectiveness of the test is impacted proportional to the percentage of testing requested. Permissible values for this property range from 0 to 100. This property may not be applicable to all tests. If it can be set for a test, the value 7 (&quot;Supports PercentOfTestCoverage&quot;) should be entered into the DiagnosticTest&apos;s Characteristics array.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ModelCorrespondence" TYPE="string">
@@ -1497,7 +1497,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-FibrePortActiveLogin indicates that two FibrePorts are connected via a login and have negotiated their Class Of Service, frame size and other link characteristics, as specified by an instance of this class.\nThe class&apos; key is composed of the login originator&apos;s and responder&apos;s keys plus the Class Of Service. This combination is unique and prevents subclassing FibrePortActiveLogin from its reasonable superclass, DeviceConnection.
+FibrePortActiveLogin indicates that two FibrePorts are connected via a login and have negotiated their Class Of Service, frame size and other link characteristics, as specified by an instance of this class.&#10;The class&apos; key is composed of the login originator&apos;s and responder&apos;s keys plus the Class Of Service. This combination is unique and prevents subclassing FibrePortActiveLogin from its reasonable superclass, DeviceConnection.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="LoginOriginator" REFERENCECLASS="CIM_FibrePort" CLASSORIGIN="CIM_FibrePortActiveLogin">

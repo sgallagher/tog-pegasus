@@ -117,9 +117,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     Array<BooleanOpType> getOperators();
 
-    Array<CQLScope> getScopes();
-
-    void applyScopes(Array<CQLScope> & inScopes);
+    void applyContext(QueryContext& queryContext);
 
     Boolean isSimple();
 

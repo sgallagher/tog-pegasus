@@ -120,12 +120,12 @@ Array<TermOpType> CQLExpressionRep::getOperators()
    return _TermOperators;
 }
 
-void CQLExpressionRep::applyScopes(Array<CQLScope> inScopes)
+void CQLExpressionRep::applyContext(QueryContext& inContext)
 {
-   /*for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
-   {
-      _CQLTerms[i].applyScopes(inScopes);
-   }*/
+  for(Uint32 i = 0; i < _CQLTerms.size(); ++i)
+  {
+    _CQLTerms[i].applyContext(inContext);
+  }
 }
 
 Boolean CQLExpressionRep::operator==(const CQLExpressionRep& rep){

@@ -50,11 +50,17 @@ class PEGASUS_CQL_LINKAGE CQLTermRep
     void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
 
    String toString();
+
    Boolean isSimple();
+
    Boolean isSimpleValue();
+
    Array<CQLFactor> getFactors();
+
    Array<FactorOpType> getOperators();
-   void applyScopes(Array<CQLScope> inScope); 
+
+   void applyContext(QueryContext& inContext); 
+
    friend class CQLFactory;
 
   private:

@@ -126,14 +126,16 @@ class PEGASUS_CQL_LINKAGE CQLPredicate
     
     Array<BooleanOpType> getOperators();
 
-    Array<CQLScope> getScopes();
-
-    void applyScopes(Array<CQLScope> & inScopes);
+    void applyContext(QueryContext& queryContext);
 
     Boolean isSimple();
+
     Boolean isSimpleValue();
+
     String toString();
+
     CQLPredicate& operator=(const CQLPredicate& rhs);
+
     friend class CQLFactory;
   private:
     

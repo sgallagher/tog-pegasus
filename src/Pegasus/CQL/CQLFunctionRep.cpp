@@ -101,7 +101,7 @@ void CQLFunctionRep::applyScopes(Array<CQLScope> inScopes)
 {
    for(Uint32 i = 0; i < _parms.size(); ++i)
    {
-      _parms[i].applyScopes(inScopes);
+     //      _parms[i].applyScopes(inScopes);
    }
 }
 

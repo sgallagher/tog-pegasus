@@ -23,9 +23,12 @@ class CQLSimplePredicate
 
     CQLSimplePredicate(const CQLExpression& inExpression);
 
-    CQLSimplePredicate(const CQLExpression& inExpression, ExpressionOpType inOperator);
+    CQLSimplePredicate(const CQLExpression& inExpression, 
+		       ExpressionOpType inOperator);
 
-    CQLSimplePredicate(const CQLExpression& leftSideExpression, const CQLExpression& rightSideExpression, ExpressionOpType inOperator);
+    CQLSimplePredicate(const CQLExpression& leftSideExpression, 
+		       const CQLExpression& rightSideExpression, 
+		       ExpressionOpType inOperator);
 
      CQLSimplePredicate(const CQLSimplePredicate& inSimplePredicate);
 
@@ -69,8 +72,12 @@ class CQLSimplePredicate
 
     enum ExpressionOpType getOperation();
 
+    void applyContext(QueryContext& queryContext);
+
     String toString();
+
     Boolean isSimple();
+
     Boolean isSimpleValue();
 
     CQLSimplePredicate& operator=(const CQLSimplePredicate& rhs);

@@ -68,12 +68,10 @@ CQLSimplePredicate CQLPredicate::getSimplePredicate(){
 Array<BooleanOpType> CQLPredicate::getOperators(){
 	return _rep->getOperators();
 }
-Array<CQLScope> CQLPredicate::getScopes(){
 
+void CQLPredicate::applyContext(QueryContext& queryContext) {
+  _rep->applyContext(queryContext);
 }
-void CQLPredicate::applyScopes(Array<CQLScope> & inScopes){
-}
-
 
 Boolean CQLPredicate::isSimple(){
 	return _rep->isSimple();

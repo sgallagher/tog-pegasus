@@ -95,10 +95,11 @@ Array<TermOpType> CQLExpression::getOperators()
    return _rep->getOperators();
 }
 
-void CQLExpression::applyScopes(Array<CQLScope> inScopes)
+void CQLExpression::applyContext(QueryContext& inContext)
 {
-	_rep->applyScopes(inScopes);
+  _rep->applyContext(inContext);
 }
+
 CQLExpression& CQLExpression::operator=(const CQLExpression& rhs){
 	if(&rhs != this){
 		if(_rep) delete _rep;

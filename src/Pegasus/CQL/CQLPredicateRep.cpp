@@ -63,19 +63,30 @@ CQLSimplePredicate CQLPredicateRep::getSimplePredicate(){
 Array<BooleanOpType> CQLPredicateRep::getOperators(){
 	return _operators;
 }
-Array<CQLScope> CQLPredicateRep::getScopes(){
 
+void CQLPredicateRep::applyContext(QueryContext& queryContext)
+{
+  if (isSimple())
+  {
+    _simplePredicate.applyContext(queryContext);
+  }
+  else
+  {
+    for (Uint32 i = 0; i <_predicates.size(); i++)
+    {
+      _predicates[i].applyContext(queryContext);
+    }
+  }
 }
-void CQLPredicateRep::applyScopes(Array<CQLScope> & inScopes){
-}
-
 
 Boolean CQLPredicateRep::isSimple(){
 	return (_predicates.size() == 0);
 }
+
 Boolean CQLPredicateRep::isSimpleValue(){
 	return (_simplePredicate.isSimpleValue());
 }
+
 String CQLPredicateRep::toString(){
 	printf("CQLPredicateRep::toString()\n");
 	if(_terminal){

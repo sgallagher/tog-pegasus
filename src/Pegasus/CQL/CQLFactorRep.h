@@ -80,18 +80,30 @@ class PEGASUS_CQL_LINKAGE CQLFactorRep
       */
 
    CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
+
    Boolean isSimple();
+
    Boolean isSimpleValue();
+
    CQLValue getValue();
+
    CQLFunction getCQLFunction();
+
    CQLExpression getCQLExpression();
+
    String toString();
-   void applyScopes(Array<CQLScope> inScopes);
+
+   void applyContext(QueryContext& inContext);
+
    Boolean operator==(const CQLFactorRep& rep);
+
    Boolean operator!=(const CQLFactorRep& rep);
+
    friend class CQLFactory;
 
   private:
+
+   enum ContainedObjectType {EXPRESSION, FUNCTION, VALUE};
 
     CQLExpression _CQLExp;
 
@@ -104,6 +116,9 @@ class PEGASUS_CQL_LINKAGE CQLFactorRep
 
     Boolean _invert;
     Boolean _simpleValue;
+
+    ContainedObjectType _containedType;
+    
 };
 /*
 #ifndef PEGASUS_ARRAY_T

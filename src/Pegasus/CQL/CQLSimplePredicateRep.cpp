@@ -16,14 +16,17 @@ CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression)
 	_isSimple = true;
 }
 
-CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression, const ExpressionOpType inOperator)
+CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& inExpression, 
+					     const ExpressionOpType inOperator)
 {
 	_leftSide = inExpression;
 	_operator = inOperator;
 	_isSimple = true;
 }
 
-CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& leftSideExpression, const CQLExpression& rightSideExpression, ExpressionOpType inOperator)
+CQLSimplePredicateRep::CQLSimplePredicateRep(const CQLExpression& leftSideExpression, 
+					     const CQLExpression& rightSideExpression,
+					     ExpressionOpType inOperator)
 {
 	_leftSide = leftSideExpression;
 	_rightSide = rightSideExpression;
@@ -58,6 +61,16 @@ CQLExpression CQLSimplePredicateRep::getRightExpression()
 enum ExpressionOpType CQLSimplePredicateRep::getOperation()
 {
 	return _operator;
+}
+
+void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
+{
+  _leftSide.applyContext(queryContext);
+
+  if (!isSimple())
+  {
+    _rightSide.applyContext(queryContext);
+  }
 }
 
 String CQLSimplePredicateRep::toString()

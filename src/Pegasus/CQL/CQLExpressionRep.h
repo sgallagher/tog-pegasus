@@ -46,13 +46,21 @@ class PEGASUS_CQL_LINKAGE CQLExpressionRep
     void appendOperation(TermOpType theTermOpType, CQLTerm& theTerm);
 
    String toString();
+
    Boolean isSimple();
+
    Boolean isSimpleValue();
+
    Array<CQLTerm> getTerms();
+
    Array<TermOpType> getOperators();
-   void applyScopes(Array<CQLScope> inScopes);
+
+   void applyContext(QueryContext& inContext);
+
    Boolean operator==(const CQLExpressionRep& rep);
+
    Boolean operator!=(const CQLExpressionRep& rep);
+
    friend class CQLFactory;
 
   private:

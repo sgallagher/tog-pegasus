@@ -23,8 +23,12 @@ class CQLSimplePredicateRep
 
     CQLSimplePredicateRep(const CQLExpression& inExpression, ExpressionOpType inOperator);
 
-    CQLSimplePredicateRep(const CQLExpression& leftSideExpression, const CQLExpression& rightSideExpression, ExpressionOpType inOperator);
+    CQLSimplePredicateRep(const CQLExpression& leftSideExpression,
+			  const CQLExpression& rightSideExpression,
+			  ExpressionOpType inOperator);
+
     CQLSimplePredicateRep(const CQLSimplePredicateRep* rep);
+
     ~CQLSimplePredicateRep(){}
 
     /**  
@@ -65,8 +69,12 @@ class CQLSimplePredicateRep
 
     enum ExpressionOpType getOperation();
 
+    void applyContext(QueryContext& queryContext);
+
     String toString();
+
     Boolean isSimple();
+
     Boolean isSimpleValue();
 
     friend class CQLFactory;

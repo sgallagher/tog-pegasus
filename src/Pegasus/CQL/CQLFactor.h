@@ -80,15 +80,25 @@ class PEGASUS_CQL_LINKAGE CQLFactor
       */
 
    CQLValue resolveValue(CIMInstance CI, QueryContext& QueryCtx);
+
    Boolean isSimple();
+
    Boolean isSimpleValue();
+
    CQLValue getValue();
+
    CQLFunction getCQLFunction();
+
    CQLExpression getCQLExpression();
+
    String toString();
-   void applyScopes(Array<CQLScope> inScopes);
+
+   void applyContext(QueryContext& inContext);
+
    CQLFactor& operator=(const CQLFactor& rhs);
+
    Boolean operator==(const CQLFactor& factor);
+
    Boolean operator!=(const CQLFactor& factor);
 
    friend class CQLFactory;

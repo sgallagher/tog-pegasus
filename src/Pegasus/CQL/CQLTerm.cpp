@@ -66,9 +66,9 @@ Array<FactorOpType> CQLTerm::getOperators()
    return _rep->getOperators();
 }
 
-void CQLTerm::applyScopes(Array<CQLScope> inScope)
+void CQLTerm::applyContext(QueryContext& inContext)
 {
-	_rep->applyScopes(inScope);
+  _rep->applyContext(inContext);
 }
 
 CQLTerm& CQLTerm::operator=(const CQLTerm& rhs){

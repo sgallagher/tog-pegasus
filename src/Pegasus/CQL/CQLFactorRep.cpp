@@ -19,24 +19,28 @@ CQLFactorRep::CQLFactorRep(const CQLFactorRep* rep)
    _CQLExp = rep->_CQLExp;
    _invert = rep->_invert;
    _simpleValue = rep->_simpleValue;
+   _containedType = rep->_containedType;
 }
 
 CQLFactorRep::CQLFactorRep(const CQLValue& inCQLVal)
 {
    _CQLVal = inCQLVal;
    _simpleValue = true;
+   _containedType = VALUE;
 }
 
 CQLFactorRep::CQLFactorRep(CQLExpression& inCQLExp)
 {
    _CQLExp = inCQLExp;
    _simpleValue = false;
+   _containedType = EXPRESSION;
 }
 
 CQLFactorRep::CQLFactorRep(CQLFunction& inCQLFunc)
 {
    _CQLFunct = inCQLFunc;
    _simpleValue = false;
+   _containedType = FUNCTION;
 }
 
 CQLValue CQLFactorRep::getValue()
@@ -47,11 +51,11 @@ CQLValue CQLFactorRep::getValue()
 CQLValue CQLFactorRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
 
-   if(_CQLExp != CQLExpression())
+   if(_containedType == EXPRESSION)
    {
       return _CQLExp.resolveValue(CI,QueryCtx);
    }
-   else if (_CQLFunct != CQLFunction())
+   else if (_containedType == FUNCTION)
    {
       return _CQLFunct.resolveValue(CI,QueryCtx);
    }
@@ -84,11 +88,12 @@ CQLExpression CQLFactorRep::getCQLExpression()
 
 String CQLFactorRep::toString()
 {
-	printf("CQLFactorRep::toString()\n");
-	if(_simpleValue){
-		 return _CQLVal.toString();
-	}
-   if(_CQLFunct != CQLFunction())
+  printf("CQLFactorRep::toString()\n");
+  if(_containedType == VALUE){
+    return _CQLVal.toString();
+  }
+
+  if(_containedType == FUNCTION)
    {
       return _CQLFunct.toString();
    }else
@@ -97,20 +102,20 @@ String CQLFactorRep::toString()
    }
 }
 
-void CQLFactorRep::applyScopes(Array<CQLScope> inScopes)
+void CQLFactorRep::applyContext(QueryContext& inContext)
 {
    
-   if(_CQLFunct != CQLFunction())
+   if(_containedType == FUNCTION)
    {
-      _CQLFunct.applyScopes(inScopes);
+     //      _CQLFunct.applyContext(inContext);
    }
-   else if(_CQLExp != CQLExpression())
+   else if(_containedType == EXPRESSION)
    {
-      _CQLExp.applyScopes(inScopes);
+     //      _CQLExp.applyContext(inContext);
    }
    else 
    {
-      _CQLVal.applyScopes(inScopes);
+     //      _CQLVal.applyContext(inContext);
    }
    return;
 }
@@ -119,6 +124,6 @@ Boolean CQLFactorRep::operator==(const CQLFactorRep& rep){
 	  return true;
 }
 Boolean CQLFactorRep::operator!=(const CQLFactorRep& rep){
-	return (!operator==(rep));                                                                                
+	return (!operator==(rep));
 }
 PEGASUS_NAMESPACE_END

@@ -18,6 +18,7 @@ CQLTermRep::CQLTermRep(const CQLTermRep* rep){
 
 CQLTermRep::~CQLTermRep(){
 }
+
 CQLValue CQLTermRep::resolveValue(CIMInstance CI, QueryContext& QueryCtx)
 {
    CQLValue returnVal = _Factors[0].resolveValue(CI,QueryCtx);
@@ -91,11 +92,11 @@ Array<FactorOpType> CQLTermRep::getOperators()
    return _FactorOperators;
 }
 
-void CQLTermRep::applyScopes(Array<CQLScope> inScope)
+void CQLTermRep::applyContext(QueryContext& inContext)
 {
    for(Uint32 i = 0; i < _Factors.size(); ++i)
    {
-      _Factors[i].applyScopes(inScope);
+      _Factors[i].applyContext(inContext);
    }
 }
 

@@ -74,9 +74,9 @@ String CQLFactor::toString()
 	return _rep->toString();
 }
 
-void CQLFactor::applyScopes(Array<CQLScope> inScopes)
+void CQLFactor::applyContext(QueryContext& inContext)
 {
-	_rep->applyScopes(inScopes);   
+  _rep->applyContext(inContext);   
 }
 
 CQLFactor& CQLFactor::operator=(const CQLFactor& rhs){

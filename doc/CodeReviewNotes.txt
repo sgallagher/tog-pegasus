@@ -1,7 +1,20 @@
 
 
-    1.	The indentation standard is four.
+    1.	Indent four spaces (not three and not tabs).
 
     2.	Literals used (other than 0 or 1).
 
     3.	NULL used in several places.
+
+    4.  Put braces on their own lines like this:
+
+	    if (condition)
+	    {
+
+	    }
+
+	Avoid this style:
+
+	    if (condition) {
+
+	    }

@@ -226,7 +226,14 @@ Boolean Monitor::run(Uint32 milliseconds)
        return false;
     }
     
+    
     Boolean handled_events = false;
+    try { _connection_mutex.try_lock(pegasus_thread_self()); }
+    catch(AlreadyLocked){
+      pegasus_sleep(1);
+      return false;
+    }
+    
     for (Uint32 i = 0, n = _entries.size(); i < _entries.size(); i++)
     {
 	Sint32 socket = _entries[i].socket;
@@ -247,7 +254,10 @@ Boolean Monitor::run(Uint32 milliseconds)
 		 MessageQueue & o = static_cast<HTTPConnection *>(q)->get_owner();
 		 Message* message= new CloseConnectionMessage(static_cast<HTTPConnection *>(q)->getSocket());
 		 message->dest = o.getQueueId();
+ 		 _connection_mutex.unlock();
+		 
 		 o.enqueue(message);
+		 return true;
 		 i--;
 		 n = _entries.size();
 	      }
@@ -257,9 +267,6 @@ Boolean Monitor::run(Uint32 milliseconds)
 	if (FD_ISSET(socket, &_rep->active_rd_fd_set))
 	    events |= SocketMessage::READ;
 
-// 	if (FD_ISSET(socket, &_rep->active_wr_fd_set))
-// 	    events |= SocketMessage::WRITE;
-
 	if (FD_ISSET(socket, &_rep->active_ex_fd_set))
 	    events |= SocketMessage::EXCEPTION;
  
@@ -267,13 +274,6 @@ Boolean Monitor::run(Uint32 milliseconds)
 	{
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 			  "Monitor::run - Socket Event Detected events = %d", events);
-// 	    if (events & SocketMessage::WRITE)
-// 	    {
-// 	       FD_CLR(socket, &_rep->active_wr_fd_set);
-// 	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-// 			     "Monitor::run FD_CLR WRITE");
-// 	    }
-
 	    if (events & SocketMessage::READ)
 	    {
 	       FD_CLR(socket, &_rep->active_rd_fd_set);
@@ -291,9 +291,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    {
 	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 			     "Monitor::run lookup for connection entry failed, unsoliciting");
-	       
+ 	       _connection_mutex.unlock();
 	       unsolicitSocketMessages(socket);
-	       break;
+	       return true;
 	    }
 	    
 	    if(_async == true && _entries[i]._type == Monitor::CONNECTION)
@@ -314,17 +314,21 @@ Boolean Monitor::run(Uint32 milliseconds)
 	    }
 	    else 
 	    {
+ 	      _connection_mutex.unlock();
+	      
 	       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
 			     "Monitor::run enqueueing to non-connection HTTP class");
 	       Message* message = new SocketMessage(socket, events);
 	       queue->enqueue(message);
+	       return true;
+	       
 	    }
 	    count--;
 	    pegasus_yield();
 	}
 	handled_events = true;
     }
-
+    _connection_mutex.unlock();
     return(handled_events);
 }
 
@@ -372,6 +376,8 @@ Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
 
     // Look for the given entry and remove it:
 
+    _connection_mutex.lock(pegasus_thread_self());
+    
     for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
 	if (_entries[i].socket == socket)
@@ -384,21 +390,29 @@ Boolean Monitor::unsolicitSocketMessages(Sint32 socket)
             // ATTN-RK-P3-20020521: Need "Socket::close(socket);" here?
 	    Socket::close(socket);
             PEG_METHOD_EXIT();
+	    _connection_mutex.unlock();
 	    return true;
 	}
     }
     PEG_METHOD_EXIT();
+    _connection_mutex.unlock();
+    
     return false;
 }
 
 Uint32 Monitor::_findEntry(Sint32 socket) 
 {
+  _connection_mutex.lock(pegasus_thread_self());
+  
    for (Uint32 i = 0, n = _entries.size(); i < n; i++)
     {
 	if (_entries[i].socket == socket)
+	  {
+	    _connection_mutex.unlock();
 	    return i;
+	  }
     }
-
+   _connection_mutex.unlock();
     return PEG_NOT_FOUND;
 }
 

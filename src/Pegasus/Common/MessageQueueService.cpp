@@ -481,6 +481,7 @@ Boolean MessageQueueService::_enqueueResponse(
       // this request is probably going to be deleted !!
       // remove it from the op node 
       op->_request.remove(request);
+    
       
       AsyncLegacyOperationResult *async_result = 
 	 new AsyncLegacyOperationResult( 

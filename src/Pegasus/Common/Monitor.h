@@ -1,4 +1,4 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%/////-*-c++-*-////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
 // The Open Group, Tivoli Systems
@@ -46,13 +46,11 @@ class  _MonitorEntry
       AtomicInt dying;
       int _type;
       
-      
       _MonitorEntry(Sint32 sock, Uint32 q, int Type)
 	 : socket(sock), queueId(q), dying(0), _type(Type)
 	   
       {
       }
-      
 };
 
 struct MonitorRep;

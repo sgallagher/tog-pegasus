@@ -378,7 +378,7 @@ void cimom::_completeAsyncResponse(AsyncRequest *request,
       haveLock = false;
       
       op->release();
-     _global_this->cache_op(op);
+      _global_this->cache_op(op);
       
       PEG_METHOD_EXIT();
       return;

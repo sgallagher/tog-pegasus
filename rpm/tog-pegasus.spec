@@ -882,6 +882,8 @@ cd %PEGASUS_DEST_LIB_DIR
 ln -sf libpegcommon.so.1 libpegcommon.so
 ln -sf libpegclient.so.1 libpegclient.so
 ln -sf libpegprovider.so.1 libpegprovider.so
+ln -sf libDefaultProviderManager.so.1 libDefaultProviderManager.so
+ln -sf libCMPIProviderManager.so.1 libCMPIProviderManager.so
 
 # Create symbolic links for provider libs
 #

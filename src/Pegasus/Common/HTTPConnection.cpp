@@ -110,28 +110,37 @@ HTTPConnection::HTTPConnection(
    _contentOffset(-1),
    _contentLength(-1)
 {
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
+
    //Socket::disableBlocking(_socket);
    _socket->disableBlocking();
    _authInfo = new AuthenticationInfo();
+
+   PEG_METHOD_EXIT();
 }
 
 HTTPConnection::~HTTPConnection()
 {
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
+
     _socket->close();
     delete _socket;
     delete _authInfo;
+
+   PEG_METHOD_EXIT();
 }
 
 
 void HTTPConnection::handleEnqueue(Message *message)
 {
-   if( ! message) 
-      return;
-   
-   const char METHOD_NAME[] = "HTTPConnection::handleEnqueue";
-   
-   PEG_FUNC_ENTER(TRC_HTTP, METHOD_NAME);
+   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");
 
+   if( ! message)
+   {
+      PEG_METHOD_EXIT();
+      return;
+   }
+   
 #ifdef ENABLETIMEOUTWORKAROUNDHACK
    static Mutex handleEnqueue_mut = Mutex();
 #endif
@@ -145,6 +154,9 @@ void HTTPConnection::handleEnqueue(Message *message)
    {
       case SOCKET_MESSAGE:
       {
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+            "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
+
 	 SocketMessage* socketMessage = (SocketMessage*)message;
 
 	 if (socketMessage->events & SocketMessage::READ)
@@ -155,6 +167,9 @@ void HTTPConnection::handleEnqueue(Message *message)
 
       case HTTP_MESSAGE:
       {
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+            "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
+
 	 HTTPMessage* httpMessage = (HTTPMessage*)message;
 
 	 // ATTN: convert over to asynchronous write scheme:
@@ -188,11 +203,17 @@ void HTTPConnection::handleEnqueue(Message *message)
 	    //throw ConnectionBroken();
 
 	    bytesRemaining -= bytesWritten;
+
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                "_socket->write bytesWritten = %d, bytesRemaining = %d",
+                bytesWritten, bytesRemaining);
 	 }
 	 //
 	 // decrement request count
 	 //
 	 _requestCount--;
+         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "_requestCount = %d", _requestCount.value());
 
 	 _socket->disableBlocking();
 	 break;
@@ -209,8 +230,7 @@ void HTTPConnection::handleEnqueue(Message *message)
    handleEnqueue_mut.unlock();
 #endif
 
-   PEG_FUNC_EXIT(TRC_HTTP, METHOD_NAME);
-
+   PEG_METHOD_EXIT();
 }
 
 
@@ -315,9 +335,7 @@ void HTTPConnection::_clearIncoming()
 
 void HTTPConnection::_closeConnection()
 {
-    const char METHOD_NAME[] = "HTTPConnection::_closeConnection";
-
-    PEG_FUNC_ENTER(TRC_HTTP, METHOD_NAME);
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
 
     Message* message= new CloseConnectionMessage(_socket->getSocket());
     message->dest = _ownerMessageQueue->getQueueId();
@@ -325,11 +343,13 @@ void HTTPConnection::_closeConnection()
     
     _ownerMessageQueue->enqueue(message);
 
-    PEG_FUNC_EXIT(TRC_HTTP, METHOD_NAME);
+    PEG_METHOD_EXIT();
 }
 
 void HTTPConnection::_handleReadEvent()
 {
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_handleReadEvent");
+
     // -- Append all data waiting on socket to incoming buffer:
 
     Sint32 bytesRead = 0;
@@ -345,6 +365,8 @@ void HTTPConnection::_handleReadEvent()
 	_incomingBuffer.append(buffer, n);
 	bytesRead += n;
     }
+   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+     "_socket->read bytesRead = %d", bytesRead);
 
     // -- If still waiting for beginning of content!
 
@@ -367,6 +389,9 @@ void HTTPConnection::_handleReadEvent()
         // increment request count 
         //
         _requestCount++;
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+          "_requestCount = %d", _requestCount.value());
+
 	message->dest = _outputMessageQueue->getQueueId();
 //	SendForget(message);
 	
@@ -375,16 +400,23 @@ void HTTPConnection::_handleReadEvent()
 
 	if (bytesRead == 0)
 	{
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+               "HTTPConnection::_handleReadEvent - bytesRead == 0 - Conection being closed.");
+
 	    _closeConnection();
 
             //
             // decrement request count
             //
             _requestCount--;
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+               "_requestCount = %d", _requestCount.value());
 
+            PEG_METHOD_EXIT();
 	    return;
 	}
     }
+    PEG_METHOD_EXIT();
 }
 
 Uint32 HTTPConnection::getRequestCount()

@@ -102,7 +102,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "Shutdown",
     "Server",
     "IndicationService",
-    "ConfigurationManager" 
+    "ConfigurationManager",
+    "MessageQueueService" 
 };
 
 /** Constants identifying the Trace components. These constants are used by 
@@ -143,7 +144,8 @@ enum TRACE_COMPONENT_ID
     TRC_SHUTDOWN,
     TRC_SERVER,
     TRC_INDICATION_SERVICE,
-    TRC_CONFIGURATION_MANAGER
+    TRC_CONFIGURATION_MANAGER,
+    TRC_MESSAGEQUEUESERVICE
 };
 
 PEGASUS_NAMESPACE_END

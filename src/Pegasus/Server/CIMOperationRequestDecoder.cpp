@@ -165,6 +165,9 @@ const char* CIMOperationRequestDecoder::getQueueName() const
 
 void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDecoder::handleHTTPMessage()");
+
    // Save queueId:
 
    Uint32 queueId = httpMessage->queueId;
@@ -186,9 +189,6 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    Array<HTTPHeader> headers;
    Sint8* content;
    Uint32 contentLength;
-
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-		  "handleHTTPMessage()");
 
    httpMessage->parse(startLine, headers, contentLength);
 
@@ -217,6 +217,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	     headers, "*CIMOperation", cimOperation, true))
       {
 	 // ATTN: error discarded at this time!
+         PEG_METHOD_EXIT();
 	 return;
       }
 
@@ -236,15 +237,14 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       if (!String::equalNoCase(cimOperation, "MethodCall"))
       {
 	 // ATTN: error discarded at this time!
+         PEG_METHOD_EXIT();
 	 return;
       }
 
       handleMethodCall(queueId, content, authType, userName);
    }
     
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-		 "handleHTTPMessage()");
-    
+   PEG_METHOD_EXIT();
 }
 
 
@@ -255,6 +255,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
    String userName)
 {
    Message* request;
+
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDecoder::handleMethodCall()");
 
    // Create a parser:
 
@@ -295,6 +298,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
       // ATTN: no error can be sent back to the client yet since
       // errors require a message-id (which was in the process of
       // being obtained above).
+      PEG_METHOD_EXIT();
       return;
    }
 
@@ -338,6 +342,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	       CIM_ERR_FAILED,
 	       description);
 
+            PEG_METHOD_EXIT();
 	    return;
 	 }
 
@@ -422,6 +427,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	       CIM_ERR_FAILED,
 	       description);
 
+            PEG_METHOD_EXIT();
 	    return;
 	 }
 
@@ -487,6 +493,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 		  CIM_ERR_FAILED,
 		  description);
 
+               PEG_METHOD_EXIT();
 	       return;
 	    }
 	    else
@@ -516,6 +523,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	       CIM_ERR_FAILED,
 	       description);
 
+            PEG_METHOD_EXIT();
 	    return;
 	 }
 	 // Expect </METHODCALL>
@@ -548,6 +556,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	 cimMethodName,
 	 e.getCode(),
 	 e.getMessage());
+
+      PEG_METHOD_EXIT();
       return;
    }
    catch (Exception& e)
@@ -558,10 +568,13 @@ void CIMOperationRequestDecoder::handleMethodCall(
 	 cimMethodName,
 	 CIM_ERR_FAILED,
 	 e.getMessage());
+
+      PEG_METHOD_EXIT();
       return;
    }
 
    _outputQueue->enqueue(request);
+   PEG_METHOD_EXIT();
 }
 
 CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassRequest(
@@ -572,6 +585,9 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
    const String& authType,
    const String& userName)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDecoder::decodeCreateClassRequest()");
+
    CIMClass newClass;
    Boolean duplicateParameter = false;
    Boolean gotClass = false;
@@ -586,6 +602,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       }
       else
       {
+         PEG_METHOD_EXIT();
 	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
       }
 
@@ -593,12 +610,14 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
 
       if (duplicateParameter)
       {
+         PEG_METHOD_EXIT();
 	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
       }
    }
 
    if (!gotClass)
    {
+      PEG_METHOD_EXIT();
       throw CIMException(CIM_ERR_INVALID_PARAMETER);
    }
  
@@ -610,6 +629,7 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
       authType,
       userName);
 
+   PEG_METHOD_EXIT();
    return(request);
 }
 
@@ -621,6 +641,9 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
    const String& authType,
    const String& userName)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDecoder::decodeGetClassRequest()");
+
    String className;
    Boolean localOnly = true;
    Boolean includeQualifiers = true;
@@ -680,6 +703,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       }
       else
       {
+         PEG_METHOD_EXIT();
 	 throw CIMException(CIM_ERR_NOT_SUPPORTED);
       }
 
@@ -687,12 +711,14 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
 
       if (duplicateParameter)
       {
+         PEG_METHOD_EXIT();
 	 throw CIMException(CIM_ERR_INVALID_PARAMETER);
       }
    }
 
    if (!gotClassName)
    {
+      PEG_METHOD_EXIT();
       throw CIMException(CIM_ERR_INVALID_PARAMETER);
    }
 
@@ -708,6 +734,7 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
       authType,
       userName);
 
+   PEG_METHOD_EXIT();
    return(request);
 }
 

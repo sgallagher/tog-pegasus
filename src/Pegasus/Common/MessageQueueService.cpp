@@ -149,7 +149,11 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 
 void MessageQueueService::enqueue(Message *msg) throw(IPCException)
 {
+   PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE, "MessageQueueService::enqueue()");
+
    Base::enqueue(msg);
+
+   PEG_METHOD_EXIT();
    
 //    PEGASUS_ASSERT(msg != 0 );
    

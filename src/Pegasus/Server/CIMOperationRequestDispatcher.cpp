@@ -37,6 +37,7 @@
 #include "CIMOperationRequestDispatcher.h"
 
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
+#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -296,8 +297,14 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
 
 void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnqueue(Message *request)");
+
    if(!request)
+   {
+      PEG_METHOD_EXIT();
       return;
+   }
    	
    switch(request->getType())
    {
@@ -435,6 +442,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    }
 
    delete request;
+   PEG_METHOD_EXIT();
 }
 
 // allocate a CIM Operation_async,  opnode, context, and response handler
@@ -442,10 +450,15 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
 // link to the waiting q
 void CIMOperationRequestDispatcher::handleEnqueue()
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER,
+      "CIMOperationRequestDispatcher::handleEnqueue()");
+
    Message* request = dequeue();
 
    if(request)
       handleEnqueue(request);
+
+   PEG_METHOD_EXIT();
 }
 
 const char* CIMOperationRequestDispatcher::getQueueName() const
@@ -456,6 +469,9 @@ const char* CIMOperationRequestDispatcher::getQueueName() const
 void CIMOperationRequestDispatcher::handleGetClassRequest(
    CIMGetClassRequestMessage* request)
 {
+   PEG_METHOD_ENTER(TRC_DISPATCHER, 
+      "CIMOperationRequestDispatcher::handleGetClassRequest()");
+
    // ATTN: Need code here to expand partial class!
 
    CIMStatusCode errorCode = CIM_ERR_SUCCESS;
@@ -499,6 +515,7 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
       cimClass);
 
    _enqueueResponse(request, response);
+   PEG_METHOD_EXIT();
 }
 
 void CIMOperationRequestDispatcher::handleGetInstanceRequest(

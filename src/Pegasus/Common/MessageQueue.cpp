@@ -81,7 +81,7 @@ MessageQueue::MessageQueue(
     // Copy the name:
     //
 
-   PEG_FUNC_ENTER(TRC_DISPATCHER,"MessageQueue::MessageQueue()");
+   PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::MessageQueue()");
 
     if (!name)
 	name = ""; 
@@ -89,7 +89,7 @@ MessageQueue::MessageQueue(
     _name = new char[strlen(name) + 1];
     strcpy(_name, name);
 
-    Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::MessageQueue  name = %s, queueId = %i", name, queueId);
 
     //
@@ -104,16 +104,16 @@ MessageQueue::MessageQueue(
     q_table_mut.unlock();
 
     
-   PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::MessageQueue()");
+   PEG_METHOD_EXIT();
 }
 
 MessageQueue::~MessageQueue()
 {
     // ATTN-A: thread safety!
 
-    PEG_FUNC_ENTER(TRC_DISPATCHER,"MessageQueue::~MessageQueue()");
+    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::~MessageQueue()");
 
-    Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::~MessageQueue queueId = %i, name = %s", _queueId, _name);
 
     q_table_mut.lock(pegasus_thread_self());
@@ -125,16 +125,18 @@ MessageQueue::~MessageQueue()
     
     delete [] _name;
 
-    PEG_FUNC_EXIT(TRC_DISPATCHER,"MessageQueue::~MessageQueue()");
+    PEG_METHOD_EXIT();
 }
 
 void MessageQueue::enqueue(Message* message) throw(IPCException)
 {
+    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::enqueue()");
 
     if (!message) 
     {
-       Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+       Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::enqueue failure");
+       PEG_METHOD_EXIT();
        throw NullPointer();
     }
 
@@ -161,16 +163,21 @@ void MessageQueue::enqueue(Message* message) throw(IPCException)
        message->_next = 0;
     }
     message->_owner = this;
+
     _count++;
-       
+    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
+     "MessageQueue::enqueue _count = %d", _count);
+
     _mut.unlock();
 
     handleEnqueue();
-
+    PEG_METHOD_EXIT();
 }
 
 Message* MessageQueue::dequeue() throw(IPCException)
 {
+    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::dequeue()");
+
    _mut.lock(pegasus_thread_self());
     if (_front)
     {
@@ -181,26 +188,42 @@ Message* MessageQueue::dequeue() throw(IPCException)
 
 	if (_back == message)
 	    _back = 0;
+
 	_count--;
+        Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
+            "MessageQueue::dequeue _count = %d", _count);
+
 	_mut.unlock();
 	message->_next = 0;
 	message->_prev = 0;
 	message->_owner = 0;
+
+        PEG_METHOD_EXIT();
 	return message;
     }
     _mut.unlock();
+
+    PEG_METHOD_EXIT();
     return 0;
 }
-
+;
 
 
 void MessageQueue::remove(Message* message) throw(IPCException)
 {
+    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,"MessageQueue::remove()");
+
     if (!message)
+    {
+        PEG_METHOD_EXIT();
 	throw NullPointer();
+    }
 
     if (message->_owner != this)
+    {
+        PEG_METHOD_EXIT();
 	throw NoSuchMessageOnQueue();
+    }
 
     _mut.lock(pegasus_thread_self());
 
@@ -215,11 +238,16 @@ void MessageQueue::remove(Message* message) throw(IPCException)
 	_front = message->_next;
 
     _count--;
+    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL4,
+       "MessageQueue::remove _count = %d", _count);
+
     _mut.unlock();
 
     message->_prev = 0;
     message->_next = 0;
     message->_owner = 0;
+
+    PEG_METHOD_EXIT();
 }
 
 Message* MessageQueue::findByType(Uint32 type) throw(IPCException)
@@ -314,7 +342,7 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId) throw(IPCException)
 
     q_table_mut.unlock();
 
-    Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+    Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::lookup failure queueId = %i", queueId);
 
     return 0;
@@ -340,7 +368,7 @@ MessageQueue* MessageQueue::lookup(const char *name) throw(IPCException)
    }
    q_table_mut.unlock();
 
-   Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL3,
+   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
         "MessageQueue::lookup failure - name = %s", name);
 
    return 0;

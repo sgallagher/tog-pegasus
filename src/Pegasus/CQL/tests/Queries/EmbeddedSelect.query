@@ -1,4 +1,4 @@
-# Testcase for applyProjection, validateProperties, and getPropertyList for Embedded Objects.
+# Testcase for applyProjection with embedded objects.
 # 
 # Wildcard the FROM class.  
 # Project every property on the FROM class
@@ -113,11 +113,7 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, 
 # Includes mixing in some wildcards
 # ATTN - TODO
 #
-# validateProperties tests
-# ATTN - TODO
-#
-# getPropertyList tests
-# ATTN - TODO
+
 
 
 

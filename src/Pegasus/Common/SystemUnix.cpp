@@ -627,7 +627,7 @@ Uint32 System::lookupPort(
     //
     // Get wbem-local port from /etc/services
     //
-#if !defined(PEGASUS_OS_OS400)
+
 #ifdef PEGASUS_OS_SOLARIS
 #define SERV_BUFF_SIZE	1024
     struct servent	serv_result;
@@ -635,15 +635,17 @@ Uint32 System::lookupPort(
 
     if ( (serv = getservbyname_r(serviceName, TCP, &serv_result,
 				buf, SERV_BUFF_SIZE)) != NULL )
+#elif defined(PEGASUS_OS_OS400)
+    struct servent	serv_result;
+    serv = &serv_result;
+    struct servent_data	buf;
+    memset(&buf, 0x00, sizeof(struct servent_data));
+
+    if ( (getservbyname_r((char*)serviceName, TCP, &serv_result,
+				&buf)) == 0 )
 #else // PEGASUS_OS_SOLARIS
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
 #endif // PEGASUS_OS_SOLARIS
-#else  // !PEGASUS_OS_OS400
-    // Note - serviceName came from Constants.h - no need to
-    // convert to EBCDIC
-    // Need to cast on OS/400
-    if ( (serv = getservbyname((char *)serviceName, TCP)) != NULL )
-#endif  // !PEGASUS_OS_OS400
     {
         localPort = htons((uint16_t)serv->s_port);
     }
@@ -724,7 +726,8 @@ String System::getEffectiveUserName()
 
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX)
+    defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_OS_OS400)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd       local_pwd;
@@ -785,7 +788,8 @@ Boolean System::isSystemUser(const char* userName)
 
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX)
+    defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_OS_OS400)
 
     const unsigned int PWD_BUFF_SIZE = 1024;
     struct passwd   pwd;
@@ -875,7 +879,8 @@ String System::getPrivilegedUserName()
         struct passwd*   pwd = NULL;
 #if defined(PEGASUS_OS_SOLARIS) || \
     defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX)
+    defined(PEGASUS_OS_LINUX) || \
+    defined(PEGASUS_OS_OS400)
         const unsigned int PWD_BUFF_SIZE = 1024;
         struct passwd   local_pwd;
         char            buf[PWD_BUFF_SIZE];

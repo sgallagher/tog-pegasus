@@ -31,7 +31,7 @@
 
 #ifndef Pegasus_Platform_OS400_ISERIES_IBM_h
 #define Pegasus_Platform_OS400_ISERIES_IBM_h
-
+#include "qycmcopyriCopyright.h"
 //#define _XOPEN_SOURCE_EXTENDED 1
 //#define _OPEN_SYS 1
 #define _MSE_PROTOS

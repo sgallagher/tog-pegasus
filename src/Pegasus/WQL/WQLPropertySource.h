@@ -46,6 +46,8 @@ class PEGASUS_WQL_LINKAGE WQLPropertySource
 {
 public:
 
+    virtual ~WQLPropertySource();
+
     // 
     // Returns the value of the property with the given name:
     //

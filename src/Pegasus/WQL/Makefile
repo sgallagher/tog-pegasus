@@ -15,6 +15,7 @@ LIBRARIES = \
 
 SOURCES = \
     WQLSimplePropertySource.cpp \
+    WQLPropertySource.cpp \
     WQLParserState.cpp \
     WQLSelectStatement.cpp \
     WQLOperation.cpp \

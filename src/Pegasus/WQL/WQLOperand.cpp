@@ -87,6 +87,10 @@ void WQLOperand::assign(const WQLOperand& x)
 	case BOOLEAN_VALUE:
 	    _booleanValue = x._booleanValue;
 	    break;
+
+	case NULL_VALUE:
+	    _integerValue = 0;
+	    break;
     }
 }
 

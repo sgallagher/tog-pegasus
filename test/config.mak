@@ -8,14 +8,14 @@ USER = -u guest
 PASSWORD = -w guest
 SSL =
 
-ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-    DIFF = mu compare
-else
-    DIFF = diff
-endif
+PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED=on
 
 XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)
 XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
+
+XMLREQUESTS_DS = $(foreach i, $(XMLSCRIPTS_DS), $i.xml)
+XMLRESPONSES_DS = $(XMLREQUESTS_DS:.xml=.rsp_ds)
+
 
 WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PASSWORD) $(SSL) 
 
@@ -24,3 +24,13 @@ WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PAS
 	@ $(DIFF) $*rspgood.xml $(TMP_DIR)/$*.rsp
 	@ $(RM) $(TMP_DIR)/$*.rsp
 	@ $(ECHO) +++ $* passed successfully +++
+
+##	@ $(call DIFFSORT,file_unsorted,file_sorted)
+
+%.rsp_ds: %.xml
+	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp_ds | cd .
+	@ $(call DIFFSORT,$*rspgood.xml,$(TMP_DIR)/$*.rsp_ds)
+	@ $(RM) $(TMP_DIR)/$*.rsp_ds
+	@ $(ECHO) +++ $* passed successfully +++
+
+

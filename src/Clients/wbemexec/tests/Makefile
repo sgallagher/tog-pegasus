@@ -8,13 +8,32 @@ include $(ROOT)/mak/test.mak
 RESULTFILE =  $(TMP_DIR)/result
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 
+
+##
+## If ordering defects, use DIFFSORT rules
+##
+ifdef PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED
+COMPARE_RESULT_FILES = $(COMPARERESULTS_DS)
+else
+COMPARE_RESULT_FILES = $(COMPARERESULTS)
+endif
+
+.PHONY: FORCE
+
 clean:
 	@$(RM) $(RESULTFILE)
 tests:
 
 general:
 
-poststarttests:
+poststarttests: poststarttests1
+	@$(MAKE) -i -s poststarttests_ignoreerror
+	$(COMPARE_RESULT_FILES)
+	@$(ECHO) +++ Test passed +++
+	@$(RM) $(RESULTFILE)
+
+
+poststarttests1: FORCE
 	@$(RM) $(RESULTFILE)
 	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "Valid cases:" >> $(RESULTFILE)
@@ -80,10 +99,7 @@ poststarttests:
 	@$(ECHO) " " >> $(RESULTFILE)
 	@wbemexec -t 4294967295 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) "  " >> $(RESULTFILE)
-	@$(MAKE) -i -s poststarttests_ignoreerror
-	$(COMPARERESULTS)
-	@$(ECHO) +++ Test passed +++
-	@$(RM) $(RESULTFILE)
+
 
 poststarttests_ignoreerror:
 	@$(ECHO) "Error cases:" >> $(RESULTFILE)
@@ -645,7 +661,7 @@ defect:
 	@wbemexec -t 1 ./cimrequest.xml >> $(RESULTFILE) $(REDIRECTERROR)
 
 depend:
-	
+
 strip-license:
 
 prepend-license:

@@ -21,14 +21,9 @@ DIRS = \
 	SetQualifier\
 	DeleteQualifier\
 	References \
-	ReferenceNames
-
-ifndef PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED
-  DIRS += \
+	ReferenceNames \
 	EnumerateClasses\
 	EnumerateClassNames
-endif
-
 
 
 include $(ROOT)/mak/recurse.mak

@@ -188,7 +188,7 @@ static const char   OPTION_SET                 = 's';
 /**
     The option character used to specify no output to stdout or stderr.
 */
-     static const char OPTION_QUIET      = 'q';
+     static const char OPTION_QUIET_VALUE      = 'q';
 #endif
 
 /**
@@ -232,6 +232,9 @@ CIMConfigCommand::CIMConfigCommand ()
     _currentValueSet     = false;
     _plannedValueSet     = false;
     _defaultValueSet     = false;
+#ifdef PEGASUS_OS_OS400
+     _defaultQuietSet     = false;
+#endif
     _hostName            = String::EMPTY;
 
     /**
@@ -241,7 +244,27 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.reserveCapacity(200);
     usage.append(USAGE);
     usage.append(COMMAND_NAME);
+#ifdef PEGASUS_OS_OS400
+    usage.append(" -").append(OPTION_GET).append(" name");
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
+    usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
 
+    usage.append("                 -").append(OPTION_SET).append(" name=value");
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                 -").append(OPTION_UNSET).append(" name");
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
+    usage.append(" ] [ -").append(OPTION_PLANNED_VALUE);
+    usage.append(" ] [ -").append(OPTION_QUIET_VALUE).append(" ]\n");
+
+    usage.append("                 -").append(OPTION_LIST);
+    usage.append(" [ -").append(OPTION_CURRENT_VALUE);
+    usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
+#else  
     usage.append(" -").append(OPTION_GET).append(" name");
     usage.append(" [ -").append(OPTION_CURRENT_VALUE); 
     usage.append(" ] [ -").append(OPTION_DEFAULT_VALUE);
@@ -258,9 +281,6 @@ CIMConfigCommand::CIMConfigCommand ()
     usage.append("                 -").append(OPTION_LIST);
     usage.append(" [ -").append(OPTION_CURRENT_VALUE);
     usage.append(" | -").append(OPTION_PLANNED_VALUE).append(" ]\n");
-#ifdef PEGASUS_OS_OS400
-    usage.append("                 -").append(OPTION_QUIET);
-    usage.append("\n");
 #endif
 
     setUsage (usage);
@@ -293,14 +313,15 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     optString.append(OPTION_UNSET);
     optString.append(GETOPT_ARGUMENT_DESIGNATOR);
 
-#ifdef PEGASUS_OS_OS400
-    optString.append(OPTION_QUIET);
-#endif
+
 
     optString.append(OPTION_LIST);
     optString.append(OPTION_CURRENT_VALUE);
     optString.append(OPTION_PLANNED_VALUE);
     optString.append(OPTION_DEFAULT_VALUE);
+#ifdef PEGASUS_OS_OS400
+    optString.append(OPTION_QUIET_VALUE);
+#endif
 
     //
     //  Initialize and parse options
@@ -318,20 +339,6 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
     
     _operationType = OPERATION_TYPE_UNINITIALIZED;
 
-     #ifdef PEGASUS_OS_OS400
-      // check for quiet option before processing the rest of the options
-     for (i =  options.first (); i <  options.last (); i++)
-     {
-        c = options [i].getopt () [0];
-	if( c == OPTION_QUIET )
-	{
-	   // Redirect to /dev/null.
-           // Works for both qshell and native modes.
-           freopen("/dev/null","w",stdout);
-           freopen("/dev/null","w",stderr);
-	}
-     }
-     #endif
 
     //
     //  Get options and arguments from the command line
@@ -554,6 +561,15 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
                     break;
                 }
 
+#ifdef PEGASUS_OS_OS400
+                 // check for quiet option before processing the rest of the options
+		case OPTION_QUIET_VALUE:
+		{
+			_defaultQuietSet = true;
+			break;
+	        }     
+#endif
+
                 default:
                     //
                     // Should never get here
@@ -592,6 +608,15 @@ void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
             InvalidOptionException e (OPTION_CURRENT_VALUE);
             throw e;
         }
+#ifdef PEGASUS_OS_OS400
+	if( _defaultQuietSet ){
+	    //
+            // An invalid option was encountered
+            //
+            InvalidOptionException e (OPTION_QUIET_VALUE);
+            throw e;
+	}
+#endif
     }
     else
     {
@@ -634,6 +659,14 @@ Uint32 CIMConfigCommand::execute (
     Boolean   gotCurrentValue = false;
     Boolean   gotPlannedValue = false;
 
+
+#ifdef PEGASUS_OS_OS400
+    // disable standard output and standard error
+    if( _defaultQuietSet && (_operationType != OPERATION_TYPE_LIST) ){
+        freopen("/dev/null","w",stdout);
+	freopen("/dev/null","w",stderr);
+    }
+#endif
 
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {

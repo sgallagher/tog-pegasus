@@ -178,6 +178,13 @@ private:
     */
     Boolean       _plannedValueSet;
 
+#ifdef PEGASUS_OS_OS400
+    /**
+    The flag to indicate whether to disable any output. 
+    */
+    Boolean	  _defaultQuietSet;
+#endif
+
     /**
     The type of operation specified on the command line. 
     */

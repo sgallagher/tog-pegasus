@@ -67,16 +67,10 @@
 #include <Pegasus/Security/UserManager/UserManager.h>
 #include <Pegasus/HandlerService/IndicationHandlerService.h>
 #include <Pegasus/IndicationService/IndicationService.h>
+#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
 #ifdef PEGASUS_ENABLE_SLP
 #include <Pegasus/Client/CIMClient.h>
-#endif
-
-#ifdef PEGASUS_USE_23PROVIDER_MANAGER
-#include <Pegasus/ProviderManager/ProviderManagerService.h>
-#include <Pegasus/ProviderManager/ProviderManager.h>
-#else
-#include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #endif
 
 #include "CIMServer.h"
@@ -243,11 +237,8 @@ void CIMServer::_init(void)
 
     // -- Create queue inter-connections:
 
-#ifdef PEGASUS_USE_23PROVIDER_MANAGER
-    _providerManager = new ProviderManagerService(_providerRegistrationManager);
-#else
     _providerManager = new ProviderManagerService(_providerRegistrationManager,_repository);
-#endif
+
     _handlerService = new IndicationHandlerService(_repository);
 
     // Create the control service
@@ -535,11 +526,7 @@ void CIMServer::runForever()
 	    MessageQueueService::_check_idle_flag = 1;
 	    MessageQueueService::_polling_sem.signal();
 		
-#ifdef PEGASUS_USE_23PROVIDER_MANAGER
-	    ProviderManagerService::getProviderManager()->unload_idle_providers();
-#else
 	    _providerManager->unloadIdleProviders();
-#endif
 	  }
 	  catch(...)
 	  {

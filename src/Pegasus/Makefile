@@ -36,18 +36,12 @@ DIRS += \
     ControlProviders/InteropProvider/tests
 endif
 
-ifdef PEGASUS_USE_23PROVIDER_MANAGER
-DIRS += \
-	ProviderManager \
-	ProviderManager/tests
-else
 DIRS += \
         ProviderManager2 \
 	ProviderManager2/Default \
 	ProviderManager2/ProviderAgent \
 	ProviderManager2/tests \
 	ProviderManager2/Default/tests 
-endif
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \

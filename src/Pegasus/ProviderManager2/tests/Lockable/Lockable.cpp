@@ -33,7 +33,7 @@
 
 #include <Pegasus/Common/Config.h>
 
-#include <Pegasus/ProviderManager/Lockable.h>
+#include <Pegasus/ProviderManager2/Lockable.h>
 
 PEGASUS_USING_PEGASUS;
 

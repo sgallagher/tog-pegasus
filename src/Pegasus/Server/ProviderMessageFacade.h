@@ -38,11 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMMessage.h>
 
-#ifdef PEGASUS_USE_23PROVIDER_MANAGER
-#include <Pegasus/ProviderManager/ProviderFacade.h>
-#else
 #include <Pegasus/ProviderManager2/Default/ProviderFacade.h>
-#endif
 
 #include <Pegasus/Server/Linkage.h>
 

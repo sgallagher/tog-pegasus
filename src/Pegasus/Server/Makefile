@@ -14,12 +14,6 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 
-ifdef PEGASUS_USE_23PROVIDER_MANAGER
-LOCAL_DEFINES +=  -DPEGASUS_USE_23PROVIDER_MANAGER
-#else
-#LOCAL_DEFINES +=  -DENABLE_PROVIDER_MANAGER2
-endif
-
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
 LOCAL_DEFINES += -DPEGASUS_ENABLE_REMOTE_CMPI
 endif
@@ -45,6 +39,7 @@ LIBRARIES = \
 	pegwql \
 	pegclient \
 	pegprm \
+	DefaultProviderManager \
 	ConfigSettingProvider \
 	UserAuthProvider \
 	ProviderRegistrationProvider\
@@ -53,12 +48,6 @@ LIBRARIES = \
 ifdef PEGASUS_ENABLE_SLP
 LIBRARIES += \
 	InteropProvider
-endif
-
-ifndef PEGASUS_USE_23PROVIDER_MANAGER
-#else
-LIBRARIES += \
-	DefaultProviderManager
 endif
 
 ifndef PEGASUS_DISABLE_PERFINST

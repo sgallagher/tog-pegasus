@@ -47,11 +47,7 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
 
-#ifdef PEGASUS_USE_23PROVIDER_MANAGER
-#include <Pegasus/ProviderManager/SimpleResponseHandler.h>
-#else
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
-#endif
 
 PEGASUS_USING_STD;
 

@@ -68,7 +68,7 @@ public:
 private:
     ProviderModule();    // Unimplemented
     ProviderModule(const ProviderModule& pm);    // Unimplemented
-    Boolean operator==(const ProviderModule& pm) const;    // Unimplemented
+    ProviderModule& operator=(const ProviderModule& pm);    // Unimplemented
 
     String _fileName;
     AtomicInt _refCount;

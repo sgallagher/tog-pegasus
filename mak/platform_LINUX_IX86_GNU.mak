@@ -1,38 +1,47 @@
-#//%LICENSE////////////////////////////////////////////////////////////////
-#//
-#// Licensed to The Open Group (TOG) under one or more contributor license
-#// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-#// this work for additional information regarding copyright ownership.
-#// Each contributor licenses this file to you under the OpenPegasus Open
-#// Source License; you may not use this file except in compliance with the
-#// License.
-#//
-#// Permission is hereby granted, free of charge, to any person obtaining a
-#// copy of this software and associated documentation files (the "Software"),
-#// to deal in the Software without restriction, including without limitation
-#// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-#// and/or sell copies of the Software, and to permit persons to whom the
-#// Software is furnished to do so, subject to the following conditions:
-#//
-#// The above copyright notice and this permission notice shall be included
-#// in all copies or substantial portions of the Software.
-#//
-#// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-#// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-#// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-#// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-#// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-#// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-#// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#//
-#//////////////////////////////////////////////////////////////////////////
-# Platform Configuration for Linux on IA-32
-# If you have generic Linux config options, please place them in config-linux.mak
+include $(ROOT)/mak/config-unix.mak
 
-include $(ROOT)/mak/config-linux.mak
+OS = linux
 
 ARCHITECTURE = iX86
-ifeq ($(shell expr $(GCC_VERSION) '>=' 3.1), 1)
-    CXX_MACHINE_OPTIONS= -m32
-    LINK_MACHINE_OPTIONS= -m32
+
+COMPILER = gnu
+
+SYS_INCLUDES = -I/usr/include/g++
+
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
+
+ifdef PEGASUS_DEBUG
+FLAGS = -g -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+else
+FLAGS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+endif
+
+#FLAGS += -DPEGASUS_HAS_SSL -DPEGASUS_HAS_PERFINST
+
+# ATTN KS 20020927 - Add flag to allow conditional testing of interoperability
+# changes during interoperability tests.
+ifdef PEGASUS_SNIA_INTEROP_TEST
+ DEFINES+= -DPEGASUS_SNIA_INTEROP_TEST
+endif
+
+#SYS_LIBS = -ldl -lpthread -lcrypt -lssl
+SYS_LIBS = -ldl -lpthread -lcrypt
+
+
+CXX = g++
+
+SH = sh
+
+YACC = yacc
+
+COPY = cp
+
+MOVE = mv
+
+LIB_SUFFIX = .so
+
+PEGASUS_SUPPORTS_DYNLIB = yes
+
+ifndef PEGASUS_USE_MU_DEPEND
+PEGASUS_HAS_MAKEDEPEND = yes
 endif

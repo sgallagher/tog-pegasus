@@ -36,7 +36,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/HashTable.h>
-
+#include <Pegasus/Common/Exception.h>
 #include "Linkage.h"
 #include <Pegasus/../Unsupported/slp_client/src/cmd-utils/slp_client/slp_client.h>
 
@@ -87,9 +87,9 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 		       const char *scopes, 
 		       unsigned short lifetime);
       
-      Uint32 test_registration(const char *type, 
-			       const char *url, 
+      Uint32 test_registration(const char *url, 
 			       const char *attrs, 
+			       const char *type, 
 			       const char *scopes);
 
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL service_listener(void *);

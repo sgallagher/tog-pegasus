@@ -93,15 +93,6 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-typedef const char* ConstCharPtr;
-#define PEGASUS_ARRAY_T ConstCharPtr
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
-
-typedef char* CharPtr;
-#define PEGASUS_ARRAY_T CharPtr
-# include <Pegasus/Common/ArrayInter.h>
-#undef PEGASUS_ARRAY_T
 
 template<class PEGASUS_ARRAY_T>
 Boolean Equal(const Array<PEGASUS_ARRAY_T>& x, const Array<PEGASUS_ARRAY_T>& y)

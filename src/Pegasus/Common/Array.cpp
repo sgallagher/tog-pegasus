@@ -83,12 +83,4 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-#define PEGASUS_ARRAY_T ConstCharPtr
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
-#define PEGASUS_ARRAY_T CharPtr
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
 PEGASUS_NAMESPACE_END

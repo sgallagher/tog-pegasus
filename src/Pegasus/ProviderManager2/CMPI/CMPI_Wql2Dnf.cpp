@@ -32,10 +32,10 @@
 
 #define CMPI_VER_86 1
 
-#include <Pegasus/Common/Array.h>
+//#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Stack.h>
-#include <Pegasus/WQL/WQLOperation.h>
-#include <Pegasus/WQL/WQLOperand.h>
+//#include <Pegasus/Common/Linkage.h>
+
 #include <Pegasus/WQL/WQLParser.h>
 
 #include "CMPI_Wql2Dnf.h"

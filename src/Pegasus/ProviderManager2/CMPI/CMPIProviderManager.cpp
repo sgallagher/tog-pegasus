@@ -50,6 +50,7 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
+#include <Pegasus/ProviderManager2/ProviderType.h>
 #include <Pegasus/ProviderManager2/ProviderName.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
@@ -57,6 +58,13 @@
 #include <Pegasus/ProviderManager2/Default/OperationResponseHandler.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#include <malloc.h>
+#define ALLOCA _alloca
+#else
+#define ALLOCA alloca
+#endif
 
 #ifdef PEGASUS_OS_HPUX
 #include <alloca.h>
@@ -211,7 +219,7 @@ void CMPIProviderManager::unload_idle_providers(void)
 
 #define STRDUPA(s,o) \
    if (s) { \
-      o=(const char*)alloca(strlen(s)); \
+      o=(const char*)ALLOCA(strlen(s)); \
       strcpy((char*)(o),(s)); \
    } \
    else o=NULL;
@@ -333,7 +341,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
+           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
           for (int i=0; i<pCount; i++) {
               STRDUPA(p[i].getString().getCString(),props[i]);
 	   }
@@ -427,7 +435,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
+           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
           for (int i=0; i<pCount; i++) {
               STRDUPA(p[i].getString().getCString(),props[i]);
 	   }
@@ -680,7 +688,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
+           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
           for (int i=0; i<pCount; i++) {
               STRDUPA(p[i].getString().getCString(),props[i]);
 	   }
@@ -895,7 +903,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 /*        if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
+           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
            for (int i=0; i<pCount; i++) {
               STRDUPA(p[i].getString().getCString(),props[i]);
 	   }
@@ -1087,7 +1095,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message) 
 /*        if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
-           props=(const char**)alloca((1+pCount)*sizeof(char*));
+           props=(const char**)ALLOCA((1+pCount)*sizeof(char*));
            for (int i=0; i<pCount; i++) {
               STRDUPA(p[i].getString().getCString(),props[i]);
 	   }

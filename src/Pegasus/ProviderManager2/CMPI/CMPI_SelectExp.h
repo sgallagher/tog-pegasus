@@ -42,11 +42,11 @@
 PEGASUS_NAMESPACE_BEGIN
 
 struct CMPI_SelectExp : CMPISelectExp {
+   CMPI_SelectExp(const OperationContext& ct, String cond_, String lang_);
    CMPI_Object *next,*prev;
    const char **props;
    Array<CIMObjectPath> classNames;
    const OperationContext& ctx;
-   CMPI_SelectExp(const OperationContext& ct, String cond_, String lang_);
    SubscriptionFilterConditionContainer* fcc;
    String cond,lang;
    CMPI_Wql2Dnf *dnf;

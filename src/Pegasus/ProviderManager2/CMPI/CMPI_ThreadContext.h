@@ -32,6 +32,8 @@
 #ifndef _CMPITHREADCONTEXT_H_
 #define _CMPITHREADCONTEXT_H_
 
+#include <Pegasus/Common/IPC.h>
+
 #include <iostream>
 #include <stdlib.h>
 #ifdef PEGASUS_OS_HPUX
@@ -54,10 +56,12 @@ PEGASUS_NAMESPACE_BEGIN
 class CMPI_Object;
 
 class CMPI_ThreadContext {
-   static pthread_key_t contextKey;
-   static pthread_once_t context_key_once;
+   //static pthread_key_t contextKey;
+   static PEGASUS_THREAD_KEY_TYPE contextKey;
+   static int context_key_once;
    static void context_key_alloc();
-   static pthread_key_t getContextKey();
+ //  static pthread_key_t getContextKey();
+   static PEGASUS_THREAD_KEY_TYPE getContextKey();
    CMPI_ThreadContext* prev;
    CMPIBroker *broker;
    CMPIContext *context;

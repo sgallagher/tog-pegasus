@@ -40,6 +40,11 @@
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 #include <strings.h>       // for strcasecmp
 #endif
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#define strcasecmp stricmp
+#endif
+
 #include <string.h>
 
 PEGASUS_USING_STD;

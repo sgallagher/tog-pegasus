@@ -126,7 +126,7 @@ static CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
    CMPIData *dta=new CMPIData[count+1];
    dta->type=type;
    dta->value.uint32=count;
-   for (uint i=1; i<=count; i++) {
+   for (unsigned int i=1; i<=count; i++) {
       dta[i].type=type;
       dta[i].state=CMPI_nullValue;
       dta[i].value.uint64=0;
@@ -293,6 +293,12 @@ CMPIString* mbEncGetType(CMPIBroker *mb, void* o, CMPIStatus *rc) {
 
 #if defined (CMPI_VER_85)
 
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#define lloonngg __int64
+#else
+#define lloonngg long long int
+#endif
+
 static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
 
    CMPIType type=va_arg(*argptr,int);
@@ -315,9 +321,9 @@ static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
      case CMPI_real64:
         return Formatter::Arg((double)va_arg(*argptr,double));
      case CMPI_sint64:
-        return Formatter::Arg((long long int)va_arg(*argptr,long long int));
+        return Formatter::Arg((lloonngg)va_arg(*argptr,lloonngg));
      case CMPI_uint64:
-        return Formatter::Arg((unsigned long long int)va_arg(*argptr,unsigned long long int));
+        return Formatter::Arg((unsigned lloonngg)va_arg(*argptr,unsigned lloonngg));
      case CMPI_chars:
         return Formatter::Arg((char*)va_arg(*argptr,char*));
      case CMPI_string: {

@@ -33,25 +33,29 @@
 
 #include "CMPI_Object.h"
 
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
 #include <pthread.h>
+#endif
 #include <limits.h>
 
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-//ulong CMPI_ThreadContext::hiKey=PTHREAD_KEYS_MAX+1;
-pthread_key_t CMPI_ThreadContext::contextKey;
-pthread_once_t CMPI_ThreadContext::context_key_once=PTHREAD_ONCE_INIT;
+PEGASUS_THREAD_KEY_TYPE CMPI_ThreadContext::contextKey;
+int CMPI_ThreadContext::context_key_once=1;
 
 void CMPI_ThreadContext::context_key_alloc()
 {
-    pthread_key_create(&contextKey,NULL);
+	pegasus_key_create(&contextKey);
 }
 
-pthread_key_t CMPI_ThreadContext::getContextKey()
+PEGASUS_THREAD_KEY_TYPE CMPI_ThreadContext::getContextKey()
 {
-    pthread_once(&context_key_once,context_key_alloc);
+	if (context_key_once) {
+		 context_key_alloc();
+		 context_key_once=0;
+	}
     return contextKey;
 }
 
@@ -74,10 +78,9 @@ void CMPI_ThreadContext::remObject(CMPI_Object* o) {
 }
 
 CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext() {
-   pthread_key_t k=getContextKey();
-//   cerr<<"+++ pthread_key_t: "<<(void*)k<<endl;
+   PEGASUS_THREAD_KEY_TYPE k=getContextKey();
    #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-   return (CMPI_ThreadContext*)pthread_getspecific(k);
+    return (CMPI_ThreadContext*)pegasus_get_thread_specific(k);
    #else
     CMPI_ThreadContext* tCtx=NULL;
     pthread_getspecific(k,(void**)&tCtx);
@@ -97,28 +100,24 @@ CMPI_ThreadContext::CMPI_ThreadContext(CMPIBroker *mb, CMPIContext *ctx ) {
    CIMfirst=CIMlast=NULL;
    broker=mb;
    context=ctx;
-//   cerr<<"+++++++++++++++++++++++++"<<endl;
-   pthread_key_t k=getContextKey();
+   PEGASUS_THREAD_KEY_TYPE k=getContextKey();
    #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-   prev=(CMPI_ThreadContext*)pthread_getspecific(k);
+     prev=(CMPI_ThreadContext*)pegasus_get_thread_specific(k);
    #else
     pthread_getspecific(k,(void**)&prev);
    #endif
-   if (prev) cerr<<"+++ OLD_DATA: "<<(void*)prev<<endl;
-   pthread_setspecific(k,this);
+   pegasus_set_thread_specific(k,this);
    return;
 }
 
 CMPI_ThreadContext::~CMPI_ThreadContext() {
-//   cerr<<"-------------------------"<<endl;
-
    for (CMPI_Object *nxt,*cur=CIMfirst; cur; cur=nxt) {
       nxt=cur->next;
       ((CMPIInstance*)cur)->ft->release((CMPIInstance*)cur);
    }
 
-   pthread_key_t k=getContextKey();
-   pthread_setspecific(k,prev);
+   PEGASUS_THREAD_KEY_TYPE k=getContextKey();
+   pegasus_set_thread_specific(k,prev);
 }
 
 

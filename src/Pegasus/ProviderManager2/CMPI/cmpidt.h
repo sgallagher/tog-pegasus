@@ -171,11 +171,19 @@ extern "C" {
    typedef unsigned char              CMPIUint8;
    typedef unsigned short             CMPIUint16;
    typedef unsigned long              CMPIUint32;
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
    typedef unsigned long long         CMPIUint64;
+#else
+   typedef unsigned __int64           CMPIUint64;
+#endif
    typedef signed char                CMPISint8;
    typedef short                      CMPISint16;
    typedef long                       CMPISint32;
+#ifndef PEGASUS_PLATFORM_WIN32_IX86_MSVC
    typedef long long                  CMPISint64;
+#else
+   typedef __int64                    CMPISint64;
+#endif
    typedef float                      CMPIReal32;
    typedef double                     CMPIReal64;
 

@@ -35,7 +35,12 @@
 #include "CMPI_Ftabs.h"
 
 #include <time.h>
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC 
+#define SNPRINTF _snprintf
+#else
+#define SNPRINTF snprintf
 #include <sys/time.h>
+#endif
 #include <string.h>
 
 PEGASUS_USING_STD;
@@ -51,8 +56,12 @@ static CIMDateTime *makeCIMDateTime(time_t inTime, unsigned long usec, CMPIBoole
 
    if (interval) {
      // absolut time values needed
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+     tmTime=*gmtime(&inTime);
+#else 
      gmtime_r(&inTime,&tmTime);
-     if (snprintf(strTime,256,
+#endif
+     if (SNPRINTF(strTime,256,
 		  "%04d%02d%02d%02d%02d%02d.%06ld:000",
 		  tmTime.tm_year-70,
 		  tmTime.tm_mon,
@@ -63,14 +72,18 @@ static CIMDateTime *makeCIMDateTime(time_t inTime, unsigned long usec, CMPIBoole
 		  usec) > 0)
        *dt=String(strTime);
    } else {
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+     tmTime=*localtime(&inTime);
+#else
      localtime_r(&inTime,&tmTime);
+#endif
      if (strftime(strTime,256,"%Y%m%d%H%M%S.",&tmTime)) {
-      snprintf(usTime,32,"%6.6ld",usec);
+      SNPRINTF(usTime,32,"%6.6ld",usec);
       strcat(strTime,usTime);
 #if defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
-      snprintf(utcOffset,20,"%+4.3ld",tmTime.tm_gmtoff/60);
+      SNPRINTF(utcOffset,20,"%+4.3ld",tmTime.tm_gmtoff/60);
 #else
-      snprintf(utcOffset,20,"%+4.3ld",0);
+      SNPRINTF(utcOffset,20,"%+4.3ld",0);
 #endif
       strncat(strTime,utcOffset,256);
       *dt=String(strTime);
@@ -153,7 +166,11 @@ static CMPIUint64 dtGetBinaryFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
 
    else {
       time_t tt=time(NULL);
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+      tmt=*localtime(&tt);
+#else
       localtime_r(&tt,&tmt);
+#endif
       memset(&tm,0,sizeof(tm));
       tm.tm_isdst=tmt.tm_isdst;
       utc=atoi(cStr+21);

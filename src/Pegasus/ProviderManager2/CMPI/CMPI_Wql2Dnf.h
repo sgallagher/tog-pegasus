@@ -34,13 +34,17 @@
 
 #include "cmpidt.h"
 
-#include <Pegasus/Common/Array.h>
+//#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/WQL/WQLOperation.h>
 #include <Pegasus/WQL/WQLOperand.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+#define PEGASUS_COMMON_LINKAGE
+
+#include <Pegasus/Common/Linkage.h> 
 
 class term_el
 {
@@ -97,7 +101,6 @@ public:
     void order(void);
 };
 
-
 #define PEGASUS_ARRAY_T term_el
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
@@ -115,6 +118,8 @@ typedef Array<term_el> TableauRow;
 #define PEGASUS_ARRAY_T TableauRow
 # include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
+
+#undef PEGASUS_COMMON_LINKAGE
 
 typedef Array<TableauRow> Tableau;
 

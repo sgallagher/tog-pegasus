@@ -82,6 +82,18 @@ general.query.res: general.query
 	@ $(RM) $(TMP_DIR)/general.query.res
 	@ $(ECHO) +++ general.query passed successfully +++
 
+Function.query.res: Function.query
+	@ cqlcli Function.query -test 1 -className CQL_TestPropertyTypes > $(TMP_DIR)/Function.query.res | cd .
+	@ $(DIFF) Function.query.resgood $(TMP_DIR)/Function.query.res
+	@ $(RM) $(TMP_DIR)/Function.query.res
+	@ $(ECHO) +++ Function.query passed successfully +++
+
+Function2.query.res: Function2.query
+	@ cqlcli Function2.query -test 1 -className CIM_RunningOS > $(TMP_DIR)/Function2.query.res | cd .
+	@ $(DIFF) Function2.query.resgood $(TMP_DIR)/Function2.query.res
+	@ $(RM) $(TMP_DIR)/Function2.query.res
+	@ $(ECHO) +++ Function2.query passed successfully +++
+
 clean:
 	$(RM) Like.query.res
 	$(RM) isa.query.res
@@ -94,6 +106,8 @@ clean:
 	$(RM) Misc.query.res
 	$(RM) NormalizeToDOC.query.res
 	$(RM) general.query.res
+	$(RM) Function.query.res
+	$(RM) Function2.query.res
 
 depend:
 
@@ -107,8 +121,10 @@ tests: \
 	ApplyProjection.query.res \
 	EmbeddedSelect.query.res \
 	Misc.query.res \
-   NormalizeToDOC.query.res \
-	general.query.res
+	NormalizeToDOC.query.res \
+	general.query.res \
+	Function.query.res \
+	Function2.query.res
 
 poststarttests:
 

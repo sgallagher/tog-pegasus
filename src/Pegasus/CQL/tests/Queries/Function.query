@@ -1,5 +1,13 @@
+########################
+# These tests are desined to test the CQL Functions.  Each query statement
+# in this file executes on a set of instances of CQL_TestPropertytypes.
+# The test program should be invoked like this:
+# cqlcli $PEGASUS_ROOT/src/Pegasus/CQL/tests/Queries/Function2.query -test 1 -className CQL_TestPropertytypes
+########################
+
+
 #############
-# Datetime to microsecond   *** Waiting for Willis' code ***
+# Datetime to microsecond
 #############
 select * from CQL_TestPropertyTypes where 63259376185000000 = DATETIMETOMICROSECOND(PropertyDateTime)
 select * from CQL_TestPropertyTypes where 1066666660424123456 = DATETIMETOMICROSECOND(PropertyInterval)
@@ -169,10 +177,6 @@ select * FROM CQL_TestPropertyTypes where classname('//a.b.com/root/SampleProvid
 select * FROM CQL_TestPropertyTypes where classname('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'CQL_TestPropertyTypes'
 select * FROM CQL_TestPropertyTypes where classname(TestPropertyTypes) = 'CQL_TestPropertyTypes'
 
-#select * FROM CQL_TestElement where ClassName(ObjectPath('CQL_TestElement')) = 'CQL_TestElement'
-#select * FROM CQL_TestElement where ClassName(CQL_TestElement) = ClassName()
-#select * FROM CQL_TestElement where ClassName('CQL_TestElement') = 'CQL_TestElements'
-
 
 #############
 # nameSpaceName
@@ -185,8 +189,6 @@ select * FROM CQL_TestPropertyTypes where NamespaceName('//a.b.com/root/SamplePr
 select * FROM CQL_TestPropertyTypes where NamespaceName('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'root/SampleProvider'
 select * FROM CQL_TestPropertyTypes where NamespaceName(TestPropertyTypes) = 'root/SampleProvider'
 
-#select * FROM CIM_ComputerSystem where NamespaceName(ObjectPath(CIM_ComputerSystem)) = 'root/SampleProvider'
-#select * FROM CIM_ComputerSystem where NamespaceName(CIM_ComputerSystem) = NamespaceName()
 
 #############
 # nameSpaceType
@@ -205,7 +207,6 @@ select * FROM CQL_TestPropertyTypes where HostPort() = 'a.b.com'
 select * FROM CQL_TestPropertyTypes where HostPort('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'a.b.com'
 select * FROM CQL_TestPropertyTypes where HostPort(TestPropertyTypes) = 'a.b.com'
 
-#select * FROM CQL_TestElement where HostPort(ObjectPath(CQL_TestElement)) = HostPort(CQL_TestElement)
 
 #############
 # modelPath
@@ -218,26 +219,40 @@ select * FROM CQL_TestPropertyTypes where ModelPath('//a.b.com/root/SampleProvid
 select * FROM CQL_TestPropertyTypes where ModelPath('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2') = 'CQL_TestPropertyTypes.InstanceId=2'
 select * FROM CQL_TestPropertyTypes where ModelPath(TestPropertyTypes) = 'CQL_TestPropertyTypes.InstanceId=2'
 
-#select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = 'CQL_TestPropertyTypes.InstanceId=2'
-#select * FROM CQL_TestElement where ModelPath(CQL_TestElement) = Modelpath()
 
 #############
 # classPath
 #############
-#select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath(CQL_TestElement)
-#select * FROM CQL_TestElement where ClassPath(CQL_TestElement) = ClassPath()
+select * from CQL_TestPropertyTypes where referencetostring(classpath()) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
+select * from CQL_TestPropertyTypes where referencetostring(classpath(CQL_TestPropertyTypes)) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
+select * from CQL_TestPropertyTypes where referencetostring(classpath('//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2')) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
+
+# Errors
+select * from CQL_TestPropertyTypes where referencetostring(classpath(TestPropertyTypes)) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
+select * from CQL_TestPropertyTypes where referencetostring(classpath('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2')) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
+
 
 #############
 # objectPath
 #############
-#select * FROM CQL_TestElement where ObjectPath(CQL_TestElement) = ObjectPath(CQL_TestElement)
-#select * FROM CQL_TestElement where ObjectPath() = ObjectPath(CQL_TestElement)
+select * from CQL_TestPropertyTypes where referencetostring(objectPath()) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
+select * from CQL_TestPropertyTypes where referencetostring(objectPath(CQL_TestPropertyTypes)) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
+select * from CQL_TestPropertyTypes where referencetostring(objectPath('//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2')) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
+
+# Errors
+select * from CQL_TestPropertyTypes where referencetostring(objectPath(TestPropertyTypes)) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
+select * from CQL_TestPropertyTypes where referencetostring(objectPath('//a.b.com/root/SampleProvider/CQL_TestPropertyTypes.InstanceId=2')) = '//a.b.com/root/SampleProvider:CQL_TestPropertyTypes'
+
 
 #############
 # instanceToReference
 #############
-#select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference(CQL_TestElement)
-#select * FROM CQL_TestElement where InstanceToReference() = InstanceToReference()
+select * from CQL_TestPropertyTypes where referencetostring(instanceToReference()) = 'root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
+select * from CQL_TestPropertyTypes where referencetostring(instanceToReference(CQL_TestPropertyTypes)) = 'root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
+
+# Errors
+select * from CQL_TestPropertyTypes where referencetostring(instanceToReference('//a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2')) = 'root/SampleProvider:CQL_TestPropertyTypes.InstanceId=2'
+
 
 #############
 # currentDateTime
@@ -247,6 +262,7 @@ select * FROM CQL_TestPropertyTypes where CURRENTDATETIME() > PropertyDateTime
 
 # Invalid to pass a parm
 select * FROM CQL_TestPropertyTypes where CURRENTDATETIME('0') > PropertyDateTime
+
 
 #############
 # dateTime

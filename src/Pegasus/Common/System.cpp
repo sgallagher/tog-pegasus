@@ -63,6 +63,8 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+Boolean System::bindVerbose = false;
+
 Boolean System::copyFile(const char* fromPath, const char* toPath)
 {
     ifstream is(fromPath PEGASUS_IOS_BINARY);

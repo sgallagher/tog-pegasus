@@ -88,8 +88,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-Boolean System::bindVerbose = false;
-
 #ifdef PEGASUS_OS_OS400
 typedef struct os400_pnstruct
 {

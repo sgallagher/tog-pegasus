@@ -30,6 +30,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -197,6 +198,8 @@ int main(int argc, char** argv)
 	assert(FileSystem::renameFile(FILE2, FILE1));
 	assert(FileSystem::exists(FILE1));
 	assert(!FileSystem::exists(FILE2));
+        assert(FileSystem::removeFile(FILE1));
+        assert(!FileSystem::exists(FILE1));
     }
      // Test getFileNameFromPath
     {

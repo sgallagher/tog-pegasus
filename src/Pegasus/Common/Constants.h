@@ -273,6 +273,9 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_USER          =
 // systems.  To disable the whole test, simply set this variable to 0
 #define MAX_ENUMERATE_BREADTH 30
 
+// Constant defines the maximum timeout to disable a provider
+#define PROVIDER_DISABLE_TIMEOUT 15
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Constants_h */

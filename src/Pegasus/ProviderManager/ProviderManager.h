@@ -63,6 +63,9 @@ public:
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL provider_monitor(void *);
     
     void unload_idle_providers(void) ;
+
+    Sint16 disableProvider(const String & fileName, const String & providerName);
+
 private:
     enum CTRL 
       {

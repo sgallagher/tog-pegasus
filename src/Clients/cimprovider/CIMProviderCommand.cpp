@@ -168,6 +168,9 @@ static const char START_PROVIDER_FAILURE_KEY []    =
 static const char STOP_PROVIDER_FAILURE []  = 
                         "Failed to disable provider module.";
 
+static const char PENDING_REQUESTS_STOP_PROVIDER_FAILURE []  =
+		"Failed to disable provider module: Provider is busy.";
+
 static const char STOP_PROVIDER_FAILURE_KEY []  = 
 		"Clients.cimprovider.CIMProviderCommand.STOP_PROVIDER_FAILURE";
 
@@ -1465,6 +1468,11 @@ void CIMProviderCommand::_StopProvider
         								  STOP_PROVIDER_SUCCESS_KEY,
         								  STOP_PROVIDER_SUCCESS) << endl;
 	}
+	else if (retValue == -2)
+        {
+//L10N TODO
+            outPrintWriter << PENDING_REQUESTS_STOP_PROVIDER_FAILURE << endl;
+        }
 	else
 	{
 		//l10n

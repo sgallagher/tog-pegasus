@@ -658,6 +658,61 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ProviderManager::provider_monitor(voi
    return 0;
 }
 
+Sint16 ProviderManager::disableProvider(
+    const String & fileName,
+    const String & providerName)
+{
+   CTRL_STRINGS strings;
+      PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::disableProvider");
 
+   Provider *pr;
+   if(true == _providers.lookup(providerName, pr ))
+   {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                             "Disable Provider " + pr->_name );
+	//
+	// Check to see if there are pending requests. If there are pending
+	// requests and the disable timeout has not expired, loop and wait one 
+	// second until either there is no pending requests or until timeout expires.
+	//
+	Uint32 waitTime = PROVIDER_DISABLE_TIMEOUT;
+        while ( pr->_current_operations.value() > 0  &&  waitTime > 0)
+        {
+	    System::sleep(1);
+	    waitTime = waitTime - 1;
+        }
+
+	// There are still pending requests, do not disable
+        if (pr->_current_operations.value() > 0 )
+        {
+   	    PEG_METHOD_EXIT();
+	    return (0);
+        }
+   }
+   else
+   {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                             "Unable to find Provider in cache: " +
+                             providerName);
+   	PEG_METHOD_EXIT();
+	return (1);
+   }
+
+   strings.fileName = &fileName;
+   strings.providerName = &providerName;
+   try
+   {
+       _provider_ctrl(UNLOAD_PROVIDER, &strings, (void *)0);
+   }
+   catch (...)
+   {
+	PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+			 "Unload provider failed " + pr->_name);
+   	PEG_METHOD_EXIT();
+	return (-1);
+   }
+   PEG_METHOD_EXIT();
+   return (1);
+}
 
 PEGASUS_NAMESPACE_END

@@ -814,11 +814,13 @@ void ProviderRegistrationProvider::deleteInstance(
 	//
 	try
 	{
+	     Sint16 ret_value = _disableModule(instanceReference, moduleName, true, al);
+
              //
              // if the provider disable failed
              //
 // l10n
-             if (_disableModule(instanceReference, moduleName, true, al) == -1)
+             if (ret_value == -1)
              {
              	//l10n
                  //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
@@ -826,6 +828,15 @@ void ProviderRegistrationProvider::deleteInstance(
                  throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
 					"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_FAILED",
                     "disable the provider failed."));
+             }
+	     //
+             // The provider disable failed since there are pending requests
+             //
+             if (ret_value == -2)
+             {
+//L10N TODO
+                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                     "disable the provider failed: Provider is busy.");
              }
 	}
     	catch(CIMException&)
@@ -869,11 +880,13 @@ void ProviderRegistrationProvider::deleteInstance(
 	//
 	try
 	{
+	    Sint16 ret_value = _disableModule(instanceReference, moduleName, false, al);
+
             //
             // if the provider module disable failed
             //
 // l10n
-            if (_disableModule(instanceReference, moduleName, false, al) == -1)
+            if (ret_value == -1)
             {
             	//l10n
                  //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
@@ -881,6 +894,16 @@ void ProviderRegistrationProvider::deleteInstance(
                      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
 						"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED",
                      	"disable the provider module failed."));
+            }
+	    
+	    //
+            // The provider module disable failed since there are pending requests
+            //
+            if (ret_value == -2)
+            {
+//L10N TODO
+                 throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                     "disable the provider module failed: Provider is busy.");
             }
 	}
     	catch(CIMException& e)
@@ -1282,7 +1305,8 @@ MessageQueueService * ProviderRegistrationProvider::_getIndicationService()
 }
 
 // disable provider module, return 0 if module is disabled successfully,
-// return 1 if module is already disabled, otherwise, return -1
+// return 1 if module is already disabled, return -2 if module can not be
+// disabled since there are pending requests, otherwise, return -1
 Sint16 ProviderRegistrationProvider::_disableModule(
     const CIMObjectPath & objectReference, 
     const String & moduleName,
@@ -1414,6 +1438,13 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 				moduleName, false, al);
 		        return (0);
 	            }
+
+		    // module is not disabled since there are pending
+                    // requests for the providers in the module
+                    if (_opStatus[i] == _MODULE_OK)
+                    {
+                        return (-2);
+                    }
 	        }
 	    }
 	    else // disable provider

@@ -2882,6 +2882,7 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
                 operationalStatus.remove(i);
             }
         }
+
         operationalStatus.append(_MODULE_STOPPING);
 
         if(_providerRegistrationManager->setProviderModuleStatus
@@ -2904,7 +2905,31 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
 	Triad<String, String, String> triad =
             _getProviderRegPair(_pInstances[i], mInstance);
 
-        providerManager.unloadProvider(triad.first, triad.second);
+        if (providerManager.disableProvider(triad.first, triad.second) == 0)
+	{
+	    // disable failed since there are pending requests
+            // update module status from Stopping to OK
+            for(Uint32 i=0, n = operationalStatus.size(); i < n; i++)
+            {
+                if (operationalStatus[i] == _MODULE_STOPPING)
+                {
+                    operationalStatus.remove(i);
+                }
+            }
+
+            operationalStatus.append(_MODULE_OK);
+
+            if(_providerRegistrationManager->setProviderModuleStatus
+                (moduleName, operationalStatus) == false)
+            {
+        	//l10n
+                //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
+		//"set module status failed.");
+		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+            				"ProviderManager.ProviderManagerService.SET_MODULE_STATUS_FAILED",
+            				"set module status failed."));
+	    }
+        }
     }
 
     if (!disableProviderOnly)
@@ -2915,9 +2940,9 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
             if (operationalStatus[i] == _MODULE_STOPPING)
             {
                 operationalStatus.remove(i);
+        	operationalStatus.append(_MODULE_STOPPED);
             }
         }
-        operationalStatus.append(_MODULE_STOPPED);
 
         if(_providerRegistrationManager->setProviderModuleStatus
             (moduleName, operationalStatus) == false)

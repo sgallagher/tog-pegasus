@@ -155,8 +155,16 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			}
 			status = U_ZERO_ERROR;  // reset status
 		}
-		// now if we DIDNT get a message, we want to extract a message from the ROOT resource bundle
-		if(msg.size() == 0){
+		// now if we DIDNT get a message, we want to enable ICU fallback for the highest priority language
+		if(msg.size() == 0 && acceptlanguages.size() > 0){
+			language_element = acceptlanguages.getLanguageElement(0);
+			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);	
+			resbundl = ures_open((const char*)resbundl_path_ICU.getCString(), locale_ICU, &status);
+			msg = extractICUMessage(resbundl,parms); 
+			//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
+			ures_close(resbundl);
+		}
+		else if(msg.size() == 0){ // else if no message, load message from root bundle explicitly
 			//cout << "EXHAUSTED ACCEPTLANGUAGES: using root bundle to extract message" << endl;
 			status = U_ZERO_ERROR;
 			resbundl = ures_open((const char*)resbundl_path_ICU.getCString(), "", &status);
@@ -167,7 +175,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			}else { 
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle" << endl; 
 			}
-				
+
 		}
 		PEG_METHOD_EXIT();
 		return msg; 

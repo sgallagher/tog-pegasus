@@ -54,8 +54,8 @@
 #include <Pegasus/Common/Array.h>
 #include <iostream>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
  private:
@@ -63,13 +63,13 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   Array<String> _filespecs;
   String       _repository;
   String                _namespacePath;
-  bool         _syntax_only;
-  bool         _suppress_warnings;
-  bool         _suppress_all_messages;
-  bool         _trace;
-  std::ostream      *_traceos;
-  std::ostream      *_erroros;
-  std::ostream      *_warningos;
+  Boolean         _syntax_only;
+  Boolean         _suppress_warnings;
+  Boolean         _suppress_all_messages;
+  Boolean         _trace;
+  PEGASUS_STD(ostream)      *_traceos;
+  PEGASUS_STD(ostream)      *_erroros;
+  PEGASUS_STD(ostream)      *_warningos;
  public:
   mofCompilerOptions() : _repository(String::EMPTY), 
     _namespacePath(""),
@@ -91,29 +91,31 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
   const Array<String>& get_filespec_list() const { return _filespecs; }
   void  set_repository_name(const String &repository) { \
     _repository = repository; }
-  const Pegasus::String &get_repository_name() const { return _repository; }
+  const String &get_repository_name() const { return _repository; }
   void set_syntax_only() { _syntax_only = true; }
   void reset_syntax_only() { _syntax_only = false; }
-  bool syntax_only() const { return _syntax_only; }
+  Boolean syntax_only() const { return _syntax_only; }
   void set_suppress_warnings() { _suppress_warnings = true; }
   void reset_suppress_warnings() { _suppress_warnings = false; }
-  bool suppress_warnings() const { return _suppress_warnings; }
+  Boolean suppress_warnings() const { return _suppress_warnings; }
   void set_suppress_all_messages() { _suppress_all_messages = true; }
   void reset_suppress_all_messages() { _suppress_all_messages = false; }
-  bool suppress_all_messages() const { return _suppress_all_messages; }
+  Boolean suppress_all_messages() const { return _suppress_all_messages; }
   void set_trace() { _trace = true; }
   void reset_trace() { _trace = false; }
-  bool trace() const { return _trace; }
-  void set_traceos(std::ostream &os) { _traceos = &os; }
+  Boolean trace() const { return _trace; }
+  void set_traceos(PEGASUS_STD(ostream) &os) { _traceos = &os; }
   void reset_traceos() { _traceos = 0; }
-  std::ostream &traceos() const { return _traceos ? *_traceos : std::cout; }
-  void set_erroros(std::ostream &os) { _erroros = &os; }
+  ostream &traceos() const 
+      { return _traceos ? (ostream&)*_traceos : (ostream&)cout; }
+  void set_erroros(ostream &os) { _erroros = &os; }
   void reset_erroros() { _erroros = 0; }
-  std::ostream &erroros() const { return _erroros ? *_erroros : std::cerr; }
-  void set_warningos(std::ostream &os) { _warningos = &os; }
+  ostream &erroros() const 
+      { return _erroros ? (ostream&)*_erroros : (ostream&)cerr; }
+  void set_warningos(ostream &os) { _warningos = &os; }
   void reset_warningos() { _warningos = 0; }
-  std::ostream &warningos() const {return _warningos ? *_warningos : \
-				                       std::cerr;}
+  ostream &warningos() const 
+      {return _warningos ? (ostream&)*_warningos : (ostream&)cerr;}
   void set_namespacePath(const String &path) { _namespacePath = path; }
   const String &get_namespacePath() const  { return _namespacePath; }
 };

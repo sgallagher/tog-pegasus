@@ -25,30 +25,15 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// ConfigUnix_h
-//
-//	This file contains definitions for most Unix operating systems and
-//	is included by Config.h.
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_ConfigUnix_h
 #define Pegasus_ConfigUnix_h
 
 #include <cstddef>
 
-#define PEGASUS_MACHINE_IX86
-#define PEGASUS_OS_UNIX
-#define PEGASUS_COMPILER_GCC
-
-#define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {
-
-#define PEGASUS_NAMESPACE_END }
-
-PEGASUS_NAMESPACE_BEGIN
-
+#define PEGASUS_OS_TYPE_UNIX
+#define PEGASUS_EXPORT /* empty */
+#define PEGASUS_IMPORT /* empty */
+#define PEGASUS_IOS_BINARY /* empty */
 #define PEGASUS_COMMON_LINKAGE /* empty */
 #define PEGASUS_REPOSITORY_LINKAGE /* empty */
 #define PEGASUS_PROTOCOL_LINKAGE /* empty */
@@ -58,35 +43,5 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_GETOOPT_LINKAGE /* empty */
 #define PEGASUS_PROVIDER_LINKAGE /* empty */
 #define PEGASUS_CMDLINE_LINKAGE /* empty */
-
-// Not a big-endian machine:
-
-#define PEGASUS_BIG_ENDIAN 0
-#define PEGASUS_LITTLE_ENDIAN 0
-
-typedef unsigned char Uint8;
-typedef char Sint8;
-typedef unsigned short Uint16;
-typedef short Sint16;
-typedef unsigned int Uint32;
-typedef int Sint32;
-typedef float Real32;
-typedef double Real64;
-typedef bool Boolean;
-typedef unsigned long long Uint64;
-typedef long long Sint64;
-
-// Flags needed by ACE:
-
-// #define _POSIX_THREADS
-// #define _POSIX_THREAD_SAFE_FUNCTIONS
-// #define _REENTRANT
-// #define ACE_HAS_AIO_CALLS
-
-#define PEGASUS_EXPORT /* empty */
-
-#define PEGASUS_IOS_BINARY /* empty */
-
-PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_ConfigUnix_h */

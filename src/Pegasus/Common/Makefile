@@ -13,6 +13,7 @@ SOURCES = \
     CGIQueryString.cpp \
     Channel.cpp \
     Char16.cpp \
+    Config.cpp \
     CIMClass.cpp \
     CIMClassRep.cpp \
     CIMDateTime.cpp \
@@ -44,7 +45,6 @@ SOURCES = \
     FileSystem.cpp \
     Formatter.cpp \
     HashTable.cpp \
-    Headers.cpp \
     Indentor.cpp \
     Logger.cpp \
     Memory.cpp \

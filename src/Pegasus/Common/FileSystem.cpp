@@ -34,8 +34,6 @@
 #include "System.h"
 #include "Dir.h"
 
-using namespace std;
-
 PEGASUS_NAMESPACE_BEGIN
 
 // Clone the path as a C String but discard trailing slash if any:
@@ -229,7 +227,7 @@ Boolean FileSystem::renameFile(
     return System::renameFile(p.getPointer(), q.getPointer());
 }
 
-Boolean FileSystem::openNoCase(std::ifstream& is, const String& path)
+Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
 {
     String realPath;
 

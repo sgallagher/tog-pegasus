@@ -71,7 +71,7 @@ struct ArrayRep
     /* Creates a clone of the current object and sets the reference
 	count to one.
     */
-    ArrayRep* clone() const;
+    ArrayRep<T>* clone() const;
 
     /* Create and initialize a ArrayRep instance. Set the reference count
 	to one so the caller need not bother incrementing it. Note that the
@@ -79,21 +79,21 @@ struct ArrayRep
 	the caller.
     */
 
-    static ArrayRep* create(Uint32 size);
+    static ArrayRep<T>* create(Uint32 size);
 
     // Increments the reference count of this object.
-    static void inc(const ArrayRep* rep_);
+    static void inc(const ArrayRep<T>* rep_);
 
 
     /* Decrements the reference count of this object. If the reference count
 	falls to zero, the object is disposed of.
     */
-    static void dec(const ArrayRep* rep_);
+    static void dec(const ArrayRep<T>* rep_);
 
     /* Gets a pointer to a single instance which is created for each class
 	to represent an empty array (zero-size).
     */
-    static ArrayRep* getNullRep();
+    static ArrayRep<T>* getNullRep();
 };
 
 template<class T>
@@ -117,8 +117,8 @@ ArrayRep<T>* ArrayRep<T>::create(Uint32 size)
 
     // Create object:
 
-    ArrayRep* rep =
-	(ArrayRep*)operator new(sizeof(ArrayRep) + sizeof(T) * capacity);
+    ArrayRep<T>* rep =
+	(ArrayRep<T>*)operator new(sizeof(ArrayRep<T>) + sizeof(T) * capacity);
 
     rep->size = size;
     rep->capacity = capacity;
@@ -131,13 +131,13 @@ template<class T>
 void ArrayRep<T>::inc(const ArrayRep<T>* rep)
 {
     if (rep)
-	((ArrayRep*)rep)->ref++;
+	((ArrayRep<T>*)rep)->ref++;
 }
 
 template<class T>
 void ArrayRep<T>::dec(const ArrayRep<T>* rep_)
 {
-    ArrayRep* rep = (ArrayRep*)rep_;
+    ArrayRep<T>* rep = (ArrayRep<T>*)rep_;
 
     if (rep && --rep->ref == 0)
     {
@@ -153,7 +153,7 @@ ArrayRep<T>* ArrayRep<T>::getNullRep()
 
     if (!nullRep)
     {
-	nullRep = ArrayRep::create(0);
+	nullRep = ArrayRep<T>::create(0);
 
 	// Increment reference count here so that it will be one
 	// greater so that it will never be deleted.
@@ -333,6 +333,8 @@ public:
 
     const_iterator end() const { return getData() + size(); }
 
+    Boolean operator==(const Array<T>& x) const;
+
 private:
 
     void set(ArrayRep<T>* rep)
@@ -510,9 +512,9 @@ void Array<T>::prepend(const T& x)
 template<class T>
 void Array<T>::prepend(const T* x, Uint32 size)
 {
-    reserve(size() + size);
+    reserve(this->size() + size);
     _copyOnWrite();
-    memmove(_data() + size, _data(), sizeof(T) * size());
+    memmove(_data() + size, _data(), sizeof(T) * this->size());
     CopyToRaw(_data(), x, size);
     _rep->size += size;
 }
@@ -538,13 +540,13 @@ void Array<T>::insert(Uint32 pos, const T& x)
 template<class T>
 void Array<T>::insert(Uint32 pos, const T* x, Uint32 size)
 {
-    if (pos + size > size())
+    if (pos + size > this->size())
 	ThrowOutOfBounds();
 
-    reserve(size() + size);
+    reserve(this->size() + size);
     _copyOnWrite();
 
-    Uint32 n = size() - pos;
+    Uint32 n = this->size() - pos;
 
     if (n)
 	memmove(_data() + pos + size, _data() + pos, sizeof(T) * n);
@@ -556,14 +558,14 @@ void Array<T>::insert(Uint32 pos, const T* x, Uint32 size)
 template<class T>
 void Array<T>::remove(Uint32 pos)
 {
-    if (pos >= size())
+    if (pos >= this->size())
 	ThrowOutOfBounds();
 
     _copyOnWrite();
 
-    (_data() + pos)->~T();
+    Destroy(_data() + pos);
 
-    Uint32 rem = size() - pos - 1;
+    Uint32 rem = this->size() - pos - 1;
 
     if (rem)
 	memmove(_data() + pos, _data() + pos + 1, sizeof(T) * rem);
@@ -601,29 +603,26 @@ void Array<T>::_copyOnWriteAux()
 }
 
 template<class T>
-inline Boolean Equal(const T& x, const T& y)
-{
-    return x == y;
-}
-
-//const class String;  grb 02Mar01
-class String;
-
-PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
-
-template<class T>
-Boolean operator==(const Array<T>& x, const Array<T>& y)
+Boolean Equal(const Array<T>& x, const Array<T>& y)
 {
     if (x.size() != y.size())
 	return false;
 
     for (Uint32 i = 0, n = x.size(); i < n; i++)
     {
-	if (!Equal(x[i], y[i]))
+	if (!(x[i] == y[i]))
 	    return false;
     }
 
     return true;
+}
+
+template<class T>
+inline Boolean Array<T>::operator==(const Array<T>& x) const
+{
+    // ATTN: had to implement as a member. Ran into bug on AIX
+    // where the non-member form was not found during compile.
+    return Equal(*this, x);
 }
 
 template<class T>

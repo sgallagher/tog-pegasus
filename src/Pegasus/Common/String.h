@@ -443,8 +443,8 @@ inline Boolean operator!=(const String& x, const String& y)
     return !String::equal(x, y);
 }
 
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<(
-    std::ostream& os,
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os,
     const String& x);
 
 /** overload operator +	 - Concatenates String objects.
@@ -506,7 +506,7 @@ PEGASUS_COMMON_LINKAGE int CompareNoCase(const char* s1, const char* s2);
 
 /** Get the next line from the input file.
 */
-PEGASUS_COMMON_LINKAGE Boolean GetLine(std::istream& is, String& line);
+PEGASUS_COMMON_LINKAGE Boolean GetLine(PEGASUS_STD(istream)& is, String& line);
 
 /*  This is an internal class not to be used by the internal Pegasus
     components only. It provides an easy way to create an 8-bit string
@@ -644,7 +644,8 @@ inline String Cat(
 
 PEGASUS_COMMON_LINKAGE const Array<String>& EmptyStringArray();
 
+PEGASUS_COMMON_LINKAGE Boolean Equal(const String& x, const String& y);
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_String_h */
-

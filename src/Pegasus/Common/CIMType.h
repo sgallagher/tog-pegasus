@@ -94,7 +94,7 @@ public:
 
     CIMType(Tag tag) : _tag(tag) { }
 
-    explicit CIMType(Uint32 tag) : _tag(Tag(tag)) { }
+    PEGASUS_EXPLICIT CIMType(Uint32 tag) : _tag(Tag(tag)) { }
 
     CIMType(const CIMType& x) : _tag(x._tag) { }
 

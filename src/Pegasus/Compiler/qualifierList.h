@@ -43,13 +43,13 @@
 #include <Pegasus/Common/Array.h>
 #include "memobjs.h"
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 typedef Array<CIMQualifier *> qplist;
 
 class PEGASUS_COMPILER_LINKAGE qualifierList {
- private:
+ public:
   qplist *_pv;
   unsigned int _initsize;
  public:
@@ -61,22 +61,23 @@ class PEGASUS_COMPILER_LINKAGE qualifierList {
   void init(int size = 0);
 
   void add(CIMQualifier *q);
-
-  // The efficacy of this template depends on each metaelement
-  // (class, instance, method, etc., supporting an addQualifier()
-  // method.  So far, they all do.
-  template < class T > void apply(T *c)
-    {
-      if (_pv) {
-	for (qplist::iterator i = _pv->begin(); 
-			i != _pv->end() && *i; i++) {
-	  c->addQualifier( **i );
-          delete *i;
-          *i = 0;
-	}
-	init(_initsize);
-      }
-    }
 };
+
+// The efficacy of this template depends on each metaelement
+// (class, instance, method, etc., supporting an addQualifier()
+// method.  So far, they all do.
+template <class T> 
+void apply(qualifierList* that, T *c)
+{
+  if (that->_pv) {
+    for (qplist::iterator i = that->_pv->begin(); 
+		    i != that->_pv->end() && *i; i++) {
+      c->addQualifier( **i );
+      delete *i;
+      *i = 0;
+    }
+    that->init(that->_initsize);
+  }
+}
 
 #endif

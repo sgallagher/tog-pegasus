@@ -37,6 +37,7 @@
                               to know about cimmofParser, it might as well
 			      be rolled into it. */
 #include <cstring>
+#include <cstdlib>
 #include <Pegasus/Common/String.h>
 
 #define min(a,b) ( a < b ? a : b )

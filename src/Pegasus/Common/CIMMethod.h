@@ -310,7 +310,7 @@ public:
     }
 
     /** method print - prints this method (in CIM encoded form). */
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
@@ -333,7 +333,7 @@ private:
     {
     }
 
-    explicit CIMMethod(const CIMConstMethod& x);
+    PEGASUS_EXPLICIT CIMMethod(const CIMConstMethod& x);
 
     void _checkRep() const
     {
@@ -469,7 +469,7 @@ public:
 	_rep->toXml(out);
     }
 
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);

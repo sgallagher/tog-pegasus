@@ -66,6 +66,8 @@ private:
     {
 	char *name;
 	char *value;
+
+	~Entry() { }
     };
 
     Array<Entry> _entries;
@@ -73,6 +75,14 @@ private:
     static void _ParseCGIQueryString(
 	char* queryString, 
 	Array<Entry>& entries);
+
+public:
+
+
+    friend int operator==(const Entry& x, const Entry& y)
+    {
+        return 0;
+    }
 };
 
 PEGASUS_NAMESPACE_END

@@ -45,7 +45,7 @@ removed
 #include <Pegasus/Provider/CIMProvider.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -235,7 +235,7 @@ public:
 
 extern "C" PEGASUS_EXPORT CIMProvider* 
 	PegasusCreateProvider___NamespaceProvider() {
-   std::cout << "Called PegasusCreateProvider___NamespaceProvider" << std::endl; 
+   PEGASUS_STD(cout) << "Called PegasusCreateProvider___NamespaceProvider" << PEGASUS_STD(endl); 
     return new __NamespaceProvider;
 }
 

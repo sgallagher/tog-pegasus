@@ -42,6 +42,8 @@
 #include "valueFactory.h"
 #include "cimmofMessages.h"
 
+PEGASUS_USING_PEGASUS;
+
 //
 // These routines are in the lexer.  They are there because
 // there is no need for class cimmofParser to know the details
@@ -98,7 +100,7 @@ cimmofParser::getCompilerOptions() const {
 // Set/get the repository we will be using.  The path should be in
 // the command line
 //---------------------------------------------------------------------
-bool
+Boolean
 cimmofParser::setRepository(void) {
   String message;
   cimmofMessages::arglist arglist;
@@ -495,7 +497,7 @@ cimmofParser::addInstance(CIMInstance *instance)
   cimmofMessages::arglist arglist;
   String message;
   int ret = 0;
-  bool err_out = false;
+  Boolean err_out = false;
   if (_cmdline && _cmdline->trace()) {
     String header;
     cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
@@ -546,6 +548,7 @@ cimmofParser::addInstance(CIMInstance *instance)
 CIMQualifierDecl *
 cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
 			       Uint32 scope, Uint32 flavor) {
+
   CIMQualifierDecl *q = 0;
   try {
     q = new CIMQualifierDecl(name, *value, scope, flavor);
@@ -726,7 +729,7 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
   arglist.append(i.getClassName());
   arglist.append(propertyName);
   String message;
-  bool err_out = false;
+  Boolean err_out = false;
   try {
     Uint32 pos = i.findProperty(propertyName);
     if (pos == (Uint32)-1) {
@@ -845,7 +848,7 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
 
 CIMParameter *
 cimmofParser::newParameter(const String &name, const CIMType type,
-			   bool isArray, Uint32 array, const String &objName)
+			   Boolean isArray, Uint32 array, const String &objName)
 {
   CIMParameter *p = 0;
   try {
@@ -889,14 +892,17 @@ cimmofParser::QualifierValue(const String &qualifierName, const String &valstr)
   // FIXME:  Needs try/catch
   CIMQualifierDecl q = _repository->getQualifierDecl(qualifierName);
   CIMValue v = q.getValue();
+
   Uint32 asize = v.getArraySize();
   if (String::equal(valstr, String::EMPTY)) {
     if (v.getType() == CIMType::BOOLEAN) {
       Boolean b;
       v.get(b);
-      v.set(!b);
+      v.set(Boolean(!b));
     }
-    return new CIMValue(v);
+    CIMValue* tmpValue = new CIMValue(v);
+
+    return tmpValue;
   } else {
     return valueFactory::createValue(v.getType(),
 				     v.isArray() ? (int)asize : -1, 
@@ -1000,7 +1006,7 @@ cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
 }
   
 CIMReference *
-cimmofParser::newReference(const Pegasus::objectName &oname)
+cimmofParser::newReference(const objectName &oname)
 {
   CIMReference *ref = 0;
   try {
@@ -1021,14 +1027,14 @@ cimmofParser::newReference(const Pegasus::objectName &oname)
 
 void
 cimmofParser::addClassAlias(const String &alias, const CIMClass *cd,
-		       bool isInstance)
+		       Boolean isInstance)
 {
   // FIXME:  As soon as we figure out what Aliases are for, do something
 }
 
 void
 cimmofParser::addInstanceAlias(const String &alias, const CIMInstance *cd,
-		       bool isInstance)
+		       Boolean isInstance)
 {
   // FIXME:  As soon as we figure out what Aliases are for, do something
 }

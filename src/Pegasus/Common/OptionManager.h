@@ -38,6 +38,8 @@ PEGASUS_NAMESPACE_BEGIN
 class Option;
 struct OptionRow;
 
+PEGASUS_MEMORY_FUNCTIONS(Option*)
+
 /** The OptionManager class manages a collection of program options.
 
     <h4>Overview</h4>
@@ -464,7 +466,7 @@ struct OptionRow
 {
     const char* optionName;
     const char* defaultValue;
-    Boolean required;
+    int required;
     Option::Type type;
     char** domain;
     Uint32 domainSize;

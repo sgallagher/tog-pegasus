@@ -132,6 +132,8 @@ struct PEGASUS_COMMON_LINKAGE XmlEntry
     Boolean getAttributeValue(const char* name, String& value) const;
 };
 
+PEGASUS_MEMORY_FUNCTIONS(XmlEntry)
+
 class PEGASUS_COMMON_LINKAGE XmlParser
 {
 public:

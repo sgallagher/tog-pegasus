@@ -38,7 +38,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Compiler/cimmofParser.h>
 
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
 
 class PEGASUS_COMPILER_LINKAGE cimmofRepository : public CIMRepository {
  public:

@@ -236,7 +236,7 @@ classDeclaration: classHead  classBody
 classHead: qualifierList TOK_CLASS className alias superClass
 {
   $$ = cimmofParser::Instance()->newClassDecl(*$3, *$5);
-  g_qualifierList.apply($$);   // apply the qualifiers
+  apply(&g_qualifierList, $$);
   g_currentAlias = *$4;
   if (g_currentClass)
     delete g_currentClass;
@@ -267,7 +267,7 @@ classFeature: propertyDeclaration  {
 methodDeclaration: qualifierList methodStart methodBody methodEnd 
 {
   $$ = $2;
-  g_qualifierList.apply($$);
+  apply(&g_qualifierList, $$);
 } ;
 
 methodStart: dataType methodName 
@@ -287,7 +287,7 @@ methodEnd: TOK_SEMICOLON ;
 propertyDeclaration: qualifierList propertyBody propertyEnd 
 {
    $$ = $2;
-   g_qualifierList.apply($$);
+  apply(&g_qualifierList, $$);
 } ;
 
 propertyBody: dataType propertyName array defaultValue
@@ -309,7 +309,7 @@ referenceDeclaration: qualifierList referencedObject TOK_REF referenceName
     s += "." + *$5;
   CIMValue *v = valueFactory::createValue(CIMType::REFERENCE, -1, &s);
   $$ = cimmofParser::Instance()->newProperty(*$4, *v, *$2);
-  g_qualifierList.apply($$);
+  apply(&g_qualifierList, $$);
   delete $2;
   delete $4;
   delete $5; 
@@ -339,7 +339,7 @@ parameter: qualifierList parameterType parameterName array
     p = cp->newParameter(*$3, $2, true, $4, g_referenceClassName);
   }
   g_referenceClassName = String::EMPTY;
-  g_qualifierList.apply(p);
+  apply(&g_qualifierList, p);
   cp->applyParameter(*g_currentMethod, *p);
   delete p;
   delete $3;
@@ -504,7 +504,7 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
   g_currentAlias = *$5;
   g_currentInstance = cimmofParser::Instance()->newInstance(*$4);
   $$ = g_currentInstance;
-  g_qualifierList.apply($$);
+  apply(&g_qualifierList, $$);
   delete $4;
   delete $5;
 } ;
@@ -526,15 +526,15 @@ valueInitializer: qualifierList TOK_SIMPLE_IDENTIFIER array TOK_EQUAL
   // to the class whose name is in g_currentInstance->getClassName().
   // The steps are
   //   2. Get  property declaration's value object
-  const CIMProperty *oldprop = cp->PropertyFromInstance(*g_currentInstance,
+  CIMProperty *oldprop = cp->PropertyFromInstance(*g_currentInstance,
 							*$2);
-  const CIMValue *oldv = cp->ValueFromProperty(*oldprop);
+  CIMValue *oldv = cp->ValueFromProperty(*oldprop);
   //   3. create the new Value object of the same type
   CIMValue *v = valueFactory::createValue(oldv->getType(), $3, $5);
   //   4. create a clone property with the new value
   CIMProperty *newprop = cp->copyPropertyWithNewValue(*oldprop, *v);
   //   5. apply the qualifiers; 
-  g_qualifierList.apply(newprop);
+  apply(&g_qualifierList, newprop);
   //   6. and apply the CIMProperty to g_currentInstance.
   cp->applyProperty(*g_currentInstance, *newprop);
   delete $2;
@@ -662,6 +662,7 @@ qualifier: qualifierName qualifierParameter flavor
   // The qualifier value can't be set until we know the contents of the
   // QualifierDeclaration.  That's what QualifierValue() does.
   CIMValue *v = p->QualifierValue(*$1, *$2); 
+
   $$ = p->newQualifier(*$1, *v, g_flavor);
   g_qualifierList.add($$);
   delete $1;

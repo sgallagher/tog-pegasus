@@ -50,8 +50,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 //
 // This structure describes a program-defined command line option.
@@ -76,8 +76,8 @@ using namespace Pegasus;
 struct flagspec {
   String name;
   int    argtype;
-  bool   islong;
-  bool   active;
+  Boolean   islong;
+  Boolean   active;
 };
 
 //
@@ -117,8 +117,8 @@ class PEGASUS_GETOOPT_LINKAGE Optarg {
   const String &getName() const;
   const String &getopt() const;
   opttype getType() const;
-  bool  isFlag() const;  // Is the opttype == "FLAG" or "LONGFLAG"?
-  bool isLongFlag() const;  // IS the Opttype == LONGFLAG?
+  Boolean  isFlag() const;  // Is the opttype == "FLAG" or "LONGFLAG"?
+  Boolean isLongFlag() const;  // IS the Opttype == LONGFLAG?
   const String &Value() const;  // return the value as a String
   const String &optarg() const; // ditto, in getopt() terminology
   void Value(String &v) const ; // Fill in a String with the Value
@@ -189,23 +189,23 @@ class PEGASUS_GETOOPT_LINKAGE getoopt {
   
   // Routines for specifying the command line options
   //   add short-named flags, either en masse as an optstring
-  bool addFlagspec(const String &opt);
+  Boolean addFlagspec(const String &opt);
   //   or individually
-  bool addFlagspec(char opt, bool hasarg = false);
+  Boolean addFlagspec(char opt, Boolean hasarg = false);
   //   (You can also remove a short flag specification if you need to)
-  bool removeFlagspec(char opt);
+  Boolean removeFlagspec(char opt);
   //   You can add long-named flags only individually
-  bool addLongFlagspec(const String &name,  argtype type);
+  Boolean addLongFlagspec(const String &name,  argtype type);
   //   and remove them in the same way.
-  bool removeLongFlagspec(const String &name);
+  Boolean removeLongFlagspec(const String &name);
   // You can also get a pointer to the flagspec structure for
   // a particular flag, specifying a char for short or String for long name
   const flagspec *getFlagspec(char c);
   const flagspec *getFlagspec(const String &s);
 
   // Routines for initiating the parse and checking its success.
-  bool parse(int argc, char **argv);
-  bool hasErrors() const;
+  Boolean parse(int argc, char **argv);
+  Boolean hasErrors() const;
   const Error_List &getErrorStrings() const;
   ostream &printErrors(ostream &os) const;
   void printErrors(String &s) const;
@@ -241,5 +241,14 @@ class PEGASUS_GETOOPT_LINKAGE getoopt {
   unsigned int flagcnt() const;
 };
 
+inline int operator==(const Optarg& x, const Optarg& y)
+{
+    return 0;
+}
+
+inline int operator==(const flagspec& x, const flagspec& y)
+{
+    return 0;
+}
 
 #endif

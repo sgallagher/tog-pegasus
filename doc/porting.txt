@@ -1,5 +1,4 @@
 
-
 Notes for Solaris:
 
     Used static libraries for G++.
@@ -18,3 +17,5 @@ Notes on xlC on AIX (IBM C++):
     Missing standard headers (e.g., <cstdio>, <cstddef>,...)
     No boolean type.
 
+    Be sure makeC++SharedLib is on your path.
+    Ignore the "WARNING: Duplicat system: ..." messages from linker.

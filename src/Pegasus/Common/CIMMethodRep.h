@@ -140,7 +140,7 @@ public:
 
     void toXml(Array<Sint8>& out) const;
 
-    virtual void print(std::ostream &o=std::cout) const;
+    virtual void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
     Boolean identical(const CIMMethodRep* x) const;
 

@@ -30,8 +30,8 @@
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/Array.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 void test01()
 {

@@ -175,7 +175,7 @@ public:
 	const String& propertyName);
 
     static void indentedPrint(
-	std::ostream& os,
+	PEGASUS_STD(ostream)& os,
 	const char* text, 
 	Uint32 indentChars = 2);
 

@@ -28,12 +28,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-bool Service::run(
+Boolean Service::run(
     int argc,
     char** argv,
     const char* serviceName, 
     ServiceHandler* serviceHandler,
-    bool detach)
+    Boolean detach)
 {
     if (!detach)
     {

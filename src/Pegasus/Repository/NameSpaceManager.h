@@ -120,7 +120,7 @@ public:
 	const String& className) const;
 
     /** Print out the namespaces. */
-    void print(std::ostream& os) const;
+    void print(PEGASUS_STD(ostream)& os) const;
 
     /** Creates an entry for a new class.
 	@param nameSpaceName namespace to contain class.

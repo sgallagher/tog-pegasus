@@ -33,7 +33,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include "InstanceIndexFile.h"
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -256,7 +256,7 @@ Boolean InstanceIndexFile::insert(
     // Append the new instance to the file:
     //--------------------------------------------------------------------------
 
-    ofstream os(p.getPointer(), std::ios::app);
+    ofstream os(p.getPointer(), PEGASUS_STD(ios::app));
 
     char buffer[32];
     sprintf(buffer, "%08X", targetHashCode);

@@ -56,8 +56,8 @@
 #include <strstream>
 #include <Pegasus/Common/String.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 #include <Pegasus/Common/Exception.h>
 
 int main()

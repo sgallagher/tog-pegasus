@@ -96,7 +96,7 @@ public:
 
     void toXml(Array<Sint8>& out) const;
 
-    void print(std::ostream &o=std::cout) const;
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     Boolean identical(const CIMQualifierRep* x) const;
 

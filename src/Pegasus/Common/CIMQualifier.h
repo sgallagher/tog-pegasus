@@ -210,7 +210,7 @@ public:
     /**	CIMMethod
 
    */
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
@@ -353,7 +353,7 @@ public:
 	_rep->toXml(out);
     }
 
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
@@ -382,6 +382,9 @@ private:
     CIMQualifierRep* _rep;
     friend class CIMQualifier;
 };
+
+PEGASUS_MEMORY_FUNCTIONS(CIMQualifier)
+PEGASUS_MEMORY_FUNCTIONS(CIMQualifier*)
 
 PEGASUS_NAMESPACE_END
 

@@ -30,7 +30,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-std::ostream& operator<<(std::ostream& os, const Char16& x)
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Char16& x)
 {
     Uint16 code = x.getCode();
 

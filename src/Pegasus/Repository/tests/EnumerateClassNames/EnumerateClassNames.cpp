@@ -48,8 +48,8 @@
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 const String NAMESPACE = "/zzz";
 
@@ -79,7 +79,10 @@ void TestCase1()
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    assert(tmp == classNames);
+    assert(tmp.size() == 3);
+    assert(tmp.size() == classNames.size());
+
+    assert(Equal(tmp, classNames));
 }
 
 void TestCase2()

@@ -165,7 +165,7 @@ void CIMDateTime::set(const char* str)
 	throw BadDateTimeFormat();
 }
 
-std::ostream& operator<<(std::ostream& os, const CIMDateTime& x)
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMDateTime& x)
 {
     return os << x.getString();
 }

@@ -14,7 +14,7 @@ pegasus_home_undefined:
 	@ exit 1
 endif
 
-VALID_PLATFORMS = WIN32_IX86_MSVC LINUX_IX86_GNU
+VALID_PLATFORMS = WIN32_IX86_MSVC LINUX_IX86_GNU AIX_RS_IBMCXX
 
 ifndef PEGASUS_PLATFORM
   ERROR = pegasus_platform_undefined
@@ -45,6 +45,11 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 endif
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+  include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
+  FOUND = true
+endif
+
+ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
   include $(ROOT)/mak/platform_$(PEGASUS_PLATFORM).mak
   FOUND = true
 endif

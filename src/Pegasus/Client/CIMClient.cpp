@@ -37,7 +37,7 @@
 
 #include <iostream>
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -325,7 +325,8 @@ int ClientHandler::handleMessage()
 	}
 	catch (Exception& e)
 	{
-	    std::cerr << "Error: " << e.getMessage() << std::endl;
+	    PEGASUS_STD(cerr) << "Error: " 
+		<< e.getMessage() << PEGASUS_STD(endl);
 	}
     }
 

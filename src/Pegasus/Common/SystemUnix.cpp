@@ -127,7 +127,7 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
 
 DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 {
-    return DynamicLibraryHandle(dlopen(fileName, 0));
+    return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW | RTLD_GLOBAL));
 }
 
 DynamicSymbolHandle System::loadDynamicSymbol(

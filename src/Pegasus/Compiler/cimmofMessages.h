@@ -37,7 +37,7 @@
 #include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
-using namespace std;
+PEGASUS_USING_STD;
 
 class cimmofMessages {
  public:

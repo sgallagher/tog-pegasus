@@ -240,7 +240,7 @@ public:
     }
 
     /// mthod print -ATTN
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
@@ -270,7 +270,7 @@ private:
     // This constructor allows the CIMClassRep friend class to cast
     // away constness.
 
-    explicit CIMProperty(const CIMConstProperty& x);
+    PEGASUS_EXPLICIT CIMProperty(const CIMConstProperty& x);
 
     void _checkRep() const
     {
@@ -410,7 +410,7 @@ public:
 	_rep->toXml(out);
     }
 
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);

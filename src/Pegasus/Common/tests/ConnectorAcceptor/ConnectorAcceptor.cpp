@@ -29,8 +29,8 @@
 #include <iostream>
 #include <Pegasus/Common/TCPChannel.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 Boolean global_finished = false;
 

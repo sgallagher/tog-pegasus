@@ -34,8 +34,8 @@
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 static void _processFile(const char* fileName)
 {

@@ -31,8 +31,8 @@
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Repository/InstanceIndexFile.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 const char PATH[] = "X.idx";
 

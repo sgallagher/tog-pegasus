@@ -83,7 +83,6 @@ public:
 
 private:
 
-
     struct Entry
     {
 	String providerId;
@@ -91,6 +90,14 @@ private:
     };
 
     Array<Entry> _providers;
+
+public:
+
+    friend int operator==(const Entry& x, const Entry& y)
+    {
+	return 0;
+    }
+
 };
 
 PEGASUS_NAMESPACE_END

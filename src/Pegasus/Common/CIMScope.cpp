@@ -31,18 +31,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-namespace CIMScope
-{
-    const Uint32 NONE = 0;
-    const Uint32 CLASS = 1;
-    const Uint32 ASSOCIATION = 2;
-    const Uint32 INDICATION = 4;
-    const Uint32 PROPERTY = 8;
-    const Uint32 REFERENCE = 16;
-    const Uint32 METHOD = 32;
-    const Uint32 PARAMETER = 64;
-    const Uint32 ANY = (1 | 2 | 4 | 8 | 16 | 32 | 64 );
-}
+const Uint32 CIMScope::NONE = 0;
+const Uint32 CIMScope::CLASS = 1;
+const Uint32 CIMScope::ASSOCIATION = 2;
+const Uint32 CIMScope::INDICATION = 4;
+const Uint32 CIMScope::PROPERTY = 8;
+const Uint32 CIMScope::REFERENCE = 16;
+const Uint32 CIMScope::METHOD = 32;
+const Uint32 CIMScope::PARAMETER = 64;
+const Uint32 CIMScope::ANY = (1 | 2 | 4 | 8 | 16 | 32 | 64 );
 
 String ScopeToString(Uint32 scope)
 {

@@ -34,7 +34,7 @@
 #include <iostream> // for debug only
 
 PEGASUS_NAMESPACE_BEGIN
-using namespace std;
+PEGASUS_USING_STD;
 
 const cimmofMessages::arglist cimmofMessages::EMPTYLIST;
 

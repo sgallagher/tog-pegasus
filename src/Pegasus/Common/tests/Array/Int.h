@@ -50,12 +50,12 @@ public:
     int _value;
 };
 
-inline bool operator==(const Int& y1, const Int& y2)
+inline int operator==(const Int& y1, const Int& y2)
 {
     return y1._value == y2._value;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Int& y)
+inline PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Int& y)
 {
     return os << y._value;
 }

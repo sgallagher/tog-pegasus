@@ -145,7 +145,7 @@ void XmlWriter::appendLocalNameSpaceElement(
     out << "</LOCALNAMESPACEPATH>\n";
 }
 
-static inline void AppendSpecialChar(std::ostream& os, char c)
+static inline void AppendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
     switch (c)
     {
@@ -174,7 +174,7 @@ static inline void AppendSpecialChar(std::ostream& os, char c)
     }
 }
 
-static inline void AppendSpecial(std::ostream& os, const char* str)
+static inline void AppendSpecial(PEGASUS_STD(ostream)& os, const char* str)
 {
     while (*str)
 	AppendSpecialChar(os, *str++);
@@ -581,7 +581,7 @@ Array<Sint8>& XmlWriter::appendInstanceNameElement(
 //------------------------------------------------------------------------------
 
 static void _printAttributes(
-    std::ostream& os,
+    PEGASUS_STD(ostream)& os,
     const XmlAttribute* attributes,
     Uint32 attributeCount)
 {
@@ -604,7 +604,7 @@ static void _printAttributes(
 //
 //------------------------------------------------------------------------------
 
-static void _indent(std::ostream& os, Uint32 level, Uint32 indentChars)
+static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentChars)
 {
     Uint32 n = level * indentChars;
 
@@ -619,7 +619,7 @@ static void _indent(std::ostream& os, Uint32 level, Uint32 indentChars)
 //------------------------------------------------------------------------------
 
 void XmlWriter::indentedPrint(
-    std::ostream& os, 
+    PEGASUS_STD(ostream)& os, 
     const char* text, 
     Uint32 indentChars)
 {
@@ -711,7 +711,7 @@ void XmlWriter::indentedPrint(
 	    }
 	}
 
-	os << std::endl;
+	os << PEGASUS_STD(endl);
     }
 
     delete [] tmp;

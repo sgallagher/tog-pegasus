@@ -222,7 +222,7 @@ public:
     void remove(const String& className);
 
     /** Prints the class */
-    void print(std::ostream& os) const;
+    void print(PEGASUS_STD(ostream)& os) const;
 
 private:
 

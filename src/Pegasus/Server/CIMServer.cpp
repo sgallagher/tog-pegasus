@@ -41,7 +41,7 @@
 //debugging
 #include <iostream>
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -192,8 +192,6 @@ private:
 
 int ServerHandler::handleMessage()
 {
-    // std::cout << "ServerHandler::handleMessage()" << std::endl;
-
     Handler::handleMessage();
 
     const char* m = _message.getData();
@@ -216,13 +214,14 @@ int ServerHandler::handleMessage()
 	    }
 	    catch (Exception& e)
 	    {
-		std::cerr << "Error: " << e.getMessage() << std::endl;
+		PEGASUS_STD(cerr) << 
+		    "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	    }
 	    return 0;
 	}
     }
 
-    cout << "Error: unknown message: " << m << endl;
+    // cout << "Error: unknown message: " << m << endl;
     return -1;
 }
 
@@ -332,10 +331,6 @@ int ServerHandler::handleMethodCall()
     _message.append('\0');
     XmlParser parser((char*)getContent());
     XmlEntry entry;
-
-#if 0
-cout << "CONTENT[" << (char*)getContent() << "]" << endl;
-#endif
 
     //--------------------------------------------------------------------------
     // Expect "<?xml ...>":
@@ -607,7 +602,6 @@ void ServerHandler::handleGetInstance(
     }
     catch (Exception& e)
     {
-std::cout << e.getMessage() << std::endl;
 	sendError(messageId, "GetInstance", CIMException::FAILED, 
 	    CIMException::codeToString(CIMException::FAILED));
 	return;
@@ -1249,7 +1243,6 @@ void ServerHandler::handleGetProperty(
     String propertyName;
     CIMValue cimValueRtn;
 
-    cout << "CIMSERVER::handleGetProperty " << endl;
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
 	CIMValue cimValue; 
@@ -1273,9 +1266,6 @@ void ServerHandler::handleGetProperty(
 
        //propertyName = cimValue.data;
        propertyName = "pid";
-
-       cout << "DEBUG CIMSERVER:handlegetProperty "
-		     << propertyName << endl;
     }
 
     
@@ -1327,8 +1317,9 @@ void ServerHandler::handleGetProperty(
 	// body contains <value>value</value> to return
     Array<Sint8> message = XmlWriter::formatSimpleRspMessage(
 	"GetProperty", messageId, body);
-    cout << "DEBUG CIMServer:IhandleGetProperty " <<
-	cimValueRtn.toString() << endl;
+
+    // cout << "DEBUG CIMServer:IhandleGetProperty " <<
+    //	cimValueRtn.toString() << endl;
 
     _channel->writeN(message.getData(), message.size());
 }

@@ -181,7 +181,7 @@ public:
 	@param path path of file to be opened.
 	@return true on success.
     */
-    Boolean openNoCase(std::ifstream& is, const String& path);
+    Boolean openNoCase(PEGASUS_STD(ifstream)& is, const String& path);
 
     /** Determines whether the path refers to a directory.
 	@param path path of the directory.

@@ -24,12 +24,11 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#ifndef Pegasus_ConfigPlatform_h
-#define Pegasus_ConfigPlatform_h
+
+#ifndef Pegasus_Platform_WIN32_IX86_MSVC_h
+#define Pegasus_Platform_WIN32_IX86_MSVC_h
 
 #include <Pegasus/Common/ConfigWindows.h>
-
-#define PEGASUS_OS_TYPE_WINDOWS
 
 #define PEGASUS_OS_WIN32
 
@@ -37,9 +36,20 @@
 
 #define PEGASUS_COMPILER_MSVC
 
-// Suppress this warning: "identifier was truncated to '255' characters in the 
-// debug information"
+#define PEGASUS_UINT64 unsigned __int64
 
-#pragma warning( disable : 4786 )
+#define PEGASUS_SINT64 __int64
 
-#endif /* Pegasus_ConfigPlatform_h */
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_EXPLICIT
+
+#define PEGASUS_HAVE_MUTABLE
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_HAVE_BOOLEAN
+
+#endif /* Pegasus_Platform_WIN32_IX86_MSVC_h */

@@ -29,12 +29,9 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-namespace CIMQualifierNames
-{
-const char KEY[] = "key";
-const char ABSTRACT[] = "abstract";
-const char ASSOCIATION[] = "association";
-const char INDICATION[] = "indication";
-}
+const char CIMQualifierNames::KEY[] = "key";
+const char CIMQualifierNames::ABSTRACT[] = "abstract";
+const char CIMQualifierNames::ASSOCIATION[] = "association";
+const char CIMQualifierNames::INDICATION[] = "indication";
 
 PEGASUS_NAMESPACE_END

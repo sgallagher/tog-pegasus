@@ -3,8 +3,8 @@
 #include <Pegasus/Common/CIMReference.h>
 #include <Pegasus/Common/XmlWriter.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 void test01()
 {

@@ -30,6 +30,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/String.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -100,19 +101,21 @@ public:
     */
     Boolean removeHandler(SelectorHandler* handler);
 
-private:
-
-    Uint32 _findEntry(Sint32 desc) const;
-
     struct Entry
     {
 	Sint32 desc;
 	SelectorHandler* handler;
     };
 
+private:
+
+    Uint32 _findEntry(Sint32 desc) const;
+
     Array<Entry> _entries;
     SelectorRep* _rep;
 };
+
+PEGASUS_MEMORY_FUNCTIONS(Selector::Entry)
 
 class PEGASUS_COMMON_LINKAGE SelectorHandler
 {
@@ -122,6 +125,11 @@ public:
 
     virtual Boolean handle(Sint32 desc, Uint32 reasons) = 0;
 };
+
+inline int operator==(const Selector::Entry& x, const Selector::Entry& y) 
+{
+    return false; 
+}
 
 PEGASUS_NAMESPACE_END
 

@@ -36,8 +36,8 @@
 #include <Pegasus/Server/ProviderTable.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 const char NAMESPACE[] = "root/cimv20";
 const char ROOTNAMESPACE[] = "root";
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	std::cerr << "Error: " << e.getMessage() << std::endl;
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);
     }
 

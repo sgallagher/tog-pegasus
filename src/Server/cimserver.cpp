@@ -33,8 +33,8 @@
 #include <Pegasus/Server/CIMServer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 // const char PEGASUS_VERSION[]  = "Pegasus CIM Server - Version 0.7";
 
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	std::cerr << "Error: " << e.getMessage() << std::endl;
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     }
 
     return 0;

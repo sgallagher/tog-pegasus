@@ -29,8 +29,8 @@
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/FileSystem.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 void Test01()
 {

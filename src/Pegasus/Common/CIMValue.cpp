@@ -744,12 +744,12 @@ void CIMValue::toXml(Array<Sint8>& out) const
     }
 }
 
-void CIMValue::print(std::ostream &os) const
+void CIMValue::print(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    os << tmp.getData() << std::endl;
+    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 void CIMValue::set(Boolean x)

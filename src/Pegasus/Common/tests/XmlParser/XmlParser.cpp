@@ -31,8 +31,8 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <cstdio>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 static void _parseFile(const char* fileName)
 {

@@ -29,7 +29,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-std::ostream& operator<<(std::ostream& os, const Indentor& x)
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Indentor& x)
 {
     for (Uint32 i = 0; i < 4 * x._level; i++)
 	os << ' ';

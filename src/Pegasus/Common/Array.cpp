@@ -36,11 +36,4 @@ void ThrowOutOfBounds()
     throw OutOfBounds();
 }
 
-// ATTN-A: Remove this function!
-
-Boolean Equal(const String& x, const String& y)
-{
-    return String::equal(x, y);
-}
-
 PEGASUS_NAMESPACE_END

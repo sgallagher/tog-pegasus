@@ -47,6 +47,6 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
 
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
 
 #endif

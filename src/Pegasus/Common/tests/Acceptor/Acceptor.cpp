@@ -31,8 +31,8 @@
 
 #define D(X) /* empty */
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 class MyChannelHandler : public ChannelHandler
 {

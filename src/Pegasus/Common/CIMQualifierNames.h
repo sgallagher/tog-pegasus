@@ -42,12 +42,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-namespace CIMQualifierNames
+struct PEGASUS_COMMON_LINKAGE CIMQualifierNames
 {
-    PEGASUS_COMMON_LINKAGE extern const char KEY[];
-    PEGASUS_COMMON_LINKAGE extern const char ABSTRACT[];
-    PEGASUS_COMMON_LINKAGE extern const char ASSOCIATION[];
-    PEGASUS_COMMON_LINKAGE extern const char INDICATION[];
+    static const char KEY[];
+    static const char ABSTRACT[];
+    static const char ASSOCIATION[];
+    static const char INDICATION[];
 };
 
 PEGASUS_NAMESPACE_END

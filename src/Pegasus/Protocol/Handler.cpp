@@ -35,7 +35,7 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include "Handler.h"
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 

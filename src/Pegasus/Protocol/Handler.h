@@ -80,7 +80,7 @@ public:
 
     virtual int handleMessage();
 
-    static void printMessage(std::ostream& os, const Array<Sint8>& message);
+    static void printMessage(PEGASUS_STD(ostream)& os, const Array<Sint8>& message);
 
 private:
 

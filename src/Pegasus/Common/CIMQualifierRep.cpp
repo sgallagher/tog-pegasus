@@ -94,12 +94,12 @@ void CIMQualifierRep::toXml(Array<Sint8>& out) const
     out << "</QUALIFIER>\n";
 }
 
-void CIMQualifierRep::print(std::ostream &os) const
+void CIMQualifierRep::print(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    os << tmp.getData() << std::endl;
+    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 CIMQualifierRep::CIMQualifierRep()

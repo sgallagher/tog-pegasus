@@ -40,8 +40,6 @@ PEGASUS_NAMESPACE_BEGIN
 #include <arpa/inet.h>
 #include <unistd.h>
 
-using namespace std;
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Local routines:

@@ -189,12 +189,12 @@ void CIMMethodRep::toXml(Array<Sint8>& out) const
     out << "</METHOD>\n";
 }
 
-void CIMMethodRep::print(std::ostream &os) const
+void CIMMethodRep::print(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    os << tmp.getData() << std::endl;
+    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 CIMMethodRep::CIMMethodRep()

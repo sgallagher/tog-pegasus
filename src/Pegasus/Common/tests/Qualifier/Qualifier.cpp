@@ -29,8 +29,8 @@
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMProperty.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 // #define IO
 

@@ -34,8 +34,8 @@
 #include "Str.h"
 #include "Int.h"
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 template<class T>
 void Print(const Array<T>& arr)

@@ -30,8 +30,8 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Stopwatch.h>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 int main()
 {

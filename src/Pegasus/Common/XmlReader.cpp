@@ -38,9 +38,6 @@
 #include "CIMInstance.h"
 
 PEGASUS_NAMESPACE_BEGIN
-//debug
-#include <iostream>
-using namespace std;
 
 static const Uint32 MESSAGE_SIZE = 128;
 

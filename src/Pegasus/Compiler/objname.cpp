@@ -36,7 +36,7 @@
 #include "objname.h"
 #include <iostream> // for debug
 
-using namespace std;
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 #define WHITESPACE(x) (x==' ' || x=='\t' || x=='\n' || x=='\r')
@@ -72,7 +72,7 @@ namespaceHandle::namespaceHandleRepToComponents(const String &rep) {
   Uint32 n = rep.size();
   typedef enum _states {BEGIN, INHOST, INPATH, DONE} states;
   states state = BEGIN;
-  bool hashost = false;
+  Boolean hashost = false;
   for (Uint32 i = 0; i < n; i++)
     if (rep[i] == ':')
 	hashost = true;

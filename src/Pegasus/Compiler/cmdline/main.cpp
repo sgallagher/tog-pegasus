@@ -33,9 +33,12 @@
 #include "cmdlineExceptions.h"
 #include "../cimmofParser.h"
 #include "../parserExceptions.h"
-//#include <Pegasus/Common/Exception.h>
 
-using namespace std;
+PEGASUS_USING_STD;
+
+#ifdef PEGASUS_HAVE_NAMESPACES
+using namespace ParserExceptions;
+#endif
 
 // This is used by the parsing routines to control flow
 // through include files
@@ -77,7 +80,7 @@ main(int argc, char ** argv) {
       if (p->setInputBufferFromName((const String &)filespecs[i]) == 0) {
 	try {
 	  ret = p->parse();
-	} catch(ParserExceptions::ParserLexException &e) {
+	} catch(ParserLexException &e) {
 	  cerr << "Lexer error: " << e.getMessage() << endl;
 	} catch(Exception &e) {
 	  cerr << "Parsing error: " << e.getMessage() << endl;
@@ -91,7 +94,7 @@ main(int argc, char ** argv) {
     int ret =  p->parse();
     } catch(Exception &e) {
 	    cerr << "Parsing error: "  << e.getMessage() << endl;
-    } catch(ParserExceptions::ParserLexException &e) {
+    } catch(ParserLexException &e) {
       cerr << "Lexer error: " << e.getMessage() << endl;
     }
   }

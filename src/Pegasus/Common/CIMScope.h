@@ -25,11 +25,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/*
- CIMScope.h  This file declares qualifier scope constants.
-*/
-
-
 #ifndef Pegasus_Scope_h
 #define Pegasus_Scope_h
 
@@ -40,21 +35,22 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-The CIMQualifier Scopes are as follows:
-NONE, Class, ASSOCIATION,INDICATION,PROPERTY, REFERENCE, METHOD, PARAMETER, ANY
+    The CIMQualifier Scopes are as follows:
+    NONE, Class, ASSOCIATION,INDICATION,PROPERTY, REFERENCE, METHOD, 
+    PARAMETER, ANY
 */
-namespace CIMScope
+struct PEGASUS_COMMON_LINKAGE CIMScope
 {
-    PEGASUS_COMMON_LINKAGE extern const Uint32 NONE;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 CLASS;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 ASSOCIATION;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 INDICATION;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 PROPERTY;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 REFERENCE;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 METHOD;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 PARAMETER;
-    PEGASUS_COMMON_LINKAGE extern const Uint32 ANY;
-}
+    static const Uint32 NONE;
+    static const Uint32 CLASS;
+    static const Uint32 ASSOCIATION;
+    static const Uint32 INDICATION;
+    static const Uint32 PROPERTY;
+    static const Uint32 REFERENCE;
+    static const Uint32 METHOD;
+    static const Uint32 PARAMETER;
+    static const Uint32 ANY;
+};
 
 PEGASUS_COMMON_LINKAGE String ScopeToString(Uint32 scope);
 

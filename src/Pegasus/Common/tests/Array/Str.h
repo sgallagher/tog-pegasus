@@ -31,7 +31,7 @@
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
 
 class Str
 {
@@ -83,7 +83,7 @@ private:
     char* _str;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Str& x)
+inline PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Str& x)
 {
     os << x.getStr();
     return os;

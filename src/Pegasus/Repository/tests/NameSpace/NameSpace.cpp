@@ -28,8 +28,8 @@
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 /** Test of the namespace functions for the repository.
 This test creates a set of namespaces in a local repository
 then enumerates them and compares the original

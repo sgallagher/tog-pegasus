@@ -31,7 +31,7 @@
 
 #include "cmdlineExceptions.h"
 
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
 
 const String ArgumentErrorsException::MSG;
 

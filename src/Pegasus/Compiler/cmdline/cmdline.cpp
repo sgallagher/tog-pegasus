@@ -37,8 +37,8 @@
 #include <iostream>
 #include <Pegasus/Common/String.h>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 #include "../mofCompilerOptions.h"
 #include "cmdlineExceptions.h"
@@ -50,7 +50,7 @@ using namespace Pegasus;
 //#include <strstream>
 //#include <sstream>
 
-using namespace Pegasus;
+PEGASUS_USING_PEGASUS;
 
 
 // COMPILER VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -96,22 +96,24 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
 }
 
 /* flag value, type, islong?, needsValue? */
-static struct optspec 
-optspecs[] = {{"", FILESPEC, false, true},
-{"h", HELPFLAG, false, false},
-{"help", HELPFLAG, true, false},
-{"f", FILELIST, false, true},
-{"filelist", FILELIST, true, true},
-{"n", NAMESPACE, false, true},
-{"namespace", NAMESPACE, true, true}, 
-{"I", INCLUDEPATH, false, true},
-{"Include", INCLUDEPATH, true, true},
-{"R", REPOSITORYNAME, false, true},
-{"CIMRepository", REPOSITORYNAME, true, true},
-{"E", SYNTAXFLAG, false, false}, 
-{"w", SUPPRESSFLAG, false, false},
-{"t", TRACEFLAG, false, false},
-{"", OPTEND, false, false}};
+static struct optspec optspecs[] = 
+{
+    {"", FILESPEC, false, true},
+    {"h", HELPFLAG, false, false},
+    {"help", HELPFLAG, true, false},
+    {"f", FILELIST, false, true},
+    {"filelist", FILELIST, true, true},
+    {"n", NAMESPACE, false, true},
+    {"namespace", NAMESPACE, true, true}, 
+    {"I", INCLUDEPATH, false, true},
+    {"Include", INCLUDEPATH, true, true},
+    {"R", REPOSITORYNAME, false, true},
+    {"CIMRepository", REPOSITORYNAME, true, true},
+    {"E", SYNTAXFLAG, false, false}, 
+    {"w", SUPPRESSFLAG, false, false},
+    {"t", TRACEFLAG, false, false},
+    {"", OPTEND, false, false}
+};
 
 static void
 setCmdLineOpts(getoopt &cmdline) {
@@ -154,8 +156,8 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.reset_trace();
   cmdlinedata.add_include_path(".");
   cmdlinedata.set_namespacePath(ROOTCIMV20);
-  cmdlinedata.set_erroros(std::cerr);
-  cmdlinedata.set_warningos(std::cerr);
+  cmdlinedata.set_erroros(PEGASUS_STD(cerr));
+  cmdlinedata.set_warningos(PEGASUS_STD(cerr));
 }
 
 extern "C++" int processCmdline(int, char **, mofCompilerOptions &, ostream&);

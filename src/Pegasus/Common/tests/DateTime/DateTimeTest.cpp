@@ -29,8 +29,8 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Exception.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 int main()
 {

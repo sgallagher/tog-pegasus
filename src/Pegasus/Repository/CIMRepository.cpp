@@ -41,7 +41,7 @@
 
 // #define INDENT_XML_FILES
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -87,13 +87,13 @@ void _LoadObject(
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class Object>
-void _SaveObject(const String& path, Object& object)
+void _SaveObject(const String& path, const Object& object)
 {
     Array<Sint8> out;
     object.toXml(out);
 
     ArrayDestroyer<char> destroyer(path.allocateCString());
-    std::ofstream os(destroyer.getPointer() PEGASUS_IOS_BINARY);
+    PEGASUS_STD(ofstream) os(destroyer.getPointer() PEGASUS_IOS_BINARY);
 
     if (!os)
 	throw CannotOpenFile(path);

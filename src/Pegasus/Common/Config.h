@@ -25,12 +25,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Config.h
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_Config_h
 #define Pegasus_Config_h
 
@@ -40,13 +34,73 @@
 # include <Pegasus/Common/Platform_WIN32_IX86_MSVC.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include <Pegasus/Common/Platform_LINUX_IX86_GNU.h>
+#elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+# include <Pegasus/Common/Platform_AIX_RS_IBMCXX.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif
 
-#define PEGASUS_TRACE \
-    std::cout << __FILE__ << '(' << __LINE__ << ')' << std::endl
+#ifdef PEGASUS_HAVE_NAMESPACES
+# define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {
+# define PEGASUS_NAMESPACE_END }
+# define PEGASUS_STD(X) std::X
+# define PEGASUS_USING_STD using namespace std
+# define PEGASUS_USING_PEGASUS using namespace Pegasus
+#else
+# define PEGASUS_NAMESPACE_BEGIN /* empty */
+# define PEGASUS_NAMESPACE_END /* empty */
+# define PEGASUS_STD(X) X
+# define PEGASUS_USING_STD
+# define PEGASUS_USING_PEGASUS
+#endif
 
-#define PEGASUS_OUT(X) std::cout << #X << "=[" << X << "]" << std::endl
+#ifdef PEGASUS_HAVE_EXPLICIT
+# define PEGASUS_EXPLICIT explicit
+#else
+# define PEGASUS_EXPLICIT /* empty */
+#endif
+
+#ifdef PEGASUS_HAVE_MUTABLE
+# define PEGASUS_MUTABLE mutable
+#else
+# define PEGASUS_MUTABLE /* empty */
+#endif
+
+#ifndef PEGASUS_HAVE_FOR_SCOPE
+# define for if (0) ; else for
+#endif
+
+#ifdef PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+# define PEGASUS_TEMPLATE_SPECIALIZATION template <>
+#else
+# define PEGASUS_TEMPLATE_SPECIALIZATION
+#endif
+
+PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_HAVE_BOOLEAN
+  typedef bool Boolean;
+#else
+# include <Pegasus/Common/Boolean.h>
+#endif
+
+typedef unsigned char Uint8;
+typedef char Sint8;
+typedef unsigned short Uint16;
+typedef short Sint16;
+typedef unsigned int Uint32;
+typedef int Sint32;
+typedef float Real32;
+typedef double Real64;
+typedef PEGASUS_UINT64 Uint64;
+typedef PEGASUS_SINT64 Sint64;
+
+PEGASUS_NAMESPACE_END
+
+#define PEGASUS_TRACE \
+    PEGASUS_STD(cout) << __FILE__ << '(' << __LINE__ << ')' << PEGASUS_STD(endl)
+
+#define PEGASUS_OUT(X) \
+    PEGASUS_STD(cout) << #X << "=[" << X << "]" << PEGASUS_STD(endl)
 
 #endif  /* Pegasus_Config_h */

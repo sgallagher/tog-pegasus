@@ -109,6 +109,9 @@ public:
     */
     CIMDateTime(const CIMDateTime& x);
 
+    /** Destructor. */
+    ~CIMDateTime() { }
+
     /** CIMDateTime method again
     */
     CIMDateTime& operator=(const CIMDateTime& x);
@@ -162,8 +165,8 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMDateTime& x, 
     const CIMDateTime& y);
 
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<(
-    std::ostream& os, 
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
+    PEGASUS_STD(ostream)& os, 
     const CIMDateTime& x);
 
 PEGASUS_NAMESPACE_END

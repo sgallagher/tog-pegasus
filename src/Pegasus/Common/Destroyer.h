@@ -88,9 +88,9 @@ public:
 
     T* getPointer() { return _ptr; }
 
-    ArrayDestroyer(const ArrayDestroyer&) { }
+    ArrayDestroyer(const ArrayDestroyer<T>&) { }
 
-    ArrayDestroyer& operator=(const ArrayDestroyer&) { return *this; }
+    ArrayDestroyer<T>& operator=(const ArrayDestroyer<T>&) { return *this; }
 
 private:
 

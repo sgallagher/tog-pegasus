@@ -64,18 +64,11 @@ inline void Destroy(T* items, Uint32 size)
 	items++->~T();
 }
 
-inline void Destroy(Boolean* items, Uint32 size) { }
-inline void Destroy(Uint8* items, Uint32 size) { }
-inline void Destroy(Sint8* items, Uint32 size) { }
-inline void Destroy(Uint16* items, Uint32 size) { }
-inline void Destroy(Sint16* items, Uint32 size) { }
-inline void Destroy(Uint32* items, Uint32 size) { }
-inline void Destroy(Sint32* items, Uint32 size) { }
-inline void Destroy(Uint64* items, Uint32 size) { }
-inline void Destroy(Sint64* items, Uint32 size) { }
-inline void Destroy(Real32* items, Uint32 size) { }
-inline void Destroy(Real64* items, Uint32 size) { }
-inline void Destroy(Char16* items, Uint32 size) { }
+template<class T>
+inline void Destroy(T* ptr)
+{
+    ptr->~T();
+}
 
 template<class T, class U>
 inline void CopyToRaw(T* to, const U* from, Uint32 size)
@@ -151,18 +144,25 @@ inline void InitializeRaw(T* items, Uint32 size)
 	items++->~T();
 }
 
-inline void InitializeRaw(Boolean* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Uint8* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Sint8* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Uint16* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Sint16* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Uint32* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Sint32* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Uint64* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Sint64* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Real32* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Real64* items, Uint32 size) { Zeros(items, size); }
-inline void InitializeRaw(Char16* items, Uint32 size) { Zeros(items, size); }
+#define PEGASUS_MEMORY_FUNCTIONS(T) \
+    inline void Destroy(T*, Uint32) { } \
+    inline void Destroy(T*) { } \
+    inline void InitializeRaw(T* items, Uint32 size) { Zeros(items, size); }
+
+PEGASUS_MEMORY_FUNCTIONS(char*)
+PEGASUS_MEMORY_FUNCTIONS(const char*)
+PEGASUS_MEMORY_FUNCTIONS(Boolean)
+PEGASUS_MEMORY_FUNCTIONS(Uint8)
+PEGASUS_MEMORY_FUNCTIONS(Sint8)
+PEGASUS_MEMORY_FUNCTIONS(Uint16)
+PEGASUS_MEMORY_FUNCTIONS(Sint16)
+PEGASUS_MEMORY_FUNCTIONS(Uint32)
+PEGASUS_MEMORY_FUNCTIONS(Sint32)
+PEGASUS_MEMORY_FUNCTIONS(Uint64)
+PEGASUS_MEMORY_FUNCTIONS(Sint64)
+PEGASUS_MEMORY_FUNCTIONS(Real32)
+PEGASUS_MEMORY_FUNCTIONS(Real64)
+PEGASUS_MEMORY_FUNCTIONS(Char16)
 
 PEGASUS_NAMESPACE_END
 

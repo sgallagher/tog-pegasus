@@ -36,7 +36,7 @@ become a real provider.
 #include <Pegasus/Provider/CIMProvider.h>
 
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -153,7 +153,7 @@ public:
 
 extern "C" PEGASUS_EXPORT CIMProvider* 
     PegasusCreateProvider_MyProvider() {
-    // std::cout << "Called PegasusCreateProvider_MyProvider" << std::endl; 
+    // PEGASUS_STD(cout) << "Called PegasusCreateProvider_MyProvider" << PEGASUS_STD(endl); 
     return new MyProvider;
 }
 

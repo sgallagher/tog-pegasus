@@ -49,8 +49,8 @@ enum opttypes {FILESPEC,
 struct optspec {
   char *flag;
   opttypes catagory;
-  bool islong;
-  bool needsvalue;
+  int islong;
+  int needsvalue;
 };
 
 #define PEGASUS_HOME "PEGASUS_HOME"

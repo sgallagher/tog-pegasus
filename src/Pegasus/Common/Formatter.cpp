@@ -29,8 +29,6 @@
 #include <cstdio>
 #include "Formatter.h"
 
-using namespace std;
-
 PEGASUS_NAMESPACE_BEGIN
 
 String Formatter::Arg::toString() const

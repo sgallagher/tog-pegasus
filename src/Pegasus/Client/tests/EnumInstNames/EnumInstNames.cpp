@@ -29,8 +29,8 @@
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/Selector.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 const String NAMESPACE = "root/cimv20";
 
@@ -52,11 +52,11 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	std::cerr << "Error: " << e.getMessage() << std::endl;
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	exit(1);
     }
 
-    std::cout << "+++++ passed all tests" << std::endl;
+    PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
 
     return 0;
 }

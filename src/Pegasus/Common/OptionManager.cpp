@@ -51,8 +51,6 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace std;
-
 const Array<String>& Option::getDomain() const
 {
     return _domain;

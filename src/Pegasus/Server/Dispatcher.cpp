@@ -31,7 +31,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-using namespace std;
+PEGASUS_USING_STD;
 
 Dispatcher::Dispatcher(CIMRepository* repository)
     : _repository(repository)
@@ -182,7 +182,6 @@ Array<CIMInstance> Dispatcher::enumerateInstances(
     Boolean includeClassOrigin,
     const Array<String>& propertyList)
 {
-    std::cout << "Dispatcher::enumerateInstances()" << std::endl;
     return Array<CIMInstance>();
 }
 
@@ -261,7 +260,6 @@ CIMValue Dispatcher::getProperty(
     const CIMReference& instanceName,
     const String& propertyName) 
 { 
-    cout << "getProperty Dispatcher" << endl;
     String className = instanceName.getClassName();
     CIMProvider* provider = _lookupProviderForClass(nameSpace, className);
 

@@ -43,7 +43,7 @@ struct Pair
 
     }
 
-    Pair(const Pair& x) : first(x.first), second(x.second)
+    Pair(const Pair<T,U>& x) : first(x.first), second(x.second)
     { 
 
     }
@@ -53,7 +53,7 @@ struct Pair
 
     }
 
-    Pair& operator=(const Pair& x)
+    Pair<T,U>& operator=(const Pair<T,U>& x)
     {
 	first = x.first;
 	second = x.second;

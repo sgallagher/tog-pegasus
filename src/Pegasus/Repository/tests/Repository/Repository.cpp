@@ -28,8 +28,8 @@
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 void test01()
 {

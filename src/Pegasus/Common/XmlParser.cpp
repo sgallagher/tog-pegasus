@@ -99,13 +99,13 @@ static void _printValue(const char* p)
     for (; *p; p++)
     {
 	if (*p == '\n')
-	    std::cout << "\\n";
+	    PEGASUS_STD(cout) << "\\n";
 	else if (*p == '\r')
-	    std::cout << "\\r";
+	    PEGASUS_STD(cout) << "\\r";
 	else if (*p == '\t')
-	    std::cout << "\\t";
+	    PEGASUS_STD(cout) << "\\t";
 	else
-	    std::cout << *p;
+	    PEGASUS_STD(cout) << *p;
     }
 }
 
@@ -781,25 +781,25 @@ static const char* _typeStrings[] =
 
 void XmlEntry::print() const
 {
-    std::cout << "=== " << _typeStrings[type] << " ";
+    PEGASUS_STD(cout) << "=== " << _typeStrings[type] << " ";
 
     Boolean needQuotes = type == XmlEntry::CDATA || type == XmlEntry::CONTENT;
 
     if (needQuotes)
-	std::cout << "\"";
+	PEGASUS_STD(cout) << "\"";
 	
     _printValue(text);
 
     if (needQuotes)
-	std::cout << "\"";
+	PEGASUS_STD(cout) << "\"";
 
-    std::cout << '\n';
+    PEGASUS_STD(cout) << '\n';
 
     for (Uint32 i = 0; i < attributeCount; i++)
     {
-	std::cout << "    " << attributes[i].name << "=\"";
+	PEGASUS_STD(cout) << "    " << attributes[i].name << "=\"";
 	_printValue(attributes[i].value);
-	std::cout << "\"" << std::endl;
+	PEGASUS_STD(cout) << "\"" << PEGASUS_STD(endl);
     }
 }
 

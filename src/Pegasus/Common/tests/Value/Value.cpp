@@ -28,8 +28,8 @@
 #include <cassert>
 #include <Pegasus/Common/CIMValue.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 // #define IO
 

@@ -28,8 +28,8 @@
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/DeclContext.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 int main()
 {

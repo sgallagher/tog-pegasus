@@ -598,7 +598,7 @@ void CIMReference::toXml(Array<Sint8>& out) const
     out << "</VALUE.REFERENCE>\n";
 }
 
-void CIMReference::print(std::ostream& os) const
+void CIMReference::print(PEGASUS_STD(ostream)& os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);

@@ -41,12 +41,12 @@ struct HashFunc
 {
 };
 
-template<> struct PEGASUS_COMMON_LINKAGE HashFunc<String>
+PEGASUS_TEMPLATE_SPECIALIZATION struct PEGASUS_COMMON_LINKAGE HashFunc<String>
 {
     static Uint32 hash(const String& str);
 };
 
-template<> struct HashFunc<Uint32>
+PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<Uint32>
 {
     static Uint32 hash(Uint32 x) { return x + 13; }
 };
@@ -101,7 +101,7 @@ public:
     
     _HashTableIteratorBase() : _first(0), _last(0), _bucket(0) { }
 
-    operator Boolean() const { return _bucket != 0; }
+    operator int() const { return _bucket != 0; }
 
     _HashTableIteratorBase operator++(int);
 
@@ -407,7 +407,7 @@ public:
     the pathalogical case in which all entries are placed in the first
     chain.
 */
-template<class K, class V, class E = EqualFunc<K>, class H = HashFunc<K> >
+template<class K, class V, class E , class H >
 class HashTable
 {
 public:
@@ -426,13 +426,13 @@ public:
     }
 
     /** Copy constructor. */
-    HashTable(const HashTable& x) : _rep(x._rep)
+    HashTable(const HashTable<K,V,E,H>& x) : _rep(x._rep)
     {
 
     }
 
     /** Assignment operator. */
-    HashTable& operator=(const HashTable& x)
+    HashTable<K,V,E,H>& operator=(const HashTable<K,V,E,H>& x)
     {
 	if (this != &x)
 	    _rep = x._rep;

@@ -186,7 +186,7 @@ public:
     
     */
 
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);
@@ -336,7 +336,7 @@ public:
 	_rep->toXml(out);
     }
 
-    void print(std::ostream &o=std::cout) const
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const
     {
 	_checkRep();
 	_rep->print(o);

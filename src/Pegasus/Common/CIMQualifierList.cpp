@@ -200,12 +200,12 @@ void CIMQualifierList::toXml(Array<Sint8>& out) const
 	_qualifiers[i].toXml(out);
 }
 
-void CIMQualifierList::print(std::ostream &os) const
+void CIMQualifierList::print(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    os << tmp.getData() << std::endl;
+    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 Boolean CIMQualifierList::identical(const CIMQualifierList& x) const

@@ -28,8 +28,8 @@
 #include <cassert>
 #include <Pegasus/Server/ProviderTable.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	std::cerr << "Error: " << e.getMessage() << std::endl;
+	PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
     }
 
     cout << "+++++ passed all tests" << endl;

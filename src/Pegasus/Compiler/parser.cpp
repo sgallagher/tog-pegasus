@@ -45,7 +45,7 @@
 bufstate *
 parser::pop_statebuff() {
     bufstate *v = 0;
-    if (!_include_stack.empty()) {
+    if (!_include_stack.isEmpty()) {
       v = _include_stack.top();
       _include_stack.pop();
     }
@@ -86,7 +86,9 @@ parser::wrap() {
   }
 }
 
+#ifdef PEGASUS_HAVE_NAMESPACES
 using namespace ParserExceptions;
+#endif /* PEGASUS_HAVE_NAMESPACES */
 
 //----------------------------------------------------------------
 // Log where an error occured.  This is pretty lame, so it needs a

@@ -31,7 +31,7 @@
 #include <Pegasus/Common/Dir.h>
 #include "NameSpaceManager.h"
 
-using namespace std;
+PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -116,7 +116,7 @@ public:
     InheritanceTree& getInheritanceTree() { return _inheritanceTree; }
 
     /** Print this namespace. */
-    void print(std::ostream& os) const;
+    void print(PEGASUS_STD(ostream)& os) const;
 
 private:
 
@@ -156,10 +156,10 @@ const String NameSpace::getInstanceFileBase(const String& className) const
     return _MakeInstanceFileBase(_nameSpacePath, className);
 }
 
-void NameSpace::print(std::ostream& os) const
+void NameSpace::print(PEGASUS_STD(ostream)& os) const
 {
-    os << "=== NameSpace: " << _nameSpaceName << std::endl;
-    os << "_nameSpacePath: " << _nameSpacePath << std::endl;
+    os << "=== NameSpace: " << _nameSpaceName << PEGASUS_STD(endl);
+    os << "_nameSpacePath: " << _nameSpacePath << PEGASUS_STD(endl);
     _inheritanceTree.print(os);
 }
 
@@ -169,7 +169,7 @@ void NameSpace::print(std::ostream& os) const
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef HashTable<String, NameSpace*> Table;
+typedef HashTable<String,NameSpace*,EqualFunc<String>,HashFunc<String> > Table;
 
 struct NameSpaceManagerRep
 {
@@ -435,7 +435,7 @@ void NameSpaceManager::deleteClass(
 	throw FailedToRemoveFile(classFilePath);
 }
 
-void NameSpaceManager::print(std::ostream& os) const
+void NameSpaceManager::print(PEGASUS_STD(ostream)& os) const
 {
     for (Table::Iterator i = _rep->table.start(); i; i++)
     {
@@ -443,7 +443,7 @@ void NameSpaceManager::print(std::ostream& os) const
 	nameSpace->print(os);
     }
 
-    os << std::endl;
+    os << PEGASUS_STD(endl);
 }
 
 void NameSpaceManager::createClass(

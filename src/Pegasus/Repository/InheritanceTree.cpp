@@ -32,7 +32,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-using namespace std;
+PEGASUS_USING_STD;
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -68,7 +68,7 @@ struct InheritanceTreeNode
 
     void getSuperClassNames(Array<String>& superClassNames);
 
-    void print(std::ostream& os) const;
+    void print(PEGASUS_STD(ostream)& os) const;
 
     String className;
     InheritanceTreeNode* superClass;
@@ -140,10 +140,10 @@ void InheritanceTreeNode::getSuperClassNames(Array<String>& superClassNames)
     }
 }
 
-void InheritanceTreeNode::print(std::ostream& os) const
+void InheritanceTreeNode::print(PEGASUS_STD(ostream)& os) const
 {
     os << className << " : " ;
-    os << (superClass ? superClass->className : "<None>");
+    os << (superClass ? superClass->className : String("<None>"));
 
     os << " { ";
 
@@ -161,7 +161,8 @@ void InheritanceTreeNode::print(std::ostream& os) const
 
 struct InheritanceTreeRep
 {
-    typedef HashTable<String, InheritanceTreeNode*, NoCaseEqualFunc> Table;
+    typedef HashTable<String, InheritanceTreeNode*, 
+	NoCaseEqualFunc, HashFunc<String> > Table;
     Table table;
 };
 
@@ -384,7 +385,7 @@ void InheritanceTree::remove(const String& className)
     delete node;
 }
 
-void InheritanceTree::print(std::ostream& os) const
+void InheritanceTree::print(PEGASUS_STD(ostream)& os) const
 {
     for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++)
 	i.value()->print(os);

@@ -25,49 +25,59 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// Stack.h
-//
-//	Simple stack implementation based on the Array<> class.
-//
-////////////////////////////////////////////////////////////////////////////////
-
 #ifndef Pegasus_Stack_h
 #define Pegasus_Stack_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Exception.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
+/** The Stack class provides a simple stack implementation.
+    This class provides a stack implementation which is based on the Array<>
+    template class.
+*/
 template<class T>
 class Stack
 {
 public:
-    ///
+
+    /** */
     Stack() { }
-    ///
-    Stack(const Stack& x) : _rep(x._rep) { }
-    ///
+
+    /** */
+    Stack(const Stack<T>& x) : _rep(x._rep) { }
+
+    /** */
     ~Stack() { }
-    ///
-    Stack& operator=(const Stack& x) { _rep = x._rep; return *this; }
-    ///
+
+    /** */
+    Stack<T>& operator=(const Stack<T>& x) { _rep = x._rep; return *this; }
+
+    /** */
     Boolean isEmpty() const { return _rep.size() == 0; }
-    ///
+
+    /** */
     void push(const T& x) { _rep.append(x); }
-    ///
+
+    /** */
     T& top();
-    ///
+
+    /** */
     const T& top() const { return ((Stack<T>*)this)->top(); }
-    ///
+
+    /** */
     void pop();
-    ///
+
+    /** */
     Uint32 size() const { return _rep.size(); }
-    ///
+
+    /** */
     T& operator[](Uint32 i) { return _rep[i]; }
-    ///
+
+    /** */
     const T& operator[](Uint32 i) const { return _rep[i]; }
 
 private:

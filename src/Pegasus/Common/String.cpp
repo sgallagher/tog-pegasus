@@ -30,11 +30,7 @@
 #include "String.h"
 #include "Exception.h"
 #include "String.h"
-
-// For debugging
 #include <iostream>
-using namespace std;
-
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -425,7 +421,7 @@ int String::compare(const Char16* s1, const Char16* s2)
     return 0;
 }
 
-std::ostream& operator<<(std::ostream& os, const String& x)
+PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& x)
 {
     for (Uint32 i = 0, n = x.size(); i < n; i++)
 	os << x[i];
@@ -472,7 +468,7 @@ int CompareNoCase(const char* s1, const char* s2)
     return 0;
 }
 
-Boolean GetLine(istream& is, String& line)
+Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 {
     line.clear();
 

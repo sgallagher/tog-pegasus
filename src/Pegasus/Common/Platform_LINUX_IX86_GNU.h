@@ -24,12 +24,11 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#ifndef Pegasus_ConfigPlatform_h
-#define Pegasus_ConfigPlatform_h
+
+#ifndef Pegasus_Platform_LINUX_IX86_GNU_h
+#define Pegasus_Platform_LINUX_IX86_GNU_h
 
 #include <Pegasus/Common/ConfigUnix.h>
-
-#define PEGASUS_OS_TYPE_UNIX
 
 #define PEGASUS_OS_LINUX
 
@@ -37,4 +36,20 @@
 
 #define PEGASUS_COMPILER_GNU
 
-#endif /* Pegasus_ConfigPlatform_h */
+#define PEGASUS_UINT64 unsigned long long
+
+#define PEGASUS_SINT64 long long
+
+#define PEGASUS_HAVE_NAMESPACES
+
+#define PEGASUS_HAVE_EXPLICIT
+
+#define PEGASUS_HAVE_MUTABLE
+
+#define PEGASUS_HAVE_FOR_SCOPE
+
+#define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
+
+#define PEGASUS_HAVE_BOOLEAN
+
+#endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

@@ -28,9 +28,9 @@
 #ifndef Pegasus_Value_h
 #define Pegasus_Value_h
 
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/Union.h>
 #include <Pegasus/Common/Array.h>
@@ -308,7 +308,7 @@ public:
     void toXml(Array<Sint8>& out) const;
 
     /// CIMMethod print - ATTN
-    void print(std::ostream &o=std::cout) const;
+    void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;
 
     /// CIMMethod toString	- ATTN
     String toString() const;

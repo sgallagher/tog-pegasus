@@ -33,7 +33,7 @@
 #include <cctype>
 #include <cstdlib>
 
-using namespace std;
+PEGASUS_USING_STD;
 
 //-----------------------------------------------------------------------
 //              Implementation of class Optarg
@@ -143,11 +143,11 @@ Optarg::Value(double &d) const {
 //--------------------------------------------------------------------
 
 // Is the option value is bound to a flag?
-bool
+Boolean
 Optarg::isFlag() const { return (_opttype == FLAG || _opttype == LONGFLAG); }
 
 // Is it bound to a long-named flag?
-bool
+Boolean
 Optarg::isLongFlag() const { return (_opttype == LONGFLAG); }
 
 //-----------------------------------------------------------------------
@@ -195,7 +195,7 @@ getoopt::~getoopt() {;}
 
 // Parse through a getopt() optstring and create flagspecs from each
 // short flag.
-bool
+Boolean
 getoopt::addFlagspec(const String &opt) {
   unsigned int size = opt.size();
   if (size == 0)
@@ -216,8 +216,8 @@ getoopt::addFlagspec(const String &opt) {
 }
 
 //  Create a filespec from a single short flag and push it onto the array
-bool
-getoopt::addFlagspec(char flag, bool hasarg) {
+Boolean
+getoopt::addFlagspec(char flag, Boolean hasarg) {
   if (flag == '*') {
     addError("You can't have a flag named '*'");
     return false;
@@ -235,7 +235,7 @@ getoopt::addFlagspec(char flag, bool hasarg) {
 }
 
 // Create a flagspec from a single long flag and push it onto the array
-bool
+Boolean
 getoopt::addLongFlagspec(const String &name, argtype type) {
   flagspec fs;
 
@@ -252,7 +252,7 @@ getoopt::addLongFlagspec(const String &name, argtype type) {
 }
 
 // Unregister a flagspec
-bool
+Boolean
 getoopt::removeFlagspec(char opt) {
   flagspec *fs = getFlagspecForUpdate(opt);
   if (fs) {
@@ -358,7 +358,7 @@ copyargs(getoopt::Arg_List &out, const getoopt::Arg_List &in) {
 // args are appended, sorting them
 // to the rear the way getopt() does.
 //------------------------------------
-bool
+Boolean
 getoopt::parse(int argc, char **argv) {
   Optarg o;
   int cat;
@@ -605,7 +605,7 @@ getoopt::getErrorStrings() const {
 }
 
 // Did any errors occur?
-bool
+Boolean
 getoopt::hasErrors() const {
   return _errorStrings.size() ? true : false;
 }

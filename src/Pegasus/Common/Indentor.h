@@ -52,8 +52,8 @@ public:
 
     Indentor(Uint32 level) : _level(level) { }
 
-    PEGASUS_COMMON_LINKAGE friend std::ostream& operator<<(
-	std::ostream& os, const Indentor& x);
+    PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream)& operator<<(
+	PEGASUS_STD(ostream)& os, const Indentor& x);
 
     Uint32 getLevel() const { return _level; }
 
@@ -62,7 +62,7 @@ private:
     Uint32 _level;
 };
 
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<(std::ostream& os, const Indentor& x);
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const Indentor& x);
 
 PEGASUS_NAMESPACE_END
 

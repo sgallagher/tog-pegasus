@@ -36,8 +36,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMValue.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 // The valueFactory builds a CIMValue object given an indication of
 // whether this is a Array type, the CIM type to be coerced, and

@@ -29,10 +29,7 @@
 #include <fstream>
 #include "Logger.h"
 
-using namespace std;
-
 PEGASUS_NAMESPACE_BEGIN
-
 
 const Uint32 Logger::TRACE = (1 << 0);
 const Uint32 Logger::INFORMATIVE = (1 << 1);

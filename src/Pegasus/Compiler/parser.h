@@ -44,14 +44,13 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
-#include <stack>
-#include <list>
 #include <cstdio>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/Stack.h>
 #include <Pegasus/Common/Config.h>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 struct bufstate {
 	void *buffer_state; // the YY_BUFFER_STATE of the stacked context
@@ -59,10 +58,12 @@ struct bufstate {
 	int    lineno;      // the line number of the file
 };
 
+PEGASUS_MEMORY_FUNCTIONS(bufstate*)
+
 class PEGASUS_COMPILER_LINKAGE  parser {
  private:
   unsigned int _buffer_size;   // the value of the YY_BUFFER_SIZE macro
-  stack<bufstate *, list<bufstate *> > _include_stack;  // a stack of YY_BUFFER_STATEs
+  Stack<bufstate*> _include_stack;  // a stack of YY_BUFFER_STATEs
   String _current_filename; // name of the file being parsed
   unsigned int _lineno;     // current line number in the file 
  protected:

@@ -415,7 +415,7 @@ void CIMClassRep::toXml(Array<Sint8>& out) const
     out << "</CLASS>\n";
 }
 
-void CIMClassRep::print(std::ostream &os) const
+void CIMClassRep::print(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);

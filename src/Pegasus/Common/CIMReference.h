@@ -481,7 +481,7 @@ public:
 
     /** Prints the XML encoding of this objet.
     */
-    void print(std::ostream& os = std::cout) const;
+    void print(PEGASUS_STD(ostream)& os = PEGASUS_STD(cout)) const;
 
     /** Generates hash code for the given reference. Two identical references
 	generate the same hash code (despite any subtle differences such as
@@ -518,7 +518,7 @@ inline Boolean operator!=(const CIMReference& x, const CIMReference& y)
     return !operator==(x, y);
 }
 
-inline std::ostream& operator<<(std::ostream& os, const CIMReference& x)
+inline PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const CIMReference& x)
 {
     return os << x.toString();
 }

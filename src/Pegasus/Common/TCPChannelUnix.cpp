@@ -38,8 +38,6 @@
 #include <sys/socket.h>
 #include "TCPChannel.h"
 
-using namespace std;
-
 PEGASUS_NAMESPACE_BEGIN
 
 // ATTN-A: manage lifetime of all these objects. Do a walkthrough!
@@ -211,7 +209,7 @@ Channel* TCPChannelConnector::connect(const char* addressString)
     if (!_MakeAddress(hostname, port, address))
     {
 	delete [] hostname;
-        return false;
+        return 0;
     }
 
     // Create the socket:
@@ -343,6 +341,8 @@ Boolean TCPChannelAcceptor::handle(Sint32 desc, Uint32 reasons)
     int n;
 #elif defined (PEGASUS_OS_LINUX)
     unsigned int n;
+#elif defined (PEGASUS_OS_AIX)
+    socklen_t n;
 #endif
     n = sizeof(address);
 

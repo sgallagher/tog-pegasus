@@ -53,6 +53,9 @@ public:
     /// Constructor Char16
     Char16(const Char16& x) : _code(x._code) { }
 
+    /** Destructor. */
+    ~Char16() { }
+
     /// Constructor Char16
     Char16& operator=(Uint16 x) { _code = x; return *this; }
 
@@ -85,8 +88,8 @@ inline Boolean operator==(char x, const Char16& y)
     return x == y.getCode();
 }
 
-PEGASUS_COMMON_LINKAGE std::ostream& operator<<( 
-    std::ostream& os, 
+PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<( 
+    PEGASUS_STD(ostream)& os, 
     const Char16& x);
 
 PEGASUS_NAMESPACE_END

@@ -3,12 +3,12 @@
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/String.h>
 
-using namespace std;
-using namespace Pegasus;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 void test01()
 {
-    typedef HashTable<String, Uint32> HT;
+    typedef HashTable<String, Uint32, EqualFunc<String>, HashFunc<String> > HT;
     HT ht;
 
     assert(ht.insert("Red", 100));
@@ -18,7 +18,9 @@ void test01()
 
     Uint32 sum = 0;
 
-    for (HT::Iterator i = ht.start(); i; i++)
+    HT::Iterator i = ht.start();
+
+    for (; i; i++)
     {
 	// cout << "key[" << i.key() << "]" << endl;
 	// cout << "value[" << i.value() << "]" << endl;
@@ -53,7 +55,7 @@ void test01()
 
 void test02()
 {
-    typedef HashTable<Uint32, Uint32> HT;
+    typedef HashTable<Uint32, Uint32, EqualFunc<Uint32>, HashFunc<Uint32> > HT;
     HT ht;
 
     Uint32 sum = 0;
@@ -86,7 +88,7 @@ void test03()
 {
     // Test iteration of an empty hash table:
 
-    typedef HashTable<Uint32, Uint32> HT;
+    typedef HashTable<Uint32, Uint32, EqualFunc<Uint32>, HashFunc<Uint32> > HT;
     HT ht;
     Uint32 n = 0;
 

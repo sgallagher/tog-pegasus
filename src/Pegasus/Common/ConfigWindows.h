@@ -27,7 +27,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// Config_iX86_win98_msvc.h
+// ConfigWindows.h
 //
 //	This file contains definitions for the Intel X86 running Windows98
 //	using the Microsoft Visual C++ compiler. This file must
@@ -35,23 +35,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Config_iX86_win98_msvc_h
-#define Pegasus_Config_iX86_win98_msvc_h
+#ifndef Pegasus_ConfigWindows_h
+#define Pegasus_ConfigWindows_h
 
-#define PEGASUS_MACHINE_IX86
-#define PEGASUS_OS_WIN98
-#define PEGASUS_COMPILER_MSVC
+#define PEGASUS_OS_TYPE_WINDOWS
 
-// ATTN: use full qualification of cout!
-
-// namespace std { };
-// using namespace std;
-
-#define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {
-
-#define PEGASUS_NAMESPACE_END }
-
-PEGASUS_NAMESPACE_BEGIN
+#define PEGASUS_IOS_BINARY ,std::ios::binary
 
 #define PEGASUS_EXPORT __declspec(dllexport)
 
@@ -111,32 +100,10 @@ PEGASUS_NAMESPACE_BEGIN
 # define PEGASUS_GETOOPT_LINKAGE PEGASUS_IMPORT
 #endif
 
-// ATTN: take this out when no longer needed!
-
-#ifdef PEGASUS_COMM_INTERNAL
-# define PEGASUS_COMM_LINKAGE PEGASUS_EXPORT
-#else
-# define PEGASUS_COMM_LINKAGE PEGASUS_IMPORT
-#endif
-
-#define for if (0) ; else for
-
-typedef unsigned char Uint8;
-typedef char Sint8;
-typedef unsigned short Uint16;
-typedef short Sint16;
-typedef unsigned int Uint32;
-typedef int Sint32;
-typedef float Real32;
-typedef double Real64;
-typedef bool Boolean;
-typedef unsigned __int64 Uint64;
-typedef __int64 Sint64;
+// Suppress this warning: "identifier was truncated to '255' characters in the
+// debug information":
+#pragma warning( disable : 4786 )
 
 #pragma warning ( disable : 4251 )
 
-#define PEGASUS_IOS_BINARY , std::ios::binary
-
-PEGASUS_NAMESPACE_END
-
-#endif  /* Pegasus_Config_iX86_win98_msvc_h */
+#endif  /* Pegasus_ConfigWindows_h */

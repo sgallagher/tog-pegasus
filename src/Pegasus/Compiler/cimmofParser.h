@@ -58,7 +58,8 @@
 
 extern int cimmof_parse(); // the yacc parser entry point
 
-using namespace std;
+PEGASUS_USING_STD;
+PEGASUS_USING_PEGASUS;
 
 class cimmofRepository;
 
@@ -96,7 +97,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   void setCompilerOptions(const mofCompilerOptions *co);
   const mofCompilerOptions *getCompilerOptions() const;
   // for all, or nearly all, operations, a repository object is needed
-  bool setRepository(void);
+  Boolean setRepository(void);
   const cimmofRepository *getRepository() const;
   // Set a default root namespace path to pass to  the repository
   void setDefaultNamespacePath(const String &path); // default value
@@ -170,7 +171,7 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
   int applyMethod(CIMClass &c, CIMMethod &m);
   // Called when a method parameter is discovered
   CIMParameter *newParameter(const String &name, const CIMType type,
-			     bool isArray=false, Uint32 array=0, 
+			     Boolean isArray=false, Uint32 array=0, 
 			     const String &objName=String::EMPTY);
   // Called when a method parameter production is complete
   int applyParameter(CIMMethod &method, CIMParameter &parm);
@@ -184,12 +185,12 @@ class PEGASUS_COMPILER_LINKAGE cimmofParser : public parser {
 				      const String &propertyName) const; 
   // Called when a class alias is found
   void addClassAlias(const String &alias, const CIMClass *cd, 
-		bool isInstance);
+		Boolean isInstance);
   // Called when an instance alias is found
   void addInstanceAlias(const String &alias, const CIMInstance *cd, 
-		bool isInstance);
+		Boolean isInstance);
   // Called when a reference declaration is found
-  CIMReference *newReference(const Pegasus::objectName &oname);
+  CIMReference *newReference(const objectName &oname);
   // Make a clone of a property object, inserting a new value object
   CIMProperty *copyPropertyWithNewValue(const CIMProperty &p,
 					const CIMValue &v) const;

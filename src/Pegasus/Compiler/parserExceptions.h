@@ -38,7 +38,9 @@
 
 #include <Pegasus/Common/String.h>
 
+#ifdef PEGASUS_HAVE_NAMESPACES
 namespace ParserExceptions {
+#endif
 
 class PEGASUS_COMPILER_LINKAGE ParserException {
  private:
@@ -56,6 +58,8 @@ class PEGASUS_COMPILER_LINKAGE ParserLexException : public ParserException  {
   ~ParserLexException() {};
 };
 
+#ifdef PEGASUS_HAVE_NAMESPACES
 }
+#endif
 
 #endif

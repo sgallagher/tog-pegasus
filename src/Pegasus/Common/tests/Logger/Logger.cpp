@@ -29,8 +29,8 @@
 #include <iostream>
 #include <Pegasus/Common/Logger.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 // ATTN-B: Complete this test by reopening the log and making sure it
 // contains what we expect.

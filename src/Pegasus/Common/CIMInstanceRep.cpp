@@ -33,8 +33,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-using namespace std;
-
 CIMInstanceRep::CIMInstanceRep(const String& className)
     : _className(className), _resolved(false)
 {
@@ -269,12 +267,12 @@ void CIMInstanceRep::toXml(Array<Sint8>& out) const
     out << "</INSTANCE>\n";
 }
 
-void CIMInstanceRep::print(std::ostream &os) const
+void CIMInstanceRep::print(PEGASUS_STD(ostream) &os) const
 {
     Array<Sint8> tmp;
     toXml(tmp);
     tmp.append('\0');
-    os << tmp.getData() << std::endl;
+    os << tmp.getData() << PEGASUS_STD(endl);
 }
 
 CIMReference CIMInstanceRep::getInstanceName(

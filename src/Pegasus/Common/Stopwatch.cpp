@@ -51,7 +51,7 @@ double Stopwatch::getElapsed() const
 
 void Stopwatch::printElapsed()
 {
-    std::cout << getElapsed() << " seconds" << std::endl;
+    PEGASUS_STD(cout) << getElapsed() << " seconds" << PEGASUS_STD(endl);
 }
 
 PEGASUS_NAMESPACE_END

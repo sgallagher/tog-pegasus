@@ -88,12 +88,12 @@ public:
 	other methods of the ServiceHandler object under certain circumstances
 	(see the ServiceHandler class for more details).
     */
-    static bool run(
+    static Boolean run(
 	int argc,
 	char** argv,
 	const char* serviceName, 
 	ServiceHandler* serviceHandler,
-	bool detach);
+	Boolean detach);
 
 private:
 

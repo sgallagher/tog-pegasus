@@ -49,8 +49,8 @@ Pegasus.
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Selector.h>
 
-using namespace Pegasus;
-using namespace std;
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
 
 /** Class to hold, get, put, etc. the host info.
 This info must be maintained between calls to CGI client

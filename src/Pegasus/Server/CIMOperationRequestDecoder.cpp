@@ -574,9 +574,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
             else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
                request = decodeEnumerateClassesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);
-            else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
-               request = decodeEnumerateClassNamesRequest(
-                  queueId, parser, messageId, nameSpace, authType, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
                request = decodeEnumerateInstancesRequest(
                   queueId, parser, messageId, nameSpace, authType, userName);

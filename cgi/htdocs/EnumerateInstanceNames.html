@@ -4,7 +4,7 @@
       <tr>
 	<td width="50%" align="bottom"><h1>Enumerate Instance Names CIM Operation</h1><td>
 	<td width="50%" align="right">
-	    <img border=1 src="pegasus/icons/OpenGroupLogo.gif">
+	    <img border=1 src="/pegasus/icons/OpenGroupLogo.gif">
 	</td>
       </tr>
     </table>
@@ -70,7 +70,7 @@
     basis for the enumeration. The ClassName input must be in the
     repository&nbsp;
     <p><a name="LocalOnly"><b>
-    
+
     LocalOnly</b></a>&nbsp; If the <TT>LocalOnly</TT> input parameter is
     <TT>true</TT>, this specifies that, for each returned Instance,
     only elements (properties and qualifiers) overridden within&nbsp;the
@@ -79,7 +79,7 @@
     Server-side mechanism to filter certain elements of the returned object
     based on whether or not they have been propagated from the parent
     Class (as defined by the <TT>PROPAGATED</TT> attribute).
-    
+
     <p><a name="DeepInheritance"><b>DeepInheritance</b></a> If the <TT>DeepInheritance</TT> input
     parameter&nbsp;is <TT>true</TT>, this specifies that, for each
     returned Instance of the Class, all properties of the Instance MUST
@@ -87,7 +87,7 @@
     parameters), including any which were added by subclassing the specified
     Class.&nbsp;If <TT>false</TT>, each returned Instance includes only
     properties defined for the&nbsp;specified Class.
-    
+
     <p><a name="IncludeQualifiers"><b>IncludeQualifiers</b></a> If the <TT>IncludeQualifiers</TT> input
     parameter is <TT>true</TT>, this specifies that all Qualifiers
     for each Instance (including Qualifiers on the Instance
@@ -95,14 +95,14 @@
     <TT>QUALIFIER</TT> elements in the response. If false no
     <TT>QUALIFIER</TT> elements are present in each
     returned Instance.
-    
+
     <p><b><a name="IncludeClassOrigin">IncludeClassOrigin</a></b>&nbsp; If the <TT>IncludeClassOrigin</TT> input
     parameter is <TT>true</TT>, this specifies that the
     <TT>CLASSORIGIN</TTT> attribute MUST be present on all appropriate
     elements in&nbsp;each returned Instance. If false, no
     <TT>CLASSORIGIN</TT> attributes are present in each returned
     Instance.</tt>
-    
+
     <p>PropertyList If the <TT>PropertyList</TT> input parameter is not
     <TT>NULL</TT>, the members of the array define one or more Property
     names.&nbsp;&nbsp;Each returned&nbsp;Instance MUST NOT include elements
@@ -126,14 +126,14 @@
     invalid Property names for any&nbsp;target Instance, the Server MUST
     ignore such entries but otherwise process the request normally.
 
-    
 
 
-    <p><a href="#TOP">Go To Top</a>&nbsp;&nbsp; 
+
+    <p><a href="#TOP">Go To Top</a>&nbsp;&nbsp;
     <hr>
     <h2>C++ Call</h2>
     <p>
-    
+
     <PRE>
     virtual Array<InstanceDecl> enumerateInstances(
         const String&amp; nameSpace,

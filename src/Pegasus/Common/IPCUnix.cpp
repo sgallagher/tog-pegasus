@@ -832,8 +832,9 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 {atomic_sub(val,&_rep); return *this; }
 
 Boolean AtomicInt::DecAndTestIfZero()
-{ // Not implemented
-  return false; }
+{
+   return atomic_dec_and_test(&_rep);
+}
 
 #elif defined(PEGASUS_ATOMIC_INT_NATIVE)
 

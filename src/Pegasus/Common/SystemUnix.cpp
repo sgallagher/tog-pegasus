@@ -57,6 +57,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Constants.h>
 
 #ifdef PEGASUS_PLATFORM_LINUX_IX86_GNU
 #include <pwd.h>
@@ -338,6 +339,17 @@ Uint32 System::lookupPort(
     else
     {
         localPort = defaultPort;
+
+#ifdef PEGASUS_OS_HPUX
+        if ( String::equal(serviceName, String(WBEM_HTTP_SERVICE_NAME)) ) 
+        {
+            localPort = WBEM_DEFAULT_HTTP_PORT;
+        }
+        else if ( String::equal(serviceName, String(WBEM_HTTPS_SERVICE_NAME)) ) 
+        {
+            localPort = WBEM_DEFAULT_HTTPS_PORT;
+        }
+#endif
     }
 
     return localPort;

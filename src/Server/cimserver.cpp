@@ -231,17 +231,13 @@ void shutdownCIMOM(Uint32 timeoutValue)
     CIMClient client;
 
     //
-    // Get the port number
+    // Get local host name
     //
-    String portNumberStr = configManager->getCurrentValue("port");
-
     String hostStr = System::getHostName();
-    hostStr.append(":");
-    hostStr.append(portNumberStr);
 
     // Put server shutdown message to the logger
     Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	"Shutdown $0 on port $1.", PEGASUS_NAME, portNumberStr);
+        "Shutdown $0.", PEGASUS_NAME);
 
     //
     // open connection to CIMOM 
@@ -275,7 +271,9 @@ void shutdownCIMOM(Uint32 timeoutValue)
         //
         String referenceStr = "//";
         referenceStr.append(hostStr);
-        referenceStr.append("/root/cimv2:PG_ShutdownService");
+        referenceStr.append(PEGASUS_NAMESPACENAME_CIMV2);
+        referenceStr.append(":");
+        referenceStr.append(PEGASUS_CLASSNAME_SHUTDOWN);
         CIMObjectPath reference(referenceStr);
 
         //
@@ -300,7 +298,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 
         // Put server shutdown message to the logger
         Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	    "$0 terminated on port $1.", PEGASUS_NAME, portNumberStr);
+            "$0 terminated.", PEGASUS_NAME);
 
     }
     catch(CIMClientCIMException& e)
@@ -324,7 +322,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
             // cimserver has been terminated
             // Put server shutdown message to the logger
             Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::INFORMATION,
-	        "$0 terminated on port $1.", PEGASUS_NAME, portNumberStr);
+                "$0 terminated.", PEGASUS_NAME);
         }
         else
         {
@@ -354,7 +352,8 @@ int main(int argc, char** argv)
     String pegasusHome  = String::EMPTY;
     Boolean pegasusIOTrace = false;
     Boolean pegasusIOLog = false;
-    String portOption = String::EMPTY;
+    String httpPort = String::EMPTY;
+    String httpsPort = String::EMPTY;
     String logsDirectory = String::EMPTY;
     Boolean useSLP = false;
     Boolean useSSL = false;
@@ -643,10 +642,12 @@ int main(int argc, char** argv)
         }
 
         //
-        // Grab the port option:
+        // Get the port numbers
         //
 
-        portOption = configManager->getCurrentValue("port");
+        httpPort = configManager->getCurrentValue("httpPort");
+
+        httpsPort = configManager->getCurrentValue("httpsPort");
 
         //
         // Check the trace options and set global variable
@@ -681,7 +682,38 @@ int main(int argc, char** argv)
         cout << "Error: " << e.getMessage() << endl;
     }
 
-    char* address = portOption.allocateCString();
+    Uint32 portNumber;
+
+    char address[32];
+
+    if (useSSL)
+    {
+        char* p = httpsPort.allocateCString();
+	char* end = 0;
+	Uint32 port = strtol(p, &end, 10);
+	assert(end != 0 && *end == '\0');
+	delete [] p;
+
+        //
+        // Look up the WBEM-HTTPS port number 
+        //
+        portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, port);
+        sprintf(address, "%u", portNumber);
+    }
+    else
+    {
+        char* p = httpPort.allocateCString();
+	char* end = 0;
+	Uint32 port = strtol(p, &end, 10);
+	assert(end != 0 && *end == '\0');
+	delete [] p;
+
+        //
+        // Look up the WBEM-HTTP port number 
+        //
+        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME, port);
+        sprintf(address, "%u", portNumber);
+    }
 
     // Put out startup up message.
     cout << PEGASUS_NAME << PEGASUS_VERSION <<
@@ -736,12 +768,7 @@ int main(int argc, char** argv)
 	cout << "Binding to " << address << endl;
 #endif
 
-	char* end = 0;
-	long portNumber = strtol(address, &end, 10);
-	assert(end != 0 && *end == '\0');
 	server.bind(portNumber);
-
-	delete [] address;
 
 	time_t last = 0;
 

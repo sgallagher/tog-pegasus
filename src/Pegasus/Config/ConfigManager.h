@@ -178,7 +178,7 @@ public:
     /** 
     Update current value of a property.
 
-    @param  propertyName  The name of the property to update (eg. "port").
+    @param  propertyName  The name of the property to update (eg. "httpPort").
     @param  propertyValue The new value of the property.  If the value is
                           null, the property should be reset to its default
                           value.
@@ -200,7 +200,7 @@ public:
     /** 
     Update planned value of a property.
 
-    @param  propertyName  The name of the property to update (eg. "port").
+    @param  propertyName  The name of the property to update (eg. "httpPort").
     @param  propertyValue The new value of the property.  If the value is
                           null, the property should be reset to its default
                           value.

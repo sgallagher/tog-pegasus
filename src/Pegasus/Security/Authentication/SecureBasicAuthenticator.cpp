@@ -67,7 +67,7 @@ SecureBasicAuthenticator::SecureBasicAuthenticator()
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
-    String port = configManager->getCurrentValue("port");
+    String port = configManager->getCurrentValue("httpPort");
 
     //
     // Create realm that will be used for Basic challenges

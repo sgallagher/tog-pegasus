@@ -59,11 +59,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
-// Wbem default local port number
-//
-static const Uint32 WBEM_DEFAULT_PORT =  5988;
-
 
 //ATTN-NB-02-05152002: Finalize the certificate and random file locations
 static const char CERTIFICATE[] = "server.pem";
@@ -468,12 +463,14 @@ void CIMClientRep::connectLocal() throw(CIMClientException)
     _connect(address, NULL);
 #else
 
+    SSLContext  *sslContext;
+
     try
     {
         //
         // Look up the WBEM HTTP port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        Uint32 portNum = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
         char port[32];
         sprintf(port, "%u", portNum);
 
@@ -484,7 +481,7 @@ void CIMClientRep::connectLocal() throw(CIMClientException)
         address.append(":");
         address.append(port);
 
-        SSLContext  *sslContext = NULL;
+        sslContext = NULL;
 
         _connect(address, sslContext);
     }
@@ -493,7 +490,7 @@ void CIMClientRep::connectLocal() throw(CIMClientException)
         //
         // Look up the WBEM HTTPS port number for the local system
         //
-        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_PORT);
+        Uint32 portNum = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
         char port[32];
         sprintf(port, "%u", portNum);
 
@@ -531,8 +528,15 @@ void CIMClientRep::connectLocal() throw(CIMClientException)
         randFile.append(RANDOMFILE);
 #endif
 
-        SSLContext * sslContext =
-            new SSLContext(certpath, verifyServerCertificate, randFile, true);
+        try
+        {
+            sslContext =
+                new SSLContext(certpath, verifyServerCertificate, randFile, true);
+        }
+        catch (SSL_Exception &se)
+        {
+            throw CIMClientCannotCreateSSLContextException(se.getMessage());
+        }
 
         _connect(address, sslContext);
     }
@@ -569,6 +573,7 @@ void CIMClientRep::disconnect()
         _authenticator.clearRequest(true);
 
         _connected = false;
+
     }
 }
 

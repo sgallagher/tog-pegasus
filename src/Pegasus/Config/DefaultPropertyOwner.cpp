@@ -52,7 +52,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"port", "5988", 0, 0, 0},
+    {"httpPort", "", 0, 0, 0},
+    {"httpsPort", "", 0, 0, 0},
     {"home", "./", 0, 0, 0},
     {"daemon", "false", 0, 0, 0},
     {"install", "false", 0, 0, 0},

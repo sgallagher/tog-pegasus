@@ -119,7 +119,16 @@ PEGASUS_TRACE;
     
     // Grab the port otpion:
 
-    String portOption = configManager->getCurrentValue("port");
+    String portOption;
+
+    if (useSSL)
+    {
+        portOption = configManager->getCurrentValue("httpsPort");
+    }
+    else
+    {
+        portOption = configManager->getCurrentValue("httpPort");
+    }
     char* address = portOption.allocateCString();
 
 PEGASUS_TRACE;

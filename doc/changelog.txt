@@ -277,6 +277,13 @@ TAG: Version_1_09.
     method to return the correct class origin. Fixed SecurityPropertyOwner to 
     disallow passwordFilePath="". 
 
+47. (Nag Boranna - HP) 20 May 2002 - HP-Nag: Modified CIM Server and Client
+    API to lookup port number from services. CIM Server uses default port
+    number (5988 for HTTP or 5989 for HTTPS) if no port number is configured 
+    and no port is specified in the configuration file. CIMClient's connectLocal()
+    method is modified to try and connect to HTTP port, if failed then try and
+    connect to HTTPS port.
+
 ========================================================================
 
 Version 1.08 working towards 1.1 - Started 27 March 2002

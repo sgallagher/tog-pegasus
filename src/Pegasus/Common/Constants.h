@@ -159,6 +159,18 @@ PEGASUS_NAMESPACE_BEGIN
 #define HTTP_STATUS_SERVICEUNAVAILABLE "503 Service Unavailable"
 
 //
+// Default port numbers
+//
+#define WBEM_DEFAULT_HTTP_PORT 5988
+#define WBEM_DEFAULT_HTTPS_PORT 5989
+
+//
+// Wbem service names
+//
+#define WBEM_HTTP_SERVICE_NAME "wbem-http"
+#define WBEM_HTTPS_SERVICE_NAME "wbem-https"
+
+//
 // Miscellaneous Constants
 //
 

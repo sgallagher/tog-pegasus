@@ -108,6 +108,11 @@ CIMClientNotConnectedException::CIMClientNotConnectedException()
 { 
 }
 
+CIMClientCannotCreateSSLContextException::CIMClientCannotCreateSSLContextException(
+    const String& message)
+    : CIMClientException(message)
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

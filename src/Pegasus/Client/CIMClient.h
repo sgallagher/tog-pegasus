@@ -52,13 +52,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-//
-// Wbem service name
-//
-#define WBEM_HTTP_SERVICE_NAME          "wbem-http"
-
-#define WBEM_HTTPS_SERVICE_NAME         "wbem-https"
-
 
 class CIMClientRep;
 

@@ -142,6 +142,17 @@ private:
 };
 
 /**
+    An exception of this type indicates a failure to create a SSLContext
+    by the CIM Client.
+*/
+class PEGASUS_CLIENT_LINKAGE CIMClientCannotCreateSSLContextException
+    : public CIMClientException
+{
+public:
+    CIMClientCannotCreateSSLContextException(const String& message);
+};
+
+/**
     An exception of this type indicates that the configured timeout interval
     has been reached while waiting for a response from the CIM Server.
 */

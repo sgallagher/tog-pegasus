@@ -46,8 +46,8 @@ RepositoryDeclContext::~RepositoryDeclContext()
 }
 
 CIMQualifierDecl RepositoryDeclContext::lookupQualifierDecl(
-    const String& nameSpace,
-    const String& qualifierName) const
+    const CIMNamespaceName& nameSpace,
+    const CIMName& qualifierName) const
 {
     // Ignore the exception since this routine is only supposed report
     // whether it can be found:
@@ -63,8 +63,8 @@ CIMQualifierDecl RepositoryDeclContext::lookupQualifierDecl(
 }
 
 CIMClass RepositoryDeclContext::lookupClass(
-    const String& nameSpace,
-    const String& className) const
+    const CIMNamespaceName& nameSpace,
+    const CIMName& className) const
 {
     // Ignore the exception since this routine is only supposed report
     // whether it can be found:

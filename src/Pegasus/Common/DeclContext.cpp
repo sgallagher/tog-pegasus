@@ -43,7 +43,7 @@ SimpleDeclContext::~SimpleDeclContext()
 }
 
 void SimpleDeclContext::addQualifierDecl(
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMQualifierDecl& x)
 {
     if (!lookupQualifierDecl(nameSpace, x.getName()).isNull())
@@ -53,7 +53,7 @@ void SimpleDeclContext::addQualifierDecl(
 }
 
 void SimpleDeclContext::addClass(
-    const String& nameSpace,
+    const CIMNamespaceName& nameSpace,
     const CIMClass& x)
 {
     if (!lookupClass(nameSpace, x.getClassName()).isNull())
@@ -63,17 +63,15 @@ void SimpleDeclContext::addClass(
 }
 
 CIMQualifierDecl SimpleDeclContext::lookupQualifierDecl(
-    const String& nameSpace,
-    const String& name) const
+    const CIMNamespaceName& nameSpace,
+    const CIMName& name) const
 {
     for (Uint32 i = 0, n = _qualifierDeclarations.size(); i < n; i++)
     {
-	const String& first = _qualifierDeclarations[i].first;
+	const CIMNamespaceName& first = _qualifierDeclarations[i].first;
 	const CIMQualifierDecl& second = _qualifierDeclarations[i].second;
 
-        // ATTN-RK-20020729: Use correct equal method
-	//if (first.equal(nameSpace)) && 
-	if (String::equalNoCase(first, nameSpace) && 
+	if (first.equal(nameSpace) && 
 	    second.getName().equal(name))
 	{
 	    return second;
@@ -85,17 +83,15 @@ CIMQualifierDecl SimpleDeclContext::lookupQualifierDecl(
 }
 
 CIMClass SimpleDeclContext::lookupClass(
-    const String& nameSpace,
-    const String& name) const
+    const CIMNamespaceName& nameSpace,
+    const CIMName& name) const
 {
     for (Uint32 i = 0, n = _classDeclarations.size(); i < n; i++)
     {
-	const String& first = _classDeclarations[i].first;
+	const CIMNamespaceName& first = _classDeclarations[i].first;
 	const CIMClass& second = _classDeclarations[i].second;
 
-        // ATTN-RK-20020729: Use correct equal method
-	//if (first.equal(nameSpace)) && 
-	if (String::equalNoCase(first, nameSpace) && 
+	if (first.equal(nameSpace) && 
 	    second.getClassName().equal(name))
 	{
 	    return second;

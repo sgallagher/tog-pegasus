@@ -34,6 +34,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/Linkage.h>
@@ -56,16 +57,16 @@ public:
     virtual ~DeclContext();
 
     virtual CIMQualifierDecl lookupQualifierDecl(
-	const String& nameSpace,
-	const String& name) const = 0;
+	const CIMNamespaceName& nameSpace,
+	const CIMName& name) const = 0;
 
     virtual CIMClass lookupClass(
-	const String& nameSpace,
-	const String& name) const = 0;
+	const CIMNamespaceName& nameSpace,
+	const CIMName& name) const = 0;
 };
 
-typedef Pair<String, CIMClass> CPair;
-typedef Pair<String, CIMQualifierDecl> QPair;
+typedef Pair<CIMNamespaceName, CIMClass> CPair;
+typedef Pair<CIMNamespaceName, CIMQualifierDecl> QPair;
 
 inline int operator==(const QPair& x, const QPair& y)
 {
@@ -84,20 +85,20 @@ public:
     virtual ~SimpleDeclContext();
 
     void addQualifierDecl(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMQualifierDecl& x);
 
     void addClass(
-	const String& nameSpace,
+	const CIMNamespaceName& nameSpace,
 	const CIMClass& x);
 
     virtual CIMQualifierDecl lookupQualifierDecl(
-	const String& nameSpace,
-	const String& name) const;
+	const CIMNamespaceName& nameSpace,
+	const CIMName& name) const;
 
     virtual CIMClass lookupClass(
-	const String& nameSpace,
-	const String& name) const;
+	const CIMNamespaceName& nameSpace,
+	const CIMName& name) const;
 
 private:
 

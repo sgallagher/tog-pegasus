@@ -55,12 +55,12 @@ public:
     virtual ~RepositoryDeclContext();
 
     virtual CIMQualifierDecl lookupQualifierDecl(
-	const String& nameSpace, 
-	const String& qualifierName) const;
+	const CIMNamespaceName& nameSpace, 
+	const CIMName& qualifierName) const;
 
     virtual CIMClass lookupClass(
-	const String& nameSpace, 
-	const String& className) const;
+	const CIMNamespaceName& nameSpace, 
+	const CIMName& className) const;
 
 protected:
 

@@ -217,7 +217,7 @@ void CIMListenerService::runForever()
       {
 	     //MessageQueueService::_check_idle_flag = 1;
 		 //MessageQueueService::_polling_sem.signal();
-		 MessageQueueService::get_thread_pool()->kill_idle_threads();
+		 MessageQueueService::get_thread_pool()->cleanupIdleThreads();
       }
 	  catch(...)
       {
@@ -312,8 +312,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine
 
   return 0;
 }
-static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {15, 0};
 
 /////////////////////////////////////////////////////////////////////////////
 // CIMListenerRep
@@ -424,8 +422,8 @@ void CIMListenerRep::start()
       throw;
     }
 
-    _thread_pool = new ThreadPool(0, "Listener", 0, 1, 
-				  create_time, destroy_time);
+    struct timeval deallocateWait = {15, 0};
+    _thread_pool = new ThreadPool(0, "Listener", 0, 1, deallocateWait);
 
     _listener_sem = new Semaphore(0);
     _thread_pool->allocate_and_awaken(svc,

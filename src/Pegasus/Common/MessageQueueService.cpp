@@ -46,8 +46,7 @@ AtomicInt MessageQueueService::_service_count = 0;
 AtomicInt MessageQueueService::_xid(1);
 Mutex MessageQueueService::_meta_dispatcher_mutex;
 
-static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {300, 0}; 
+static struct timeval deallocateWait = {300, 0}; 
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
@@ -72,7 +71,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threa
       gettimeofday(&last, NULL);
       try 
       {
-	 dead_threads =  MessageQueueService::_thread_pool->kill_dead_threads();
+	 dead_threads = MessageQueueService::_thread_pool->cleanupIdleThreads();
       }
       catch(...)
       {
@@ -172,9 +171,8 @@ MessageQueueService::MessageQueueService(const char *name,
       {
          throw NullPointer();
       }
-      _thread_pool = new ThreadPool(0, "MessageQueueService", 0, 0,
-				    create_time, destroy_time);  
-      
+      _thread_pool =
+          new ThreadPool(0, "MessageQueueService", 0, 0, deallocateWait);  
    }
    _service_count++;
 

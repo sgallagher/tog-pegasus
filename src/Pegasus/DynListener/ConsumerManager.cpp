@@ -61,10 +61,6 @@ static struct OptionRow optionsTable[] =
 
 const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
-//thread pool settings
-static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {15, 0};
-
 //retry settings
 //ATTN: Do we want to make these configurable?  If so, is a global setting for all the consumers ok?
 static const Uint32 DEFAULT_MAX_RETRY_COUNT = 5;
@@ -92,8 +88,8 @@ _forceShutdown(true)
 
     _optionMgr.registerOptions(optionsTable, NUM_OPTIONS);
 
-    _thread_pool = new ThreadPool(0, "ConsumerManager", 0, 0,
-                                  create_time, destroy_time);
+    struct timeval deallocateWait = {15, 0};
+    _thread_pool = new ThreadPool(0, "ConsumerManager", 0, 0, deallocateWait);
 
     _init();
 
@@ -106,11 +102,7 @@ ConsumerManager::~ConsumerManager()
 
     unloadAllConsumers();
 
-    if (_thread_pool != NULL)
-    {
-        _thread_pool->kill_dead_threads();
-        delete _thread_pool;
-    }
+    delete _thread_pool;
 
     ConsumerTable::Iterator i = _consumers.start();
     for (; i!=0; i++)

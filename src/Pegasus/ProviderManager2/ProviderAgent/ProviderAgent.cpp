@@ -80,8 +80,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 
 // Time values used in ThreadPool construction
-static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {300, 0};
+static struct timeval deallocateWait = {300, 0};
 
 ProviderAgent* ProviderAgent::_providerAgent = 0;
 
@@ -89,7 +88,7 @@ ProviderAgent::ProviderAgent(
     const String& agentId,
     AnonymousPipe* pipeFromServer,
     AnonymousPipe* pipeToServer)
-  : _threadPool(0, "ProviderAgent", 0, 0, create_time, destroy_time),
+  : _threadPool(0, "ProviderAgent", 0, 0, deallocateWait),
     _providerManagerRouter(_indicationCallback)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");

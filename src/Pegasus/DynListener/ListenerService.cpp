@@ -246,7 +246,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
       {
          //MessageQueueService::_check_idle_flag = 1;
          //MessageQueueService::_polling_sem.signal();
-         MessageQueueService::get_thread_pool()->kill_idle_threads();
+         MessageQueueService::get_thread_pool()->cleanupIdleThreads();
       }
       catch(...)
       {
@@ -262,7 +262,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
                 {
                     //MessageQueueService::_check_idle_flag = 1;
                     //MessageQueueService::_polling_sem.signal();
-                    MessageQueueService::get_thread_pool()->kill_idle_threads();
+                    MessageQueueService::get_thread_pool()->cleanupIdleThreads();
                 } catch (...)
                 {
                 }

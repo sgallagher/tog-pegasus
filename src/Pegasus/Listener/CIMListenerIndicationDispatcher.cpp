@@ -125,26 +125,20 @@ private:
 	PtrList*		_consumers;
 };
 
-static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {15, 0};
+static struct timeval deallocateWait = {15, 0};
 
 
 CIMListenerIndicationDispatcherRep::CIMListenerIndicationDispatcherRep()
 :_thread_pool(new ThreadPool(0, "ListenerIndicationDispatcher", 0, 0,
-	create_time, destroy_time))
+	deallocateWait))
 ,_consumers(new PtrList())
 {
 	      
 }
 CIMListenerIndicationDispatcherRep::~CIMListenerIndicationDispatcherRep()
 {
-	if(_thread_pool!=NULL)
-	{
-		 _thread_pool->kill_dead_threads();
-		 delete _thread_pool;
-  }
-	if(_consumers!=NULL)
-		delete _consumers;
+	delete _thread_pool;
+	delete _consumers;
 }
 	
 Boolean CIMListenerIndicationDispatcherRep::addConsumer(CIMIndicationConsumer* consumer)

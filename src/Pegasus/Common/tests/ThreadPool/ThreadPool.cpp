@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,276 +29,350 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
 
 #include <sys/types.h>
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#else
-#include <unistd.h>
-#endif 
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# include <unistd.h>
+#endif
 #include <cassert>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
-
-
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 Boolean verbose = false;
 
-AtomicInt _canceled( 0 );
-AtomicInt _completed;
-
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL thread_routine( void* param )
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepUntilCancelled(
+    void* parm)
 {
-	while( _canceled.value() == 0 )
-	{
-	   pegasus_sleep(1);
-	   
-	}
-	return 0;
+    AtomicInt* cancelled = static_cast<AtomicInt*>(parm);
+
+    while (cancelled->value() == 0)
+    {
+        pegasus_sleep(1);
+    }
+
+    return 0;
 }
 
-static struct timeval create_time = {0, 1};
-static struct timeval destroy_time = {0, 0};
-
-void TestThreadPool()
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepSpecifiedMilliseconds(
+    void* parm)
 {
-	_canceled = 0;
-
-	ThreadPool* pool = new ThreadPool(
-		0, "Tester", 0, 1, 
-		create_time, destroy_time);
-
-	pool->allocate_and_awaken( 0, thread_routine );
-
-	_canceled = 1;
-
-	// This would give the thread time to exit and so 
-	// you wouldn't see the bugs.
-	//pegasus_sleep( 100 );
-
-	delete pool;
-	_completed = 1;
-	
-}
-
-int _testnum = 0;
-
-
-void TestThreadPool2()
-{
-   int done = 0;
-   int limit = 10000;
-	while( done < limit )
-	{
-          TestThreadPool();
-          done++;
-	  if (verbose)
-	    printf( "ThreadPool crash test, iteration:  %d of: %d \n", done, limit);
-	  else
-	    { 
-	      if (done % 1000 == 0)
-		printf( "ThreadPool crash test, iteration:  %d of: %d\n", done, limit);
-	    }
-	}
-}
-
-
-AtomicInt function_count;
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func_blocking(void *parm)
-{
-
 #ifdef PEGASUS_POINTER_64BIT
-   Uint32 sleep_interval = (Uint64)parm;
+    Uint32 sleepMilliseconds = (Uint64)parm;
 #elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-   unsigned long sleep_interval = (unsigned long)parm;
-#else   
-   Uint32 sleep_interval = (Uint32)parm;
+    unsigned long sleepMilliseconds = (unsigned long)parm;
+#else
+    Uint32 sleepMilliseconds = (Uint32)parm;
 #endif
-   pegasus_sleep(sleep_interval);
-   function_count++;
-   return 0; 
+
+    pegasus_sleep(sleepMilliseconds);
+
+    return 0;
 }
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL work_func(void *parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcIncrementCounter(
+    void* parm)
 {
+    AtomicInt* counter = static_cast<AtomicInt*>(parm);
 
-#ifdef PEGASUS_POINTER_64BIT
-   Uint32 sleep_interval = (Uint64)parm;
-#elif PEGASUS_PLATFORM_AIX_RS_IBMCXX
-   unsigned long sleep_interval = (unsigned long)parm;
-#else   
-   Uint32 sleep_interval = (Uint32)parm;
-#endif
-   pegasus_sleep(sleep_interval);
-   function_count++;
-   if( ! (function_count.value() % 10) )
-   {
-#ifdef PEGASUS_KILL_LONG_RUNNING_THREADS
-      while(1)
-      { 
-	 pegasus_sleep(1);
-      }
-#endif
-   }
-   
-   return 0; 
-}  
+    (*counter)++;
+    pegasus_sleep(50);
 
-int main(int argc, char **argv) 
-{ 
-   verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+    return 0;
+}
 
-   TestThreadPool2();
-   if (verbose)
-      PEGASUS_STD(cout) << "test finished, executing normal ThreadPool test" << PEGASUS_STD(endl);
-   
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcThrow(void* parm)
+{
+    throw Uint32(10);
+    PEGASUS_UNREACHABLE(return 0);
+}
+
+void testDestructAsThreadCompletes()
+{
+    AtomicInt cancelled = 0;
+
+    struct timeval deallocateWait = {0, 0};
+    ThreadPool* threadPool = new ThreadPool(0, "Tester", 0, 1, deallocateWait);
+
+    threadPool->allocate_and_awaken(&cancelled, funcSleepUntilCancelled);
+
+    cancelled = 1;
+
+    delete threadPool;
+}
+
+void testloopDestructAsThreadCompletes()
+{
+    if (verbose)
+    {
+        cout << "testloopDestructAsThreadCompletes" << endl;
+    }
+
+    try
+    {
+        int done = 0;
+        const int limit = 10000;
+        while (done < limit)
+        {
+            if (verbose || (done % 1000 == 0))
+            {
+                printf("testDestructAsThreadCompletes: iteration %d of %d\n",
+                    done+1, limit);
+            }
+            testDestructAsThreadCompletes();
+            done++;
+        }
+    }
+    catch (const Exception& e)
+    {
+        cout << "Exception in testloopDestructAsThreadCompletes: " <<
+            e.getMessage() << endl;
+        assert(false);
+    }
+}
+
+void testCleanupIdleThread()
+{
+    if (verbose)
+    {
+        cout << "testCleanupIdleThread" << endl;
+    }
+
+    try
+    {
+        struct timeval deallocateWait = { 0, 1 };
+        ThreadPool threadPool(0, "test cleanup", 0, 6, deallocateWait);
+
+        threadPool.allocate_and_awaken(
+            (void*)1, funcSleepSpecifiedMilliseconds);
+        pegasus_sleep(1000);
+
+        assert(threadPool.idleCount() == 1);
+        threadPool.cleanupIdleThreads();
+        assert(threadPool.idleCount() == 0);
+    }
+    catch (const Exception& e)
+    {
+        cout << "Exception in testCleanupIdleThread: " <<
+            e.getMessage() << endl;
+        assert(false);
+    }
+}
+
+void testDestructWithRunningThreads()
+{
+    if (verbose)
+    {
+        cout << "testDestructWithRunningThreads" << endl;
+    }
+
+    try
+    {
+        struct timeval deallocateWait = { 0, 1 };
+        ThreadPool threadPool(0, "test destruct", 0, 0, deallocateWait);
+
+        threadPool.allocate_and_awaken(
+            (void*)100, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)200, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)300, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)400, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)500, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)600, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)700, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)800, funcSleepSpecifiedMilliseconds);
+        threadPool.allocate_and_awaken(
+            (void*)900, funcSleepSpecifiedMilliseconds);
+
+        assert(threadPool.runningCount() > 0);
+    }
+    catch (const Exception& e)
+    {
+        cout << "Exception in testDestructWithRunningThreads: " <<
+            e.getMessage() << endl;
+        assert(false);
+    }
+}
+
+void testOverloadPool()
+{
+    if (verbose)
+    {
+        cout << "testOverloadPool" << endl;
+    }
+
+    try
+    {
+        struct timeval deallocateWait = { 0, 1 };
+        ThreadPool threadPool(0, "test overload", 0, 4, deallocateWait);
+        Boolean threadStarted;
+
+        threadStarted = threadPool.allocate_and_awaken(
+            (void*)600, funcSleepSpecifiedMilliseconds);
+        assert(threadStarted);
+
+        threadStarted = threadPool.allocate_and_awaken(
+            (void*)500, funcSleepSpecifiedMilliseconds);
+        assert(threadStarted);
+
+        threadStarted = threadPool.allocate_and_awaken(
+            (void*)400, funcSleepSpecifiedMilliseconds);
+        assert(threadStarted);
+
+        threadStarted = threadPool.allocate_and_awaken(
+            (void*)300, funcSleepSpecifiedMilliseconds);
+        assert(threadStarted);
+
+        threadStarted = threadPool.allocate_and_awaken(
+            (void*)300, funcSleepSpecifiedMilliseconds);
+        assert(!threadStarted);
+
+        while (!threadPool.allocate_and_awaken(
+            (void*)300, funcSleepSpecifiedMilliseconds))
+        {
+            pegasus_yield();
+        }
+    }
+    catch (const Exception& e)
+    {
+        cout << "Exception in testOverloadPool: " << e.getMessage() << endl;
+        assert(false);
+    }
+}
+
+void testHighWorkload()
+{
+    if (verbose)
+    {
+        cout << "testHighWorkload" << endl;
+    }
+
+    try
+    {
+        AtomicInt counter = 0;
+
+        struct timeval deallocateWait = { 0, 1 };
+        ThreadPool* threadPool =
+            new ThreadPool(0, "test workload", 0, 10, deallocateWait);
+
+        for (Uint32 i = 0; i < 50; i++)
+        {
+            while (!threadPool->allocate_and_awaken(
+                &counter, funcIncrementCounter))
+            {
+                pegasus_yield();
+            }
+        }
+
+        delete threadPool;
+
+        assert(counter.value() == 50);
+    }
+    catch (const Exception& e)
+    {
+        cout << "Exception in testHighWorkload: " << e.getMessage() << endl;
+        assert(false);
+    }
+}
+
+void testWorkException()
+{
+    if (verbose)
+    {
+        cout << "testWorkException" << endl;
+    }
+
+    try
+    {
+        struct timeval deallocateWait = { 0, 1 };
+        ThreadPool threadPool(0, "test exception", 0, 6, deallocateWait);
+
+        threadPool.allocate_and_awaken((void*)1, funcThrow);
+        pegasus_sleep(100);
+    }
+    catch (const Exception& e)
+    {
+        cout << "Exception in testWorkException: " << e.getMessage() << endl;
+        assert(false);
+    }
+}
+
+void testBlockingThread()
+{
+    if (verbose)
+    {
+        cout << "testBlockingThread" << endl;
+    }
+
+    try
+    {
+        struct timeval deallocateWait = { 5, 0 };
+        ThreadPool threadPool(0, "test blocking", 0, 6, deallocateWait);
+        Semaphore blocking(0);
+
+        while (!threadPool.allocate_and_awaken(
+            (void*)16, funcSleepSpecifiedMilliseconds, &blocking))
+        {
+            pegasus_yield();
+        }
+
+        blocking.wait();
+        threadPool.cleanupIdleThreads();
+    }
+    catch (const Exception& e)
+    {
+        cout << "Exception in testBlockingThread: " << e.getMessage() << endl;
+        assert(false);
+    }
+}
+
+int main(int argc, char **argv)
+{
+    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
+
 #if defined(PEGASUS_DEBUG)
-   Tracer::setTraceComponents("All");
-   Tracer::setTraceLevel(Tracer::LEVEL4);
-   Tracer::setTraceFile("thread_pool_trace.txt");
+    if (verbose)
+    {
+        Tracer::setTraceComponents("ALL");
+        Tracer::setTraceLevel(Tracer::LEVEL4);
+        Tracer::setTraceFile("thread_pool.trc");
+    }
 #endif
-   struct timeval await = { 0, 4 };
-   struct timeval dwait = { 5, 0 };
 
-   ThreadPool tp(0, "test pool ",  0, 6, await, dwait);   
-  
-   int i ;
-   
-   for(i = 0 ; i < 10; i++)
-   {  
-      try 
-      {
-         if (verbose)
-            PEGASUS_STD(cout) << "test iteration: " << i << PEGASUS_STD(endl);
-	 
- 	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)2, work_func );	 
-	 tp.allocate_and_awaken((void *)3, work_func );
-	 tp.allocate_and_awaken((void *)4 , work_func );	 
-	 tp.allocate_and_awaken((void *)5, work_func );
-	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)7, work_func );
-	 tp.allocate_and_awaken((void *)8, work_func );
-	 tp.allocate_and_awaken((void *)9, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func ); 
-	 tp.allocate_and_awaken((void *)2, work_func );	 
-	 tp.allocate_and_awaken((void *)3, work_func );
-	 tp.allocate_and_awaken((void *)4 , work_func );	 
-	 tp.allocate_and_awaken((void *)5, work_func );
-	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)7, work_func );
-	 tp.allocate_and_awaken((void *)8, work_func );
-	 tp.allocate_and_awaken((void *)9, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)2, work_func );	 
-	 tp.allocate_and_awaken((void *)3, work_func );
-	 tp.allocate_and_awaken((void *)4 , work_func );	 
-	 tp.allocate_and_awaken((void *)5, work_func );
-	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)7, work_func );
-	 tp.allocate_and_awaken((void *)8, work_func );
-	 tp.allocate_and_awaken((void *)9, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)2, work_func );	 
-	 tp.allocate_and_awaken((void *)3, work_func );
-	 tp.allocate_and_awaken((void *)4 , work_func );	 
-	 tp.allocate_and_awaken((void *)5, work_func );
-	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)7, work_func );
-	 tp.allocate_and_awaken((void *)8, work_func );
-	 tp.allocate_and_awaken((void *)9, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)2, work_func );	 
-	 tp.allocate_and_awaken((void *)3, work_func );
-	 tp.allocate_and_awaken((void *)4 , work_func );	 
-	 tp.allocate_and_awaken((void *)5, work_func );
-	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)7, work_func );
-	 tp.allocate_and_awaken((void *)8, work_func );
-	 tp.allocate_and_awaken((void *)9, work_func );
-	 tp.allocate_and_awaken((void *)1, work_func );
-	 tp.allocate_and_awaken((void *)2, work_func );	 
-	 tp.allocate_and_awaken((void *)3, work_func );
-	 tp.allocate_and_awaken((void *)4 , work_func );	 
-	 tp.allocate_and_awaken((void *)5, work_func );
-	 tp.allocate_and_awaken((void *)6, work_func );
-	 tp.allocate_and_awaken((void *)7, work_func );
-	 tp.allocate_and_awaken((void *)8, work_func );
-	 tp.allocate_and_awaken((void *)9, work_func );
-      } 
-       catch(Deadlock & )  
-      {
-	 PEGASUS_STD(cout) << "caught a deadlock, threadpool is totally allocated..." << PEGASUS_STD(endl);
-      }
-   }  
-   if (verbose)
-      PEGASUS_STD(cout) << "sleeping..." << PEGASUS_STD(endl);
-   pegasus_sleep( 7000 ) ; 
-   if (verbose)
-      PEGASUS_STD(cout) << "killing deadlocked threads..." << PEGASUS_STD(endl);
-   tp.kill_dead_threads( );
-   tp.kill_dead_threads( );
-   
-   Semaphore blocking(0);
-   Boolean success = true;
-   
-   do 
-   {
-      try 
-      {
-	 tp.allocate_and_awaken((void *)16, work_func_blocking , &blocking);
-      }
-      catch(Deadlock & ) 
-      { 
-	 PEGASUS_STD(cout) << "deadlock creating blocking thread" << PEGASUS_STD(endl);
-	 
-	 success = false; 
-	 pegasus_sleep(100);
-	 continue;
-	 
-      } 
-      break;
-      
-      
-   } while( success == false ); 
-   
-   if (verbose)
-      PEGASUS_STD(cout) << "waiting on  blocking thread" << PEGASUS_STD(endl);
-   
-   blocking.wait();
-   tp.kill_dead_threads( ) ;
+    testCleanupIdleThread();
+    testDestructWithRunningThreads();
+    testOverloadPool();
+    testWorkException();
+    testHighWorkload();
+    testBlockingThread();
 
-   while(tp.running_count() )
-   {  
-      tp.kill_dead_threads();
-      pegasus_sleep(1);
-   }
+#if defined(PEGASUS_DEBUG)
+    if (verbose)
+    {
+        Tracer::setTraceComponents("");
+    }
+#endif
 
+    testloopDestructAsThreadCompletes();
 
-   
-   while(_completed.value() == 0 )
-      pegasus_sleep(100);
-   
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
-   cout << argv[0] << " +++++ passed all tests" << endl;
-  
-   return(0);
-   
+    return(0);
 }
-
-
-

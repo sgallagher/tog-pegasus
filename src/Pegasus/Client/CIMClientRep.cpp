@@ -98,11 +98,11 @@ Uint32 _getShowType(String& s)
     String con = "con";
     String both = "both";
     if (s == log)
-        return 3;
+        return 1;
     if (s == con)
         return 2;
     if (s == both)
-        return 1;
+        return 3;
     return 0;
 }
 

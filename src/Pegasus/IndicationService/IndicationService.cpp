@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -192,15 +192,15 @@ void IndicationService::_handle_async_request(AsyncRequest *req)
        try
        {
           req->op->processing();
-          Message *legacy = 
+          Message *legacy =
               (static_cast<AsyncLegacyOperationStart *>(req)->get_action());
           legacy->put_async(req);
-  
+
           handleEnqueue(legacy);
        }
        catch(Exception & )
        {
-           PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3, 
+           PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL3,
                "Caught Exception in IndicationService while handling a wrapped legacy  message ");
                _make_response(req, async_results::CIM_NAK );
        }
@@ -215,6 +215,8 @@ void IndicationService::handleEnqueue(Message* message)
 {
 #ifdef PEGASUS_INDICATION_PERFINST
     Stopwatch stopWatch;
+
+    stopWatch.start();
 #endif
 
 // l10n
@@ -235,38 +237,38 @@ void IndicationService::handleEnqueue(Message* message)
     else
     {
         Thread::clearLanguages();
-    }          
+    }
 
     switch(message->getType())
     {
         case CIM_GET_INSTANCE_REQUEST_MESSAGE:
-            try 
+            try
             {
                 _handleGetInstanceRequest(message);
             }
-            catch( ... ) 
+            catch( ... )
             {
             ;
             }
             break;
 
         case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
-            try 
+            try
             {
                 _handleEnumerateInstancesRequest(message);
             }
-            catch( ... ) 
+            catch( ... )
             {
             ;
             }
             break;
 
         case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
-            try 
+            try
             {
                 _handleEnumerateInstanceNamesRequest(message);
             }
-            catch( ... ) 
+            catch( ... )
             {
             ;
             }
@@ -365,7 +367,7 @@ void IndicationService::handleEnqueue(Message* message)
         CIMResponseMessage* response = cimRequest->buildResponse();
         response->cimException = PEGASUS_CIM_EXCEPTION_L(
             CIM_ERR_NOT_SUPPORTED,
-            MessageLoaderParms( 
+            MessageLoaderParms(
                 "IndicationService.IndicationService.UNSUPPORTED_OPERATION",
                 "The requested operation is not supported or not recognized "
                 "by the indication service.")),
@@ -375,10 +377,10 @@ void IndicationService::handleEnqueue(Message* message)
     }
 
 #ifdef PEGASUS_INDICATION_PERFINST
-    double elapsed = stopWatch.getElapsed ();
+    stopWatch.stop()
 
     Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-        "%s: %.3f seconds", MessageTypeToString (message->getType ()), elapsed);
+        "%s: %.3f seconds", MessageTypeToString(message->getType()), stopWatch.getElapsed());
 #endif
 
    delete message;
@@ -398,6 +400,8 @@ void IndicationService::_initialize (void)
 
 #ifdef PEGASUS_INDICATION_PERFINST
     Stopwatch stopWatch;
+
+    stopWatch.start();
 #endif
 
     Array <CIMInstance> activeSubscriptions;
@@ -493,9 +497,9 @@ void IndicationService::_initialize (void)
             //  This instance from the repository is invalid
             //  Log a message and skip it
             //
-            Logger::put (Logger::STANDARD_LOG , System::CIMSERVER, 
+            Logger::put (Logger::STANDARD_LOG , System::CIMSERVER,
                 Logger::WARNING,
-                "An invalid Subscription instance was ignored: " + 
+                "An invalid Subscription instance was ignored: " +
                 e.getMessage ());
             continue;
         }
@@ -552,15 +556,15 @@ void IndicationService::_initialize (void)
         Uint32 propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
         if (propIndex != PEG_NOT_FOUND)
-        {  
-             instance.getProperty(propIndex).getValue().get(acceptLangs);   
-        }         
+        {
+             instance.getProperty(propIndex).getValue().get(acceptLangs);
+        }
         String contentLangs = String::EMPTY;
         propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
         if (propIndex != PEG_NOT_FOUND)
-        {  
-             instance.getProperty(propIndex).getValue().get(contentLangs);   
+        {
+             instance.getProperty(propIndex).getValue().get(contentLangs);
         }
 // l10n end
 
@@ -632,10 +636,10 @@ void IndicationService::_initialize (void)
     }
 
 #ifdef PEGASUS_INDICATION_PERFINST
-    double elapsed = stopWatch.getElapsed ();
+    stopWatch.stop();
 
     Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-        "%s: %.3f seconds", "Initialize", elapsed);
+        "%s: %.3f seconds", "Initialize", stopWatch.getElapsed());
 #endif
 
     PEG_METHOD_EXIT ();
@@ -750,7 +754,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             (IdentityContainer :: NAME)).getUserName();
         _checkNonprivilegedAuthorization(userName);
 
-        AcceptLanguages acceptLangs = 
+        AcceptLanguages acceptLangs =
             ((AcceptLanguageListContainer)request->operationContext.get
             (AcceptLanguageListContainer::NAME)).getLanguages();
         ContentLanguages contentLangs =
@@ -761,7 +765,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
         {
             //
             //  If the instance is of the PEGASUS_CLASSNAME_INDSUBSCRIPTION
-	    //  class or the PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION
+        //  class or the PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION
             //  class and subscription state is enabled, determine if any
             //  providers can serve the subscription
             //
@@ -776,8 +780,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
             if ((instance.getClassName ().equal
                 (PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
-		(instance.getClassName ().equal
-		(PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+        (instance.getClassName ().equal
+        (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
             {
                 //
                 //  Get subscription state
@@ -938,7 +942,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
             PEG_METHOD_EXIT ();
             //throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED,
                 //_MSG_INVALID_INSTANCES);
-            MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY, 
+            MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY,
                 _MSG_INVALID_INSTANCES);
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
         }
@@ -950,14 +954,14 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         //  Remove the language properties from instance before returning
         //
         Uint32 propIndex = instance.findProperty
-            (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);      
+            (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
         if (propIndex != PEG_NOT_FOUND)
         {
              instance.removeProperty (propIndex);
         }
 
         propIndex = instance.findProperty
-            (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
+            (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
         if (propIndex != PEG_NOT_FOUND)
         {
              // Get the content languages to be sent in the Content-Language header
@@ -1066,7 +1070,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         Uint32 propIndex;
 
         //
-        //  Remove Creator and language properties from instances before 
+        //  Remove Creator and language properties from instances before
         //  returning
         //
         for (Uint32 i = 0; i < enumInstances.size (); i++)
@@ -1086,13 +1090,13 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
 
 // l10n start
             propIndex = enumInstances [i].findProperty
-                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);      
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             String contentLangs = String::EMPTY;
             if (propIndex != PEG_NOT_FOUND)
             {
                 enumInstances [i].getProperty(propIndex).getValue().get
-                    (contentLangs); 
-                enumInstances [i].removeProperty(propIndex); 
+                    (contentLangs);
+                enumInstances [i].removeProperty(propIndex);
             }
 
             propIndex = enumInstances [i].findProperty
@@ -1174,7 +1178,7 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
         <CIMEnumerateInstancesResponseMessage *> (request->buildResponse ());
     response->cimException = cimException;
     response->operationContext.set(ContentLanguageListContainer
-        (ContentLanguages(aggregatedLangs))); 
+        (ContentLanguages(aggregatedLangs)));
     response->cimNamedInstances = returnedInstances;
     _enqueueResponse (request, response);
 
@@ -1216,7 +1220,7 @@ void IndicationService::_handleEnumerateInstanceNamesRequest
 // l10n
     // Note: not setting Content-Language in the response
     CIMEnumerateInstanceNamesResponseMessage * response = dynamic_cast
-        <CIMEnumerateInstanceNamesResponseMessage *> 
+        <CIMEnumerateInstanceNamesResponseMessage *>
             (request->buildResponse ());
     response->cimException = cimException;
     response->instanceNames = enumInstanceNames;
@@ -1424,18 +1428,18 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 // Add the language properties to the modified instance.
                 // Note:  These came from the Accept-Language and Content-Language
                 // headers in the HTTP messages, and may be empty.
-                AcceptLanguages acceptLangs = 
+                AcceptLanguages acceptLangs =
                     ((AcceptLanguageListContainer)request->operationContext.get
                     (AcceptLanguageListContainer::NAME)).getLanguages();
-                modifiedInstance.addProperty (CIMProperty 
-                    (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS, 
+                modifiedInstance.addProperty (CIMProperty
+                    (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS,
                     acceptLangs.toString()));
 
                 ContentLanguages contentLangs =
                     ((ContentLanguageListContainer)request->operationContext.get
                     (ContentLanguageListContainer::NAME)).getLanguages();
-                modifiedInstance.addProperty (CIMProperty 
-                    (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS, 
+                modifiedInstance.addProperty (CIMProperty
+                    (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS,
                     contentLangs.toString()));
 
                 Array <CIMName> properties = propertyList.getPropertyNameArray ();
@@ -1584,7 +1588,7 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                             userName, request->authType);
 
                         //
-                        //  Response is sent from 
+                        //  Response is sent from
                         //  _handleDeleteResponseAggregation
                         //
                         responseSent = true;
@@ -1650,8 +1654,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
             CIMInstance subscriptionInstance;
             if (request->instanceName.getClassName ().equal
                 (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-		request->instanceName.getClassName ().equal
-		(PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+        request->instanceName.getClassName ().equal
+        (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
             {
                 subscriptionInstance =
                     _subscriptionRepository->getInstance
@@ -1694,8 +1698,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
             if (request->instanceName.getClassName ().equal
                 (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-		request->instanceName.getClassName ().equal
-		(PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+        request->instanceName.getClassName ().equal
+        (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
             {
                 //
                 //  If subscription is active, send delete requests to providers
@@ -1741,7 +1745,7 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                             userName, request->authType);
 
                         //
-                        //  Response is sent from 
+                        //  Response is sent from
                         //  _handleDeleteResponseAggregation
                         //
                         responseSent = true;
@@ -1793,7 +1797,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 {
 #ifdef PEGASUS_INDICATION_PERFINST
     Stopwatch stopWatch;
-    double elapsed;
 #endif
 
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -1833,22 +1836,23 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             propertyNames.append(indication.getProperty(i).getName());
         }
         propertyList = _checkPropertyList (propertyNames,
-            request->nameSpace, indication.getClassName (), 
+            request->nameSpace, indication.getClassName (),
             indicationClassProperties);
 
         //
-        //  Retrieve the matching subscriptions based on the class name and 
+        //  Retrieve the matching subscriptions based on the class name and
         //  namespace of the generated indication
-        //  If the provider did not include subscriptions in the 
+        //  If the provider did not include subscriptions in the
         //  SubscriptionInstanceNamesContainer, the matchedSubscriptions
-        //  represent the subscriptions to which the indication should be 
+        //  represent the subscriptions to which the indication should be
         //  forwarded, if the filter criteria are met
         //
         Array <CIMNamespaceName> nameSpaces;
         nameSpaces.append (request->nameSpace);
 
 #ifdef PEGASUS_INDICATION_PERFINST
-        stopWatch.reset ();
+        stopWatch.reset();
+        stopWatch.start();
 #endif
 
         matchedSubscriptions = _getMatchingSubscriptions(
@@ -1856,33 +1860,34 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             true, request->provider);
 
 #ifdef PEGASUS_INDICATION_PERFINST
-        elapsed = stopWatch.getElapsed ();
+        stopWatch.stop();
 
         Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
             "%s: %.3f seconds",
-            "Get Matching Subscriptions", elapsed);
+            "Get Matching Subscriptions", stopWatch.getElapsed());
 #endif
 
         //
-        //  If the provider included subscriptions in the 
-        //  SubscriptionInstanceNamesContainer, verify that each subscription 
-        //  specified by the provider matches the class name and namespace of 
-        //  the generated indication by looking for the subscription instance 
+        //  If the provider included subscriptions in the
+        //  SubscriptionInstanceNamesContainer, verify that each subscription
+        //  specified by the provider matches the class name and namespace of
+        //  the generated indication by looking for the subscription instance
         //  in the list of matching subscriptions from the Subscription Classes
         //  table
-        //  The subset of subscriptions included by the provider that also 
+        //  The subset of subscriptions included by the provider that also
         //  appear in the matchedSubscriptions list represent the subscriptions
         //  to which the indication should be forwarded, if the filter criteria
         //  are met
-        //  Any subscription included by the provider but not matching the 
-        //  the class name and namespace of the generated indication is ignored 
+        //  Any subscription included by the provider but not matching the
+        //  the class name and namespace of the generated indication is ignored
         //
         if (request->subscriptionInstanceNames.size() > 0)
         {
             Array <CIMInstance> providedSubscriptions;
 
 #ifdef PEGASUS_INDICATION_PERFINST
-            stopWatch.reset ();
+            stopWatch.reset();
+            stopWatch.start();
 #endif
 
             for (Uint32 i = 0; i < request->subscriptionInstanceNames.size();
@@ -1897,14 +1902,14 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 {
                     //
                     //  Verify that each subscription specified by the provider
-                    //  matches the class name and namespace of the generated 
-                    //  indication by looking for the subscription instance in 
+                    //  matches the class name and namespace of the generated
+                    //  indication by looking for the subscription instance in
                     //  the list of matching subscriptions
                     //
                     Boolean found = false;
                     for (Uint32 i = 0; i < matchedSubscriptions.size(); i++)
                     {
-                        if (matchedSubscriptions [i].identical 
+                        if (matchedSubscriptions [i].identical
                             (tableValue.subscription))
                         {
                             found = true;
@@ -1919,17 +1924,17 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             }
 
 #ifdef PEGASUS_INDICATION_PERFINST
-            elapsed = stopWatch.getElapsed ();
+            stopWatch.stop();
 
             Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
                 "%s: %.3f seconds",
-                "Look up Subscriptions", elapsed);
+                "Look up Subscriptions", stopWatch.getElapsed());
 #endif
             matchedSubscriptions = providedSubscriptions;
         }
 
         //
-        //  For each matching subscription, determine whether the filter 
+        //  For each matching subscription, determine whether the filter
         //  criteria are met by the generated indication, and if so, forward to
         //  the handler
         //
@@ -1980,18 +1985,19 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
 
 
 #ifdef PEGASUS_INDICATION_PERFINST
-            stopWatch.reset ();
+            stopWatch.reset();
+            stopWatch.start();
 #endif
             if (!queryExpr.evaluate(indication))
             {
               match = false;
             }
 #ifdef PEGASUS_INDICATION_PERFINST
-            elapsed = stopWatch.getElapsed ();
+            stopWatch.stop();
 
             Tracer::trace (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
                            "%s: %.3f seconds",
-                           "Evaluate WHERE clause", elapsed);
+                           "Evaluate WHERE clause", stopWatch.getElapsed());
 #endif
 
             if (match)
@@ -2003,12 +2009,12 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 //
                 // 1) Call QueryExpression::applyProjection to remove properties
                 // not listed in the SELECT clause.  Note: for CQL, this will handle
-                // properties on embedded objects. 
-                // 
+                // properties on embedded objects.
+                //
                 // QueryExpression::applyProjection throws an exception if
                 // the indication is missing a required property in the SELECT
                 // clause.  Although _getMatchingSubscriptions checked for
-                // the indication missing required properties, it would have 
+                // the indication missing required properties, it would have
                 // not detected missing required embedded object properties for CQL.
                 // So, we need to catch the missing property exception here.
                 //
@@ -2018,11 +2024,11 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 // these properties will remain after applyProjection if the
                 // SELECT clause happens to have a property name not on the
                 // indication class, and the indication has that same property.
-                // Note: If SELECT includes all properties ("*"), it's still 
-                // necessary to check, in case the provider added properties not in 
+                // Note: If SELECT includes all properties ("*"), it's still
+                // necessary to check, in case the provider added properties not in
                 // the indication class.
                 //
-                try 
+                try
                 {
                   queryExpr.applyProjection(formattedIndication);
                 }
@@ -2030,7 +2036,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 {
                   // The indication was missing a required property.
                   // The call to _getMatchingSubscriptions above checked for
-                  // missing required properties on the base indication object 
+                  // missing required properties on the base indication object
                   // so this can only happen for CQL when an embedded object
                   // property is missing.
                   //
@@ -2041,8 +2047,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                                     "Apply Projection error: " + re.getMessage());
                   continue;
                 }
-                
-                // Remove any remaining properties not in the indication class 
+
+                // Remove any remaining properties not in the indication class
                 // from the indication.
                 //
                 for (Uint32 j = 0; j < propertyNames.size(); j++)
@@ -2067,7 +2073,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                         request->nameSpace,
                         handlerNamedInstance,
                         formattedIndication,
-			matchedSubscriptions[i],
+            matchedSubscriptions[i],
                         QueueIdStack(_handlerService, getQueueId()),
                         String::EMPTY,
                         String::EMPTY);
@@ -2178,8 +2184,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     Boolean responseSent = false;
 
     ProviderIdContainer pidc = request->operationContext.get
-        (ProviderIdContainer::NAME); 
-    CIMInstance provider = pidc.getProvider(); 
+        (ProviderIdContainer::NAME);
+    CIMInstance provider = pidc.getProvider();
     CIMInstance providerModule = pidc.getModule();
     CIMName className = request->className;
     Array <CIMNamespaceName> newNameSpaces = request->newNamespaces;
@@ -2475,7 +2481,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                             creator);
 
                         //
-                        //  Response is sent from 
+                        //  Response is sent from
                         //  _handleDeleteResponseAggregation
                         //
                         responseSent = true;
@@ -2505,7 +2511,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                             creator);
 
                             //
-                            //  Response is sent from 
+                            //  Response is sent from
                             //  _handleModifyResponseAggregation
                             //
                             responseSent = true;
@@ -2582,7 +2588,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
     }
 
     //
-    //  Send response, if not sent from callback 
+    //  Send response, if not sent from callback
     //  (for example, if there were no matching subscriptions)
     //
     if (!responseSent)
@@ -2604,7 +2610,7 @@ void IndicationService::_handleNotifyProviderTerminationRequest
     Array <CIMInstance> providerSubscriptions;
     CIMInstance indicationInstance;
 
-    CIMNotifyProviderTerminationRequestMessage* request = 
+    CIMNotifyProviderTerminationRequestMessage* request =
         (CIMNotifyProviderTerminationRequestMessage*) message;
 
     Array <CIMInstance> providers = request->providers;
@@ -2855,9 +2861,9 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 responseSent = true;
 
                 //
-                //  NOTE: When a provider that was previously not serving a 
-                //  subscription now serves the subscription due to a provider 
-                //  being enabled, a log message is sent, even if there 
+                //  NOTE: When a provider that was previously not serving a
+                //  subscription now serves the subscription due to a provider
+                //  being enabled, a log message is sent, even if there
                 //  were previously other providers serving the subscription
                 //
 
@@ -2914,7 +2920,7 @@ Boolean IndicationService::_canCreate (
     //  For a property that has a specified set of valid values, validate
     //
     if ((instance.getClassName ().equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
-	(instance.getClassName ().equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+    (instance.getClassName ().equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
     {
         //
         //  Filter and Handler are key properties for Subscription
@@ -2996,82 +3002,82 @@ Boolean IndicationService::_canCreate (
         _checkProperty (instance, _PROPERTY_REPEATNOTIFICATIONCOUNT,
             CIMTYPE_UINT16);
 
-	if (instance.getClassName ().equal (
-	    PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
-	{
-	    Array<String> textFormatParams;
-	    CIMValue textFormatParamsValue;
-	    CIMClass indicationClass;
+    if (instance.getClassName ().equal (
+        PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+    {
+        Array<String> textFormatParams;
+        CIMValue textFormatParamsValue;
+        CIMClass indicationClass;
 
-	    // get TextFormatParameters from instance
-	    Uint32 textFormatParamsPos =
-		instance.findProperty(_PROPERTY_TEXTFORMATPARAMETERS);
+        // get TextFormatParameters from instance
+        Uint32 textFormatParamsPos =
+        instance.findProperty(_PROPERTY_TEXTFORMATPARAMETERS);
 
             if (textFormatParamsPos != PEG_NOT_FOUND)
-	    {
-		textFormatParamsValue = instance.getProperty(
-		    textFormatParamsPos).getValue();
+        {
+        textFormatParamsValue = instance.getProperty(
+            textFormatParamsPos).getValue();
 
                 if (!textFormatParamsValue.isNull())
-		{
-		    textFormatParamsValue.get(textFormatParams);
-		}
-	    }
+        {
+            textFormatParamsValue.get(textFormatParams);
+        }
+        }
 
-	    // get indication class
-	    indicationClass = _getIndicationClass (instance);
+        // get indication class
+        indicationClass = _getIndicationClass (instance);
 
             String textFormatStr;
             CIMValue textFormatValue;
 
             // get TextFormatStr from instance
             Uint32 textFormatPos =
-	        instance.findProperty(_PROPERTY_TEXTFORMAT);
+            instance.findProperty(_PROPERTY_TEXTFORMAT);
 
             if (textFormatPos != PEG_NOT_FOUND)
             {
                 textFormatValue = instance.getProperty(
-		    textFormatPos).getValue();
+            textFormatPos).getValue();
 
 #if defined(PEGASUS_ENABLE_SYSTEM_LOG_HANDLER) || \
     defined(PEGASUS_ENABLE_EMAIL_HANDLER)
-	        // if the value of textFormat is not null
+            // if the value of textFormat is not null
                 if (!(textFormatValue.isNull()) &&
-	            (textFormatValue.getType() == CIMTYPE_STRING) &&
-	            !(textFormatValue.isArray()))
-	        {
-	            textFormatValue.get(textFormatStr);
+                (textFormatValue.getType() == CIMTYPE_STRING) &&
+                !(textFormatValue.isArray()))
+            {
+                textFormatValue.get(textFormatStr);
 
-	            // Validates the syntax and the provided type for the 
-	            // property TextFormat
-	            IndicationFormatter::validateTextFormat (
-		        textFormatStr, indicationClass,
-		        textFormatParams);
+                // Validates the syntax and the provided type for the
+                // property TextFormat
+                IndicationFormatter::validateTextFormat (
+                textFormatStr, indicationClass,
+                textFormatParams);
 
-	            // Validates the property names in TextFormatParameters
-	            CIMNamespaceName sourceNameSpace;
+                // Validates the property names in TextFormatParameters
+                CIMNamespaceName sourceNameSpace;
                     String query;
-	            String queryLanguage;
-	            CIMPropertyList propertyList;
+                String queryLanguage;
+                CIMPropertyList propertyList;
 
-	            //  Get filter properties
-	            _subscriptionRepository->getFilterProperties (instance,
-		        instance.getPath().getNameSpace(), query,
-		        sourceNameSpace, queryLanguage);
+                //  Get filter properties
+                _subscriptionRepository->getFilterProperties (instance,
+                instance.getPath().getNameSpace(), query,
+                sourceNameSpace, queryLanguage);
 
                     //  Build the query expression from the filter query
-	            QueryExpression queryExpression = _getQueryExpression(query,
-		        queryLanguage, sourceNameSpace);
-             
-	             // the select clause projection
-	             propertyList = queryExpression.getPropertyList();
+                QueryExpression queryExpression = _getQueryExpression(query,
+                queryLanguage, sourceNameSpace);
 
-	            IndicationFormatter::validateTextFormatParameters(
-		        propertyList, indicationClass, textFormatParams);
-		}
+                 // the select clause projection
+                 propertyList = queryExpression.getPropertyList();
+
+                IndicationFormatter::validateTextFormatParameters(
+                propertyList, indicationClass, textFormatParams);
+        }
 #endif
             }
-	}
+    }
     }
     else  // Filter or Handler
     {
@@ -3092,7 +3098,7 @@ Boolean IndicationService::_canCreate (
         _initOrValidateStringProperty (instance, _PROPERTY_SYSTEMNAME,
             System::getFullyQualifiedHostName ());
 
-        _initOrValidateStringProperty (instance, 
+        _initOrValidateStringProperty (instance,
             _PROPERTY_SYSTEMCREATIONCLASSNAME,
             System::getSystemCreationClassName ());
 
@@ -3119,7 +3125,7 @@ Boolean IndicationService::_canCreate (
             {
               // CQL is not allowed in this case
               throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
-                                          queryLanguage);              
+                                          queryLanguage);
             }
 #endif
 
@@ -3143,7 +3149,7 @@ Boolean IndicationService::_canCreate (
             try
             {
               queryExpression =
-                _getQueryExpression (filterQuery, queryLanguage, sourceNameSpace);  
+                _getQueryExpression (filterQuery, queryLanguage, sourceNameSpace);
             }
             catch (QueryLanguageInvalidException&)
             {
@@ -3174,7 +3180,7 @@ Boolean IndicationService::_canCreate (
             {
               // A property does not exist on the class it is scoped to.
               throw PEGASUS_CIM_EXCEPTION
-                (CIM_ERR_INVALID_PARAMETER, qmp.getMessage());   
+                (CIM_ERR_INVALID_PARAMETER, qmp.getMessage());
             }
             catch (QueryValidationException& qv)
             {
@@ -3182,12 +3188,12 @@ Boolean IndicationService::_canCreate (
               // This includes detecting an array property
               // is in the WHERE list for WQL.
               throw PEGASUS_CIM_EXCEPTION
-                (CIM_ERR_NOT_SUPPORTED, qv.getMessage());   
+                (CIM_ERR_NOT_SUPPORTED, qv.getMessage());
             }
         }
 
         //
-        //  Currently only five subclasses of the Listener Destination 
+        //  Currently only five subclasses of the Listener Destination
         //  class are supported -- further subclassing is not currently
         //  supported
         //
@@ -3195,44 +3201,44 @@ Boolean IndicationService::_canCreate (
                   (PEGASUS_CLASSNAME_INDHANDLER_CIMXML)) ||
                  (instance.getClassName ().equal
                   (PEGASUS_CLASSNAME_LSTNRDST_CIMXML)) ||
-		 (instance.getClassName ().equal
-		  (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
-		 (instance.getClassName ().equal
-		  (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)) ||
+         (instance.getClassName ().equal
+          (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG)) ||
+         (instance.getClassName ().equal
+          (PEGASUS_CLASSNAME_LSTNRDST_EMAIL)) ||
                  (instance.getClassName ().equal
                   (PEGASUS_CLASSNAME_INDHANDLER_SNMP)))
         {
 #ifndef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
             if (instance.getClassName ().equal
-	        (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+            (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
             {
                 //
-	        //  The System Log Handler is not enabled currently,
+            //  The System Log Handler is not enabled currently,
                 //  this class is not currently served by the Indication Service
                 //
                 PEG_METHOD_EXIT ();
 
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, 
-		    _MSG_CLASS_NOT_SERVED));
-	    }
+                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY,
+            _MSG_CLASS_NOT_SERVED));
+        }
 #endif
 
 #if !defined(PEGASUS_ENABLE_EMAIL_HANDLER)
 
             if (instance.getClassName ().equal
-	        (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+            (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
             {
                 //
-	        //  The Email Handler is not enabled currently,
+            //  The Email Handler is not enabled currently,
                 //  this class is not currently served by the Indication Service
                 //
                 PEG_METHOD_EXIT ();
 
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
-                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY, 
-				   _MSG_CLASS_NOT_SERVED));
-	    }
+                MessageLoaderParms(_MSG_CLASS_NOT_SERVED_KEY,
+                   _MSG_CLASS_NOT_SERVED));
+        }
 #endif
             _checkPropertyWithOther (instance, _PROPERTY_PERSISTENCETYPE,
                 _PROPERTY_OTHERPERSISTENCETYPE, (Uint16) _PERSISTENCE_PERMANENT,
@@ -3254,8 +3260,8 @@ Boolean IndicationService::_canCreate (
                 //  Destination property is required for CIMXML
                 //  Handler subclass
                 //
-                _checkRequiredProperty (instance, 
-		    PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION,
+                _checkRequiredProperty (instance,
+            PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION,
                     CIMTYPE_STRING, _MSG_PROPERTY);
             }
 
@@ -3266,8 +3272,8 @@ Boolean IndicationService::_canCreate (
                 //  TargetHost property is required for SNMP
                 //  Handler subclass
                 //
-                _checkRequiredProperty (instance, 
-		    PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST,
+                _checkRequiredProperty (instance,
+            PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST,
                     CIMTYPE_STRING, _MSG_PROPERTY);
 
                 //
@@ -3300,55 +3306,55 @@ Boolean IndicationService::_canCreate (
                 //  MailTo property is required for Email
                 //  Handler subclass
                 //
-                _checkRequiredProperty (instance, 
-		    PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO,
+                _checkRequiredProperty (instance,
+            PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO,
                     CIMTYPE_STRING, _MSG_PROPERTY);
 
-		// get MailTo from handler instance
+        // get MailTo from handler instance
                 Array<String> mailTo;
-	        instance.getProperty(instance.findProperty(
+            instance.getProperty(instance.findProperty(
                   PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO)).getValue().get(mailTo);
 
-		// Build mail address string
-		String mailAddrStr = String::EMPTY;
-	        Uint32 mailAddrSize = mailTo.size();
+        // Build mail address string
+        String mailAddrStr = String::EMPTY;
+            Uint32 mailAddrSize = mailTo.size();
 
-		for (Uint32 i=0; i < mailAddrSize; i++)
-		{
-		    mailAddrStr.append(mailTo[i]);
+        for (Uint32 i=0; i < mailAddrSize; i++)
+        {
+            mailAddrStr.append(mailTo[i]);
 
-		    if (i < (mailAddrSize - 1))
-		    {
-		        mailAddrStr.append(",");
-		    }
-		}
+            if (i < (mailAddrSize - 1))
+            {
+                mailAddrStr.append(",");
+            }
+        }
 
 
-		//
-		// Email address can not be an empty string
-		//
-		if (mailAddrStr == String::EMPTY)
-		{
-		    PEG_METHOD_EXIT();
-		    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-			MessageLoaderParms("IndicationService.IndicationService._MSG_DO_NOT_HAVE_EMAIL_ADDRESS",
-			"Do not have an e-mail address."));
-		}
+        //
+        // Email address can not be an empty string
+        //
+        if (mailAddrStr == String::EMPTY)
+        {
+            PEG_METHOD_EXIT();
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+            MessageLoaderParms("IndicationService.IndicationService._MSG_DO_NOT_HAVE_EMAIL_ADDRESS",
+            "Do not have an e-mail address."));
+        }
 
                 //
                 //  MailSubject property is required for Email
                 //  Handler subclass
                 //
-                _checkRequiredProperty (instance, 
-		    PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT,
+                _checkRequiredProperty (instance,
+            PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT,
                     CIMTYPE_STRING, _MSG_PROPERTY);
 
                 //
                 //  For MailCc property, verify that if the property
                 //  exists in the instance it is of the correct type
                 //
-                _checkProperty (instance, 
-		    PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC,
+                _checkProperty (instance,
+            PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC,
                     CIMTYPE_STRING);
             }
         }
@@ -3907,8 +3913,8 @@ Boolean IndicationService::_canModify (
     //
     if (!(instanceReference.getClassName ().equal
         (PEGASUS_CLASSNAME_INDSUBSCRIPTION)) &&
-	!(instanceReference.getClassName ().equal
-	(PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+    !(instanceReference.getClassName ().equal
+    (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
     {
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY);
@@ -3970,7 +3976,7 @@ Boolean IndicationService::_canModify (
         PEG_METHOD_EXIT ();
         //throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED,
             //_MSG_INVALID_INSTANCES);
-        MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY, 
+        MessageLoaderParms parms(_MSG_INVALID_INSTANCES_KEY,
             _MSG_INVALID_INSTANCES);
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, parms);
     }
@@ -4065,9 +4071,9 @@ Boolean IndicationService::_canDelete (
     //
     if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
         (superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
-	(superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
+    (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
         (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDFILTER)) ||
-	(instanceReference.getClassName().equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
+    (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
         (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDHANDLER)))
     {
         if ((superClass.equal (PEGASUS_CLASSNAME_INDFILTER)) ||
@@ -4077,7 +4083,7 @@ Boolean IndicationService::_canDelete (
             propName = _PROPERTY_FILTER;
         }
         else if ((superClass.equal (PEGASUS_CLASSNAME_INDHANDLER)) ||
-		 (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)))
+         (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)))
         {
             propName = _PROPERTY_HANDLER;
 
@@ -4188,7 +4194,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             QueryExpression queryExpr = _getQueryExpression(filterQuery,
                                                             queryLanguage,
                                                             sourceNameSpace);
-            
+
 
             //
             //  Get indication class name from filter query
@@ -4203,7 +4209,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             //  Note that the supportedClass is passed in,
             //  not the indicationClassName.
             //  The supportedClass is the class of the indication
-            //  instance, while the indicationClassName is the FROM class. 
+            //  instance, while the indicationClassName is the FROM class.
             //  This is needed because CQL can have class scoping operators
             //  on properties that may not be the same class
             //  as the FROM class.  The required properties
@@ -4510,21 +4516,21 @@ QueryExpression IndicationService::_getQueryExpression (const String& filterQuer
   catch (QueryParseException & qpe)
   {
     String exceptionStr = qpe.getMessage ();
-        
+
     PEG_METHOD_EXIT ();
     throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
   }
   catch (ParseError & pe)
   {
     String exceptionStr = pe.getMessage ();
-        
+
     PEG_METHOD_EXIT ();
     throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
   }
   catch (MissingNullTerminator & mnt)
   {
     String exceptionStr = mnt.getMessage ();
-        
+
     PEG_METHOD_EXIT ();
     throw PEGASUS_CIM_EXCEPTION (CIM_ERR_INVALID_PARAMETER, exceptionStr);
   }
@@ -4591,7 +4597,7 @@ CIMName IndicationService::_getIndicationClassName (
 }
 
 Array <ProviderClassList> IndicationService::_getIndicationProviders (
-    const QueryExpression & queryExpression,                                               
+    const QueryExpression & queryExpression,
     const CIMNamespaceName & nameSpace,
     const CIMName & indicationClassName,
     const Array <CIMName> & indicationSubclasses) const
@@ -4635,7 +4641,7 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
                             providerModuleInstances.size ());
 
             duplicate = false;
-            
+
             //
             //  Merge into list of ProviderClassList structs
             //
@@ -4695,7 +4701,7 @@ CIMPropertyList IndicationService::_getPropertyList
     CIMPropertyList propertyList;
 
     //  Get all the properties referenced in the projection list (SELECT clause)
-    //  and the WHERE clause.  
+    //  and the WHERE clause.
     //  Note: for CQL, this only returns the properties directly on the
     //  class name passed in, not any properties on embedded objects.
     //
@@ -4711,7 +4717,7 @@ CIMPropertyList IndicationService::_getPropertyList
       // The class path was not the FROM class, or a subclass
       // of the FROM class.
       String exceptionStr = qe.getMessage ();
-        
+
       PEG_METHOD_EXIT ();
       throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
     }
@@ -4764,7 +4770,7 @@ CIMPropertyList IndicationService::_checkPropertyList
     Boolean allProperties = true;
     for (Uint32 i = 0; i < indicationClass.getPropertyCount (); i++)
     {
-        indicationClassProperties.append 
+        indicationClassProperties.append
             (indicationClass.getProperty (i).getName ());
         if (!ContainsCIMName (propertyList,
             indicationClass.getProperty (i).getName ()))
@@ -5175,8 +5181,8 @@ void IndicationService::_getCreateParams (
     //
     indicationProviders = _getIndicationProviders(
          queryExpression,
-         sourceNameSpace, 
-         indicationClassName, 
+         sourceNameSpace,
+         indicationClassName,
          indicationSubclasses);
 
     if (indicationProviders.size () > 0)
@@ -5429,20 +5435,20 @@ void IndicationService::_sendCreateRequests
         //
         CIMCreateSubscriptionRequestMessage * requestCopy =
             new CIMCreateSubscriptionRequestMessage (* request);
-        requestCopy->operationContext.insert(ProviderIdContainer 
+        requestCopy->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule,
-            indicationProviders [i].provider)); 
+            indicationProviders [i].provider));
         operationAggregate->appendRequest (requestCopy);
 
-        request->operationContext.insert(ProviderIdContainer 
+        request->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule,
-            indicationProviders [i].provider)); 
+            indicationProviders [i].provider));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
             (condition,queryLanguage));
-		  request->operationContext.insert(SubscriptionFilterQueryContainer
-		      (query,queryLanguage,nameSpace));
+          request->operationContext.insert(SubscriptionFilterQueryContainer
+              (query,queryLanguage,nameSpace));
         request->operationContext.insert(SubscriptionLanguageListContainer
             (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
@@ -5568,20 +5574,20 @@ void IndicationService::_sendModifyRequests
         //
         CIMModifySubscriptionRequestMessage * requestCopy =
             new CIMModifySubscriptionRequestMessage (* request);
-        requestCopy->operationContext.insert(ProviderIdContainer 
+        requestCopy->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule,
             indicationProviders [i].provider));
         operationAggregate->appendRequest (requestCopy);
 
-        request->operationContext.insert(ProviderIdContainer 
+        request->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule,
             indicationProviders [i].provider));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(SubscriptionFilterConditionContainer
             (condition,queryLanguage));
-		  request->operationContext.insert(SubscriptionFilterQueryContainer
-		      (query,queryLanguage,nameSpace));
+          request->operationContext.insert(SubscriptionFilterQueryContainer
+              (query,queryLanguage,nameSpace));
         request->operationContext.insert(SubscriptionLanguageListContainer
             (acceptLangs));
         request->operationContext.insert(IdentityContainer(userName));
@@ -5717,14 +5723,14 @@ void IndicationService::_sendDeleteRequests
         //
         CIMDeleteSubscriptionRequestMessage * requestCopy =
             new CIMDeleteSubscriptionRequestMessage (* request);
-        requestCopy->operationContext.insert(ProviderIdContainer 
+        requestCopy->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule,
             indicationProviders [i].provider));
         operationAggregate->appendRequest (requestCopy);
 
-        request->operationContext.insert(ProviderIdContainer 
+        request->operationContext.insert(ProviderIdContainer
             (indicationProviders [i].providerModule,
-            indicationProviders [i].provider)); 
+            indicationProviders [i].provider));
         request->operationContext.insert(SubscriptionInstanceContainer
             (subscription));
         request->operationContext.insert(SubscriptionLanguageListContainer
@@ -5958,7 +5964,7 @@ void IndicationService::_handleCreateResponseAggregation (
         {
             //
             //  For Create Instance, Modify Instance, Notify Provider Enable or
-            //  Notify Provider Registration request, set CIM exception for 
+            //  Notify Provider Registration request, set CIM exception for
             //  response
             //
             // l10n
@@ -5984,7 +5990,7 @@ void IndicationService::_handleCreateResponseAggregation (
             ProviderClassList provider;
             ProviderIdContainer pidc = origRequest->operationContext.get
                 (ProviderIdContainer::NAME);
-            provider.provider = pidc.getProvider(); 
+            provider.provider = pidc.getProvider();
             provider.providerModule = pidc.getModule();
             provider.classList.append (origRequest->className);
 
@@ -6045,16 +6051,16 @@ void IndicationService::_handleCreateResponseAggregation (
             CIMInstance instance = request->subscriptionInstance;
             try
             {
-                instanceRef = _subscriptionRepository->createInstance 
-                    (request->subscriptionInstance, origRequest->nameSpace, 
+                instanceRef = _subscriptionRepository->createInstance
+                    (request->subscriptionInstance, origRequest->nameSpace,
                     ((IdentityContainer)origRequest->operationContext.get
-                        (IdentityContainer::NAME)).getUserName(), 
+                        (IdentityContainer::NAME)).getUserName(),
                     ((AcceptLanguageListContainer)request->operationContext.get
                         (AcceptLanguageListContainer::NAME)).getLanguages(),
                     ((ContentLanguageListContainer)request->operationContext.get
                         (ContentLanguageListContainer::NAME)).getLanguages(),
                         true);
-                instanceRef.setNameSpace 
+                instanceRef.setNameSpace
                     (request->subscriptionInstance.getPath().getNameSpace());
                 instance.setPath (instanceRef);
             }
@@ -6127,29 +6133,29 @@ void IndicationService::_handleCreateResponseAggregation (
             // l10n
             // Note: don't need to set Content-language in the response
             CIMCreateInstanceResponseMessage * response = dynamic_cast
-                <CIMCreateInstanceResponseMessage *> 
+                <CIMCreateInstanceResponseMessage *>
                     (operationAggregate->getOrigRequest ()->buildResponse ());
             response->cimException = cimException;
             response->instanceName = instanceRef;
             _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
-        else if (operationAggregate->getOrigType () == 
+        else if (operationAggregate->getOrigType () ==
             CIM_MODIFY_INSTANCE_REQUEST_MESSAGE)
         {
             // l10n
             // Note: don't need to set Content-language in the response
             //
-            CIMResponseMessage * response = 
+            CIMResponseMessage * response =
                 operationAggregate->getOrigRequest ()->buildResponse ();
             response->cimException = cimException;
             _enqueueResponse (operationAggregate->getOrigRequest (), response);
         }
 
-        else if (operationAggregate->getOrigType () == 
+        else if (operationAggregate->getOrigType () ==
             CIM_NOTIFY_PROVIDER_ENABLE_REQUEST_MESSAGE)
         {
-            CIMResponseMessage * response = 
+            CIMResponseMessage * response =
                 operationAggregate->getOrigRequest ()->buildResponse ();
             response->cimException = cimException;
             _enqueueResponse (operationAggregate->getOrigRequest (), response);
@@ -6160,7 +6166,7 @@ void IndicationService::_handleCreateResponseAggregation (
             PEGASUS_ASSERT (operationAggregate->getOrigType () ==
                             CIM_NOTIFY_PROVIDER_REGISTRATION_REQUEST_MESSAGE);
 
-            CIMResponseMessage * response = 
+            CIMResponseMessage * response =
                 operationAggregate->getOrigRequest ()->buildResponse ();
             response->cimException = cimException;
             _enqueueResponse (operationAggregate->getOrigRequest (), response);
@@ -6301,8 +6307,8 @@ void IndicationService::_handleDeleteResponseAggregation (
         //
         ProviderClassList provider;
         ProviderIdContainer pidc = origRequest->operationContext.get
-            (ProviderIdContainer::NAME); 
-        provider.provider = pidc.getProvider(); 
+            (ProviderIdContainer::NAME);
+        provider.provider = pidc.getProvider();
         provider.providerModule = pidc.getModule();
         _subscriptionTable->updateProviders
             (request->subscriptionInstance.getPath (), provider, false);
@@ -6493,8 +6499,8 @@ void IndicationService::_sendAlerts (
         //
         current = _subscriptionRepository->getHandler (subscriptions [i]);
 
-	// ATTN: For the handlers which do not need subscription instance
-	// need to check duplicate alter
+    // ATTN: For the handlers which do not need subscription instance
+    // need to check duplicate alter
 
             //
             //  Send handle indication request to the handler
@@ -6504,7 +6510,7 @@ void IndicationService::_sendAlerts (
                     XmlWriter::getNextMessageId (),
                     current.getPath ().getNameSpace (),
                     current,
-		    subscriptions [i],
+            subscriptions [i],
                     alertInstance,
                     QueueIdStack (_handlerService, getQueueId ()));
 
@@ -6532,7 +6538,7 @@ void IndicationService::_sendAlerts (
 
 void IndicationService::_sendSubscriptionInitComplete ()
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_sendSubscriptionInitComplete");
 
     //
@@ -6559,7 +6565,7 @@ void IndicationService::_sendSubscriptionInitComplete ()
     AsyncReply * asyncReply = SendWait (asyncRequest);
 
     CIMSubscriptionInitCompleteResponseMessage * response =
-        reinterpret_cast 
+        reinterpret_cast
         <CIMSubscriptionInitCompleteResponseMessage *>
         ((static_cast <AsyncLegacyOperationResult *>
         (asyncReply))->get_result ());
@@ -6666,7 +6672,7 @@ void IndicationService::_updatePropertyList
     //  If the class is Subscription, that includes the Time Remaining property
     //
     if (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-	className.equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+    className.equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
     {
         setTimeRemaining = true;
     }
@@ -6695,7 +6701,7 @@ void IndicationService::_updatePropertyList
         //  Ensure Subscription Duration and Start Time are in property list
         //
         if (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-	    className.equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+        className.equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
         {
             if (ContainsCIMName (properties, _PROPERTY_TIMEREMAINING))
             {
@@ -6777,7 +6783,7 @@ CIMClass IndicationService::_getIndicationClass (
     const CIMInstance & subscriptionInstance)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-	"IndicationService::_getIndicationClass");
+    "IndicationService::_getIndicationClass");
 
     CIMNamespaceName sourceNameSpace;
     String query;
@@ -6788,16 +6794,16 @@ CIMClass IndicationService::_getIndicationClass (
     //  Get filter properties
     _subscriptionRepository->getFilterProperties (subscriptionInstance,
         subscriptionInstance.getPath().getNameSpace(), query,
-	sourceNameSpace, queryLanguage);
+    sourceNameSpace, queryLanguage);
 
     //  Build the query expression from the filter query
     QueryExpression queryExpression = _getQueryExpression(query,
-							  queryLanguage,
-							  sourceNameSpace);
+                              queryLanguage,
+                              sourceNameSpace);
 
     //  Get indication class name from filter query
     indicationClassName = _getIndicationClassName(
-	queryExpression, sourceNameSpace);
+    queryExpression, sourceNameSpace);
 
     //
     //  Get the indication class object from the repository

@@ -40,7 +40,7 @@
 
 #include <Pegasus/Config/ConfigManager.h>
 
-#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
+//#include <Pegasus/Server/CIMOperationRequestDispatcher.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -137,6 +137,7 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 	}
 	*/
 
+	/*
 	// find the cim operation processor service
 	Array<Uint32> serviceIds;
 
@@ -208,6 +209,8 @@ Pair<String, String> ProviderManagerService::_lookupProviderForClass(const CIMOb
 	}
 	
 	return(Pair<String, String>(fileName, providerName));
+	*/
+	return(Pair<String, String>("", ""));
 }
 
 Boolean ProviderManagerService::messageOK(const Message * message)

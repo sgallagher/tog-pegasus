@@ -682,7 +682,7 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     Array<Uint16> authentications;
     Array<String> authenticationDescriptions;
 
-    authentications.append(3); authenticationDescriptions.append("basic");
+    authentications.append(3); authenticationDescriptions.append("Basic");
 
     _setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMSSUPPORTED, authentications);
 

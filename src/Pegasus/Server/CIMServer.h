@@ -26,6 +26,7 @@
 // Modified By:
 //         Mike Day (mdday@us.ibm.com)
 //	   Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//	   Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +45,7 @@ class Monitor;
 class CIMOperationRequestDispatcher;
 class CIMOperationResponseEncoder;
 class CIMOperationRequestDecoder;
+class CIMOperationRequestAuthorizer;
 class CIMExportRequestDispatcher;
 class CIMExportResponseEncoder;
 class CIMExportRequestDecoder;
@@ -122,6 +124,7 @@ private:
     CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
     CIMOperationRequestDecoder* _cimOperationRequestDecoder;
+    CIMOperationRequestAuthorizer* _cimOperationRequestAuthorizer;
 
     CIMExportRequestDispatcher* _cimExportRequestDispatcher;
     CIMExportResponseEncoder* _cimExportResponseEncoder;

@@ -31,6 +31,8 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
 //
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMMessage_h
@@ -110,7 +112,8 @@ public:
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
 	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(CIM_GET_CLASS_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
@@ -118,7 +121,8 @@ public:
 	localOnly(localOnly_),
 	includeQualifiers(includeQualifiers_),
 	includeClassOrigin(includeClassOrigin_),
-	propertyList(propertyList_)
+        propertyList(propertyList_),
+        userName(userName_)
     {
     }
 
@@ -130,6 +134,7 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String userName;
 };
 
 class CIMGetInstanceRequestMessage : public CIMRequestMessage
@@ -144,7 +149,8 @@ public:
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
 	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_GET_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -153,7 +159,8 @@ public:
 	localOnly(localOnly_),
 	includeQualifiers(includeQualifiers_),
 	includeClassOrigin(includeClassOrigin_),
-	propertyList(propertyList_)
+        propertyList(propertyList_),
+        userName(userName_)
     {
 
     }
@@ -164,6 +171,7 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String userName;
 };
 
 class CIMExportIndicationRequestMessage : public CIMRequestMessage
@@ -174,18 +182,21 @@ public:
         const String& messageId_,
 	const String& url_,
 	const CIMInstance& indicationInstance_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_EXPORT_INDICATION_REQUEST_MESSAGE, messageId_, queueIds_),
 	url(url_),
-	indicationInstance(indicationInstance_)
+	indicationInstance(indicationInstance_),
+        userName(userName_)
     {
 
     }
 
     String url;
     CIMInstance indicationInstance;
+    String userName;
 };
 
 class CIMDeleteClassRequestMessage : public CIMRequestMessage
@@ -196,18 +207,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const String& className_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_DELETE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	className(className_)
+	className(className_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     String className;
+    String userName;
 };
 
 class CIMDeleteInstanceRequestMessage : public CIMRequestMessage
@@ -218,18 +232,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const CIMReference& instanceName_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_DELETE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	instanceName(instanceName_)
+	instanceName(instanceName_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     CIMReference instanceName;
+    String userName;
 };
 
 class CIMCreateClassRequestMessage : public CIMRequestMessage
@@ -240,18 +257,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const CIMClass& newClass_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_CREATE_CLASS_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	newClass(newClass_)
+	newClass(newClass_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     CIMClass newClass;
+    String userName;
 };
 
 class CIMCreateInstanceRequestMessage : public CIMRequestMessage
@@ -262,18 +282,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const CIMInstance& newInstance_,
-	QueueIdStack queueIds_)
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_CREATE_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	newInstance(newInstance_)
+	newInstance(newInstance_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     CIMInstance newInstance;
+    String userName;
 };
 
 class CIMModifyClassRequestMessage : public CIMRequestMessage
@@ -284,18 +307,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const CIMClass& modifiedClass_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_MODIFY_CLASS_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	modifiedClass(modifiedClass_)
+	modifiedClass(modifiedClass_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     CIMClass modifiedClass;
+    String userName;
 };
 
 class CIMModifyInstanceRequestMessage : public CIMRequestMessage
@@ -308,14 +334,16 @@ public:
 	const CIMNamedInstance& modifiedInstance_,
 	Boolean includeQualifiers_,
 	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_MODIFY_INSTANCE_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
 	modifiedInstance(modifiedInstance_),
 	includeQualifiers(includeQualifiers_),
-	propertyList(propertyList_)
+        propertyList(propertyList_),
+        userName(userName_)
     {
 
     }
@@ -324,6 +352,7 @@ public:
     CIMNamedInstance modifiedInstance;
     Boolean includeQualifiers;
     CIMPropertyList propertyList;
+    String userName;
 };
 
 class CIMEnumerateClassesRequestMessage : public CIMRequestMessage
@@ -337,7 +366,8 @@ public:
 	Boolean localOnly_,
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -346,7 +376,8 @@ public:
 	deepInheritance(deepInheritance_),
 	localOnly(localOnly_),
 	includeQualifiers(includeQualifiers_),
-	includeClassOrigin(includeClassOrigin_)
+	includeClassOrigin(includeClassOrigin_),
+        userName(userName_)
     {
     }
 
@@ -356,6 +387,7 @@ public:
     Boolean localOnly;
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
+    String userName;
 };
 
 class CIMEnumerateClassNamesRequestMessage : public CIMRequestMessage
@@ -367,13 +399,15 @@ public:
 	const String& nameSpace_,
 	const String& className_,
 	Boolean deepInheritance_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
 	className(className_),
-	deepInheritance(deepInheritance_)
+	deepInheritance(deepInheritance_),
+        userName(userName_)
     {
 
     }
@@ -381,6 +415,7 @@ public:
     String nameSpace;
     String className;
     Boolean deepInheritance;
+    String userName;
 };
 
 class CIMEnumerateInstancesRequestMessage : public CIMRequestMessage
@@ -396,7 +431,8 @@ public:
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
 	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -406,7 +442,8 @@ public:
 	localOnly(localOnly_),
 	includeQualifiers(includeQualifiers_),
 	includeClassOrigin(includeClassOrigin_),
-	propertyList(propertyList_)
+        propertyList(propertyList_),
+        userName(userName_)
     {
 
     }
@@ -418,6 +455,7 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String userName;
 };
 
 class CIMEnumerateInstanceNamesRequestMessage : public CIMRequestMessage
@@ -428,17 +466,20 @@ public:
 	const String& messageId_,
 	const String& nameSpace_,
 	const String& className_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	className(className_)
+	className(className_),
+        userName(userName_)
     {
     }
 
     String nameSpace;
     String className;
+    String userName;
 };
 
 class CIMExecQueryRequestMessage : public CIMRequestMessage
@@ -449,16 +490,19 @@ public:
         const String& messageId_,
 	const String& queryLanguage_,
 	const String& query_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(CIM_EXEC_QUERY_REQUEST_MESSAGE, messageId_, queueIds_),
 	queryLanguage(queryLanguage_),
-	query(query_)
+	query(query_),
+        userName(userName_)
     {
     }
 
     String queryLanguage;
     String query;
+    String userName;
 };
 
 class CIMAssociatorsRequestMessage : public CIMRequestMessage
@@ -476,7 +520,8 @@ public:
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
 	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_ASSOCIATORS_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -488,7 +533,8 @@ public:
 	resultRole(resultRole_),
 	includeQualifiers(includeQualifiers_),
 	includeClassOrigin(includeClassOrigin_),
-	propertyList(propertyList_)
+        propertyList(propertyList_),
+        userName(userName_)
     {
 
     }
@@ -502,6 +548,7 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String userName;
 };
 
 class CIMAssociatorNamesRequestMessage : public CIMRequestMessage
@@ -516,7 +563,8 @@ public:
 	const String& resultClass_,
 	const String& role_,
 	const String& resultRole_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	: 
 	CIMRequestMessage(
 	    CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE, messageId_, queueIds_),
@@ -525,7 +573,8 @@ public:
 	assocClass(assocClass_),
 	resultClass(resultClass_),
 	role(role_),
-	resultRole(resultRole_)
+	resultRole(resultRole_),
+        userName(userName_)
     {
     }
 
@@ -535,6 +584,7 @@ public:
     String resultClass;
     String role;
     String resultRole;
+    String userName;
 };
 
 class CIMReferencesRequestMessage : public CIMRequestMessage
@@ -550,7 +600,8 @@ public:
 	Boolean includeQualifiers_,
 	Boolean includeClassOrigin_,
 	const CIMPropertyList& propertyList_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(CIM_REFERENCES_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
@@ -559,7 +610,8 @@ public:
 	role(role_),
 	includeQualifiers(includeQualifiers_),
 	includeClassOrigin(includeClassOrigin_),
-	propertyList(propertyList_)
+        propertyList(propertyList_),
+        userName(userName_)
     {
 
     }
@@ -571,6 +623,7 @@ public:
     Boolean includeQualifiers;
     Boolean includeClassOrigin;
     CIMPropertyList propertyList;
+    String userName;
 };
 
 class CIMReferenceNamesRequestMessage : public CIMRequestMessage
@@ -583,14 +636,16 @@ public:
 	const CIMReference& objectName_,
 	const String& resultClass_,
 	const String& role_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_REFERENCE_NAMES_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
 	objectName(objectName_),
 	resultClass(resultClass_),
-	role(role_)
+	role(role_),
+        userName(userName_)
     {
     }
 	
@@ -598,6 +653,7 @@ public:
     CIMReference objectName;
     String resultClass;
     String role;
+    String userName;
 };
 
 class CIMGetPropertyRequestMessage : public CIMRequestMessage
@@ -609,13 +665,15 @@ public:
 	const String& nameSpace_,
 	const CIMReference& instanceName_,
 	const String& propertyName_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_GET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_),
-	propertyName(propertyName_)
+	propertyName(propertyName_),
+        userName(userName_)
     {
 
     }
@@ -623,6 +681,7 @@ public:
     String nameSpace;
     CIMReference instanceName;
     String propertyName;
+    String userName;
 };
 
 class CIMSetPropertyRequestMessage : public CIMRequestMessage
@@ -635,14 +694,16 @@ public:
 	const CIMReference& instanceName_,
 	const String& propertyName_,
 	const CIMValue& newValue_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_SET_PROPERTY_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_),
 	propertyName(propertyName_),
-	newValue(newValue_)
+	newValue(newValue_),
+        userName(userName_)
     {
 
     }
@@ -651,6 +712,7 @@ public:
     CIMReference instanceName;
     String propertyName;
     CIMValue newValue;
+    String userName;
 };
 
 class CIMGetQualifierRequestMessage : public CIMRequestMessage
@@ -661,18 +723,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const String& qualifierName_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_GET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	qualifierName(qualifierName_)
+	qualifierName(qualifierName_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     const String qualifierName;
+    String userName;
 };
 
 class CIMSetQualifierRequestMessage : public CIMRequestMessage
@@ -683,18 +748,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const CIMQualifierDecl& qualifierDeclaration_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_SET_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	qualifierDeclaration(qualifierDeclaration_)
+	qualifierDeclaration(qualifierDeclaration_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     const CIMQualifierDecl qualifierDeclaration;
+    String userName;
 };
 
 class CIMDeleteQualifierRequestMessage : public CIMRequestMessage
@@ -705,18 +773,21 @@ public:
         const String& messageId_,
 	const String& nameSpace_,
 	const String& qualifierName_,
-	QueueIdStack queueIds_) 
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_DELETE_QUALIFIER_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
-	qualifierName(qualifierName_)
+	qualifierName(qualifierName_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
     const String qualifierName;
+    String userName;
 };
 
 class CIMEnumerateQualifiersRequestMessage : public CIMRequestMessage
@@ -726,16 +797,19 @@ public:
     CIMEnumerateQualifiersRequestMessage(
         const String& messageId_,
 	const String& nameSpace_,
-	QueueIdStack queueIds_)
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE, messageId_, queueIds_),
-	nameSpace(nameSpace_)
+	nameSpace(nameSpace_),
+        userName(userName_)
     {
 
     }
 
     String nameSpace;
+    String userName;
 };
 
 
@@ -749,14 +823,16 @@ public:
 	const CIMReference& instanceName_,
 	const String& methodName_,
 	const Array<CIMParamValue>& inParameters_,
-	QueueIdStack queueIds_)
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
 	:
 	CIMRequestMessage(
 	    CIM_INVOKE_METHOD_REQUEST_MESSAGE, messageId_, queueIds_),
 	nameSpace(nameSpace_),
 	instanceName(instanceName_),
 	methodName(methodName_),
-	inParameters(inParameters_)
+	inParameters(inParameters_),
+        userName(userName_)
     {
 
     }
@@ -765,6 +841,7 @@ public:
     CIMReference instanceName;
     String methodName;
     Array<CIMParamValue> inParameters;
+    String userName;
 };
 
 class CIMEnableIndicationSubscriptionRequestMessage : public CIMRequestMessage
@@ -785,7 +862,8 @@ public:
         const String & condition_,
         const String & queryLanguage_,
         const CIMInstance & subscription_,
-        QueueIdStack queueIds_)
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
         :
         CIMRequestMessage
             (CIM_ENABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
@@ -802,7 +880,8 @@ public:
             repeatNotificationCount (repeatNotificationCount_),
             condition (condition_),
             queryLanguage (queryLanguage_),
-            subscription (subscription_)
+            subscription (subscription_),
+            userName(userName_)
     {
     }
 
@@ -818,6 +897,7 @@ public:
     String condition;
     String queryLanguage;
     CIMInstance subscription;
+    String userName;
 };
 
 class CIMModifyIndicationSubscriptionRequestMessage : public CIMRequestMessage
@@ -838,7 +918,8 @@ public:
         const String & condition_,
         const String & queryLanguage_,
         const CIMInstance & subscription_,
-        QueueIdStack queueIds_)
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
         :
         CIMRequestMessage
             (CIM_MODIFY_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
@@ -855,7 +936,8 @@ public:
             repeatNotificationCount (repeatNotificationCount_),
             condition (condition_),
             queryLanguage (queryLanguage_),
-            subscription (subscription_)
+            subscription (subscription_),
+            userName(userName_)
     {
     }
 
@@ -871,6 +953,7 @@ public:
     String condition;
     String queryLanguage;
     CIMInstance subscription;
+    String userName;
 };
 
 class CIMDisableIndicationSubscriptionRequestMessage : public CIMRequestMessage
@@ -883,7 +966,8 @@ public:
         const Array<String> & classNames_,
         const String & providerName_,
         const CIMInstance & subscription_,
-        QueueIdStack queueIds_)
+        QueueIdStack queueIds_,
+        const String& userName_ = String::EMPTY)
         :
         CIMRequestMessage
             (CIM_DISABLE_INDICATION_SUBSCRIPTION_REQUEST_MESSAGE,
@@ -892,7 +976,8 @@ public:
             nameSpace (nameSpace_),
             classNames (classNames_),
             providerName (providerName_),
-            subscription (subscription_)
+            subscription (subscription_),
+            userName(userName_)
     {
     }
 
@@ -900,6 +985,7 @@ public:
     Array<String> classNames;
     String providerName;
     CIMInstance subscription;
+    String userName;
 };
 
 class PEGASUS_COMMON_LINKAGE CIMGetClassResponseMessage 

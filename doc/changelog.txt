@@ -23,6 +23,13 @@ Version 1.06 working towards 1.1 Started 13 December 2001
    intrinsic methods.  If a parameter is specified more than once, a
    CIM_ERR_INVALID_PARAMETER exception is thrown.
 
+6. (Nag Boranna - HP) 14 Jan 2002 - Created CIMOperationRequestAuthorizer queue
+   and moved Authorization verification code from CIMOperationRequestDecoder
+   queue to this new queue. Modified CIMServer.cpp to create
+   CIMOperationRequestAuthorizer queue only when authorization is enabled.
+   Also modified CIMRequestMessagesin CIMMessage.h to include userName to make
+   it available to the CIMOperationRequestDispatcher.
+
 -------------------------------------------------------------------------
 
 Version 1.1.1 - 3 August 2001 -  Development Branch (Work in Progress)

@@ -98,7 +98,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "UserManager",
     "SubscriptionService",
     "Registration",
-    "Shutdown"
+    "Shutdown",
+    "Server"
 };
 
 /** Constants identifying the Trace components. These constants are used by 
@@ -136,7 +137,8 @@ enum TRACE_COMPONENT_ID
     TRC_USER_MANAGER,
     TRC_SUBSCRIPTION_SERVICE,
     TRC_REGISTRATION,
-    TRC_SHUTDOWN
+    TRC_SHUTDOWN,
+    TRC_SERVER
 };
 
 PEGASUS_NAMESPACE_END

@@ -41,8 +41,6 @@
 #include <Pegasus/Common/XmlConstants.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Security/UserManager/UserManager.h>
-#include <Pegasus/Config/ConfigManager.h>
 #include "CIMOperationRequestDecoder.h"
 
 PEGASUS_USING_STD;
@@ -67,9 +65,6 @@ void CIMOperationRequestDecoder::sendResponse(
     Uint32 queueId, 
     Array<Sint8>& message)
 {
-    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-                                  "sendResponse()");
-
     MessageQueue* queue = MessageQueue::lookup(queueId);
 
     if (queue)
@@ -77,9 +72,6 @@ void CIMOperationRequestDecoder::sendResponse(
         HTTPMessage* httpMessage = new HTTPMessage(message);
         queue->enqueue(httpMessage);
     }
-
-    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-                                 "sendResponse()");
 }
 
 void CIMOperationRequestDecoder::sendError(
@@ -89,9 +81,6 @@ void CIMOperationRequestDecoder::sendError(
     CIMStatusCode code,
     const String& description) 
 {
-    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-                                  "sendError()");
-
     ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
     ArrayDestroyer<char> tmp2(description.allocateCString());
 
@@ -104,9 +93,6 @@ void CIMOperationRequestDecoder::sendError(
                     XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
     sendResponse(queueId, message);
-
-    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-                                 "sendError()");
 }
 
 void CIMOperationRequestDecoder::handleEnqueue()
@@ -243,26 +229,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
 {
     Message* request;
 
-    //
-    // get the configured authentication flag
-    //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    Boolean requireAuthentication = false;
-    Boolean requireAuthorization = false;
-
-    if (String::equal(
-        configManager->getCurrentValue("requireAuthentication"), "true"))
-    {
-        requireAuthentication = true;
-    }
-
-    if (String::equal(
-        configManager->getCurrentValue("requireAuthorization"), "true"))
-    {
-        requireAuthorization = true;
-    }
-
     // Create a parser:
 
     XmlParser parser(content);
@@ -325,33 +291,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
                     "expected LOCALNAMESPACEPATH element");
             }
 
-            //
-            // check for authorization for the specified operation
-            //
-
-            if ( requireAuthentication && requireAuthorization )
-            {
-                UserManager* userManager = UserManager::getInstance();
-
-                if ( !userManager || !userManager->verifyAuthorization(
-                    userName, nameSpace, cimMethodName) )
-                {
-                    String description = "Not authorized to run ";
-                        description.append(cimMethodName);
-                    description.append(" in the namespace ");
-                    description.append(nameSpace);
-
-                    sendError(
-                        queueId,
-                        messageId,
-                        cimMethodName,
-                        CIM_ERR_FAILED,
-                        description);
-
-                    return;
-                }
-            }
-
             // Delegate to appropriate method to handle:
 
             //
@@ -377,73 +316,73 @@ void CIMOperationRequestDecoder::handleMethodCall(
 
             if (CompareNoCase(cimMethodName, "GetClass") == 0)
                 request = decodeGetClassRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "GetInstance") == 0)
                 request = decodeGetInstanceRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
                 request = decodeEnumerateClassNamesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "References") == 0)
                 request = decodeReferencesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "ReferenceNames") == 0)
                 request = decodeReferenceNamesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "AssociatorNames") == 0)
                 request = decodeAssociatorNamesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "Associators") == 0)
                 request = decodeAssociatorsRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "CreateInstance") == 0)
                 request = decodeCreateInstanceRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateInstanceNames") == 0)
                 request = decodeEnumerateInstanceNamesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "DeleteQualifier") == 0)
                 request = decodeDeleteQualifierRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "GetQualifier") == 0)
                 request = decodeGetQualifierRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "SetQualifier") == 0)
                 request = decodeSetQualifierRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateQualifiers") == 0)
                 request = decodeEnumerateQualifiersRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateClasses") == 0)
                 request = decodeEnumerateClassesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateClassNames") == 0)
                 request = decodeEnumerateClassNamesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "EnumerateInstances") == 0)
                 request = decodeEnumerateInstancesRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "CreateClass") == 0)
                 request = decodeCreateClassRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "ModifyClass") == 0)
                 request = decodeModifyClassRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "ModifyInstance") == 0)
                 request = decodeModifyInstanceRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "DeleteClass") == 0)
                 request = decodeDeleteClassRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "DeleteInstance") == 0)
                 request = decodeDeleteInstanceRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "GetProperty") == 0)
                 request = decodeGetPropertyRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else if (CompareNoCase(cimMethodName, "SetProperty") == 0)
                 request = decodeSetPropertyRequest(
-                    queueId, parser, messageId, nameSpace);
+                    queueId, parser, messageId, nameSpace, userName);
             else
             {
                 String description = "Unknown intrinsic method: ";
@@ -501,40 +440,6 @@ void CIMOperationRequestDecoder::handleMethodCall(
                                          MISSING_ELEMENT_LOCALPATH);
             }
 
-            //
-            // get the namespace in the CIMreference
-            //
-
-            String nameSpace;
-            nameSpace = reference.getNameSpace();
-
-            //
-            // check for authorization for the specified operation
-            //
-
-            if ( requireAuthentication && requireAuthorization )
-            {
-                UserManager* userManager = UserManager::getInstance();
-
-                if ( !userManager || !userManager->verifyAuthorization(
-                    userName, nameSpace, cimMethodName) )
-                {
-                    String description = "Not authorized to run ";
-                        description.append(cimMethodName);
-                    description.append(" in the namespace ");
-                    description.append(nameSpace);
-
-                    sendError(
-                        queueId,
-                        messageId,
-                        cimMethodName,
-                        CIM_ERR_FAILED,
-                        description);
-
-                    return;
-                }
-            }
-
             if (cimMethodName != NULL)
             {
                 //
@@ -566,7 +471,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
                         parser, 
                         messageId, 
                         reference, 
-                        cimMethodName);
+                        cimMethodName,
+                        userName);
                 }
             }
             else
@@ -634,7 +540,8 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMClass newClass;
     Boolean duplicateParameter = false;
@@ -670,7 +577,8 @@ CIMCreateClassRequestMessage* CIMOperationRequestDecoder::decodeCreateClassReque
         messageId,
         nameSpace,
         newClass,
-        QueueIdStack(queueId, _returnQueueId));
+        QueueIdStack(queueId, _returnQueueId),
+        userName);
 
     return(request);
 }
@@ -679,7 +587,8 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String className;
     Boolean localOnly = true;
@@ -764,7 +673,8 @@ CIMGetClassRequestMessage* CIMOperationRequestDecoder::decodeGetClassRequest(
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(queueId, _returnQueueId));
+        QueueIdStack(queueId, _returnQueueId),
+        userName);
 
     return(request);
 }
@@ -773,7 +683,8 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMClass modifiedClass;
     Boolean duplicateParameter = false;
@@ -810,7 +721,8 @@ CIMModifyClassRequestMessage* CIMOperationRequestDecoder::decodeModifyClassReque
             messageId,
             nameSpace,
             modifiedClass,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -819,7 +731,8 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String className;
     Boolean deepInheritance = false;
@@ -860,7 +773,8 @@ CIMEnumerateClassNamesRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
             nameSpace,
             className,
             deepInheritance,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -869,7 +783,8 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String className;
     Boolean deepInheritance = false;
@@ -937,7 +852,8 @@ CIMEnumerateClassesRequestMessage* CIMOperationRequestDecoder::decodeEnumerateCl
             localOnly,
             includeQualifiers,
             includeClassOrigin,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -946,7 +862,8 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String className;
     Boolean duplicateParameter = false;
@@ -982,7 +899,8 @@ CIMDeleteClassRequestMessage* CIMOperationRequestDecoder::decodeDeleteClassReque
         messageId,
         nameSpace,
         className,
-        QueueIdStack(queueId, _returnQueueId));
+        QueueIdStack(queueId, _returnQueueId),
+        userName);
 
     return(request);
 }
@@ -991,7 +909,8 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMInstance newInstance;
     Boolean duplicateParameter = false;
@@ -1028,7 +947,8 @@ CIMCreateInstanceRequestMessage* CIMOperationRequestDecoder::decodeCreateInstanc
             messageId,
             nameSpace,
             newInstance,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1037,7 +957,8 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference instanceName;
     Boolean localOnly = true;
@@ -1115,7 +1036,8 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
         includeQualifiers,
         includeClassOrigin,
         propertyList,
-        QueueIdStack(queueId, _returnQueueId));
+        QueueIdStack(queueId, _returnQueueId),
+        userName);
 
     return(request);
 }
@@ -1124,7 +1046,8 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMNamedInstance modifiedInstance;
     Boolean includeQualifiers = true;
@@ -1185,7 +1108,9 @@ CIMModifyInstanceRequestMessage* CIMOperationRequestDecoder::decodeModifyInstanc
             modifiedInstance,
             includeQualifiers,
             propertyList,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
+
 
     return(request);
 }
@@ -1194,7 +1119,8 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String className;
     Boolean deepInheritance = false;
@@ -1282,7 +1208,8 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1291,7 +1218,8 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String className;
     Boolean duplicateParameter = false;
@@ -1328,7 +1256,8 @@ CIMEnumerateInstanceNamesRequestMessage* CIMOperationRequestDecoder::decodeEnume
             messageId,
             nameSpace,
             className,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1337,7 +1266,8 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference instanceName;
     Boolean duplicateParameter = false;
@@ -1373,7 +1303,8 @@ CIMDeleteInstanceRequestMessage* CIMOperationRequestDecoder::decodeDeleteInstanc
         messageId,
         nameSpace,
         instanceName,
-        QueueIdStack(queueId, _returnQueueId));
+        QueueIdStack(queueId, _returnQueueId),
+        userName);
 
     return(request);
 }
@@ -1382,7 +1313,8 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMQualifierDecl qualifierDeclaration;
     Boolean duplicateParameter = false;
@@ -1419,7 +1351,8 @@ CIMSetQualifierRequestMessage* CIMOperationRequestDecoder::decodeSetQualifierReq
             messageId,
             nameSpace,
             qualifierDeclaration,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1428,7 +1361,8 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String qualifierName;
     Boolean duplicateParameter = false;
@@ -1465,7 +1399,8 @@ CIMGetQualifierRequestMessage* CIMOperationRequestDecoder::decodeGetQualifierReq
             messageId,
             nameSpace,
             qualifierName,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1474,7 +1409,8 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     for (const char* name; XmlReader::getIParamValueTag(parser, name);)
     {
@@ -1486,7 +1422,8 @@ CIMEnumerateQualifiersRequestMessage* CIMOperationRequestDecoder::decodeEnumerat
         new CIMEnumerateQualifiersRequestMessage(
             messageId,
             nameSpace,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1495,7 +1432,8 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     String qualifierName;
     Boolean duplicateParameter = false;
@@ -1532,7 +1470,8 @@ CIMDeleteQualifierRequestMessage* CIMOperationRequestDecoder::decodeDeleteQualif
             messageId,
             nameSpace,
             qualifierName,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1541,7 +1480,8 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference objectName;
     String resultClass;
@@ -1596,7 +1536,8 @@ CIMReferenceNamesRequestMessage* CIMOperationRequestDecoder::decodeReferenceName
             objectName,
             resultClass,
             role,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1605,7 +1546,8 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference objectName;
     String resultClass;
@@ -1693,7 +1635,8 @@ CIMReferencesRequestMessage* CIMOperationRequestDecoder::decodeReferencesRequest
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1702,7 +1645,8 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference objectName;
     String assocClass;
@@ -1775,7 +1719,8 @@ CIMAssociatorNamesRequestMessage* CIMOperationRequestDecoder::decodeAssociatorNa
             resultClass,
             role,
             resultRole,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1784,7 +1729,8 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference objectName;
     String assocClass;
@@ -1890,7 +1836,8 @@ CIMAssociatorsRequestMessage* CIMOperationRequestDecoder::decodeAssociatorsReque
             includeQualifiers,
             includeClassOrigin,
             propertyList,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
 
     return(request);
 }
@@ -1899,7 +1846,8 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference instanceName;
     String propertyName;
@@ -1944,7 +1892,8 @@ CIMGetPropertyRequestMessage* CIMOperationRequestDecoder::decodeGetPropertyReque
         nameSpace,
         instanceName,
         propertyName,
-        QueueIdStack(queueId, _returnQueueId));
+        QueueIdStack(queueId, _returnQueueId),
+        userName);
 
     return(request);
 }
@@ -1953,7 +1902,8 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
     Uint32 queueId,
     XmlParser& parser, 
     const String& messageId,
-    const String& nameSpace)
+    const String& nameSpace,
+    const String& userName)
 {
     CIMReference instanceName;
     String propertyName;
@@ -2007,7 +1957,8 @@ CIMSetPropertyRequestMessage* CIMOperationRequestDecoder::decodeSetPropertyReque
         instanceName,
         propertyName,
         propertyValue,
-        QueueIdStack(queueId, _returnQueueId));
+        QueueIdStack(queueId, _returnQueueId),
+        userName);
 
     return(request);
 }
@@ -2017,7 +1968,8 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
     XmlParser& parser, 
     const String& messageId,
     const CIMReference& reference,
-    const String& cimMethodName)
+    const String& cimMethodName,
+    const String& userName)
 {
     Array<CIMParamValue> inParameters;
     
@@ -2043,7 +1995,9 @@ CIMInvokeMethodRequestMessage* CIMOperationRequestDecoder::decodeInvokeMethodReq
             reference, 
             cimMethodName.allocateCString(),
             inParameters,
-            QueueIdStack(queueId, _returnQueueId));
+            QueueIdStack(queueId, _returnQueueId),
+            userName);
+
 
     return(request);
 }
@@ -2055,9 +2009,6 @@ void CIMOperationRequestDecoder::sendMethodError(
     CIMStatusCode code,
     const String& description) 
 {
-    PEG_FUNC_ENTER(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-                                  "sendMethodError()");
-
     ArrayDestroyer<char> tmp1(cimMethodName.allocateCString());
     ArrayDestroyer<char> tmp2(description.allocateCString());
 
@@ -2070,9 +2021,6 @@ void CIMOperationRequestDecoder::sendMethodError(
                         XmlWriter::formatErrorElement(code, tmp2.getPointer())))));
     
     sendResponse(queueId, message);
-
-    PEG_FUNC_EXIT(TRC_DISPATCHER,"CIMOperationRequestDecoder::"
-                                 "sendMethodError()");
 }
 
 void CIMOperationRequestDecoder::setServerTerminating(Boolean flag)

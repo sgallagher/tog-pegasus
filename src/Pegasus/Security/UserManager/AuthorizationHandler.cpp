@@ -110,7 +110,11 @@ static const char* WRITE_OPERATIONS []    = {
     "ModifyInstance",
     "DeleteClass",
     "DeleteInstance",
-    "SetProperty" };
+    "SetProperty",
+    "InvokeMethod",
+    "EnableIndicationSubscription",
+    "ModifyIndicationSubscription",
+    "DisableIndicationSubscription" };
     
 
 //

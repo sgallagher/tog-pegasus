@@ -25,6 +25,7 @@ SOURCES = \
     CIMOperationRequestDecoder.cpp \
     CIMOperationResponseEncoder.cpp \
     CIMOperationRequestDispatcher.cpp \
+    CIMOperationRequestAuthorizer.cpp \
     HTTPAuthenticatorDelegator.cpp \
     ProviderManager.cpp \
     ProviderModule.cpp \

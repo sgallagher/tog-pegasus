@@ -13,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,14 +35,11 @@
 
 // this inline method is needed as zOS does not support an ASCII enabled version
 // of inet_addr() at the current time (16th Sep. 2003)
-inline in_addr_t inet_addr_ebcdic(char * ip_inptr)
+inline in_addr_t inet_addr_ebcdic(const char * ip_inptr)
 {
-    int array_size = 0;
     in_addr_t return_addr;
-    while (ip_inptr[array_size] != 0) array_size++;
-    char * ip_ptr2 = (char *)malloc(array_size);
-    memcpy(ip_ptr2,ip_inptr,array_size);
-    __atoe_l(ip_ptr2,array_size);
+	char* ip_ptr2 = strdup(ip_inptr);
+    __atoe(ip_ptr2);
     return_addr = inet_addr(ip_ptr2);
     free(ip_ptr2);
     return return_addr;

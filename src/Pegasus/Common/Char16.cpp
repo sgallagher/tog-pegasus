@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,10 +30,13 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
+#include <cctype>
 #include "Char16.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -72,6 +75,46 @@ Char16& Char16::operator=(const Char16& x)
 Char16::operator Uint16() const
 {
     return _code;
+}
+
+Boolean Char16::isAscii() const throw()
+{
+    return _isAscii();
+}
+
+Boolean Char16::isDigit() const throw()
+{
+    return _isAscii() && isdigit(_code);
+}
+
+Boolean Char16::isXDigit() const throw()
+{
+    return _isAscii() && isxdigit(_code);
+}
+
+Boolean Char16::isAlpha() const throw()
+{
+    return _isAscii() && isalpha(_code);
+}
+
+Boolean Char16::isUpper() const throw()
+{
+    return _isAscii() && isupper(_code);
+}
+
+Boolean Char16::isLower() const throw()
+{
+    return _isAscii() && islower(_code);
+}
+
+Boolean Char16::isAlnum() const throw()
+{
+    return _isAscii() && isalnum(_code);
+}
+
+Boolean Char16::isSpace() const throw()
+{
+    return _isAscii() && isspace(_code);
 }
 
 Boolean operator==(const Char16& x, const Char16& y)

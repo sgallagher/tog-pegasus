@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -44,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
     type was needed for the purposes of function overloaded which occurs in
     the CIMValue class.
 */
-class PEGASUS_COMMON_LINKAGE Char16 
+class PEGASUS_COMMON_LINKAGE Char16
 {
 public:
 
@@ -69,7 +69,35 @@ public:
     /// Implicit converter from Char16 to Uint16
     operator Uint16() const;
 
+    // Returns if the character is an ASCII character.
+    Boolean isAscii() const throw();
+
+    // Returns if the character is a digit (0-9).
+    Boolean isDigit() const throw();
+
+    // Returns if the character is a hex digit (0-0a-fA-F)
+    Boolean isXDigit() const throw();
+
+    // Returns if the character is an alphabetic character (a-zA-Z)
+    Boolean isAlpha() const throw();
+
+    // Returns if the character is an upper case alphabetic character (A-Z)
+    Boolean isUpper() const throw();
+
+    // Returns if the character is a lower case alphabetic character (A-Z)
+    Boolean isLower() const throw();
+
+    // Returns if the character is an alphanumeric character (a-zA-Z0-9)
+    Boolean isAlnum() const throw();
+
+    // Returns if the character is a whitespace character (' '\b\t\f)
+    Boolean isSpace() const throw();
+
 private:
+    inline Boolean _isAscii() const throw()
+    {
+        return(_code < 0x80);
+    }
 
     Uint16 _code;
 };

@@ -2322,11 +2322,6 @@ void ProviderManagerService::handleCreateSubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->synch_response(request);
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     OperationResponseHandler handler(request, response);
 
     try
@@ -2446,11 +2441,6 @@ void ProviderManagerService::handleModifySubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->synch_response(request);
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     OperationResponseHandler handler(request, response);
 
     try
@@ -2568,11 +2558,6 @@ void ProviderManagerService::handleDeleteSubscriptionRequest(AsyncOpNode *op, co
     // preserve message key
     response->synch_response(request);
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     OperationResponseHandler handler(request, response);
 
     try
@@ -2687,11 +2672,6 @@ void ProviderManagerService::handleEnableIndicationsRequest(AsyncOpNode *op, con
     // preserve message key
     response->synch_response(request);
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     response->dest = request->queueIds.top();
 
 
@@ -2781,11 +2761,6 @@ void ProviderManagerService::handleDisableIndicationsRequest(AsyncOpNode *op, co
 
     // preserve message key
     response->synch_response(request);
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
     OperationResponseHandler handler(request, response);
 
@@ -2968,11 +2943,6 @@ void ProviderManagerService::handleDisableModuleRequest(AsyncOpNode *op, const M
     // preserve message key
     response->synch_response(request);
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -3051,11 +3021,6 @@ void ProviderManagerService::handleEnableModuleRequest(AsyncOpNode *op, const Me
     // preserve message key
     response->synch_response(request);
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
         new AsyncLegacyOperationResult(
         async->getKey(),
@@ -3094,11 +3059,6 @@ void ProviderManagerService::handleStopAllProvidersRequest(AsyncOpNode *op, cons
     // preserve message key
     response->synch_response(request);
 
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
-
     AsyncLegacyOperationResult *async_result =
        new AsyncLegacyOperationResult(
           async->getKey(),
@@ -3131,11 +3091,6 @@ void ProviderManagerService::handleExportIndicationRequest(AsyncOpNode *op,
    PEGASUS_ASSERT(response != 0);
    
    response->synch_response(request);
-
-    //
-    //  Set HTTP method in response from request
-    //
-    response->setHttpMethod (request->getHttpMethod ());
 
    try
    {

@@ -126,6 +126,7 @@ class PEGASUS_COMMON_LINKAGE Message
 	 _key(key),
 	 _routing_code(routing_code),
 	 _mask(mask),
+         _httpMethod (HTTP_METHOD__POST),
 	_last_thread_id(pegasus_thread_self()),
 	 _next(0),
 	 _prev(0),

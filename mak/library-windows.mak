@@ -15,7 +15,7 @@ $(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(
 	@ $(ECHO)
 
 FILES_TO_CLEAN = \
-    $(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) $(FULL_ILK) $(FULL_PDB) $(OBJ_DIR)$(PDB) depend.mak depend.mak.bak
+    $(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) $(FULL_ILK) $(FULL_PDB) $(OBJ_DIR)/vc60$(PDB) $(OBJ_DIR)/vc70$(PDB) depend.mak depend.mak.bak
 
 clean-lib: $(ERROR)
 	mu rm $(FULL_LIB) $(FULL_DLL) $(FULL_EXP)

@@ -100,7 +100,7 @@ public:
 
     /** Gets the i-th selected property name in the list.
     */
-    const String& getSelectPropertyName(Uint32 i)
+    const String& getSelectPropertyName(Uint32 i) const
     {
 	return _selectPropertyNames[i];
     }
@@ -122,7 +122,7 @@ public:
 
     /** Gets the i-th unique property appearing in the where clause.
     */
-    const String& getWherePropertyName(Uint32 i)
+    const String& getWherePropertyName(Uint32 i) const
     {
 	return _wherePropertyNames[i];
     }

@@ -16,6 +16,7 @@ LIBRARIES = \
     pegprovider \
     pegprovider2 \
     pegexportserver \
+    IndicationSubscription \
     pegconfig \
     peguser \
     peglocalauth

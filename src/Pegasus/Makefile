@@ -17,6 +17,8 @@ DIRS = \
     ExportServer \
     Security/UserManager \
     Security/Authentication \
+    WQL \
+    Subscription \
     Server \
     Handler/CIMxmlIndicationHandler \
     Handler/sendmailIndicationHandler \
@@ -27,8 +29,7 @@ DIRS = \
     Server/tests \
     ExportServer/tests \
     Client/tests \
-    Compiler/tests \
-    Subscription
+    Compiler/tests
 
 #    Subscription/tests \
 

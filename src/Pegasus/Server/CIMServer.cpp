@@ -46,6 +46,7 @@
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
 #include <Pegasus/Security/UserManager/UserManager.h>
+#include <Pegasus/Subscription/IndicationSubscription.h>
 #include "CIMServer.h"
 #include "CIMOperationRequestDispatcher.h"
 #include "CIMOperationResponseEncoder.h"
@@ -133,6 +134,12 @@ CIMServer::CIMServer(
         sslcontext = NULL;
 
     _acceptor = new HTTPAcceptor(_monitor, serverQueue, sslcontext);
+
+    /**
+        Create indication subscription service
+     */
+    IndicationSubscription * subscriptionService = 
+        IndicationSubscription::getInstance ();
 
     /** load registered providers from repository, and creates
         provider block table

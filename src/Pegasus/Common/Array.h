@@ -236,7 +236,7 @@ void Unique(Array<PEGASUS_ARRAY_T>& x)
 }
 
 template<class T>
-Boolean Contains(Array<T>& a, const T& x) 
+Boolean Contains(const Array<T>& a, const T& x)
 {
     Uint32 n = a.size();
 

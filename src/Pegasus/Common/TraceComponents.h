@@ -93,7 +93,8 @@ static char const* TRACE_COMPONENT_LIST[] =
     "Config",
     "IndDelivery",
     "Authentication",
-    "UserManager"
+    "UserManager",
+    "SubscriptionService"
 };
 
 /** Constants identifying the Trace components. These constants are used by 
@@ -126,7 +127,8 @@ enum TRACE_COMPONENT_ID
     TRC_CONFIG,
     TRC_IND_DELIVERY,
     TRC_AUTHENTICATION,
-    TRC_USER_MANAGER
+    TRC_USER_MANAGER,
+    TRC_SUBSCRIPTION_SERVICE
 };
 
 #endif /* Pegasus_TraceComponents */

@@ -86,6 +86,7 @@
 
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h> // for Logger
 
 //#define CDEBUG(X)
 #define CDEBUG(X) PEGASUS_STD(cout) << "SLPProvider " << X << PEGASUS_STD(endl)
@@ -110,6 +111,7 @@ const char *serviceName = "service:wbem";
 
 const char *elementNamePropertyName = "ElementName";
 const char *descriptionPropertyName = "Description";
+const char *instanceIDPropertyName = "InstanceID";
 
 // Template attribute name constants
 
@@ -395,7 +397,7 @@ void SLPProvider::populateTemplateField(CIMInstance& instance,
     @param instance-ObjMgrComm CIMInstance of Interop communication class.
     ATTN: In the future, we should populate these separately
 */
-void SLPProvider::populateRegistrationData(const String &protocol,
+Boolean SLPProvider::populateRegistrationData(const String &protocol,
                         const String& IPAddress,
                         const CIMInstance& instance_ObjMgr,
                         const CIMInstance& instance_ObjMgrComm)
@@ -422,7 +424,24 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     
     // convert portNumber to ascii
     char buffer[32];
-    sprintf(buffer, "%u", portNumber);
+    
+    // now fillout the serviceIDAttribute from the object manager instance name property.
+    // This is a key field so must have a value.
+    String strUUID = _getPropertyValue( instance_ObjMgr, namePropertyName, "DefaultEmptyUUID");
+
+    // Fill out the CIMObjectpath for the slp instance. The key for this class is the instanceID.
+    // Simply use the count of instances as the ID for the moment.
+
+    sprintf(buffer, "%u", _instances.size() + 1);
+    String instanceID = buffer;
+    Array<CIMKeyBinding> keyBindings;
+
+    keyBindings.append(CIMKeyBinding(instanceIDPropertyName, instanceID, CIMKeyBinding::STRING));
+    CIMObjectPath reference1  = CIMObjectPath("localhost",PEGASUS_NAMESPACENAME_INTEROP,
+                                              CIMName(SlpTemplateClassName),
+                                              keyBindings);
+    // set the key property into the instance.
+    instance1.addProperty(CIMProperty(CIMName(instanceIDPropertyName), instanceID));
 
     // template-url-syntax=string
     // #The template-url-syntax MUST be the WBEM URI Mapping of
@@ -433,23 +452,13 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     // #Specification 1.0.0 (DSP0207).
     // # Example: (template-url-syntax=https://localhost:5989)
 
+    sprintf(buffer, "%u", portNumber);
     String serviceUrlSyntaxValue = protocol + "://" + IPAddress + ":" + buffer;
     populateTemplateField(instance1, serviceUrlSyntaxProperty, serviceUrlSyntax, serviceUrlSyntaxValue);
 
     populateTemplateField(instance1, serviceLocationTCPProperty, serviceLocationTCP,IPAddress);
 
-    // now fillout the serviceIDAttribute from the object manager instance name property.
-    // This is a key field so must have a value.
-    String strUUID = _getPropertyValue( instance_ObjMgr, namePropertyName, "DefaultEmptyUUID");
 
-    // Fill out the CIMObjectpath for the slp instance.
-    Array<CIMKeyBinding> keyBindings;
-    keyBindings.append(CIMKeyBinding(serviceIDProperty, strUUID, CIMKeyBinding::STRING));
-    keyBindings.append(CIMKeyBinding(serviceUrlSyntaxProperty, serviceUrlSyntaxValue, CIMKeyBinding::STRING));
-    CIMObjectPath reference1  = CIMObjectPath("localhost",PEGASUS_NAMESPACENAME_INTEROP,
-                                              CIMName(SlpTemplateClassName),
-                                              keyBindings);
-    
     //service-id=string L
     //# The ID of this WBEM Server. The value MUST be the 
     //# CIM_ObjectManager.Name property value.
@@ -569,26 +578,48 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     CString CServiceID = ServiceID.getCString();
 
     // Append the instance and reference and serviceID to the maintained object list.
-    _instances.append(instance1);
-    _instanceNames.append(reference1);
     
     // Make a Cstring from the registration information
     CString CstrREgistration = _slpTemplateInstance.getCString();
     
     // Test the registration
-    // ATTN: Needs an error log.
-    slp_agent.test_registration((const char *)CServiceID , 
+    Uint32 errorCode;
+
+    errorCode = slp_agent.test_registration((const char *)CServiceID , 
                         (const char *)CstrREgistration,
                         serviceName,
-                        "DEFAULT"); 
+                        "DEFAULT");
+
+    if (errorCode != 0)
+    {
+        CDEBUG("Test Instance Error. Code=" << errorCode);
+        Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
+            "SLP Registration Failed: test_registration. Code %0", errorCode);
+        return(false);
+    }
     
     // register this information.
-    slp_agent.srv_register((const char *)CServiceID ,
+    Boolean goodRtn = slp_agent.srv_register((const char *)CServiceID ,
                         (const char *)CstrREgistration,
                         serviceName,
                         "DEFAULT", 
                         0xffff);
+
+    if (!goodRtn)
+    {
+        CDEBUG("Register Instance Error. Code=" << errorCode);
+        Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
+            "SLP Registration Failed: srv_registration.");
+        return(false);
+    }
+
+    // Add the registered instance to the current active list.
+
+    CDEBUG("Register Instance internally");
+    _instances.append(instance1);
+    _instanceNames.append(reference1);
     PEG_METHOD_EXIT();
+    return(true);
 }
 
 /** issue all necessary SLP registrations. Gets the objects that are required to
@@ -596,7 +627,7 @@ void SLPProvider::populateRegistrationData(const String &protocol,
     a registration for each communication adapter represented by a communication
     object.
 */
-void SLPProvider::issueSLPRegistrations()
+Boolean SLPProvider::issueSLPRegistrations()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::issueSLPREgistrations()");
@@ -623,6 +654,7 @@ void SLPProvider::issueSLPRegistrations()
     // determine if we got one objmgr back and other tests.
 
     //Loop to create an SLP registration for each communication mechanism
+    Uint32 itemsRegistered = 0;
     for (Uint32 i = 0; i < instances_ObjMgrComm.size(); i++)
     {
         // get protocol property
@@ -632,24 +664,40 @@ void SLPProvider::issueSLPRegistrations()
         String IPAddress = _getPropertyValue(instances_ObjMgrComm[i], CIMName("IPAddress"), "127.0.0.1");
 
         // create a registration instance, test and register it.
-        populateRegistrationData(protocol, IPAddress, instances_ObjMgr[0], instances_ObjMgrComm[i]);
+        if (populateRegistrationData(protocol, IPAddress, instances_ObjMgr[0], instances_ObjMgrComm[i]))
+        {
+            itemsRegistered++;
+        }
     }
     
-    // Start the slp listener background thread - nothing is advertised until this function returns. 
-    slp_agent.start_listener();
-
-    Uint32 finish, now, msec;
-    System::getCurrentTime(now, msec);
-    finish = now + 10;
-
-    // wait for 10 seconds. Earlier wait for 30 secs caused the client to timeout !
-    while(finish > now) 
+    // Start the slp listener background thread - nothing is advertised until this function returns.
+    if (itemsRegistered != 0)
     {
-      pegasus_sleep(1000);
-      System::getCurrentTime(now, msec);
+        try
+        {
+            slp_agent.start_listener();
+        }
+        catch(...)
+        {
+            throw CIMOperationFailedException("Start SLP Listener Failed");
+        }
+    
+        Uint32 finish, now, msec;
+        System::getCurrentTime(now, msec);
+        finish = now + 10;
+    
+        // wait for 10 seconds. Earlier wait for 30 secs caused the client to timeout !
+        while(finish > now) 
+        {
+          pegasus_sleep(1000);
+          System::getCurrentTime(now, msec);
+        }
+        initFlag=true;
+        PEG_METHOD_EXIT();
+        return(true);
     }
-    initFlag=true;
     PEG_METHOD_EXIT();
+    return(false);
 }
 
 void SLPProvider::initialize(CIMOMHandle & handle)
@@ -659,6 +707,8 @@ void SLPProvider::initialize(CIMOMHandle & handle)
 
    _ch = handle;
    initFlag = false;
+
+   _ch.disallowProviderUnload();
    
    PEG_METHOD_EXIT();
 }
@@ -696,8 +746,8 @@ void SLPProvider::getInstance(
       "SLPProvider::getInstance()");
 
     // if this is the first call, create the registration.    
-    if(initFlag == false)
-        issueSLPRegistrations();
+    //if(initFlag == false)
+    //    issueSLPRegistrations();
     
     // convert a potential fully qualified reference into a local reference
     // (class name and keys only).
@@ -744,13 +794,13 @@ void SLPProvider::enumerateInstances(
       "SLPProvider::enumerateInstances()");
     CDEBUG("enumerateInstances");
     // if this is the first call, create the registration.    
-    if(initFlag == false)
-        issueSLPRegistrations();
+    //if(initFlag == false)
+    //    issueSLPRegistrations();
     
     // begin processing the request
     handler.processing();
 
-    CDEBUG("enumerateInstances. created count instances=" << _instances.size());
+    CDEBUG("enumerateInstances. count instances=" << _instances.size());
     for(Uint32 i = 0, n = _instances.size(); i < n; i++)
     {
        // deliver instance
@@ -771,8 +821,8 @@ void SLPProvider::enumerateInstanceNames(
       "SLPProvider::enumerateInstanceNames()");
 
     // if this is the first call, create the registration.    
-    if(initFlag == false)
-        issueSLPRegistrations();
+    //if(initFlag == false)
+    //    issueSLPRegistrations();
     
     // begin processing the request
     handler.processing();
@@ -853,7 +903,10 @@ void SLPProvider::invokeMethod(
         if (methodName.equal ("register"))
         {
             if(initFlag == false)
-                issueSLPRegistrations();
+                if (issueSLPRegistrations())
+                    response = 0;
+                else
+                    response = -1;
             else
                 response = 1;
         }

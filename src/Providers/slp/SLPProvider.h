@@ -117,12 +117,12 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
 
         CIMNamespaceName _interopNamespace;
 
-        void populateRegistrationData(const String &protocol,
+        Boolean populateRegistrationData(const String &protocol,
             const String& IPAddress,
             const CIMInstance& instance_ObjMgr,
             const CIMInstance& instance_ObjMgrComm);
 
-        void issueSLPRegistrations();
+        Boolean issueSLPRegistrations();
 
         String getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& classInfo );
 

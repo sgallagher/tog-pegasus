@@ -26,15 +26,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
-
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Thread.h>
 #include <sys/types.h>
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 #else
 #include <unistd.h>
-#endif 
+#endif
 #include <cassert>
 #include <iostream>
 #include <stdio.h>
@@ -42,9 +40,10 @@
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
+
 PEGASUS_NAMESPACE_BEGIN
 
-class FAKE_MESSAGE  
+class FAKE_MESSAGE
 {
    public:
       FAKE_MESSAGE(void *key, int type) : _type(type)
@@ -77,7 +76,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm);
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm);
 
-typedef struct 
+typedef struct
 {
       AsyncDQueue<FAKE_MESSAGE> *incoming; // to server
       AsyncDQueue<FAKE_MESSAGE> *outgoing; // from server
@@ -88,14 +87,14 @@ AtomicInt replies;
 AtomicInt requests;
 Mutex msg_mutex;
 
-const Uint32 NUMBER_MSGS = 100000; 
+const Uint32 NUMBER_MSGS = 100000;
 const int NUMBER_CLIENTS = 20;
-const int NUMBER_SERVERS = 10; 
+const int NUMBER_SERVERS = 10;
 
 FAKE_MESSAGE *get_next_msg(void *key )
 {
    FAKE_MESSAGE *msg = 0;
-   
+
    msg_mutex.lock(pegasus_thread_self());
    if(requests.value() < NUMBER_MSGS)
    {
@@ -104,65 +103,6 @@ FAKE_MESSAGE *get_next_msg(void *key )
    }
    msg_mutex.unlock();
    return msg;
-}
-
-int main(int argc, char **argv)
-{
-   
-   read_write rw =
-      {
-	 new AsyncDQueue<FAKE_MESSAGE>(true, 100), 
-	 new AsyncDQueue<FAKE_MESSAGE>(true, 100)
-      };
-
-   Thread *client_sender[20];
-   Thread *server[10];
-   int i;
-
-
-   
-   for( i = 0; i < NUMBER_CLIENTS; i++)
-   {
-      client_sender[i] = new Thread(client_sending_thread, &rw, false );
-      client_sender[i]->run();
-   }
-  
-   for( i = 0; i < NUMBER_SERVERS; i++)
-   {
-      server[i] = new Thread(server_thread, &rw, false);
-      server[i]->run();
-   }
-
-   while( requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS )
-   {
-      pegasus_sleep(1000);
-
-      cout << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
-   }
-      
-   rw.incoming->shutdown_queue();
-   rw.outgoing->shutdown_queue();
-
-   for( i = 0; i < NUMBER_CLIENTS; i++)
-   {
-      client_sender[i]->join();
-      delete client_sender[i];
-   }
-  
-   for( i = 0; i < NUMBER_SERVERS; i++)
-   {
-      server[i]->join();
-      delete server[i];
-   }
-   
-   cout << NUMBER_MSGS << " messages using " << NUMBER_CLIENTS << " clients and " << NUMBER_SERVERS << " servers" << endl;
-   cout << endl << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
-   cout << "unclaimed requests: " <<  rw.outgoing->count() << endl;
-   delete rw.incoming;
-   delete rw.outgoing;
-
-
-   return 0;
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
@@ -191,15 +131,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
       {
 	 cout << endl << "IPC exception sending client msg" << endl;
 	 abort();
-      } 
+      }
       pegasus_yield();
    }
-   
+
    while(my_qs->incoming->count() > 0 || my_qs->outgoing->count() > 0)
    {
       my_handle->sleep(1);
    }
-   
+
    receiver->join();
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
@@ -220,15 +160,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm)
       {
 	 msg = my_qs->incoming->remove_first_wait();
       }
-      catch(ListClosed & ) 
-      { 
+      catch(ListClosed & )
+      {
 	 break;
       }
       catch(IPCException & )
       {
 	 cout << endl << "IPC exception retrieving client msg" << endl;
 	 abort();
-      } 
+      }
       if(msg != 0)
       {
 	 try
@@ -244,10 +184,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm)
 	 {
 	    cout << endl << "IPC exception dispatching client msg" << endl;
 	    abort();
-	 } 
+	 }
       }
       pegasus_yield();
-      
+
    }
    my_handle->exit_self((PEGASUS_THREAD_RETURN)1);
    return(0);
@@ -273,8 +213,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
       catch(IPCException & )
       {
 	 abort();
-      } 
-      
+      }
+
       if(msg != 0 )
       {
 	 delete msg;
@@ -287,3 +227,60 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
 }
 
 PEGASUS_NAMESPACE_END
+
+int main(int argc, char **argv)
+{
+
+   read_write rw =
+      {
+	 new AsyncDQueue<FAKE_MESSAGE>(true, 100),
+	 new AsyncDQueue<FAKE_MESSAGE>(true, 100)
+      };
+
+   Thread *client_sender[20];
+   Thread *server[10];
+   int i;
+
+   for( i = 0; i < NUMBER_CLIENTS; i++)
+   {
+      client_sender[i] = new Thread(client_sending_thread, &rw, false );
+      client_sender[i]->run();
+   }
+
+   for( i = 0; i < NUMBER_SERVERS; i++)
+   {
+      server[i] = new Thread(server_thread, &rw, false);
+      server[i]->run();
+   }
+
+   while( requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS )
+   {
+      pegasus_sleep(1000);
+
+      cout << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
+   }
+
+   rw.incoming->shutdown_queue();
+   rw.outgoing->shutdown_queue();
+
+   for( i = 0; i < NUMBER_CLIENTS; i++)
+   {
+      client_sender[i]->join();
+      delete client_sender[i];
+   }
+
+   for( i = 0; i < NUMBER_SERVERS; i++)
+   {
+      server[i]->join();
+      delete server[i];
+   }
+
+   cout << NUMBER_MSGS << " messages using " << NUMBER_CLIENTS << " clients and " << NUMBER_SERVERS << " servers" << endl;
+   cout << endl << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
+   cout << "unclaimed requests: " <<  rw.outgoing->count() << endl;
+   delete rw.incoming;
+   delete rw.outgoing;
+
+
+   return 0;
+}

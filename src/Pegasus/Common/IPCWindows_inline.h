@@ -232,7 +232,7 @@ inline AtomicInt& AtomicInt::operator-=(Uint32 val)
    return *this;
 }
 
-Boolean AtomicInt::DecAndTestIfZero()
+inline Boolean AtomicInt::DecAndTestIfZero()
 {
    enter_crit(&_crit);
    _rep--;

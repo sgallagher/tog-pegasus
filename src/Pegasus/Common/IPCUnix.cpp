@@ -833,7 +833,7 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 
 Boolean AtomicInt::DecAndTestIfZero()
 {
-   return atomic_dec_and_test(&_rep);
+   return (atomic_dec_and_test(&_rep) ? false : true );
 }
 
 #elif defined(PEGASUS_ATOMIC_INT_NATIVE)
@@ -986,10 +986,9 @@ AtomicInt& AtomicInt::operator-=(Uint32 val)
 
 Boolean AtomicInt::DecAndTestIfZero()
 {
-    Boolean b = true;
     pthread_spin_lock(&_crit);
-    if (_rep > 0)
-        b = (--_rep) ? true : false;
+    _rep--;
+    Boolean b = ((_rep == 0) ? true : false) ;
     pthread_spin_unlock(&_crit);
     return b;
 }

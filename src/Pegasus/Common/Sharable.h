@@ -33,6 +33,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/IPC.h>
+#include <assert.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,32 +53,36 @@ public:
     Sharable() : _ref(1) { }
 
     virtual ~Sharable();
-    Uint32 getRef() const { return _ref; }
-    //    Uint32 getRef() const { return _ref.value(); }
+    Uint32 getRef() const { return _ref.value(); }
 
     friend void Inc(const Sharable* sharable);
 
     friend void Dec(const Sharable* sharable);
 
 private:
-    Uint32 _ref;
-    //    AtomicInt _ref;
+        AtomicInt _ref;
 };
 
 inline void Inc(const Sharable* x)
 
 {
-    if (x)
-	((Sharable*)x)->_ref++;
+  if (x)
+    {
+      // A sharable object should never be incremented from zero.
+      // If so, there is a double delete being cause by impropoer use
+      // of sharable assignment or copy constructors somewhere
+      // << Wed Nov  6 12:46:52 2002 mdd >>
+      assert(((Sharable*)x)->_ref.value());
+      ((Sharable*)x)->_ref++;
+    }
+  
 }
+
 
 inline void Dec(const Sharable* x)
 {
-    if (x && --((Sharable*)x)->_ref == 0)
-	delete (Sharable*)x;
-
-    //    if (x && ((Sharable*)x)->_ref.DecAndTestIfZero())
-    //	delete (Sharable*)x;
+  if (x && ((Sharable*)x)->_ref.DecAndTestIfZero())
+    delete (Sharable*)x;
 }
 
 PEGASUS_NAMESPACE_END

@@ -178,9 +178,20 @@ class PEGASUS_EXPORT OperationContext
 
       void add_context(context *);
 
-      // ATTN: This is a hack, but was necessary to compile on HP-UX
-      Boolean operator==(void *rhs) { return this == rhs; }
 
+
+      inline Boolean operator==(const void *key) const
+      {
+	 if(reinterpret_cast<void *>(const_cast<OperationContext *>(this)) == key)
+	    return true;
+	 return false;
+      }
+      
+      inline Boolean operator==(const OperationContext& ct) const
+      {
+	 return(this->operator==((void *)this));
+      }
+      
       context *remove_context(void);
       context *remove_context(Uint32 uint_val);
       context *remove_context(Uint8 *uid); 

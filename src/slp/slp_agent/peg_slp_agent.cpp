@@ -31,6 +31,7 @@
 
 #include "peg_slp_agent.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 class sa_reg_params
@@ -143,7 +144,7 @@ slp_service_agent::slp_service_agent(const char *local_interface,
 			    local_interface,
 			    target_port,
 			    "DSA",
-			    "scpoes",
+			    "scopes",
 			    listen,
 			    use_da);
    }
@@ -200,6 +201,16 @@ void slp_service_agent::_init(void)
       if(_create_client == 0 || _destroy_client == 0 || _find_das == 0 || _test_reg == 0)
       {
 	 _initialized = 0;
+         String symbol;
+         if (_create_client == 0){symbol = "create_slp_client";}
+         if (_destroy_client == 0){symbol = "destroy_slp_client";}
+         if (_find_das == 0){symbol = "find_das";}
+         if (_test_reg == 0){symbol = "test_srv_reg";}
+
+         Logger::put(Logger::ERROR_LOG, "slp_agent", Logger::SEVERE,
+                 "Link Error to library: $0, symbol: $1" ,
+             _lib_fileName, symbol);
+
 	 System::unloadDynamicLibrary(_lib_handle);
       }
    }
@@ -226,7 +237,6 @@ void slp_service_agent::_de_init(void)
       }
    }
 }
-
 
 Boolean slp_service_agent::srv_register(const char* url, 
 					const char* attributes, 

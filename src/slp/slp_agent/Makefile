@@ -6,7 +6,7 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = 
+LOCAL_DEFINES = -DPEGASUS_SLP_INTERNAL
 
 LIBRARY = pegslp
 
@@ -33,3 +33,5 @@ include $(ROOT)/mak/library.mak
 
 run:
 	Server $(REPOSITORY_ROOT)
+
+

@@ -26,7 +26,6 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp.h,v 1.1.4.1 2004/08/13 21:38:24 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -62,7 +61,7 @@ extern "C" {
 #endif
 
 #ifndef NUCLEUS   //jeb
-#ifdef  PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 #pragma pack( push, lslp_defs )
 #pragma pack(1)
 #endif
@@ -410,7 +409,7 @@ struct api_hdr {
 }
 #endif
 #ifndef NUCLEUS  //jeb
-#ifdef  PEGASUS_OS_TYPE_WINDOWS
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 #pragma pack( pop, lslp_defs )
 #endif
 #endif

@@ -5,9 +5,8 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.cpp,v 1.1.4.5 2004/07/27 18:45:41 karl Exp $ 	                                                            
  *               					                    
- *  Copyright (c) 2001 - 2003  IBM                                          
+ *  Copyright (c) 2001 - 2004  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
  *                                                                           
  *  Permission is hereby granted, free of charge, to any person obtaining a  
@@ -490,6 +489,7 @@ int slp_get_local_interfaces(uint32 **list)
   SOCKETD sock;                         //jeb
   int interfaces = 0;
 #if defined ( _WIN32 )
+int errcode;
   int buf_size = 256;
 #endif
   if( list == NULL )
@@ -502,29 +502,35 @@ int slp_get_local_interfaces(uint32 **list)
   if ( INVALID_SOCKET != ( sock  = WSASocket(AF_INET,
 					   SOCK_RAW, 0, NULL, 0, 0) ) ) {
 	int bytes_returned;
-    char *output_buf = (char *)malloc(buf_size);
+    char *output_buf = (char *)calloc(1, buf_size);
     if (output_buf == NULL)
       return 0;
     
-    if ( 0 == WSAIoctl( sock, SIO_ADDRESS_LIST_QUERY, NULL, 0, 
-			output_buf, buf_size, &bytes_returned, NULL, NULL) ) {
-      socket_addr_list *addr_list;
-      socket_addr *addr;
+
+    if ( 0 == (errcode = WSAIoctl( sock, SIO_ADDRESS_LIST_QUERY, NULL, 0, 
+			output_buf, buf_size, &bytes_returned, NULL, NULL)) ) {
+
+      SOCKET_ADDRESS_LIST *addr_list;
+      SOCKET_ADDRESS *addr;
       uint32 *intp;
       struct sockaddr_in *sin;
-		  addr_list = (socket_addr_list *)output_buf;
-      *list = (uint32 *) malloc(sizeof(socket_addr) * addr_list->count + 1) ;
-      addr = addr_list->list;
+		  addr_list = (SOCKET_ADDRESS_LIST *)output_buf;
+      *list = (uint32 *) malloc(sizeof(SOCKET_ADDRESS) * (addr_list->iAddressCount + 1)) ;
+      addr = addr_list->Address;
       
-      for( interfaces = 0, intp = *list, sin = (struct sockaddr_in *)addr ; 
-	   interfaces < addr_list->count; 
+      for( interfaces = 0, intp = *list, sin = (struct sockaddr_in *)addr->lpSockaddr ; 
+	   interfaces < addr_list->iAddressCount; 
 	   interfaces++ , intp++  ) {
 	*intp = sin->sin_addr.s_addr;
 	addr++;
-	sin = (struct sockaddr_in *)addr;
+	sin = (struct sockaddr_in *)addr->lpSockaddr;
       }
+
       *intp = INADDR_ANY;
+    } else {
+errcode = WSAGetLastError();
     }
+    
     free(output_buf);
     _LSLP_CLOSESOCKET(sock);
   }
@@ -828,6 +834,141 @@ BOOL prepare_query( struct slp_client *client,
   return(FALSE);
 }
 
+
+// <<< Sat Jul 24 16:25:44 2004 mdd >>> attr request 
+
+
+/*       0                   1                   2                   3 */
+/*       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |       Service Location header (function = AttrRqst = 6)       | */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |       length of PRList        |        <PRList> String        \ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |         length of URL         |              URL              \ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |    length of <scope-list>     |      <scope-list> string      \ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |  length of <tag-list> string  |       <tag-list> string       \ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |   length of <SLP SPI> string  |        <SLP SPI> string       \ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+
+BOOL prepare_attr_query( struct slp_client *client, 
+			 uint16 xid,
+			 const int8 *url,
+			 const int8 *scopes, 
+			 const int8 *tags)
+{
+  int16 len, total_len;
+  int8 *bptr;
+  const int8 *scopeptr;
+  static int8 default_scope[] = "DEFAULT";
+  
+  if(url == NULL)
+    return FALSE;
+  
+  /* first off, check to see if this is a retry or a new request */ 
+  if(xid != client->_xid) {
+    /* this is a new request, not a retry */
+    /* reset the previous responder buffer */ 
+    memset(client->_pr_buf, 0x00, LSLP_MTU);
+    client->_pr_buf_len = 0;
+    client->_xid = xid;
+  }
+  
+  /* reset the client's send buffer and initialize the buffer pointer */ 
+  memset(client->_msg_buf, 0x00, LSLP_MTU);
+  bptr = client->_msg_buf;
+  
+  /* initialize the SLP Header */
+  _LSLP_SETVERSION(bptr, LSLP_PROTO_VER);
+  _LSLP_SETFUNCTION(bptr, LSLP_ATTRREQ);
+  
+  /* skip the length field until we know the actual length of the message */
+
+  _LSLP_SETFLAGS(bptr, 0);
+  _LSLP_SETXID(bptr, xid);
+  _LSLP_SETLAN(bptr, LSLP_EN_US, LSLP_EN_US_LEN);
+  
+  /* adjust the buffer pointer forward and initialize our length counter */ 
+  bptr += ( total_len = _LSLP_HDRLEN(bptr) );
+  
+  /* make sure the pr buffer will not cause an overflow and set the pr list length */ 
+  if( client->_pr_buf_len + total_len < LSLP_MTU ) {
+    _LSLP_SETSHORT(bptr, (len = client->_pr_buf_len), 0 );
+    /* if there is a pr list, copy it into the msg buffer */ 
+    if(len)
+      memcpy(bptr + 2, client->_pr_buf, len);
+    /* adjust our counter and buffer pointer */
+    total_len += ( 2 + len );
+    bptr += ( 2 + len );
+    
+    /* if there is room, set the url length and copy the url */ 
+    len = strlen(url);
+    if(total_len + 2 + len < LSLP_MTU ) {
+      _LSLP_SETSHORT(bptr, len, 0 );
+      if(len)
+	memcpy(bptr + 2, url, len);
+      /* adjust counter and buffer pointer */ 
+      total_len += (2 + len);
+      bptr += (2 + len);
+      
+      /* if there is room, set the scope list length and copy the scope list */ 
+      if(scopes == NULL)
+	scopeptr = default_scope;
+      else
+	scopeptr = scopes;
+      
+      len = strlen(scopeptr);
+      if(total_len + 2 + len < LSLP_MTU) {
+	_LSLP_SETSHORT(bptr, len, 0 );
+	
+	if(len)
+	  memcpy(bptr + 2, scopeptr, len);
+	
+      	total_len += (2 + len);
+	bptr += (2 + len);
+	
+	/* if there is room, set the tag list length and copy the tag list */
+	if(tags != NULL)
+	  len = strlen(tags);
+	else
+	  len = 0;
+	
+	if(total_len + 2 + len < LSLP_MTU) {
+	  _LSLP_SETSHORT(bptr + 2, len, 0);
+	  if(len)
+	    memcpy(bptr + 2, tags, len);
+	  total_len += ( 2 + len );
+	  bptr += ( 2 + len );
+
+	  /* leave the spi length at zero - spi will be deprecated in next version of SLP */ 
+	  /* length needs to account for the spi string length */ 
+	  total_len += 2;
+	   
+	  /* now go back and set the length for the entire message */
+	  _LSLP_SETLENGTH(client->_msg_buf, total_len );
+	  return(TRUE);
+
+	} /* if tags list fits */ 
+      } /* if scopes fit */ 
+    } /* if the url fits */ 
+  } /* if pr buffer fits */ 
+  
+  return FALSE;
+}
+
+
+void set_separators(struct slp_client *client, int8 fs, int8 rs)
+{
+  client->_fs = fs;
+  client->_rs = rs;
+  client->_use_separators = TRUE;
+}
+
+
+
 lslpMsg *get_response( struct slp_client *client, lslpMsg *head)
 {
   assert(head != NULL && _LSLP_IS_HEAD(head));
@@ -923,13 +1064,13 @@ void converge_srv_req(struct slp_client *client,
     
     if(prepare_query( client, client->_xid + 1, type, scopes, predicate)) {
 	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
-	send_rcv_udp( client );
+	send_rcv_udp( client , TRUE);
       }
 
     while(--convergence > 0) {
       if(prepare_query( client, client->_xid, type, scopes, predicate)) {
 	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
-	send_rcv_udp( client );
+	send_rcv_udp( client , TRUE);
       }
     }
     p_addr++;
@@ -1044,16 +1185,272 @@ void srv_req( struct slp_client *client,
 			     type, 
 			     scopes, 
 			     predicate ))) {
-    send_rcv_udp( client ) ;
+    if(client->_target_addr == _LSLP_MCAST || client->_target_addr == _LSLP_LOCAL_BCAST) {
+      _LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
+    }
+    send_rcv_udp( client , retry) ;
   } /* prepared query  */
   return ;
 }
+
+
+/* this request MUST be retried <_convergence> times on EACH interface  */
+/* regardless of how many responses we have received  */
+/* it can be VERY time consuming but is the most thorough  */
+/* discovery method  */
+void converge_attr_req( struct slp_client *client, 
+			const int8 *url, 
+			const int8 *scopes, 
+			const int8 *tags)
+{
+
+  uint32 old_local_addr;
+  uint32 *p_addr ;
+  uint16 convergence; 
+  uint32 loopback ;
+
+  
+  //  old_target_addr = client->_target_addr;
+  old_local_addr = client->_local_addr;
+  
+  p_addr = client->_local_addr_list;
+  loopback = inet_addr("127.0.0.1");
+
+  do {
+    if( *p_addr == loopback ) {
+      p_addr++;
+      continue; 
+    }
+    client->_local_addr = *p_addr;
+    convergence = client->_convergence;
+    if(convergence == 0)
+      convergence = 1;
+    
+    if(prepare_attr_query( client, client->_xid + 1, url, scopes, tags)) {
+	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
+	send_rcv_udp( client, FALSE );
+      }
+
+    while(--convergence > 0) {
+      if(prepare_attr_query( client, client->_xid, url, scopes, tags)) {
+	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
+	send_rcv_udp( client , FALSE);
+      }
+    }
+    p_addr++;
+  }   while( *p_addr != INADDR_ANY ) ;
+
+
+  // always try a local request 
+  local_attr_req(client, url, scopes, tags); 
+ 
+    //  client->_target_addr = old_target_addr;
+  client->_local_addr = old_local_addr;
+  return ;
+
+}
+
+// this request will be retried MAX <_retries> times 
+// but will always end when the first response is received
+// This request is best when using a directory agent  
+void unicast_attr_req( struct slp_client *client,
+		       const int8 *url, 
+		       const int8 *scopes,
+		       const int8 *tags, 
+		       SOCKADDR_IN *addr)
+{
+
+  uint32 target_addr_save, local_addr_save;
+  uint16 target_port_save;
+  struct timeval tv_save;
+  int retries ;
+
+  target_addr_save = client->_target_addr;
+  local_addr_save = client->_local_addr;
+  target_port_save = client->_target_port;
+
+   tv_save.tv_sec = client->_tv.tv_sec; 
+   client->_tv.tv_sec = 1; 
+  
+  // let the host decide which interface to use 
+  client->_local_addr = INADDR_ANY; 
+  client->_target_addr = addr->sin_addr.s_addr;
+  client->_target_port = addr->sin_port;
+  
+  retries = client->_retries;
+  
+  attr_req(client, url, scopes, tags, FALSE) ;
+
+  while( retries && _LSLP_IS_EMPTY(&(client->replies))) {
+    attr_req(client, url, scopes, tags, FALSE);
+    retries--;
+  }
+  client->_target_addr = target_addr_save;
+  client->_local_addr = local_addr_save;
+  client->_target_port = target_port_save;
+  client->_tv.tv_sec = tv_save.tv_sec; 
+  return;
+}
+
+
+
+// targeted to the loopback interface  
+void local_attr_req( struct slp_client *client, 
+		      const int8 *url, 
+		      const int8 *scopes, 
+		       const int8 *tags )
+{
+  uint32 target_addr_save, local_addr_save;
+  uint16 target_port_save;
+  
+  struct timeval tv_save;
+  
+  target_addr_save = client->_target_addr;
+  target_port_save = client->_target_port;
+  local_addr_save = client->_local_addr;
+  
+  tv_save.tv_sec = client->_tv.tv_sec;
+  tv_save.tv_usec = client->_tv.tv_usec;
+  client->_tv.tv_sec = 0;
+  client->_tv.tv_usec = 10000;
+
+  // let the host decide which interface to use 
+  client->_local_addr = INADDR_ANY; 
+  client->_target_addr = inet_addr("127.0.0.1");
+  client->_target_port = htons(427);
+
+  attr_req(client, url, scopes, tags, FALSE) ;
+
+  client->_target_addr = target_addr_save;
+  client->_target_port = target_port_save;
+  client->_local_addr = local_addr_save;
+  client->_tv.tv_sec = tv_save.tv_sec;
+  
+  client->_tv.tv_sec = tv_save.tv_sec;
+  client->_tv.tv_usec = tv_save.tv_usec;
+
+  return;
+
+}
+
+
+
+// <<< Sat Jul 24 16:22:01 2004 mdd >>> attr request
+// workhorse attr request function 
+void attr_req( struct slp_client *client, 
+	       const int8 *url, 
+	       const int8 *scopes,
+	       const int8 *tags,
+	       BOOL retry)
+{
+
+  if(TRUE == prepare_attr_query(client, (retry == TRUE) ? client->_xid : client->_xid + 1,
+				url, scopes, tags)) {
+    /* check for the multicast address and set the mcast flag if necessary */ 
+    if(client->_target_addr == _LSLP_MCAST || client->_target_addr == _LSLP_LOCAL_BCAST) {
+	_LSLP_SETFLAGS(client->_msg_buf, LSLP_FLAGS_MCAST) ;
+    }
+    
+    send_rcv_udp( client , retry);
+  }
+  
+  return;
+}
+
+
+
+/*       0                   1                   2                   3 */
+/*       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |       Service Location header (function = AttrRply = 7)       | */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |         Error Code            |      length of <attr-list>    | */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |                         <attr-list>                           \ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |# of AttrAuths |  Attribute Authentication Block (if present)  \ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+
+void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
+{
+
+  int8 *bptr;
+  lslpMsg *reply;
+  
+  int32 total_len, purported_len;
+
+  bptr = client->_rcv_buf;
+  purported_len = _LSLP_GETLENGTH(bptr);
+
+  /* marshall the header data */
+  reply = alloc_slp_msg(FALSE);
+  if(reply == NULL) abort();
+  reply->hdr.ver = _LSLP_GETVERSION(bptr);
+  reply->type = (msgTypes) (reply->hdr.msgid = _LSLP_GETFUNCTION(bptr));
+  reply->hdr.len = purported_len;
+  reply->hdr.flags = _LSLP_GETFLAGS(bptr);
+  reply->hdr.nextExt = _LSLP_GETNEXTEXT(bptr);
+  reply->hdr.xid = _LSLP_GETXID(bptr);
+  
+    
+  reply->hdr.langLen = _LSLP_GETLANLEN(bptr);
+  memcpy(reply->hdr.lang, bptr + LSLP_LAN_LEN + 2, (_LSLP_MIN(reply->hdr.langLen, 19)));
+  bptr += (total_len = _LSLP_HDRLEN(bptr));
+  if(total_len < purported_len) {
+    
+    /* process the attr rply */
+    reply->hdr.errCode = reply->msg.attrRep.errCode = _LSLP_GETSHORT(bptr, 0);
+    reply->msg.attrRep.attrListLen = _LSLP_GETSHORT(bptr, 2);
+    if(reply->msg.attrRep.attrListLen + total_len < purported_len) {
+      
+      total_len += 4;
+      bptr += 4;
+      reply->msg.attrRep.attrList = (int8 *)calloc(1, reply->msg.attrRep.attrListLen + 1);
+      if(reply->msg.attrRep.attrList == NULL) abort();
+      memcpy(reply->msg.attrRep.attrList, bptr, reply->msg.attrRep.attrListLen);
+      /* ignore auth blocks, they will be deprecated in next version of protocol */ 
+      
+      
+    } /* attr list len checks out */ 
+  } /* hdr len checks out */
+  /* link the response to the client */
+  _LSLP_INSERT(reply, &(client->replies));
+}
+
+
+/* failsafe against malformed messages. */
+/* if it sees a message it does not like, it simply returns */ 
+/* bad message is silently discarded. */ 
+
+
+void message_sanity_check(struct slp_client *client)
+{
+  if( _LSLP_GETLENGTH(client->_rcv_buf) > LSLP_MTU ) {
+    return;
+  }
+  
+  if( _LSLP_GETVERSION(client->_rcv_buf) != LSLP_PROTO_VER ) {
+    return;
+  }
+  
+  if ( _LSLP_GETFUNCTION(client->_rcv_buf) < LSLP_SRVRQST || 
+       _LSLP_GETFUNCTION(client->_rcv_buf) > LSLP_SAADVERT) {
+    return;
+  }
+  return;
+  
+}
+
+
 
 void decode_msg( struct slp_client *client, 
 		 SOCKADDR_IN *remote )
 {
   int8 function, response;
   
+  message_sanity_check(client);
+  
+
   function = _LSLP_GETFUNCTION( client->_rcv_buf );
   if( client->_xid == _LSLP_GETXID( client->_rcv_buf )) {
     if(function == LSLP_SRVRPLY || 
@@ -1067,6 +1464,7 @@ void decode_msg( struct slp_client *client,
 
   // <<< Fri Dec 21 15:47:06 2001 mdd >>>
   // increment the correct function counters 
+
 
   switch(function) {
   case LSLP_DAADVERT:
@@ -1083,9 +1481,10 @@ void decode_msg( struct slp_client *client,
   case LSLP_ATTRREQ:
     decode_attrreq( client, remote );
     return;
+  case LSLP_ATTRRPLY:
+    decode_attr_rply( client, remote);
+    return;
     
-    response = LSLP_ATTRRPLY;
-    break;
   case LSLP_SRVTYPERQST:
     response = LSLP_SRVTYPERPLY;
     break;
@@ -1209,7 +1608,7 @@ void decode_srvrply( struct slp_client *client,
 #if defined( PEGASUS_PLATFORM_ZOS_ZSERIES_IBM ) || defined( PEGASUS_OS_SOLARIS )
   reply->type = (msg_types) reply->hdr.msgid;
 #else
-  reply->type = reply->hdr.msgid;
+  reply->type = reply->hdr.msgid = _LSLP_GETFUNCTION(bptr);
 #endif
   reply->hdr.len = purported_len;
   reply->hdr.flags = _LSLP_GETFLAGS(bptr);
@@ -1703,6 +2102,8 @@ BOOL  srv_reg(struct slp_client *client,
 	  len += ( 2 + str_len);
 	  bptr += (2 + str_len);
 
+	  /* <<< Thu Jun 10 09:03:11 2004 mdd >>> force no authentication blocks */ 
+
 	  /* no attribute auths for now */
 	  if(len + 1 < LSLP_MTU) {
 	    _LSLP_SETBYTE(bptr, 0x00, 0);
@@ -1713,7 +2114,7 @@ BOOL  srv_reg(struct slp_client *client,
 	  
 	  retries = client->_retries;
 	  while( --retries ) {
-	    if(TRUE == send_rcv_udp(client)) {
+	    if(TRUE == send_rcv_udp(client, TRUE)) {
 	      if(LSLP_SRVACK == _LSLP_GETFUNCTION( client->_rcv_buf )) {
 		if(0x0000 == _LSLP_GETSHORT( client->_rcv_buf, (_LSLP_HDRLEN( client->_rcv_buf )))) {
 		  memset(client->_msg_buf, 0x00, LSLP_MTU);
@@ -1736,11 +2137,12 @@ BOOL  srv_reg(struct slp_client *client,
 
 
 
-BOOL send_rcv_udp( struct slp_client *client )
+BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
 {
   SOCKETD sock;               //jeb
   SOCKADDR_IN target, local;
   BOOL ccode = FALSE;
+  
   if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
     int err = 1;
 #ifndef NUCLEUS    //jeb
@@ -1785,7 +2187,11 @@ BOOL send_rcv_udp( struct slp_client *client )
 	return(FALSE);
       } /* oops - error sending data */
 
-      while ( 0 < __service_listener(client, sock ) ) { ccode = TRUE; }
+      while ( 0 < __service_listener(client, sock ) ) { 
+	ccode = TRUE; 
+	if(retry == FALSE) 
+	  break;
+      }
     } // bound the socket 
     _LSLP_CLOSESOCKET(sock);
   } /*  got the socket */
@@ -2161,11 +2567,19 @@ struct slp_client *create_slp_client(const int8 *target_addr,
   
 #ifdef _WIN32
   WindowsStartNetwork();
+  
 #endif
 
   /* initialize the random number generator for randomizing the 
      timing of multicast responses */
   srand(time(NULL));
+
+  /****** DEBUGGING ****** << Fri Nov 21 10:34:54 2003 mdd >> */
+  client->_pr_buf = (int8* )calloc(LSLP_MTU, sizeof(int8));
+  client->_msg_buf = (int8* )calloc(LSLP_MTU, sizeof(int8));
+  client->_rcv_buf = (int8* )calloc(LSLP_MTU, sizeof(int8));
+  client->_scratch = (int8* )calloc(LSLP_MTU, sizeof(int8));
+  client->_err_buf = (int8* )calloc(255, sizeof(int8));
 
   client->_buf_len = LSLP_MTU;
   client->_version = 1;
@@ -2234,6 +2648,13 @@ struct slp_client *create_slp_client(const int8 *target_addr,
     }
   }
 
+
+  /* field and record separators */
+  client->_use_separators = FALSE;
+  client->_fs = '\0';
+  client->_rs = '\0';
+  
+
   client->get_response = get_response;
   client->find_das = find_das;
   client->discovery_cycle = discovery_cycle;
@@ -2241,6 +2662,13 @@ struct slp_client *create_slp_client(const int8 *target_addr,
   client->unicast_srv_req = unicast_srv_req;
   client->local_srv_req = local_srv_req;
   client->srv_req = srv_req;
+  
+  client->converge_attr_req = converge_attr_req;
+  client->unicast_attr_req = unicast_attr_req;
+  client->local_attr_req = local_attr_req;
+  client->attr_req = attr_req;
+  client->decode_attr_rply = decode_attr_rply;
+  
   client->srv_reg = srv_reg;
   client->srv_reg_all = srv_reg_all;
   client->srv_reg_local = srv_reg_local;
@@ -2249,6 +2677,8 @@ struct slp_client *create_slp_client(const int8 *target_addr,
   client->decode_msg = decode_msg;
   client->decode_srvreq = decode_srvreq;
   client->decode_srvrply = decode_srvrply;
+  client->decode_attrreq = decode_attrreq;
+  
   client->decode_daadvert = decode_daadvert;
   client->send_rcv_udp = send_rcv_udp;
   client->service_listener_wait = service_listener_wait;
@@ -2516,6 +2946,8 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 /* 		client->_msg_buf is stuffed with the attr reply. now we need  */
 /* 		to allocate a socket and send it back to the requesting node  */
 		
+		/* only send the response if there is an attribute or if this is a unicast */ 
+//		if(attr_tags != NULL || ! (_LSLP_GETFLAGS(client->_rcv_buf) & LSLP_FLAGS_MCAST)) {
 		if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
 		  SOCKADDR_IN local;
 		  int err = 1;
@@ -2531,6 +2963,8 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 		  } /*  successfully bound this socket  */
 		  _LSLP_CLOSESOCKET(sock);
 		} /* successfully opened this socket */
+//		}
+		
 		if(attr_tags)
 		  lslpFreeAttrList(attr_tags, TRUE);
 	       } /* scopes intersect */
@@ -2582,6 +3016,8 @@ int8 *lslp_foldString(int8 *s)
   return(s);
 }
 
+
+
 BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList *include)
 {
  
@@ -2608,8 +3044,7 @@ BOOL lslpStuffAttrList(int8 **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   bptr = *buf;
  
   /* <<< Fri May 14 17:13:22 2004 mdd >>> 
-     on some platforms memset must be called with a 4-byte aligned address 
-as the buffer */ 
+     on some platforms memset must be called with a 4-byte aligned address as the buffer */ 
   /*  memset(bptr, 0x00, *len); */
   (*buf) += 2;   /* reserve space for the attrlist length short */
   (*len) -= 2;
@@ -2635,10 +3070,8 @@ as the buffer */
  
     if (attrLen + (int16)strlen(attrs->name) + 3 < *len)
       {
-        /* << Wed Jun  9 14:07:54 2004 mdd >> properly encode multi-valued 
-attributes */
-        if( _LSLP_IS_HEAD(attrs->prev) || 
-lslp_string_compare(attrs->prev->name, attrs->name)) {
+	/* << Wed Jun  9 14:07:54 2004 mdd >> properly encode multi-valued attributes */
+	if( _LSLP_IS_HEAD(attrs->prev) || lslp_string_compare(attrs->prev->name, attrs->name)) {
  
 
           if (attrs->type != tag) {
@@ -2729,10 +3162,8 @@ lslp_string_compare(attrs->prev->name, attrs->name)) {
           }
         if (ccode == TRUE && attrLen + 2 < *len && attrs->type != tag)
           {
-            /* << Wed Jun  9 14:07:54 2004 mdd >> properly encode 
-multi-valued attributes */
-            if( _LSLP_IS_HEAD(attrs->next) || 
-lslp_string_compare(attrs->next->name, attrs->name  )) {
+	    /* << Wed Jun  9 14:07:54 2004 mdd >> properly encode multi-valued attributes */
+	    if( _LSLP_IS_HEAD(attrs->next) || lslp_string_compare(attrs->next->name, attrs->name  )) {
               **buf = ')'; 
               (*buf)++; 
               attrLen++;
@@ -2755,8 +3186,7 @@ lslp_string_compare(attrs->next->name, attrs->name  )) {
     attrs = attrs->next;
   } /* while we are traversing the attr list */
 
-  /* check for a trailing comma, which may end up in the buffer if we are 
-*/
+  /* check for a trailing comma, which may end up in the buffer if we are */
   /* selecting attributes based upon a tag list */
   if(*buf && *(*buf - 1) == ',') {
     *(*buf - 1) = 0x00;
@@ -2778,6 +3208,7 @@ lslp_string_compare(attrs->next->name, attrs->name  )) {
     }
   return(ccode);
 }
+
 
 lslpAttrList *lslpUnstuffAttr(int8 **buf, int16 *len, int16 *err)  
 {
@@ -3057,7 +3488,7 @@ BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
 	  filter->logical_value = FALSE;
 	  break;
 	}
-	/* for an & _operator keep going  */
+	/* for an & operator keep going  */
       } else {
 	/* child is FALSE */
 	if(filter->_operator == ldap_and) {
@@ -3915,6 +4346,27 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 
 	/* check for the attr list extension */
 	/* remember to subtract 5 bytes from the limit for each extension we traverse */
+
+
+/*    The format of the Attribute List Extension is as follows: */
+
+/*       0                   1                   2                   3 */
+/*       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |      Extension ID = 0x0002    |     Next Extension Offset     | */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      | Offset, contd.|      Service URL Length       |  Service URL  / */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |     Attribute List Length     |         Attribute List        / */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+/*      |# of AttrAuths |(if present) Attribute Authentication Blocks.../ */
+/*      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
+
+/*    The Extension ID is 0x0002. */
+
+
+
+
 	if(msg->next_ext != NULL) {
 	  /* we are looking for extension ID 0x0002 */
 	  extptr = msg->next_ext;
@@ -4182,6 +4634,7 @@ int8 * lslp_get_next_ext(int8 *hdr_buf)
 /** uses a newline as the field separator, two consecutive newlines as the record separator **/
 void lslp_print_srv_rply(lslpMsg *srvrply)
 {
+
   lslpURL *url_list;
   if(srvrply != NULL && srvrply->type == srvRply) {
     /* output errCode, urlCount, urlLen */
@@ -4282,6 +4735,34 @@ void lslp_print_srv_rply_parse(lslpMsg *srvrply, int8 fs, int8 rs)
     
   }
 }
+
+/** uses a newline as the field separator, two consecutive newlines as the record separator **/
+SLP_STORAGE_DECL   void lslp_print_attr_rply(lslpMsg *attrrply)
+{
+  if(attrrply != NULL && attrrply->type == attrRep) {
+    
+    /* output the err, attr len, attr string */ 
+    printf("error code: %d\nattribute length: %d\n%s\n\n",
+	   attrrply->msg.attrRep.errCode, 
+	   attrrply->msg.attrRep.attrListLen, 
+	   attrrply->msg.attrRep.attrList);
+  } else { printf("no correctly formatted responses\n\n"); }   
+  
+}
+
+
+SLP_STORAGE_DECL   void lslp_print_attr_rply_parse(lslpMsg *attrrply, int8 fs, int8 rs)
+{
+  if(attrrply != NULL && attrrply->type == attrRep) {
+    
+    /* output the err, attr len, attr string */ 
+    printf("%d%c%d%c%s%c",
+	   attrrply->msg.attrRep.errCode, fs,
+	   attrrply->msg.attrRep.attrListLen,fs, 
+	   attrrply->msg.attrRep.attrList, rs);
+  }   
+}
+
 
 
 /* string must not be null and must start with "service:" */

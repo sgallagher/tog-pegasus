@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/Logger.h>
 #include "Linkage.h"
 #include "../slp_client/src/cmd-utils/slp_client/slp_client.h"
 
@@ -83,17 +84,45 @@ class PEGASUS_SLP_LINKAGE slp_service_agent
 			Boolean use_da);
       ~slp_service_agent(void);
       
+    /** svr_register registers one url.  The parameters must exist.
+       This function should be used in conjunction with the 
+        test_svr_register function 
+       @param url char* parameter that represents the service url
+       @param attributes char* string containing all of the attribute
+       key/value pairs to be registered.
+       @param type char* service names
+       @param scopes char* TBD
+       @param lifetime unsigned short TBD
+       @return Boolean returns Fails if the url, attributes, or type
+       parameters do not exist.
+       @exception throws the UnitializedObjectException if the agent
+       was unable to initialize.
+    */
       Boolean srv_register(const char *url, 
 		       const char *attributes, 
 		       const char *type,
 		       const char *scopes, 
 		       unsigned short lifetime);
       
+      /**  Tests the parameters for registration of a service.
+       @param url char* parameter that represents the service url
+       @param attributes char* string containing all of the attribute
+       key/value pairs to be registered.
+       @param type char* service names
+       @param scopes char* TBD
+       @param lifetime unsigned short TBD
+       @return Uint32 returns 0 for success and non-zero following codes for
+       failures.  Code 1, type empty or the service name is not complete
+       (no service: component). Code to url empty. Code 3 TBD. Code 4 TBD.
+       parameters do not exist.
+       @exception throws the UnitializedObjectException if the agent
+       was unable to initialize.
+          
+      */
       Uint32 test_registration(const char *url, 
 			       const char *attrs, 
 			       const char *type, 
 			       const char *scopes);
-
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL service_listener(void *);
       
       void start_listener(void);

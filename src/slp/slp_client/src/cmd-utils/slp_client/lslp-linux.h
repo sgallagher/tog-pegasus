@@ -26,7 +26,6 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.1.4.3 2004/04/01 20:16:46 tony Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -193,10 +192,10 @@ void  hug_num_to_ascii(uint64 val, int8 *buf, int32 radix, BOOL is_neg);
 #endif
 
 #define _ultoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), FALSE)
-#define _itoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) && ((v) < 0)))
-#define _ltoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) && ((v) < 0)))
+#define _itoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) && ((int32)(v) < 0)))
+#define _ltoa(v, b, r) num_to_ascii((uint32)(v), (b), (r), (((r) == 10) && ((int32)(v) < 0)))
 #define _ul64toa(v, b, r) huge_num_to_ascii((uint64)(v), (b), (r), FALSE)
-#define _i64toa(v, b, r) huge_num_to_ascii((uint64)(v), (b), (r), (((r) == 10) && ((v) < 0)))
+#define _i64toa(v, b, r) huge_num_to_ascii((uint64)(v), (b), (r), (((r) == 10) && ((int64)(v) < 0)))
 
 
 

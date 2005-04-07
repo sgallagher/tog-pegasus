@@ -110,7 +110,7 @@ extern "C"
         catch (...)
         {
           delete selectStatement;
-          CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+          CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
           return false;
         }
 

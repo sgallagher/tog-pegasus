@@ -563,7 +563,9 @@ extern "C" {
            strings. For right now, if useShortNames is set to true, _only_
            the last chained identifier is used. */
         if (strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0)
+		{
           useShortNames = 1;
+		}
         // Get the namespace.
         CMPIContext *ctx = CMPI_ThreadContext::getContext ();
 
@@ -595,9 +597,9 @@ extern "C" {
         catch (...)
         {
           if (st)
-            CMSetStatus (st, CMPI_RC_ERR_FAILED);
+            CMSetStatus (st, CMPI_RC_ERR_INVALID_QUERY);
         }
-
+	
         if (exception)
           {
             delete selectStatement;
@@ -607,51 +609,60 @@ extern "C" {
           }
         else
           {
-		    if (projection)
+	    if (projection)
+	      {
+		Array < CQLChainedIdentifier > select_Array =
+		  selectStatement->getSelectChainedIdentifiers ();
+		
+		// Special check. Remove it when useShortNames is not neccessary
+		if ((select_Array.size() == 1) && (useShortNames) && (select_Array[0].getLastIdentifier().getName().getString() == String::EMPTY))
+
+		  {
+		    *projection= NULL;
+		    
+		  }
+		else {
+		  *projection =
+		    mbEncNewArray (mb, select_Array.size (), CMPI_string, NULL);
+		  
+		  CQLIdentifier identifier;
+		  String name;
+		  
+		  for (Uint32 i = 0; i < select_Array.size (); i++)
+		    {
+		      if (useShortNames)
 			{
-            Array < CQLChainedIdentifier > select_Array =
-              selectStatement->getSelectChainedIdentifiers ();
-
-            *projection =
-              mbEncNewArray (mb, select_Array.size (), CMPI_string, NULL);
-
-            CQLIdentifier identifier;
-            String name;
-
-            for (Uint32 i = 0; i < select_Array.size (); i++)
-              {
-                if (useShortNames)
-                  {
-                    identifier = select_Array[i].getLastIdentifier ();
-                    name = identifier.getName ().getString ();
-                  }
-                else
-                  {
-                    name = select_Array[i].toString ();
-                  }
-                // Since the array and the CIMName disappear when this function
-                // exits we use CMPI data storage - the CMPI_Object keeps a list of
-                // data and cleans it up when the provider API function is exited.
-                //cerr << "Property: " << name << endl;
-                CMPIString *str_data =
-                  reinterpret_cast < CMPIString * >(new CMPI_Object (name));
-                CMPIValue value;
-                value.string = str_data;
-
-                rc = CMSetArrayElementAt (*projection, i,
-                                          &value, CMPI_string);
-
-                if (rc.rc != CMPI_RC_OK)
-                  {
-                    if (st)
-                      CMSetStatus (st, rc.rc);
-                    return NULL;
-                  }
-              }
+			  identifier = select_Array[i].getLastIdentifier ();
+			  name = identifier.getName ().getString ();
 			}
+		      else
+			{
+			  name = select_Array[i].toString ();
+			}
+		      // Since the array and the CIMName disappear when this function
+		      // exits we use CMPI data storage - the CMPI_Object keeps a list of
+		      // data and cleans it up when the provider API function is exited.
+		      //cerr << "Property: " << name << endl;
+		      CMPIString *str_data =
+			reinterpret_cast < CMPIString * >(new CMPI_Object (name));
+		      CMPIValue value;
+		      value.string = str_data;
+		      
+		      rc = CMSetArrayElementAt (*projection, i,
+						&value, CMPI_string);
+		      
+		      if (rc.rc != CMPI_RC_OK)
+			{
+			  if (st)
+			    CMSetStatus (st, rc.rc);
+			  return NULL;
+			}
+		    }
+		}
+	      }
           }
         if (st)
-            CMSetStatus (st, CMPI_RC_OK);
+	  CMSetStatus (st, CMPI_RC_OK);
         return (CMPISelectExp *) new CMPI_SelectExp (selectStatement);
       }
     if (st)

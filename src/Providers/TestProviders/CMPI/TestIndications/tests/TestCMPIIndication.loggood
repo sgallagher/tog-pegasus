@@ -3,13 +3,7 @@
  ---- CMPI_RC_ERR_NOT_SUPPORTED
  -- #1.1 CMNewSelectExp
  ---- CMPI_RC_OK
- --- Projection list is: 
- ---- CMPI_RC_OK
- ---- CMGetArrayCount, 1
- --- CMGetArrayElementAt
- ---- CMPI_RC_OK
- ---- tpye is : 5632
- ---- 
+ --- No projection list, meaning it is SELECT * .... 
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
@@ -282,13 +276,7 @@
  ---- CMPI_RC_ERR_NOT_SUPPORTED
  -- #1.1 CMNewSelectExp
  ---- CMPI_RC_OK
- --- Projection list is: 
- ---- CMPI_RC_OK
- ---- CMGetArrayCount, 1
- --- CMGetArrayElementAt
- ---- CMPI_RC_OK
- ---- tpye is : 5632
- ---- 
+ --- No projection list, meaning it is SELECT * .... 
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK

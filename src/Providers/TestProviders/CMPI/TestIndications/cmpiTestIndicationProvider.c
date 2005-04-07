@@ -546,33 +546,37 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   clone =
     //CMPI_CQL_NewSelectExp (_broker, CMGetCharPtr (str), "CIMxCQL",
     CMNewSelectExp (_broker, CMGetCharPtr (str), "CIM:CQL",
-                            &projection, &rc_Clone);
+                    &projection, &rc_Clone);
 
   PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
   if (clone)
     {
-	if (projection)
-		{
-      PROV_LOG ("--- Projection list is: ");
-      cnt = CMGetArrayCount (projection, &rc_Array);
-      PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
-      PROV_LOG ("---- CMGetArrayCount, %d", cnt);
-      for (idx = 0; idx < cnt; idx++)
+      if (projection)
         {
-          PROV_LOG ("--- CMGetArrayElementAt");
-          data = CMGetArrayElementAt (projection, idx, &rc_Array);
+          PROV_LOG ("--- Projection list is: ");
+          cnt = CMGetArrayCount (projection, &rc_Array);
           PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
-          PROV_LOG ("---- tpye is : %d", data.type);
-          if (data.type == CMPI_chars)
+          PROV_LOG ("---- CMGetArrayCount, %d", cnt);
+          for (idx = 0; idx < cnt; idx++)
             {
-              PROV_LOG ("---- %s", data.value.chars);
-            }
-          if (data.type == CMPI_string)
-            {
-              PROV_LOG ("---- %s", CMGetCharPtr (data.value.string));
+              PROV_LOG ("--- CMGetArrayElementAt");
+              data = CMGetArrayElementAt (projection, idx, &rc_Array);
+              PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
+              PROV_LOG ("---- tpye is : %d", data.type);
+              if (data.type == CMPI_chars)
+                {
+                  PROV_LOG ("---- %s", data.value.chars);
+                }
+              if (data.type == CMPI_string)
+                {
+                  PROV_LOG ("---- %s", CMGetCharPtr (data.value.string));
+                }
             }
         }
-	  }
+      else
+        {
+          PROV_LOG ("--- No projection list, meaning it is SELECT * .... ");
+        }
     }
 
   PROV_LOG ("-- #2 MakeObjectPath");

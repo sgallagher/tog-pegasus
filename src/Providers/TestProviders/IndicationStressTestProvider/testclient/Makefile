@@ -32,7 +32,7 @@ poststarttests:
 	@$(ECHO) "TestIndicationStressTest run 10"
 	@$(PROGRAM) run 10
 	@$(ECHO) "TestIndicationStressTest cleanup"
-	@$(PROGRAM) cleanup cim:cql
+	@$(PROGRAM) cleanup
 	@$(ECHO) "TestIndicationStressTest setup cim:cql"
 	@$(PROGRAM) setup cim:cql
 	@$(ECHO) "TestIndicationStressTest run 1"
@@ -40,6 +40,6 @@ poststarttests:
 	@$(ECHO) "TestIndicationStressTest run 10"
 	@$(PROGRAM) run 10
 	@$(ECHO) "TestIndicationStressTest cleanup"
-	@$(PROGRAM) cleanup cim:cql
+	@$(PROGRAM) cleanup
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 	

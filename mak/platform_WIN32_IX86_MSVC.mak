@@ -126,15 +126,18 @@ PEGASUS_DEST_LIB_DIR = bin
 # The Provider User Context feature (PEP 197) is not supported on Windows
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
+# Windows does not support local domain sockets or the equivalent Bug 2148
+PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
+
 # l10n
 ifdef PEGASUS_HAS_MESSAGES
     DEFINES += -DPEGASUS_HAS_MESSAGES
     ifdef ICU_ROOT
-	MSG_COMPILE = genrb
-	MSG_FLAGS =
-	MSG_SOURCE_EXT = .txt
-	MSG_COMPILE_EXT = .res
-	CNV_ROOT_CMD = cnv2rootbundle
+        MSG_COMPILE = genrb
+        MSG_FLAGS =
+        MSG_SOURCE_EXT = .txt
+        MSG_COMPILE_EXT = .res
+        CNV_ROOT_CMD = cnv2rootbundle
 
 ##################################
 ##

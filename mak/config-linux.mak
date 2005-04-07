@@ -86,19 +86,15 @@ ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes
 endif
 
-ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
- FLAGS += -DPEGASUS_LOCAL_DOMAIN_SOCKET
-endif
-
 # l10n
 ifdef PEGASUS_HAS_MESSAGES
   DEFINES += -DPEGASUS_HAS_MESSAGES
   ifdef ICU_ROOT
-	MSG_COMPILE = genrb
-	MSG_FLAGS =
-	MSG_SOURCE_EXT = .txt
-	MSG_COMPILE_EXT = .res
-	CNV_ROOT_CMD = cnv2rootbundle
+        MSG_COMPILE = genrb
+        MSG_FLAGS =
+        MSG_SOURCE_EXT = .txt
+        MSG_COMPILE_EXT = .res
+        CNV_ROOT_CMD = cnv2rootbundle
 
 ##################################
 ##

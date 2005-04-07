@@ -42,10 +42,6 @@ ifdef PEGASUS_PURIFY
  DEFINES += -DPEGASUS_PURIFY
 endif
 
-ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
- DEFINES += -DPEGASUS_LOCAL_DOMAIN_SOCKET
-endif
-
 ##
 ## The following flags need to be set or unset 
 ## to compile-in the code required for PAM authentication
@@ -153,7 +149,7 @@ endif
 #  For future use on HP-UX
 #
 ifdef HPUX_LARGE_INTERFACES
-	FLAGS += -D_HPUX_API_LEVEL=20040821
+        FLAGS += -D_HPUX_API_LEVEL=20040821
 endif
 
 SYS_LIBS = -lpthread -lrt

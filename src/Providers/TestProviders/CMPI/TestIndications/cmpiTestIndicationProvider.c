@@ -562,7 +562,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
               PROV_LOG ("--- CMGetArrayElementAt");
               data = CMGetArrayElementAt (projection, idx, &rc_Array);
               PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
-              PROV_LOG ("---- tpye is : %d", data.type);
+              PROV_LOG ("---- type is : %d", data.type);
               if (data.type == CMPI_chars)
                 {
                   PROV_LOG ("---- %s", data.value.chars);

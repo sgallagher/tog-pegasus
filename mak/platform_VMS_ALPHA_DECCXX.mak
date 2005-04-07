@@ -62,4 +62,4 @@ LIB_SUFFIX =.olb
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
 # Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2148
-DEFINES += PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+DEFINES += -DPEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET

@@ -157,7 +157,7 @@ void WbemExecClient::connect(
     // If already connected, bail out!
     //
     if (_connected)
-	throw AlreadyConnectedException();
+    throw AlreadyConnectedException();
 
     //
     //  If the host is empty, set hostName to "localhost"
@@ -181,7 +181,7 @@ void WbemExecClient::connect(
     if (password.size())
     {
         _authenticator.setPassword(password);
-	_password = password;
+    _password = password;
     }
 
     _connect(hostName, portNumber, sslContext);
@@ -197,7 +197,7 @@ void WbemExecClient::connectLocal()
     // If already connected, bail out!
     //
     if (_connected)
-	throw AlreadyConnectedException();
+    throw AlreadyConnectedException();
 
     String host = String::EMPTY;
     Uint32 portNumber = 0;
@@ -209,7 +209,7 @@ void WbemExecClient::connectLocal()
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
     AutoPtr<SSLContext>  sslContext;
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     _connect(host, portNumber, sslContext);
 #else
 
@@ -299,20 +299,20 @@ String WbemExecClient::_promptForPassword()
       pw = System::getPassword( PASSWORD_PROMPT );
 
       if ( pw == String::EMPTY || pw == "" )
-	{
-	  if( retries < MAX_PW_RETRIES )
-	    {
-	      retries++;
+    {
+      if( retries < MAX_PW_RETRIES )
+        {
+          retries++;
 
-	    }
-	  else
-	    {
-	      break;
-	    }
-	  cerr << PASSWORD_BLANK << endl;
-	  pw = String::EMPTY;
-	  continue;
-	}
+        }
+      else
+        {
+          break;
+        }
+      cerr << PASSWORD_BLANK << endl;
+      pw = String::EMPTY;
+      continue;
+    }
     }
   while ( pw == String::EMPTY );
   return( pw );
@@ -325,7 +325,7 @@ Array<char> WbemExecClient::issueRequest(
 {
     if (!_connected)
     {
-	throw NotConnectedException();
+    throw NotConnectedException();
     }
 
     HTTPMessage* httpRequest = new HTTPMessage(request);
@@ -351,11 +351,11 @@ Array<char> WbemExecClient::issueRequest(
             if (!challenge)
             {
                 challenge = true;
-		if( ( _password == String::EMPTY ) && _isRemote )
-		  {
-		    _password = _promptForPassword();
-		    _authenticator.setPassword( _password );
-		  }
+        if( ( _password == String::EMPTY ) && _isRemote )
+          {
+            _password = _promptForPassword();
+            _authenticator.setPassword( _password );
+          }
             }
             else
             {
@@ -387,21 +387,21 @@ Message* WbemExecClient::_doRequest(HTTPMessage * request)
 
     while (nowMilliseconds < stopMilliseconds)
     {
-	//
-	// Wait until the timeout expires or an event occurs:
-	//
-	_monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+    //
+    // Wait until the timeout expires or an event occurs:
+    //
+    _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
 
-	//
-	// Check to see if incoming queue has a message
-	//
+    //
+    // Check to see if incoming queue has a message
+    //
 
-	Message* response = dequeue();
+    Message* response = dequeue();
 
-	if (response)
-	{
+    if (response)
+    {
             return response;
-	}
+    }
 
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     }
@@ -447,7 +447,7 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
         // the content length
 
         content = (char*) httpMessage->message.getData() +
-	  httpMessage->message.size() - contentLength;
+      httpMessage->message.size() - contentLength;
 
         Array<char> newMessageBuffer;
         newMessageBuffer << startLine << HTTP_CRLF;

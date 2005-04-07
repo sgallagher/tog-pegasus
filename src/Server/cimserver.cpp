@@ -873,7 +873,7 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
 #endif
 
     // Make sure at least one connection is enabled
-#ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     if (!enableHttpConnection && !enableHttpsConnection)
     {
         //l10n
@@ -1228,7 +1228,7 @@ MessageLoader::_useProcessLocale = false;
                 "Listening on Export HTTPS port $0.", portNumberExportHttps);
         }
 
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
         _cimServer->addAcceptor(true, 0, false, false);
         //l10n
         //Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
@@ -1263,7 +1263,7 @@ MessageLoader::_useProcessLocale = false;
             cout << MessageLoader::getMessage(parms) << endl;
         }
 
-# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
         //l10n
         //cout << "Listening on local connection socket" << endl;
         MessageLoaderParms parms("src.Server.cimserver.LISTENING_ON_LOCAL",

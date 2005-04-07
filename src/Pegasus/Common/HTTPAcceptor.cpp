@@ -58,7 +58,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
-# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 # include <unistd.h>
 #  include <sys/un.h>
 # endif
@@ -95,7 +95,7 @@ public:
     {
         if (local)
         {
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
             address_size = sizeof(struct sockaddr_un);
 #else
@@ -165,25 +165,25 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
    if(MAX_CONNECTION_QUEUE_LENGTH == -1){
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #pragma convert(37)
-   	const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
-   	EtoA(env);
+    const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
+    EtoA(env);
 #pragma convert(0)
 #else
-   	const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
+    const char* env = getenv("PEGASUS_MAX_BACKLOG_CONNECTION_QUEUE");
 #endif
-	if(!env){
-		MAX_CONNECTION_QUEUE_LENGTH = 15;
-	}else{	
-   		char *end = NULL;
-   		MAX_CONNECTION_QUEUE_LENGTH = strtol(env, &end, 10);
-   		if(*end)
-			MAX_CONNECTION_QUEUE_LENGTH = 15;
-		cout << " MAX_CONNECTION_QUEUE_LENGTH = " << MAX_CONNECTION_QUEUE_LENGTH << endl;
-	}
+    if(!env){
+        MAX_CONNECTION_QUEUE_LENGTH = 15;
+    }else{  
+        char *end = NULL;
+        MAX_CONNECTION_QUEUE_LENGTH = strtol(env, &end, 10);
+        if(*end)
+            MAX_CONNECTION_QUEUE_LENGTH = 15;
+        cout << " MAX_CONNECTION_QUEUE_LENGTH = " << MAX_CONNECTION_QUEUE_LENGTH << endl;
+    }
    }
 */
    MAX_CONNECTION_QUEUE_LENGTH = 15;
-	
+    
 }
 
 HTTPAcceptor::~HTTPAcceptor()
@@ -202,47 +202,47 @@ void HTTPAcceptor::handleEnqueue(Message *message)
    {
       case SOCKET_MESSAGE:
       {
-	 SocketMessage* socketMessage = (SocketMessage*)message;
- 	 
-	 // If this is a connection request:
+     SocketMessage* socketMessage = (SocketMessage*)message;
+     
+     // If this is a connection request:
 
-	 if (socketMessage->socket == _rep->socket &&
-	     socketMessage->events & SocketMessage::READ)
-	 {
-	    _acceptConnection();
-	 }
-	 else
-	 {
-	    // ATTN! this can't happen!
+     if (socketMessage->socket == _rep->socket &&
+         socketMessage->events & SocketMessage::READ)
+     {
+        _acceptConnection();
+     }
+     else
+     {
+        // ATTN! this can't happen!
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
               "HTTPAcceptor::handleEnqueue: Invalid SOCKET_MESSAGE received.");
-	 }
+     }
 
-	 break;
+     break;
       }
 
       case CLOSE_CONNECTION_MESSAGE:
       {
-	 CloseConnectionMessage* closeConnectionMessage 
-	    = (CloseConnectionMessage*)message;
+     CloseConnectionMessage* closeConnectionMessage 
+        = (CloseConnectionMessage*)message;
 
-	 AutoMutex autoMut(_rep->_connection_mut);
-	 
-	 for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-	 {
-	    HTTPConnection* connection = _rep->connections[i];	
-	    Sint32 socket = connection->getSocket();
+     AutoMutex autoMut(_rep->_connection_mut);
+     
+     for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+     {
+        HTTPConnection* connection = _rep->connections[i];  
+        Sint32 socket = connection->getSocket();
 
-	    if (socket == closeConnectionMessage->socket)
-	    {
-	       _monitor->unsolicitSocketMessages(socket);
-	       _rep->connections.remove(i);
+        if (socket == closeConnectionMessage->socket)
+        {
+           _monitor->unsolicitSocketMessages(socket);
+           _rep->connections.remove(i);
                delete connection;
-	       break;
-	    }
-	 }
-	 
-	 break;
+           break;
+        }
+     }
+     
+     break;
       }
 
       default:
@@ -274,11 +274,11 @@ void HTTPAcceptor::handleEnqueue()
 void HTTPAcceptor::bind()
 {
    if (_rep){
-   	//l10n
+    //l10n
       //throw BindFailedException("HTTPAcceptor already bound");  
 
       MessageLoaderParms parms("Common.HTTPAcceptor.ALREADY_BOUND",
-			       "HTTPAcceptor already bound");
+                   "HTTPAcceptor already bound");
 
       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
            "HTTPAcceptor::bind: HTTPAcceptor already bound.");
@@ -295,7 +295,7 @@ void HTTPAcceptor::bind()
 
 /**
    _bind - creates a new server socket and bind socket to the port address.
-   If PEGASUS_LOCAL_DOMAIN_SOCKET is defined, the port number is ignored and
+   If PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET is not defined, the port number is ignored and
    a domain socket is bound.
 */
 void HTTPAcceptor::_bind()
@@ -307,7 +307,7 @@ void HTTPAcceptor::_bind()
 
    if (_localConnection)
    {
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
        reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_family =
            AF_UNIX;
        strcpy(reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path,
@@ -348,7 +348,7 @@ void HTTPAcceptor::_bind()
       //l10n
       //throw BindFailedException("Failed to create socket");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_CREATE_SOCKET",
-			       "Failed to create socket");
+                   "Failed to create socket");
       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
            "HTTPAcceptor::_bind _rep->socket < 0");
       throw BindFailedException(parms);
@@ -384,7 +384,7 @@ void HTTPAcceptor::_bind()
    //
    int opt=1;
    if (setsockopt(_rep->socket, SOL_SOCKET, SO_REUSEADDR,
-		  (char *)&opt, sizeof(opt)) < 0)
+          (char *)&opt, sizeof(opt)) < 0)
    {
       Socket::close(_rep->socket);
       delete _rep;
@@ -392,7 +392,7 @@ void HTTPAcceptor::_bind()
       //l10n
       //throw BindFailedException("Failed to set socket option");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SET_SOCKET_OPTION",
-			       "Failed to set socket option");
+                   "Failed to set socket option");
       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                    "HTTPAcceptor::_bind: Failed to set socket option.");
       throw BindFailedException(parms);
@@ -408,7 +408,7 @@ void HTTPAcceptor::_bind()
       //l10n
       //throw BindFailedException("Failed to bind socket");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
-			       "Failed to bind socket");
+                   "Failed to bind socket");
       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor::_bind: Failed to bind socket.");
       throw BindFailedException(parms);
@@ -417,7 +417,7 @@ void HTTPAcceptor::_bind()
    //
    //  Change permissions on Linux local domain socket to allow writes by others.
    //
-#if defined(PEGASUS_LOCAL_DOMAIN_SOCKET) && defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
    if (_localConnection)
    {
      if (::chmod( PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, 
@@ -431,7 +431,7 @@ void HTTPAcceptor::_bind()
        //l10n
        //throw BindFailedException("Failed to bind socket");
        MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
- 			       "Failed to bind socket");
+                   "Failed to bind socket");
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
               "HTTPAcceptor::_bind: Failed to set domain socket permissions.");
        throw BindFailedException(parms);
@@ -451,7 +451,7 @@ void HTTPAcceptor::_bind()
       //l10n
       //throw BindFailedException("Failed to bind socket");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_BIND_SOCKET",
-			       "Failed to bind socket");
+                   "Failed to bind socket");
       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                   "HTTPAcceptor::_bind: Failed to bind socket(1).");
       throw BindFailedException(parms);
@@ -460,10 +460,10 @@ void HTTPAcceptor::_bind()
    // Register to receive SocketMessages on this socket:
 
    if ( -1 == ( _entry_index = _monitor->solicitSocketMessages(
-	  _rep->socket,
-	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  getQueueId(), 
-	  Monitor::ACCEPTOR)))
+      _rep->socket,
+      SocketMessage::READ | SocketMessage::EXCEPTION,
+      getQueueId(), 
+      Monitor::ACCEPTOR)))
    {
       Socket::close(_rep->socket);
       delete _rep;
@@ -471,7 +471,7 @@ void HTTPAcceptor::_bind()
       //l10n
       //throw BindFailedException("Failed to solicit socket messaeges");
       MessageLoaderParms parms("Common.HTTPAcceptor.FAILED_SOLICIT_SOCKET_MESSAGES",
-			       "Failed to solicit socket messaeges");
+                   "Failed to solicit socket messaeges");
       PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                   "HTTPAcceptor::_bind: Failed to solicit socket messages(2).");
       throw BindFailedException(parms);
@@ -527,7 +527,7 @@ Uint32 HTTPAcceptor::getOutstandingRequestCount()
    AutoMutex autoMut(_rep->_connection_mut);
    if (_rep->connections.size() > 0)
    {
-      HTTPConnection* connection = _rep->connections[0];	
+      HTTPConnection* connection = _rep->connections[0];    
       count = connection->getRequestCount();
    }
    
@@ -542,7 +542,7 @@ void HTTPAcceptor::unbind()
 
       if (_localConnection)
       {
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
          ::unlink(
              reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
 #else
@@ -569,7 +569,7 @@ void HTTPAcceptor::destroyConnections()
    AutoMutex autoMut(_rep->_connection_mut);
    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
    {
-      HTTPConnection* connection = _rep->connections[i];	
+      HTTPConnection* connection = _rep->connections[i];    
       Sint32 socket = connection->getSocket();
 
       // Unsolicit SocketMessages:
@@ -608,7 +608,7 @@ void HTTPAcceptor::_acceptConnection()
 
    if (_localConnection)
    {
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
        accept_address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_un);
        address_size = sizeof(struct sockaddr_un);
 #else
@@ -629,8 +629,8 @@ void HTTPAcceptor::_acceptConnection()
    {
 
        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		   "HTTPAcceptor - accept() failure.  errno: $0"
-		   ,errno);
+           "HTTPAcceptor - accept() failure.  errno: $0"
+           ,errno);
 
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: accept() failed");
@@ -658,8 +658,8 @@ void HTTPAcceptor::_acceptConnection()
 
 
    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-	       "HTTPAcceptor - accept() success.  Socket: $1"
-	       ,socket);
+           "HTTPAcceptor - accept() success.  Socket: $1"
+           ,socket);
 
    // Create a new conection and add it to the connection list:
 
@@ -696,9 +696,9 @@ void HTTPAcceptor::_acceptConnection()
    int index;
    
    if (-1 ==  (index = _monitor->solicitSocketMessages(
-	  connection->getSocket(),
-	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  connection->getQueueId(), Monitor::CONNECTION)) )
+      connection->getSocket(),
+      SocketMessage::READ | SocketMessage::EXCEPTION,
+      connection->getQueueId(), Monitor::CONNECTION)) )
    {
       // ATTN-DE-P2-2003100503::TODO::Need to enhance code to return
       // an error message to Client application.

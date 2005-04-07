@@ -58,7 +58,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
-# ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+# ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 # include <unistd.h>
 #  include <sys/un.h>
 # endif
@@ -100,12 +100,12 @@ static Boolean _MakeAddress(
 #ifdef PEGASUS_OS_OS400
     char ebcdicHost[256];
     if (strlen(hostname) < 256)
-	strcpy(ebcdicHost, hostname);
+    strcpy(ebcdicHost, hostname);
     else
-	return false;
+    return false;
     AtoE(ebcdicHost);
 #endif
-	
+    
 ////////////////////////////////////////////////////////////////////////////////
 // This code used to check if the first character of "hostname" was alphabetic
 // to indicate hostname instead of IP address. But RFC 1123, section 2.1, relaxed
@@ -143,24 +143,24 @@ static Boolean _MakeAddress(
       struct    hostent hp;
 
       entry = gethostbyname_r((char *)hostname, &hp, buf,
-	  							HOSTENT_BUFF_SIZE, &h_errorp);
+                                HOSTENT_BUFF_SIZE, &h_errorp);
 #elif defined(PEGASUS_OS_OS400)
       entry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
-	  char hostName[ MAXHOSTNAMELEN + 1 ];
-	  if (String::equalNoCase("localhost",String(hostname)))
-	  {
-		  gethostname( hostName, sizeof( hostName ) );
-		  entry = gethostbyname(hostName);
-	  } else {
-		  entry = gethostbyname((char *)hostname);
-	  }
+      char hostName[ MAXHOSTNAMELEN + 1 ];
+      if (String::equalNoCase("localhost",String(hostname)))
+      {
+          gethostname( hostName, sizeof( hostName ) );
+          entry = gethostbyname(hostName);
+      } else {
+          entry = gethostbyname((char *)hostname);
+      }
 #else
       entry = gethostbyname((char *)hostname);
 #endif
       if(!entry)
       {
-	return false;
+    return false;
       }
 
       memset(&address, 0, sizeof(address));
@@ -222,31 +222,31 @@ void HTTPConnector::handleEnqueue(Message *message)
       // asynchronous establishment of connections.
 
       case SOCKET_MESSAGE:
-	 break;
+     break;
 
       case CLOSE_CONNECTION_MESSAGE:
       {
-	 CloseConnectionMessage* closeConnectionMessage 
-	    = (CloseConnectionMessage*)message;
+     CloseConnectionMessage* closeConnectionMessage 
+        = (CloseConnectionMessage*)message;
 
-	 for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
-	 {
-	    HTTPConnection* connection = _rep->connections[i];	
-	    Sint32 socket = connection->getSocket();
+     for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+     {
+        HTTPConnection* connection = _rep->connections[i];  
+        Sint32 socket = connection->getSocket();
 
-	    if (socket == closeConnectionMessage->socket)
-	    {
-	       _monitor->unsolicitSocketMessages(socket);
-	       _rep->connections.remove(i);
-	       delete connection;
-	       break;
-	    }
-	 }
+        if (socket == closeConnectionMessage->socket)
+        {
+           _monitor->unsolicitSocketMessages(socket);
+           _rep->connections.remove(i);
+           delete connection;
+           break;
+        }
+     }
       }
 
       default:
-	 // ATTN: need unexpected message error!
-	 break;
+     // ATTN: need unexpected message error!
+     break;
    };
 
    delete message;
@@ -272,7 +272,7 @@ HTTPConnection* HTTPConnector::connect(
 {
    Sint32 socket;
 
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
    if (host == String::EMPTY)
    {
       // Set up the domain socket for a local connection
@@ -294,11 +294,11 @@ HTTPConnection* HTTPConnector::connect(
                     reinterpret_cast<sockaddr*>(&address),
                     sizeof(address)) < 0)
       {
-	 
-      	//l10n
+     
+        //l10n
          //throw CannotConnectException("Cannot connect to local CIM server. Connection failed.");
          MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_LOCAL_CIM_SERVER",
-         						  "Cannot connect to local CIM server. Connection failed.");
+                                  "Cannot connect to local CIM server. Connection failed.");
          Socket::close(socket);
          throw CannotConnectException(parms);
       }
@@ -337,14 +337,14 @@ HTTPConnection* HTTPConnector::connect(
       //l10n
       //throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
       MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_TO",
-         					   "Cannot connect to $0:$1. Connection failed.",
-         					   host,
-         					   portStr);
+                               "Cannot connect to $0:$1. Connection failed.",
+                               host,
+                               portStr);
       Socket::close(socket);
       throw CannotConnectException(parms);
    }
 
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
    }
 #endif
 
@@ -357,9 +357,9 @@ HTTPConnection* HTTPConnector::connect(
       //l10n
       //throw CannotConnectException("Cannot connect to " + host + ":" + portStr +". Connection failed.");
       MessageLoaderParms parms("Common.HTTPConnector.CONNECTION_FAILED_TO",
-         					   "Cannot connect to $0:$1. Connection failed.",
-         					   host,
-         					   portStr);
+                               "Cannot connect to $0:$1. Connection failed.",
+                               host,
+                               portStr);
       mp_socket->close();
       throw CannotConnectException(parms);
    }
@@ -370,9 +370,9 @@ HTTPConnection* HTTPConnector::connect(
    // Solicit events on this new connection's socket:
 
    if (-1 == (_entry_index = _monitor->solicitSocketMessages(
-	  connection->getSocket(),
-	  SocketMessage::READ | SocketMessage::EXCEPTION,
-	  connection->getQueueId(), Monitor::CONNECTOR)))
+      connection->getSocket(),
+      SocketMessage::READ | SocketMessage::EXCEPTION,
+      connection->getQueueId(), Monitor::CONNECTOR)))
    {
       (connection->getMPSocket()).close();
    }
@@ -406,9 +406,9 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
     {
         if (currentConnection == _rep->connections[i])
         {
-	   Sint32 socket = _rep->connections[i]->getSocket();
-	   _monitor->unsolicitSocketMessages(socket);
-	   _rep->connections.remove(i);
+       Sint32 socket = _rep->connections[i]->getSocket();
+       _monitor->unsolicitSocketMessages(socket);
+       _rep->connections.remove(i);
 
             Socket::close(socket);
             return;

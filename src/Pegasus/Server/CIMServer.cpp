@@ -793,7 +793,7 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
                 }
             }
 
-#ifndef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
             //
             // ATTN: 'required' setting must have http port enabled.
             // If only https is enabled, and a call to shutdown the

@@ -324,7 +324,7 @@ void CIMClientRep::connectLocal()
     _authenticator.clear();
     _authenticator.setAuthType(ClientAuthenticator::LOCAL);
 
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     _connectSSLContext.reset();
     _connectHost = String::EMPTY;
     _connectPortNumber = 0;
@@ -1351,7 +1351,7 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(const CIMObjectPath& obj
                                                  ObjHost);
         throw TypeMismatchException(typeMismatchMessage);
     }
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     // a local domain socket connection is represented as empty _connectHost
     if (_connectHost == String::EMPTY)
     {

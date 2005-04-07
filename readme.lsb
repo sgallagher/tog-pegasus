@@ -65,7 +65,7 @@ Build
 
   You need to set twelve environment variables: CC, CXX, LSBCC_SHAREDLIBS,
   PEGASUS_PAM_AUTHENTICATION, PEGASUS_USE_PAM_STANDALONE_PROC,
-  PEGASUS_HAS_SSL, PEGASUS_LOCAL_DOMAIN_SOCKET,  PEGASUS_USE_RELEASE_DIRS,
+  PEGASUS_HAS_SSL, PEGASUS_USE_RELEASE_DIRS,
   PEGASUS_LSB, PEGASUS_HOME, PEGASUS_ROOT, and PEGASUS_PLATFORM.
 
   The first two define that a LSB compiler should be used:
@@ -86,10 +86,6 @@ Build
   ,to support SSL:
 
     export PEGASUS_HAS_SSL=1
-
-  , and connection to local domain sockets:
-
-    export PEGASUS_LOCAL_DOMAIN_SOCKET=1
 
   And very importantly the LSB flag which determines that 
   OpenPegasus is compiled against an LSB compliant system:
@@ -117,9 +113,9 @@ Build
   the example, we picked the path /home/konrad/MAIN/pkgroot. 
 
   $make PREFIX=/home/konrad/MAIN/pkgroot/lsb-pegasus/opt/lsb-pegasus \
-	SYSCONF_PREFIX=/home/konrad/MAIN/pkgroot/lsb-pegasus/etc/ \
-	LOCAL_STATE_PREFIX=/home/konrad/MAIN/pkgroot/lsb-pegasus/var/opt/lsb-pegasus/ \
-	DEST_ETC_DIR=/home/konrad/MAIN/pkgroot/lsb-pegasus/etc/opt/lsb-pegasus install
+        SYSCONF_PREFIX=/home/konrad/MAIN/pkgroot/lsb-pegasus/etc/ \
+        LOCAL_STATE_PREFIX=/home/konrad/MAIN/pkgroot/lsb-pegasus/var/opt/lsb-pegasus/ \
+        DEST_ETC_DIR=/home/konrad/MAIN/pkgroot/lsb-pegasus/etc/opt/lsb-pegasus install
   
   To build the RPM, you have to change in the rpm/lsb-pegasus.spec  
   the BuildRoot path to be what you choose previously.

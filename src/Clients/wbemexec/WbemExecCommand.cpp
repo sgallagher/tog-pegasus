@@ -34,7 +34,7 @@
 //         Warren Otsuka (warren_otsuka@hp.com)
 //         Sushma Fernandes, Hewlett-Packard Company
 //         (sushma_fernandes@hp.com)
-//	       David Eger (dteger@us.ibm.com)
+//         David Eger (dteger@us.ibm.com)
 //         Amit K Arora (amita@in.ibm.com) for PEP-101
 //         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
@@ -158,7 +158,7 @@ static const char   LONG_HELP []  = "help";
 
 static const char   LONG_VERSION []  = "version";
 
-static const char MSG_PATH [] 				= "pegasus/pegasusCLI";
+static const char MSG_PATH []               = "pegasus/pegasusCLI";
 static const char REQUIRED_ARGS_MISSING []        =
                         "Required arguments missing.";
 
@@ -294,7 +294,7 @@ WbemExecCommand::WbemExecCommand ()
   
  */
  void WbemExecCommand::_connectToServer( WbemExecClient& client,
-				         ostream& outPrintWriter ) 
+                         ostream& outPrintWriter ) 
     throw (Exception)
 {
     String                 host                  = String ();
@@ -308,52 +308,52 @@ WbemExecCommand::WbemExecCommand ()
       {
         connectToLocal = true;
       }
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     if ((_hostNameSet) || (_portNumberSet))
     {
 #endif
       host = _hostName;
       portNumber = _portNumber;
-#ifdef PEGASUS_LOCAL_DOMAIN_SOCKET
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
     }
 #endif
 
     if( _useSSL )
       {
-	if( connectToLocal )
-	{
-	    client.connectLocal();
-	}
-	else
-	{
-	    //
-	    // Get environment variables:
-	    //
-	    const char* pegasusHome = getenv("PEGASUS_HOME");
-	
-	    String certpath = FileSystem::getAbsolutePath(
+    if( connectToLocal )
+    {
+        client.connectLocal();
+    }
+    else
+    {
+        //
+        // Get environment variables:
+        //
+        const char* pegasusHome = getenv("PEGASUS_HOME");
+    
+        String certpath = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-	
-	    String randFile = String::EMPTY;
+    
+        String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
-	    randFile = FileSystem::getAbsolutePath(
+        randFile = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
         AutoPtr<SSLContext> sslcontext(new SSLContext(certpath, verifyCertificate, randFile));
-	    client.connect(host, portNumber, sslcontext,  _userName, _password );
-	}
+        client.connect(host, portNumber, sslcontext,  _userName, _password );
+    }
       }
     else
       { 
-	if( connectToLocal )
-	  {
-	    client.connectLocal();
-	  }
-	else
-	  {
-	    client.connect(host, portNumber, _userName, _password );
-	  }
+    if( connectToLocal )
+      {
+        client.connectLocal();
+      }
+    else
+      {
+        client.connect(host, portNumber, _userName, _password );
+      }
       }
 }
 
@@ -411,7 +411,7 @@ void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
     httpMessage->parse( startLine, headers, contentLength );
     if( contentLength > 0 )
       {
-	contentOffset = responseMessage.size() - contentLength;
+    contentOffset = responseMessage.size() - contentLength;
       }
     else
       {
@@ -427,18 +427,18 @@ void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
     if (!parsableMessage || (statusCode != HTTP_STATUSCODE_OK))
       {
 
-	// Received an HTTP error response
-	// Output the HTTP error message and exit
-	for (Uint32 i = 0; i < contentOffset; i++)
-	  {
-		oStream << responseMessage[i];
-	  }
-	oStream.flush();
-	if( contentLength > 0 )
-	  {
-	    _printContent( oStream, responseMessage, contentOffset );
-	  }
-	exit( 1 );
+    // Received an HTTP error response
+    // Output the HTTP error message and exit
+    for (Uint32 i = 0; i < contentOffset; i++)
+      {
+        oStream << responseMessage[i];
+      }
+    oStream.flush();
+    if( contentLength > 0 )
+      {
+        _printContent( oStream, responseMessage, contentOffset );
+      }
+    exit( 1 );
       }
     
     //
@@ -509,12 +509,12 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         if( _useSSL )
         {
             _portNumber = System::lookupPort( WBEM_HTTPS_SERVICE_NAME,
-    				          WBEM_DEFAULT_HTTPS_PORT );
+                              WBEM_DEFAULT_HTTPS_PORT );
         }
         else
         {
             _portNumber = System::lookupPort( WBEM_HTTP_SERVICE_NAME,
-    				          WBEM_DEFAULT_HTTP_PORT );
+                              WBEM_DEFAULT_HTTP_PORT );
         }
         char buffer[32];
         sprintf( buffer, "%lu", (unsigned long) _portNumber );
@@ -833,7 +833,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                             _OPTION_PORTNUMBER);
                         throw e;
                     }
-		    _portNumberSet = true;
+            _portNumberSet = true;
                     break;
                 }
     
@@ -853,7 +853,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     
                 case _OPTION_SSL: 
                 {
-		    _useSSL = true;
+            _useSSL = true;
                     break;
                 }
       
@@ -984,8 +984,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified 
         // Show the usage 
         //
-		  //l10n
-		  //CommandFormatException e (REQUIRED_ARGS_MISSING);
+          //l10n
+          //CommandFormatException e (REQUIRED_ARGS_MISSING);
         CommandFormatException e (localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
         throw e;
     }
@@ -1138,27 +1138,27 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
     catch (WbemExecException& e)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-	   e.getMessage () << endl;
+       e.getMessage () << endl;
         return (RC_ERROR);
     }
     catch (Exception& e)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-	   e.getMessage() << endl;
+       e.getMessage() << endl;
         return (RC_ERROR);
     }
 #if !defined(PEGASUS_OS_LSB)
     catch (exception& e)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-	   e.what() << endl;
+       e.what() << endl;
         return (RC_ERROR);
     }
 #endif
     catch (...)
     {
         errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-	  "Unknown error thrown" << endl;
+      "Unknown error thrown" << endl;
         return (RC_ERROR);
     }
     return (RC_SUCCESS);

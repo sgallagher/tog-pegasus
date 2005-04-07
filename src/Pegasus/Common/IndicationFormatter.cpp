@@ -525,7 +525,7 @@ void IndicationFormatter::_isValidIndex (
     }
 
     Uint32 i=0;
-    while (indexSubStr[i].isDigit())
+    while (isdigit(indexSubStr[i]))
     {
         i++;
     }

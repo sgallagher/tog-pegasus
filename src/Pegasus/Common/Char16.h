@@ -69,36 +69,7 @@ public:
     /// Implicit converter from Char16 to Uint16
     operator Uint16() const;
 
-    // Returns if the character is an ASCII character.
-    Boolean isAscii() const throw();
-
-    // Returns if the character is a digit (0-9).
-    Boolean isDigit() const throw();
-
-    // Returns if the character is a hex digit (0-0a-fA-F)
-    Boolean isXDigit() const throw();
-
-    // Returns if the character is an alphabetic character (a-zA-Z)
-    Boolean isAlpha() const throw();
-
-    // Returns if the character is an upper case alphabetic character (A-Z)
-    Boolean isUpper() const throw();
-
-    // Returns if the character is a lower case alphabetic character (A-Z)
-    Boolean isLower() const throw();
-
-    // Returns if the character is an alphanumeric character (a-zA-Z0-9)
-    Boolean isAlnum() const throw();
-
-    // Returns if the character is a whitespace character (' '\b\t\f)
-    Boolean isSpace() const throw();
-
 private:
-    inline Boolean _isAscii() const throw()
-    {
-        return(_code < 0x80);
-    }
-
     Uint16 _code;
 };
 

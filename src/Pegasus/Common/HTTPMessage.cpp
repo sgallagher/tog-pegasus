@@ -286,7 +286,7 @@ void HTTPMessage::lookupHeaderPrefix(
 	{
 		const String &h = headers[i].first;
 
-		if (h.size() >= 3 && h[0].isDigit() && h[1].isDigit() &&
+		if (h.size() >= 3 && isdigit(h[0]) && isdigit(h[1]) &&
 				h[2] == Char16('-'))
 		{
 			String fieldNameCurrent = h.subString(3);
@@ -318,8 +318,8 @@ Boolean HTTPMessage::lookupHeader(
     {
         if (String::equalNoCase(headers[i].first, fieldName) ||
             (allowNamespacePrefix && (headers[i].first.size() >= 3) &&
-             headers[i].first[0].isDigit() &&
-             headers[i].first[1].isDigit() &&
+             isdigit(headers[i].first[0]) &&
+             isdigit(headers[i].first[1]) &&
              (headers[i].first[2] == Char16('-')) &&
              String::equalNoCase(headers[i].first.subString(3), fieldName)))
 	{

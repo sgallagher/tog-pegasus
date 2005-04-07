@@ -280,7 +280,7 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
 
     String uOff_num = uOffSet.subString(1,3);
     for (int i=0; i < 3; i++) {
-        if (!uOff_num[i].isDigit()) {
+        if (!isdigit(uOff_num[i])) {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                  "Format is wrong - UTC off set contains non digit charichter.");
             return false;
@@ -712,7 +712,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
      // Check to see if other characters are digits or astrisks (*)
 
     for (Uint32 i = 0; i < CIMDateTimeRep::FORMAT_LENGTH; i++){
-	    if (i != DOT_OFFSET && i != SIGN_OFFSET && !dateTimeStr[i].isDigit() && (String::compare(dateTimeStr.subString(i,1),"*") != 0)){
+	    if (i != DOT_OFFSET && i != SIGN_OFFSET && !isdigit(dateTimeStr[i]) && (String::compare(dateTimeStr.subString(i,1),"*") != 0)){
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                     "CIMdateTime object has an incorrect format.");
             return false;

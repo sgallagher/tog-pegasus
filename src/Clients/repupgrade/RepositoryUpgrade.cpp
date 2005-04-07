@@ -1344,7 +1344,7 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
     if (version.size())
     {
         // If "V" specified as first character go ahead and ignore
-        if (version[0].isDigit())
+        if (isdigit(version[0]))
         {
             pos = 0;
             iMajor = version.find(0, CHAR_PERIOD);
@@ -1406,7 +1406,7 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
         }
         for (int i = pos; i < endM; i++)
         {
-             if (!version[i].isDigit())
+             if (!isdigit(version[i]))
              {
                  // Example of invalid version:  "1B.2D.3F"
                  return false;
@@ -1430,7 +1430,7 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
             }
             for (int i = iMajor+1; i < endN; i++)
             {
-                 if (!version[i].isDigit())
+                 if (!isdigit(version[i]))
                  {
                      // Example of invalid version:  "99.CD", "11.2D.3F"
                      return false;
@@ -1443,7 +1443,7 @@ Boolean RepositoryUpgrade::_parseVersion(const String& version,
         {
             for (int i = iMinor+1; i < (int)version.size(); i++)
             {
-                 if (!version[i].isDigit())
+                 if (!isdigit(version[i]))
                  {
                       // Example of invalid version: "99.88.EF", "11.22.3F"
                       return false;

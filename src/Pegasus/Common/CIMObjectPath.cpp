@@ -467,7 +467,7 @@ public:
 
         Boolean isValid = false;
 
-        if (hostname[0].isDigit())
+        if (isdigit(hostname[0]))
         {
             //--------------------------------------------------------------
             // Attempt to validate an IP address, but keep in mind that it
@@ -484,13 +484,13 @@ public:
                 // If a non-digit is encountered in the input parameter,
                 // then break from here and attempt to validate as host name.
                 //----------------------------------------------------------
-                if (!hostname[i].isDigit())
+                if (!isdigit(hostname[i]))
                 {
                     isValid = false;
                     break;
                 }
 
-                while (hostname[i].isDigit())  // skip over digits
+                while (isdigit(hostname[i]))  // skip over digits
                 {
                     octetValue = octetValue*10 + (hostname[i] - '0');
                     i++;
@@ -533,16 +533,16 @@ public:
                 expectHostSegment = false;
                 hostSegmentIsNumeric = true; // assume all-numeric host segment
 
-                if (!hostname[i].isAlnum())
+                if (!isalnum(hostname[i]))
                 {
                     return false;
                 }
 
-                while (hostname[i].isAlnum() || (hostname[i] == '-'))
+                while (isalnum(hostname[i]) || (hostname[i] == '-'))
                 {
                     // If a non-digit is encountered, set "all-numeric"
                     // flag to false
-                    if (hostname[i].isAlpha() || (hostname[i] == '-')) {
+                    if (isalpha(hostname[i]) || (hostname[i] == '-')) {
                         hostSegmentIsNumeric = false;
                     }
                     i++;
@@ -570,12 +570,12 @@ public:
 
         if (hostname[i] == ':')
         {
-            if (!hostname[++i].isDigit())
+            if (!isdigit(hostname[++i]))
             {
                 return false;
             }
 
-            while (hostname[++i].isDigit());
+            while (isdigit(hostname[++i]));
         }
 
         return (hostname[i] == char(0));

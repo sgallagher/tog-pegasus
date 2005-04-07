@@ -47,9 +47,9 @@ inline Uint8 _hexCharToNumeric(Char16 c)
 {
     Uint8 n;
 
-    if (c.isDigit())
+    if (isdigit(c))
         n = (c - '0');
-    else if (c.isUpper())
+    else if (isupper(c))
         n = (c - 'A' + 10);
     else // if (islower(c))
         n = (c - 'a' + 10);

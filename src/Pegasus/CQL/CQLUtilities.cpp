@@ -64,9 +64,9 @@ inline Uint8 _CQLUtilities_hexCharToNumeric(Char16 c)
 {
     Uint8 n;
 
-    if (c.isDigit())
+    if (isdigit(c))
         n = (c - '0');
-    else if (c.isUpper())
+    else if (isupper(c))
         n = (c - 'A' + 10);
     else // if (islower(c))
         n = (c - 'a' + 10);
@@ -119,7 +119,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   if (*p == '+')
     p++;  // skip over the positive sign
 
-  if (!p->isDigit())
+  if (!isdigit(*p))
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
                               String("Error converting string to $0.  String '$1' is badly formed."),
@@ -147,7 +147,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     }
 
     // Add on each digit, checking for overflow errors
-    while (p->isXDigit())
+    while (isxdigit(*p))
     {
       // Make sure we won't overflow when we multiply by 16
       if (x > PEGASUS_UINT64_MAX/16)
@@ -329,7 +329,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   if (*p == '+')
     p++;
 
-  if (!p->isDigit())
+  if (!isdigit(*p))
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
                               String("Error converting string to $0.  String '$1' is badly formed."),
@@ -362,7 +362,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     }
 
     // Add on each digit, checking for overflow errors
-    while (p->isXDigit())
+    while (isxdigit(*p))
     {
       // Make sure we won't overflow when we multiply by 16
       if (x < PEGASUS_SINT64_MIN/16)

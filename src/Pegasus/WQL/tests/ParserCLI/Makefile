@@ -49,3 +49,6 @@ test6:
 
 test7:
 	@ $(PROGRAM) "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"
+
+poststarttests:
+

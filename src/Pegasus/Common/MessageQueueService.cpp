@@ -31,6 +31,7 @@
 //
 // Modified By:
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090,#2657
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3259
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -157,6 +158,7 @@ MessageQueueService::MessageQueueService(const char *name,
    
    if( _meta_dispatcher == 0 )
    {
+      _stop_polling = 0;
       PEGASUS_ASSERT( _service_count.value() == 0 );
       _meta_dispatcher = new cimom();
       if (_meta_dispatcher == NULL )

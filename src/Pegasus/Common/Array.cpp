@@ -42,10 +42,6 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-#define PEGASUS_ARRAY_T char
-#include <Pegasus/Common/ArrayImpl.h>
-#undef PEGASUS_ARRAY_T
-
 #define PEGASUS_ARRAY_T Uint8
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T

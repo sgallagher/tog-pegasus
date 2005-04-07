@@ -31,27 +31,27 @@
 # 09-25-2003 by Martin Knipper <knipper@de.ibm.com>
 # - added "export SYS_INCLUDES=-I/usr/kerberos/include" for correct RedHat9 compile
 # - removed the install -o 0 -g 0 flags from the specfile 
-#	-> this way a non root user can build the RPM's since a normal user (UID>0) can not
-#		change a files owner or group
+#       -> this way a non root user can build the RPM's since a normal user (UID>0) can not
+#               change a files owner or group
 # - changed the files %attr section with correct filepermissons that were taken from the
-#	install flags 
+#       install flags 
 # - RedHat 7.x has some trouble starting pegasus in the %post-step
-#	- added a workaround recieved by Konrad Rzeszutek <konradr@us.ibm.com>
+#       - added a workaround recieved by Konrad Rzeszutek <konradr@us.ibm.com>
 # - added a rm -Rf $PEGASUS_HOME at the end of the install section
-#	-> otherwise the rpm build process will break on RedHat 9
+#       -> otherwise the rpm build process will break on RedHat 9
 #
 # -------------------------------------------------------------------------------
 # Changes:
 # 09-26-2003 by Martin Knipper <knipper@de.ibm.com>
-# 	The file attributs have to be passed to the "install" command and not the
-#	attr section. For some reason this fails for SuSE-Build
+#       The file attributs have to be passed to the "install" command and not the
+#       attr section. For some reason this fails for SuSE-Build
 # -------------------------------------------------------------------------------
 # Changes:
 # 10-28-2003 by Martin Knipper <knipper@de.ibm.com>
-# 	Did some improvements to the preun und postun-install sections (removed the
-#	SuSE and Redhat specfic parts.
-#	Furthermore checked if the cimserver is running before trying to kill it.
-#	Otherwise this will give some unwanted error messages to the screen
+#       Did some improvements to the preun und postun-install sections (removed the
+#       SuSE and Redhat specfic parts.
+#       Furthermore checked if the cimserver is running before trying to kill it.
+#       Otherwise this will give some unwanted error messages to the screen
 #
 #%/////////////////////////////////////////////////////////////////////////////
 #
@@ -122,7 +122,6 @@ export SYS_INCLUDES=-I/usr/kerberos/include
 # per PEP #144
 export PEGASUS_PAM_AUTHENTICATION=true
 export PEGASUS_USE_PAM_STANDALONE_PROC=true
-export PEGASUS_LOCAL_DOMAIN_SOCKET=true
 export PEGASUS_USE_SYSLOGS=true
 export ENABLE_PROVIDER_MANAGER2=true
 export ENABLE_CMPI_PROVIDER_MANAGER=true
@@ -429,12 +428,12 @@ isUnited=`grep "UnitedLinux" /etc/issue`
 isSUSE=`grep "SUSE" /etc/issue`
 
 if [ "$isUnited" ] || [ "$isSUSE" ]; then
-	chkconfig --add pegasus-wbem
+        chkconfig --add pegasus-wbem
 else
 # RH dependency
-	/sbin/chkconfig --add pegasus-wbem
-	# Pegasus should be startet during runlevel 3 and 5
-	/sbin/chkconfig --level 35 pegasus-wbem on
+        /sbin/chkconfig --add pegasus-wbem
+        # Pegasus should be startet during runlevel 3 and 5
+        /sbin/chkconfig --level 35 pegasus-wbem on
 fi
 
 grep "^/usr/lib/pegasus$" /etc/ld.so.conf > /dev/null 2> /dev/null
@@ -551,7 +550,7 @@ echo " /etc/init.d/pegasus-wbem stop"
 # Check if the cimserver is running
 isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
 if [ "$isRunning" ]; then
-	/usr/sbin/cimserver -s	
+        /usr/sbin/cimserver -s  
 fi
 
 # Delete the Link to the rc.* Startup Directories
@@ -559,21 +558,21 @@ chkconfig --del pegasus-wbem
 
 %postun
 if [ $1 = 0 ]; then
-	grep -v "/usr/lib/pegasus" /etc/ld.so.conf > /etc/ld.so.conf.new
-	mv -f /etc/ld.so.conf.new /etc/ld.so.conf
-	/sbin/ldconfig
-	rm -rf /etc/pegasus
-	rm -rf /var/lib/pegasus
-	export LC_ALL=C
-	for file in `find /usr/lib/pegasus`;
-	do
-		ANS=`file $file | grep "broken symbolic link"`
-		if [ "$ANS" != "" ]; then
-			# Found it
-			rm -f $file
-		fi
-	done
-#	rm /usr/lib/pegasus/ssl.rnd
+        grep -v "/usr/lib/pegasus" /etc/ld.so.conf > /etc/ld.so.conf.new
+        mv -f /etc/ld.so.conf.new /etc/ld.so.conf
+        /sbin/ldconfig
+        rm -rf /etc/pegasus
+        rm -rf /var/lib/pegasus
+        export LC_ALL=C
+        for file in `find /usr/lib/pegasus`;
+        do
+                ANS=`file $file | grep "broken symbolic link"`
+                if [ "$ANS" != "" ]; then
+                        # Found it
+                        rm -f $file
+                fi
+        done
+#       rm /usr/lib/pegasus/ssl.rnd
 #        rm -f /etc/pam.d/wbem
 fi
 

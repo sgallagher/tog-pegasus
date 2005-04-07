@@ -43,11 +43,11 @@ repository:
 	@ $(ECHO) +++++ Registering IndicationStressTest Provider  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" IndicationStressTestProviderR.mof
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-	@ $(ECHO) +++++ Loading TestCMPI_Indication class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" TestCMPI_Indication.mof
+	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
 
-	@ $(ECHO) +++++ Registering TestCMPI_Indication ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" TestCMPI_IndicationR.mof
+	@ $(ECHO) +++++ Registering TestCMPI_ProviderRegistration ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" TestCMPI_ProviderRegistration.mof
 
 endif
 
@@ -83,10 +83,10 @@ repositoryServer:
 	@ $(ECHO) +++++ Registering IndicationStressTest Provider  ...
 	@ cimmof "-n$(INTEROPNS)" IndicationStressTestProviderR.mof
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-	@ $(ECHO) +++++ Loading TestCMPI_Indication class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_Indication.mof
-	@ $(ECHO) +++++ Registering TestCMPI_Indication ...
-	@ cimmof   "-n$(INTEROPNS)" TestCMPI_IndicationR.mof
+	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
+	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
+	@ $(ECHO) +++++ Registering TestCMPI_ProviderRegistration ...
+	@ cimmof   "-n$(INTEROPNS)" TestCMPI_ProviderRegistration.mof
 endif
 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
@@ -119,6 +119,7 @@ unregisterproviders:
 	cimprovider -r -m IndicationStressTestProviderModule
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m TestCMPIIndicationProviderModule
+	cimprovider -r -m TestCMPIInstanceProviderModule
 endif 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR

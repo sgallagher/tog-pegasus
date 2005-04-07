@@ -1,5 +1,4 @@
 // ===================================================================
-// 	IBMKR_File
 // ===================================================================
 
 instance of PG_ProviderModule
@@ -30,6 +29,42 @@ instance of PG_ProviderCapabilities
    ClassName = "TestCMPI_Indication";
    Namespaces = { "test/TestProvider" };
    ProviderType = { 4 }; // Indication
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+
+
+// ===================================================================
+// ===================================================================
+
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Instance provider";
+   Name = "TestCMPIInstanceProviderModule";
+  // The library name on disk
+   Location = "cmpiTestInstanceProvider"; 
+   Vendor = "SBLIM";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIInstanceProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIInstanceProvider";	
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIInstanceProviderModule";
+   ProviderName = "TestCMPIInstanceProvider";
+   CapabilityID = "CMPI Test Instance Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_Instance";
+   Namespaces = { "test/TestProvider" };
+   ProviderType = { 2, 7 }; // Instance
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };

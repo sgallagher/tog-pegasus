@@ -1,0 +1,32 @@
+[Indication]
+class TestCMPI_Indication 
+{
+	string PropertyA;
+    string PropertyB;
+
+	string s; 
+    uint64 n;
+    real64 f;
+    datetime d;
+
+
+};
+
+class TestCMPI_Parent
+{
+};
+
+class TestCMPI_Instance : TestCMPI_Parent
+{
+	[key]
+	string ElementName;
+
+	string s; 
+    uint64 n64;
+    uint32 n32;
+	uint16 n16;
+    real64 f;
+    datetime d;
+
+
+};

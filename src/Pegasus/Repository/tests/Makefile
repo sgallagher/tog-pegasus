@@ -2,6 +2,13 @@ ROOT = ../../../..
 
 include $(ROOT)/mak/config.mak
 
+
+#
+# The Inst test was removed because a fix that enabled it to link
+# on Windows and Solaris was removed per instructions from the
+# Steering Committee.
+#
+
 #
 # The LoadRepository test is purposely not included in the list below
 # because all of the necessary files were never checked in.  If and
@@ -10,7 +17,6 @@ include $(ROOT)/mak/config.mak
 #
 
 DIRS = \
-    Inst \
     Repository \
     Repository2 \
     NameSpace \

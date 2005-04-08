@@ -184,10 +184,10 @@ ifeq ($(OS),zos)
 endif
 
 ifeq ($(OS),VMS)
-    STRIPCRS =
+    STRIPCRS =$(MUEXE) echo "STRIPCRS not defined in commands.mak"
     DIFF = mu compare
     SORT = mu sort
-    REDIRECTERROR =
+    REDIRECTERROR = $(MUEXE) echo "REDIRECTERROR not defined in commands.mak"
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
     SLEEP = wait
@@ -195,11 +195,11 @@ ifeq ($(OS),VMS)
     MUEXE = mu
     MKDIRHIER = $(MUEXE) mkdirhier
     RMDIRHIER = $(MUEXE) rmdirhier
-    ECHO =
-    ECHO-E =
-    CHMOD =
-    CHOWN =
-    CHGRP =
+    ECHO = $(MUEXE) echo 
+    ECHO-E = $(MUEXE) echo "ECHO-E not defined in commands.mak"
+    CHMOD = $(MUEXE) echo "CHMOD not defined in commands.mak"
+    CHOWN = $(MUEXE) echo "CHOWN not defined in commands.mak"
+    CHGRP = $(MUEXE) echo  "CHGRP not defined in commands.mak"
 endif
 
 ifeq ($(OS),aix)

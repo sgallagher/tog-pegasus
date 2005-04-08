@@ -142,7 +142,7 @@ class PG_Provider : CIM_LogicalElement {
 // PG_CapabilitiesRegistration
 // ==================================================================
         [Abstract,
-	 Version ("2.3.0"), Description ("PG_CapabilitiesRegistration is an "
+	 Version ("2.5.0"), Description ("PG_CapabilitiesRegistration is an "
 	 "abstract superclass which contains required properties for both "
 	 "provider and consumer.")]
 class PG_CapabilitiesRegistration : CIM_ManagedElement {

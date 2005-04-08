@@ -32,7 +32,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.6 2005/02/26 05:50:01 david.dillard Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.7 2005/04/08 20:26:03 konrad.r Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -216,7 +216,6 @@ void WindowsStartNetwork(void);
 #define LSLP_MTU 4096
 
 #define LSLP_FD_SET fd_set
-#define strcasecmp _stricmp
 
 
 /* ascii and char tests and conversions */

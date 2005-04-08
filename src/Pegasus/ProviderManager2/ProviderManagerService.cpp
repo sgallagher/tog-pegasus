@@ -295,10 +295,16 @@ ProviderManagerService::handleCimOperation(void * arg)
             service->handleCimRequest(op, legacy);
         }
     }
-    catch(...)
-    {
-        // ATTN: log error
-    }
+    catch (const Exception& e)
+      {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+			 "Unexpected exception in handleCimOperation: " + e.getMessage());
+      }
+    catch (...)
+      {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+			 "Unexpected exception in handleCimOperation.");
+      }
 
     PEG_METHOD_EXIT();
 

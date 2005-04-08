@@ -61,5 +61,5 @@ LIB_SUFFIX =.olb
 # The Provider User Context feature (PEP 197) is not yet supported on OpenVMS
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
-# Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2148
-DEFINES += -DPEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147
+PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1

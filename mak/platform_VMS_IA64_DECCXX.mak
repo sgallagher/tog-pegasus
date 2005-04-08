@@ -41,8 +41,8 @@ PEGASUS_ARCHITECTURE_64BIT = yes
 PEGASUS_DISABLE_PERFINST = yes
 #PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = yes
 
-# Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2148
-DEFINES += -DPEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147
+PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 
 CXX = cxx
 

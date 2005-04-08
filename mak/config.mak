@@ -69,8 +69,8 @@ REPOSITORY_NAME = repository
 REPOSITORY_ROOT = $(REPOSITORY_DIR)/$(REPOSITORY_NAME)
 
 # define the repository mode 
-#	XML = XML format
-#	BIN = Binary format
+#       XML = XML format
+#       BIN = Binary format
 #
 REPOSITORY_MODE = XML
 
@@ -145,9 +145,9 @@ LEX = flex
 ## Here is an example using the DIFFSORT function:
 ## 
 ## difftest: FORCE
-##	@ test > result
+##      @ test > result
 ##      @ $(call DIFFSORT,result,standard_result)
-##	@ $(ECHO) +++++ all test passed
+##      @ $(ECHO) +++++ all test passed
 ##
 
 define NL
@@ -259,6 +259,12 @@ else
     ifdef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
         DEFINES += -DPEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
     endif
+endif
+
+# Bug 2147
+# Allow local domain socket usage to be disabled.
+ifdef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+    DEFINES += -DPEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
 endif
 
 # PEP 211

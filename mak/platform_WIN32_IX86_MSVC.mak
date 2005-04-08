@@ -126,8 +126,8 @@ PEGASUS_DEST_LIB_DIR = bin
 # The Provider User Context feature (PEP 197) is not supported on Windows
 PEGASUS_DISABLE_PROV_USERCTXT=1
 
-# Windows does not support local domain sockets or the equivalent Bug 2148
-DEFINES += -DPEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+# Windows does not support local domain sockets or the equivalent Bug 2147
+PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
 
 # l10n
 ifdef PEGASUS_HAS_MESSAGES

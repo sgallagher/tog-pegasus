@@ -39,6 +39,7 @@
 #include "CommonUTF.h"
 #include <cstdio>
 #include <cstring>
+#include <cctype>
 
 PEGASUS_NAMESPACE_BEGIN
 

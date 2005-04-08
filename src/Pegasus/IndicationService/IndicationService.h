@@ -730,13 +730,11 @@ private:
         to each provider in the list.  The requests are sent using SendAsync,
         and the responses are aggregated in the callback methods.  Create 
         Subscription requests are sent to the indication providers using 
-        SendAsync in the following cases: (1) on initialization, for each 
-        enabled subscription retrieved from the repository, (2) on creation of 
-        an enabled subscription instance, and (3) on modification of a 
-        subscription instance, when the state changes to enabled.  In cases (2)
-        and (3), there is an original Create Instance or Modify Instance 
-        request to which the Indication Service must respond.  In case (1), 
-        there is no original request and no response is required.
+        SendAsync in the following cases: (1) on creation of an enabled 
+        subscription instance, and (2) on modification of a subscription 
+        instance, when the state changes to enabled.  In cases (1) and (2), 
+        there is an original Create Instance or Modify Instance request to 
+        which the Indication Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
@@ -754,7 +752,7 @@ private:
         @param   acceptLangs           the language of the response, and
                                            future indications
         @param   contentLangs          the language of the subscription
-        @param   origRequest           the original request, if any (Create
+        @param   origRequest           the original request (Create
                                            Instance, Modify Instance)
         @param   indicationSubclasses  the indication subclasses for the 
                                            subscription
@@ -783,11 +781,13 @@ private:
         so no callback methods are required.  Create Subscription requests are
         sent to the indication providers using SendWait in the following cases:
         (1) on notification of a provider registration change newly enabling 
-        the provider to serve the subscription, and (2) on notification that a 
-        provider has been enabled and may now serve the subscription.  In both
-        cases (1) and (2), there is an original Notify Provider Registration or
-        Notify Provider Enable request to which the Indication Service must
-        respond.  
+        the provider to serve the subscription, (2) on notification that a 
+        provider has been enabled and may now serve the subscription, and 
+        (3) on initialization, for each enabled subscription retrieved from the
+        repository.  In cases (1) and (2), there is an original Notify Provider
+        Registration or Notify Provider Enable request to which the Indication 
+        Service must respond.  In case (3), there is no original request and no
+        response is required.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
@@ -808,9 +808,9 @@ private:
         @param   userName              the userName for authentication
         @param   authType              the authentication type
 
-        @return  Number of providers that accepted subscription
+        @return  List of providers that accepted subscription
      */
-    Uint32 _sendWaitCreateRequests (
+    Array <ProviderClassList> _sendWaitCreateRequests (
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMPropertyList & propertyList,

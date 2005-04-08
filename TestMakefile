@@ -70,6 +70,7 @@ poststarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
 
 tests: $(TESTS)
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
@@ -97,6 +98,26 @@ run_OOP_TS1:
             CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
 ###############################################################################
+
+###############################################################################
+##  IndInit Test Suite 1: IndicationService Initialization Tests 
+##
+##  Configuration Options: (none)
+##
+###############################################################################
+IndInit_TS1_CONFIG_OPTIONS = 
+IndInit_TS1a_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/IndicationService/tests/ProcessIndication@@IndInit_TS1a
+IndInit_TS1b_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/IndicationService/tests/ProcessIndication@@IndInit_TS1b
+
+run_IndInit_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IndInit_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IndInit_TS1a_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IndInit_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IndInit_TS1b_TEST_CMDS)"
 
 ###############################################################################
 ##  SSL Test Suite 1: SSL Tests

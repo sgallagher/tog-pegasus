@@ -125,3 +125,19 @@ poststarttests:
 	@$(ECHO) "TestProcessIndication cleanup cim:cql"
 	@$(PROGRAM) cleanup cim:cql
 	@$(ECHO) "+++++ TestProcessIndication passed all tests"
+
+IndInit_TS1a:
+	@$(ECHO) "TestProcessIndication setup wql"
+	@$(PROGRAM) setup wql
+	@$(ECHO) "TestProcessIndication create1 wql"
+	@$(PROGRAM) create1 wql
+	@$(ECHO) "TestProcessIndication create2 wql"
+	@$(PROGRAM) create2 wql
+
+IndInit_TS1b:
+	@$(ECHO) "TestProcessIndication delete1 wql"
+	@$(PROGRAM) delete1 wql
+	@$(ECHO) "TestProcessIndication delete2 wql"
+	@$(PROGRAM) delete2 wql
+	@$(ECHO) "TestProcessIndication cleanup wql"
+	@$(PROGRAM) cleanup wql

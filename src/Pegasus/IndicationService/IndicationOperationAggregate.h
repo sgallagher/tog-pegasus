@@ -87,9 +87,8 @@ public:
     /**
         Gets the original request, if any,  received by the IndicationService 
         for this aggregation.  The original request may be Create Instance, 
-        Modify Instance, or Delete Instance.  In the cases of Initialization, 
-        or Deletion of an Expired or Referencing Subscription, there is no 
-        original request.
+        Modify Instance, or Delete Instance.  In the cases of Deletion of an 
+        Expired or Referencing Subscription, there is no original request.
 
         @return  a pointer to the request, if there is a request
                  0, otherwise

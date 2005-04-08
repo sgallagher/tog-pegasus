@@ -475,7 +475,6 @@ void IndicationService::_initialize (void)
     String queryLanguage;
     CIMPropertyList propertyList;
     Array <ProviderClassList> indicationProviders;
-    Boolean createRequestsSent = false;
 
     for (Uint32 i = 0; i < activeSubscriptions.size (); i++)
     {
@@ -568,17 +567,91 @@ void IndicationService::_initialize (void)
         }
 // l10n end
 
-        _sendAsyncCreateRequests (indicationProviders, sourceNameSpace,
+        //
+        //  Send Create request message to each provider
+        //  Note: SendWait is used instead of SendAsync.  Initialization must
+        //  deal with multiple subscriptions, each with multiple providers.
+        //  Using SendWait eliminates the need for a callback and the necessity
+        //  to handle multiple levels of aggregation, which would add
+        //  significant complexity.  Since initialization cannot complete
+        //  anyway until responses have been received for all subscriptions,
+        //  from all the providers, use of SendWait should not cause a
+        //  significant performance issue.
+        //
+        Array <ProviderClassList> acceptedProviders;
+        acceptedProviders = _sendWaitCreateRequests 
+            (indicationProviders, sourceNameSpace,
             propertyList, condition, query, queryLanguage,
             activeSubscriptions [i],
             AcceptLanguages(acceptLangs), // l10n
             ContentLanguages(contentLangs),  // 110n
-            0,  // initialize -- no request
-            indicationSubclasses,
             creator);
 
-        createRequestsSent = true;
+        if (acceptedProviders.size () == 0)
+        {
+            //
+            //  No providers accepted the subscription
+            //  Implement the subscription's On Fatal Error Policy
+            //  If subscription is not disabled or removed, send alert and
+            //  Insert entries into the subscription hash tables
+            //
+            if (!_subscriptionRepository->reconcileFatalError
+                (activeSubscriptions [i]))
+            {
+                //
+                //  Insert entries into the subscription hash tables
+                //
+                _subscriptionTable->insertSubscription
+                    (activeSubscriptions [i],
+                    acceptedProviders,
+                    indicationSubclasses,
+                    sourceNameSpace);
 
+#if 0
+                //
+                //  Send alert
+                //
+                //
+                //  Send NoProviderAlertIndication to handler instances
+                //  ATTN: NoProviderAlertIndication must be defined
+                //
+                Array <CIMInstance> subscriptions;
+                subscriptions.append (activeSubscriptions [i]);
+                CIMInstance indicationInstance = _createAlertInstance
+                    (_CLASS_NO_PROVIDER_ALERT, subscriptions);
+
+                Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                    "Sending NoProvider Alert for %d subscriptions",
+                    subscriptions.size ());
+                _sendAlerts (subscriptions, indicationInstance);
+#endif
+
+                //
+                //  Get Subscription Filter Name and Handler Name
+                //
+                String logString = _getSubscriptionLogString
+                    (activeSubscriptions [i]);
+
+                //
+                //  Log a message for the subscription
+                //
+                Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+                    Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
+                    logString);
+            }
+        }
+        else
+        {
+            //
+            //  At least one provider accepted the subscription
+            //  Insert entries into the subscription hash tables
+            //
+            _subscriptionTable->insertSubscription
+                (activeSubscriptions [i],
+                acceptedProviders,
+                indicationSubclasses,
+                sourceNameSpace);
+        }
     }  // for each active subscription
 
     //
@@ -626,14 +699,12 @@ void IndicationService::_initialize (void)
         }
     }
 
-    if (!createRequestsSent)
-    {
-        //
-        //  Send message to tell Provider Manager that subscription
-        //  initialization is complete
-        //
-        _sendSubscriptionInitComplete ();
-    }
+    //
+    //  Send message to tell Provider Manager that subscription
+    //  initialization is complete
+    //  Provider Manager calls providers' enableIndications method
+    //
+    _sendSubscriptionInitComplete ();
 
 #ifdef PEGASUS_INDICATION_PERFINST
     stopWatch.stop();
@@ -2351,7 +2422,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                     //  Send Create requests
                     //
 // l10n
-                    Uint32 accepted = _sendWaitCreateRequests
+                    Array <ProviderClassList> acceptedProviders;
+                    acceptedProviders = _sendWaitCreateRequests
                         (indicationProviders,
                         sourceNameSpace, requiredProperties, condition,
                         query, queryLanguage, newSubscriptions [i],
@@ -2359,7 +2431,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         ContentLanguages(contentLangs),
                         creator);
 
-                    if (accepted > 0)
+                    if (acceptedProviders.size () > 0)
                     {
                         //
                         //  Provider is not yet in the list for this
@@ -2882,7 +2954,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
             //
             Array <ProviderClassList> currentIndicationProviders;
             currentIndicationProviders.append (indicationProviders [s]);
-            Uint32 accepted = _sendWaitCreateRequests
+            Array <ProviderClassList> acceptedProviders;
+            acceptedProviders = _sendWaitCreateRequests
                 (currentIndicationProviders,
                 sourceNameSpace, requiredProperties, condition,
                 query, queryLanguage, instance,
@@ -2890,7 +2963,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 ContentLanguages (contentLangs),
                 creator);
 
-            if (accepted > 0)
+            if (acceptedProviders.size () > 0)
             {
                 //
                 //  Get Subscription entry from Active Subscriptions table
@@ -5589,7 +5662,7 @@ void IndicationService::_sendAsyncCreateRequests
     PEG_METHOD_EXIT ();
 }
 
-Uint32 IndicationService::_sendWaitCreateRequests
+Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
      const CIMPropertyList & propertyList,
@@ -5607,13 +5680,14 @@ Uint32 IndicationService::_sendWaitCreateRequests
 
     CIMValue propValue;
     Uint16 repeatNotificationPolicy;
-    Uint32 accepted = 0;
+    Array <ProviderClassList> acceptedProviders;
+    acceptedProviders.clear ();
 
     // If there are no providers to accept the subscription, just return
     if (indicationProviders.size() == 0)
     {
         PEG_METHOD_EXIT();
-        return accepted;
+        return acceptedProviders;
     }
 
     //
@@ -5683,7 +5757,7 @@ Uint32 IndicationService::_sendWaitCreateRequests
 
         if (response->cimException.getCode () == CIM_ERR_SUCCESS)
         {
-            accepted++;
+            acceptedProviders.append (indicationProviders [i]);
         }
         else
         {
@@ -5702,7 +5776,7 @@ Uint32 IndicationService::_sendWaitCreateRequests
     }  //  for each indication provider
 
     PEG_METHOD_EXIT ();
-    return accepted;
+    return acceptedProviders;
 }
 
 // l10n
@@ -6141,12 +6215,11 @@ void IndicationService::_handleCreateResponseAggregation (
     //
     //  Examine provider responses
     //
-    Uint32 accepted = 0;
+    acceptedProviders.clear ();
     for (Uint32 i = 0; i < operationAggregate->getNumberResponses (); i++)
     {
         //
-        //  If response is SUCCESS, provider accepted the subscription
-        //  Add provider to list of providers that accepted subscription
+        //  Find provider from which response was sent
         //
         CIMResponseMessage * response = operationAggregate->getResponse (i);
         ProviderClassList provider = operationAggregate->findProvider
@@ -6154,9 +6227,9 @@ void IndicationService::_handleCreateResponseAggregation (
         if (response->cimException.getCode () == CIM_ERR_SUCCESS)
         {
             //
-            //  Find provider from which response was sent
+            //  If response is SUCCESS, provider accepted the subscription
+            //  Add provider to list of providers that accepted subscription
             //
-            accepted++;
             acceptedProviders.append (provider);
         }
         else
@@ -6171,66 +6244,12 @@ void IndicationService::_handleCreateResponseAggregation (
     CIMCreateSubscriptionRequestMessage * request =
         (CIMCreateSubscriptionRequestMessage *)
             operationAggregate->getRequest (0);
-    if (accepted == 0)
+    if (acceptedProviders.size () == 0)
     {
         //
         //  No providers accepted this subscription
         //
-        if (operationAggregate->getOrigType () == 0)
-        {
-            //
-            //  For Initialize
-            //  Implement the subscription's On Fatal Error Policy
-            //  If subscription is not disabled or removed, send alert and
-            //  Insert entries into the subscription hash tables
-            //
-            if (!_subscriptionRepository->reconcileFatalError
-                (request->subscriptionInstance))
-            {
-                //
-                //  Insert entries into the subscription hash tables
-                //
-                _subscriptionTable->insertSubscription
-                    (request->subscriptionInstance,
-                    acceptedProviders,
-                    operationAggregate->getIndicationSubclasses (),
-                    request->nameSpace);
-
-#if 0
-                //
-                //  Send alert
-                //
-                //
-                //  Send NoProviderAlertIndication to handler instances
-                //  ATTN: NoProviderAlertIndication must be defined
-                //
-                Array <CIMInstance> subscriptions;
-                subscriptions.append (request->subscriptionInstance);
-                CIMInstance indicationInstance = _createAlertInstance
-                    (_CLASS_NO_PROVIDER_ALERT, subscriptions);
-
-                Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                    "Sending NoProvider Alert for %d subscriptions",
-                    subscriptions.size ());
-                _sendAlerts (subscriptions, indicationInstance);
-#endif
-
-                //
-                //  Get Subscription Filter Name and Handler Name
-                //
-                String logString = _getSubscriptionLogString
-                    (request->subscriptionInstance);
-
-                //
-                //  Log a message for the subscription
-                //
-                Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
-                    Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
-                    logString);
-            }
-        }
-
-        else if (operationAggregate->requiresResponse ())
+        if (operationAggregate->requiresResponse ())
         {
             //
             //  For Create Instance or Modify Instance request, set CIM
@@ -6296,21 +6315,10 @@ void IndicationService::_handleCreateResponseAggregation (
 
             }
         }
-        else if (operationAggregate->getOrigType () ==
-                 CIM_MODIFY_INSTANCE_REQUEST_MESSAGE)
+        else  //  CIM_MODIFY_INSTANCE_REQUEST_MESSAGE
         {
-            //
-            //  Insert entries into the subscription hash tables
-            //
-            _subscriptionTable->insertSubscription
-                (request->subscriptionInstance,
-                acceptedProviders,
-                operationAggregate->getIndicationSubclasses (),
-                request->nameSpace);
-        }
-        else //  Initialize
-        {
-            PEGASUS_ASSERT (operationAggregate->getOrigType () == 0);
+            PEGASUS_ASSERT (operationAggregate->getOrigType () == 
+                CIM_MODIFY_INSTANCE_REQUEST_MESSAGE);
 
             //
             //  Insert entries into the subscription hash tables
@@ -6320,13 +6328,6 @@ void IndicationService::_handleCreateResponseAggregation (
                 acceptedProviders,
                 operationAggregate->getIndicationSubclasses (),
                 request->nameSpace);
-
-            //
-            //  Send message to tell Provider Manager that subscription
-            //  initialization is complete
-            //  Provider Manager calls providers' enableIndications method
-            //
-            _sendSubscriptionInitComplete ();
         }
     }
 

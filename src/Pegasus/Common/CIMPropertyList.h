@@ -79,7 +79,7 @@ public:
         An array created with this constructor is Null.
         <pre>
             CIMPropertyList pl;
-            assert(pl.isNull);
+            assert(pl.isNull());
         </pre>
     */
     CIMPropertyList();
@@ -164,7 +164,7 @@ public:
         Array<CIMName> n;
         n.append("name");
         n.append("type");
-        CIMPropertyList pl;
+        CIMPropertyList pl(n);
         assert(pl[0] == CIMName("name"));
     </pre>
     */

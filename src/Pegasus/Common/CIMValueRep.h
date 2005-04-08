@@ -62,7 +62,7 @@ public:
         _type = CIMTYPE_BOOLEAN;
         _isArray = false;
         _isNull = true;
-        _u._booleanValue = false;
+        memset( &_u, 0, sizeof( Union ) );
     }
 
     CIMType _type;

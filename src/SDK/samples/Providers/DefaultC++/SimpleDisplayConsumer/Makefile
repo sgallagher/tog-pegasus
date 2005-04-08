@@ -13,6 +13,9 @@ LIBRARIES = \
   pegcommon \
   pegprovider
 
+ADDITIONAL_CLEAN_FILES = \
+  indicationLog
+
 SOURCES = \
         SimpleDisplayConsumerMain.cpp \
         SimpleDisplayConsumer.cpp

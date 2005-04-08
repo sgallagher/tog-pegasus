@@ -564,6 +564,7 @@ create_OpenPegasusRPMSpecFile: FORCE
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_preSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_preunSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/mak/SDKMakefile PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) _append_preunSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postunSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_filesSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/mak/SDKMakefile PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) _append_filesSectionToSpecFile
@@ -631,7 +632,7 @@ _append_PreambleToSpecFile: FORCE
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%else" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch ppc64" >> \
+	@$(ECHO-E) "%ifarch ppc64 pseries" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_PPC64_GNU" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -683,6 +684,13 @@ _append_setupSectionToSpecFile: FORCE
 
 _append_buildSectionToSpecFile: FORCE
 	@$(ECHO-E) "%build" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ifarch s390 s390x zseries" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "export PEGASUS_EXTRA_C_FLAGS=\"\044PEGASUS_EXTRA_C_FLAGS -fsigned-char\"" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%endif" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-build.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -763,12 +771,14 @@ _append_preunSectionToSpecFile: FORCE
                       >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "      $(PEGASUS_SBIN_DIR)/cimserver -s"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   [ -f $(PEGASUS_VARDATA_DIR)/$(PEGASUS_CURRENT_CONFIG_FILE) ] && \
                        rm $(PEGASUS_VARDATA_DIR)/$(PEGASUS_CURRENT_CONFIG_FILE);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   [ -f %PEGASUS_INSTALL_LOG ] && rm %PEGASUS_INSTALL_LOG;" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   [ -d $(PEGASUS_REPOSITORY_DIR) ] && rm -rf $(PEGASUS_REPOSITORY_DIR);" >> \
+                       $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   # Delete the Link to the rc.* Startup Directories" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

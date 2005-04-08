@@ -51,6 +51,8 @@
        chmod 444 %PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE
    fi
 
+   /usr/lib/lsb/install_initd /etc/init.d/tog-pegasus
+
    echo " To start Pegasus manually:"
    echo " /etc/init.d/tog-pegasus start"
    echo " Stop it:"

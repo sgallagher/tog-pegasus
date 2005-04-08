@@ -84,7 +84,7 @@ sources.
 %ifarch ppc
 %global PEGASUS_HARDWARE_PLATFORM LINUX_PPC_GNU
 %else
-%ifarch ppc64
+%ifarch ppc64 pseries
 %global PEGASUS_HARDWARE_PLATFORM LINUX_PPC64_GNU
 %else
 %ifarch s390
@@ -129,6 +129,10 @@ The OpenPegasus WBEM tests for the OpenPegasus %{version} Linux rpm.
 export PEGASUS_ROOT=%PEGASUS_RPM_ROOT
 
 %build
+
+%ifarch s390 s390x zseries
+export PEGASUS_EXTRA_C_FLAGS="$PEGASUS_EXTRA_C_FLAGS -fsigned-char"
+%endif
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec
 export PEGASUS_ROOT=%PEGASUS_RPM_ROOT
@@ -273,6 +277,8 @@ if [ $1 -eq 1 ]; then
        chmod 444 %PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE
    fi
 
+   /usr/lib/lsb/install_initd /etc/init.d/tog-pegasus
+
    echo " To start Pegasus manually:"
    echo " /etc/init.d/tog-pegasus start"
    echo " Stop it:"
@@ -288,12 +294,16 @@ if [ $1 -eq 0 ]; then
    isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
    if [ "$isRunning" ]; then
       /opt/tog-pegasus/sbin/cimserver -s
-   fi
    [ -f /var/opt/tog-pegasus/cimserver_current.conf ] &&  rm /var/opt/tog-pegasus/cimserver_current.conf;
    [ -f %PEGASUS_INSTALL_LOG ] && rm %PEGASUS_INSTALL_LOG;
+   [ -d /var/opt/tog-pegasus/repository ] && rm -rf /var/opt/tog-pegasus/repository;
+   fi
    # Delete the Link to the rc.* Startup Directories
    /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;
 fi
+
+%preun sdk
+make --directory /opt/tog-pegasus/samples -s clean
 
 %postun
 if [ $1 -eq 0 ]; then

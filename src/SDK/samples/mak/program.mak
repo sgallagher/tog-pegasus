@@ -12,3 +12,4 @@ $(OUTPUT): $(OBJECTS)
 clean:
 	@$(foreach i, $(OBJECTS), $(RM) $(i);)
 	@$(foreach i, $(PROGRAM), $(RM) $(i);)
+	@$(foreach i, $(ADDITIONAL_CLEAN_FILES), $(RM) $(i);)

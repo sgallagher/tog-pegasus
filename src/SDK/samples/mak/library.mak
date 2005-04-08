@@ -39,6 +39,7 @@ clean:
 	$(MAKE) -i unlink
 	@$(foreach i, $(LIB), $(RM) $(i);)
 	@$(foreach i, $(XMLRESPONSES), $(RM) $(i);)
+	@$(foreach i, $(ADDITIONAL_CLEAN_FILES), $(RM) $(i);)
 
 XMLRESPONSES = $(XMLSCRIPTS:.xml=.rsp)
 tests: $(XMLRESPONSES)

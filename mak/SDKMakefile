@@ -236,6 +236,11 @@ stageHTML:
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR)
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR) buildDoc_ContinueOnError
 
+_append_preunSectionToSpecFile:
+	@$(ECHO-E) "%preun sdk" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "make --directory $(PEGASUS_SAMPLES_DIR) -s clean"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+
 _append_filesSectionToSpecFile:
 	@$(ECHO-E) "%files sdk"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

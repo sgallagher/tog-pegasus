@@ -383,6 +383,7 @@ int main (int argc, char** argv)
     try
     {
         client.connectLocal ();
+        client.setTimeout(300000);
     }
     catch (Exception & e)
     {

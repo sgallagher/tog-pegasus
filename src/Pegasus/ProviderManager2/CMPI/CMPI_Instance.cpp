@@ -41,14 +41,7 @@
 #include "CMPI_String.h"
 
 #include <Pegasus/Common/InternalException.h>
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include <strings.h>       // for strcasecmp
-#endif
-
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#define strcasecmp stricmp
-#endif
-
+#include <Pegasus/Common/System.h>
 #include <string.h>
 
 PEGASUS_USING_STD;
@@ -155,7 +148,7 @@ extern "C" {
 
       if (list) {
          while (*list) {
-            if (strcasecmp(name,*list)==0) goto ok;
+            if (System::strcasecmp(name,*list)==0) goto ok;
             list++;
          }
          CMReturn(CMPI_RC_OK);

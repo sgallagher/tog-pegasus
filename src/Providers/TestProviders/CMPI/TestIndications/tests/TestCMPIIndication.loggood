@@ -100,11 +100,11 @@
  ---- CMGetArrayCount, 2
  --- CMGetArrayElementAt
  ---- CMPI_RC_OK
- ---- tpye is : 5632
+ ---- type is : 5632
  ---- PropertyA
  --- CMGetArrayElementAt
  ---- CMPI_RC_OK
- ---- tpye is : 5632
+ ---- type is : 5632
  ---- PropertyB
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
@@ -199,7 +199,7 @@
  ---- CMGetArrayCount, 1
  --- CMGetArrayElementAt
  ---- CMPI_RC_OK
- ---- tpye is : 5632
+ ---- type is : 5632
  ---- s
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath

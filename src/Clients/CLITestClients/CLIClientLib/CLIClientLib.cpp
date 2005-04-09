@@ -1588,96 +1588,146 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
             << ", Class= " << opts.className
             << endl;
     }
-    Array<CIMNamespaceName> namespaceNames;
 
-    // Build the namespaces incrementally starting at the root
-    // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
-    // starting with null (no directoyr) but today we get an xml error return in Pegasus
-    // returned for this call. Note that the specification requires that the root namespace be used
-    // when __namespace is defined but does not require that it be the root for allnamespaces. That
-    // is a hole is the spec, not in our code.
-    namespaceNames.append(opts.nameSpace);
-    Uint32 start = 0;
-    Uint32 end = namespaceNames.size();
+    Boolean usingPegasus = true;
+    Array<CIMInstance> instances;
 
-    if (opts.time)
+    try
     {
-        opts.elapsedTime.reset();
-        opts.elapsedTime.start();
+        instances = client.enumerateInstances((CIMNamespaceName)(opts.nameSpace),opts.className);
+    }
+    catch(CIMException& e)
+    {
+        /*if an exception was caught here then we assume we are not useing
+        the open pegasus CIMOM. There for we should only check the 
+        __namespaces class. (Which may only retrun a subset of all namspaces
+        */
+        usingPegasus = false;
+        opts.className = CIMName("__namespace");
+        opts.nameSpace = "root/PG_InterOp";
     }
 
-    do
+    if (usingPegasus) 
     {
-        // for all new elements in the output array
-        for (Uint32 range = start; range < end; range ++)
+        for (Uint32 i = 0 ; i < instances.size(); i++)
         {
-            // Get the next increment in naming for all a name element in the array
-            Array<CIMInstance> instances = client.enumerateInstances(namespaceNames[range],opts.className);
-            for (Uint32 i = 0 ; i < instances.size(); i++)
+            Uint32 pos;
+            // if we find the property and it is a string, use it.
+            if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
             {
-                Uint32 pos;
-                // if we find the property and it is a string, use it.
-                if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
+                CIMValue value;
+                String namespaceComponent;
+                value = instances[i].getProperty(pos).getValue();
+                if (value.getType() == CIMTYPE_STRING)
                 {
-                    CIMValue value;
-                    String namespaceComponent;
-                    value = instances[i].getProperty(pos).getValue();
-                    if (value.getType() == CIMTYPE_STRING)
-                    {
-                        value.get(namespaceComponent);
-                        String ns = namespaceNames[range].getString();
-                        ns.append("/");
-                        ns.append(namespaceComponent);
-                        namespaceNames.append(ns);
-                    }
+                    value.get(namespaceComponent);
+                    cout << namespaceComponent << endl;
                 }
             }
-            start = end;
-            end = namespaceNames.size();
         }
+
     }
-    while (start != end);
-    // Validate that all of the returned entities are really namespaces. It is legal for us to
-    // have an name component that is really not a namespace (ex. root/fred/john is a namespace
-    // but root/fred is not.
-    // There is no clearly defined test for this so we will simply try to get something, in this
-    // case a wellknown assoication
-    Array<CIMNamespaceName> returnNamespaces;
 
-    for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+
+
+
+    if (!usingPegasus) 
     {
-        try
-        {
-            CIMQualifierDecl cimQualifierDecl;
-            cimQualifierDecl = client.getQualifier(namespaceNames[i],
-                                           "Association");
+        Array<CIMNamespaceName> namespaceNames;
 
-            returnNamespaces.append(namespaceNames[i]);
-        }
-        catch(CIMException& e)
+        // Build the namespaces incrementally starting at the root
+        // ATTN: 20030319 KS today we start with the "root" directory but this is wrong. We should be
+        // starting with null (no directoyr) but today we get an xml error return in Pegasus
+        // returned for this call. Note that the specification requires that the root namespace be used
+        // when __namespace is defined but does not require that it be the root for allnamespaces. That
+        // is a hole is the spec, not in our code.
+        namespaceNames.append(opts.nameSpace);
+        Uint32 start = 0;
+        Uint32 end = namespaceNames.size();
+   
+
+        if (opts.time)
         {
-            if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
+            opts.elapsedTime.reset();
+            opts.elapsedTime.start();
+        }
+
+        do
+        {
+            // for all new elements in the output array
+            for (Uint32 range = start; range < end; range ++)
+            {
+                // Get the next increment in naming for all a name element in the array
+                Array<CIMInstance> instances = client.enumerateInstances(namespaceNames[range],opts.className);
+                for (Uint32 i = 0 ; i < instances.size(); i++)
+                {
+                    Uint32 pos;
+                    // if we find the property and it is a string, use it.
+                    if ((pos = instances[i].findProperty("name")) != PEG_NOT_FOUND)
+                    {
+                        CIMValue value;
+                        String namespaceComponent;
+                        value = instances[i].getProperty(pos).getValue();
+                        if (value.getType() == CIMTYPE_STRING)
+                        {
+                            value.get(namespaceComponent);
+    
+                                String ns = namespaceNames[range].getString();
+                                ns.append("/");
+                                ns.append(namespaceComponent);
+                                namespaceNames.append(ns);
+                        }
+                    }
+                }
+                start = end;
+                end = namespaceNames.size();
+            }
+        }
+        while (start != end);
+    
+         
+        // Validate that all of the returned entities are really namespaces. It is legal for us to
+        // have an name component that is really not a namespace (ex. root/fred/john is a namespace
+        // but root/fred is not.
+        // There is no clearly defined test for this so we will simply try to get something, in this
+        // case a wellknown assoication
+          Array<CIMNamespaceName> returnNamespaces;
+    
+        for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
+        {
+            try
+            {
+                CIMQualifierDecl cimQualifierDecl;
+                cimQualifierDecl = client.getQualifier(namespaceNames[i],
+                                               "Association");
+    
                 returnNamespaces.append(namespaceNames[i]);
+            }
+            catch(CIMException& e)
+            {
+                if (e.getCode() != CIM_ERR_INVALID_NAMESPACE)
+                    returnNamespaces.append(namespaceNames[i]);
+            }
         }
-    }
-
-    if (opts.time)
-    {
-        opts.elapsedTime.stop();
-
-        opts.saveElapsedTime = opts.elapsedTime.getElapsed();
-    }
-
-    if (opts.summary)
-    {
-        cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
-    }
-    else
-    {
-        for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
+    
+        if (opts.time)
         {
-            cout << returnNamespaces[cnt] << endl;;
+            opts.elapsedTime.stop();
+    
+            opts.saveElapsedTime = opts.elapsedTime.getElapsed();
         }
+    
+        if (opts.summary)
+        {
+            cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
+        }
+        else
+        {
+            for( Uint32 cnt = 0 ; cnt < returnNamespaces.size(); cnt++ )
+            {
+                cout << returnNamespaces[cnt] << endl;;
+            }
+        } 
     }
 
     return(0);
@@ -1714,7 +1764,7 @@ void GetOptions(
         {"Password", "", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
 
-        {"location", "", false, Option::STRING, 0, 0, "l",
+        {"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
                             "specifies system and port (HostName:port). Port is optional" },
 
         {"User", "", false, Option::STRING, 0, 0, "u",

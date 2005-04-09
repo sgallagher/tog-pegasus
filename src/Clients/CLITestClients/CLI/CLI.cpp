@@ -511,14 +511,14 @@ int main(int argc, char** argv)
                     // Note that the following constants are fixed here.  We
                     // should be getting them from the environment to assure that
                     // others know that we are using them.
-                    opts.className = CIMName("__namespace");
+                    opts.className = CIMName("CIM_Namespace");
                     if (argc > 2)
                     {
                         opts.nameSpace = argv[2];
                         opts.inputObjectName = argv[2];
                     }
                     else
-                        opts.nameSpace = "root";
+                        opts.nameSpace = "root/PG_InterOp";
 
                     enumerateNamespaces_Namespace(client,opts);
                     break;

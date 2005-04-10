@@ -2,7 +2,7 @@ ROOT = ../../../../..
 
 DIR = Pegasus/WQL/tests/Parser
 
-LIBRARIES = pegwql pegcommon
+LIBRARIES = pegwql pegcommon pegquerycommon
 
 include $(ROOT)/mak/config.mak
 

@@ -778,6 +778,8 @@ _append_preunSectionToSpecFile: FORCE
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   [ -d $(PEGASUS_REPOSITORY_DIR) ] && rm -rf $(PEGASUS_REPOSITORY_DIR);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   [ -f $(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH) ] && rm $(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);" >> \
+                       $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   # Delete the Link to the rc.* Startup Directories" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

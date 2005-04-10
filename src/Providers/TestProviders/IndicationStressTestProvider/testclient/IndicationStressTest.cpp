@@ -411,5 +411,5 @@ int main (int argc, char** argv)
         return _test(client, opt, optTwo);
     }
 
-    return 0;
+    PEGASUS_UNREACHABLE( return 0; )
 }

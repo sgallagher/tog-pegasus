@@ -182,7 +182,17 @@ static Boolean _GetRecord(ifstream& is, Array<String>& fields)
 static void _PutRecord(ofstream& os, Array<String>& fields)
 {
     for (Uint32 i = 0, n = fields.size(); i < n; i++)
-	os << _Escape(fields[i]) << endl;
+    {
+        // Calling getCString to ensure utf-8 goes to the file
+        // Calling write to ensure no data conversion by the stream
+        CString  buffer = _Escape(fields[i]).getCString(); 
+#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
+        os.write((const char *)buffer, strlen((const char *)buffer));
+#else
+        os.write((const char *)buffer, static_cast<streamsize>(strlen((const char *)buffer)));
+#endif   
+        os <<  endl;
+    }
     os << endl;
 }
 

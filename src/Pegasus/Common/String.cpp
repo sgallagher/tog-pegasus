@@ -910,7 +910,6 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     os << utf8str;
 
 #elif defined(PEGASUS_HAS_ICU)
-	if(os == cout || os == cerr){
 	    char *buf = NULL;
     	const int size = str.size() * 6;
     	UnicodeString UniStr((const UChar *)str.getChar16Data(), (int32_t)str.size());
@@ -921,12 +920,6 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     	os << buf;
     	os.flush();
     	delete [] buf;
-	}else{
-		CString cstr = str.getCString();
-    	const char* utf8str = cstr;
-    	os << utf8str;
-	}
-	
 #else
     	for (Uint32 i = 0, n = str.size(); i < n; i++)
     	{

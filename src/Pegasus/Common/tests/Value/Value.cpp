@@ -39,6 +39,7 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Vijay Eli, IBM (vijayeli@in.ibm.com) for bug#3101
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for bug#3290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -628,6 +629,7 @@ int main(int argc, char** argv)
     Array<Char16> arrChar164(arrChar161);
     test03(arrChar162, arrChar163, cChar162, Char16('Z'), Char16('z'));
     delete cChar162;
+    delete context;
     
     cout << argv[0] << " +++++ passed all tests" << endl;
 

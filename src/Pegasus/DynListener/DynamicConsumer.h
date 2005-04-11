@@ -74,6 +74,8 @@ public:
 
     void increaseRetries();
 
+    CIMDateTime getLastAttemptTime();
+
     Boolean operator==(const IndicationDispatchEvent &event) const;
 
 private:
@@ -81,6 +83,7 @@ private:
     String _url;
     CIMInstance _instance;
     AtomicInt _retries;
+    CIMDateTime _lastAttemptTime;
 
 };
 

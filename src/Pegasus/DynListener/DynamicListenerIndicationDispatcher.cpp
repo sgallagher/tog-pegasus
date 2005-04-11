@@ -152,7 +152,8 @@ void DynamicListenerIndicationDispatcher::handleEnqueue(Message* message)
 
                 CIMResponseMessage* response = cimRequest->buildResponse();
                 response->cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, 
-                                                                 MessageLoaderParms("DynListener.DynamicListenerIndicationDispatcher.INVALID_MSG_TYPE", "Invalid message type"));
+                                                                 MessageLoaderParms("DynListener.DynamicListenerIndicationDispatcher.INVALID_MSG_TYPE", 
+                                                                                    "Invalid message type"));
 
                 _enqueueResponse (cimRequest, response);
             }
@@ -186,7 +187,7 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(CIMExportIndi
 
         MessageLoaderParms msgLoaderParms(
                                          "DynListener.DynamicListenerIndicationDispatcher.BAD_URL",
-                                         "The CIMXMLIndicationHandler destination is invalid: $0.",
+                                         "Invalid CIMXMLIndicationHandler destination: $0.",
                                          url);
 
         throw CIMException(CIM_ERR_FAILED, msgLoaderParms);

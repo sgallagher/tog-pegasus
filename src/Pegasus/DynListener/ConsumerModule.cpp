@@ -71,7 +71,7 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
     {
         if (!FileSystem::exists(libraryPath) || !FileSystem::canRead(libraryPath))
         {
-            throw Exception(MessageLoaderParms("DynListener.ConsumerManager.INVALID_LIBRARY_PATH",
+            throw Exception(MessageLoaderParms("DynListener.ConsumerModule.INVALID_LIBRARY_PATH",
                "The library ($0:$1) does not exist or cannot be read.",
                libraryPath,
                consumerName));
@@ -90,8 +90,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
 
     if (!_libraryHandle)
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_LOAD_LIBRARY",
-                                   "ConsumerLoadFailure ($0:$1):Cannot load library, error: $2",
+        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CANNOT_LOAD_LIBRARY",
+                                   "Cannot load consumer library ($0:$1), load error $2",
                                    libraryPath,
                                    consumerName,
                                    System::dynamicLoadError()));
@@ -103,8 +103,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
 
     if (!createProvider)
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.ENTRY_POINT_NOT_FOUND",
-               "ConsumerLoadFailure ($0:$1):entry point not found.",
+        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.ENTRY_POINT_NOT_FOUND",
+               "The entry point for consumer library ($0:$1) cannot be found.",
                libraryPath,
                consumerName));
     }
@@ -115,8 +115,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
 
     if(!providerRef)
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CREATE_PROVIDER_FAILED",
-               "ConsumerLoadFailure ($0:$1):createProvider failed.",
+        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CREATE_PROVIDER_FAILED",
+               "createProvider failed for consumer library ($0:$1)",
                libraryPath,
                consumerName));
     }
@@ -125,8 +125,8 @@ CIMIndicationConsumerProvider* ConsumerModule::load(const String & consumerName,
     CIMIndicationConsumerProvider* consumerRef = dynamic_cast<CIMIndicationConsumerProvider *>(providerRef);
     if(!consumerRef)
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CONSUMER_IS_NOT_A",
-            "ConsumerLoadFailure ($0:$1):consumer is not a CIMIndicationConsumerProvider.",
+        throw Exception(MessageLoaderParms("DynListener.ConsumerModule.CONSUMER_IS_NOT_A",
+            "Consumer ($0:$1) is not a CIMIndicationConsumerProvider.",
             libraryPath,
             consumerName));
     }

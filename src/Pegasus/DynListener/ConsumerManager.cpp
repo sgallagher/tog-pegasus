@@ -63,7 +63,7 @@ const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 //retry settings
 //ATTN: Do we want to make these configurable?  If so, is a global setting for all the consumers ok?
 static const Uint32 DEFAULT_MAX_RETRY_COUNT = 5;
-static const Uint32 DEFAULT_RETRY_LAPSE = 3000;  //ms
+static const Uint32 DEFAULT_RETRY_LAPSE = 10000; //300000;  //ms
 
 
 
@@ -101,7 +101,10 @@ ConsumerManager::~ConsumerManager()
 
     unloadAllConsumers();
 
+    if (_thread_pool != NULL)
+    {
     delete _thread_pool;
+    }
 
     ConsumerTable::Iterator i = _consumers.start();
     for (; i!=0; i++)
@@ -826,15 +829,15 @@ Array<CIMInstance> ConsumerManager::_deserializeOutstandingIndications(const Str
  * 
  * An indication gets retried if the consumer throws a CIM_ERR_FAILED exception.
  * 
- * ATTN: Outstanding issue with this strategy -- 20 new indications come in, 10 of them are successful, 10 are not
+ * This function makes sure it waits until the default retry lapse has passed to avoid issues with the following scenario:
+ * 20 new indications come in, 10 of them are successful, 10 are not.
  * We were signalled 20 times, so we will pass the time_wait 20 times.  Perceivably, the process time on each indication
  * could be minimal.  We could potentially proceed to process the retries after a very small time interval since
- * we would never hit the wait for the retry timeout.  We could solve this by keeping track of the last retry
- * attempt, and only retry if a certain length of time has passed.  Otherwise, the logic of the loop needs to be changed.
+ * we would never hit the wait for the retry timeout.  
  * 
  * ATTN: Outstanding issue with this strategy -- 20 new indications come in, 19 of them come in before the first one
  * is processed.  Because new indications are first in, first out, the 19 indications will be processed in reverse order.
- * Is this a problem?
+ * Is this a problem? Short answer - NO.  They could arrive in reverse order anyways depending on the network stack.
  * 
  */ 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void *param)
@@ -895,6 +898,23 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
                 {
                     //this should never happen
                     continue;
+                }
+
+                //check retry status. do not retry until the retry time has elapsed
+                if (event->getRetries() > 0)
+                {
+                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Last attempt time from event is " + event->getLastAttemptTime().toString());
+                    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Current time is " + CIMDateTime::getCurrentDateTime().toString());
+                    Sint64 differenceInMicroseconds = CIMDateTime::getDifference(event->getLastAttemptTime(),
+                                                                                 CIMDateTime::getCurrentDateTime());
+
+                    if (differenceInMicroseconds < (DEFAULT_RETRY_LAPSE * 1000))
+                    {
+                        //do not retry; just add to the retry queue
+                        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::cannot retry event until retry time has elapsed");
+                        tmpEventQueue.insert_last(event);
+                        continue;
+                    }
                 }
 
                 PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "_worker_routine::consumeIndication " + name);

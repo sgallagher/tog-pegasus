@@ -231,9 +231,8 @@ void DynamicConsumer::set(ConsumerModule* consumerModule,
 
     if (_initialized)
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_SET_CONSUMER",
-                                           "Cannot set the consumer since it is already initialized.  You must terminate it first.",
-                                           _name));
+        throw Exception(MessageLoaderParms("DynListener.DynamicConsumer.CONSUMER_INVALID_STATE",
+                                           "Error: The consumer is not in the correct state to perform the operation."));
     }
 
     _module = consumerModule;
@@ -253,9 +252,8 @@ void DynamicConsumer::reset()
 
     if (_initialized)
     {
-        throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_RESET_CONSUMER",
-                                           "Error: The consumer $0 is initialized.  You must terminate it before you can reset it.",
-                                           _name));
+        throw Exception(MessageLoaderParms("DynListener.DynamicConsumer.CONSUMER_INVALID_STATE",
+                                           "Error: The consumer is not in the correct state to perform the operation."));
     }
 
     _module = 0;    // do not delete it, that is taken care of in ConsumerModule itself 
@@ -466,7 +464,8 @@ IndicationDispatchEvent::IndicationDispatchEvent(OperationContext context,
 _context(context),
 _url(url),
 _instance(instance),
-_retries(0)
+_retries(0),
+_lastAttemptTime(CIMDateTime())
 {
 }
 
@@ -496,7 +495,15 @@ AtomicInt IndicationDispatchEvent::getRetries()
 
 void IndicationDispatchEvent::increaseRetries()
 {
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Increasing retries\n");
     _retries++;
+    _lastAttemptTime = CIMDateTime::getCurrentDateTime();
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Last attempt time " + _lastAttemptTime.toString());
+}
+
+CIMDateTime IndicationDispatchEvent::getLastAttemptTime()
+{
+    return _lastAttemptTime;
 }
 
 Boolean IndicationDispatchEvent::operator==(const IndicationDispatchEvent& event) const

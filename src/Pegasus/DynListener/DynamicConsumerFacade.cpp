@@ -73,8 +73,8 @@ inline T * getInterface(CIMIndicationConsumerProvider* consumer)
         //l10n
         //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "Invalid provider interface.");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_NOT_SUPPORTED, MessageLoaderParms(
-            "ProviderManager.DynamicConsumerFacade.INVALID_PROVIDER_INTERFACE",
-            "Invalid provider interface."));
+            "ProviderManager.ProviderFacade.INVALID_PROVIDER_INTERFACE",
+            "Provider interface is not valid."));
     }
 
     return(p);

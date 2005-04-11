@@ -214,32 +214,15 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
 
     static int modulator = 0;  //ATTN: What is this for???
 
-
     while (true)
     {
-        try
-        {
-            //ATTN: are we supposed to run monitor2 in a continuous loop?  
-            //Are we supposed to only run it once?  Sleep any??
-            //can i take out monitor2 for 2.5???
-            listenerService->_shutdownSem->time_wait(1);  
+          static int modulator = 0;
 
-            if (listenerService->_dieNow)
-            {
-                //shutdown
-                break;
-            }
-
-        } catch (TimeOut& te)
-        {
-            //run the monitor
-
-  /*static int modulator = 0;
-
-  if(!_dieNow)
-    {
-      if(false == _monitor->run(500000)) 
-    {   
+          if(!(listenerService->_dieNow))
+          {
+              //PEGASUS_STD(cout) << "Running monitor\n";
+              if(!(listenerService->_monitor->run(30000)))
+              {   
       modulator++;
       try 
       {
@@ -251,24 +234,13 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
       {
       }
     }
-
-    }*/
-
-            if (false == listenerService->_monitor->run(5000000))
-            {
-                modulator++;
-                try
-                {
-                    //MessageQueueService::_check_idle_flag = 1;
-                    //MessageQueueService::_polling_sem.signal();
-                    MessageQueueService::get_thread_pool()->cleanupIdleThreads();
-                } catch (...)
-                {
-                }
-            }
-
-        }
+          } else
+          {
+              PEGASUS_STD(cout) << "Got shutdown signal\n";
+              break;
+          }
     }
+
 
     PEGASUS_STD(cout) << String("ListenerService::Stopping _listener_routine") << endl << endl;
 

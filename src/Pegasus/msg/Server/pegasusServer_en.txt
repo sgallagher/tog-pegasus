@@ -5157,6 +5157,150 @@ CIM server listening on HTTPS port {0}."}
 
         ControlProviders.InteropProvider.DELETE_INSTANCE_NOT_ALLOWED:string {"PGS16702: Delete instance operation not allowed by Interop Provider for class {0}."}
 
+        // ==========================================================
+        // Messages for Standalone CIM Listener
+        //  Please use message prefix "PGS16800 - PGS16899""
+        // ==========================================================    
+    
+        /**
+        * @note  PGS16800:
+        *    Substitution {0} is a string containing the library path
+        *    Substitution {1} is a string containing the consumer name
+        */    
+        DynListener.ConsumerModule.INVALID_LIBRARY_PATH:string {"PGS16800: The library {0}:{1} does not exist or cannot be read."}
+
+        /**
+        * @note  PGS16801:
+        *    Substitution {0} is a string containing the library path
+        *    Substitution {1} is a string containing the consumer name
+        *    Substitution {2} is the dynamic load error msg
+        */          
+        DynListener.ConsumerModule.CANNOT_LOAD_LIBRARY: string {"PGS16801: Cannot load consumer library {0}:{1}:, load error {2}"}
+ 
+        /**
+        * @note  PGS16802:
+        *    Substitution {0} is a string containing the library path
+        *    Substitution {1} is a string containing the consumer name
+        */         
+        DynListener.ConsumerModule.ENTRY_POINT_NOT_FOUND: string {"PGS16802: The entry point for consumer library {0}:{1} cannot be found."}
+        
+        /**
+        * @note  PGS16803:
+        *    Substitution {0} is a string containing the library path
+        *    Substitution {1} is a string containing the consumer name
+        */  
+        DynListener.ConsumerModule.CREATE_PROVIDER_FAILED: string {"PGS16803: createProvider failed for consumer library {0}:{1}"}
+        
+        /**
+        * @note  PGS16804:
+        *    Substitution {0} is a string containing the library path
+        *    Substitution {1} is a string containing the consumer name
+        */  
+        DynListener.ConsumerModule.CONSUMER_IS_NOT_A: string {"PGS16804: Consumer {0}:{1} is not a CIMIndicationConsumerProvider."}
+        
+        /**
+        * @note  PGS16805:
+        *    Substitution {0} is a string containing the file name
+        *    Substitution {1} is a string containing the error msg
+        */  
+        DynListener.ConsumerManager.INVALID_CONFIG_FILE: string {"PGS16805: Error reading {0}:{1}."}
+      
+        /**
+        * @note  PGS16806:
+        *    Substitution {0} is a string containing the consumer name
+        *    Substitution {1} is a string containing the library path
+        */    
+        DynListener.ConsumerManager.CANNOT_LOAD_MODULE: string {"PGS16806: Cannot load module {0}:{1}: Unknown exception."}
+       
+        /**
+        * @note  PGS16807:
+        *    Substitution {0} is a string containing the consumer name
+        */  
+        DynListener.ConsumerManager.CANNOT_INITIALIZE_CONSUMER: string {"PGS16807: Cannot initialize consumer {0}: Unknown Exception"}
+        
+        DynListener.ListenerService.INVALID_SSL_CONFIGURATION: string {"PGS16808: Invalid SSL configuration: No SSLContext was specified."}
+        
+        DynListener.ListenerService.NOT_INITIALIZED: string {"PGS16809: Error: You must initialize the listener prior to running it."}
+        
+        DynListener.ListenerService.ALREADY_RUNNING: string {"PGS16810: Error: The listener is already running."}
+        
+        DynListener.DynamicConsumer.CONSUMER_INVALID_STATE: string {"PGS16811: Error: The consumer is not in the correct state to perform the operation."}
+           
+        DynListener.DynamicListenerIndicationDispatcher.INVALID_MSG_TYPE: string {"PGS16812: Invalid message type"}
+        
+        /**
+        * @note  PGS16807:
+        *    Substitution {0} is a string containing the URL destination
+        */  
+        DynListener.DynamicListenerIndicationDispatcher.BAD_URL: string {"PGS16813: Invalid CIMXMLIndicationHandler destination: {0}."}
+
+        /**
+        * @note  PGS16807:
+        *    Substitution {0} is a string containing the error msg
+        */      
+        DynListener.cimlistener.LISTENER_NOT_STARTED: string {"PGS16814: CIM Listener not started: {0}"}
+        
+        DynListener.cimlistener.LISTENER_STOPPED: string {"PGS16815: CIM Listener stopped."}
+        
+        /**
+        * @note  PGS16807:
+        *    Substitution {0} is a date
+        *    Substitution {1} is a time
+        */  
+        DynListener.cimlistener.STARTUP_MESSAGE: string {"PGS16816: CIM Listener built {0} {1}\nCIM Listener starting..."}
+
+        DynListener.cimlistener.UNABLE_TO_START_LISTENER_ALREADY_RUNNING: string {"PGS16817: Unable to start CIM Listener.\nCIM Listener is already running."}
+ 
+        /**
+        * @note  PGS16807:
+        *    Substitution {0} is a string containing the error msg
+        */         
+        DynListener.cimlistener.ERROR: string {"PGS16818: CIM Listener error: {0}"}
+        
+        DynListener.cimlistener.DUPLICATE_SHUTDOWN_OPTION: string {"PGS16819: Duplicate shutdown option specified."}
+
+        /**
+        * @note DynListener.cimlistener.MENU.STANDARD:
+        *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
+        */
+        DynListener.cimlistener.MENU.STANDARD:string {
+        " Usage: cimlistener [ [ options ] ]\n"
+        "  options\n"
+        "    -v, --version   - displays CIM Listener version number.\n"
+        "    -h, --help      - prints this help message.\n"
+        "    -s              - shuts down CIM Lerver.\n"
+        "    -D [home]       - sets the home directory.\n"
+        }
+
+        /**
+        * @note DynListener.cimlistener.MENU.WINDOWS:
+        *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
+        */
+        DynListener.cimlistener.MENU.WINDOWS:string {
+        " Usage: cimlistener [ [ options ] ]\n"
+        "  options\n"
+        "    -v, --version   - displays CIM Listener version number.\n"
+        "    -h, --help      - prints this help message.\n"
+        "    -s              - shuts down CIM Listener.\n"
+        "    -D [home]       - sets the home directory.\n"
+        "    -install [name] - installs Pegasus CIM Listener as a Windows service.\n"
+        "                      [name] is optional and overrides the\n"
+        "                      default CIM Listener Service Name\n"
+        "    -remove [name]  - Removes Pegasus CIM Listener as a Windows service.\n"
+        "                      [name] is optional and overrides the\n"
+        "                      default CIM Listener Service Name\n"
+        "    -start [name]   - Starts Pegasus CIM Listener as a Windows service.\n"
+        
+
+        "                      [name] is optional and overrides the\n"
+        "                      default CIM Listener Service Name\n"
+        "    -stop [name]    - Stops Pegaus CIM Listener as a Windows service.\n"
+        "                      [name] is optional and overrides the\n"
+        "                      default CIM Listener Service Name\n"
+        "\n"
+        }
+        
+
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

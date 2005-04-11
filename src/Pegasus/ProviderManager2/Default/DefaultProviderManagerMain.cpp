@@ -38,10 +38,30 @@
 
 #include "DefaultProviderManager.h"
 
+#ifdef PEGASUS_OS_OS400
+#include "qushdler.H"
+#define WSYVP_IN_SRVPGM                        
+#include "vfyptrs.cinc"
+#endif 
+
 PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(const String & providerManagerName)
 {
+
+#ifdef PEGASUS_OS_OS400
+   VFYPTRS_INCDCL; 
+
+    String * volatile inputPtr;
+    String & input = (String&)providerManagerName;
+    inputPtr = &input;
+
+    // Verify Parameter
+#pragma exception_handler(qsyvp_excp_hndlr,qsyvp_excp_comm_area, 0,_C2_MH_ESCAPE)                               
+    VFYPTRS(VERIFY_SPP_NULL(inputPtr));
+#pragma disable_handler
+#endif
+ 
     if(String::equalNoCase(providerManagerName, "Default"))
     {
         return(new DefaultProviderManager());

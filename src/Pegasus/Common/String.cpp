@@ -45,7 +45,8 @@
 #include "CommonUTF.h"
 
 #ifdef PEGASUS_HAS_ICU
-#include <unicode/unistr.h>
+#include <unicode/ustring.h>
+#include <unicode/uchar.h>
 #endif
 
 PEGASUS_USING_STD;
@@ -440,63 +441,100 @@ Uint32 String::reverseFind(Char16 c) const
 
 void String::toLower()
 {
-    const char * noLocale = NULL;
-    String::toLower(noLocale);
-}
-void String::toLower(const char * strLocale)
-{
 #ifdef PEGASUS_HAS_ICU
-    UnicodeString UniStr((const UChar *)_rep->c16a.getData());
-    if(strLocale == NULL)
+    // This will do a locale-insensitive, but context-sensitive convert.
+    // Context-sensitive prevents any optimizations that try to 
+    // convert just the ascii before calling ICU.
+    // The string may shrink or expand after the convert.
+
+    int32_t sz = size();
+    UChar* destbuf = new UChar[sz + 1];
+    const UChar* srcbuf = (const UChar *)getChar16Data();
+    UErrorCode err = U_ZERO_ERROR;
+
+    int32_t needed = u_strToLower(destbuf, sz + 1 , srcbuf, sz, NULL, &err);
+    if (err == U_BUFFER_OVERFLOW_ERROR)
     {
-       	UniStr.toLower();
+      delete [] destbuf;
+      destbuf = new UChar[needed + 1];
+      err = U_ZERO_ERROR;
+      u_strToLower(destbuf, needed + 1 , srcbuf, sz, NULL, &err);
+    }
+    if (U_FAILURE(err))
+    {
+        delete [] destbuf;
+        throw Exception(u_errorName(err));  
+    }
+
+    if (needed == sz)
+    {
+        Char16* from = (Char16*)destbuf;
+        for (Char16* to = &_rep->c16a[0]; *to; to++, from++)
+        {
+          *to = *from;
+        }
     }
     else
     {
-	Locale loc(strLocale);
-	if(loc.isBogus())
-	{
-	    throw InvalidNameException(String(strLocale));
-	}
-	UniStr.toLower(loc);
+        assign((Char16 *)destbuf, needed);
     }
-    UniStr.append((UChar)'\0');   
-    
-    assign((Char16*)UniStr.getBuffer());
+
+    delete [] destbuf;
 #else
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
-	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
-	    *p = tolower(*p);
+        if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
+	        *p = tolower(*p);
     }
 #endif
 }
 
-void String::toUpper(const char * strLocale)
+void String::toUpper()
 {
 #ifdef PEGASUS_HAS_ICU
-    UnicodeString UniStr((const UChar *)_rep->c16a.getData());
-    if(strLocale == NULL)
+    // This will do a locale-insensitive, but context-sensitive convert.
+    // Context-sensitive prevents any optimizations that try to 
+    // convert just the ascii before calling ICU.
+    // The string may shrink or expand after the convert.
+
+    int32_t sz = size();
+    UChar* destbuf = new UChar[sz + 1];
+    const UChar* srcbuf = (const UChar *)getChar16Data();
+    UErrorCode err = U_ZERO_ERROR;
+
+    int32_t needed = u_strToUpper(destbuf, sz + 1 , srcbuf, sz, NULL, &err);
+    if (err == U_BUFFER_OVERFLOW_ERROR)
     {
-       	UniStr.toUpper();
+      delete [] destbuf;
+      destbuf = new UChar[needed + 1];
+      err = U_ZERO_ERROR;
+      u_strToUpper(destbuf, needed + 1 , srcbuf, sz, NULL, &err);
+    }
+    if (U_FAILURE(err))
+    {
+        delete [] destbuf;
+        throw Exception(u_errorName(err));  
+    }
+
+    if (needed == sz)
+    {
+        Char16* from = (Char16*)destbuf;
+        for (Char16* to = &_rep->c16a[0]; *to; to++, from++)
+        {
+          *to = *from;
+        }
     }
     else
     {
-	Locale loc(strLocale);
-	if(loc.isBogus())
-	{
-	    throw InvalidNameException(String(strLocale));
-	}
-	UniStr.toUpper(loc);
+        assign((Char16 *)destbuf, needed);
     }
-    UniStr.append((UChar)'\0');   
 
-    assign((Char16*)UniStr.getBuffer());
+    delete [] destbuf;
 #else
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
-	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
-	    *p = toupper(*p);
+	    if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
+	        *p = toupper(*p);
     }
 #endif
 }
@@ -540,35 +578,10 @@ int String::compare(const String& s1, const String& s2)
 
 int String::compareNoCase(const String& s1, const String& s2)
 {
-    const char * noLocale = NULL;
-    return String::compareNoCase(s1, s2, noLocale);
-}
-
-int String::compareNoCase(const String& s1, const String& s2,const char * strLocale)
-{
 #ifdef PEGASUS_HAS_ICU
-    UnicodeString UniStr1((const UChar *)s1.getChar16Data(), (int32_t)s1.size());
-    UnicodeString UniStr2((const UChar *)s2.getChar16Data(), (int32_t)s2.size());
-    if(strLocale == NULL)
-    {
-    	UniStr1.toLower();
-    	UniStr2.toLower();
-    }
-    else
-    {
-	Locale loc(strLocale);
-	if(loc.isBogus())
-	{
-	    throw InvalidNameException(String(strLocale));
-	}
-    	UniStr1.toLower(loc);
-    	UniStr2.toLower(loc);
-    }
-    // Note:  the ICU 2.6.1 documentation for UnicodeString::compare( ) is
-    // backwards!  The API actually returns +1 if this is greater than text.
-    // This is why the line below appears wrong based on the 2.6.1 docs.
-    // (ref. bugzilla 1207)
-    return (UniStr1.compare(UniStr2));
+    return  u_strcasecmp((const UChar*)s1.getChar16Data(),
+                          (const UChar*)s2.getChar16Data(),
+                          U_FOLD_CASE_DEFAULT);
 #else
     const Char16* _s1 = s1.getChar16Data();
     const Char16* _s2 = s2.getChar16Data();
@@ -607,31 +620,8 @@ Boolean String::equal(const String& str1, const String& str2)
 
 Boolean String::equalNoCase(const String& str1, const String& str2)
 {
-    const char * noLocale = NULL;
-    return String::equalNoCase(str1, str2, noLocale);
-}
-
-Boolean String::equalNoCase(const String& str1, const String& str2,const char * strLocale)
-{
 #ifdef PEGASUS_HAS_ICU
-    UnicodeString UniStr1((const UChar *)str1.getChar16Data(), (int32_t)str1.size());
-    UnicodeString UniStr2((const UChar *)str2.getChar16Data(), (int32_t)str2.size());
-    if(strLocale == NULL)
-    {
-    	UniStr1.toLower();
-    	UniStr2.toLower();
-    }
-    else
-    {
-	Locale loc(strLocale);
-	if(loc.isBogus())
-	{
-	    throw InvalidNameException(String(strLocale));
-	}
-    	UniStr1.toLower(loc);
-    	UniStr2.toLower(loc);
-    }
-    return (UniStr1 == UniStr2);    
+    return  compareNoCase(str1, str2) == 0;
 #else
     if (str1.size() != str2.size())
 	return false;

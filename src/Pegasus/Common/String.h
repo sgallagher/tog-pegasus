@@ -368,29 +368,14 @@ public:
     Uint32 reverseFind(Char16 c) const;
 
     /** Converts all characters in this string to lowercase characters,
-        ICU    : Operation will use default locale or the locale provided
-        NON ICU: Operattion will use c runtime function
     */
     void toLower();
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-        @param strLocale const char * is the locale to use for the operation.
-               If NULL will use the default locale for the process.
-        Refer to Locale constants for formating.
-    */
-    void toLower(const char * strLocale);
-#endif
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     /** <I><B>Experimental Interface</B></I><BR>
         Converts all characters in this string to uppercase characters.
-        @param strLocale const char * is the locale to use for the operation.
-               If NULL will use the default locale for the process.
-        ICU    : Operation will use default locale or the locale provided
-        NON ICU: Operattion will use c runtime function 
-        Refer to Locale constants for formating.   
     */
-    void toUpper(const char * strLocale = NULL);
+    void toUpper();
 #endif
 
     /** Compare the first n characters of the two strings.
@@ -421,18 +406,8 @@ public:
 
 	NOTE: Use the comparison operators <,<= > >= to compare
 	String objects.
-        ICU    : Operation will use default locale or the locale provided
-        NON ICU: Operattion will use c runtime function
     */
     static int compareNoCase(const String& s1, const String& s2);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-        @param strLocale const char * is the locale to use for the operation.
-               If NULL will use the default locale for the process.
-        Refer to Locale constants for formating.
-    */
-    static int compareNoCase(const String& s1, const String& s2, const char * strLocale);
-#endif
 
     /** Compare two String objects for equality.
 	@param s1 First <TT>String</TT> for comparison.
@@ -454,19 +429,8 @@ public:
 	@param str2 Second String parameter.
 	@return true If strings are equal independent of case, flase
         otherwise.
-
-        ICU    : Operation will use default locale or the locale provided
-        NON ICU: Operation will use c runtime function
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-    /** <I><B>Experimental Interface</B></I><BR>
-        @param strLocale const char * is the locale to use for the operation.
-               If NULL will use the default locale for the process.
-        Refer to Locale constants for formating.
-    */
-    static Boolean equalNoCase(const String& str1, const String& str2, const char * strLocale);
-#endif
 
 private:
 

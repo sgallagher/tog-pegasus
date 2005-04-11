@@ -139,8 +139,22 @@ PEGASUS_USING_STD;
 #ifndef PEGASUS_LISTENER_SERVICE_DESCRIPTION
 #define PEGASUS_LISTENER_SERVICE_DESCRIPTION "Pegasus CIM Listener Service"
 #endif
+
+//The start file is created as soon the child forks and notifies the parent.
+//This file is used to detect whether the cimserver is running and thus,
+//it must exist until right before the child process exits.
 #ifndef LISTENER_START_FILE
 #define LISTENER_START_FILE "/tmp/cimlistener_start.conf"
+#endif
+//The stop file is created to signal the cimserver to shutdown.
+//We cannot use the earlier file and delete it to "signal shutdown"
+//because then another cimserver process could be started while we
+//were still shutting down.  This is a workaround for the fact that
+//signals are not implemented on all platforms.  Theoretically,
+//we should be blocking until the calling process signalled the child
+//to shutdown.
+#ifndef LISTENER_STOP_FILE
+#define LISTENER_STOP_FILE "/tmp/cimlistener_stop.conf"
 #endif
 
 class CIMListenerProcess : public ServerProcess
@@ -489,7 +503,7 @@ setlocale(LC_ALL, "");
                     {
                         //l10n
                         //cout << "Duplicate shutdown option specified." << endl;
-                        MessageLoaderParms parms("src.Server.cimserver.DUPLICATE_SHUTDOWN_OPTION",
+                        MessageLoaderParms parms("DynListener.cimlistener.DUPLICATE_SHUTDOWN_OPTION",
                                                  "Duplicate shutdown option specified.");
                        
                         cout << MessageLoader::getMessage(parms) << endl;
@@ -600,8 +614,8 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
             "cimserver not started:  $0", e.getMessage());
 
 #if !defined(PEGASUS_OS_OS400)
-        MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
-            "cimserver not started: $0", e.getMessage());
+        MessageLoaderParms parms("DynListener.cimlistener.LISTENER_NOT_STARTED",
+                                 "CIM Listener not started: $0", e.getMessage());
 
         PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
             << PEGASUS_STD(endl);
@@ -626,7 +640,30 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
     if (shutdownOption)
     {
         //gracefully exit
-        cimserver_kill(1);
+        //Uncomment the following line when signals are implemented on all platforms.
+        //The workaround is to use a file.
+        //cimserver_kill(1);
+
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
+    || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) \
+    || defined(PEGASUS_OS_VMS)
+        //
+        // create a file to indicate that the cimserver has started and
+        // save the process id of the cimserver process in the file
+        //
+        // remove the old file if it exists
+        System::removeFile(LISTENER_STOP_FILE);
+
+        // open the file
+        FILE *pid_file = fopen(LISTENER_STOP_FILE, "w");
+
+        if (pid_file)
+        {
+            // save the pid in the file
+            fprintf(pid_file, "%ld\n", _cimListenerProcess->get_server_pid());
+            fclose(pid_file);
+        }
+#endif
 
 #ifdef PEGASUS_OS_OS400
     //l10n
@@ -639,9 +676,8 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
 #else
         //l10n
         //cout << "CIM Server stopped." << endl;
-        MessageLoaderParms parms("src.Server.cimserver.SERVER_STOPPED",
-                                 "CIM Server stopped.");
-
+        MessageLoaderParms parms("DynListener.cimlistener.LISTENER_STOPPED",
+                                 "CIM Listener stopped.");
         cout << MessageLoader::getMessage(parms) << endl;
         return(0);
 #endif
@@ -736,8 +772,8 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
     //l10n
     //cout << "Built " << __DATE__ << " " << __TIME__ << endl;
     //cout <<"Starting..."
-    MessageLoaderParms parms("src.Server.cimserver.STARTUP_MESSAGE",
-                             "Built $0 $1\nStarting...",
+    MessageLoaderParms parms("DynListener.cimlistener.STARTUP_MESSAGE",
+                             "CIM Listener built $0 $1\nCIM Listener starting...",
                              __DATE__,
                              __TIME__);
 #endif
@@ -748,7 +784,7 @@ MessageLoader::_useProcessLocale = false;
 //l10n
 
     // Get the parent's PID before forking
-    set_parent_pid(System::getPID());
+    _cimListenerProcess->set_parent_pid(System::getPID());
 
     // do we need to run as a daemon ?
     if (daemonOption)
@@ -825,8 +861,8 @@ MessageLoader::_useProcessLocale = false;
     //l10n
         //cout << "Unable to start CIMServer." << endl;
         //cout << "CIMServer is already running." << endl;
-        MessageLoaderParms parms("src.Server.cimserver.UNABLE_TO_START_SERVER_ALREADY_RUNNING",
-                     "Unable to start CIMServer.\nCIMServer is already running.");
+        MessageLoaderParms parms("DynListener.cimlistener.UNABLE_TO_START_LISTENER_ALREADY_RUNNING",
+                                 "Unable to start CIM Listener.\nCIM Listener is already running.");
     PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 
     //
@@ -919,8 +955,27 @@ MessageLoader::_useProcessLocale = false;
             _cimListenerProcess->getProductName(), _cimListenerProcess->getVersion());
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
+
+        printf("Blocking until shutdown signal\n");
+        while (true)
+        {
+            if (FileSystem::exists(LISTENER_STOP_FILE))
+            {
+                break;
+            } 
+
+            pegasus_sleep(500);
+        }
+
+        printf("Received signal to shutdown\n");
+        FileSystem::removeFile(LISTENER_STOP_FILE);
+        _cimListener->stop();
+        
+
+        //Uncomment this block of code when signals are implemented on all platforms.
+        //Temporary workaround is to use a file, as specified above.
         //wait until signalled to terminate
-        int sig = _cimListenerProcess->cimserver_wait();
+        /*int sig = _cimListenerProcess->cimserver_wait();
         printf("Returned from sigwait %d\n", sig);
 
         if (sig == SIGUSR1)
@@ -928,6 +983,7 @@ MessageLoader::_useProcessLocale = false;
             printf("Graceful shutdown\n");
             _cimListener->stop();
         }
+        */
 #else
         //ATTN: Implement cimserver_wait for windows so we don't have to loop here
         //The listener is stopped in the cimserver_stop method by the service control manager
@@ -976,8 +1032,8 @@ MessageLoader::_useProcessLocale = false;
 #ifndef PEGASUS_OS_OS400
     //l10n
     //PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-    MessageLoaderParms parms("src.Server.cimserver.ERROR",
-                             "Error: $0", e.getMessage());
+    MessageLoaderParms parms("DynListener.cimlistener.ERROR",
+                             "CIM Listener error: $0");
     PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 
 #endif
@@ -988,7 +1044,19 @@ MessageLoader::_useProcessLocale = false;
         if (daemonOption)
                 _cimListenerProcess->notify_parent(1);
 
+        if (_cimListener)
+        {
+            delete _cimListener;
+            _cimListener = 0;
+        }
+
         return 1;
+    }
+
+    if (_cimListener)
+    {
+        delete _cimListener;
+        _cimListener = 0;
     }
 
     printf("Exiting child process\n");

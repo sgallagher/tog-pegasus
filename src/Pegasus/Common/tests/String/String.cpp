@@ -240,6 +240,86 @@ int main(int argc, char** argv)
         // compare is for null term strings
         // therefore following does not work.
         //assert(String::compare(t1,t2) == -1);
+      
+        t1 = "abc";
+        t2 = "ABC";
+        assert(String::equalNoCase(t1,t2));
+        assert(!String::equal(t1,t2));
+        assert(String::compareNoCase(t1,t2) == 0);
+        t1.toUpper();
+        t2.toLower();
+        assert(String::equal(t1, "ABC"));
+        assert(String::equal(t2, "abc"));
+
+        t1 = "1000";
+        t2 = "1001";
+        assert(String::compareNoCase(t1,t2) < 0);
+        assert(String::compare(t1,t2) < 0);
+        assert(String::compare(t1,t2, 3) == 0);
+
+#ifdef PEGASUS_HAS_ICU
+        //
+        // Strings used to test non-ascii case mappings
+        // Tests context sensitve mappings (eg. greek)
+        // Tests expansion after mapping (eg german)
+        //
+
+        // Lower case german and greek
+        // --latin small letter sharp s (german) (2 of these to cause
+        //  ICU overflow error inside of String)
+        // --greek small letter sigma (followed by another letter)
+        // --latin small a
+        // --greek small letter sigma (NOT followed by another letter)
+        const Char16 lowermap[] = {
+                                   0xdf,
+                                   0xdf,
+                                   0x3c3,
+                                   'a',
+                                   0x3c2,
+                                   0x00};
+        String degkLow(lowermap);
+
+        // Needed because the german char does not round trip
+        // after an uppercase followed by lower case.
+        // --latin small letters 's' 's' (4 of these due to expansion)
+        // --greek small letter sigma (followed by another letter)
+        // --latin small a
+        // --greek small letter sigma (NOT followed by another letter)
+        const Char16 lowermap2[] = {
+                                   's', 's', 's', 's',
+                                   0x3c3,
+                                   'a',
+                                   0x3c2,
+                                   0x00}; 
+        String degkLow2(lowermap2);
+        
+        // Upper case greek and german
+        // latin cap letter sharp s (german) (4 of these due to expansion)
+        // greek cap letter sigma (followed by another letter)
+        // latin cap A
+        // greek cap letter sigma (NOT followed by another letter)
+        const Char16 uppermap[] = {
+                                  'S', 'S', 'S', 'S',
+                                   0x3a3,
+                                   'A',
+                                   0x3a3,
+                                   0x00}; 
+        String degkUp(uppermap);
+
+
+        assert(String::compareNoCase(degkLow,degkUp) == 0);
+        // does a binary compare, so lower > upper
+        assert(String::compare(degkLow,degkUp) > 0);
+        assert(String::equalNoCase(degkLow,degkUp));
+
+        String mapTest(degkLow);
+        mapTest.toUpper();
+        assert(String::equal(mapTest, degkUp));
+
+        // Note that the German char does not round trip
+        mapTest.toLower();
+        assert(String::equal(mapTest, degkLow2));
+#endif
     }
 
     {
@@ -361,7 +441,7 @@ int main(int argc, char** argv)
         String tmpBig = big;
         String tmpLittle = little;
 
-        tmpBig.toLower(ENGLISH_US);
+        tmpBig.toLower();
         assert(tmpBig == little);
 
         tmpBig.toUpper();
@@ -388,15 +468,6 @@ int main(int argc, char** argv)
 
         String ugly(utf16Chars);
         assert(ugly == utf16Chars);
-
-#ifdef PEGASUS_HAS_ICU
-        ugly.toLower("zh_CN");
-        assert(ugly != utf16Chars);
-
-        ugly.toUpper("zh_CN");
-        assert(ugly != utf16Chars);
-#endif
-
     }
 
 #if 0

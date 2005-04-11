@@ -1,4 +1,4 @@
-.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimmofl.1,v 1.1 2004/11/23 11:40:01 alagaraja Exp $
+.\" $Header: /cvs/MSB/pegasus/rpm/manLinux/man1.Z/cimmofl.1,v 1.2 2005/04/11 08:35:12 a.arora Exp $
 .\" .TA c \" lowercase initial letter of .TH name
 .TH "cimmofl" "1" "" "" ""
 .SH "NAME"
@@ -8,9 +8,9 @@ cimmofl \- compile MOF files into the CIM Repository
        [ \fB\-uc\fP ] [ \fB\-aE | \-aV | \-aEV\fP ]
        [ \fB\-I\fP path ] [ \fB\-n\fP namespace ] [ \fB\-\-namespace\fP namespace ]
        [ \fB\-\-xml\fP ] [ \fB\-\-trace\fP ]
-[ \fB\-R\fP repository ] 
-       [ \fB\-\-CIMRepository\fP repository ]
-<mof_file1> <mof_file2...>
+       [ \fB\-R\fP repositorydir ] [ \fB\-\-CIMRepository\fP repositorydir ]
+       [ \fB\-N\fP repositoryname ] [ \fB\-M\fP repositorymode ]
+       <mof_file1> <mof_file2...>
 .SS Remarks
 .PP 
 Only a superuser or user with write access to the default or specified 
@@ -106,7 +106,7 @@ Syntax check only
 .B \-h, \-\-help
 Display command usage information.
 .TP 
-\fB\-I\fP path
+\fB\-I\fP
 Specify the path to included MOF files.  This path may be relative or
 absolute.
 .IP 
@@ -141,6 +141,12 @@ specified must be root/PG_InterOp.
 .TP 
 .B \-R
 Specify the repository path.
+.TP 
+\fB\-N\fP 
+Specify the repository name - defaults to "repository"
+.TP 
+\fB\-M\fP 
+Repository mode [XML, BIN] - defaults to "XML"
 .TP 
 \fB\-\-trace\fP 
 Trace to file (default to stdout).

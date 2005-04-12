@@ -33,7 +33,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-common-defs.h,v 1.4 2005/04/08 20:26:03 konrad.r Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-common-defs.h,v 1.5 2005/04/12 18:32:11 konrad.r Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -68,6 +68,5 @@
 /* platform compatibility includes */
 #include "config.h"
 #include OS_PORT_INCLUDE
-#include <Pegasus/Common/Config.h>
 
 #endif /* _LSLP_COMMON_INCLUDE_ */

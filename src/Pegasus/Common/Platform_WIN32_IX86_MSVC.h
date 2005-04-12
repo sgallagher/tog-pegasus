@@ -74,8 +74,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#define strcasecmp _stricmp
-
 // Suppress this warning: "identifier was truncated to '255' characters in the
 // debug information":
 #pragma warning( disable : 4786 )

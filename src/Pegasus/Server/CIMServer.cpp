@@ -49,9 +49,12 @@
 #include <cstdio>
 #include <cctype>
 #include <ctime>
-#if defined(PEGASUS_OS_HPUX) && defined(PEGASUS_USE_RELEASE_DIRS)
-#include <unistd.h>
+
+#if (defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)) \
+    && defined(PEGASUS_USE_RELEASE_DIRS)
+# include <unistd.h>
 #endif
+
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/HTTPAcceptor.h>

@@ -66,22 +66,46 @@ static struct ConfigPropertyRow properties[] =
 #else
     {"enableAuthentication", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
-#if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
-    {"httpAuthType", "Kerberos", IS_STATIC, 0, 0, IS_VISIBLE},
-#else
+//#if defined(PEGASUS_OS_OS400) && defined(PEGASUS_KERBEROS_AUTHENTICATION)
+//    {"httpAuthType", "Kerberos", IS_STATIC, 0, 0, IS_VISIBLE},
+//#else
     {"httpAuthType", "Basic", IS_STATIC, 0, 0, IS_VISIBLE},
-#endif
+//#endif
     {"passwordFilePath", "cimserver.passwd", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_OS_HPUX
-    {"sslCertificateFilePath", "cert.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
+    {"sslCertificateFilePath", "cert.pem", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
+# ifdef PEGASUS_OS_OS400
+    {"sslCertificateFilePath", "ssl/keystore/servercert.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
     {"sslCertificateFilePath", "server.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
+# endif
 #endif
-    {"sslKeyFilePath", "file.pem", IS_STATIC, 0, 0, IS_VISIBLE}, 
-    {"sslTrustStore", "cimserver_trust", IS_STATIC, 0, 0, IS_VISIBLE}, 
+#ifdef PEGASUS_OS_OS400
+    {"sslKeyFilePath", "ssl/keystore/serverkey.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
+    {"sslKeyFilePath", "file.pem", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
+#ifdef PEGASUS_OS_OS400
+    {"sslTrustStore", "ssl/truststore/", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
+    {"sslTrustStore", "cimserver_trust", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
+#ifdef PEGASUS_OS_OS400
+    {"exportSSLTrustStore", "ssl/exporttruststore/", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
     {"exportSSLTrustStore", "indication_trust", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
+#ifdef PEGASUS_OS_OS400
+    {"crlStore", "ssl/crlstore/", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
     {"crlStore", "crl", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
+#ifdef PEGASUS_OS_OS400
+    {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
     {"sslTrustStoreUserName", "", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_OS_OS400
     {"enableNamespaceAuthorization", "true", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -98,13 +122,21 @@ static struct ConfigPropertyRow properties[] =
     {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
 #else
+# ifdef PEGASUS_OS_OS400
+    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 0, 0, IS_HIDDEN},
+# else
     {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_HIDDEN},
+# endif
 #endif
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
     {"authorizedUserGroups", "", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
+#ifdef PEGASUS_OS_OS400
+    {"enableSSLExportClientVerification", "true", IS_STATIC, 0, 0, IS_VISIBLE}
+#else
     {"enableSSLExportClientVerification", "false", IS_STATIC, 0, 0, IS_VISIBLE}
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

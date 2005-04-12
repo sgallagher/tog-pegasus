@@ -34,28 +34,28 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"enableAuthentication",                     "true"},
+  //  {"enableAuthentication",                     "true"},
     {"enableRemotePrivilegedUserAccess",         "true"},
     {"enableNamespaceAuthorization",             "true"},
-    {"enableHttpConnection",                     "true"},
+//    {"enableHttpConnection",                     "true"},
     {"enableBinaryRepository",                  "false"},
     // Do not fix the daemon property.  Otherwise, daemon=true cannot
     // be passed on the CIMOM command line.
     // Note: fixing the daemon property to true could
     // lead to an infintite loop of QYCMCIMOM jobs being submitted.
 //  {"daemon",                                   "false"},
-    {"enableIndicationService",                  "false"},
+//    {"enableIndicationService",                  "false"},
     // The following properties are not supported by OS400        
     {"providerDir",                              "lib"},		
     {"logdir",                                   "./logs"},		
     {"passwordFilePath",                         "cimserver.passwd"},
-    {"sslCertificateFilePath",                   "server.pem"},
-    {"sslKeyFilePath",                           "file.pem"},
-    {"sslTrustStore",                            "client.pem"},
-    {"sslClientVerificationMode",                "disabled"},
-    {"enableSubscriptionsForNonprivilegedUsers", "true"},
-    {"httpsPort",                                "5989"},
-    {"enableHttpsConnection",                    "false"},
+//    {"sslCertificateFilePath",                   "server.pem"},
+//    {"sslKeyFilePath",                           "file.pem"},
+//    {"sslTrustStore",                            "client.pem"},
+//    {"sslClientVerificationMode",                "disabled"},
+//    {"enableSubscriptionsForNonprivilegedUsers", "true"},
+//    {"httpsPort",                                "5989"},
+//    {"enableHttpsConnection",                    "false"},
     {"slp",                                      "false"},
     {"authorizedUserGroups",                          ""},
     {"home",                  "/QIBM/UserData/OS400/CIM"},

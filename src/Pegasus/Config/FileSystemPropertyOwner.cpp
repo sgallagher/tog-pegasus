@@ -60,7 +60,11 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
     {"repositoryDir", "repository", IS_STATIC, 0, 0, IS_VISIBLE},
+#ifdef PEGASUS_OS_OS400
+    {"messageDir", "/QIBM/ProdData/OS400/CIM/msg", IS_STATIC, 0, 0, IS_VISIBLE},
+#else
     {"messageDir", "msg", IS_STATIC, 0, 0, IS_VISIBLE},
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

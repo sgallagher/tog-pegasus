@@ -225,19 +225,19 @@ void testOverloadPool()
         Boolean threadStarted;
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)600, funcSleepSpecifiedMilliseconds);
+            (void*)1500, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)500, funcSleepSpecifiedMilliseconds);
+            (void*)1500, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)400, funcSleepSpecifiedMilliseconds);
+            (void*)1500, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)300, funcSleepSpecifiedMilliseconds);
+            (void*)1500, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(
@@ -245,7 +245,7 @@ void testOverloadPool()
         assert(!threadStarted);
 
         while (!threadPool.allocate_and_awaken(
-            (void*)300, funcSleepSpecifiedMilliseconds))
+            (void*)100, funcSleepSpecifiedMilliseconds))
         {
             pegasus_yield();
         }

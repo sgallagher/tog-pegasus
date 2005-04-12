@@ -34,6 +34,7 @@
 //              David Dillard, VERITAS Software Corp.
 //		Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //                  (david.dillard@veritas.com)
+//              Vijay S Eli, IBM (vijayeli@in.ibm.com), for bug#3101 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -189,6 +190,13 @@ int main (int argc, char * argv [])
 			(ContentLanguageListContainer::NAME)).getLanguages()== ContentLanguages::EMPTY);
         PEGASUS_ASSERT (((AcceptLanguageListContainer)request->operationContext.get
 			(AcceptLanguageListContainer::NAME)).getLanguages()== AcceptLanguages::EMPTY);
+
+        AcceptLanguageListContainer allc1(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        PEGASUS_ASSERT ( allc1.getLanguages() == AcceptLanguages::EMPTY );
+        AcceptLanguageListContainer allc2(allc1);
+        PEGASUS_ASSERT ( allc2.getLanguages() == AcceptLanguages::EMPTY );
+        AcceptLanguageListContainer allc3 = allc2;
+        PEGASUS_ASSERT ( allc3.getLanguages() == AcceptLanguages::EMPTY );        
 
         CIMInstance anInstance;
         AutoPtr <CIMGetInstanceResponseMessage> response

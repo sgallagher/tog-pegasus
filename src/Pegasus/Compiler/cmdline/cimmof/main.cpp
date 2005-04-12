@@ -53,6 +53,7 @@
 #include "vfyptrs.cinc"
 #include <stdio.h>
 #include "OS400ConvertChar.h"
+#define DISABLE_CIMMOFL_WARNING
 #endif
 
 PEGASUS_USING_STD;

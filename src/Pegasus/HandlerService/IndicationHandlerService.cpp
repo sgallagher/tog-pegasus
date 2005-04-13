@@ -374,6 +374,7 @@ IndicationHandlerService::_handleIndication(
             cimException,
             request->queueIds.copyAndPop());
 
+    delete request;
     return response;
 }
 

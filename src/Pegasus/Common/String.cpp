@@ -30,6 +30,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3297
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -118,46 +119,6 @@ CString::operator const char*() const
 ///////////////////////////////////////////////////////////////////////////////
 
 const String String::EMPTY = String();
-
-Uint32 _strnlen(const char* str, Uint32 n)
-{
-    if (!str)
-	throw NullPointer();
-
-    for (Uint32 i=0; i<n; i++)
-    {
-        if (!*str)
-        {
-            return i;
-        }
-    }
-
-    return n;
-}
-
-Uint32 _strnlen(const Char16* str, Uint32 n)
-{
-    if (!str)
-	throw NullPointer();
-
-    for (Uint32 i=0; i<n; i++)
-    {
-        if (!*str)
-        {
-            return i;
-        }
-    }
-
-    return n;
-}
-
-inline Uint32 _StrLen(const char* str)
-{
-    if (!str)
-	throw NullPointer();
-
-    return strlen(str);
-}
 
 inline Uint32 _StrLen(const Char16* str)
 {
@@ -265,8 +226,7 @@ String& String::assign(const Char16* str)
 String& String::assign(const Char16* str, Uint32 n)
 {
     _rep->c16a.clear();
-    Uint32 m = _strnlen(str, n);
-    _rep->c16a.append(str, m);
+    _rep->c16a.append(str, n);
     _rep->c16a.append('\0');
     return *this;
 }
@@ -328,10 +288,13 @@ String& String::append(const Char16& c)
 
 String& String::append(const Char16* str, Uint32 n)
 {
-    Uint32 m = _strnlen(str, n);
-    _rep->c16a.reserveCapacity(_rep->c16a.size() + m);
+     if (!str)
+     {
+         throw NullPointer();
+     }
+    _rep->c16a.reserveCapacity(_rep->c16a.size() + n);
     _rep->c16a.remove(_rep->c16a.size() - 1);
-    _rep->c16a.append(str, m);
+    _rep->c16a.append(str, n);
     _rep->c16a.append('\0');
     return *this;
 }

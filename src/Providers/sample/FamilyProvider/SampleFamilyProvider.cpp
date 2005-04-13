@@ -99,7 +99,12 @@ PEGASUS_USING_PEGASUS;
 
 #define CDEBUG(X)
 //#define CDEBUG(X) PEGASUS_STD(cout) << "SampleFamilyProvider " << X << PEGASUS_STD(endl)
+
 //#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "SampleFamilyProvider", Logger::INFORMATION, "$0", X)
+
+
+#define CDEBUG_HOST(X) CDEBUG(X)
+//#define CDEBUG_HOST(X) PEGASUS_STD(cout) << "SampleFamilyProvider " << X << PEGASUS_STD(endl)
 
 // requires using PEGASUS_USING_PEGASUS
 //#include <cstring>
@@ -115,6 +120,8 @@ const CIMName personDynamicClassName = "TST_PersonDynamic";
 const CIMName personDynamicSubclassClassName = "TST_PersonDynamicSubClass";
 const CIMName lineageDynamicAssocClassName = "TST_LineageDynamic";
 const CIMName labeledLineageDynamicAssocClassName = "TST_LabeledLineageDynamic";
+
+String _hostname;   
 
 // The namespace in which we expect to reside.
 // We need to think out some of the issues with this
@@ -244,21 +251,18 @@ Boolean _returnThisProperty(const CIMPropertyList& pl, const CIMName& pn)
 
 void _setCompleteObjectPath(CIMObjectPath & path)
 {
-
-    String host = System::getHostName();
-    path.setHost(host);
+    path.setHost(_hostname);
     path.setNameSpace(nameSpace);
 }
 
 void _setCompleteObjectPath(CIMInstance & instance)
 {
-
-    String host = System::getHostName();
     CIMObjectPath p = instance.getPath();
-    p.setHost(host);
+    p.setHost(_hostname);
     p.setNameSpace(nameSpace);
     instance.setPath(p);
 }
+
 
 /** clone the input instance and filter it in accordance with
     the input variables.
@@ -469,7 +473,7 @@ CIMInstance _buildInstanceLineageDynamic(const CIMClass& thisClass,
     CIMName thisClassReference = personDynamicClassName;
     CIMName assocClassName = "TST_LineageDynamic";
     CIMInstance instance(assocClassName);
-    //parent.setHost(host);
+    //parent.setHost(_hostname);
     //parent.setNameSpace(nameSpace);
     instance.addProperty(CIMProperty("parent", parent,0,thisClassReference));
     instance.addProperty(CIMProperty("child", child, 0, thisClassReference));
@@ -737,6 +741,9 @@ void SampleFamilyProvider::getInstance(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
+    CDEBUG_HOST("getInstance hostname: " << instanceReference.getHost() );  
+    _hostname = instanceReference.getHost(); // save hostname for response
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "getInstance. Class= %s",
 		(const char *)instanceReference.toString().getCString(),
         (const char *)_showBool(includeQualifiers).getCString(),
@@ -805,6 +812,9 @@ void SampleFamilyProvider::enumerateInstances(
 	const CIMPropertyList & propertyList,
 	InstanceResponseHandler & handler)
 {
+    CDEBUG_HOST("enumerInstances hostname: " << classReference.getHost() );  
+    _hostname = classReference.getHost(); // save hostname for response
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "enumerateInstances. Class= %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
 		(const char *) classReference.toString().getCString(),
@@ -862,6 +872,9 @@ void SampleFamilyProvider::enumerateInstanceNames(
 	const CIMObjectPath & classReference,
 	ObjectPathResponseHandler & handler)
 {
+    CDEBUG_HOST("enumerateInstanceNames hostname: " << classReference.getHost() );  
+    _hostname = classReference.getHost(); // save hostname for response
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstanceNames. Class= %s",
 		  (const char *) classReference.toString().getCString());
 
@@ -936,7 +949,14 @@ void SampleFamilyProvider::modifyInstance(
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {
+    CDEBUG_HOST("modifyInstance  hostname: " << instanceReference.getHost() );  
+    _hostname = instanceReference.getHost(); // save hostname for response
+
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "modifyInstance. Class= %s",
+		  (const char *) instanceReference.toString().getCString());
+
     //CIMName myClass = instanceReference.getClassName();
+    
 	CIMObjectPath localReference =_makeRefLocal(instanceReference);
 	
     Boolean instanceFound = false;
@@ -1003,6 +1023,12 @@ void SampleFamilyProvider::createInstance(
 	const CIMInstance & instanceObject,
 	ObjectPathResponseHandler & handler)
 {
+    CDEBUG_HOST("JRW createInstance hostname: " << instanceReference.getHost() );  
+    _hostname = instanceReference.getHost(); // save hostname for response
+
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "createInstance. Class= %s",
+		  (const char *) instanceReference.toString().getCString());
+
     // convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
 	CIMObjectPath localReference = _makeRefLocal(instanceReference);
@@ -1064,6 +1090,14 @@ void SampleFamilyProvider::deleteInstance(
 	const CIMObjectPath & instanceReference,
 	ResponseHandler & handler)
 {
+
+    CDEBUG_HOST("deleteInstance hostname: " << instanceReference.getHost() ); 
+    _hostname = instanceReference.getHost(); // save hostname for response
+
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "deleteInstance. Class= %s",
+		  (const char *) instanceReference.toString().getCString());
+
+
 	// convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
 	CIMObjectPath localReference = _makeRefLocal(instanceReference);
@@ -1161,6 +1195,9 @@ void SampleFamilyProvider::associators(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
+    CDEBUG_HOST("asociatores hostname: " << objectName.getHost() );  
+    _hostname = objectName.getHost(); // save hostname for response
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "associators. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole= %s, IncludeQualifiers= %s, ClassOrig= %s, propertyList= %s",
 		  (const char *) objectName.toString().getCString(),
@@ -1171,6 +1208,8 @@ void SampleFamilyProvider::associators(
 		  (const char *) _showBool(includeQualifiers).getCString(),
 		  (const char *) _showBool(includeClassOrigin).getCString(),
 		  (const char *) _showPropertyList(propertyList).getCString());
+
+
 
     // begin processing the request
     // Get the namespace and host names to create the CIMObjectPath
@@ -1236,9 +1275,9 @@ void SampleFamilyProvider::_associatorNames(
         for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
         {
             CIMObjectPath sendPath = resultPaths[i];
-            String host = System::getHostName();
+
             if (sendPath.getHost().size() == 0)
-                sendPath.setHost(host);
+                sendPath.setHost(_hostname);
 
             if (sendPath.getNameSpace().isNull())
                 sendPath.setNameSpace(nameSpace);
@@ -1257,6 +1296,9 @@ void SampleFamilyProvider::associatorNames(
 	const String & resultRole,
 	ObjectPathResponseHandler & handler)
 {
+    CDEBUG_HOST("asociatorNames hostname: " << objectName.getHost() );  
+    _hostname = objectName.getHost(); // save hostname for response
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "associatorNames. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole=%s",
 		  (const char*)objectName.toString().getCString(),
@@ -1266,7 +1308,7 @@ void SampleFamilyProvider::associatorNames(
                   (const char*)resultRole.getCString());
 
     // Get the namespace and host names to create the CIMObjectPath
-    String host = System::getHostName();
+
     CIMNamespaceName nameSpace = objectName.getNameSpace();
 
     CIMObjectPath localObjectName = _makeRefLocal(objectName);
@@ -1308,8 +1350,6 @@ void SampleFamilyProvider::_references(
 {
     // Get the namespace and host names to create the CIMObjectPath
 
-    String host = System::getHostName();
-
     // Filter out the required objectpaths from the association list.
     Array<CIMInstance> returnInstances = _filterReferenceNames(instanceArray,
                                                objectName,
@@ -1320,7 +1360,7 @@ void SampleFamilyProvider::_references(
     {
         CIMObjectPath objectPath =  returnInstances[i].getPath();
         if (objectPath.getHost().size() == 0)
-            objectPath.setHost(host);
+            objectPath.setHost(_hostname);
 
         if (objectPath.getNameSpace().isNull())
             objectPath.setNameSpace(nameSpace);
@@ -1342,12 +1382,17 @@ void SampleFamilyProvider::references(
 	const CIMPropertyList & propertyList,
 	ObjectResponseHandler & handler)
 {
+    CDEBUG_HOST("references hostname: " << objectName.getHost() );  
+    _hostname = objectName.getHost(); // save hostname for response
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "references. object= %s, resultClass= %s, role= %s, IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
-		  (const char*)objectName.toString().getCString(),(const char *)resultClass.getString().getCString(),
+		  (const char*)objectName.toString().getCString(),
+		  (const char *)resultClass.getString().getCString(),
 		  (const char *)role.getCString(),
 		  (const char*)_showBool(includeQualifiers).getCString(),
-		  (const char *) _showBool(includeClassOrigin).getCString(),(const char*)_showPropertyList( propertyList).getCString());
+		  (const char *) _showBool(includeClassOrigin).getCString(),
+		  (const char*)_showPropertyList( propertyList).getCString());
 	
     //CIMNamespaceName nameSpace = objectName.getNameSpace();
 
@@ -1388,7 +1433,7 @@ void SampleFamilyProvider::_referenceNames(
 	const String & role,
 	ObjectPathResponseHandler & handler)
 {
-    String host = System::getHostName();
+
     Array<CIMInstance> returnInstances;
 
 	CIMObjectPath localObjectName = CIMObjectPath(
@@ -1408,7 +1453,7 @@ void SampleFamilyProvider::_referenceNames(
         // Copy moves the data.
         CIMObjectPath sendPath =  returnInstances[i].getPath();
         if (sendPath.getHost().size() == 0)
-            sendPath.setHost(host);
+            sendPath.setHost(_hostname);
 
         if (sendPath.getNameSpace().isNull())
             sendPath.setNameSpace(nameSpace);
@@ -1426,10 +1471,14 @@ void SampleFamilyProvider::referenceNames(
 	const String & role,
 	ObjectPathResponseHandler & handler)
 {
+    CDEBUG_HOST("referenceNames  hostname: " << objectName.getHost() ); 
+    _hostname = objectName.getHost(); // save hostname for response
+ 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
         "referenceNames. object= %s, resultClass= %s, role= %s",
 		  (const char*)objectName.toString().getCString(),
-		  (const char *)resultClass.getString().getCString(), (const char*)role.getCString());
+		  (const char *)resultClass.getString().getCString(), 
+		  (const char*)role.getCString());
 
 	CDEBUG("ReferenceNames Operation. objectName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
     CIMNamespaceName nameSpace = objectName.getNameSpace().getString();

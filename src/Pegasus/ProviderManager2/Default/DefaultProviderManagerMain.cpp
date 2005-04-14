@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -40,9 +40,9 @@
 
 #ifdef PEGASUS_OS_OS400
 #include "qushdler.H"
-#define WSYVP_IN_SRVPGM                        
+#define WSYVP_IN_SRVPGM
 #include "vfyptrs.cinc"
-#endif 
+#endif
 
 PEGASUS_USING_PEGASUS;
 
@@ -50,18 +50,18 @@ extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(const S
 {
 
 #ifdef PEGASUS_OS_OS400
-   VFYPTRS_INCDCL; 
+    VFYPTRS_INCDCL;
 
     String * volatile inputPtr;
     String & input = (String&)providerManagerName;
     inputPtr = &input;
 
     // Verify Parameter
-#pragma exception_handler(qsyvp_excp_hndlr,qsyvp_excp_comm_area, 0,_C2_MH_ESCAPE)                               
+#pragma exception_handler(qsyvp_excp_hndlr,qsyvp_excp_comm_area, 0,_C2_MH_ESCAPE)
     VFYPTRS(VERIFY_SPP_NULL(inputPtr));
 #pragma disable_handler
 #endif
- 
+
     if(String::equalNoCase(providerManagerName, "Default"))
     {
         return(new DefaultProviderManager());

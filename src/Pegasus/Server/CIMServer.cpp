@@ -815,7 +815,12 @@ SSLContext* CIMServer::_getSSLContext(Uint32 contextType)
                 {
                     MessageLoaderParms parms(
                         "Pegasus.Server.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED",
-                        "The \"sslClientVerification\" property cannot be set to \"required\" if HTTP is disabled, as the cimserver will be unable to properly shutdown.  The recommended course of action is to change the property value to \"optional\".  cimserver not started.");
+                        "The \"sslClientVerificationMode\" property cannot be "
+                            "set to \"required\" if HTTP is disabled, as the "
+                            "cimserver will be unable to properly shutdown.  "
+                            "The recommended course of action is to change "
+                            "the property value to \"optional\".  cimserver "
+                            "not started.");
                     PEG_METHOD_EXIT();
                     throw SSLException(parms);
                 }

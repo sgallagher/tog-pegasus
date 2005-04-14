@@ -65,6 +65,9 @@ en:table {
         /**
  	* @note Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:
 	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
+    *    When translating this message, make sure that each line fits in 80 characters, 
+    *    preserves the indenting,
+    *    and ends with a newline character (\n).
 	*/
 	Clients.CIMConfig.CIMConfigCommand.MENU.STANDARD:string {
     "Usage: cimconfig -g name [ -c ] [ -p ] [ -d ]\n"
@@ -90,6 +93,9 @@ en:table {
         /**
  	* @note Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400:
 	*    Do not translate the cimconfig command or options.  Just translate the text that explains the options.
+    *    When translating this message, make sure that each line fits in 80 characters,
+    *    preserves the indenting, 
+    *    and ends with a newline character (\n).
  	*/
 	Clients.CIMConfig.CIMConfigCommand.MENU.PEGASUS_OS_OS400:string {
     "Usage: cimconfig -g name [-c | -p | -d] [ -q ] \n"
@@ -326,6 +332,9 @@ en:table {
         /**
  	* @note Clients.cimprovider.CIMProviderCommand.MENU.STANDARD:
 	*    Do not translate the cimprovider command or options.  Just translate the text that explains the options.
+    *    When translating this message, make sure that each line fits in 80 characters, 
+    *    preserves the indenting,
+    *    and ends with a newline character (\n).
 	*/
 	Clients.cimprovider.CIMProviderCommand.MENU.STANDARD:string {
     "Usage: cimprovider -d -m module\n"
@@ -351,6 +360,9 @@ en:table {
         /**
  	* @note Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400:
 	*   Do not translate the cimprovider command or options.  Just translate the text that explains the options.
+    *    When translating this message, make sure that each line fits in 80 characters, 
+    *    preserves the indenting,
+    *    and ends with a newline character (\n).
  	*/
 	Clients.cimprovider.CIMProviderCommand.MENU.PEGASUS_OS_OS400:string {
     "Usage: cimprovider -d -m module [ -q ] \n"
@@ -502,6 +514,9 @@ en:table {
  	* @note Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD:
 	*    Do not translate the cimprovider command or options, translate the text 
 	*    that explains the options.
+    *    When translating this message, make sure that each line fits in 80 characters, 
+    *    preserves the indenting,
+    *    and ends with a newline character (\n).
 	*/
 	Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD:string {
 	"Usage: ssltrustmgr -a [ -t truststore ] -c certuser -f certfile\n"
@@ -583,6 +598,9 @@ en:table {
         * @note Clients.repupgrade.RepositoryUpgrade.MENU.STANDARD:
         *    Do not translate the repupgrade command or options, translate the text
         *    that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
         */
         Clients.repupgrade.RepositoryUpgrade.MENU.STANDARD:string {
         "Usage: repupgrade -o oldrepository -n newrepository\n"
@@ -597,6 +615,14 @@ en:table {
         "\n"
         }
 
+        /**
+        * @note Clients.repupgrade.RepositoryUpgradeRelease.MENU.STANDARD:
+        *    Do not translate the repupgrade command or options, translate the text
+        *    that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting, 
+        *    and ends with a newline character (\n).
+        */
         Clients.repupgrade.RepositoryUpgradeRelease.MENU.STANDARD:string {
         "Usage: repupgrade\n"
         "repupgrade -v | --version\n"

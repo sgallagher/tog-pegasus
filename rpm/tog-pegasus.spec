@@ -297,7 +297,7 @@ if [ $1 -eq 0 ]; then
    [ -f /var/opt/tog-pegasus/cimserver_current.conf ] &&  rm /var/opt/tog-pegasus/cimserver_current.conf;
    [ -f %PEGASUS_INSTALL_LOG ] && rm %PEGASUS_INSTALL_LOG;
    [ -d /var/opt/tog-pegasus/repository ] && rm -rf /var/opt/tog-pegasus/repository;
-   [ -f /var/run/tog-pegasus/socket/cimxml.socket ] && rm /var/run/tog-pegasus/socket/cimxml.socket;
+   rm -f /var/run/tog-pegasus/socket/cimxml.socket;
    fi
    # Delete the Link to the rc.* Startup Directories
    /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;
@@ -305,6 +305,10 @@ fi
 
 %preun sdk
 make --directory /opt/tog-pegasus/samples -s clean
+
+%preun test
+make --directory /opt/tog-pegasus/test -s unsetupTEST
+[ -d /var/opt/tog-pegasus/testrepository ] &&  rm -rf /var/opt/tog-pegasus/testrepository;
 
 %postun
 if [ $1 -eq 0 ]; then
@@ -722,8 +726,6 @@ fi
 %attr(555,bin,bin) /opt/tog-pegasus/test/bin/TestValue
 %attr(555,bin,bin) /opt/tog-pegasus/test/bin/TracerTest
 %attr(555,bin,bin) /opt/tog-pegasus/test/bin/IPC
-%attr(555,bin,bin) /opt/tog-pegasus/test/bin/CompAssoc
-%attr(555,bin,bin) /opt/tog-pegasus/test/bin/UserManagerTest
 %attr(555,bin,bin) /opt/tog-pegasus/test/bin/TestClient
 %attr(555,bin,bin) /opt/tog-pegasus/test/bin/OSTestClient
 %attr(555,bin,bin) /opt/tog-pegasus/test/bin/InvokeMethod2

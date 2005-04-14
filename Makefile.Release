@@ -565,6 +565,7 @@ create_OpenPegasusRPMSpecFile: FORCE
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_preunSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/mak/SDKMakefile PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) _append_preunSectionToSpecFile
+	@$(MAKE) -f $(ROOT)/Makefile.ReleaseTest PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) _append_preunSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postunSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_filesSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/mak/SDKMakefile PEGASUS_RPM_SPEC_FILE_PATH=$(PEGASUS_RPM_SPEC_FILE_PATH) _append_filesSectionToSpecFile
@@ -778,7 +779,7 @@ _append_preunSectionToSpecFile: FORCE
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   [ -d $(PEGASUS_REPOSITORY_DIR) ] && rm -rf $(PEGASUS_REPOSITORY_DIR);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -f $(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH) ] && rm $(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);" >> \
+	@$(ECHO-E) "   rm -f $(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   # Delete the Link to the rc.* Startup Directories" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

@@ -66,9 +66,7 @@ PRESTARTTEST_FILES = \
    TestValidateClass \
    TestValue \
    TracerTest \
-   IPC \
-   CompAssoc \
-   UserManagerTest
+   IPC
 
 PEGASUS_TEST_PROVIDERS = \
    libSampleInstanceProvider \
@@ -126,10 +124,15 @@ create_Makefile:
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_prestarttests
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_poststarttests
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_tests
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_setupTEST
+	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest createMakefile_unsetupTEST
 
 createMakefile_providerlinks:
 	@$(ECHO-E) "create_providerlinks:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
-	$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\t@$(MAKE) createlink OBJECT=$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\t@$(MAKE) createlink OBJECT=$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
+	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "remove_providerlinks:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\trm -f $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
 	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 
 createMakefile_prestarttests:
@@ -149,12 +152,45 @@ createMakefile_poststarttests:
 createMakefile_tests:
 	@$(ECHO-E) "tests:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) -i cimstop" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) prestarttests" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_1)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_1)\"" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_2)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_2)\"" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+
+createMakefile_setupTEST:
+	@$(ECHO-E) "setupTEST:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "ifeq (\044(wildcard $(PEGASUS_REPOSITORY_PARENT_DIR)/repository.bak),)" \
+                   >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) -i cimstop" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@mv $(PEGASUS_REPOSITORY_PARENT_DIR)/repository $(PEGASUS_REPOSITORY_PARENT_DIR)/repository.bak" \
+                   >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@mv $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME) $(PEGASUS_REPOSITORY_PARENT_DIR)/repository" \
+                   >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@make cimstart" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@make create_providerlinks" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "else" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(ECHO) \"Setup Aborted: $(PEGASUS_REPOSITORY_PARENT_DIR)/repository.bak already exists\"" \
+                   >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+
+createMakefile_unsetupTEST:
+	@$(ECHO-E) "unsetupTEST:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "ifneq (\044(wildcard $(PEGASUS_REPOSITORY_PARENT_DIR)/repository/tog-pegasus-testrepository),)" \
+                   >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@$(MAKE) -i cimstop" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@mv $(PEGASUS_REPOSITORY_PARENT_DIR)/repository $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)" \
+                   >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@mv $(PEGASUS_REPOSITORY_PARENT_DIR)/repository.bak $(PEGASUS_REPOSITORY_PARENT_DIR)/repository" \
+                   >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "\t@make remove_providerlinks" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 
 create_repository:
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)/tog-pegasus-testrepository
 	$(MAKE) --directory=$(ROOT)/Schemas/Pegasus -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
                    REPOSITORY_NAME=$(PEGASUS_TEST_REPOSITORY_NAME) repository
 	$(MAKE) --directory=$(ROOT)/src/Providers/sample/Load -f Makefile REPOSITORY_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR) \
@@ -171,6 +207,14 @@ preinstall:
 
 preinstall_setreleasepermissions:
 	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.ReleaseTest setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
+
+_append_preunSectionToSpecFile:
+	@$(ECHO-E) "%preun test" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "make --directory $(PEGASUS_TEST_DIR) -s unsetupTEST"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "[ -d $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME) ] && \
+                       rm -rf $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME);" >> \
+                       $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_filesSectionToSpecFile:
 	@$(ECHO-E) "%files test"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

@@ -147,8 +147,8 @@ ifeq ($(OS),linux)
     Prw_r__r__ = 644
     CHMODDIRHIER = chmod -R
 
-    INSTALL_USR = bin
-    INSTALL_GRP = bin
+    INSTALL_USR = root 
+    INSTALL_GRP = root
     CIMSERVER_USR = root
     CIMSERVER_GRP = root
     CHMOD = chmod

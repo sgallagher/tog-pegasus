@@ -212,6 +212,7 @@ MessageQueueService::MessageQueueService(const char *name,
    
    if( _meta_dispatcher == 0 )
    {
+      _stop_polling = 0;
       PEGASUS_ASSERT( _service_count.value() == 0 );
       _meta_dispatcher = new cimom();
       if (_meta_dispatcher == NULL )

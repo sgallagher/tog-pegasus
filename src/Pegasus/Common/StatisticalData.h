@@ -53,7 +53,7 @@ PEGASUS_NAMESPACE_BEGIN
 #ifndef PEGASUS_DISABLE_PERFINST
 
 #define STAT_GETSTARTTIME \
-CIMDateTime startTime = CIMDateTime::getCurrentDateTime();\
+TimeValue startTime = TimeValue::getCurrentTime();
 
 
 #define STAT_PMS_PROVIDEREND \

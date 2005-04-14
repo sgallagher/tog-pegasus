@@ -148,7 +148,7 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	Array<char> &body = bodygiven ? *bodygiven : bodylocal;
 
     STAT_SERVEREND         // STAT_SERVEREND sets the toServerTime value in the message class
-    Uint64 serverTime	= response->totServerTime;
+    Uint32 serverTime	= response->totServerTime;
 
 
 	Array<char> (*formatResponse)(const CIMName& iMethodName,
@@ -156,7 +156,7 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 																 HttpMethod httpMethod,
 																 const ContentLanguages &httpContentLanguages, 
 																 const Array<char>& body,
-																 Uint64 serverResponseTime,
+																 Uint32 serverResponseTime,
 																 Boolean isFirst,
 																 Boolean isLast);
 

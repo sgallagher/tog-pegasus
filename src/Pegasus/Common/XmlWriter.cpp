@@ -1801,7 +1801,7 @@ void XmlWriter::appendMethodResponseHeader(
      HttpMethod httpMethod,
      const ContentLanguages & contentLanguages,
      Uint32 contentLength,
-     Uint64 serverResponseTime)
+     Uint32 serverResponseTime)
 {
      char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
      out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
@@ -2552,7 +2552,7 @@ Array<char> XmlWriter::formatSimpleMethodRspMessage(
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,
     const Array<char>& body,
-		Uint64 serverResponseTime,
+		Uint32 serverResponseTime,
 		Boolean isFirst,
 		Boolean isLast)
 {
@@ -2675,7 +2675,7 @@ Array<char> XmlWriter::formatSimpleIMethodRspMessage(
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,
     const Array<char>& body,
-    Uint64 serverResponseTime,
+    Uint32 serverResponseTime,
     Boolean isFirst,
     Boolean isLast)
 {

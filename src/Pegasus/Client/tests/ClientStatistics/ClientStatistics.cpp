@@ -49,15 +49,14 @@ public:
 
     virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item){
             if (!(0 <= item.operationType) || !(39 >= item.operationType)){
-               cerr << "roundTripTime is incorrect in ClientOpPerformanceData " << endl;
+               cerr << "operation type is out of expected range	in ClientOpPerformanceData " << endl;
                cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
                exit(1);            }
 
             if (item.roundTripTime == 0){
                cerr << "roundTripTime is incorrect in ClientOpPerformanceData " << endl;
                cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
-               // ATTN: Temporarily disable this failure.  See Bugzilla 3211.
-               //exit(1);
+               exit(1);   
             }
 
             if (item.requestSize == 0){
@@ -88,16 +87,60 @@ public:
 int main(int argc, char** argv)
 {
    cout << "++++++testing Client Performance Statistics " << endl;
+  String nameSpace = "root/cimv2";
     try{
+// connecting to server
 	   CIMClient client;
 	   client.connect("localhost", 5988, String::EMPTY, String::EMPTY);
 
-	 CliStat stat = CliStat();
+// the value CIM_ObjectManager::GatherStatisticalData must be set to true. 
+// the following code does this
+   String className = "CIM_ObjectManager";
+   CIMName cN = CIMName(className);
+  Boolean loc = true;
+   String gath = "GatherStatisticalData";
+   CIMName gst = CIMName(gath);
+   CIMValue val = CIMValue(loc);
+   Array<CIMObjectPath> instances;
+   /* EnumerateInstances and
+   */
+   try
+   {  
+      instances = client.enumerateInstanceNames(nameSpace, cN);
+   }
+   catch (Exception& e)
+   { cerr << "Exception : " << e.getMessage() << endl;
+      exit(1);
+   }
+   catch(...) {
+       cout << "enumerateInstancesNames in Client/tests/ClientStatistics has thrown an exception" << endl;
+   }
+   /* ModifyInstance
+   */
+   CIMName gathStatName ("GatherStatisticalData");
+   try {
+       CIMInstance inst  = client.getInstance(nameSpace, instances[0], true, false, false, CIMPropertyList());
+       Uint32 prop_num = inst.findProperty(gathStatName);
+       CIMProperty prop = CIMProperty(inst.getProperty(prop_num));
+       CIMValue prop_value = CIMValue();
+       prop_value.set(true);
+       prop.setValue(prop_value);
+       inst.removeProperty(prop_num);
+       inst.addProperty(prop);
+       client.modifyInstance(nameSpace, inst, false);
+	}
+   catch (Exception& e)
+   {
+      cerr << "Exception : " << e.getMessage() << endl;
+      exit(1);
+   }
+                                                                                                                         
+//registering class that has the callback method
+ CliStat stat = CliStat();
          client.registerClientOpPerformanceDataHandler(stat);
-         String className = "PG_ComputerSystem";
-         String nameSpace = "root/cimv2";
-         Array<CIMObjectPath> instances = client.enumerateInstanceNames(nameSpace,
-                                                                        className); 
+         String classN = "PG_ComputerSystem";
+         Array<CIMObjectPath> inst = client.enumerateInstanceNames(nameSpace,
+                                                                        classN); 
     }
 
     catch(Exception& e){

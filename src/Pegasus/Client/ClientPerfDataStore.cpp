@@ -59,8 +59,8 @@ void ClientPerfDataStore::reset()
     _serverTimeKnown = false;
     _errorCondition = false;
     _serverTime = 0;                
-    _networkStartTime = CIMDateTime(); 
-    _networkEndTime = CIMDateTime(); 
+    _networkStartTime = TimeValue(); 
+    _networkEndTime = TimeValue(); 
     _requestSize = 0; 
     _responseSize = 0;
     _messID = "";
@@ -71,7 +71,7 @@ void ClientPerfDataStore::reset()
 ClientOpPerformanceData ClientPerfDataStore::createPerfDataStruct()
 {
     ClientOpPerformanceData _ClientOpPerfData_obj;
-    _ClientOpPerfData_obj.roundTripTime = (_networkEndTime-_networkStartTime).toMicroSeconds();
+    _ClientOpPerfData_obj.roundTripTime = _networkEndTime.toMilliseconds()-_networkStartTime.toMilliseconds();
     _ClientOpPerfData_obj.operationType = _operationType;
     _ClientOpPerfData_obj.requestSize = _requestSize;
     _ClientOpPerfData_obj.responseSize = _responseSize;
@@ -84,7 +84,7 @@ ClientOpPerformanceData ClientPerfDataStore::createPerfDataStruct()
 
 
         
-void ClientPerfDataStore::setServerTime(Uint64 time)
+void ClientPerfDataStore::setServerTime(Uint32 time)
 {   _serverTime = time;
     _serverTimeKnown = true;
 }
@@ -99,10 +99,10 @@ void ClientPerfDataStore::setRequestSize(Uint64 size)
 
         
 void ClientPerfDataStore::setStartNetworkTime(void)
-{ _networkStartTime = CIMDateTime::getCurrentDateTime();  }
+{ _networkStartTime = TimeValue::getCurrentTime();  }
 
 
-void ClientPerfDataStore::setEndNetworkTime(CIMDateTime time)
+void ClientPerfDataStore::setEndNetworkTime(TimeValue time)
 { _networkEndTime = time; }
 
         
@@ -143,8 +143,8 @@ String ClientPerfDataStore::toString() const
     XMLWriter::append(out, _serverTime);
      << "\r\n";  */
     out << " operation type  = " << (Uint32)_operationType << "\r\n";
-    out << " network start time is = " << _networkStartTime.toString() << "\r\n";
-    out << " network end time = " << _networkEndTime.toString() << "\r\n";
+    out << " network start time is = " << _networkStartTime.toMilliseconds() << "\r\n";
+    out << " network end time = " << _networkEndTime.toMilliseconds() << "\r\n";
     out << " numberofRequestBytes = " << (Uint32)_requestSize << "\r\n";
     out << " number foRespoonse Bytes = " << (Uint32)_responseSize << "\r\n";
     out << "the message ID is " << _messID << "\r\n";

@@ -121,7 +121,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
 
     ClientPerfDataStore* dataStore = ClientPerfDataStore::Instance();
-    CIMDateTime networkEndTime = CIMDateTime::getCurrentDateTime();
+    TimeValue networkEndTime = TimeValue::getCurrentTime();
 
     String startLine;
     Array<HTTPHeader> headers;

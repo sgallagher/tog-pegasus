@@ -368,73 +368,58 @@ CIMOperationType Message::convertMessageTypetoCIMOpType(Uint32 type)
 #ifndef PEGASUS_DISABLE_PERFINST
 void Message::startServer()
 {
-    _timeServerStart = CIMDateTime::getCurrentDateTime();
+    _timeServerStart = TimeValue::getCurrentTime();
 }
 
 void Message::endServer()
 {
 	
-	_timeServerEnd = CIMDateTime::getCurrentDateTime();
-
+	_timeServerEnd = TimeValue::getCurrentTime();
     
     Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
        _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
-	Sint64 _provTi, _totTi, _servTi;
+   Uint32 _provTi, _totTi, _servTi;
 
-	/*Programs that call STAT_SERVEREND and STAT_SERVEREND_ERROR which in trun call 
-	endServer()] are not expecting to get any exceptions. So exceptions are commented out*/
-	try
-    {
-	_provTi = CIMDateTime::getDifference(_timeProviderStart, _timeProviderEnd);
-	}
-	//If there is an error in the provider no time is added to the count
-	catch (InvalidDateTimeFormatException e)
-	{_provTi = 0;
-	//throw e;
-	}
-	catch (DateTimeOutOfRangeException e)
-	{_provTi = 0;
-	//throw e;
-	}
+	Uint32 timeServerStartMilli = _timeServerStart.toMilliseconds();
+    Uint32 timeServerEndMilli = _timeServerEnd.toMilliseconds();
+    Uint32 timeProviderStartMilli = _timeProviderStart.toMilliseconds();
+    Uint32 timeProviderEndMilli = _timeProviderEnd.toMilliseconds();
 
 
-	try
-	{
-	_totTi =  CIMDateTime::getDifference(_timeServerStart, _timeServerEnd);
-	}
-	// if there is an error in the CIMOM no time is added to the count
-	catch (InvalidDateTimeFormatException e) 
-	{_totTi = 0;
-	//throw e;
-	}
-	catch (DateTimeOutOfRangeException e) 
-	{_totTi =0;
-	//throw e;
-	}		
+	if (timeServerEndMilli < timeServerStartMilli) 
+         _totTi = 0;
+     else
+         _totTi = timeServerEndMilli - timeServerStartMilli;
+    
+ 
+     if (timeProviderEndMilli < timeProviderStartMilli) 
+         _provTi = 0;
+     else
+         _provTi = timeProviderEndMilli - timeProviderStartMilli;
 
-	totServerTime = _totTi;
+	totServerTime = _totTi * 1000;
 		
 	// totoal time subtract the provider time equall the server time
 
      _servTi =  _totTi-_provTi;
 
-    StatisticalData::current()->addToValue(_servTi,
+    StatisticalData::current()->addToValue((_servTi*1000),
         statType, StatisticalData::SERVER );
 
-    StatisticalData::current()->addToValue(_provTi,
+    StatisticalData::current()->addToValue((_provTi*1000),
         statType, StatisticalData::PROVIDER );
 
 }
 
 void Message::startProvider()
 {
-    _timeProviderStart = CIMDateTime::getCurrentDateTime();
+    _timeProviderStart = TimeValue::getCurrentTime();
 }
 
 void Message::endProvider()
 {
-    _timeProviderEnd = CIMDateTime::getCurrentDateTime();
+    _timeProviderEnd = TimeValue::getCurrentTime();
 }
 #endif
 

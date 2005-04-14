@@ -38,7 +38,7 @@
 
 #include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Client/Linkage.h>
@@ -86,7 +86,7 @@ public:
 
     /**sets the server time data member
     */
-    void setServerTime(Uint64 time);
+    void setServerTime(Uint32 time);
 
     /**sets the responsSize data member
     */
@@ -102,7 +102,7 @@ public:
 
     /**sets endNetworkTime data member
     */
-    void setEndNetworkTime(CIMDateTime time);
+    void setEndNetworkTime(TimeValue time);
 
 
     /** sets validServerTime data member
@@ -143,8 +143,8 @@ protected:
     Uint64 _requestSize;
     Uint64 _responseSize;
     String _messID;
-    CIMDateTime _networkEndTime;
-    CIMDateTime _networkStartTime;
+    TimeValue _networkEndTime;
+    TimeValue _networkStartTime;
 
 
 

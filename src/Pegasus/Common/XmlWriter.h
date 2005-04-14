@@ -270,7 +270,7 @@ public:
         HttpMethod httpMethod,
     const ContentLanguages & contentLanguages,
         Uint32 contentLength,
-	Uint64 serverResponseTime = 0);
+	Uint32 serverResponseTime = 0);
 
     static void appendHttpErrorResponseHeader(
 	Array<char>& out,
@@ -379,7 +379,7 @@ public:
         HttpMethod httpMethod,
         const ContentLanguages & httpContentLanguages,          
 	const Array<char>& body,
-	Uint64 serverResponseTime,
+	Uint32 serverResponseTime,
 	Boolean isFirst = true,
 	Boolean isLast = true);
 
@@ -407,7 +407,7 @@ public:
         HttpMethod httpMethod,
         const ContentLanguages & httpContentLanguages,  
 	const Array<char>& body,
-	Uint64 serverResponseTime,
+	Uint32 serverResponseTime,
 	Boolean isFirst = true,
 	Boolean isLast = true);
 

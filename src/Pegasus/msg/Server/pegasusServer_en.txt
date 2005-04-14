@@ -2934,6 +2934,18 @@ en:table {
          Common.XmlReader.INVALID_EMBEDDEDOBJECT_TYPE:string {"PGS09670:  The EMBEDDEDOBJECT attribute is only valid on string types."}
 
         // ==========================================================
+        // Messages for String
+        //  Please use message prefix "PGS09700"
+        // ==========================================================
+
+        /**
+        * @note  PGS09700:
+        *    Substitution {0} is a number
+        *    Do not translate UTF-8 because it is a type of character
+        */
+        Common.String.BAD_UTF8:string {"PGS09700: The byte sequence starting at index {0} is not valid UTF-8 encoding."}
+
+        // ==========================================================
         // Messages for src.Server.cimserver
         //  Please use message prefix "PGS10000"
         // ==========================================================

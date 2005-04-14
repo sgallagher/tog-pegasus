@@ -1373,6 +1373,9 @@ en:table {
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX
         *   Substitution {0} is the version of the MOF compiler (a string)
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
+        *   When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting, 
+        *   and ends with a newline character (\n).
         */
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX:string {
 
@@ -1398,6 +1401,9 @@ en:table {
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400
         *   Substitution {0} is the version of the MOF compiler (a string)
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
+        *   When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *   and ends with a newline character (\n).
         */
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400:string {
 
@@ -1427,6 +1433,9 @@ en:table {
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.STANDARD
         *   Substitution {0} is the version of the MOF compiler (a string)
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
+        *   When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *   and ends with a newline character (\n).
         */
         Compiler.cmdline.cimmof.cmdline.MENU.STANDARD:string {
 
@@ -3080,6 +3089,9 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note src.Server.cimserver.MENU.STANDARD:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
         */
         src.Server.cimserver.MENU.STANDARD:string {
         " Usage: cimserver [ [ options ] | [ configProperty=value, ... ] ]\n"
@@ -3096,6 +3108,9 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note src.Server.cimserver.MENU.HPUXLINUXIA64GNU:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
         */
         src.Server.cimserver.MENU.HPUXLINUXIA64GNU:string {
         " Usage: cimserver [ [ options ] | [ configProperty=value, ... ] ]\n"
@@ -3111,6 +3126,9 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note src.Server.cimserver.MENU.WINDOWS:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
         */
         src.Server.cimserver.MENU.WINDOWS:string {
         " Usage: cimserver [ [ options ] | [ configProperty=value, ... ] ]\n"
@@ -5262,6 +5280,9 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note DynListener.cimlistener.MENU.STANDARD:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting, 
+        *    and ends with a newline character (\n).
         */
         DynListener.cimlistener.MENU.STANDARD:string {
         " Usage: cimlistener [ [ options ] ]\n"
@@ -5275,6 +5296,9 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note DynListener.cimlistener.MENU.WINDOWS:
         *    Do not translate the cimserver command or options.  Just translate the text that explains the options.
+        *    When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *    and ends with a newline character (\n).
         */
         DynListener.cimlistener.MENU.WINDOWS:string {
         " Usage: cimlistener [ [ options ] ]\n"

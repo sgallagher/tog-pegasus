@@ -3832,6 +3832,58 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.OS400SystemState.SRVPGM_SYSTEM_DOMAIN:string {"PGS12415:  An error occurred while loading the CIM provider service program {0}.  The provider service program has a domain of *SYSTEM."}
 
+        /**
+        * @note  PGS12416:
+        *    Substitution {0} is the error code number
+        *    Substitution {1} is the symbol name
+    	*    Do not translate QUTL/QOSSL
+        */
+        Common.SSLWrapperOS400.SYM_ERR:string {"PGS12416:  The error code {0} was received while loading symbol {1} from the OpenSSL service program QUTL/QOSSL."}
+
+        /**
+        * @note  PGS12417:
+        *    Substitution {0} is the error code number
+        */
+        Common.SSLWrapperOS400.QSZ_ERR:string {"PGS12417:  The error {0} was received when checking the installation of the required OpenSSL LPO 5733-SC1. If the error code is CPF0C1F then the LPO is not installed."}
+
+        /**
+        * @note  PGS12418:
+        *    Substitution {0} is the load state keyword
+        */
+        Common.SSLWrapperOS400.INSTALL_ERR:string {"PGS12418:  The required OpenSSL LPO 5733-SC1 has an installation error. The symbolic load state is {0}."}
+
+        /**
+        * @note  PGS12419:
+        *    Substitution {0} is the error code number
+        */
+        Common.SSLWrapperOS400.ACT_ERR:string {"PGS12419: The error {0} was received when activating the OpenSSL QUTL/QOSSL *SRVPGM."}
+
+        /**
+        * @note  PGS12420:
+        *    Substitution {0} is an error number
+        *    Substitution {1} is a string containing the command
+        *    Do not translate PASE since it is the name of a product.
+        */
+        Common.SSLWrapperOS400.PASE_ERR:string {"PGS12420: Unable to create the server certificate.  The error {0} was received from PASE when running command {1}."}
+
+        /**
+        * @note  PGS12421:
+        *    Substitution {0} is the name of a file 
+        *    Substitution {1} is a string containing the command
+        *    Substitution {2} is an error number
+        *    Do not translate PASE since it is the name of a product.
+        */
+        Common.SSLWrapperOS400.PASE_RC:string {"PGS12421: Unable to create file {0}.  The PASE command {1} returned error number {2}.  Look at the spool file of this job for details of the error."}
+
+        /**
+        * @note  PGS12422:
+        *    Substitution {0} is a string containing the command
+        *    Substitution {1} is an signal number
+        *    Do not translate PASE since it is the name of a product.
+        */
+        Common.SSLWrapperOS400.PASE_SIGNAL:string {"PGS12422: Unable to create the server certificate.  The PASE command {0} exited abnormally with signal number {1}."}
+
+
         // End OS/400 messages
 
 
@@ -5335,8 +5387,6 @@ CIM server listening on HTTPS port {0}."}
         "                      default CIM Listener Service Name\n"
         "\n"
         }
-        
-
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

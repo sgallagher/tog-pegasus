@@ -177,6 +177,8 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
     const CIMGetInstanceRequestMessage * request =
 	dynamic_cast<CIMGetInstanceRequestMessage *>(message);
 
+    STAT_GETSTARTTIME
+
     PEGASUS_ASSERT(request != 0);
 
     CIMException cimException;
@@ -255,6 +257,8 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
 	    request->queueIds.copyAndPop(),
 	    cimInstance));  // l10n
 
+    STAT_PMS_PROVIDEREND
+
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
@@ -265,8 +269,12 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
 
 Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * message) 
 {
+    
+
     const CIMEnumerateInstancesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstancesRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -331,6 +339,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 	    request->queueIds.copyAndPop(),
 	    cimInstances));  // l10n
 
+    STAT_PMS_PROVIDEREND
+
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
@@ -341,8 +351,12 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
 Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * message) 
 {
+    
+
     const CIMEnumerateInstanceNamesRequestMessage * request =
 	dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -401,6 +415,8 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 	    request->queueIds.copyAndPop(),
 	    cimReferences));  //l10n
 
+    STAT_PMS_PROVIDEREND
+
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
     // preserve message key
     response->setKey(request->getKey());
@@ -412,6 +428,8 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 {
     const CIMCreateInstanceRequestMessage * request =
 	dynamic_cast<CIMCreateInstanceRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -487,6 +505,8 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
 	    request->queueIds.copyAndPop(),
 	    instanceName));  // l10n
 
+    STAT_PMS_PROVIDEREND
+
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
@@ -499,6 +519,8 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 {
     const CIMModifyInstanceRequestMessage * request =
 	dynamic_cast<CIMModifyInstanceRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -561,6 +583,8 @@ Message * ProviderMessageFacade::_handleModifyInstanceRequest(Message * message)
 	    cimException,
 	    request->queueIds.copyAndPop()));
 
+    STAT_PMS_PROVIDEREND
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -571,6 +595,8 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 {
     const CIMDeleteInstanceRequestMessage * request =
 	dynamic_cast<CIMDeleteInstanceRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -624,6 +650,8 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 	    cimException,
 	    request->queueIds.copyAndPop()));
 
+    STAT_PMS_PROVIDEREND
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -634,6 +662,8 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message)
 {
     const CIMExecQueryRequestMessage * request =
 	dynamic_cast<CIMExecQueryRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -655,6 +685,8 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message)
     //    request->queueIds.copyAndPop(),
     //    cimObjects);
 
+    STAT_PMS_PROVIDEREND
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -665,6 +697,8 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
 {
     const CIMAssociatorsRequestMessage * request =
 	dynamic_cast<CIMAssociatorsRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -686,6 +720,8 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
     //    request->queueIds.copyAndPop(),
     //    cimObjects);
 
+    STAT_PMS_PROVIDEREND
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -696,6 +732,8 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
 {
     const CIMAssociatorNamesRequestMessage * request =
 	dynamic_cast<CIMAssociatorNamesRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -717,6 +755,8 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
     //    request->queueIds.copyAndPop(),
     //    cimReferences);
 
+    STAT_PMS_PROVIDEREND
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -727,6 +767,8 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
 {
     const CIMReferencesRequestMessage * request =
 	dynamic_cast<CIMReferencesRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -749,6 +791,9 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
     //    cimObjects);
 
     // preserve message key
+
+    STAT_PMS_PROVIDEREND
+
     response->setKey(request->getKey());
 
     return response.release();
@@ -758,6 +803,8 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 {
     const CIMReferenceNamesRequestMessage * request =
 	dynamic_cast<CIMReferenceNamesRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -780,6 +827,9 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
     //    cimReferences);
 
     // preserve message key
+
+    STAT_PMS_PROVIDEREND
+
     response->setKey(request->getKey());
 
     return response.release();
@@ -789,6 +839,8 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
 {
     const CIMGetPropertyRequestMessage * request =
 	dynamic_cast<CIMGetPropertyRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -811,6 +863,8 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
     //request->queueIds.copyAndPop(),
     //cimValue);
 
+    STAT_PMS_PROVIDEREND
+
     // preserve message key
     response->setKey(request->getKey());
 
@@ -821,6 +875,8 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message)
 {
     const CIMSetPropertyRequestMessage * request =
 	dynamic_cast<CIMSetPropertyRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -840,6 +896,9 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message)
     //    request->queueIds.copyAndPop());
 
     // preserve message key
+
+    STAT_PMS_PROVIDEREND
+
     response->setKey(request->getKey());
 
     return response.release();
@@ -849,6 +908,8 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
 {
     const CIMInvokeMethodRequestMessage * request =
 	dynamic_cast<CIMInvokeMethodRequestMessage *>(message);
+
+    STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
@@ -927,6 +988,8 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
 	    returnValue,
 	    outParameters,
 	    request->methodName));  // l10n
+
+    STAT_PMS_PROVIDEREND
 
 	response->operationContext.set(ContentLanguageListContainer(contentLangs));
 

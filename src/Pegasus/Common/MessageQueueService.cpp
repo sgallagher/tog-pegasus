@@ -500,6 +500,9 @@ Boolean MessageQueueService::_enqueueResponse(
    Message* response)
    
 {
+
+  STAT_COPYDISPATCHER
+
    PEG_METHOD_ENTER(TRC_MESSAGEQUEUESERVICE,
                     "MessageQueueService::_enqueueResponse");
 

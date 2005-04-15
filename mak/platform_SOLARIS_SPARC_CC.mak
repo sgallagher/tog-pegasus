@@ -6,6 +6,8 @@ ARCHITECTURE = sparc
 
 COMPILER = CC
 
+CC = CC
+
 CXX = CC
 
 SH = sh

@@ -34,6 +34,7 @@
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2619
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -185,6 +186,12 @@ BasicProviderManagerRouter::~BasicProviderManagerRouter()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "BasicProviderManagerRouter::~BasicProviderManagerRouter");
+    /* Clean up the provider managers */
+    for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
+    {
+         ProviderManagerContainer* pmc=_providerManagerTable[i];
+         delete pmc;
+    }
     PEG_METHOD_EXIT();
 }
 

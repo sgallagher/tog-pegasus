@@ -46,7 +46,7 @@ extern "C" {
 
    static CMPIStatus enumRelease(CMPIEnumeration* eEnum) {
       //cout<<"--- enumRelease()"<<endl;
-      CIMInstance* enm=(CIMInstance*)eEnum->hdl;
+      Array<CIMInstance>* enm=(Array<CIMInstance>*)eEnum->hdl;
       if (enm) {
          delete enm;
          ((CMPI_Object*)eEnum)->unlinkAndDelete();

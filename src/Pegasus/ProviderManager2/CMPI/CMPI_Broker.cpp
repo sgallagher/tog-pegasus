@@ -123,7 +123,7 @@ extern "C" {
          CM_IncludeQualifiers(flgs),
          CM_ClassOrigin(flgs),
          props);
-	     ci.setPath(qop);
+         ci.setPath(*CM_ObjectPath(cop));
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
          return (CMPIInstance*)new CMPI_Object(new CIMInstance(ci));
       }
@@ -225,7 +225,8 @@ extern "C" {
          String(query),
          String(lang));
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
+         return (CMPI_ObjEnumeration *)
+	   new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbExecQuery - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -256,7 +257,8 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return new CMPI_InstEnumeration(new Array<CIMInstance>(en));
+         return (CMPI_InstEnumeration*)
+	   new CMPI_Object(new CMPI_InstEnumeration(new Array<CIMInstance>(en)));
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -280,7 +282,8 @@ extern "C" {
          CM_ObjectPath(cop)->getNameSpace(),
          CM_ObjectPath(cop)->getClassName());
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return new CMPI_OpEnumeration(new Array<CIMObjectPath>(en));
+         return (CMPI_OpEnumeration *)
+	   new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -316,7 +319,8 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
+         return (CMPI_ObjEnumeration *)
+	   new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbAssociators - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -348,7 +352,8 @@ extern "C" {
          role ? String(role) : String::EMPTY,
          resultRole ? String(resultRole) : String::EMPTY);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return new CMPI_OpEnumeration(new Array<CIMObjectPath>(en));
+         return (CMPI_OpEnumeration *)
+	   new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbAssociatorsNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -382,7 +387,8 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return new CMPI_ObjEnumeration(new Array<CIMObject>(en));
+         return (CMPI_ObjEnumeration *)
+	   new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -412,7 +418,8 @@ extern "C" {
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return new CMPI_OpEnumeration(new Array<CIMObjectPath>(en));
+         return (CMPI_OpEnumeration *)
+	   new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbReferencesNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);

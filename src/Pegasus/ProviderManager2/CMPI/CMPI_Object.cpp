@@ -105,7 +105,14 @@ CMPI_Object::CMPI_Object(CMPISubCond *dta) {
     hdl=(void*)dta;
     ftab=CMPI_SubCond_Ftab;
 }
+
 CMPI_Object::CMPI_Object(CMPIPredicate *dta) {
+   CMPI_ThreadContext::addObject(this);
+   hdl=(void*)dta;
+   ftab=CMPI_Predicate_Ftab;
+}
+
+CMPI_Object::CMPI_Object(CMPIEnumeration *dta) {
    CMPI_ThreadContext::addObject(this);
    hdl=(void*)dta;
    ftab=CMPI_Predicate_Ftab;

@@ -23,9 +23,10 @@
 //
 //==============================================================================
 //
-// Author:       Viktor Mihajlovski <mihajlov@de.ibm.com>
+// Author:      Viktor Mihajlovski <mihajlov@de.ibm.com>
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,11 +41,11 @@
 static CMPIBroker * _broker;
 
 /* ------------------------------------------------------------------ *
- * Instance MI Cleanup 
+ * Instance MI Cleanup
  * ------------------------------------------------------------------ */
 
-CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi, 
-				 CMPIContext * ctx) 
+CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi,
+				 CMPIContext * ctx)
 {
   CMReturn(CMPI_RC_OK);
 }
@@ -54,10 +55,10 @@ CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi,
  * ------------------------------------------------------------------ */
 
 
-CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi, 
-					   CMPIContext * ctx, 
-					   CMPIResult * rslt, 
-					   CMPIObjectPath * ref) 
+CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
+					   CMPIContext * ctx,
+					   CMPIResult * rslt,
+					   CMPIObjectPath * ref)
 {
   CMPIObjectPath *op;
   CMPIStatus      st = {CMPI_RC_OK,NULL};
@@ -65,9 +66,9 @@ CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
   CWS_FILE        filebuf;
 
   if (!silentMode()) fprintf(stderr,"--- CWS_PlainFileEnumInstanceNames() \n");
-  
+
   enumhdl = CWS_Begin_Enum(CWS_FILEROOT,CWS_TYPE_PLAIN);
-  
+
   if (enumhdl == NULL) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			 "Could not begin file enumeration");
@@ -75,9 +76,9 @@ CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
   } else {
     while (CWS_Next_Enum(enumhdl,&filebuf)) {
       /* build object path from file buffer */
-      op = makePath(_broker, 
+      op = makePath(_broker,
 		    LOCALCLASSNAME,
-		    CMGetCharPtr(CMGetNameSpace(ref,NULL)), 
+		    CMGetCharPtr(CMGetNameSpace(ref,NULL)),
 		    &filebuf);
       if (CMIsNullObject(op)) {
 	CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -89,25 +90,25 @@ CMPIStatus CWS_PlainFileEnumInstanceNames( CMPIInstanceMI * mi,
     CMReturnDone(rslt);
     CWS_End_Enum(enumhdl);
   }
- 
+
   return st;
 }
 
-CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi, 
-				       CMPIContext * ctx, 
-				       CMPIResult * rslt, 
-				       CMPIObjectPath * ref, 
-				       char ** properties) 
+CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi,
+				       CMPIContext * ctx,
+				       CMPIResult * rslt,
+				       CMPIObjectPath * ref,
+				       char ** properties)
 {
-  CMPIInstance   *in; 
+  CMPIInstance   *in;
   CMPIStatus      st = {CMPI_RC_OK,NULL};
   void           *enumhdl;
   CWS_FILE        filebuf;
-  
+
   if (!silentMode()) fprintf(stderr,"--- CWS_PlainFileEnumInstances() \n");
-  
+
   enumhdl = CWS_Begin_Enum(CWS_FILEROOT,CWS_TYPE_PLAIN);
-  
+
   if (enumhdl == NULL) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			 "Could not begin file enumeration");
@@ -115,9 +116,9 @@ CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi,
   } else {
     while (CWS_Next_Enum(enumhdl,&filebuf)) {
       /* build instance from file buffer */
-      in = makeInstance(_broker, 
+      in = makeInstance(_broker,
 			LOCALCLASSNAME,
-			CMGetCharPtr(CMGetNameSpace(ref,NULL)), 
+			CMGetCharPtr(CMGetNameSpace(ref,NULL)),
 			&filebuf);
       if (CMIsNullObject(in)) {
 	CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -129,16 +130,16 @@ CMPIStatus CWS_PlainFileEnumInstances( CMPIInstanceMI * mi,
     CMReturnDone(rslt);
     CWS_End_Enum(enumhdl);
   }
- 
+
   return st;
 }
 
 
-CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi, 
-				     CMPIContext * ctx, 
-				     CMPIResult * rslt, 
-				     CMPIObjectPath * cop, 
-				     char ** properties) 
+CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi,
+				     CMPIContext * ctx,
+				     CMPIResult * rslt,
+				     CMPIObjectPath * cop,
+				     char ** properties)
 {
   CMPIInstance *in = NULL;
   CMPIStatus    st = {CMPI_RC_OK,NULL};
@@ -146,78 +147,78 @@ CMPIStatus CWS_PlainFileGetInstance( CMPIInstanceMI * mi,
   CWS_FILE      filebuf;
 
   if (!silentMode()) fprintf(stderr,"--- CWS_PlainFileGetInstance() \n");
-  
+
   if (st.rc == CMPI_RC_OK &&
       nd.type == CMPI_string &&
       CWS_Get_File(CMGetCharPtr(nd.value.string),&filebuf))
-    in = makeInstance(_broker, 
+    in = makeInstance(_broker,
 		      LOCALCLASSNAME,
-		      CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
+		      CMGetCharPtr(CMGetNameSpace(cop,NULL)),
 		      &filebuf);
-  
+
   if (CMIsNullObject(in)) {
     CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			 "Could not find or construct instance");
   } else {
-    CMReturnInstance(rslt,in);    
+    CMReturnInstance(rslt,in);
     CMReturnDone(rslt);
   }
-  
+
   return st;
 }
 
-CMPIStatus CWS_PlainFileCreateInstance( CMPIInstanceMI * mi, 
-					CMPIContext * ctx, 
-					CMPIResult * rslt, 
-					CMPIObjectPath * cop, 
-					CMPIInstance * ci) 
+CMPIStatus CWS_PlainFileCreateInstance( CMPIInstanceMI * mi,
+					CMPIContext * ctx,
+					CMPIResult * rslt,
+					CMPIObjectPath * cop,
+					CMPIInstance * ci)
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_PlainFileSetInstance( CMPIInstanceMI * mi, 
-				     CMPIContext * ctx, 
-				     CMPIResult * rslt, 
+CMPIStatus CWS_PlainFileSetInstance( CMPIInstanceMI * mi,
+				     CMPIContext * ctx,
+				     CMPIResult * rslt,
 				     CMPIObjectPath * cop,
-				     CMPIInstance * ci, 
-				     char **properties) 
+				     CMPIInstance * ci,
+				     char **properties)
 {
   CMPIStatus st = {CMPI_RC_OK,NULL};
   CWS_FILE   filebuf;
-  
+
   if (!silentMode()) fprintf(stderr,"--- CWS_PlainFileSetInstance() \n");
-  
+
   if (!makeFileBuf(ci,&filebuf) || !CWS_Update_File(&filebuf))
     CMSetStatusWithChars(_broker,&st,CMPI_RC_ERR_FAILED,
 			 "Could not update instance");
-  
+
   return st;
 }
 
-CMPIStatus CWS_PlainFileDeleteInstance( CMPIInstanceMI * mi, 
-					CMPIContext * ctx, 
-					CMPIResult * rslt, 
-					CMPIObjectPath * cop) 
-{ 
+CMPIStatus CWS_PlainFileDeleteInstance( CMPIInstanceMI * mi,
+					CMPIContext * ctx,
+					CMPIResult * rslt,
+					CMPIObjectPath * cop)
+{
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_PlainFileExecQuery( CMPIInstanceMI * mi, 
-				   CMPIContext * ctx, 
-				   CMPIResult * rslt, 
-				   CMPIObjectPath * cop, 
-				   char * lang, 
-				   char * query) 
+CMPIStatus CWS_PlainFileExecQuery( CMPIInstanceMI * mi,
+				   CMPIContext * ctx,
+				   CMPIResult * rslt,
+				   CMPIObjectPath * cop,
+				   const char * lang,
+				   const char * query)
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
 /* ------------------------------------------------------------------ *
- * Method MI Cleanup 
+ * Method MI Cleanup
  * ------------------------------------------------------------------ */
 
-CMPIStatus CWS_PlainFileMethodCleanup( CMPIMethodMI * mi, 
-				       CMPIContext * ctx) 
+CMPIStatus CWS_PlainFileMethodCleanup( CMPIMethodMI * mi,
+				       CMPIContext * ctx)
 {
   CMReturn(CMPI_RC_OK);
 }
@@ -226,11 +227,11 @@ CMPIStatus CWS_PlainFileMethodCleanup( CMPIMethodMI * mi,
  * Method MI Functions
  * ------------------------------------------------------------------ */
 
-CMPIStatus CWS_PlainFileInvokeMethod( CMPIMethodMI * mi, 
-				      CMPIContext * ctx, 
+CMPIStatus CWS_PlainFileInvokeMethod( CMPIMethodMI * mi,
+				      CMPIContext * ctx,
 				      CMPIResult * rslt,
 				      CMPIObjectPath * cop,
-				      char * method,
+				      const char * method,
 				      CMPIArgs * in,
 				      CMPIArgs * out)
 {
@@ -252,14 +253,14 @@ CMPIStatus CWS_PlainFileInvokeMethod( CMPIMethodMI * mi,
     CMReturnData(rslt,typebuf,CMPI_chars);
     CMReturnDone(rslt);
   }
-  
+
   return st;
 }
 
 /* ------------------------------------------------------------------ *
  * Instance MI Factory
- * 
- * NOTE: This is an example using the convenience macros. This is OK 
+ *
+ * NOTE: This is an example using the convenience macros. This is OK
  *       as long as the MI has no special requirements, i.e. to store
  *       data between calls.
  * ------------------------------------------------------------------ */
@@ -271,7 +272,7 @@ CMInstanceMIStub( CWS_PlainFile,
 
 /* ------------------------------------------------------------------ *
  * Method MI Factory
- * 
+ *
  * ------------------------------------------------------------------ */
 
 CMMethodMIStub( CWS_PlainFile,

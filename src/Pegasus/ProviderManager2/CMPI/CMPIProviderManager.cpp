@@ -421,7 +421,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
         if (rc.rc!=CMPI_RC_OK)
            throw CIMException((CIMStatusCode)rc.rc,
@@ -531,7 +531,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -632,7 +632,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -740,7 +740,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -849,7 +849,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -952,7 +952,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1067,7 +1067,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1192,7 +1192,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1310,7 +1310,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1429,7 +1429,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1543,7 +1543,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1655,7 +1655,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1818,7 +1818,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
                 CIMCreateSubscriptionRequestMessage * req = dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
-                int err_num=enablePThreadSecurity(*context);
+                int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
                         // need a new CIMException for this
@@ -1835,7 +1835,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
        STAT_PMS_PROVIDEREND;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)
@@ -1989,7 +1989,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 	   delete srec;
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                disablePThreadSecurity(req->userName);
+                disablePThreadSecurity();
 #endif
 
         if (rc.rc!=CMPI_RC_OK)

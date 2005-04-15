@@ -35,6 +35,14 @@ poststarttests: poststarttests1
 
 poststarttests1: FORCE
 	@$(RM) $(RESULTFILE)
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+	@$(RM) ./emptyfile
+	@touch $(RESULTFILE)
+	@touch ./emptyfile
+	@chtag -tc IBM-1047 $(RESULTFILE)
+	@chtag -tc IBM-1047 ./emptyfile
+	@chtag -tc IBM-1047 ./cimreq*.xml
+endif	
 	@$(ECHO) "  " >> $(RESULTFILE)
 	@$(ECHO) "Valid cases:" >> $(RESULTFILE)
 	@$(ECHO) "All options specified except hostname" >> $(RESULTFILE)

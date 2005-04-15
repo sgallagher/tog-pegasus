@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -44,13 +44,44 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   static CMPIStatus enumRelease(CMPIEnumeration* eEnum) {
-      //cout<<"--- enumRelease()"<<endl;
-      Array<CIMInstance>* enm=(Array<CIMInstance>*)eEnum->hdl;
-      if (enm) {
-         delete enm;
-         ((CMPI_Object*)eEnum)->unlinkAndDelete();
-      }
+   static CMPIStatus enumRelease(CMPIEnumeration* eObj) {
+       if ((void*)eObj->ft==(void*)CMPI_InstEnumeration_Ftab)
+       {
+           CMPI_InstEnumeration* ie=(CMPI_InstEnumeration*)eObj->hdl;
+           if (ie){
+               Array<CIMInstance>* enm=(Array<CIMInstance>*)ie->hdl;
+               if (enm) {
+                   delete enm;
+               }
+               delete ie;
+           }
+           ((CMPI_Object*)eObj)->unlinkAndDelete();
+       }
+       else if ((void*)eObj->ft==(void*)CMPI_ObjEnumeration_Ftab)
+       {
+           CMPI_ObjEnumeration* ie=(CMPI_ObjEnumeration*)eObj->hdl;
+           if (ie){
+               Array<CIMObject>* enm=(Array<CIMObject>*)ie->hdl;
+               if (enm) {
+                   delete enm;
+               }
+               delete ie;
+           }
+           ((CMPI_Object*)eObj)->unlinkAndDelete();
+       }
+       else if ((void*)eObj->ft==(void*)CMPI_OpEnumeration_Ftab)
+       {
+           CMPI_OpEnumeration* ie=(CMPI_OpEnumeration*)eObj->hdl;
+           if (ie){
+               Array<CIMObjectPath>* enm=(Array<CIMObjectPath>*)ie->hdl;
+               if (enm) {
+                   delete enm;
+               }
+               delete ie;
+           }
+           ((CMPI_Object*)eObj)->unlinkAndDelete();
+       }
+
       CMReturn(CMPI_RC_OK);
    }
 

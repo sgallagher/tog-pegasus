@@ -225,8 +225,10 @@ extern "C" {
          String(query),
          String(lang));
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPI_ObjEnumeration *)
-	   new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+         CMPI_Object *obj =
+             new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+         return (CMPI_ObjEnumeration *)obj->getHdl();
+
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbExecQuery - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -257,8 +259,10 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPI_InstEnumeration*)
-	   new CMPI_Object(new CMPI_InstEnumeration(new Array<CIMInstance>(en)));
+         CMPI_Object *obj =
+             new CMPI_Object(new CMPI_InstEnumeration(new Array<CIMInstance>(en)));
+         return (CMPI_InstEnumeration*)obj->getHdl();
+
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -282,8 +286,10 @@ extern "C" {
          CM_ObjectPath(cop)->getNameSpace(),
          CM_ObjectPath(cop)->getClassName());
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPI_OpEnumeration *)
-	   new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+         CMPI_Object *obj =
+             new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+         return (CMPI_OpEnumeration *)obj->getHdl();
+
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbEnumInstances - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -319,8 +325,10 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPI_ObjEnumeration *)
-	   new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+         CMPI_Object *obj =
+             new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+         return (CMPI_ObjEnumeration *)obj->getHdl();
+
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbAssociators - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -352,8 +360,9 @@ extern "C" {
          role ? String(role) : String::EMPTY,
          resultRole ? String(resultRole) : String::EMPTY);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPI_OpEnumeration *)
-	   new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+         CMPI_Object *obj =
+             new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+         return (CMPI_OpEnumeration *)obj->getHdl();
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbAssociatorsNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -387,8 +396,9 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPI_ObjEnumeration *)
-	   new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+         CMPI_Object *obj =
+             new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+         return (CMPI_ObjEnumeration *)obj->getHdl();
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbReferences - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
@@ -418,8 +428,9 @@ extern "C" {
          resultClass ? CIMName(resultClass) : CIMName(),
          role ? String(role) : String::EMPTY);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         return (CMPI_OpEnumeration *)
-	   new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+         CMPI_Object *obj =
+             new CMPI_Object(new CMPI_OpEnumeration(new Array<CIMObjectPath>(en)));
+         return (CMPI_OpEnumeration *)obj->getHdl();
       }
       catch (CIMException &e) {
          DDD(cout<<"### exception: mbReferencesNames - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,6 +47,7 @@
 #include <Pegasus/Common/OperationContext.h>
 
 #include "CMPI_ThreadContext.h"
+#include "CMPI_Enumeration.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -71,7 +72,9 @@ class CMPI_Object {
    CMPI_Object(CMPISelectCond*);
    CMPI_Object(CMPISubCond*);
    CMPI_Object(CMPIPredicate*);
-   CMPI_Object(CMPIEnumeration*);
+   CMPI_Object(struct CMPI_InstEnumeration*);
+   CMPI_Object(struct CMPI_ObjEnumeration*);
+   CMPI_Object(struct CMPI_OpEnumeration*);
    ~CMPI_Object();
    void unlinkAndDelete();
    void unlink();

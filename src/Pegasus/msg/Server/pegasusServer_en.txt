@@ -1072,6 +1072,13 @@ en:table {
         */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_DESIGNATEDUSER_IN_PG_PROVIDERMODULE:string {"PGS03030: Missing DesignatedUserContext property in PG_ProviderModule instance."}
 
+        /**
+        * @note PGS03031:
+        *   Do not translate the word 'ProviderType' since it is the name of a CIM property.
+        *   Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
+        */
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES:string {"PGS03031: Unsupported ProviderType value \"{0}\" in PG_ProviderCapabilities instance."}
+
 
         // ==========================================================
         // Messages for UserAuthProvider

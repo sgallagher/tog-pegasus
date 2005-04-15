@@ -657,15 +657,49 @@ void ProviderRegistrationProvider::createInstance(
 		"Missing Namespaces which is required property in PG_ProviderCapabilities class."));
 	}
 
-	if (instanceObject.findProperty(_PROPERTY_PROVIDERTYPE) == PEG_NOT_FOUND)
-	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing ProviderType which is required property in PG_ProviderCapabilities class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES",
-		"Missing ProviderType which is required property in PG_ProviderCapabilities class."));
-	}
+        // Validate the ProviderType property
+
+        Uint32 providerTypeIndex =
+            instanceObject.findProperty(_PROPERTY_PROVIDERTYPE);
+        Array<Uint16> providerTypeArray;
+        if (providerTypeIndex != PEG_NOT_FOUND)
+        {
+            instanceObject.getProperty(providerTypeIndex).getValue().
+                get(providerTypeArray);
+        }
+
+        if ((providerTypeIndex == PEG_NOT_FOUND) ||
+            (providerTypeArray.size() == 0))
+        {
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms(
+                    "ControlProviders.ProviderRegistrationProvider."
+                        "ProviderRegistrationProvider."
+                        "MISSING_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES",
+                    "Missing ProviderType which is required property in "
+                        "PG_ProviderCapabilities class."));
+        }
+
+        for (Uint32 i = 0; i < providerTypeArray.size(); i++)
+        {
+            if ((providerTypeArray[i] < 2) ||
+#ifdef PEGASUS_DISABLE_EXECQUERY
+                (providerTypeArray[i] > 6)
+#else
+                (providerTypeArray[i] > 7)
+#endif
+                                          )
+            {
+                throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "ControlProviders.ProviderRegistrationProvider."
+                            "ProviderRegistrationProvider.UNSUPPORTED_"
+                            "PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES",
+                        "Unsupported ProviderType value \"$0\" in "
+                            "PG_ProviderCapabilities instance.",
+                        providerTypeArray[i]));
+            }
+        }
     }
     else if (className.equal (PEGASUS_CLASSNAME_CONSUMERCAPABILITIES))
     {

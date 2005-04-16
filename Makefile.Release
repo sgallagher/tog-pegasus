@@ -148,6 +148,122 @@ PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimconfig.8 \
    cimserver.8
 
+CIM29_MOF_FILES = \
+   Application_AppRuntime.mof \
+   Application_BIOS.mof \
+   Application_CheckAction.mof \
+   Application_DeploymentModel.mof \
+   Application_InstalledProduct.mof \
+   Application_J2eeAppServer.mof \
+   Application_J2eeAppServerStats.mof \
+   Application_SystemSoftware.mof \
+   CIM_Application.mof \
+   CIM_Core.mof \
+   CIM_Database.mof \
+   CIM_Device.mof \
+   CIM_Event.mof \
+   CIM_IPsecPolicy.mof \
+   CIM_Interop.mof \
+   CIM_Metrics.mof \
+   CIM_Network.mof \
+   CIM_Physical.mof \
+   CIM_Policy.mof \
+   CIM_Schema.mof \
+   CIM_Support.mof \
+   CIM_System.mof \
+   CIM_User.mof \
+   Core_Capabilities.mof \
+   Core_Collection.mof \
+   Core_CoreElements.mof \
+   Core_Device.mof \
+   Core_MethodParms.mof \
+   Core_Physical.mof \
+   Core_PowerMgmt.mof \
+   Core_ProductFRU.mof \
+   Core_Qualifiers.mof \
+   Core_Redundancy.mof \
+   Core_Service.mof \
+   Core_Settings.mof \
+   Core_Software.mof \
+   Core_Statistics.mof \
+   Core_StorageExtent.mof \
+   Database_Statistics.mof \
+   Database_Storage.mof \
+   Database_System.mof \
+   Device_Controller.mof \
+   Device_CoolingAndPower.mof \
+   Device_DeviceElements.mof \
+   Device_DiskGroup.mof \
+   Device_FC.mof \
+   Device_IB.mof \
+   Device_Memory.mof \
+   Device_Modems.mof \
+   Device_NetworkAdapter.mof \
+   Device_Ports.mof \
+   Device_Printing.mof \
+   Device_Processor.mof \
+   Device_ProtocolController.mof \
+   Device_SccExtents.mof \
+   Device_Sensors.mof \
+   Device_StorageDevices.mof \
+   Device_StorageExtents.mof \
+   Device_StorageLib.mof \
+   Device_StorageServices.mof \
+   Device_USB.mof \
+   Device_UserDevices.mof \
+   Metrics_BaseMetric.mof \
+   Metrics_UnitOfWork.mof \
+   Network_BGP.mof \
+   Network_Buffers.mof \
+   Network_Collections.mof \
+   Network_Filtering.mof \
+   Network_IPsec.mof \
+   Network_OSPF.mof \
+   Network_Pipes.mof \
+   Network_ProtocolEndpoints.mof \
+   Network_QoS.mof \
+   Network_Routes.mof \
+   Network_RoutingForwarding.mof \
+   Network_SNMP.mof \
+   Network_SwitchingBridging.mof \
+   Network_Systems.mof \
+   Network_VLAN.mof \
+   Physical_Component.mof \
+   Physical_Connector.mof \
+   Physical_Link.mof \
+   Physical_Misc.mof \
+   Physical_Package.mof \
+   Physical_PhysicalMedia.mof \
+   Physical_StoragePackage.mof \
+   System_Boot.mof \
+   System_Diagnostics.mof \
+   System_FileElements.mof \
+   System_Help.mof \
+   System_Logs.mof \
+   System_OperatingSystem.mof \
+   System_Processing.mof \
+   System_SystemElements.mof \
+   System_SystemResources.mof \
+   System_Time.mof \
+   System_Unix.mof \
+   User_AccessControl.mof \
+   User_Account.mof \
+   User_AuthenticationReqmt.mof \
+   User_Credential.mof \
+   User_Group.mof \
+   User_Identity.mof \
+   User_Kerberos.mof \
+   User_Org.mof \
+   User_Privilege.mof \
+   User_PrivilegeManagementService.mof \
+   User_PublicKey.mof \
+   User_Role.mof \
+   User_SecurityLevel.mof \
+   User_SecurityServices.mof \
+   User_SharedSecret.mof \
+   User_StorageHardwareID.mof \
+   User_UsersAccess.mof
+
 CIM28_MOF_FILES = \
    Application28_AppRuntime.mof \
    Application28_BIOS.mof \
@@ -819,7 +935,7 @@ _append_filesSectionToSpecFile: FORCE
 	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), \
                    $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MANADMIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(CIM28_MOF_FILES), \
+	@$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), \
                    $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(INTERNAL_MOF_FILES), \

@@ -6,25 +6,18 @@ include $(ROOT)/mak/config.mak
 
 INTEROPNS = root/PG_InterOp
 
-# The following variable determines the version of the Schema to
-# be loaded into the Sample Provider namespace.
-# Update the following variable to change the version.
-
-CIM_SCHEMA_VER=28
-CIM_SCHEMA_DIR=CIM$(CIM_SCHEMA_VER)
-
 SAMPLEPROVIDERNS=root/SampleProvider
 
 createrepository:
 	@ $(ECHO) +++++ Creating $(SAMPLEPROVIDERNS) namespace ...
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Physical$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR)/CIM_Physical$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_Physical$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_System$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR)/CIM_System$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_System$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,6 +28,9 @@
 //==============================================================================
 //
 // Author: Konrad Rzeszutek <konradr@us.ibm.com>
+//
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +101,7 @@ PROV_LOG_OPEN (const char *file)
   if (env)
     env_len = strlen (env);
 
-  path = malloc (env_len + len + loc_len + ext_len);
+  path = (char *) malloc (env_len + len + loc_len + ext_len);
 
   strncpy (path, env, env_len);
 
@@ -124,7 +127,7 @@ PROV_LOG_OPEN (const char *file)
 /* ---------------------------------------------------------------------------*/
 /*                       Helper functions                        */
 /* ---------------------------------------------------------------------------*/
-char *
+const char *
 strCMPIStatus (CMPIStatus rc)
 {
 
@@ -179,7 +182,7 @@ strCMPIStatus (CMPIStatus rc)
   return "";
 }
 
-char *
+const char *
 strCMPIType (CMPIType type)
 {
 
@@ -284,7 +287,7 @@ strCMPIType (CMPIType type)
   return "";
 }
 
-char *
+const char *
 strCMPIValueState (CMPIValueState state)
 {
   switch (state)
@@ -307,7 +310,7 @@ strCMPIValueState (CMPIValueState state)
 
 }
 
-char *
+const char *
 strCMPIPredOp (CMPIPredOp op)
 {
   switch (op)
@@ -336,7 +339,7 @@ strCMPIPredOp (CMPIPredOp op)
       return "Unknown operation";
     }
 }
-char *
+const char *
 strCMPIValue (CMPIValue value)
 {
   /* This function only handles string values */
@@ -350,13 +353,13 @@ strCMPIValue (CMPIValue value)
 /* ---------------------------------------------------------------------------*/
 
 CMPIObjectPath *
-make_ObjectPath (const char *ns, const char *class)
+make_ObjectPath (const char *ns, const char *clss)
 {
   CMPIObjectPath *objPath = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
   PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
-  objPath = CMNewObjectPath (_broker, ns, class, &rc);
+  objPath = CMNewObjectPath (_broker, ns, clss, &rc);
 
   PROV_LOG ("----- %s", strCMPIStatus (rc));
 
@@ -710,7 +713,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
                           CMGetCharPtr (left_side),
                           CMGetCharPtr (right_side));
 
-                // One can also evaluate this specific predicate 
+                // One can also evaluate this specific predicate
                 PROV_LOG ("--- #6.5 CMEvaluatePredicate");
 
                 evalRes =

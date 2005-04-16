@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,6 +28,9 @@
 //==============================================================================
 //
 // Author: Konrad Rzeszutek <konradr@us.ibm.com>
+//
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +104,7 @@ PROV_LOG_OPEN (const char *file)
   if (env)
     env_len = strlen (env);
 
-  path = malloc (env_len + len + loc_len + ext_len);
+  path = (char *) malloc (env_len + len + loc_len + ext_len);
 
   strncpy (path, env, env_len);
 
@@ -127,10 +130,9 @@ PROV_LOG_OPEN (const char *file)
 /* ---------------------------------------------------------------------------*/
 /*                       Helper functions                        */
 /* ---------------------------------------------------------------------------*/
-char *
+const char *
 strCMPIStatus (CMPIStatus rc)
 {
-
 
   switch (rc.rc)
     {
@@ -182,7 +184,7 @@ strCMPIStatus (CMPIStatus rc)
   return "";
 }
 
-char *
+const char *
 strCMPIType (CMPIType type)
 {
 
@@ -287,7 +289,7 @@ strCMPIType (CMPIType type)
   return "";
 }
 
-char *
+const char *
 strCMPIValueState (CMPIValueState state)
 {
   switch (state)
@@ -310,7 +312,7 @@ strCMPIValueState (CMPIValueState state)
 
 }
 
-char *
+const char *
 strCMPIPredOp (CMPIPredOp op)
 {
   switch (op)
@@ -339,7 +341,7 @@ strCMPIPredOp (CMPIPredOp op)
       return "Unknown operation";
     }
 }
-char *
+const char *
 strCMPIValue (CMPIValue value)
 {
   /* This function only handles string values */
@@ -353,16 +355,16 @@ strCMPIValue (CMPIValue value)
 /* ---------------------------------------------------------------------------*/
 
 CMPIObjectPath *
-make_ObjectPath (const char *ns, const char *class)
+make_ObjectPath (const char *ns, const char *clss)
 {
   CMPIObjectPath *objPath = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
   PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
-  objPath = CMNewObjectPath (_broker, ns, class, &rc);
+  objPath = CMNewObjectPath (_broker, ns, clss, &rc);
   //assert ( rc.rc == CMPI_RC_OK);
   PROV_LOG ("----- %s", strCMPIStatus (rc));
-  CMAddKey (objPath, "ElementName", class, CMPI_chars);
+  CMAddKey (objPath, "ElementName", clss, CMPI_chars);
 
   return objPath;
 }
@@ -390,17 +392,17 @@ make_Instance (CMPIObjectPath * op)
 
 
 int
-_setProperty (CMPIInstance * ci, char *p)
+_setProperty (CMPIInstance * ci, const char *p)
 {
   CMPIValue val;
-  char *property;
+  const char *property;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
-  /* 
+  /*
      WQL just gives the property names, such as :"ElementName".
-     CQL is more complex and gives the class from which the 
+     CQL is more complex and gives the class from which the
      property belongs, such as "TestCMPIInstance.ElementName".
-     So we find the classname in the property name we just 
-     ignore it. 
+     So we find the classname in the property name we just
+     ignore it.
    */
 
   if (strncmp (p, _ClassName, _ClassName_size) == 0)
@@ -631,7 +633,7 @@ TestCMPIInstanceProviderDeleteInstance (CMPIInstanceMI * mi,
                         CMPI_RC_ERR_NOT_SUPPORTED, "CIM_ERR_NOT_SUPPORTED");
 
   PROV_LOG ("--- %s CMPI DeleteInstance() exited", _ClassName);
-  PROV_LOG_CLOSE (_ClassName);
+  PROV_LOG_CLOSE ();
 
   return rc;
 }
@@ -641,7 +643,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
                                    CMPIContext * ctx,
                                    CMPIResult * rslt,
                                    CMPIObjectPath * ref,
-                                   char *lang, char *query)
+                                   const char *lang, const char *query)
 {
 
   //CMPIString *str = NULL;
@@ -723,7 +725,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
                     PROV_LOG ("--- Error finding the property");
                   // At which point we just leace the function - as we cannot satisfy the
                   // request. But this is a test-case provider so we are continuing on and we
-                  // just won't send the instance.      Wait you say, won't CMEvaluteSelExp figure 
+                  // just won't send the instance.      Wait you say, won't CMEvaluteSelExp figure
                   // this too - yes, but only the CQL one. The WQL is not smart enough
                 }
               if (data.type == CMPI_string)
@@ -849,7 +851,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
           /* We are not sending anything back b/c the previous
              block of code would have sent the instance already */
           //CMReturnInstance (rslt, inst);
-          //CMReturnDone (rslt);          
+          //CMReturnDone (rslt);
         }
       else
         {

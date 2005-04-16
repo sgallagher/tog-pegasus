@@ -2175,7 +2175,7 @@ extern "C" {
 
        /** Provider name
        */
-     char *miName;
+     const char *miName;
 
        /** Cleanup is called prior to unloading of the provider.
      @param mi Provider this pointer.
@@ -2352,7 +2352,7 @@ extern "C" {
 
        /** Provider name
        */
-     char *miName;
+     const char *miName;
 
        /** Cleanup is called prior to unloading of the provider.
      @param mi Provider this pointer.
@@ -2428,7 +2428,7 @@ extern "C" {
 
        /** Provider name
        */
-     char *miName;
+     const char *miName;
 
        /** Cleanup is called prior to unloading of the provider.
      @param mi Provider this pointer.
@@ -2514,7 +2514,7 @@ extern "C" {
 
        /** Provider name
        */
-     char *miName;
+     const char *miName;
 
        /** Cleanup is called prior to unloading of the provider.
      @param mi Provider this pointer.

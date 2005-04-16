@@ -23,9 +23,10 @@
 //
 //==============================================================================
 //
-// Author:       Viktor Mihajlovski <mihajlov@de.ibm.com>
+// Author:      Viktor Mihajlovski <mihajlov@de.ibm.com>
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,67 +70,67 @@ CMPIStatus CWS_DirectoryContainsFileEnumInstanceNames( CMPIInstanceMI * mi,
 }
 
 CMPIStatus CWS_DirectoryContainsFileEnumInstances( CMPIInstanceMI * mi,
-				       CMPIContext * ctx, 
-				       CMPIResult * rslt, 
-				       CMPIObjectPath * ref, 
-				       char ** properties) 
+				       CMPIContext * ctx,
+				       CMPIResult * rslt,
+				       CMPIObjectPath * ref,
+				       char ** properties)
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
 
-CMPIStatus CWS_DirectoryContainsFileGetInstance( CMPIInstanceMI * mi, 
+CMPIStatus CWS_DirectoryContainsFileGetInstance( CMPIInstanceMI * mi,
 				     CMPIContext * ctx,
-				     CMPIResult * rslt, 
-				     CMPIObjectPath * cop, 
-				     char ** properties) 
-{
-  CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
-}
-
-CMPIStatus CWS_DirectoryContainsFileCreateInstance( CMPIInstanceMI * mi, 
-					CMPIContext * ctx, 
-					CMPIResult * rslt, 
-					CMPIObjectPath * cop, 
-					CMPIInstance * ci) 
-{
-  CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
-}
-
-CMPIStatus CWS_DirectoryContainsFileSetInstance( CMPIInstanceMI * mi, 
-				     CMPIContext * ctx, 
-				     CMPIResult * rslt, 
+				     CMPIResult * rslt,
 				     CMPIObjectPath * cop,
-				     CMPIInstance * ci, 
-				     char **properties) 
+				     char ** properties)
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_DirectoryContainsFileDeleteInstance( CMPIInstanceMI * mi, 
-					CMPIContext * ctx, 
-					CMPIResult * rslt, 
-					CMPIObjectPath * cop) 
-{ 
+CMPIStatus CWS_DirectoryContainsFileCreateInstance( CMPIInstanceMI * mi,
+					CMPIContext * ctx,
+					CMPIResult * rslt,
+					CMPIObjectPath * cop,
+					CMPIInstance * ci)
+{
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_DirectoryContainsFileExecQuery( CMPIInstanceMI * mi, 
-				   CMPIContext * ctx, 
-				   CMPIResult * rslt, 
-				   CMPIObjectPath * cop, 
-				   char * lang, 
-				   char * query) 
+CMPIStatus CWS_DirectoryContainsFileSetInstance( CMPIInstanceMI * mi,
+				     CMPIContext * ctx,
+				     CMPIResult * rslt,
+				     CMPIObjectPath * cop,
+				     CMPIInstance * ci,
+				     char **properties)
+{
+  CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
+}
+
+CMPIStatus CWS_DirectoryContainsFileDeleteInstance( CMPIInstanceMI * mi,
+					CMPIContext * ctx,
+					CMPIResult * rslt,
+					CMPIObjectPath * cop)
+{
+  CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
+}
+
+CMPIStatus CWS_DirectoryContainsFileExecQuery( CMPIInstanceMI * mi,
+				   CMPIContext * ctx,
+				   CMPIResult * rslt,
+				   CMPIObjectPath * cop,
+				   const char * lang,
+				   const char * query)
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
 /* ------------------------------------------------------------------ *
- * Association MI Cleanup 
+ * Association MI Cleanup
  * ------------------------------------------------------------------ */
 
 CMPIStatus CWS_DirectoryContainsFileAssociationCleanup( CMPIAssociationMI * mi,
-					      CMPIContext * ctx) 
+					      CMPIContext * ctx)
 {
   CMReturn(CMPI_RC_OK);
 }
@@ -146,7 +147,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociators( CMPIAssociationMI * mi,
 				       const char * resultClass,
 				       const char * role,
 				       const char * resultRole,
-				       char ** propertyList ) 
+				       char ** propertyList )
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
@@ -158,7 +159,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
 					   const char * assocClass,
 					   const char * resultClass,
 					   const char * role,
-					   const char * resultRole ) 
+					   const char * resultRole )
 {
   CMPIStatus      st = {CMPI_RC_OK,NULL};
   CMPIString     *clsname;
@@ -180,9 +181,9 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
     if (strcasecmp(DIRECTORYCLASS,CMGetCharPtr(clsname))==0) {
       /* we have a directory and can return the children */
       data = CMGetKey(cop,"Name",NULL);
-      
+
       enumhdl = CWS_Begin_Enum(CMGetCharPtr(data.value.string),CWS_TYPE_PLAIN);
-      
+
       if (enumhdl == NULL) {
 	CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			     "Could not begin file enumeration");
@@ -192,7 +193,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
 	  /* build object path from file buffer */
 	  op = makePath(_broker,
 			FILECLASS,
-			CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
+			CMGetCharPtr(CMGetNameSpace(cop,NULL)),
 			&filebuf);  CMSetHostname(op,CSName());
 	  if (CMIsNullObject(op)) {
 	    CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
@@ -205,7 +206,7 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
       }
 
     }
-    
+
     if (strcasecmp(FILECLASS,CMGetCharPtr(clsname))==0 ||
 	strcasecmp(DIRECTORYCLASS,CMGetCharPtr(clsname))==0) {
       /* we can always return the parent */
@@ -213,24 +214,24 @@ CMPIStatus CWS_DirectoryContainsFileAssociatorNames( CMPIAssociationMI * mi,
       if (CWS_Get_File(dirname(CMGetCharPtr(data.value.string)),&filebuf)) {
 	op = makePath(_broker,
 		      DIRECTORYCLASS,
-		      CMGetCharPtr(CMGetNameSpace(cop,NULL)), 
+		      CMGetCharPtr(CMGetNameSpace(cop,NULL)),
 		      &filebuf);  CMSetHostname(op,CSName());
 	if (CMIsNullObject(op)) {
 	  CMSetStatusWithChars(_broker, &st, CMPI_RC_ERR_FAILED,
 			       "Could not construct object path");
-	  return st;  
+	  return st;
 	}
 	CMReturnObjectPath(rslt,op);
       }
-      
+
     }
-    
+
     else {
       if (!silentMode()) fprintf(stderr,"--- CWS_DirectoryContainsFileAssociatorNames() unsupported class \n");
     }
-    CMReturnDone(rslt); 
-  } /* if (clsname) */    
-  
+    CMReturnDone(rslt);
+  } /* if (clsname) */
+
   return st;
 }
 
@@ -240,7 +241,7 @@ CMPIStatus CWS_DirectoryContainsFileReferences( CMPIAssociationMI * mi,
 				      CMPIObjectPath * cop,
 				      const char * assocClass,
 				      const char * role,
-				      char ** propertyList ) 
+				      char ** propertyList )
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
@@ -251,7 +252,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 					  CMPIResult * rslt,
 					  CMPIObjectPath * cop,
 					  const char * assocClass,
-					  const char * role) 
+					  const char * role)
 {
   CMPIStatus      st = {CMPI_RC_OK,NULL};
   CMPIString     *clsname;
@@ -265,7 +266,7 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 #ifdef SIMULATED
     CMSetHostname(cop,CSName());
 #endif
-    
+
   /*
    * Check if the object path belongs to a supported class
    */
@@ -354,8 +355,8 @@ CMPIStatus CWS_DirectoryContainsFileReferenceNames( CMPIAssociationMI * mi,
 
 /* ------------------------------------------------------------------ *
  * Instance MI Factory
- * 
- * NOTE: This is an example using the convenience macros. This is OK 
+ *
+ * NOTE: This is an example using the convenience macros. This is OK
  *       as long as the MI has no special requirements, i.e. to store
  *       data between calls.
  * ------------------------------------------------------------------ */

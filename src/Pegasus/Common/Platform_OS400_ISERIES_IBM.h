@@ -34,37 +34,21 @@
 #ifdef PEGASUS_USE_PEGASUS_COPYRIGHT
 #include "qycmcopyriCopyright.h"
 #endif
+
 //#define _XOPEN_SOURCE_EXTENDED 1
 //#define _OPEN_SYS 1
 #define _MSE_PROTOS
 #define _OPEN_SOURCE 3
 
 #define _MULTI_THREADED 
-/*
-#ifndef PEGASUS_INTERNALONLY
-  // Need this because Sint8 is typedef as a char,
-  // and char defaults to unsigned on OS/400.
-  // Internal Pegasus code needs char to be unsigned
-  // so that Sint8 * can be cast to char *.
-  // External code needs char to be signed for comparison
-  // operators (<, <=, etc).
-  #pragma chars(signed)
-#endif 
-*/
+
 #include <cstddef>
+
+
 
 #define OS400_DEFAULT_PEGASUS_HOME "/QIBM/UserData/OS400/CIM"
 
 #define OS400_DEFAULT_MESSAGE_SOURCE "/QIBM/ProdData/OS400/CIM/msg" // l10n
-
-#ifdef PEGASUS_INTERNALONLY
-#define PEGASUS_HAS_ICU  // l10n ICU libraries are available, this switch
-                         // is defined as part of the various platform make files
-#endif
-                  
-#define PEGASUS_HAS_MESSAGES  // turns on localized message loading
-
-#define PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #define PEGASUS_OS_TYPE_UNIX
 
@@ -96,15 +80,11 @@
 
 #define PEGASUS_NO_PASSWORDFILE
 
-#define PEGASUS_USE_SYSLOGS
-
 #define PEGASUS_KERBEROS_AUTHENTICATION
 
 // This enables the default pluggable provider manager.
 // See ProviderManagerService.cpp
 #define PEGASUS_ENABLE_DEFAULT_PROVIDER_MANAGER
-
-//#define PEGASUS_MONITOR2
 
 #define PEGASUS_USE_RELEASE_CONFIG_OPTIONS
 
@@ -112,7 +92,11 @@
 
 #define PEGASUS_SUPPORT_UTF8_FILENAME
 
+#define PEGASUS_REPOSITORY_NOT_NORMALIZED
+
 #include <sys/param.h> // For MAXHOSTNAMELEN
 #define PEGASUS_MAXHOSTNAMELEN (MAXHOSTNAMELEN + 1)
+
+#define PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif /* Pegasus_Platform_OS400_ISERIES_IBM_h */

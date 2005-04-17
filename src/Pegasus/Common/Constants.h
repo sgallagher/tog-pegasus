@@ -333,19 +333,9 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 //
 // Wbem service names
 //
-
-
-#ifdef PEGASUS_OS_OS400
-#pragma convert(37)
 #define WBEM_HTTP_SERVICE_NAME "wbem-http"
 #define WBEM_HTTPS_SERVICE_NAME "wbem-https"
 #define WBEM_EXPORT_HTTPS_SERVICE_NAME "wbem-exp-https"
-#pragma convert(0)
-#else
-#define WBEM_HTTP_SERVICE_NAME "wbem-http"
-#define WBEM_HTTPS_SERVICE_NAME "wbem-https"
-#define WBEM_EXPORT_HTTPS_SERVICE_NAME "wbem-exp-https"
-#endif
 
 
 

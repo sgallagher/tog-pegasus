@@ -553,7 +553,7 @@ String System::getHostName()
 
 String System::getFullyQualifiedHostName ()
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_LINUX)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_OS400)
     char hostName [PEGASUS_MAXHOSTNAMELEN];
     struct hostent *he;
     String fqName;
@@ -567,6 +567,10 @@ String System::getFullyQualifiedHostName ()
     {
        strcpy (hostName, he->h_name);
     }
+
+#if defined(PEGASUS_OS_OS400)
+    EtoA(hostName);
+#endif
 
     fqName.assign (hostName);
 
@@ -635,7 +639,15 @@ Uint32 System::lookupPort(
     struct servent_data	buf;
     memset(&buf, 0x00, sizeof(struct servent_data));
 
-    if ( (getservbyname_r((char*)serviceName, TCP, &serv_result,
+    char srvnameEbcdic[256];
+    strcpy(srvnameEbcdic, serviceName);
+    AtoE(srvnameEbcdic);
+
+    char tcpEbcdic[64];
+    strcpy(tcpEbcdic, TCP);
+    AtoE(tcpEbcdic);
+
+    if ( (getservbyname_r(srvnameEbcdic, tcpEbcdic, &serv_result,
 				&buf)) == 0 )
 #else // PEGASUS_OS_SOLARIS
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )

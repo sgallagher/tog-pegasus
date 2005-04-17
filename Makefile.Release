@@ -895,6 +895,8 @@ _append_preunSectionToSpecFile: FORCE
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   [ -d $(PEGASUS_REPOSITORY_DIR) ] && rm -rf $(PEGASUS_REPOSITORY_DIR);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   [ -d $(PEGASUS_VARDATA_CACHE_DIR) ] && rm -rf $(PEGASUS_VARDATA_CACHE_DIR);" >> \
+                       $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   rm -f $(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

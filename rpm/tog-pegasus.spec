@@ -297,6 +297,7 @@ if [ $1 -eq 0 ]; then
    [ -f /var/opt/tog-pegasus/cimserver_current.conf ] &&  rm /var/opt/tog-pegasus/cimserver_current.conf;
    [ -f %PEGASUS_INSTALL_LOG ] && rm %PEGASUS_INSTALL_LOG;
    [ -d /var/opt/tog-pegasus/repository ] && rm -rf /var/opt/tog-pegasus/repository;
+   [ -d /var/opt/tog-pegasus/cache ] && rm -rf /var/opt/tog-pegasus/cache;
    rm -f /var/run/tog-pegasus/socket/cimxml.socket;
    fi
    # Delete the Link to the rc.* Startup Directories

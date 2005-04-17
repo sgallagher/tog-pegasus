@@ -56,6 +56,14 @@
 #include <Clients/cliutils/CommandException.h>
 #include "SSLTrustMgr.h"
 
+#ifdef PEGASUS_OS_OS400
+#include "qycmutiltyUtility.H"
+#include "qycmutilu2.H"
+#include "vfyptrs.cinc"
+#include <stdio.h>
+#include "OS400ConvertChar.h"
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 //l10n
@@ -2841,6 +2849,36 @@ int main (int argc, char* argv [])
 
     //l10n set message loading to process locale
     MessageLoader::_useProcessLocale = true; 
+
+#ifdef PEGASUS_OS_OS400
+
+    VFYPTRS_INCDCL;               // VFYPTRS local variables
+
+  // verify pointers
+#pragma exception_handler (qsyvp_excp_hndlr,qsyvp_excp_comm_area,\
+    0,_C2_MH_ESCAPE)
+    for( int arg_index = 1; arg_index < argc; arg_index++ ){
+	  VFYPTRS(VERIFY_SPP_NULL(argv[arg_index]));
+    }
+#pragma disable_handler
+
+    // Convert the args to ASCII
+    for(Uint32 i = 0;i< argc;++i)
+    {
+      EtoA(argv[i]);
+    }
+
+    // Set the stderr stream to buffered with 32k.
+    // Allows utf-8 to be sent to stderr. (P9A66750)
+    setvbuf(stderr, new char[32768], _IOLBF, 32768);
+
+    // Check to ensure the user is authorized to use the command
+    // ycmCheckSecurityAuthorities() will send a diagnostic message to qsh
+    if(FALSE == ycmCheckSecurityAuthorities())
+    {
+	exit(CPFDF80_RC);
+    }
+#endif
 
     try 
     {

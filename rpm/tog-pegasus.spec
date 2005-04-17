@@ -299,6 +299,7 @@ if [ $1 -eq 0 ]; then
    [ -d /var/opt/tog-pegasus/repository ] && rm -rf /var/opt/tog-pegasus/repository;
    [ -d /var/opt/tog-pegasus/cache ] && rm -rf /var/opt/tog-pegasus/cache;
    rm -f /var/run/tog-pegasus/socket/cimxml.socket;
+   rm -f /var/run/tog-pegasus/cimserver.pid
    fi
    # Delete the Link to the rc.* Startup Directories
    /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;

@@ -57,6 +57,11 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/XmlParser.h>
 
+#ifdef PEGASUS_OS_OS400
+#include <qycmutilu2.H>
+#include "OS400ConvertChar.h"
+#endif
+
 #include <stdlib.h>
 
 PEGASUS_USING_STD;
@@ -337,7 +342,14 @@ Boolean CertificateProvider::_verifyAuthorization(const String& userName)
 
     if (_enableAuthentication) 
     {
+#if !defined(PEGASUS_OS_OS400)
         if (!System::isPrivilegedUser(userName)) 
+#else
+        CString user = userName.getCString();
+        const char * tmp = (const char *)user;
+        AtoE((char *)tmp);
+        if (!ycmCheckUserSecurityAuthorities(tmp))
+#endif
         {
             PEG_METHOD_EXIT();
             return false;

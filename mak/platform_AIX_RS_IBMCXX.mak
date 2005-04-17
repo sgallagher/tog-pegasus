@@ -43,7 +43,7 @@ RM = rm -f
 
 DIFF = diff
 
-SORT- sort
+SORT = sort
 
 COPY = cp
 

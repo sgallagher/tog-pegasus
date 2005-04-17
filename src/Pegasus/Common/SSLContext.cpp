@@ -63,6 +63,9 @@
 #include "SSLContext.h"
 #include "SSLContextRep.h"
 
+#ifdef PEGASUS_OS_OS400
+#include "SSLWrapperOS400.h"
+#endif
 
 //
 // Typedef's for OpenSSL callback functions.
@@ -496,6 +499,11 @@ void SSLContextRep::init_ssl()
      // up to CRYPTO_num_locks() different mutex locks.
      PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
            "Initialized SSL callback.");
+
+#ifdef PEGASUS_OS_OS400
+     // Load the OpenSSL library and get the exports
+     SSL_OS400_Init();
+#endif
 
      _sslLocks= new Mutex[CRYPTO_num_locks()];
 

@@ -42,10 +42,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Logger.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include "OS400ConvertChar.h"
+#include "SSLWrapperOS400.h"
+#include "OS400SystemState.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <except.h>
 
@@ -226,7 +230,47 @@ int ServerProcess::cimserver_initialize(void)
    // Set the SQL server mode to true.
    // This will allow multiple connections to the same data source.
    SQLSetEnvAttr(henv,SQL_ATTR_SERVER_MODE, &attr,0);
- }
+
+   //--------------------------------------------------
+   // Create server SSL certificate and private key
+   // if they do not already exist.
+   //--------------------------------------------------
+
+   // Check if SSL is enabled on either the wbem-https or
+   // wbem-exp-https ports.
+   ConfigManager * configManager = ConfigManager::getInstance();
+   Boolean enableHttpsConnection = String::equal(
+        configManager->getCurrentValue("enableHttpsConnection"), "true");
+   Boolean enableSSLExportClientVerification = String::equal(
+        configManager->getCurrentValue("enableSSLExportClientVerification"), "true");
+   if (enableHttpsConnection || enableSSLExportClientVerification)
+   {
+       // Initialize the OS400 OpenSSL wrapper.
+       // This checks if the OpenSSL LPO is installed.
+       // It also activates the OpenSSL *SRVPGM and gets exports.
+       SSL_OS400_Init();
+
+       // Create the certificate if needed
+       // Get the location of the certificate
+       String certPath;
+       certPath = ConfigManager::getHomedPath(
+            configManager->getCurrentValue("sslCertificateFilePath"));
+
+       // Get the location of the private key
+       String keyPath;
+       keyPath = ConfigManager::getHomedPath(
+            configManager->getCurrentValue("sslKeyFilePath"));
+
+       SSL_CreateCert_OS400(keyPath, certPath);
+   }
+  }
+  catch (Exception & e)
+  {
+      //l10n
+      Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+		  e.getMessage()); 
+      return(-1);
+  }
   catch (...)
   {
       //l10n

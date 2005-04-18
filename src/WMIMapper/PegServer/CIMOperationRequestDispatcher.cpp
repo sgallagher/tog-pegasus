@@ -875,7 +875,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
 			((IdentityContainer)request->operationContext.get(IdentityContainer::NAME)).getUserName(),
 			container.getPassword(),
 			request->className.getString(),
-			true, true, false, false,
+			request->deepInheritance, true, false, false,
 			propertyList);
 	}
 	catch(CIMException& exception)

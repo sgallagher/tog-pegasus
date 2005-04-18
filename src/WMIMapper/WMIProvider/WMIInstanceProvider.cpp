@@ -308,7 +308,7 @@ Array<CIMObjectPath> WMIInstanceProvider::enumerateInstanceNames(
 	}
 
 	// retrieve the instance enumeration object
-	if (!(_collector->getInstanceEnum(&pInstEnum, className, FALSE)))
+	if (!(_collector->getInstanceEnum(&pInstEnum, className, TRUE)))
 	{
 		if (pInstEnum)
 			pInstEnum.Release();
@@ -861,7 +861,7 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 	CComPtr<IWbemCallResult> pResult;
 
 	hr = pServices->PutInstance(pNewInstance, 
-		                        WBEM_FLAG_CREATE_ONLY | WBEM_FLAG_USE_AMENDED_QUALIFIERS, 
+		                        WBEM_FLAG_RETURN_IMMEDIATELY | WBEM_FLAG_CREATE_ONLY | WBEM_FLAG_USE_AMENDED_QUALIFIERS, 
 								NULL, 
 								&pResult);
 
@@ -871,6 +871,13 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 	if (pServices)
 		pServices.Release();
 
+
+	// set proxy security on pResult
+	bool bSecurity = _collector->setProxySecurity(pResult);
+	
+
+	//check for error	
+	pResult->GetCallStatus(WBEM_INFINITE, &hr);
 	if(FAILED(hr))
 	{
 		switch(hr)
@@ -885,9 +892,7 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 		}
 	}
 
-	// set proxy security on pResult
-	bool bSecurity = _collector->setProxySecurity(pResult);
-	
+
 	// Mount the path to return
 
 	// Prepend namespace to path

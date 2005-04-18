@@ -15,11 +15,6 @@ DIRS = \
 	DeleteInstance\
         Property
 
-ifdef PEGASUS_ENABLE_EXECQUERY
-DIRS += \
-        ExecQuery
-endif
-
 # These tests are not re-runnable
 #	ModifyClass\
 #	DeleteClass

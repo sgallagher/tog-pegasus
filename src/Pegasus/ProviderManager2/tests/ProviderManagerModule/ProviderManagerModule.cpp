@@ -71,6 +71,8 @@ void Test1(void)
         throw 0;
     }
 
+    delete p;
+
     module.unload();
 }
 

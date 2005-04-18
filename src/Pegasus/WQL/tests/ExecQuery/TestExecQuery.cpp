@@ -1,0 +1,286 @@
+//%2005////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Amit K Arora, IBM (amita@in.ibm.com)
+//
+// Modified By: 
+//
+//%/////////////////////////////////////////////////////////////////////////////
+
+
+#include <Pegasus/Client/CIMClient.h>
+
+#define QUERY1 "Select * from TST_Person"
+
+#define QUERY2 "Select * from TST_Person where name = \"Mike\""
+#define NAME2  "Mike"
+
+#define QUERY3 "select * from TST_Person where Name = \"Saara\" and \
+                extraProperty = \"default\""
+#define NAME3  "Saara"
+#define PROP3  "default"
+
+#define QUERY4 "select * from TST_Person where Name = \"Mike\" or \
+                name = \"Father\""
+#define NAME4a "Mike"
+#define NAME4b "Father"
+
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
+CIMNamespaceName NAMESPACE("root/SampleProvider");
+
+void testQuery1(CIMClient& client)
+{
+   int matchedCount = 0;
+
+   Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
+                                         String(QUERY1));
+        
+   Array<CIMInstance> instances = client.enumerateInstances(
+                                 NAMESPACE, CIMName("TST_Person"));
+
+   if(arr.size() != instances.size())
+   {
+      throw(Exception("Number of instances returned do not match."));
+   }
+
+   for(unsigned int i=0;i<arr.size();i++)
+   {
+     int idx = arr[i].findProperty(CIMName("name"));
+     CIMValue cv1 =  arr[i].getProperty(idx).getValue();
+     for(unsigned int j=0;j<instances.size();j++)
+     {
+       idx = instances[j].findProperty(CIMName("name"));
+       CIMValue cv2 =  instances[j].getProperty(idx).getValue();
+
+       if(cv1.equal(cv2))
+       {
+          matchedCount++;
+          instances.remove(j);
+       }
+       else
+          continue;
+     }
+   }
+   
+   if(matchedCount != arr.size())
+         throw(Exception("The Property values do not match."));
+}
+
+
+void testQuery2(CIMClient& client)
+{
+   int matchedCount = 0;
+   Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
+                                         String(QUERY2));
+        
+   Array<CIMInstance> instancesAll = client.enumerateInstances(
+                                 NAMESPACE, CIMName("TST_Person"));
+
+   Array<CIMInstance> instances;
+
+   for(unsigned int i=0;i<instancesAll.size();i++)
+   {
+     int idx = instancesAll[i].findProperty(CIMName("name"));
+     CIMValue cv1 =  instancesAll[i].getProperty(idx).getValue();
+     if(String::equal(cv1.toString(), String(NAME2)))
+       instances.append(instancesAll[i]);
+   }
+   
+   if(arr.size() != instances.size())
+   {
+      throw(Exception("Number of instances returned do not match."));
+   }
+
+   for(unsigned int i=0;i<arr.size();i++)
+   {
+     int idx = arr[i].findProperty(CIMName("name"));
+     CIMValue cv1 =  arr[i].getProperty(idx).getValue();
+     for(unsigned int j=0;j<instances.size();j++)
+     {
+       idx = instances[j].findProperty(CIMName("name"));
+       CIMValue cv2 =  instances[j].getProperty(idx).getValue();
+
+       if(cv1.equal(cv2))
+       {
+          matchedCount++;
+          instances.remove(j);
+       }
+       else
+          continue;
+     }
+   }
+
+   if(matchedCount != arr.size())
+         throw(Exception("The Property values do not match."));
+}
+
+
+void testQuery3(CIMClient& client)
+{
+   int matchedCount = 0;
+   Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
+                                         String(QUERY3));
+        
+   Array<CIMInstance> instancesAll = client.enumerateInstances(
+                                 NAMESPACE, CIMName("TST_Person"));
+
+   Array<CIMInstance> instances;
+
+   for(unsigned int i=0;i<instancesAll.size();i++)
+   {
+     Boolean testCond = false;
+     int idx = instancesAll[i].findProperty(CIMName("name"));
+     CIMValue cv1 =  instancesAll[i].getProperty(idx).getValue();
+     idx = instancesAll[i].findProperty(CIMName("extraProperty"));
+     if(idx >= 0) 
+     {
+       CIMValue cv2 =  instancesAll[i].getProperty(idx).getValue();
+       if(String::equal(cv2.toString(),String(PROP3)))
+           testCond = true;
+     }
+
+     if(String::equal(cv1.toString(),String(NAME3)) && testCond)
+       instances.append(instancesAll[i]);
+   }
+
+   if(arr.size() != instances.size())
+   {
+      throw(Exception("Number of instances returned do not match."));
+   }
+
+   for(unsigned int i=0;i<arr.size();i++)
+   {
+     int idx = arr[i].findProperty(CIMName("name"));
+     CIMValue cv1 =  arr[i].getProperty(idx).getValue();
+     for(unsigned int j=0;j<instances.size();j++)
+     {
+       idx = instances[j].findProperty(CIMName("name"));
+       CIMValue cv2 =  instances[j].getProperty(idx).getValue();
+
+       if(cv1.equal(cv2))
+       {
+          matchedCount++;
+          instances.remove(j);
+       }
+       else
+          continue;
+     }
+   }
+
+   if(matchedCount != arr.size())
+         throw(Exception("The Property values do not match."));
+}
+
+
+void testQuery4(CIMClient& client)
+{
+   int matchedCount = 0;
+   Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
+                                         String(QUERY4));
+        
+   Array<CIMInstance> instancesAll = client.enumerateInstances(
+                                 NAMESPACE, CIMName("TST_Person"));
+
+   Array<CIMInstance> instances;
+
+   for(unsigned int i=0;i<instancesAll.size();i++)
+   {
+     int idx = instancesAll[i].findProperty(CIMName("name"));
+     CIMValue cv1 =  instancesAll[i].getProperty(idx).getValue();
+
+     if(String::equal(cv1.toString(),String(NAME4a)) ||
+        String::equal(cv1.toString(),String(NAME4b)))
+       instances.append(instancesAll[i]);
+   }
+
+   if(arr.size() != instances.size())
+   {
+      throw(Exception("Number of instances returned do not match."));
+   }
+
+   for(unsigned int i=0;i<arr.size();i++)
+   {
+     int idx = arr[i].findProperty(CIMName("name"));
+     CIMValue cv1 =  arr[i].getProperty(idx).getValue();
+     for(unsigned int j=0;j<instances.size();j++)
+     {
+       idx = instances[j].findProperty(CIMName("name"));
+       CIMValue cv2 =  instances[j].getProperty(idx).getValue();
+
+       if(cv1.equal(cv2))
+       {
+          matchedCount++;
+          instances.remove(j);
+       }
+       else
+          continue;
+     }
+   }
+
+   if(matchedCount != arr.size())
+         throw(Exception("The Property values do not match."));
+}
+
+
+
+int main(int argc, char** argv)
+{
+  CIMClient client;
+  String testName;
+
+  try
+  {
+    client.connectLocal();
+
+    testName = String("testQuery1");
+    testQuery1(client);
+    testName = String("testQuery2");
+    testQuery2(client);
+    testName = String("testQuery3");
+    testQuery3(client);
+    testName = String("testQuery4");
+    testQuery4(client);
+  }
+  catch(Exception& e)
+  {
+    cout << argv[0] << ": "<< e.getMessage() << endl;
+    cout << argv[0] << " ----- " << testName << " testcase failed" << endl;
+    client.disconnect(); 
+    return 1;
+  }
+ 
+  client.disconnect(); 
+  cout << argv[0] << " +++++ passed all tests" << endl;
+
+  return 0;
+}
+
+

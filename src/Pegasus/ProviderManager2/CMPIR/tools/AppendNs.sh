@@ -5,7 +5,7 @@ fi
 
 ans=""
 while [ ! "$#" = 1 ]; do
-   ans="$ans,\"$1\"
+   ans="$ans,\"$1\""
    shift
 done
 ans=${ans//\//\\\/}

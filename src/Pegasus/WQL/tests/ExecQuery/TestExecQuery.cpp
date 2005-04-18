@@ -58,7 +58,7 @@ CIMNamespaceName NAMESPACE("root/SampleProvider");
 
 void testQuery1(CIMClient& client)
 {
-   int matchedCount = 0;
+   unsigned int matchedCount = 0;
 
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY1));
@@ -97,7 +97,7 @@ void testQuery1(CIMClient& client)
 
 void testQuery2(CIMClient& client)
 {
-   int matchedCount = 0;
+   unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY2));
         
@@ -145,7 +145,7 @@ void testQuery2(CIMClient& client)
 
 void testQuery3(CIMClient& client)
 {
-   int matchedCount = 0;
+   unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY3));
         
@@ -202,7 +202,7 @@ void testQuery3(CIMClient& client)
 
 void testQuery4(CIMClient& client)
 {
-   int matchedCount = 0;
+   unsigned int matchedCount = 0;
    Array<CIMObject> arr=client.execQuery(NAMESPACE,String("WQL"),
                                          String(QUERY4));
         

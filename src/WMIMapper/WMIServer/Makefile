@@ -8,7 +8,8 @@ LIBRARIES = \
     pegcommon \
     pegconfig \
     pegwmiserver \
-    pegclient
+    pegclient \
+    pegservice
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

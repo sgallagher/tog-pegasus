@@ -955,30 +955,10 @@ en:table {
         */      ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES:string {"PGS03013: Missing the required NameSpaces property in PG_ProviderCapabilities class."} // 485
 
         /**
-        * @note PGS03013:
-        *     Do not translate the word 'ProviderType' since it is the name of a CIM property.
-        *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
-          */    ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES:string {"PGS03013: Missing the required ProviderType property in PG_ProviderCapabilities class."} // 485
-
-        /**
-        * @note PGS03013:
-        *     Do not translate the word 'Name' since it is the name of a CIM property.
-        *     Do not translate the word 'PG_Provider' since it is the name of a CIM class.
-        */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDER:string {"PGS03013: Missing the required Name property in PG_Provider class."} // 485
-
-        /**
         * @note PGS03014:
         *     Do not translate the word 'ProviderModuleName' since it is the name of a CIM property.
         *     Do not translate the word 'PG_Provider' since it is the name of a CIM class.
         */      ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERMODULENAME_IN_PG_PROVIDER:string {"PGS03014: Missing the required ProviderModuleName property in PG_Provider class."} // 485
-
-        /**
-        * @note PGS03014:
-        *     Do not translate the word 'InterfaceType' since it is the name of a CIM property.
-        *     Substitution {0} is an InterfaceType value (a string)
-        */
-        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACETYPE_VALUE:string {"PGS03014: InterfaceType property value {0} is not supported."} // 485
 
         /**
         * @note PGS03015:
@@ -1078,6 +1058,27 @@ en:table {
         *   Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
         */
         ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES:string {"PGS03031: Unsupported ProviderType value \"{0}\" in PG_ProviderCapabilities instance."}
+
+        /**
+        * @note PGS03032:
+        *     Do not translate the word 'ProviderType' since it is the name of a CIM property.
+        *     Do not translate the word 'PG_ProviderCapabilities' since it is the name of a CIM class.
+          */
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_PROVIDERTYPE_IN_PG_PROVIDERCAPABILITIES:string {"PGS03032: Missing the required ProviderType property in PG_ProviderCapabilities class."} // 485
+
+        /**
+        * @note PGS03033:
+        *     Do not translate the word 'Name' since it is the name of a CIM property.
+        *     Do not translate the word 'PG_Provider' since it is the name of a CIM class.
+        */
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAME_IN_PG_PROVIDER:string {"PGS03033: Missing the required Name property in PG_Provider class."} // 485
+
+        /**
+        * @note PGS03034:
+        *     Do not translate the word 'InterfaceType' since it is the name of a CIM property.
+        *     Substitution {0} is an InterfaceType value (a string)
+        */
+        ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.UNSUPPORTED_INTERFACETYPE_VALUE:string {"PGS03034: InterfaceType property value {0} is not supported."} // 485
 
 
         // ==========================================================

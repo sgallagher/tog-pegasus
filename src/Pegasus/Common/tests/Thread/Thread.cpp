@@ -70,6 +70,11 @@ AtomicInt write_count ;
 AtomicInt testval1 = 0;
 Boolean verbose = false;
 
+struct TestThreadData
+{
+    char chars[2];
+};
+
 int main(int argc, char **argv)
 {
 	int i;
@@ -94,9 +99,9 @@ int main(int argc, char **argv)
 	for( i = 0; i < THREAD_NR; i++ )
 	{
 		threads[i] = new Thread( test2_thread, 0, false );
-		char *data = NULL;
+		TestThreadData* data = NULL;
 		try {
-			data = new char[2];
+			data = new struct TestThreadData;
 		} catch (bad_alloc&)
 		{
 			cerr << "Not enough memory. Changing the amount of threads used." << endl;
@@ -104,8 +109,8 @@ int main(int argc, char **argv)
 			delete threads[i];
 			break;
 		}
-		data[0] = 'B';
-		data[1] = 'E';
+		data->chars[0] = 'B';
+		data->chars[1] = 'E';
 		threads[i]->put_tsd( "test2", thread_data::default_delete, 2, data );
 		threads[i]->run();
 	}
@@ -418,11 +423,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test1_thread( void* parm )
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm )
 {
 	Thread* thread = (Thread*)parm;
-	char *data = (char *)thread->reference_tsd("test2");
+	TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
 	assert (data != NULL);
 
-	assert (data[0] == 'B');
-	assert (data[1] == 'E');
+	assert (data->chars[0] == 'B');
+	assert (data->chars[1] == 'E');
 
 	thread->dereference_tsd();	
 

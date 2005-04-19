@@ -27,7 +27,7 @@
 
 #include "InstanceProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 InstanceProvider::InstanceProvider(void)
 {
@@ -278,4 +278,3 @@ void InstanceProvider::deleteInstance(
 	handler.complete();
 }
 
-PEGASUS_NAMESPACE_END

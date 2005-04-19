@@ -1764,7 +1764,7 @@ void GetOptions(
         {"Password", "", false, Option::STRING, 0, 0, "p",
                                         "Defines password for authentication" },
 
-        {"location", "localhost:5988", false, Option::STRING, 0, 0, "l",
+        {"location", "", false, Option::STRING, 0, 0, "l",
                             "specifies system and port (HostName:port). Port is optional" },
 
         {"User", "", false, Option::STRING, 0, 0, "u",

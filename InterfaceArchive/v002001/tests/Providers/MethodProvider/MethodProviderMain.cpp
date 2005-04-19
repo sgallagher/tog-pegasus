@@ -30,7 +30,7 @@
 
 #include "MethodProvider.h"
 
-PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & className)
 {
@@ -42,4 +42,3 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & cla
     return(0);
 }
 
-PEGASUS_NAMESPACE_END

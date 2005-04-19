@@ -71,8 +71,8 @@ int SortCmd(const vector<string>& args)
 
     if (args.size() != 2)
     {
-	cerr << args[0] << ": wrong number of arguments" << endl;
-	return 1;
+        cerr << args[0] << ": wrong number of arguments" << endl;
+        return 1;
     }
 
     //
@@ -91,15 +91,17 @@ int SortCmd(const vector<string>& args)
     string line;
 
     while (getline(is, line))
-	lines.push_back(line);
+        lines.push_back(line);
 
     is.close();
 
     //
-    // Sort.
+    // Sort if necessary.
     //
-
-    qsort(&lines[0], lines.size(), sizeof(string), _compare);
+    if ( lines.size() > 1 )
+    {
+        qsort(&lines[0], lines.size(), sizeof(string), _compare);
+    }
 
     //
     // Write the results out to standard output:
@@ -110,7 +112,7 @@ int SortCmd(const vector<string>& args)
 #endif
 
     for (size_t i = 0; i < lines.size(); i++)
-	cout << lines[i] << '\n';
+        cout << lines[i] << '\n';
 
     return 0;
 }

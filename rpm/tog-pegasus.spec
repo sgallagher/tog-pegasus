@@ -32,11 +32,11 @@
 #
 # Package spec for PEGASUS 2.4
 #
-%define srcRelease 3
+%define srcRelease 1
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
-Version: 2.4.1.Beta
-Release: 3
+Version: 2.4.1
+Release: 1
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}

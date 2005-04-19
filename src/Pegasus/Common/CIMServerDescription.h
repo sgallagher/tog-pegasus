@@ -30,6 +30,7 @@
 // Author: Tony Fiorentino (fiorentino_tony@emc.com)
 //
 // Modified By: Keith Petley (keithp@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug 3123
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +41,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Attribute.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Client/WBEMSLPTemplate.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

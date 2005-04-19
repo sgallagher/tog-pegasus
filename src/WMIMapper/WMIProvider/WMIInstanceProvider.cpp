@@ -226,7 +226,18 @@ Array<CIMInstance> WMIInstanceProvider::enumerateInstances(
 
 	while (SUCCEEDED(hr) && (1 == dwReturned))
 	{
-		CIMInstance tempInst(className);
+		//get class from the returned instance 
+		//it will avoid "type mismatch" exceptions
+		//when deepInheritance is true and instances
+		//of subclasses are returned
+		CComVariant vTmpClassName;
+		String strTmpClassName;
+		if (pInstance->Get(L"__CLASS", 0, &vTmpClassName, NULL, NULL) == S_OK)
+		{
+			strTmpClassName = WMIString(vTmpClassName);
+		}
+
+		CIMInstance tempInst(strTmpClassName);
 
 		if (_collector->getCIMInstance(pInstance, 
 			                           tempInst,

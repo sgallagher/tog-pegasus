@@ -33,7 +33,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                       mdday@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.8 2005/02/26 06:03:52 david.dillard Exp $
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/slp_client.h,v 1.9 2005/04/19 19:23:58 david.dillard Exp $
  *
  *  Copyright (c) 2001 - 2003  IBM
  *  Copyright (c) 2000 - 2003 Michael Day
@@ -63,10 +63,6 @@
 #define SLP_CLIENT_INC
 
 #include <Pegasus/Common/Config.h>
-
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 #ifndef NUCLEUS
 #include "lslp-common-defs.h"
@@ -98,6 +94,9 @@ extern "C" {
 #define SLP_STORAGE_DECL DLL_EXPORT
 #endif
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
   typedef struct lslp_auth_block {
     struct lslp_auth_block *next;

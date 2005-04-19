@@ -32,7 +32,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.8 2005/04/12 18:32:11 konrad.r Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-windows.h,v 1.9 2005/04/19 19:23:58 david.dillard Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -63,9 +63,6 @@
 
 #ifndef _LSLP_WINDOWS_INCL_
 #define _LSLP_WINDOWS_INCL_
-#ifdef	__cplusplus
-extern "C" {
-#endif
 
 #ifdef _WIN32 
 #ifndef _MT
@@ -85,6 +82,10 @@ extern "C" {
 #include <sys/timeb.h> 
 #include <assert.h>
 #include <errno.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef	unsigned char uint8;
 typedef uint8 byte;

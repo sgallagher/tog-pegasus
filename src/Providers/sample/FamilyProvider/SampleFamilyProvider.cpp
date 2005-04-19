@@ -84,9 +84,6 @@
     more general and maintainable.
 */
 
-#include <Pegasus/Common/System.h>
-#include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/MofWriter.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h> // for Logger
 
@@ -95,21 +92,19 @@
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
+//***************************************************
 // Debug Tools
+//***************************************************
 
 #define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "SampleFamilyProvider " << X << PEGASUS_STD(endl)
-
-//#define CDEBUG(X) Logger::put (Logger::DEBUG_LOG, "SampleFamilyProvider", Logger::INFORMATION, "$0", X)
-
+//#define CDEBUG(X) PEGASUS_STD(cout) << "======= SampleFamilyProvider " << X << PEGASUS_STD(endl)
 
 #define CDEBUG_HOST(X) CDEBUG(X)
-//#define CDEBUG_HOST(X) PEGASUS_STD(cout) << "SampleFamilyProvider " << X << PEGASUS_STD(endl)
 
-// requires using PEGASUS_USING_PEGASUS
-//#include <cstring>
-//#include <stdcxx/stream/strstream>
-//#define CDEBUG(X) {ostrstream os; os << X; char* tmp = os.str(); PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, String(tmp));delete tmp;}
+//#define TRACE
+//#define LOG
+
+//#define DIAG_OUTPUT	
 
 //*********************************************
 //   Constants
@@ -298,7 +293,10 @@ Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(const CIMInstance & assoc
             const CIMName resultClass, const String resultRole)
 {
     Array<CIMObjectPath> returnPaths;
-    CDEBUG("_filterAssocInst. path= " << targetObjectPath.toString() << " resultClass= " << resultClass.getString() << " result role= " << resultRole);
+    CDEBUG("_filterAssocInst. path= " << targetObjectPath.toString()
+	   << " resultClass= " 
+	   << (const char*)resultClass.getString().getCString()
+	   << " result role= " << resultRole);
     // get all reference properties except for target.
     for (Uint32 i = 0 ; i < assocInstance.getPropertyCount() ; i++)
     {
@@ -322,7 +320,8 @@ Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(const CIMInstance & assoc
             }
         }
     }
-    CDEBUG("_filterAssoc PathsReturned. Count = " << returnPaths.size() << " " << _showPathArray(returnPaths));
+    CDEBUG("_filterAssoc PathsReturned. Count = " << returnPaths.size() 
+	   << " " << _showPathArray(returnPaths));
     return( returnPaths );
 }
 
@@ -399,7 +398,10 @@ Array<CIMInstance> _filterReferenceNames(
     const CIMName & resultClass,
     const String & role)
 {
-    CDEBUG("_filterReferenceNames. objName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
+    CDEBUG("_filterReferenceNames. objName= " << objectName.toString() 
+	   << " resultClass= "
+	   << (const char*)resultClass.getString().getCString()
+	   << " role= " << role);
     // Build a host and namespace independent reference to the target objectname
     CIMObjectPath targetReference = CIMObjectPath(
                             String(),
@@ -564,8 +566,13 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
             _initError = true;
         }
         _personDynamicSubclass = class2;
-		//XmlWriter::printClassElement(_referencedClass);
-		//MofWriter::printClassElement(_referencedClass);
+#ifdef DIAG_OUTPUT
+	cout << "========================================================" << endl;
+	cout << "SampleFamilyProvider::initialize _personDynamicClass = ";
+	cout << endl;
+	cout << ((CIMObject)_personDynamicClass).toString();
+	cout << endl << endl;
+#endif /* DIAG_OUTPUT */
 
         // Create the association class
         CIMClass a1 = _getClass(lineageDynamicAssocClassName);
@@ -581,9 +588,13 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
         if (a2.isUninitialized())
 
             _initError = true;
-
-		//XmlWriter::printClassElement(_assocLabeledClass);
-		//MofWriter::printClassElement(_assocLabeledClass);
+#ifdef DIAG_OUTPUT
+	cout << "========================================================" << endl;
+	cout << "SampleFamilyProvider::initialize _assocLabeledClass = ";
+	cout << endl;
+	cout << ((CIMObject)_assocLabeledClass).toString() << endl;
+	cout << endl << endl;
+#endif /* DIAG_OUTPUT */
 
     }
     // Do not try to initialize instances if class initialization failed.
@@ -673,8 +684,10 @@ void SampleFamilyProvider::initialize(CIMOMHandle & cimom)
             _instanceNamesLabeledLineageDynamic.append(
                 _instancesLabeledLineageDynamic[i].buildPath(assocLabeledClassName));
         }
-        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Initialize %s. Count= %i instances",
-            "TST_LabeledLineageDynamic", _instancesLabeledLineageDynamic.size() );
+        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+		      "Initialize %s. Count= %i instances",
+		      "TST_LabeledLineageDynamic",
+		      _instancesLabeledLineageDynamic.size() );
     }
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
@@ -744,11 +757,12 @@ void SampleFamilyProvider::getInstance(
     CDEBUG_HOST("getInstance hostname: " << instanceReference.getHost() );  
     _hostname = instanceReference.getHost(); // save hostname for response
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "getInstance. Class= %s",
-		(const char *)instanceReference.toString().getCString(),
-        (const char *)_showBool(includeQualifiers).getCString(),
-        (const char*) _showBool(includeClassOrigin).getCString(),
-        (const char *)_showPropertyList(propertyList).getCString());
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+		  "getInstance. Class= %s",
+		  (const char *)instanceReference.toString().getCString(),
+		  (const char *)_showBool(includeQualifiers).getCString(),
+		  (const char*) _showBool(includeClassOrigin).getCString(),
+		  (const char *)_showPropertyList(propertyList).getCString());
 
     // convert a potential fully qualified reference into a local reference
 	// (class name and keys only).
@@ -816,11 +830,12 @@ void SampleFamilyProvider::enumerateInstances(
     _hostname = classReference.getHost(); // save hostname for response
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
-        "enumerateInstances. Class= %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
-		(const char *) classReference.toString().getCString(),
-        (const char *) _showBool(includeQualifiers).getCString(),
-        (const char *) _showBool(includeClassOrigin).getCString(),
-        (const char *) _showPropertyList(propertyList).getCString());
+		  "enumerateInstances. Class= %s, includeQualifiers= %s, \
+                   includeClassOrigin= %s, PropertyList= %s",
+		  (const char *) classReference.toString().getCString(),
+		  (const char *) _showBool(includeQualifiers).getCString(),
+		  (const char *) _showBool(includeClassOrigin).getCString(),
+		  (const char *) _showPropertyList(propertyList).getCString());
 
     CIMNamespaceName nameSpace = classReference.getNameSpace();
 
@@ -875,14 +890,22 @@ void SampleFamilyProvider::enumerateInstanceNames(
     CDEBUG_HOST("enumerateInstanceNames hostname: " << classReference.getHost() );  
     _hostname = classReference.getHost(); // save hostname for response
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "enumerateInstanceNames. Class= %s",
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+		  "enumerateInstanceNames. Class= %s",
 		  (const char *) classReference.toString().getCString());
 
     // begin processing the request
 
     CIMName myClassName = classReference.getClassName();
 
-    //XmlWriter::printClassElement(_personDynamicClass);
+#ifdef DIAG_OUTPUT
+	cout << "========================================================" << endl;
+	cout << "SampleFamilyProvider::enumerateInstanceNames  _personDynamicClass = ";
+	cout << endl;	
+	cout << ((CIMObject)_personDynamicClass).toString();
+	cout << endl << endl;
+#endif /* DIAG_OUTPUT */
+
     // ATTN: Use the above to check the existence of the class. Note that we use it in only
     // one place for the moment.  Update to cover the others.
     CIMNamespaceName nameSpace = classReference.getNameSpace();
@@ -952,7 +975,8 @@ void SampleFamilyProvider::modifyInstance(
     CDEBUG_HOST("modifyInstance  hostname: " << instanceReference.getHost() );  
     _hostname = instanceReference.getHost(); // save hostname for response
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "modifyInstance. Class= %s",
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+		  "modifyInstance. Class= %s",
 		  (const char *) instanceReference.toString().getCString());
 
     //CIMName myClass = instanceReference.getClassName();
@@ -1023,10 +1047,11 @@ void SampleFamilyProvider::createInstance(
 	const CIMInstance & instanceObject,
 	ObjectPathResponseHandler & handler)
 {
-    CDEBUG_HOST("JRW createInstance hostname: " << instanceReference.getHost() );  
+    CDEBUG_HOST("createInstance hostname: " << instanceReference.getHost() );  
     _hostname = instanceReference.getHost(); // save hostname for response
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "createInstance. Class= %s",
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+		  "createInstance. Class= %s",
 		  (const char *) instanceReference.toString().getCString());
 
     // convert a potential fully qualified reference into a local reference
@@ -1094,7 +1119,8 @@ void SampleFamilyProvider::deleteInstance(
     CDEBUG_HOST("deleteInstance hostname: " << instanceReference.getHost() ); 
     _hostname = instanceReference.getHost(); // save hostname for response
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "deleteInstance. Class= %s",
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+		  "deleteInstance. Class= %s",
 		  (const char *) instanceReference.toString().getCString());
 
 
@@ -1199,7 +1225,9 @@ void SampleFamilyProvider::associators(
     _hostname = objectName.getHost(); // save hostname for response
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
-        "associators. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole= %s, IncludeQualifiers= %s, ClassOrig= %s, propertyList= %s",
+        "associators. object= %s, assocClass= %s, resultClass= %s, \
+         role= %s, resultRole= %s, IncludeQualifiers= %s, \
+         ClassOrig= %s, propertyList= %s",
 		  (const char *) objectName.toString().getCString(),
 		  (const char *) associationClass.getString().getCString(),
 		  (const char *) resultClass.getString().getCString(),
@@ -1258,7 +1286,13 @@ void SampleFamilyProvider::_associatorNames(
 	ObjectPathResponseHandler & handler)
 {
 
-	CDEBUG("_AssociationNames. objectName= " << localObjectName.toString() << " assocClass= " << associationClass  << " resultClass= " << resultClass << " role= " << role);
+	CDEBUG("_AssociationNames. objectName= " 
+	       << localObjectName.toString()
+	       << " assocClass= " 
+	       << (const char*)associationClass.getString().getCString()
+	       << " resultClass= "
+	       << (const char*)resultClass.getString().getCString()
+	       << " role= " << role);
     // Filter out the required objectpaths from the association list.
     Array<CIMInstance> assocInstances;
 
@@ -1300,7 +1334,8 @@ void SampleFamilyProvider::associatorNames(
     _hostname = objectName.getHost(); // save hostname for response
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
-        "associatorNames. object= %s, assocClass= %s, resultClass= %s, role= %s, resultRole=%s",
+		  "associatorNames. object= %s, assocClass= %s, \
+                   resultClass= %s, role= %s, resultRole=%s",
 		  (const char*)objectName.toString().getCString(),
 		  (const char*)associationClass.getString().getCString(),
                   (const char*)resultClass.getString().getCString(),
@@ -1386,7 +1421,8 @@ void SampleFamilyProvider::references(
     _hostname = objectName.getHost(); // save hostname for response
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
-        "references. object= %s, resultClass= %s, role= %s, IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
+		  "references. object= %s, resultClass= %s, role= %s, \
+                   IncludeQualifiers= %s ClassOrig= %s, propertyList= %s",
 		  (const char*)objectName.toString().getCString(),
 		  (const char *)resultClass.getString().getCString(),
 		  (const char *)role.getCString(),
@@ -1475,12 +1511,15 @@ void SampleFamilyProvider::referenceNames(
     _hostname = objectName.getHost(); // save hostname for response
  
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
-        "referenceNames. object= %s, resultClass= %s, role= %s",
+		  "referenceNames. object= %s, resultClass= %s, role= %s",
 		  (const char*)objectName.toString().getCString(),
 		  (const char *)resultClass.getString().getCString(), 
 		  (const char*)role.getCString());
 
-	CDEBUG("ReferenceNames Operation. objectName= " << objectName.toString() << " resultClass= " << resultClass << " role= " << role);
+	CDEBUG("ReferenceNames Operation. objectName= " << objectName.toString() 
+	       << " resultClass= " 
+	       << (const char*)resultClass.getString().getCString()
+	       << " role= " << role);
     CIMNamespaceName nameSpace = objectName.getNameSpace().getString();
 
     targetClass myClassEnum  = _verifyValidAssocClassInput(resultClass);

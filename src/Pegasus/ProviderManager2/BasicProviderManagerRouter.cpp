@@ -34,7 +34,7 @@
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2619, #2685
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2619, #2685,#3354 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,8 +111,8 @@ public:
 
     ~ProviderManagerContainer()
     {
-        _module.unload();
         delete _manager;
+        _module.unload();
     }
 
     ProviderManagerContainer& operator=(

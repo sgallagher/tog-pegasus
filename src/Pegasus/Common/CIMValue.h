@@ -405,6 +405,26 @@ public:
         */
     String toString() const;
 
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+    /// Constructor.
+    CIMValue(char x);
+
+    /// Constructor.
+    CIMValue(const Array<char>& x);
+
+    ///
+    void set(char x);
+
+    ///
+    void set(const Array<char>& x);
+
+    ///
+    void get(char& x) const;
+
+    ///
+    void get(Array<char>& x) const;
+#endif
+
 private:
 
     CIMValueRep* _rep;

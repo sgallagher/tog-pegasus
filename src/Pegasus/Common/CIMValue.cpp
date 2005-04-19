@@ -1821,4 +1821,42 @@ Boolean operator!=(const CIMValue& x, const CIMValue& y)
     return !x.equal(y);
 }
 
+
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+
+CIMValue::CIMValue(char x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+CIMValue::CIMValue(const Array<char>& x)
+{
+    _rep = new CIMValueRep();
+    set(x);
+}
+
+void CIMValue::set(char x)
+{
+    set(static_cast<Sint8>(x));
+}
+
+void CIMValue::set(const Array<char>& x)
+{
+    set(*reinterpret_cast<const Array<Sint8> *>(&x));
+}
+
+void CIMValue::get(char& x) const
+{
+    get(*reinterpret_cast<Sint8 *>(&x));
+}
+
+void CIMValue::get(Array<char>& x) const
+{
+    get(*reinterpret_cast<Array<Sint8> *>(&x));
+}
+
+#endif
+
+
 PEGASUS_NAMESPACE_END

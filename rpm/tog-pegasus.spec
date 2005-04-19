@@ -689,15 +689,17 @@ chgrp root %PEGASUS_CONFIG_DIR/ssl.cnf
 openssl req -x509 -days 3650 -newkey rsa:2048 \
    -nodes -config %PEGASUS_CONFIG_DIR/ssl.cnf   \
    -keyout %PEGASUS_CONFIG_DIR/key.pem -out %PEGASUS_CONFIG_DIR/cert.pem 2>>%INSTALL_LOG
-
-cat %PEGASUS_CONFIG_DIR/key.pem > %PEGASUS_CONFIG_DIR/file_2048.pem
-cat %PEGASUS_CONFIG_DIR/cert.pem > %PEGASUS_CONFIG_DIR/server_2048.pem
-cat %PEGASUS_CONFIG_DIR/cert.pem > %PEGASUS_CONFIG_DIR/client_2048.pem
 chmod 700 %PEGASUS_CONFIG_DIR/*.pem
+cat %PEGASUS_CONFIG_DIR/key.pem > %PEGASUS_CONFIG_DIR/file_2048.pem
+chmod 400 %PEGASUS_CONFIG_DIR/%PEGASUS_CONFIG_DIR/file_2048.pem
+cat %PEGASUS_CONFIG_DIR/cert.pem > %PEGASUS_CONFIG_DIR/server_2048.pem
+chmod 400 %PEGASUS_CONFIG_DIR/%PEGASUS_CONFIG_DIR/server_2048.pem
+cat %PEGASUS_CONFIG_DIR/cert.pem > %PEGASUS_CONFIG_DIR/client_2048.pem
+chmod 400 %PEGASUS_CONFIG_DIR/%PEGASUS_CONFIG_DIR/client_2048.pem
 
 rm -f %PEGASUS_CONFIG_DIR/key.pem %PEGASUS_CONFIG_DIR/cert.pem
 
-if [ -f %PEGASUS_CONFIG_DIR/%PEGASUS_SSL_CERT_FILE ] 
+if [ -f %PEGASUS_CONFIG_DIR/%PEGASUS_SSL_CERT_FILE ]
 then
     echo "WARNING: %PEGASUS_CONFIG_DIR/%PEGASUS_SSL_CERT_FILE SSL Certificate file already exists."
 else

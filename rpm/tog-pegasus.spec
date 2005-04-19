@@ -761,9 +761,8 @@ fi
 %dir %attr(-,root,root) %PEGASUS_LOG_DIR
 %dir %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR
 %dir %attr(1555,root,root) %PEGASUS_LOCAL_DOMAIN_SOCKET_DIR
-%defattr(0755,root,root)
-%PEGASUS_REPOSITORY_DIR
 %defattr(-,root,root)
+%PEGASUS_REPOSITORY_DIR
 %doc %PEGASUS_PROD_DIR/%PEGASUS_LICENSE_FILE
 %doc %PEGASUS_MANUSER_DIR/cimmof.1
 %doc %PEGASUS_MANUSER_DIR/cimprovider.1

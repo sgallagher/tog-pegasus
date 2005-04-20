@@ -1,6 +1,0 @@
-[provider("SampleQueryProvider")]
-class Sample_QueryProviderClass : Sample_ProviderClass
-{
-	[read, write]
-	string Message;
-};

@@ -2208,6 +2208,17 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             "Exception caught in attempting to process indication: " +
             exception.getMessage ());
     }
+    catch (...)
+    {
+        response->cimException = PEGASUS_CIM_EXCEPTION_L(
+            CIM_ERR_FAILED,
+            MessageLoaderParms(
+                "IndicationService.IndicationService.UNKNOWN_ERROR",
+                "Unknown Error"));
+
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+            "Exception caught in attempting to process indication.");
+    }
 
     _enqueueResponse (request, response);
 

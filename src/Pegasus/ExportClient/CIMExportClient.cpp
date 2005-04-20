@@ -91,59 +91,49 @@ CIMExportClient::~CIMExportClient()
 
 void CIMExportClient::_connect()
 {
-   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_connect()");
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_connect()");
 
-   // Create response decoder:
+    // Create response decoder:
     
-   _responseDecoder = new CIMExportResponseDecoder(
-      this, _requestEncoder, &_authenticator);
+    _responseDecoder = new CIMExportResponseDecoder(
+        this, _requestEncoder, &_authenticator);
     
-   // Attempt to establish a connection:
+    // Attempt to establish a connection:
     
-   try
-   {
-      _httpConnection = _httpConnector->connect(_connectHost, 
-                 _connectPortNumber, 
-                 _connectSSLContext.get(),
-                 _responseDecoder);
-   }
-   catch (CannotCreateSocketException& e)
-   {
+    try
+    {
+        _httpConnection = _httpConnector->connect(_connectHost, 
+            _connectPortNumber, 
+            _connectSSLContext.get(),
+            _responseDecoder);
+    }
+    catch (...)
+    {
+        // Some possible exceptions are CannotCreateSocketException,
+        // CannotConnectException, and InvalidLocatorException
         delete _responseDecoder;
         PEG_METHOD_EXIT();
-        throw e;
-   }
-   catch (CannotConnectException& e)
-   {
-        delete _responseDecoder;
-        PEG_METHOD_EXIT();
-        throw e;
-   }
-   catch (InvalidLocatorException& e)
-   {
-        delete _responseDecoder;
-        PEG_METHOD_EXIT();
-        throw e;
-   }
+        throw;
+    }
     
-   // Create request encoder:
+    // Create request encoder:
     
-   String connectHost = _connectHost;
-   if (connectHost.size())
-   {
-       char portStr[32];
-       sprintf(portStr, ":%u", _connectPortNumber);
-       connectHost.append(portStr);
-   }
+    String connectHost = _connectHost;
+    if (connectHost.size())
+    {
+        char portStr[32];
+        sprintf(portStr, ":%u", _connectPortNumber);
+        connectHost.append(portStr);
+    }
 
-   _requestEncoder = new CIMExportRequestEncoder(
-      _httpConnection, connectHost, &_authenticator);
+    _requestEncoder = new CIMExportRequestEncoder(
+        _httpConnection, connectHost, &_authenticator);
 
-   _responseDecoder->setEncoderQueue(_requestEncoder);    
+    _responseDecoder->setEncoderQueue(_requestEncoder);    
 
-   _connected = true;
+    _connected = true;
 
-   PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 void CIMExportClient::_disconnect()
@@ -267,7 +257,7 @@ void CIMExportClient::connect(
     {
         _connect();
     }
-    catch (Exception&)
+    catch (...)
     {
         _connectSSLContext.reset();
         PEG_METHOD_EXIT();

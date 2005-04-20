@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -64,7 +64,7 @@ int EchoWithEscapeCmd(const vector<string>& args)
     for (size_t i = 1; i < args.size(); i++)
     {
         string text = args[i];
-        int textLen = text.size(); 
+        int textLen = static_cast<int>(text.size());
 
         int j = 0;
         while (j < textLen - 1)
@@ -92,8 +92,8 @@ int EchoWithEscapeCmd(const vector<string>& args)
                            cout << "\t";
                            break;
                        default:
-                           cout << "\\" << text[j]; 
-                    } 
+                           cout << "\\" << text[j];
+                    }
              }
              else
              {

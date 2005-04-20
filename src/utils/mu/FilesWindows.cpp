@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -42,13 +42,14 @@
 #include <fcntl.h>
 #include <io.h>
 #include "Files.h"
+#include <stddef.h>
 
 bool GetCwd(string& path)
 {
     char* tmp = _getcwd(NULL, 0);
 
     if (!tmp)
-	return false;
+        return false;
 
     path = tmp;
     delete [] tmp;
@@ -83,17 +84,22 @@ bool GetDirEntries(const string& path_, vector<string>& filenames)
 
     struct _finddata_t fileinfo;
 
-    long handle = _findfirst(path.c_str(), &fileinfo);
+#if _MSC_VER < 1300
+    long handle;
+#else
+    intptr_t handle;
+#endif
+    handle = _findfirst(path.c_str(), &fileinfo);
 
     if (handle == -1)
-	return false;
+        return false;
 
     do
     {
-	string name = fileinfo.name;
+        string name = fileinfo.name;
 
-	if (name != "." && name != "..")
-	    filenames.push_back(name);
+        if (name != "." && name != "..")
+            filenames.push_back(name);
 
     } while (_findnext(handle, &fileinfo) != -1);
 
@@ -106,7 +112,7 @@ bool GetDirEntries(const string& path_, vector<string>& filenames)
 bool TouchFile(const string& path)
 {
     if (IsDir(path))
-	return false;
+        return false;
 
     // Get file-size:
 
@@ -116,13 +122,13 @@ bool TouchFile(const string& path)
 
     if (stat(path.c_str(), &sbuf) != 0)
     {
-	int fd = open(path.c_str(), O_WRONLY | O_CREAT, 0666);
+        int fd = open(path.c_str(), O_WRONLY | O_CREAT, 0666);
 
-	if (fd < 0)
-	    return false;
+        if (fd < 0)
+            return false;
 
-	close(fd);
-	return true;
+        close(fd);
+        return true;
     }
 
     // Call utime() to set file's time; pass NULL to cause current time
@@ -136,7 +142,7 @@ bool GetFileSize(const string& path, size_t& size)
     struct stat st;
 
     if (stat(path.c_str(), &st) != 0)
-	return false;
+        return false;
 
     size = (size_t)(st.st_size);
     return true;

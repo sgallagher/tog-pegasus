@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 // Author: Michael E. Brasher
 //
-// Modified By:	Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+// Modified By: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%=============================================================================
 
@@ -70,33 +70,33 @@ void ProcessOptions(
 
     for (i = 0; i < argc; i++)
     {
-	const char* p = argv[i];
+        const char* p = argv[i];
 
-	if (*p != '-')
-	    break;
+        if (*p != '-')
+            break;
 
-	p++;
+        p++;
 
-	if (*p == 'I')
-	{
-	    if (*++p)
-		includePath.push_back(p);
-	    else
-		ErrorExit("Missing argument for -I option");
-	}
-	else if (*p == 'O')
-	{
-	    if (*++p)
-		objectDir = p;
-	    else
-		ErrorExit("Missing argument for -O option");
-	}
-	else if (*p == 'W' && p[1] == '\0')
-	{
-	    warn = true;
-	}
-	else
-	    ErrorExit(string("Unknown option: -") + *p);
+        if (*p == 'I')
+        {
+            if (*++p)
+                includePath.push_back(p);
+            else
+                ErrorExit("Missing argument for -I option");
+        }
+        else if (*p == 'O')
+        {
+            if (*++p)
+                objectDir = p;
+            else
+                ErrorExit("Missing argument for -O option");
+        }
+        else if (*p == 'W' && p[1] == '\0')
+        {
+            warn = true;
+        }
+        else
+            ErrorExit(string("Unknown option: -") + *p);
     }
 
     argc -= i;
@@ -106,7 +106,7 @@ void ProcessOptions(
 void PrintVector(const vector<string>& v)
 {
     for (size_t i = 0; i < v.size(); i++)
-	printf("%s\n", v[i].c_str());
+        printf("%s\n", v[i].c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,113 +126,113 @@ bool GetIncludePath(
 {
     if (line[0] == '#')
     {
-	const char* p = line + 1;
+        const char* p = line + 1;
 
-	// Skip whitespace:
+        // Skip whitespace:
 
-	while (isspace(*p))
-	    p++;
+        while (isspace(*p))
+            p++;
 
-	// Check for "include" keyword:
+        // Check for "include" keyword:
 
-	const char INCLUDE[] = "include";
+        const char INCLUDE[] = "include";
 
-	if (memcmp(p, INCLUDE, sizeof(INCLUDE) - 1) == 0)
-	{
-	    // Advance past "include" keyword:
+        if (memcmp(p, INCLUDE, sizeof(INCLUDE) - 1) == 0)
+        {
+            // Advance past "include" keyword:
 
-	    p += sizeof(INCLUDE) - 1;
+            p += sizeof(INCLUDE) - 1;
 
-	    // Skip whitespace:
+            // Skip whitespace:
 
-	    while (isspace(*p))
-		p++;
+            while (isspace(*p))
+                p++;
 
-	    // Expect opening '"' or '<':
+            // Expect opening '"' or '<':
 
-	    if (*p != '"' && *p != '<')
-	    {
-		return false;
+            if (*p != '"' && *p != '<')
+            {
+                return false;
 #if 0
-		// ATTN: noticed that "#include /**/ <path>" style not
-		// handle so just returning silently when this situration
-		// encountered!
+                // ATTN: noticed that "#include /**/ <path>" style not
+                // handle so just returning silently when this situration
+                // encountered!
 
-		char message[64];
-		sprintf(message,
-		    "corrupt #include directive at %s(%d)",
-		    fileName.c_str(),
-		    lineNumber);
-		ErrorExit(message);
+                char message[64];
+                sprintf(message,
+                    "corrupt #include directive at %s(%d)",
+                    fileName.c_str(),
+                    lineNumber);
+                ErrorExit(message);
 #endif
-	    }
+            }
 
-	    openDelim = *p++;
+            openDelim = *p++;
 
-	    // Skip whitespace:
+            // Skip whitespace:
 
-	    while (isspace(*p))
-		p++;
+            while (isspace(*p))
+                p++;
 
-	    // Store pointer to start of path:
+            // Store pointer to start of path:
 
-	    const char* start = p;
+            const char* start = p;
 
-	    // Look for closing '"' or '>':
+            // Look for closing '"' or '>':
 
-	    while (*p && *p != '"' && *p != '>')
-		p++;
+            while (*p && *p != '"' && *p != '>')
+                p++;
 
-	    if (*p != '"' && *p != '>')
-	    {
-		return false;
+            if (*p != '"' && *p != '>')
+            {
+                return false;
 #if 0
-		char message[64];
-		sprintf(message,
-		    "corrupt #include directive at %s(%d)",
-		    fileName.c_str(),
-		    lineNumber);
-		ErrorExit(message);
+                char message[64];
+                sprintf(message,
+                    "corrupt #include directive at %s(%d)",
+                    fileName.c_str(),
+                    lineNumber);
+                ErrorExit(message);
 #endif
-	    }
+            }
 
-	    // Find end of the path (go backwards, skipping whitespace
-	    // between the closing delimiter and the end of the path:
+            // Find end of the path (go backwards, skipping whitespace
+            // between the closing delimiter and the end of the path:
 
-	    if (p == start)
-	    {
-		return false;
+            if (p == start)
+            {
+                return false;
 #if 0
-		char message[64];
-		sprintf(message,
-		    "empty path in #include directive at %s(%d)",
-		    fileName.c_str(),
-		    lineNumber);
-		ErrorExit(message);
+                char message[64];
+                sprintf(message,
+                    "empty path in #include directive at %s(%d)",
+                    fileName.c_str(),
+                    lineNumber);
+                ErrorExit(message);
 #endif
-	    }
+            }
 
-	    p--;
+            p--;
 
-	    while (isspace(*p))
-		p--;
+            while (isspace(*p))
+                p--;
 
-	    if (p == start)
-	    {
-		return false;
+            if (p == start)
+            {
+                return false;
 #if 0
-		char message[64];
-		sprintf(message,
-		    "empty path in #include directive at %s(%d)",
-		    fileName.c_str(),
-		    lineNumber);
-		ErrorExit(message);
+                char message[64];
+                sprintf(message,
+                    "empty path in #include directive at %s(%d)",
+                    fileName.c_str(),
+                    lineNumber);
+                ErrorExit(message);
 #endif
-	    }
+            }
 
-	    path.assign(start, p - start + 1);
-	    return true;
-	}
+            path.assign(start, p - start + 1);
+            return true;
+        }
     }
 
     return false;
@@ -249,13 +249,13 @@ FILE* FindFile(
 
     if (openDelim == '"')
     {
-	FILE* fp = fopen(path.c_str(), "rb");
+        FILE* fp = fopen(path.c_str(), "rb");
 
-	if (fp)
-	{
-	    fullPath = path;
-	    return fp;
-	}
+        if (fp)
+        {
+            fullPath = path;
+            return fp;
+        }
     }
 
     // Search the include path for the file:
@@ -265,14 +265,14 @@ FILE* FindFile(
 
     for (; first != last; first++)
     {
-	fullPath = *first;
-	fullPath += '/';
-	fullPath += path;
+        fullPath = *first;
+        fullPath += '/';
+        fullPath += path;
 
-	FILE* fp = fopen(fullPath.c_str(), "rb");
+        FILE* fp = fopen(fullPath.c_str(), "rb");
 
-	if (fp)
-	    return fp;
+        if (fp)
+            return fp;
     }
 
     return NULL;
@@ -297,8 +297,8 @@ void ProcessFile(
 
     if (nesting == 100)
     {
-	ErrorExit(
-	    "Infinite include file recursion? nesting level reached 100");
+        ErrorExit(
+            "Infinite include file recursion? nesting level reached 100");
     }
 
     assert(fp != NULL);
@@ -310,42 +310,42 @@ void ProcessFile(
 
     for (; fgets(line, sizeof(line), fp) != NULL; lineNumber++)
     {
-	// Check for include directive:
+        // Check for include directive:
 
-	string path;
-	char openDelim;
+        string path;
+        char openDelim;
 
-	if (line[0] == '#' &&
-	    GetIncludePath(fileName, lineNumber, line, path, openDelim))
-	{
-	    // ATTN: danger! not distinguising between angle brack delimited
-	    // and quote delimited paths!
+        if (line[0] == '#' &&
+            GetIncludePath(fileName, lineNumber, line, path, openDelim))
+        {
+            // ATTN: danger! not distinguising between angle brack delimited
+            // and quote delimited paths!
 
-	    set<string, less<string> >::const_iterator pos
-		= cache.find(path);
+            set<string, less<string> >::const_iterator pos
+                = cache.find(path);
 
-	    if (pos != cache.end())
-		continue;
+            if (pos != cache.end())
+                continue;
 
-	    cache.insert(path);
+            cache.insert(path);
 
-	    string fullPath;
-	    FILE* fp = FindFile(includePath, path, openDelim, fullPath);
+            string fullPath;
+            FILE* fp = FindFile(includePath, path, openDelim, fullPath);
 
-	    if (!fp)
-	    {
-		if (warn)
-		{
-		    Warning("header file not found: " + path +
-			" included from " + objectFileName);
-		}
-	    }
-	    else
-	    {
-		ProcessFile(objectFileName, fullPath, fp, includePath,
-		    nesting + 1, cache);
-	    }
-	}
+            if (!fp)
+            {
+                if (warn)
+                {
+                    Warning("header file not found: " + path +
+                        " included from " + objectFileName);
+                }
+            }
+            else
+            {
+                ProcessFile(objectFileName, fullPath, fp, includePath,
+                    nesting + 1, cache);
+            }
+        }
     }
 
     fclose(fp);
@@ -357,14 +357,14 @@ int DependCmdMain(int argc, char** argv)
 
     if (argc == 1)
     {
-	fprintf(stderr,
-	    "Usage: %s [-W]? [-Oobject_dir]? [-Iinclude_dir]* source_files...\n"
-	    "Where: \n"
-	    "    -W - warn doube include files which cannot be found\n"
-	    "    -O - prepend this directory to object files\n"
-	    "    -I - search this directory for header files\n",
-	    argv[0]);
-	exit(1);
+        fprintf(stderr,
+            "Usage: %s [-W]? [-Oobject_dir]? [-Iinclude_dir]* source_files...\n"
+            "Where: \n"
+            "    -W - warn doube include files which cannot be found\n"
+            "    -O - prepend this directory to object files\n"
+            "    -I - search this directory for header files\n",
+            argv[0]);
+        exit(1);
     }
 
     // Extract the program name:
@@ -382,47 +382,47 @@ int DependCmdMain(int argc, char** argv)
     // There must be at least one source file; print error if not:
 
     if (argc < 1)
-	ErrorExit("no source files given");
+        ErrorExit("no source files given");
 
     // Process each file:
 
     for (int i = 0; i < argc; i++)
     {
-	string fileName = argv[i];
+        string fileName = argv[i];
 
-	// Open the file:
+        // Open the file:
 
-	FILE* fp = fopen(argv[i], "rb");
+        FILE* fp = fopen(argv[i], "rb");
 
-	if (fp == NULL)
-	{
-	    string message = "failed to open file: \"" + fileName + "\"";
-	    ErrorExit(message);
-	}
+        if (fp == NULL)
+        {
+            string message = "failed to open file: \"" + fileName + "\"";
+            ErrorExit(message);
+        }
 
-	const char* start = fileName.c_str();
-	const char* dot = strrchr(start, '.');
+        const char* start = fileName.c_str();
+        const char* dot = strrchr(start, '.');
 
-	if( dot == NULL )
-		ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
+        if( dot == NULL )
+                ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
 
-	if ((strcmp(dot, ".cpp") != 0) && (strcmp(dot, ".c") != 0))
-	    ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
+        if ((strcmp(dot, ".cpp") != 0) && (strcmp(dot, ".c") != 0))
+            ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
 
-	string objectFileName;
+        string objectFileName;
 
-	if (objectDir.size())
-	{
-	    objectFileName = objectDir;
-	    objectFileName += '/';
-	}
+        if (objectDir.size())
+        {
+            objectFileName = objectDir;
+            objectFileName += '/';
+        }
 
-	objectFileName.append(start, dot - start);
-	objectFileName += OBJ_EXT;
+        objectFileName.append(start, dot - start);
+        objectFileName += OBJ_EXT;
 
-	set<string, less<string> > cache;
+        set<string, less<string> > cache;
 
-	ProcessFile(objectFileName, fileName, fp, includePath, 0, cache);
+        ProcessFile(objectFileName, fileName, fp, includePath, 0, cache);
     }
 
     return 0;
@@ -432,11 +432,11 @@ int DependCmd(const vector<string>& args)
 {
     // Dummy up argc/argv structures and call DependCmdMain():
 
-    int argc = args.size();
+    int argc = static_cast<int>(args.size());
     char** argv = new char*[args.size()];
 
     for (int i = 0; i < argc; i++)
-	argv[i] = (char*)args[i].c_str();
+        argv[i] = (char*)args[i].c_str();
 
     int result = DependCmdMain(argc, argv);
 

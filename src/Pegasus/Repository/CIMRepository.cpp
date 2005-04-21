@@ -2614,7 +2614,7 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
 Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
-    Boolean includeInheritance)
+    const Boolean includeInheritance)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY,
                      "CIMRepository::enumerateInstanceNamesForClass");

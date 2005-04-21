@@ -26,7 +26,7 @@ SH = sh
 
 YACC = yacc
 
-RM = rf -f
+RM = rm -f
 
 DIFF = diff
 

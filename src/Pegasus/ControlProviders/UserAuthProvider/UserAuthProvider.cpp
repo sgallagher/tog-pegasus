@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,6 +33,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -200,13 +202,13 @@ void UserAuthProvider::createInstance(
             _userManager->addUser( userNameStr, passwordStr);
 
         }
-        catch ( CIMException &e )
+        catch ( const CIMException & )
         {
             handler.complete();
             PEG_METHOD_EXIT();
-            throw e;
+            throw;
         }
-        catch ( Exception &e )
+        catch ( const Exception &e )
         {
             handler.complete();
             PEG_METHOD_EXIT();
@@ -216,7 +218,7 @@ void UserAuthProvider::createInstance(
     //
     // check if the class name requested is PG_Authorization
     //
-    else if (instanceReference.getClassName().equal 
+    else if (instanceReference.getClassName().equal
         (CLASS_NAME_PG_AUTHORIZATION))
 #else
     if (instanceReference.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
@@ -399,13 +401,13 @@ void UserAuthProvider::deleteInstance(
             //
             _userManager->removeUser(userNameStr);
         }
-        catch ( CIMException &e )
+        catch ( const CIMException & )
         {
             handler.complete();
             PEG_METHOD_EXIT();
-            throw e;
+            throw;
         }
-        catch ( Exception &e )
+        catch ( const Exception &e )
         {
             handler.complete();
             PEG_METHOD_EXIT();
@@ -668,7 +670,7 @@ void UserAuthProvider::enumerateInstances(
     if (!ref.getClassName().equal (CLASS_NAME_PG_AUTHORIZATION))
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
             ref.getClassName().getString());
     }
 
@@ -775,13 +777,13 @@ void UserAuthProvider::enumerateInstanceNames(
                 keyBindings.clear();
             }
         }
-        catch(CIMException& e)
+        catch( const CIMException& )
         {
             handler.complete();
             PEG_METHOD_EXIT();
-            throw e;
+            throw;
         }
-        catch(Exception& e)
+        catch(const Exception& e)
         {
             PEG_METHOD_EXIT();
             throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
@@ -817,7 +819,7 @@ void UserAuthProvider::enumerateInstanceNames(
         handler.complete();
 
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+        throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
             className.getString());
     }
 
@@ -874,7 +876,7 @@ void UserAuthProvider::invokeMethod(
     if (!ref.getClassName().equal (CLASS_NAME_PG_USER))
     {
         handler.complete();
-            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+            throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                 ref.getClassName().getString());
     }
 
@@ -887,7 +889,7 @@ void UserAuthProvider::invokeMethod(
         //throw PEGASUS_CIM_EXCEPTION (
             //CIM_ERR_FAILED,
            //"Unsupported method name, " + methodName.getString());
-	MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNSUPPORTED_METHOD_NAME", 
+	MessageLoaderParms parms("ControlProviders.UserAuthProvider.UNSUPPORTED_METHOD_NAME",
 						 "Unsupported method name, $0",
 						 methodName.getString());
 	throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,parms);
@@ -961,13 +963,13 @@ void UserAuthProvider::invokeMethod(
             password,
             newPassword);
     }
-    catch (CIMException& e)
+    catch ( const CIMException& )
     {
         handler.complete();
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
-    catch (Exception& e)
+    catch (const Exception& e)
     {
         handler.complete();
         PEG_METHOD_EXIT();
@@ -985,10 +987,9 @@ void UserAuthProvider::invokeMethod(
     return;
 #else
     PEG_METHOD_EXIT();
-    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+    throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
         ref.getClassName().getString());
 #endif
 }
 
 PEGASUS_NAMESPACE_END
-

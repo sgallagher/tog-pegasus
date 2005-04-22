@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,8 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By:  
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -72,55 +73,55 @@ CIMObjectPath SubscriptionRepository::createInstance (
     //  NOTE: userName is only set if authentication is turned on
     //
     String currentUser = userName;
-    if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_CREATOR) == 
+    if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_CREATOR) ==
         PEG_NOT_FOUND)
     {
-        instance.addProperty (CIMProperty 
+        instance.addProperty (CIMProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR, currentUser));
     }
-    else 
+    else
     {
-        CIMProperty creator = instance.getProperty 
-            (instance.findProperty 
+        CIMProperty creator = instance.getProperty
+            (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CREATOR));
         creator.setValue (CIMValue (currentUser));
     }
-    
+
     // l10n
     // Add the language properties to the Instance
     // Note:  These came from the Accept-Language and Content-Language
     // headers in the HTTP message, and may be empty
     AcceptLanguages acceptLangs = acceptLanguages;
-    if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS) == 
+    if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS) ==
         PEG_NOT_FOUND)
     {
-        instance.addProperty (CIMProperty 
-            (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS, 
+        instance.addProperty (CIMProperty
+            (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS,
             acceptLangs.toString ()));
     }
-    else 
+    else
     {
-        CIMProperty langs = instance.getProperty 
-            (instance.findProperty 
+        CIMProperty langs = instance.getProperty
+            (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS));
         langs.setValue (CIMValue (acceptLangs.toString ()));
-    } 
+    }
 
     ContentLanguages contentLangs = contentLanguages;
-    if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS) == 
+    if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS) ==
         PEG_NOT_FOUND)
     {
-        instance.addProperty (CIMProperty 
-            (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS, 
+        instance.addProperty (CIMProperty
+            (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS,
             contentLangs.toString ()));
     }
-    else 
+    else
     {
-        CIMProperty langs = instance.getProperty 
-            (instance.findProperty 
+        CIMProperty langs = instance.getProperty
+            (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS));
         langs.setValue (CIMValue (contentLangs.toString ()));
-    }                                   
+    }
     // l10n -end
 
     if ((instance.getClassName ().equal
@@ -131,21 +132,21 @@ CIMObjectPath SubscriptionRepository::createInstance (
         //
         //  Set Time of Last State Change to current date time
         //
-        CIMDateTime currentDateTime = 
+        CIMDateTime currentDateTime =
             CIMDateTime::getCurrentDateTime ();
-        if (instance.findProperty (_PROPERTY_LASTCHANGE) == 
+        if (instance.findProperty (_PROPERTY_LASTCHANGE) ==
             PEG_NOT_FOUND)
         {
-            instance.addProperty 
+            instance.addProperty
                 (CIMProperty (_PROPERTY_LASTCHANGE, currentDateTime));
         }
-        else 
+        else
         {
-            CIMProperty lastChange = instance.getProperty 
+            CIMProperty lastChange = instance.getProperty
                 (instance.findProperty (_PROPERTY_LASTCHANGE));
             lastChange.setValue (CIMValue (currentDateTime));
         }
-    
+
         CIMDateTime startDateTime;
         if (enabled)
         {
@@ -163,15 +164,15 @@ CIMObjectPath SubscriptionRepository::createInstance (
         //
         //  Set Subscription Start Time
         //
-        if (instance.findProperty (_PROPERTY_STARTTIME) == 
+        if (instance.findProperty (_PROPERTY_STARTTIME) ==
             PEG_NOT_FOUND)
         {
-            instance.addProperty 
+            instance.addProperty
                 (CIMProperty (_PROPERTY_STARTTIME, startDateTime));
         }
-        else 
+        else
         {
-            CIMProperty startTime = instance.getProperty 
+            CIMProperty startTime = instance.getProperty
                 (instance.findProperty (_PROPERTY_STARTTIME));
             startTime.setValue (CIMValue (startDateTime));
         }
@@ -180,16 +181,16 @@ CIMObjectPath SubscriptionRepository::createInstance (
     //
     //  Create instance in repository
     //
-    try 
+    try
     {
         instanceRef = _repository->createInstance (nameSpace, instance);
     }
-    catch (CIMException &)
+    catch (const CIMException &)
     {
         PEG_METHOD_EXIT ();
         throw;
     }
-    catch (Exception & exception)
+    catch (const Exception & exception)
     {
         PEG_METHOD_EXIT ();
         throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exception.getMessage ());
@@ -254,7 +255,7 @@ Boolean SubscriptionRepository::getActiveSubscriptions (
                 (subscriptionState == _STATE_ENABLEDDEGRADED))
             {
                 //
-                //  CIMInstances returned from repository do not include 
+                //  CIMInstances returned from repository do not include
                 //  namespace
                 //  Set namespace here
                 //
@@ -286,7 +287,7 @@ Array <CIMInstance> SubscriptionRepository::getSubscriptions (
         subscriptions = _repository->enumerateInstances
             (nameSpaceName, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     }
-    catch (CIMException& e)
+    catch (const CIMException& e)
     {
         //
         //  Some namespaces may not include the subscription class
@@ -296,7 +297,7 @@ Array <CIMInstance> SubscriptionRepository::getSubscriptions (
         if (e.getCode () != CIM_ERR_INVALID_CLASS)
         {
             PEG_METHOD_EXIT ();
-            throw e;
+            throw;
         }
     }
 
@@ -308,18 +309,18 @@ Boolean SubscriptionRepository::getState (
     const CIMInstance & instance,
     Uint16 & state) const
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getState");
 
     Uint32 stateIndex = instance.findProperty (_PROPERTY_STATE);
     if (stateIndex != PEG_NOT_FOUND)
     {
-        CIMValue stateValue = instance.getProperty 
+        CIMValue stateValue = instance.getProperty
             (stateIndex).getValue ();
         if (stateValue.isNull ())
         {
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
-                Tracer::LEVEL2, 
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+                Tracer::LEVEL2,
                 "Null SubscriptionState property value");
 
             //
@@ -336,8 +337,8 @@ Boolean SubscriptionRepository::getState (
                 traceString.append ("array of ");
             }
             traceString.append (cimTypeToString (stateValue.getType ()));
-            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
-               Tracer::LEVEL2, 
+            PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+               Tracer::LEVEL2,
                "SubscriptionState property value of incorrect type: "
                + traceString);
 
@@ -353,8 +354,8 @@ Boolean SubscriptionRepository::getState (
     }
     else
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
-            Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+            Tracer::LEVEL2,
             "Missing SubscriptionState property");
 
         //
@@ -382,18 +383,18 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     //
     try
     {
-        subscriptionInstance = _repository->getInstance (nameSpace, 
+        subscriptionInstance = _repository->getInstance (nameSpace,
             subscription);
     }
     catch (Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
             "Exception caught in retrieving subscription (" +
             subscriptionInstance.getPath ().toString () + "): " +
             exception.getMessage ());
 
         //
-        //  If the subscription could not be retrieved, it may already have 
+        //  If the subscription could not be retrieved, it may already have
         //  been deleted by another thread
         //
         PEG_METHOD_EXIT ();
@@ -409,13 +410,13 @@ CIMInstance SubscriptionRepository::deleteSubscription (
     }
     catch (Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
             "Exception caught in deleting subscription (" +
             subscriptionInstance.getPath ().toString () + "): " +
             exception.getMessage ());
 
         //
-        //  If the subscription could not be deleted, it may already have 
+        //  If the subscription could not be deleted, it may already have
         //  been deleted by another thread
         //
         PEG_METHOD_EXIT ();
@@ -448,7 +449,7 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
     subscriptions = getSubscriptions (nameSpace);
 
     //
-    //  Check each subscription for a reference to the specified instance 
+    //  Check each subscription for a reference to the specified instance
     //
     for (Uint32 i = 0; i < subscriptions.size (); i++)
     {
@@ -472,7 +473,7 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
             try
             {
                 //
-                //  Namespace and host must not be set in path passed to 
+                //  Namespace and host must not be set in path passed to
                 //  repository
                 //
                 CIMObjectPath path ("", CIMNamespaceName (),
@@ -485,10 +486,10 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
                 //
                 //  Deletion of referencing subscription failed
                 //
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, 
-                    Tracer::LEVEL2, 
+                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+                    Tracer::LEVEL2,
                     "Exception caught in deleting referencing subscription (" +
-                    subscriptions [i].getPath ().toString () + "): " + 
+                    subscriptions [i].getPath ().toString () + "): " +
                     exception.getMessage ());
             }
 
@@ -503,7 +504,7 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
 CIMInstance SubscriptionRepository::getHandler (
     const CIMInstance & subscription) const
 {
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE, 
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getHandler");
 
     CIMValue handlerValue;
@@ -527,7 +528,7 @@ CIMInstance SubscriptionRepository::getHandler (
             (subscription.getPath ().getNameSpace (), handlerRef,
              false, false, false, CIMPropertyList ());
     }
-    catch (Exception &)
+    catch (const Exception &)
     {
         PEG_METHOD_EXIT ();
         throw;
@@ -560,10 +561,10 @@ Boolean SubscriptionRepository::isTransient (
 
     try
     {
-        instance = _repository->getInstance (nameSpace, handler, 
+        instance = _repository->getInstance (nameSpace, handler,
             false, false, false, CIMPropertyList ());
     }
-    catch (Exception &)
+    catch (const Exception &)
     {
         PEG_METHOD_EXIT ();
         throw;
@@ -590,10 +591,10 @@ Boolean SubscriptionRepository::isTransient (
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
-    const CIMNamespaceName & nameSpaceName, 
+    const CIMNamespaceName & nameSpaceName,
     String & query,
     CIMNamespaceName & sourceNameSpace,
-    String & queryLanguage) 
+    String & queryLanguage)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getFilterProperties");
@@ -609,12 +610,12 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance (nameSpaceName, 
+        filterInstance = _repository->getInstance (nameSpaceName,
             filterReference);
     }
-    catch (Exception & exception)
+    catch (const Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
             "Exception caught in getting filter instance (" +
             filterReference.toString () + "): " +
             exception.getMessage ());
@@ -622,10 +623,10 @@ void SubscriptionRepository::getFilterProperties (
         throw;
     }
 
-    query = filterInstance.getProperty (filterInstance.findProperty 
+    query = filterInstance.getProperty (filterInstance.findProperty
         (_PROPERTY_QUERY)).getValue ().toString ();
 
-    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty 
+    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
         (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
     queryLanguage = filterInstance.getProperty
@@ -637,9 +638,9 @@ void SubscriptionRepository::getFilterProperties (
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
-    const CIMNamespaceName & nameSpaceName, 
+    const CIMNamespaceName & nameSpaceName,
     String & query,
-    CIMNamespaceName & sourceNameSpace) 
+    CIMNamespaceName & sourceNameSpace)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getFilterProperties");
@@ -655,12 +656,12 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance (nameSpaceName, 
+        filterInstance = _repository->getInstance (nameSpaceName,
             filterReference);
     }
-    catch (Exception & exception)
+    catch (const Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
             "Exception caught in getting filter instance (" +
             filterReference.toString () + "): " +
             exception.getMessage ());
@@ -668,10 +669,10 @@ void SubscriptionRepository::getFilterProperties (
         throw;
     }
 
-    query = filterInstance.getProperty (filterInstance.findProperty 
+    query = filterInstance.getProperty (filterInstance.findProperty
         (_PROPERTY_QUERY)).getValue ().toString ();
 
-    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty 
+    sourceNameSpace = filterInstance.getProperty (filterInstance.findProperty
         (_PROPERTY_SOURCENAMESPACE)).getValue ().toString ();
 
     PEG_METHOD_EXIT ();
@@ -679,8 +680,8 @@ void SubscriptionRepository::getFilterProperties (
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
-    const CIMNamespaceName & nameSpaceName, 
-    String & query) 
+    const CIMNamespaceName & nameSpaceName,
+    String & query)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getFilterProperties");
@@ -696,12 +697,12 @@ void SubscriptionRepository::getFilterProperties (
 
     try
     {
-        filterInstance = _repository->getInstance (nameSpaceName, 
+        filterInstance = _repository->getInstance (nameSpaceName,
             filterReference);
     }
-    catch (Exception & exception)
+    catch (const Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
             "Exception caught in getting filter instance (" +
             filterReference.toString () + "): " +
             exception.getMessage ());
@@ -709,7 +710,7 @@ void SubscriptionRepository::getFilterProperties (
         throw;
     }
 
-    query = filterInstance.getProperty (filterInstance.findProperty 
+    query = filterInstance.getProperty (filterInstance.findProperty
         (_PROPERTY_QUERY)).getValue ().toString ();
 
     PEG_METHOD_EXIT ();
@@ -731,10 +732,10 @@ Boolean SubscriptionRepository::validateIndicationClassName (
 
     try
     {
-        theClass = _repository->getClass (nameSpaceName, indicationClassName, 
+        theClass = _repository->getClass (nameSpaceName, indicationClassName,
             false, true, false, CIMPropertyList ());
     }
-    catch (Exception &)
+    catch (const Exception &)
     {
         PEG_METHOD_EXIT ();
         throw;
@@ -771,7 +772,7 @@ Array <CIMName> SubscriptionRepository::getIndicationSubclasses (
         indicationSubclasses = _repository->enumerateClassNames
             (nameSpace, indicationClassName, true);
     }
-    catch (Exception &)
+    catch (const Exception &)
     {
         PEG_METHOD_EXIT ();
         throw;
@@ -796,15 +797,15 @@ Boolean SubscriptionRepository::reconcileFatalError (
     //
     CIMValue errorPolicyValue;
     Uint16 onFatalErrorPolicy;
-    errorPolicyValue = subscription.getProperty 
-        (subscription.findProperty 
+    errorPolicyValue = subscription.getProperty
+        (subscription.findProperty
         (_PROPERTY_ONFATALERRORPOLICY)).getValue ();
     errorPolicyValue.get (onFatalErrorPolicy);
 
     if (errorPolicyValue == _ERRORPOLICY_DISABLE)
     {
         //
-        //  FUTURE: Failure Trigger Time Interval should be allowed to pass 
+        //  FUTURE: Failure Trigger Time Interval should be allowed to pass
         //  before implementing On Fatal Error Policy
         //
         //  Set the Subscription State to disabled
@@ -815,7 +816,7 @@ Boolean SubscriptionRepository::reconcileFatalError (
     else if (errorPolicyValue == _ERRORPOLICY_REMOVE)
     {
         //
-        //  FUTURE: Failure Trigger Time Interval should be allowed to pass 
+        //  FUTURE: Failure Trigger Time Interval should be allowed to pass
         //  before implementing On Fatal Error Policy
         //
         //  Delete the subscription
@@ -836,7 +837,7 @@ CIMClass SubscriptionRepository::getClass (
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList) const
 {
-    return _repository->getClass (nameSpaceName, className, localOnly, 
+    return _repository->getClass (nameSpaceName, className, localOnly,
          includeQualifiers, includeClassOrigin, propertyList);
 }
 
@@ -848,7 +849,7 @@ CIMInstance SubscriptionRepository::getInstance (
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList)
 {
-    return _repository->getInstance (nameSpace, instanceName, localOnly, 
+    return _repository->getInstance (nameSpace, instanceName, localOnly,
         includeQualifiers, includeClassOrigin, propertyList);
 }
 
@@ -889,7 +890,7 @@ Array <CIMObjectPath> SubscriptionRepository::enumerateInstanceNamesForClass (
     const CIMName & className,
     Boolean includeInheritance)
 {
-    return _repository->enumerateInstanceNamesForClass (nameSpace, className, 
+    return _repository->enumerateInstanceNamesForClass (nameSpace, className,
         false);
 }
 
@@ -914,12 +915,12 @@ void SubscriptionRepository::_disableSubscription (
     CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
     if (instance.findProperty (_PROPERTY_LASTCHANGE) == PEG_NOT_FOUND)
     {
-        instance.addProperty 
+        instance.addProperty
             (CIMProperty (_PROPERTY_LASTCHANGE, currentDateTime));
     }
-    else 
+    else
     {
-        CIMProperty lastChange = instance.getProperty 
+        CIMProperty lastChange = instance.getProperty
             (instance.findProperty (_PROPERTY_LASTCHANGE));
         lastChange.setValue (CIMValue (currentDateTime));
     }
@@ -927,7 +928,7 @@ void SubscriptionRepository::_disableSubscription (
     //
     //  Set Subscription State to Disabled
     //
-    CIMProperty state = instance.getProperty (instance.findProperty 
+    CIMProperty state = instance.getProperty (instance.findProperty
         (_PROPERTY_STATE));
     state.setValue (CIMValue (_STATE_DISABLED));
 
@@ -936,13 +937,13 @@ void SubscriptionRepository::_disableSubscription (
     //
     try
     {
-        _repository->modifyInstance 
+        _repository->modifyInstance
             (subscription.getPath ().getNameSpace (),
             subscription, false, propertyList);
     }
     catch (Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
            "Exception caught in attempting to disable a subscription: " +
             exception.getMessage ());
     }
@@ -961,13 +962,13 @@ void SubscriptionRepository::_deleteSubscription (
     //
     try
     {
-        _repository->deleteInstance 
-            (subscription.getPath ().getNameSpace (), 
+        _repository->deleteInstance
+            (subscription.getPath ().getNameSpace (),
             subscription.getPath ());
     }
     catch (Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2, 
+        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
            "Exception caught in attempting to delete a subscription: " +
             exception.getMessage ());
     }

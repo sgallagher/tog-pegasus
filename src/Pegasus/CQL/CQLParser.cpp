@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Humberto Rivero (hurivero@us.ibm.com) 
+// Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
@@ -61,9 +61,9 @@ void CQLParser::parse(
     CQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLParser::parse");
-	 
+
 	 AutoMutex mtx(CQL_mutex);
-	 
+
     if (!text)
     {
         PEG_METHOD_EXIT();
@@ -85,9 +85,9 @@ void CQLParser::parse(
 
 	 try{
     	CQL_parse();
-	 }catch(Exception &e){
+	 }catch(const Exception &){
 		CQL_Bison_Cleanup();
-		throw e;
+		throw;
 	 }catch(...){
 		CQL_Bison_Cleanup();
 	 }
@@ -177,7 +177,7 @@ int CQLInput(char* buffer, int& numRead, int numRequested)
     // Be sure to account for the null terminator (the size of the text will
     // be one or more; this is fixed checked beforehand by CQLParser::parse()).
     //
-    int remaining = 
+    int remaining =
 	CQL_globalParserState->textSize - CQL_globalParserState->offset - 1;
 
     if (remaining == 0)
@@ -190,8 +190,8 @@ int CQLInput(char* buffer, int& numRead, int numRequested)
     if (remaining < numRequested)
 	numRequested = remaining;
 
-    memcpy(buffer, 
-	CQL_globalParserState->text + CQL_globalParserState->offset, 
+    memcpy(buffer,
+	CQL_globalParserState->text + CQL_globalParserState->offset,
 	numRequested);
 
     CQL_globalParserState->offset += numRequested;

@@ -970,10 +970,10 @@ void CIMRepository::deleteClass(
     {
         _nameSpaceManager.deleteClass(nameSpace, className);
     }
-    catch (CIMException& e)
+    catch (const CIMException&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 
     //
@@ -2496,10 +2496,10 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
         {
             _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
         }
-        catch(CIMException& e)
+        catch(const CIMException&)
         {
             PEG_METHOD_EXIT();
-            throw e;
+            throw;
         }
     }
 
@@ -2562,10 +2562,10 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNames(
     {
         _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 
     //
@@ -2635,10 +2635,10 @@ Array<CIMObjectPath> CIMRepository::enumerateInstanceNamesForClass(
         {
             _nameSpaceManager.getSubClassNames(nameSpace, className, true, classNames);
         }
-        catch(CIMException& e)
+        catch(const CIMException&)
         {
             PEG_METHOD_EXIT();
-            throw e;
+            throw;
         }
     }
 
@@ -3045,12 +3045,12 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
         }
     }
 	}
-	catch (CIMException& exception) {
+	catch (const CIMException& exception) {
 		if(exception.getCode() == CIM_ERR_INVALID_CLASS) {
 			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, exception.getMessage());
 		}
 		else
-			throw exception;
+			throw;
 	}
 
     Array<CIMObjectPath> result;
@@ -3210,7 +3210,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
     {
         _LoadObject(qualifierFilePath, qualifierDecl, streamer);
     }
-    catch (CannotOpenFile&)
+    catch (const CannotOpenFile&)
     {
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION

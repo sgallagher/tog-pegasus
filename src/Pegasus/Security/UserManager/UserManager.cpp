@@ -133,10 +133,10 @@ void UserManager::addUser(const String& userName, const String& password)
     {
         _userFileHandler->addUserEntry(userName,password);
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-	throw e;
+        throw;
     }
 #endif
 
@@ -158,10 +158,10 @@ void UserManager::modifyUser(
     {
         _userFileHandler->modifyUserEntry(userName, password, newPassword);
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-	throw e;
+        throw;
     }
 #endif
 
@@ -180,10 +180,10 @@ void UserManager::removeUser(const String& userName)
     {
         _userFileHandler->removeUserEntry(userName);
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-	throw e;
+        throw;
     }
 #endif
 
@@ -204,9 +204,9 @@ void UserManager::getAllUserNames(Array<String>& userNames)
         _userFileHandler->getAllUserNames( userNames );
         PEG_METHOD_EXIT();
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
-	throw e;
+        throw;
     }
 #endif
 
@@ -234,15 +234,15 @@ Boolean UserManager::verifyCIMUser (const String& userName)
 	    return false;
         }
     }
-    catch (InvalidUser& iu)
+    catch (const InvalidUser&)
     {
         PEG_METHOD_EXIT();
-	throw iu;
+        throw;
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-	throw e;
+        throw;
     }
 #else
     PEG_METHOD_EXIT();
@@ -273,15 +273,15 @@ Boolean UserManager::verifyCIMUserPassword (
 	    return false;
         }
     }
-    catch (InvalidUser& iu)
+    catch (const InvalidUser&)
     {
         PEG_METHOD_EXIT();
-	throw iu;
+        throw;
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-	throw e;
+        throw;
     }
 #else
     PEG_METHOD_EXIT();
@@ -309,10 +309,10 @@ Boolean UserManager::verifyNamespace( const CIMNamespaceName& myNamespace )
             return false;
         }
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 }
 
@@ -341,10 +341,10 @@ Boolean UserManager::verifyAuthorization(
             return false;
         }
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 }
 
@@ -362,10 +362,10 @@ void UserManager::setAuthorization(
     {
         _authHandler->setAuthorization( userName, myNamespace, auth );
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 
     PEG_METHOD_EXIT();
@@ -384,10 +384,10 @@ void UserManager::removeAuthorization(
     {
         _authHandler->removeAuthorization( userName, myNamespace);
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 
     PEG_METHOD_EXIT();
@@ -409,10 +409,10 @@ String UserManager::getAuthorization(
     {
         auth = _authHandler->getAuthorization( userName, myNamespace);
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 
     PEG_METHOD_EXIT();

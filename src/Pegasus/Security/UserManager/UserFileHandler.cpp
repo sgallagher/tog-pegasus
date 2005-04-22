@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,13 +33,15 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for Bug#2486
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
-// This file implements the functionality required to manage password file. 
+//
+// This file implements the functionality required to manage password file.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -58,11 +60,11 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-const unsigned char   UserFileHandler::_SALT_STRING[] =         
+const unsigned char   UserFileHandler::_SALT_STRING[] =
             "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-const String UserFileHandler::_PROPERTY_NAME_PASSWORD_FILEPATH = 
-	    "passwordFilePath"; 
+const String UserFileHandler::_PROPERTY_NAME_PASSWORD_FILEPATH =
+	    "passwordFilePath";
 
 // Initialize the mutex timeout to 5000 ms.
 const Uint32 UserFileHandler::_MUTEX_TIMEOUT = 5000;
@@ -79,7 +81,7 @@ void UserFileHandler::_GetSalt(char *salt)
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::_GetSalt");
 
     //
-    // Generate a random number and get the salt 
+    // Generate a random number and get the salt
     //
     System::getCurrentTime( sec, milliSec );
 
@@ -92,7 +94,7 @@ void UserFileHandler::_GetSalt(char *salt)
 #endif
 
     //
-    // Make sure the random number generated is between 0-63. 
+    // Make sure the random number generated is between 0-63.
     // refer to _SALT_STRING variable
     //
     *salt++ = _SALT_STRING[ randNum & 0x3f ];
@@ -105,7 +107,7 @@ void UserFileHandler::_GetSalt(char *salt)
 }
 
 //
-// Constructor. 
+// Constructor.
 //
 UserFileHandler::UserFileHandler()
 {
@@ -136,9 +138,9 @@ UserFileHandler::UserFileHandler()
     {
         _loadAllUsers();
     }
-    catch  (Exception& e)
+    catch  (const Exception&)
     {
-	throw e;
+        throw;
     }
 
     //
@@ -152,7 +154,7 @@ UserFileHandler::UserFileHandler()
 
 
 //
-// Destructor. 
+// Destructor.
 //
 UserFileHandler::~UserFileHandler()
 {
@@ -161,7 +163,7 @@ UserFileHandler::~UserFileHandler()
     PEG_METHOD_EXIT();
 }
 
-// 
+//
 // Load all user names and password
 //
 void UserFileHandler::_loadAllUsers ()
@@ -202,7 +204,7 @@ void UserFileHandler::_Update(
     catch (TimeOut&)
     {
     	//l10n
-	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
+	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED,
 	//"Timed out trying to perform requested operation."
 	//"Please re-try the operation again.");
 	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.TIMEOUT",
@@ -211,7 +213,7 @@ void UserFileHandler::_Update(
     catch (WaitFailed&)
     {
     //l10n
-	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
+	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED,
 	//"Timed out trying to perform requested operation."
 	//"Please re-try the operation again.");
 	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.TIMEOUT",
@@ -220,7 +222,7 @@ void UserFileHandler::_Update(
     catch (Deadlock&)
     {
     //l10n
-	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED, 
+	//throw PEGASUS_CIM_EXCEPTION( CIM_ERR_FAILED,
 	//"Deak lock encountered trying to perform requested operation."
 	//"Please re-try the operation again.");
 	throw PEGASUS_CIM_EXCEPTION_L( CIM_ERR_FAILED, MessageLoaderParms("Security.UserManager.UserFileHandler.DEADLOCK",
@@ -236,7 +238,7 @@ void UserFileHandler::_Update(
                     PEG_METHOD_EXIT();
                     throw PasswordCacheError();
                 }
-		break; 
+		break;
 
 	case MODIFY_USER:
                 if (!_passwordTable.remove(userName))
@@ -249,16 +251,16 @@ void UserFileHandler::_Update(
                 {
                     _mutex->unlock();
                     //l10n
-                    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER, 
-					//Logger::SEVERE, 
+                    //Logger::put(Logger::ERROR_LOG, System::CIMSERVER,
+					//Logger::SEVERE,
 					//"Error updating user information for : $0.",userName);
-					Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,Logger::SEVERE, 
+					Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER,Logger::SEVERE,
 						"Security.UserManager.UserFileHandler.ERROR_UPDATING_USER_INFO",
 						"Error updating user information for : $0.",userName);
                     PEG_METHOD_EXIT();
                     throw PasswordCacheError();
                 }
-	        break; 
+	        break;
 
 	case REMOVE_USER:
 
@@ -269,25 +271,25 @@ void UserFileHandler::_Update(
                     PEG_METHOD_EXIT();
                     throw InvalidUser(userName);
                 }
-	        break; 
-        
+	        break;
+
 	default:
 		// Should never get here
 		break;
     }
-    
+
     // Store the entry in the password file
     try
     {
         _passwordFile->save(_passwordTable);
     }
-    catch (CannotOpenFile& e)
+    catch (const CannotOpenFile&)
     {
         _mutex->unlock();
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
-    catch (CannotRenameFile& e)
+    catch (const CannotRenameFile&)
     {
         //
         // reload password hash table from file
@@ -296,18 +298,18 @@ void UserFileHandler::_Update(
 
         _mutex->unlock();
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
     _mutex->unlock();
     PEG_METHOD_EXIT();
 }
 
 
-// 
+//
 // Add user entry to file
-// 
+//
 void UserFileHandler::addUserEntry(
-			    const String& userName, 
+			    const String& userName,
 			    const String& password)
 {
     char 	salt[3];
@@ -333,8 +335,8 @@ void UserFileHandler::addUserEntry(
     PEG_METHOD_EXIT();
 }
 
-// 
-// Modify user entry in file 
+//
+// Modify user entry in file
 //
 void UserFileHandler::modifyUserEntry(
 	     const String& userName,
@@ -354,13 +356,13 @@ void UserFileHandler::modifyUserEntry(
         if ( !verifyCIMUserPassword (userName,password) )
         {
             PEG_METHOD_EXIT();
-	    throw PasswordMismatch(userName);
+            throw PasswordMismatch(userName);
         }
     }
-    catch (Exception& e)
+    catch (const Exception&)
     {
         PEG_METHOD_EXIT();
-	throw e;
+        throw;
     }
 
     // encrypt new password
@@ -373,9 +375,9 @@ void UserFileHandler::modifyUserEntry(
     PEG_METHOD_EXIT();
 }
 
-// 
-// Remove user entry from file 
-// 
+//
+// Remove user entry from file
+//
 void UserFileHandler::removeUserEntry(const String& userName)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "UserFileHandler::removeUserEntry");
@@ -416,7 +418,7 @@ Boolean UserFileHandler::verifyCIMUser (const String& userName)
 // Verify whether the specified user's password is valid
 //
 Boolean UserFileHandler::verifyCIMUserPassword (
-			    const String& userName, 
+			    const String& userName,
 			    const String& password)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER,

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Adrian Schuur (schuur@de.ibm.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -222,7 +224,7 @@ class NameSpace
    friend class NameSpaceManager;
 public:
 
-    NameSpace(const String& nameSpacePath, 
+    NameSpace(const String& nameSpacePath,
         const CIMNamespaceName& nameSpaceName, specialNameSpace *pns=NULL, String *extDir=NULL);
 
     void modify(Boolean shareable, Boolean updatesAllowed,const String& nameSpacePath);
@@ -421,7 +423,7 @@ NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &rep
        int j=0,m=0;
        for (m=nameSpaceNames->size(); j<m; j++)
            if ((*nameSpaceNames)[j]==pns->parent) break;
-       if (j>=m) 
+       if (j>=m)
          {
           PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
           	"Namespace not found in parent namespace.");
@@ -456,7 +458,7 @@ NameSpace *NameSpace::newNameSpace(int index, NameSpaceManager *nsm, String &rep
            for (m=nameSpaceNames->size(); j<m; j++)
               if ((*nameSpaceNames)[j]==pns->parent) break;
            if (j>=m)
-            {  
+            {
           PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
 		"Namespace not found in parent namespace.");
              }
@@ -683,10 +685,10 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
                        specialName.subString(3),
                        specialName);
                  }
-                 else 
+                 else
 		   {
           	      PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
-				"Namespace " + dirName + 
+				"Namespace " + dirName +
 				" ignored - using incorrect parent namespace specification: " + specialName);
 		   }
 		 break;
@@ -775,7 +777,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
              if ((*nameSpaceNames)[i].size()) {
                 for (j=0; j<m; j++)
                    if ((*nameSpaceNames)[j]==pns->parent) break;
-                if (j>=m) 
+                if (j>=m)
                   {
                    PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
           	        "Namespace: " + (*nameSpaceNames)[i] +
@@ -787,7 +789,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
           }
        }
     }
-	
+
     // Create a NameSpace object for each directory under repositoryRoot.
     // This will throw an exception if the directory does not exist:
 
@@ -797,8 +799,8 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
        try {
           NameSpace::newNameSpace(i,this,_repositoryRoot);
 	    }
-       catch (Exception& e) {
-		throw e;
+       catch (const Exception& e) {
+		throw;
 	    }
 	}
 
@@ -921,7 +923,7 @@ void NameSpaceManager::createNameSpace(const CIMNamespaceName& nameSpaceName,
     AutoPtr<NameSpace> nameSpace;
 
     nameSpace.reset(new NameSpace(nameSpacePath, nameSpaceName, &pns));
-    
+
     _rep->table.insert(nameSpaceName.getString (), nameSpace.release());
 
     PEG_METHOD_EXIT();
@@ -1399,7 +1401,7 @@ void NameSpaceManager::createClass(
     }
 
     if (missing) {
-        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4, 
+        PEG_TRACE_STRING(TRC_REPOSITORY, Tracer::LEVEL4,
                          "SuperClass does not exist.");
         PEG_METHOD_EXIT();
 	throw PEGASUS_CIM_EXCEPTION
@@ -1466,8 +1468,8 @@ void NameSpaceManager::checkModify(
     if (!superClassName.equal (oldSuperClassName))
     {
         PEG_METHOD_EXIT();
-        
-       // l10n	
+
+       // l10n
 	   // throw PEGASUS_CIM_EXCEPTION(
 	   // CIM_ERR_FAILED, "attempt to change superclass");
 

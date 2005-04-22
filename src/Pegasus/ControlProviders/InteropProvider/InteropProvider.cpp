@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,8 @@
 //              Karl Schopmeyer - Created Cim_Namespace capabilities.
 //              Karl Schopmeyer - added objectmanager and communication classes
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3194
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -50,21 +52,21 @@
 //      CIM_Namespace (Effective Pegasus 2.4 we use PG_Namespace which
 //      is a subclass of CIM_Namespace with additional properties for
 //      shared namespaces.
-//      
+//
 //      It also services the Interop associations tied to these classes
 //      including:
 //      CIM_NamespaceInManager
 //      ...
 //      This is a control provider and as such uses the Tracer functions
 //      for data and function traces.  Since we do not expect high volume
-//      use we added a number of traces to help diagnostics.  
+//      use we added a number of traces to help diagnostics.
 ///////////////////////////////////////////////////////////////////////////////
 /* TODO LIST:
     1. Finish the association functions
-    
+
     2. UUID generation should become a system function since it will be used
        by many providers, etc. as part of id generation.
-       
+
     3. Review the key parameters on create, etc. to be sort out which are
        required from user and which we can supply.  I think we are asking too
        much of the user right now.
@@ -133,13 +135,13 @@ static const CIMName CIM_NAMESPACE_CLASSNAME  = CIMName ("CIM_Namespace");
 static const CIMName PG_NAMESPACE_CLASSNAME  = CIMName ("PG_Namespace");
 
 static const CIMName CIM_OBJECTMANAGER_CLASSNAME  = CIMName ("CIM_ObjectManager");
-static const CIMName CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME  = 
+static const CIMName CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME  =
         CIMName ("CIM_ObjectManagerCommunicationMechanism");
-static const CIMName PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME  = 
+static const CIMName PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME  =
         CIMName ("PG_CIMXMLCommunicationMechanism");
-static const CIMName CIM_COMMMECHANISMFORMANAGER_CLASSNAME  = 
+static const CIMName CIM_COMMMECHANISMFORMANAGER_CLASSNAME  =
         CIMName ("CIM_CommMechanismForManager");
-static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  = 
+static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  =
         CIMName ("CIM_NamespaceInManager");
 
 // Property Names for __Namespace Class
@@ -155,7 +157,7 @@ static const CIMName OM_DESCRIPTIONPROPERTY =
     CIMName("Description");
 
 // Property Names for ObjectManagerCommunicationMechanism Class
-static const CIMName OM_COMMUNICATIONMECHANISM  = 
+static const CIMName OM_COMMUNICATIONMECHANISM  =
         CIMName ("CommunicationMechanism");
 static const CIMName OM_FUNCTIONALPROFILESSUPPORTED  =
  CIMName ("FunctionalProfilesSupported");
@@ -179,31 +181,31 @@ static const String CIMXMLProtocolVersion = "1.0";
 
 // Property names for CIM_Namespace Class
 
-static const CIMName CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME = 
+static const CIMName CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME =
         CIMName ("SystemCreationClassName");
-static const CIMName CIM_NAMESPACE_PROPERTY_SYSTEMNAME = 
+static const CIMName CIM_NAMESPACE_PROPERTY_SYSTEMNAME =
         CIMName ("SystemName");
-static const CIMName CIM_NAMESPACE_PROPERTY_OBJECTMANAGERCREATIONCLASSNAME = 
+static const CIMName CIM_NAMESPACE_PROPERTY_OBJECTMANAGERCREATIONCLASSNAME =
         CIMName ("ObjectManagerCreationClassName");
-static const CIMName CIM_NAMESPACE_PROPERTY_OBJECTMANAGERNAME = 
+static const CIMName CIM_NAMESPACE_PROPERTY_OBJECTMANAGERNAME =
         CIMName ("ObjectManagerName");
-static const CIMName CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME = 
+static const CIMName CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME =
         CIMName ("CreationClassName");
 static const CIMName CIM_NAMESPACE_PROPERTY_NAME  = CIMName ("Name");
-static const CIMName CIM_NAMESPACE_PROPERTY_CLASSINFO = 
+static const CIMName CIM_NAMESPACE_PROPERTY_CLASSINFO =
         CIMName ("ClassInfo");
-static const CIMName CIM_NAMESPACE_PROPERTY_DESCRIPTIONOFCLASSINFO = 
+static const CIMName CIM_NAMESPACE_PROPERTY_DESCRIPTIONOFCLASSINFO =
         CIMName ("DescriptionOfClassInfo");
 
 // Additional Property names for PG_Namespace Class
 
-static const CIMName PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED = 
+static const CIMName PG_NAMESPACE_PROPERTY_SCHEMAUPDATESALLOWED =
         CIMName ("SchemaUpdatesAllowed");
-static const CIMName PG_NAMESPACE_PROPERTY_ISSHAREABLE = 
+static const CIMName PG_NAMESPACE_PROPERTY_ISSHAREABLE =
         CIMName ("IsShareable");
-static const CIMName PG_NAMESPACE_PROPERTY_PARENTNAMESPACE = 
+static const CIMName PG_NAMESPACE_PROPERTY_PARENTNAMESPACE =
         CIMName ("ParentNamespace");
-static const CIMName PG_NAMESPACE_PROPERTY_NAME = 
+static const CIMName PG_NAMESPACE_PROPERTY_NAME =
         CIMName ("Name");
 
 // Defines to serve as the ENUM for class selection for instance
@@ -218,7 +220,7 @@ enum targetClass{
         CIM_COMMMECHANISMFORMANAGERINST=5,
         CIM_NAMESPACEINMANAGER=6
     };
-    
+
  enum targetAssocClass{
      CIM_NAMESPACEINMANAGERASSOC = 1,
      CIM_COMMMECHANISMFORMANAGERASSOC=2
@@ -258,7 +260,7 @@ static String _showPropertyList(const CIMPropertyList& pl)
 
 /** get one string property from an instance. Note that these functions simply
     return the default value if the property cannot be found or is of the wrong
-    type thus, in reality being a maintenance problem since there is no 
+    type thus, in reality being a maintenance problem since there is no
     error indication.
     @param instance CIMInstance from which we get property value
     @param propertyName String name of the property containing the value
@@ -307,7 +309,7 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
     host name is not provided, uses internal function.
     If everything fails, gets the definition normally
     used for localhost (127.0.0.1).
-    
+
     @param hostName String with the name of the host
     @return String with the IP address to be used
     NOTE: This code should not be in slpprovider. This
@@ -315,9 +317,9 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
     it is not.
 */
 String _getHostAddress(String hostName)
-{  
+{
   String ipAddress;
-  
+
   if (hostName == String::EMPTY)
     	hostName = System::getHostName();
 
@@ -384,11 +386,11 @@ Boolean _validateProperties(const CIMInstance& instance)
    properties.
    @param Instance to search for property.
    @param CIMName containing property Name
-   @value String containing value. If not String::EMPTY, compare to 
+   @value String containing value. If not String::EMPTY, compare to
    value in the property
    @return True if passes all tests
 */
-Boolean _validateRequiredProperty(const CIMInstance& instance, 
+Boolean _validateRequiredProperty(const CIMInstance& instance,
                           const CIMName& propertyName,
                           const String& value)
 {
@@ -432,7 +434,7 @@ Boolean _validateRequiredProperty(const CIMInstance& instance,
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "InteropProvider::_validateRequiredProperty()");
-    
+
     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Validate "
         + propertyName.getString());
 
@@ -450,8 +452,8 @@ Boolean _validateRequiredProperty(const CIMInstance& instance,
     //
     //  ATTN:Required property must have a non-null value
     //
-    if ((theValue.getType() != CIMTYPE_UINT16) 
-        || (theValue.isNull()) ) 
+    if ((theValue.getType() != CIMTYPE_UINT16)
+        || (theValue.isNull()) )
     {
         PEG_METHOD_EXIT();
         return(false);
@@ -490,14 +492,14 @@ Boolean _validateRequiredProperty(const CIMObjectPath& objectPath,
 /* Query the repository for array of all namespacenames
    @return Array<CIMNamespaceName> with all namespaces
    @exception Passes all exception that repository may generate.
-*/        
+*/
 Array<CIMNamespaceName> InteropProvider::_enumerateNameSpaces()
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_enumerateNameSpaces()");
 
     Array<CIMNamespaceName> namespaceNames;
-    
+
     namespaceNames = _repository->enumerateNameSpaces();
 
     PEG_METHOD_EXIT();
@@ -510,7 +512,7 @@ Array<CIMNamespaceName> InteropProvider::_enumerateNameSpaces()
    @param name of class to get.
    @return the CIMClass object
    @Exceptions any repository exceptions if class not found.
-*/ 
+*/
 CIMClass InteropProvider::_getClass(const CIMNamespaceName& nameSpace,
                                     const CIMName& className)
 {
@@ -598,7 +600,7 @@ String _validateUserID(const OperationContext & context)
     @param instance CIMInstance in which to set property value
     @param propertyName CIMName of property in which value will be set.
     @param value String value to set into property
-    
+
 */
 void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const String& value)
 {
@@ -680,7 +682,7 @@ CIMInstance InteropProvider::_buildInstanceSkeleton(const CIMName& className)
 
     CIMInstance skeleton(className);
         myClass = _repository->getClass(_operationNamespace, className, false, true, true);
-    
+
     // copy the qualifiers
     for (Uint32 i = 0 ; i < myClass.getQualifierCount() ; i++)
         skeleton.addQualifier(myClass.getQualifier(i));
@@ -707,7 +709,7 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism()");
-    
+
     CIMInstance instance = _buildInstanceSkeleton(PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME);
 
     _fixInstanceCommonKeys(instance);
@@ -739,13 +741,13 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     Array<Uint16> authentications;
     Array<String> authenticationDescriptions;
 
-    // Note that we have fixed authentication here. 
+    // Note that we have fixed authentication here.
     authentications.append(3); authenticationDescriptions.append("Basic");
 
     _setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMSSUPPORTED, authentications);
 
     _setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMDESCRIPTIONS, authenticationDescriptions);
-    
+
     _setPropertyValue(instance, OM_VERSION, CIMXMLProtocolVersion);
 
     // Obsolete function _setPropertyValue(instance, "namespaceType", namespaceType);
@@ -763,7 +765,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanism");
-    
+
     // This is a temporary hack to get the multiple connections.
     ConfigManager* configManager = ConfigManager::getInstance();
     Boolean enableHttpConnection = String::equal(
@@ -801,7 +803,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
 /*  Gets the value for the CIMObjectManager name.  This is a key
     property with the following characteristics.
     1. It is persistent. This must be persistent through CIMOM
-    restarts.  We will save it in the instance database to achieve this. 
+    restarts.  We will save it in the instance database to achieve this.
     2. It must be unique. We cannot create duplicate CIMOM names
     3. It is based on the DMTF description of how unique InstanceIds
     are defined (Trademark/etc followed by unique identification.
@@ -814,7 +816,7 @@ String buildObjectManagerName()
 }
 
 /** get either the local or disk CIMObjectmanager instance.
-    @return Boolean true if already exists. False if 
+    @return Boolean true if already exists. False if
     not initialized. Also returns with the current version set
     into local parameter.
     ATTN: Probably should get rid of the local parameter since
@@ -841,7 +843,7 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
         {
             // set this instance into global variable.
             rtnInstance = instances[0];
-    
+
             // log entry if there is more than one instance.
             // Some day we may support multiple entries to see other CIMOMs but
             // for now this should be illegal and represent an internal error.
@@ -860,19 +862,19 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
             return(false);
         }
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Error. Cannot access $0 in repository", CIM_OBJECTMANAGER_CLASSNAME.getString());
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
-    catch(Exception& e)
+    catch(const Exception&)
     {
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::INFORMATION,
             "Error. Cannot access $0 in repository", CIM_OBJECTMANAGER_CLASSNAME.getString());
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 }
 
@@ -882,7 +884,7 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
     or throw an exception.
     @param includeQualifiers Boolean
     @param includeClassOrigin Boolean
-    @param propertylist CIMPropertyList 
+    @param propertylist CIMPropertyList
     @return CIMInstance with a single built instance of the class
     @exception repository instances if exception to enumerateInstances
         for this class.
@@ -904,13 +906,13 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         //
         CDEBUG("Creating New instance of CIMOBjectManager");
         instance = _buildInstanceSkeleton(CIM_OBJECTMANAGER_CLASSNAME);
-    
+
         _fixInstanceCommonKeys(instance);
-    
+
         _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,CIM_OBJECTMANAGER_CLASSNAME.getString());
         _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME,buildObjectManagerName());
         _setPropertyValue(instance, CIMName("ElementName"), String("Pegasus"));
-    
+
         //
         //Description property this object manager instance
         // default is Pegasus CIM_Server Version.
@@ -920,20 +922,20 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         String description;
         char * envDescription;
         envDescription = getenv("PEGASUS_CIMOM_DESCRIPTION");
-    
+
         description = (envDescription) ? envDescription :
             String(PEGASUS_PRODUCT_NAME) + " Version " +
                 String(PEGASUS_PRODUCT_VERSION);
-    
+
         _setPropertyValue(instance, CIMName("Description"), description);
-    
+
         //Property GatherStatisticalData. Initially this is set to false
         // and can then be modified by a modify instance on the instance.
-        
+
         Boolean gatherStatDataFlag = false;
-    
+
         _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, Boolean(gatherStatDataFlag));
-    
+
         // ATTN: This one is a problem KS rethink this.
         // the following is a temporary hack to set the value of the statistics
         // gathering function dynamically.  We simply get the correct value
@@ -943,7 +945,7 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         StatisticalData* sd = StatisticalData::current();
         sd->setCopyGSD(gatherStatDataFlag);
     #endif
-    
+
         // write instance to the repository
         CIMObjectPath instancePath;
         // Add the instance path to this if necessary ATTN ATTN:
@@ -953,17 +955,17 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
             instancePath = _repository->createInstance(_operationNamespace,
                            instance );
         }
-        catch(CIMException& e)
+        catch(const CIMException&)
         {
             // ATTN: KS generate log error if this not possible
             PEG_METHOD_EXIT();
-            throw e;
+            throw;
         }
-        catch(Exception& e)
+        catch(const Exception&)
         {
             // ATTN: Generate log error.
             PEG_METHOD_EXIT();
-            throw e;
+            throw;
         }
         instance.setPath(instancePath);
     }
@@ -1075,7 +1077,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesCommMechanismForManager()
 
     for (Uint32 i = 0 ; i < commInstances.size() ; i++)
     {
-        
+
         CIMInstance instance = _buildInstanceSkeleton(CIM_COMMMECHANISMFORMANAGER_CLASSNAME);
 
         _setPropertyValue(instance,CIMName("Antecdent"), refObjMgr);
@@ -1099,13 +1101,13 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancePGNamespace");
-    
+
     // ATTN: KS need to get the real objectManager name from elsewhere.  the only place
-    // this exists is through the objectmanager object.  
+    // this exists is through the objectmanager object.
     // ATTN: Should we be saving the objectmanager name somewhere internally either in
     // interop or more generally somewhere within the system for common access.
     String ObjectManagerName = "ObjectManagerNameValue";
-    
+
     CIMInstance instance = _buildInstanceSkeleton(PG_NAMESPACE_CLASSNAME);
 
     _fixInstanceCommonKeys(instance);
@@ -1117,7 +1119,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
     _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_OBJECTMANAGERNAME, ObjectManagerName);
 
     //CreationClassName
-    // Class in which this was created, 
+    // Class in which this was created,
     _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME, CIM_NAMESPACE_CLASSNAME.getString());
     //Name
     // This is the namespace name itself
@@ -1139,7 +1141,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
 	String name = "";
     Boolean shareable=false;
     Boolean updatesAllowed=true;
-    for (CIMRepository::NameSpaceAttributes::Iterator i = attributes.start(); i; i++) 
+    for (CIMRepository::NameSpaceAttributes::Iterator i = attributes.start(); i; i++)
     {
        String key=i.key();
        String value = i.value();
@@ -1149,7 +1151,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
           if (String::equalNoCase(value,"true"))
               shareable=true;
 	   }
-       else if (String::equalNoCase(key,"updatesAllowed")) 
+       else if (String::equalNoCase(key,"updatesAllowed"))
 	   {
           if (String::equalNoCase(value,"false"))
               updatesAllowed=false;
@@ -1161,7 +1163,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
           {
               PEG_METHOD_EXIT();
               // This is poor exception since it reflects internal error. Do error log
-              throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED, 
+              throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
                   "Namespace attribute rtnd error for key " + key + "expected " +
                    nameSpace.getString()+ value + " in " + String(thisProvider));
           }
@@ -1172,7 +1174,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMNamespaceName & 
 	   {
           parent=value;
 	   }
-       else 
+       else
        {
           PEG_METHOD_EXIT();
           // Poor error definition since it reflects internal error. do error log
@@ -1254,7 +1256,7 @@ void _validateCIMNamespaceKeys(const CIMObjectPath& objectPath)
     by adding the complete property if it does not exist
     or by adding the value if the property does exist.
     Used to make sure that key properties for things
-    like systemcreationclass are included in the 
+    like systemcreationclass are included in the
     creation of new instances and that the
     values are logical for the CIMOM.
 */
@@ -1449,13 +1451,13 @@ CIMObjectPath InteropProvider::_buildObjectPath(const CIMNamespaceName& name,
 /* Given a class and instance build the instance path for a
    the object.  This builds all components of the path
    @param namespace name to build
-   @return CIMObjectPath containing namespace, class and keybinding 
+   @return CIMObjectPath containing namespace, class and keybinding
    components of path
    @exceptions - Passes repository exceptions.
 */
 
 CIMObjectPath InteropProvider::_buildInstancePath(const CIMNamespaceName& name,
-                                           const CIMName& className, 
+                                           const CIMName& className,
                                            const CIMInstance& instance)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
@@ -1466,7 +1468,7 @@ CIMObjectPath InteropProvider::_buildInstancePath(const CIMNamespaceName& name,
     CIMClass thisClass = _getClass(name, className);
 
     CIMObjectPath ref = instance.buildPath(thisClass);
-    
+
     PEG_METHOD_EXIT();
     return(ref);
 }
@@ -1505,7 +1507,7 @@ String _getKeyValue(const CIMInstance& instance, const CIMName& keyName)
     if (pos == PEG_NOT_FOUND)
        throw CIMPropertyNotFoundException
            (NAMESPACE_PROPERTYNAME.getString());
-    
+
     propertyValue = instance.getProperty(pos).getValue();
     if (propertyValue.getType() != CIMTYPE_STRING)
        throw CIMInvalidParameterException("Invalid type for property: "
@@ -1528,8 +1530,8 @@ void InteropProvider::createInstance(
 	ObjectPathResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::createInstance()");
-        
-        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+
+        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
             "%s createInstance. InstanceReference= %s",
             thisProvider,
             (const char *) instanceReference.toString().getCString());
@@ -1540,14 +1542,14 @@ void InteropProvider::createInstance(
         CDEBUG("CreateInstance " << instanceReference.toString());
         // operation namespace needed internally to get class.
         _operationNamespace = instanceReference.getNameSpace();
-        
+
         // Verify that ClassName is correct and get value
         targetClass classEnum  = _verifyValidClassInput(instanceReference.getClassName());
 
         String userName = _validateUserID(context);
         CIMObjectPath newInstanceReference;
 
-        if ((classEnum == CIM_OBJECTMANAGER) || 
+        if ((classEnum == CIM_OBJECTMANAGER) ||
             (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM))
             throw CIMNotSupportedException("InteropProvider, Create Not allowed");
 
@@ -1555,7 +1557,7 @@ void InteropProvider::createInstance(
         {
 #ifdef PEGASUS_OS_OS400
             MessageLoaderParms mparms("ControlProviders.InteropProvider.CREATE_INSTANCE_NOT_ALLOWED",
-                                      "Create instance operation not allowed by Interop Provider for class $0.", 
+                                      "Create instance operation not allowed by Interop Provider for class $0.",
                                       PG_NAMESPACE_CLASSNAME.getString());
             throw CIMNotSupportedException(mparms);
 #else
@@ -1580,7 +1582,7 @@ void InteropProvider::createInstance(
         try
         {
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                "Namespace = " + newNamespaceName.getString() + 
+                "Namespace = " + newNamespaceName.getString() +
                     " to be created.");
             Boolean updatesAllowed = false;
             Boolean shareable = false;
@@ -1625,26 +1627,26 @@ void InteropProvider::createInstance(
                     attributes.insert("parent",parent);
             }
             _repository->createNameSpace(newNamespaceName, attributes);
-        
+
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                "Namespace = " + newNamespaceName.getString() + 
+                "Namespace = " + newNamespaceName.getString() +
                     " successfully created.");
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                 "Create Namespace: Shareable = $0, Updates allows: $1,  Parent: $2",
                 newNamespaceName.getString(), shareable? "true" : "false", shareable? "true" : "false", parent );
 
         }
-        catch(CIMException& e)
+        catch(const CIMException&)
         {
            PEG_METHOD_EXIT();
-           throw e;
+           throw;
         }
-        catch(Exception& e)
+        catch(const Exception&)
         {
            PEG_METHOD_EXIT();
-           throw e;
+           throw;
         }
-        
+
         // begin processing the request
 
        handler.deliver(newInstanceReference);
@@ -1666,7 +1668,7 @@ void InteropProvider::deleteInstance(
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::deleteInstance");
 
-        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
             "%s deleteInstance. instanceName= %s",
             thisProvider,
             (const char *) instanceName.toString().getCString());
@@ -1674,10 +1676,10 @@ void InteropProvider::deleteInstance(
         _operationNamespace = instanceName.getNameSpace();
         handler.processing();
         // Verify that ClassName is correct and get value
-        targetClass classEnum  = _verifyValidClassInput(instanceName.getClassName());    
-        
+        targetClass classEnum  = _verifyValidClassInput(instanceName.getClassName());
+
         String userName = _validateUserID(context);
-        
+
         // Delete the instance since it may be in persistent storage
         if ((classEnum == CIM_OBJECTMANAGER))
         {
@@ -1685,10 +1687,10 @@ void InteropProvider::deleteInstance(
             {
                 _repository->deleteInstance(_operationNamespace,instanceName);
             }
-            catch(CIMException& e)
+            catch(const CIMException&)
             {
                 PEG_METHOD_EXIT();
-                throw e;
+                throw;
             }
         }
         else if (classEnum == PG_NAMESPACE)
@@ -1702,7 +1704,7 @@ void InteropProvider::deleteInstance(
 #else
             // validate requred keys.  Exception out if not valid
             _validateCIMNamespaceKeys(instanceName);
-            
+
             deleteNamespaceName = _getKeyValue(instanceName, CIM_NAMESPACE_PROPERTY_NAME);
 #endif
 
@@ -1713,13 +1715,13 @@ void InteropProvider::deleteInstance(
             {
                throw CIMNotSupportedException("root namespace cannot be deleted.");
             }
-            
+
             _repository->deleteNameSpace(deleteNamespaceName);
-            
+
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "Namespace = " + deleteNamespaceName.getString() + 
+               "Namespace = " + deleteNamespaceName.getString() +
                    " successfully deleted.");
-            
+
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                "Interop Provider Delete Namespace: $0",
                deleteNamespaceName.getString());
@@ -1749,8 +1751,8 @@ void InteropProvider::getInstance(
     InstanceResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::getInstance");
-        
-        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+
+        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
             "%s getInstance. instanceName= %s , includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
             thisProvider,
             (const char *)instanceName.toString().getCString(),
@@ -1758,8 +1760,8 @@ void InteropProvider::getInstance(
             (const char*) _showBool(includeClassOrigin).getCString(),
             (const char *)_showPropertyList(propertyList).getCString());
         // Verify that ClassName is correct and get value
-        targetClass classEnum  = _verifyValidClassInput(instanceName.getClassName());    
-        
+        targetClass classEnum  = _verifyValidClassInput(instanceName.getClassName());
+
         _operationNamespace = instanceName.getNameSpace();
         String userName = _validateUserID(context);
         // begin processing the request
@@ -1773,10 +1775,10 @@ void InteropProvider::getInstance(
             PEG_METHOD_EXIT();
             return;
         }
-        
+
         if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
         {
-            // ATTN: test for correct instance KS: Priority 1    
+            // ATTN: test for correct instance KS: Priority 1
             Array <CIMInstance> instances = _buildInstancesPGCIMXMLCommunicationMechanism(
                                     includeQualifiers,
                                     includeClassOrigin, propertyList);
@@ -1785,7 +1787,7 @@ void InteropProvider::getInstance(
             PEG_METHOD_EXIT();
             return;
         }
-        
+
         if (classEnum == CIM_NAMESPACEINMANAGER)
         {
             handler.complete();
@@ -1797,7 +1799,7 @@ void InteropProvider::getInstance(
         Array<CIMNamespaceName> namespaceNames;
         namespaceNames = _enumerateNameSpaces();
         CIMInstance instance;
-        
+
         if (classEnum == PG_NAMESPACE)
         {
             // Not clear what we have to take into account here.
@@ -1844,7 +1846,7 @@ void InteropProvider::enumerateInstances(
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::enumerateInstances()");
 
-        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
             "%s enumerateInstances. ref= %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
             thisProvider,
             (const char *) ref.toString().getCString(),
@@ -1853,13 +1855,13 @@ void InteropProvider::enumerateInstances(
             (const char *) _showPropertyList(propertyList).getCString());
 
         // Verify that ClassName is correct and get value
-        targetClass classEnum  = _verifyValidClassInput(ref.getClassName());    
-        
+        targetClass classEnum  = _verifyValidClassInput(ref.getClassName());
+
         // operation namespace needed internally to get class.
         _operationNamespace = ref.getNameSpace();
         CDEBUG("Namespace = " << _operationNamespace.getString());
         //String userName = _validateUserID(context);
-        
+
         // The following 3 classes deliver a single instance because
         // that is all there is today.
         if (classEnum == CIM_OBJECTMANAGER)
@@ -1879,7 +1881,7 @@ void InteropProvider::enumerateInstances(
             //PEG_METHOD_EXIT();
             //return;
         }
-        
+
         else if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
         {
             Array<CIMInstance> instances = _buildInstancesPGCIMXMLCommunicationMechanism(includeQualifiers,
@@ -1915,7 +1917,7 @@ void InteropProvider::enumerateInstances(
         }
 
         handler.complete();
-        
+
         PEG_METHOD_EXIT();
     }
 
@@ -1936,13 +1938,13 @@ void InteropProvider::modifyObjectManagerInstance(const OperationContext & conte
         // and call the internal method to set it each time this object is
         // built.
 #ifndef PEGASUS_DISABLE_PERFINST
-        Boolean statisticsFlag = _getPropertyValue(modifiedIns, OM_GATHERSTATISTICALDATA, false);  
+        Boolean statisticsFlag = _getPropertyValue(modifiedIns, OM_GATHERSTATISTICALDATA, false);
         CIMInstance instance;
         instance = _getInstanceCIMObjectManager(true, true, CIMPropertyList());
 
         if (statisticsFlag != _getPropertyValue(instance,  OM_GATHERSTATISTICALDATA, false))
         {
-            // set the changed property into the 
+            // set the changed property into the
             _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, statisticsFlag);
             // Modify the object on disk
             try
@@ -1950,17 +1952,17 @@ void InteropProvider::modifyObjectManagerInstance(const OperationContext & conte
                 _repository->modifyInstance(_operationNamespace,
                                instance );
             }
-            catch(CIMException& e)
+            catch(const CIMException&)
             {
                 // ATTN: KS generate log error if this not possible
                 PEG_METHOD_EXIT();
-                throw e;
+                throw;
             }
-            catch(Exception& e)
+            catch(const Exception&)
             {
                 // ATTN: Generate log error.
                 PEG_METHOD_EXIT();
-                throw e;
+                throw;
             }
             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
                 "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
@@ -1992,7 +1994,7 @@ void InteropProvider::modifyInstance(const OperationContext & context,
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::modifyInstance");
 
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4, 
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s modifyInstance. instanceReference= %s, includeQualifiers= %s, PropertyList= %s",
         thisProvider,
         (const char *) instanceReference.toString().getCString(),
@@ -2002,7 +2004,7 @@ void InteropProvider::modifyInstance(const OperationContext & context,
     // ATTN: KS 31 August 2004. This must test for privileged user.
     _operationNamespace = instanceReference.getNameSpace();
     CIMName className =  instanceReference.getClassName();
-    targetClass classEnum  = _verifyValidClassInput(instanceReference.getClassName());    
+    targetClass classEnum  = _verifyValidClassInput(instanceReference.getClassName());
 
     String userName = _validateUserID(context);
     // begin processing the request
@@ -2060,13 +2062,13 @@ void InteropProvider::enumerateInstanceNames(
         // operation namespace needed internally to get class.
         _operationNamespace = classReference.getNameSpace();
 
-        targetClass classEnum  = _verifyValidClassInput(classReference.getClassName());    
-    
+        targetClass classEnum  = _verifyValidClassInput(classReference.getClassName());
+
         String userName = _validateUserID(context);
 
         // begin processing the request
         handler.processing();
-        
+
         // Deliver a single instance because there should only be one instance.
         if (classEnum == CIM_OBJECTMANAGER)
         {
@@ -2218,7 +2220,7 @@ void InteropProvider::referenceNames(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::referenceNames()");
     CDEBUG("::referenceNames(): object= " << objectName.toString() << " result Class= " << resultClass.getString());
-                    
+
     // operation namespace needed internally to get class.
     _operationNamespace = objectName.getNameSpace();
     String userName = _validateUserID(context);
@@ -2228,7 +2230,7 @@ void InteropProvider::referenceNames(
     // determine if valid class result class
 
     CIMName targetAssocClassName = resultClass;
-    
+
     CIMName targetClassName = objectName.getClassName();
 
     targetAssocClass classEnum  = _verifyValidAssocClassInput(targetAssocClassName);

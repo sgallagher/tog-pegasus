@@ -240,12 +240,12 @@ static void TestUTFRepository( CIMClient& client,
 
         try
         {
-          client.deleteQualifier(NAMESPACE, qualDeclName);
+            client.deleteQualifier(NAMESPACE, qualDeclName);
         }
         catch (CIMException & e)
         {
-          if (e.getCode() != CIM_ERR_NOT_FOUND)
-            throw e;
+            if (e.getCode() != CIM_ERR_NOT_FOUND)
+                throw;
         }
 
         if (verboseTest)
@@ -319,12 +319,12 @@ static void TestUTFRepository( CIMClient& client,
 
         try
         {
-          client.deleteClass(NAMESPACE, className);
+            client.deleteClass(NAMESPACE, className);
         }
         catch (CIMException & e)
         {
-          if (e.getCode() != CIM_ERR_NOT_FOUND)
-            throw e;
+            if (e.getCode() != CIM_ERR_NOT_FOUND)
+                throw;
         }
 
         if (verboseTest)
@@ -536,7 +536,7 @@ static void TestUTFRepository( CIMClient& client,
     {
       PEGASUS_STD(cerr) << "Error in TestLocalizedRepository: "
             << e.getMessage() << PEGASUS_STD(endl);
-      throw e;
+      throw;
     }
 }
 
@@ -666,7 +666,7 @@ static void TestLocalizedMethods( CIMClient& client,
   catch(Exception& e)
   {
     PEGASUS_STD(cerr) << "Error in TestLocalizedMethod: " << e.getMessage() << PEGASUS_STD(endl);
-    throw e;
+    throw;
   }
 }
 
@@ -1299,9 +1299,9 @@ static void TestLocalizedInstances( CIMClient& client,
     }
     catch(Exception& e)
     {
-      PEGASUS_STD(cerr) << "Error in TestLocalizedInstances: "
+        PEGASUS_STD(cerr) << "Error in TestLocalizedInstances: "
             << e.getMessage() << PEGASUS_STD(endl);
-      throw e;
+        throw;
     }
 }
 
@@ -1436,7 +1436,7 @@ static void TestServerMessages( CIMClient& client,
                    Uint32 n = ce.getMessage().find(CLASSNAME.getString());
                    if (n == PEG_NOT_FOUND)
                    {
-                      throw ce;
+                      throw;
                    }
 
                    if (i == 0)
@@ -1463,7 +1463,7 @@ static void TestServerMessages( CIMClient& client,
                 else
                 {
                    // Didn't get the expected error for "class not found"
-                   throw ce;
+                   throw;
                 }
             }  // end catch
 
@@ -1519,20 +1519,21 @@ static void TestServerMessages( CIMClient& client,
     }
     catch (InvalidAcceptLanguageHeader& ialh)
     {
-      PEGASUS_STD(cerr) << "Invalid lang parameter was entered: "
+        PEGASUS_STD(cerr) << "Invalid lang parameter was entered: "
             << ialh.getMessage() << PEGASUS_STD(endl);
-      throw ialh;
+        throw;
     }
     catch (InvalidContentLanguageHeader& iclh)
     {
-      PEGASUS_STD(cerr) << "Invalid expectlang parameter was entered: "
+        PEGASUS_STD(cerr) << "Invalid expectlang parameter was entered: "
             << iclh.getMessage() << PEGASUS_STD(endl);
-      throw iclh;
+        throw;
     }
     catch(Exception& e)
     {
-      PEGASUS_STD(cerr) << "Error in TestServerMessages: " << e.getMessage() << PEGASUS_STD(endl);
-      throw e;
+        PEGASUS_STD(cerr) << "Error in TestServerMessages: "
+            << e.getMessage() << PEGASUS_STD(endl);
+        throw;
     }
 }
 
@@ -1637,7 +1638,7 @@ static void createSubscriptions(CIMClient& client,
     {
       if (ce.getCode() != CIM_ERR_NOT_FOUND)
       {
-    throw ce;
+        throw;
       }
     }
 
@@ -1652,7 +1653,7 @@ static void createSubscriptions(CIMClient& client,
     {
       if (ce.getCode() != CIM_ERR_NOT_FOUND)
       {
-    throw ce;
+        throw;
       }
     }
 
@@ -1696,7 +1697,7 @@ static void createSubscriptions(CIMClient& client,
     catch (CIMException& ce)
     {
       if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
-    throw ce;
+        throw;
 
       providerHandlerRef = CIMObjectPath(providerHandlerPath);
     }
@@ -1728,7 +1729,7 @@ static void createSubscriptions(CIMClient& client,
     catch (CIMException& ce)
     {
       if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
-    throw ce;
+        throw;
 
       filterRef = CIMObjectPath(filterPath);
     }
@@ -1756,7 +1757,7 @@ static void createSubscriptions(CIMClient& client,
       catch (CIMException& ce)
     {
       if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
-        throw ce;
+        throw;
 
       g11ntestSubscriptionRef = CIMObjectPath(g11ntestSubscriptionPath);
     }
@@ -1773,23 +1774,23 @@ static void createSubscriptions(CIMClient& client,
 
     try
     {
-      providerSubscriptionRef = client.createInstance(INTEROP_NAMESPACE,
-                              providerSubscriptionInstance);
+        providerSubscriptionRef = client.createInstance(INTEROP_NAMESPACE,
+            providerSubscriptionInstance);
     }
     catch (CIMException& ce)
     {
-      if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
-    throw ce;
+        if (ce.getCode() != CIM_ERR_ALREADY_EXISTS)
+            throw;
 
-      providerSubscriptionRef = CIMObjectPath(providerSubscriptionPath);
+        providerSubscriptionRef = CIMObjectPath(providerSubscriptionPath);
     }
 
   }
   catch (Exception& e)
   {
-    PEGASUS_STD(cerr) << "Error in createSubscriptions " <<
-      e.getMessage() << PEGASUS_STD(endl);
-    throw e;
+      PEGASUS_STD(cerr) << "Error in createSubscriptions " <<
+          e.getMessage() << PEGASUS_STD(endl);
+      throw;
   }
 }
 
@@ -2064,7 +2065,7 @@ static void TestLocalizedIndications( CIMClient& client,
   {
     PEGASUS_STD(cerr) << "Error in TestLocalizedIndications " <<
       e.getMessage() << PEGASUS_STD(endl);
-    throw e;
+    throw;
   }
 }
 
@@ -2429,7 +2430,7 @@ int main(int argc, char** argv)
           {
         // Restore the default message loading value before we leave
         setServerDefaultMessageLoading(client, oldSetting);
-        throw e1;
+        throw;
           }
 
           if (verboseTest)

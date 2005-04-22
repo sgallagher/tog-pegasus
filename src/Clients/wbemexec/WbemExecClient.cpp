@@ -137,7 +137,7 @@ void WbemExecClient::_connect(
     // or InvalidLocatorException
     //catch (Exception& e)
     //{
-    //    throw e;
+    //    throw;
     //}
 
     _connected = true;
@@ -157,7 +157,7 @@ void WbemExecClient::connect(
     // If already connected, bail out!
     //
     if (_connected)
-    throw AlreadyConnectedException();
+        throw AlreadyConnectedException();
 
     //
     //  If the host is empty, set hostName to "localhost"
@@ -197,7 +197,7 @@ void WbemExecClient::connectLocal()
     // If already connected, bail out!
     //
     if (_connected)
-    throw AlreadyConnectedException();
+        throw AlreadyConnectedException();
 
     String host = String::EMPTY;
     Uint32 portNumber = 0;
@@ -325,7 +325,7 @@ Array<char> WbemExecClient::issueRequest(
 {
     if (!_connected)
     {
-    throw NotConnectedException();
+        throw NotConnectedException();
     }
 
     HTTPMessage* httpRequest = new HTTPMessage(request);

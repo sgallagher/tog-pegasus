@@ -491,9 +491,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     //
     if ((!_useHTTP11) && (_useMPost))
     {
-        WbemExecException e 
-            (WbemExecException::MPOST_HTTP10_INVALID);
-        throw e;
+        throw WbemExecException(WbemExecException::MPOST_HTTP10_INVALID);
     }
 
     //
@@ -532,9 +530,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         if (!FileSystem::exists (_inputFilePath))
 
         {
-            WbemExecException e 
-                (WbemExecException::INPUT_FILE_NONEXISTENT);
-            throw e;
+            throw WbemExecException(WbemExecException::INPUT_FILE_NONEXISTENT);
         } 
 
         //
@@ -542,9 +538,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         //
         if (!FileSystem::canRead (_inputFilePath))
         {
-            WbemExecException e 
-                (WbemExecException::INPUT_FILE_NOT_READABLE);
-            throw e;
+            throw WbemExecException(WbemExecException::INPUT_FILE_NOT_READABLE);
         }
 
         //
@@ -553,8 +547,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         FileSystem::getFileSize (_inputFilePath, size);
         if (size <= 0)
         {
-            WbemExecException e (WbemExecException::NO_INPUT);
-            throw e;
+            throw WbemExecException(WbemExecException::NO_INPUT);
         }
 
         //
@@ -567,9 +560,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
         }
         catch (CannotOpenFile&)
         {
-            WbemExecException e 
-                (WbemExecException::INPUT_FILE_CANNOT_OPEN);
-            throw e;
+            throw WbemExecException(WbemExecException::INPUT_FILE_CANNOT_OPEN);
         }
     } 
     else
@@ -593,8 +584,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
             //
             //  No input
             //
-            WbemExecException e (WbemExecException::NO_INPUT);
-            throw e;
+            throw WbemExecException(WbemExecException::NO_INPUT);
         }
     }
 
@@ -626,22 +616,22 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
 
         if (_debugOutput1)
         {
-          outPrintWriter << message.getData () << endl;
+            outPrintWriter << message.getData () << endl;
         }
     }
     catch (XmlException& xe)
     {
-        WbemExecException e(WbemExecException::INVALID_XML, xe.getMessage ());
-        throw e;
+        throw WbemExecException(
+            WbemExecException::INVALID_XML, xe.getMessage());
     }
     catch (WbemExecException& e)
     {
-        throw e;
+        throw;
     }
     catch (Exception& ex)
     {
-        WbemExecException e(WbemExecException::CONNECT_FAIL, ex.getMessage ());
-        throw e;
+        throw WbemExecException(
+            WbemExecException::CONNECT_FAIL, ex.getMessage());
     }
 
     try
@@ -650,21 +640,17 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     }
     catch (ConnectionTimeoutException& ex)
     {
-        WbemExecException e
-            (WbemExecException::TIMED_OUT);
-        throw e;
+        throw WbemExecException(WbemExecException::TIMED_OUT);
     }
     catch (UnauthorizedAccess& ex)
     {
-        WbemExecException e
-            (WbemExecException::CONNECT_FAIL, ex.getMessage ());
-        throw e;
+        throw WbemExecException(
+            WbemExecException::CONNECT_FAIL, ex.getMessage());
     }
     catch (Exception& ex)
     {
-        WbemExecException e
-            (WbemExecException::CONNECT_FAIL, ex.getMessage ());
-        throw e;
+        throw WbemExecException(
+            WbemExecException::CONNECT_FAIL, ex.getMessage());
     }
 
     //
@@ -733,8 +719,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
 
     if (getOpts.hasErrors ())
     {
-        CommandFormatException e (getOpts.getErrorStrings () [0]);
-        throw e;
+        throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
     
     //
@@ -752,8 +737,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(param);
                 }
 
                _operationType = OPERATION_TYPE_HELP;
@@ -766,8 +750,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     //
                     // More than one operation option was found
                     //
-                    UnexpectedOptionException e (param);
-                    throw e;
+                    throw UnexpectedOptionException(param);
                 }
 
                _operationType = OPERATION_TYPE_VERSION;
@@ -783,8 +766,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                 //
                 // more than one _inputFilePath argument was found
                 //
-                UnexpectedArgumentException e (getOpts [i].Value ()); 
-                throw e;
+                throw UnexpectedArgumentException(getOpts[i].Value()); 
             }
             _inputFilePath = getOpts [i].Value ();
             _inputFilePathSet = true;
@@ -802,8 +784,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one hostname option was found
                         //
-                        DuplicateOptionException e (_OPTION_HOSTNAME); 
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_HOSTNAME); 
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
@@ -817,8 +798,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one portNumber option was found
                         //
-                        DuplicateOptionException e (_OPTION_PORTNUMBER); 
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PORTNUMBER); 
                     }
     
                     _portNumberStr = getOpts [i].Value ();
@@ -829,9 +809,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (TypeMismatchException& it)
                     {
-                        InvalidOptionArgumentException e (_portNumberStr,
+                        throw InvalidOptionArgumentException(_portNumberStr,
                             _OPTION_PORTNUMBER);
-                        throw e;
                     }
             _portNumberSet = true;
                     break;
@@ -844,8 +823,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one httpVersion option was found
                         //
-                        DuplicateOptionException e (_OPTION_HTTPVERSION); 
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_HTTPVERSION); 
                     }
                     httpVersion = getOpts [i].Value ();
                     break;
@@ -864,8 +842,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one httpMethod option was found
                         //
-                        DuplicateOptionException e (_OPTION_HTTPMETHOD); 
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_HTTPMETHOD); 
                     }
                     httpMethod = getOpts [i].Value ();
                     break;
@@ -878,8 +855,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one timeout option was found
                         //
-                        DuplicateOptionException e (_OPTION_TIMEOUT); 
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_TIMEOUT); 
                     }
     
                     timeoutStr = getOpts [i].Value ();
@@ -890,9 +866,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     catch (TypeMismatchException& it)
                     {
-                        InvalidOptionArgumentException e (timeoutStr,
-                            _OPTION_TIMEOUT);
-                        throw e;
+                        throw InvalidOptionArgumentException(
+                            timeoutStr, _OPTION_TIMEOUT);
                     }
                     break;
                 }
@@ -904,8 +879,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one username option was found
                         //
-                        DuplicateOptionException e (_OPTION_USERNAME); 
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_USERNAME); 
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
@@ -919,8 +893,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         // More than one password option was found
                         //
-                        DuplicateOptionException e (_OPTION_PASSWORD); 
-                        throw e;
+                        throw DuplicateOptionException(_OPTION_PASSWORD); 
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
@@ -940,9 +913,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        InvalidOptionArgumentException e (debugOptionStr,
-                            _OPTION_DEBUG);
-                        throw e;
+                        throw InvalidOptionArgumentException(
+                            debugOptionStr, _OPTION_DEBUG);
                     }
 
                     if (debugOptionStr [0] == _DEBUG_OPTION1)
@@ -958,9 +930,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                         //
                         //  Invalid debug option
                         //
-                        InvalidOptionArgumentException e (debugOptionStr,
-                            _OPTION_DEBUG);
-                        throw e;
+                        throw InvalidOptionArgumentException(
+                            debugOptionStr, _OPTION_DEBUG);
                     }
                     break;
                 }
@@ -984,10 +955,10 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         // No operation type was specified 
         // Show the usage 
         //
-          //l10n
-          //CommandFormatException e (REQUIRED_ARGS_MISSING);
-        CommandFormatException e (localizeMessage(MSG_PATH,REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
-        throw e;
+        //l10n
+        //CommandFormatException e (REQUIRED_ARGS_MISSING);
+        throw CommandFormatException(localizeMessage(
+            MSG_PATH, REQUIRED_ARGS_MISSING_KEY, REQUIRED_ARGS_MISSING));
     }
 */
 
@@ -1006,9 +977,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Portnumber out of valid range
             //
-            InvalidOptionArgumentException e (_portNumberStr,
-                _OPTION_PORTNUMBER);
-            throw e;
+            throw InvalidOptionArgumentException(
+                _portNumberStr, _OPTION_PORTNUMBER);
         }
     }
 
@@ -1040,9 +1010,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         //
         else
         {
-            InvalidOptionArgumentException e (httpVersion,
-                _OPTION_HTTPVERSION);
-            throw e;
+            throw InvalidOptionArgumentException(
+                httpVersion, _OPTION_HTTPVERSION);
         }
     }
 
@@ -1076,9 +1045,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         //
         else
         {
-            InvalidOptionArgumentException e (httpMethod,
-                _OPTION_HTTPMETHOD);
-            throw e;
+            throw InvalidOptionArgumentException(
+                httpMethod, _OPTION_HTTPMETHOD);
         }
     }
 
@@ -1097,9 +1065,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
             //
             //  Timeout out of valid range
             //
-            InvalidOptionArgumentException e (timeoutStr,
-                _OPTION_TIMEOUT);
-            throw e;
+            throw InvalidOptionArgumentException(timeoutStr, _OPTION_TIMEOUT);
         }
     }
 }

@@ -1409,7 +1409,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
   {
     cRep = _repository.getClass(getNamespacePath(), classdecl.getClassName());
   }
-  catch (CIMException &e)
+  catch (const CIMException &e)
   {
     if (e.getCode() == CIM_ERR_NOT_FOUND)
     {
@@ -1423,7 +1423,7 @@ cimmofParser::updateClass(const CIMClass &classdecl,
     }
     else
     {
-        throw e;
+        throw;
     }
   }
 

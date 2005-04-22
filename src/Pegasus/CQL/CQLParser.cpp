@@ -62,12 +62,12 @@ void CQLParser::parse(
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLParser::parse");
 
-	 AutoMutex mtx(CQL_mutex);
+    AutoMutex mtx(CQL_mutex);
 
     if (!text)
     {
         PEG_METHOD_EXIT();
-	throw NullPointer();
+        throw NullPointer();
     }
 
     statement.clear();
@@ -83,25 +83,30 @@ void CQLParser::parse(
     CQL_globalParserState->currentRule = String::EMPTY;
     CQL_globalParserState->statement = &statement;
 
-	 try{
-    	CQL_parse();
-	 }catch(const Exception &){
-		CQL_Bison_Cleanup();
-		throw;
-	 }catch(...){
-		CQL_Bison_Cleanup();
-	 }
+    try
+    {
+        CQL_parse();
+    }
+    catch(const Exception&)
+    {
+        CQL_Bison_Cleanup();
+        throw;
+    }
+    catch(...)
+    {
+        CQL_Bison_Cleanup();
+    }
 
     if (CQL_globalParserState->error)
     {
-	String errorMessage = CQL_globalParserState->errorMessage;
-	cleanup();
-	Uint32 position = CQL_globalParserState->currentTokenPos;
-	Uint32 token = CQL_globalParserState->tokenCount;
-	String rule = CQL_globalParserState->currentRule;
-	delete CQL_globalParserState;
+        String errorMessage = CQL_globalParserState->errorMessage;
+        cleanup();
+        Uint32 position = CQL_globalParserState->currentTokenPos;
+        Uint32 token = CQL_globalParserState->tokenCount;
+        String rule = CQL_globalParserState->currentRule;
+        delete CQL_globalParserState;
         PEG_METHOD_EXIT();
-	throw CQLSyntaxErrorException(errorMessage,token,position,rule);
+        throw CQLSyntaxErrorException(errorMessage,token,position,rule);
     }
 
     cleanup();
@@ -118,7 +123,7 @@ void CQLParser::parse(
     if (text.size() == 0 || text[text.size() - 1] != '\0')
     {
         PEG_METHOD_EXIT();
-	throw MissingNullTerminator();
+        throw MissingNullTerminator();
     }
 
     parse(text.getData(), statement);
@@ -144,7 +149,7 @@ void CQLParser::cleanup()
     Array<char*>& arr = CQL_globalParserState->outstandingStrings;
 
     for (Uint32 i = 0, n = arr.size(); i < n; i++)
-	delete [] arr[i];
+        delete [] arr[i];
 
     arr.clear();
 
@@ -178,21 +183,21 @@ int CQLInput(char* buffer, int& numRead, int numRequested)
     // be one or more; this is fixed checked beforehand by CQLParser::parse()).
     //
     int remaining =
-	CQL_globalParserState->textSize - CQL_globalParserState->offset - 1;
+        CQL_globalParserState->textSize - CQL_globalParserState->offset - 1;
 
     if (remaining == 0)
     {
-	numRead = 0;
+        numRead = 0;
         PEG_METHOD_EXIT();
-	return 0;
+        return 0;
     }
 
     if (remaining < numRequested)
-	numRequested = remaining;
+        numRequested = remaining;
 
     memcpy(buffer,
-	CQL_globalParserState->text + CQL_globalParserState->offset,
-	numRequested);
+        CQL_globalParserState->text + CQL_globalParserState->offset,
+        numRequested);
 
     CQL_globalParserState->offset += numRequested;
     numRead = numRequested;

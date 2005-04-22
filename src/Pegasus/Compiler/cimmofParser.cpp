@@ -140,58 +140,58 @@ cimmofParser::setRepository(void) {
       else
         rt = cimmofRepositoryInterface::REPOSITORY_INTERFACE_CLIENT;
       try {
-	// need to cat repo name to the dir
-	String rep_name = _cmdline->get_repository_name();
-	String combined = rep + "/";
-	combined = combined + rep_name;
+        // need to cat repo name to the dir
+        String rep_name = _cmdline->get_repository_name();
+        String combined = rep + "/";
+        combined = combined + rep_name;
 
-	CIMRepository_Mode Mode;
-	Mode.flag = CIMRepository_Mode::NONE;
+        CIMRepository_Mode Mode;
+        Mode.flag = CIMRepository_Mode::NONE;
 
-	String mode = _cmdline->get_repository_mode();
-	if (String::equalNoCase(mode, "BIN") )
-	  Mode.flag |= CIMRepository_Mode::BIN;
-	_repository.init(rt, combined, Mode,  _ot);
+        String mode = _cmdline->get_repository_mode();
+        if (String::equalNoCase(mode, "BIN") )
+          Mode.flag |= CIMRepository_Mode::BIN;
+        _repository.init(rt, combined, Mode,  _ot);
       } catch(Exception &e) {
-	arglist.append(rep);
-	arglist.append(e.getMessage());
-	cimmofMessages::getMessage(message,
-				  cimmofMessages::REPOSITORY_CREATE_ERROR,
-				  arglist);
-	elog(message);
-	return false;
+        arglist.append(rep);
+        arglist.append(e.getMessage());
+        cimmofMessages::getMessage(message,
+            cimmofMessages::REPOSITORY_CREATE_ERROR,
+            arglist);
+        elog(message);
+        return false;
       }
       try {
         _repository.createNameSpace(s);
       }
       catch(CIMException &e) {
-	if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
-	  // Not a problem.  Happens all the time.
-	} else {
-	       arglist.append(e.getMessage());
-	       cimmofMessages::getMessage(message,
-				  cimmofMessages::GENERAL_ERROR,
-				  arglist);
-               elog(message);
-               return false;
-	}
+        if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
+          // Not a problem.  Happens all the time.
+        } else {
+            arglist.append(e.getMessage());
+            cimmofMessages::getMessage(message,
+                cimmofMessages::GENERAL_ERROR,
+                arglist);
+            elog(message);
+            return false;
+        }
       }
       catch(Exception &e) {
         arglist.append(e.getMessage());
         cimmofMessages::getMessage(message,
-			  cimmofMessages::GENERAL_ERROR,
-			  arglist);
+            cimmofMessages::GENERAL_ERROR,
+            arglist);
         elog(message);
         return false;
       }
     } else {
       cimmofMessages::getMessage(message,
-				 cimmofMessages::SETREPOSITORY_BLANK_NAME);
+          cimmofMessages::SETREPOSITORY_BLANK_NAME);
       elog(message);
     }
   } else {
     cimmofMessages::getMessage(message,
-		       cimmofMessages::SETREPOSITORY_NO_COMPILER_OPTIONS);
+        cimmofMessages::SETREPOSITORY_NO_COMPILER_OPTIONS);
     elog(message);
   }
   return (_repository.ok() ? true : false);
@@ -293,11 +293,11 @@ cimmofParser::enterInlineInclude(const String &filename) {
     if (_cmdline) {
       const Array<String> &include_paths = _cmdline->get_include_paths();
       for (unsigned int i = 0; i < include_paths.size(); i++) {
-	String s = include_paths[i] + "/" + filename;
-	if ( (f = fopen(s.getCString(), "r")) ) {
-	  _includefile = s;
-	  break;
-	}
+        String s = include_paths[i] + "/" + filename;
+        if ( (f = fopen(s.getCString(), "r")) ) {
+          _includefile = s;
+          break;
+        }
       }
     } else {  // incorrect call:  cmdline should have been set
       return ret;
@@ -347,18 +347,18 @@ cimmofParser::parse()
     int ret;
     if (_cmdline)
     {
-      	// ATTN: KS added the following 7 Aug 2001 to put header and trailer
-	// lines on xml output from the parser.
-	// If xml_output put the XML headers and trailers around the output
+        // ATTN: KS added the following 7 Aug 2001 to put header and trailer
+        // lines on xml output from the parser.
+        // If xml_output put the XML headers and trailers around the output
       if (_cmdline->xml_output() )
       {
-	  cout << "<?xml version=\"1.0\"?>" << endl;
-	  cout << "<!-- Open Group Pegasus CIM Compiler V "
-	       << PEGASUS_PRODUCT_VERSION << " Built " << __DATE__
-	       << " -->" << endl;
-	  cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
-	  cout << "<DECLARATION>" << endl;
-	  cout << "<DECLGROUP>" << endl;
+          cout << "<?xml version=\"1.0\"?>" << endl;
+          cout << "<!-- Open Group Pegasus CIM Compiler V "
+               << PEGASUS_PRODUCT_VERSION << " Built " << __DATE__
+               << " -->" << endl;
+          cout << "<CIM CIMVERSION=\"2.0\" DTDVERSION=\"2.0\">" << endl;
+          cout << "<DECLARATION>" << endl;
+          cout << "<DECLGROUP>" << endl;
       }
     }
     ret =  cimmof_parse();
@@ -367,8 +367,8 @@ cimmofParser::parse()
 
       if (_cmdline->xml_output() )
       {
-	  cout << "</DECLGROUP>" << endl;
-	  cout << "</DECLARATION>" << endl;
+          cout << "</DECLGROUP>" << endl;
+          cout << "</DECLARATION>" << endl;
           cout << "</CIM>" << endl;
       }
     }
@@ -391,7 +391,7 @@ cimmofParser::log_parse_error(char *token, const char *errmsg) const {
   arglist.append(errmsg);
   arglist.append(token);
   cimmofMessages::getMessage(message, cimmofMessages::PARSER_SYNTAX_ERROR,
-			     arglist);
+      arglist);
   elog(message);
   maybeThrowLexerError(message);
 }
@@ -552,7 +552,7 @@ cimmofParser::addClass(CIMClass *classdecl)
       if (classdecl)
       {
         cout << "<VALUE.OBJECT>" << endl;
-	XmlWriter::printClassElement(*classdecl, PEGASUS_STD(cout));
+        XmlWriter::printClassElement(*classdecl, PEGASUS_STD(cout));
         cout << "</VALUE.OBJECT>" << endl;
         cout << endl;
       }
@@ -562,7 +562,7 @@ cimmofParser::addClass(CIMClass *classdecl)
       cimmofMessages::getMessage(header, cimmofMessages::ADD_CLASS);
       trace(header,"");
       if (classdecl)
-	XmlWriter::printClassElement(*classdecl, _cmdline->traceos());
+        XmlWriter::printClassElement(*classdecl, _cmdline->traceos());
     }
   }
   if (_cmdline &&
@@ -592,13 +592,13 @@ cimmofParser::addClass(CIMClass *classdecl)
          // This was added to maintain backward compatibility of messages seen by
          // the user.
          cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
-			     arglist);
+             arglist);
       }
       else
       {
           arglist.append(cimmofMessages::msgCodeToString(updateMessage));
           cimmofMessages::getMessage(message, cimmofMessages::CLASS_NOT_UPDATED,
-                     				 arglist);
+              arglist);
       }
       wlog(message);
    }
@@ -607,7 +607,7 @@ cimmofParser::addClass(CIMClass *classdecl)
     // 04/26/2003 GM  See cimmofParser::updateClass() for info on why modify was not
     // done here
     cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
-			       arglist);
+        arglist);
     wlog(message);
   } catch (CIMException &e) {
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
@@ -615,19 +615,19 @@ cimmofParser::addClass(CIMClass *classdecl)
       // was not done here. This where cimmofl and cimmof fell into prior to
       // changes above
       cimmofMessages::getMessage(message, cimmofMessages::CLASS_EXISTS_WARNING,
-				 arglist);
+          arglist);
       wlog(message);
     } else {
       arglist.append(e.getMessage());
       cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
-				 arglist);
+          arglist);
       elog(message);
       maybeThrowParseError(message);
     }
   } catch(Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::ADD_CLASS_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -656,7 +656,7 @@ cimmofParser::newClassDecl(const CIMName &name, const CIMName &superclassname)
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_CLASS_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -680,10 +680,10 @@ cimmofParser::addInstance(CIMInstance *instance)
     {
       if (instance)
       {
-	cout << "<VALUE.OBJECT>" << endl;
-	XmlWriter::printInstanceElement(*instance, PEGASUS_STD(cout));
-	cout << "</VALUE.OBJECT>" << endl;
-	cout << endl;
+        cout << "<VALUE.OBJECT>" << endl;
+        XmlWriter::printInstanceElement(*instance, PEGASUS_STD(cout));
+        cout << "</VALUE.OBJECT>" << endl;
+        cout << endl;
       }
       return ret;
     }
@@ -693,7 +693,7 @@ cimmofParser::addInstance(CIMInstance *instance)
       cimmofMessages::getMessage(header, cimmofMessages::ADD_INSTANCE);
       trace(header, "");
       if (instance)
-	XmlWriter::printInstanceElement(*instance, _cmdline->traceos());
+        XmlWriter::printInstanceElement(*instance, _cmdline->traceos());
     }
   }
   if (_cmdline &&
@@ -707,8 +707,8 @@ cimmofParser::addInstance(CIMInstance *instance)
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       // ATTN: P1 BB 2001  We should be able to modify the instance through the compiler
       cimmofMessages::getMessage(message,
-			       cimmofMessages::INSTANCE_EXISTS_WARNING,
-			       arglist);
+          cimmofMessages::INSTANCE_EXISTS_WARNING,
+          arglist);
       wlog(message);
     } else {
       err_out = true;
@@ -719,8 +719,8 @@ cimmofParser::addInstance(CIMInstance *instance)
   }
   if (err_out) {
     cimmofMessages::getMessage(message,
-			       cimmofMessages::ADD_INSTANCE_ERROR,
-			       arglist);
+        cimmofMessages::ADD_INSTANCE_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -739,7 +739,7 @@ cimmofParser::addInstance(CIMInstance *instance)
 //---------------------------------------------------------------------
 CIMQualifierDecl *
 cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
-			       const CIMScope & scope, const CIMFlavor & flavor) {
+    const CIMScope & scope, const CIMFlavor & flavor) {
 
   CIMQualifierDecl *q = 0;
   try {
@@ -750,8 +750,8 @@ cimmofParser::newQualifierDecl(const String &name, const CIMValue *value,
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message,
-			       cimmofMessages::NEW_QUALIFIER_DECLARATION_ERROR,
-			       arglist);
+        cimmofMessages::NEW_QUALIFIER_DECLARATION_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -776,10 +776,10 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     {
       if (qualifier)
       {
-	cout << "<VALUE.OBJECT>" << endl;
-	XmlWriter::printQualifierDeclElement(*qualifier, PEGASUS_STD(cout));
-	cout << "</VALUE.OBJECT>" << endl;
-	cout << endl;
+        cout << "<VALUE.OBJECT>" << endl;
+        XmlWriter::printQualifierDeclElement(*qualifier, PEGASUS_STD(cout));
+        cout << "</VALUE.OBJECT>" << endl;
+        cout << endl;
       }
       return ret;
     }
@@ -789,7 +789,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
       cimmofMessages::getMessage(header, cimmofMessages::ADD_QUALIFIER);
       trace(header, "");
       if (qualifier)
-	XmlWriter::printQualifierDeclElement(*qualifier, _cmdline->traceos());
+        XmlWriter::printQualifierDeclElement(*qualifier, _cmdline->traceos());
     }
   }
 
@@ -807,7 +807,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     } else {
       arglist.append(e.getMessage());
       cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
-				 arglist);
+          arglist);
       elog(message);
       maybeThrowParseError(message);
     }
@@ -816,7 +816,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
     // an CIM_ERR_ALREADY_EXISTS CIMException.  It might at any time.
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::ADD_QUALIFIER_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -834,7 +834,7 @@ cimmofParser::addQualifier(CIMQualifierDecl *qualifier)
 //--------------------------------------------------------------------
 CIMQualifier *
 cimmofParser::newQualifier(const String &name, const CIMValue &value,
-			   const CIMFlavor & flavor)
+    const CIMFlavor & flavor)
 {
   CIMQualifier *q = 0;
   try {
@@ -845,7 +845,7 @@ cimmofParser::newQualifier(const String &name, const CIMValue &value,
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_QUALIFIER_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -870,7 +870,7 @@ cimmofParser::newInstance(const CIMName &className)
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_INSTANCE_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -885,9 +885,9 @@ cimmofParser::newInstance(const CIMName &className)
 // KS 8 Mar 2002 - Added is array and arraySize to parameters
 CIMProperty *
 cimmofParser::newProperty(const CIMName &name, const CIMValue &val,
-                          const Boolean isArray,
-                          const Uint32 arraySize,
-			  const CIMName &referencedObject) const
+    const Boolean isArray,
+    const Uint32 arraySize,
+    const CIMName &referencedObject) const
 {
   CIMProperty *p = 0;
 
@@ -900,7 +900,7 @@ cimmofParser::newProperty(const CIMName &name, const CIMValue &val,
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PROPERTY_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -922,20 +922,20 @@ cimmofParser::applyProperty(CIMClass &c, CIMProperty &p)
     c.addProperty(p);
   } catch(UninitializedObjectException&) {
     cimmofMessages::getMessage(message,
-			       cimmofMessages::UNINITIALIZED_PROPERTY_ERROR,
-			       arglist);
+        cimmofMessages::UNINITIALIZED_PROPERTY_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   } catch(AlreadyExistsException&) {
     cimmofMessages::getMessage(message,
-			       cimmofMessages::PROPERTY_ALREADY_EXISTS_WARNING,
-			       arglist);
+        cimmofMessages::PROPERTY_ALREADY_EXISTS_WARNING,
+        arglist);
     wlog(message);
   } catch(Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::APPLYING_PROPERTY_ERROR,
-			       arglist);
+        cimmofMessages::APPLYING_PROPERTY_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -967,8 +967,8 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
   } catch (CIMException &e) {
     if (e.getCode() == CIM_ERR_ALREADY_EXISTS) {
       cimmofMessages::getMessage(message,
-			      cimmofMessages::INSTANCE_PROPERTY_EXISTS_WARNING,
-				arglist);
+          cimmofMessages::INSTANCE_PROPERTY_EXISTS_WARNING,
+          arglist);
       wlog(message);
     } else {
       arglist.append(e.getMessage());
@@ -980,8 +980,8 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
   }
   if (err_out) {
     cimmofMessages::getMessage(message,
-			       cimmofMessages::APPLY_INSTANCE_PROPERTY_ERROR,
-			       arglist);
+        cimmofMessages::APPLY_INSTANCE_PROPERTY_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -994,7 +994,7 @@ cimmofParser::applyProperty(CIMInstance &i, CIMProperty &p)
 //----------------------------------------------------------------------
 CIMProperty *
 cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
-				       const CIMValue &v) const
+    const CIMValue &v) const
 {
   cimmofMessages::arglist arglist;
   String message;
@@ -1006,8 +1006,8 @@ cimmofParser::copyPropertyWithNewValue(const CIMProperty &p,
   } catch (Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::CLONING_PROPERTY_ERROR,
-			       arglist);
+        cimmofMessages::CLONING_PROPERTY_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1030,7 +1030,7 @@ cimmofParser::newMethod(const CIMName &name, const CIMType type)
     arglist.append(name.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::NEW_METHOD_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1051,20 +1051,20 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
     c.addMethod(m);
   } catch(UninitializedObjectException&) {
     cimmofMessages::getMessage(message,
-			       cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
-			       arglist);
+        cimmofMessages::UNINITIALIZED_PARAMETER_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   } catch(AlreadyExistsException&) {
     cimmofMessages::getMessage(message,
-			       cimmofMessages::METHOD_ALREADY_EXISTS_WARNING,
-			       arglist);
+        cimmofMessages::METHOD_ALREADY_EXISTS_WARNING,
+        arglist);
     wlog(message);
   } catch(Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::APPLY_METHOD_ERROR,
-			       arglist);
+        cimmofMessages::APPLY_METHOD_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1074,7 +1074,7 @@ cimmofParser::applyMethod(CIMClass &c, CIMMethod &m) {
 
 CIMParameter *
 cimmofParser::newParameter(const CIMName &name, const CIMType type,
-			   Boolean isArray, Uint32 array, const CIMName &objName)
+    Boolean isArray, Uint32 array, const CIMName &objName)
 {
   CIMParameter *p = 0;
   try {
@@ -1085,7 +1085,7 @@ cimmofParser::newParameter(const CIMName &name, const CIMType type,
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_PARAMETER_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1103,7 +1103,7 @@ cimmofParser::applyParameter(CIMMethod &m, CIMParameter &p) {
     arglist.append(m.getName().getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message, cimmofMessages::APPLY_PARAMETER_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1127,8 +1127,8 @@ cimmofParser::QualifierValue(const CIMName &qualifierName,
     arglist.append(qualifierName.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::GET_QUALIFIER_DECL_ERROR,
-			       arglist);
+        cimmofMessages::GET_QUALIFIER_DECL_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1144,14 +1144,14 @@ cimmofParser::QualifierValue(const CIMName &qualifierName,
     return new CIMValue(Boolean(true));
   }
   return valueFactory::createValue(v.getType(),
-				     v.isArray() ? (int)asize : -1,
-                                     isNull,
-				     &valstr);
+      v.isArray() ? (int)asize : -1,
+      isNull,
+      &valstr);
 }
 
 CIMProperty *
 cimmofParser::PropertyFromInstance(CIMInstance &instance,
-				  const CIMName &propertyName) const
+    const CIMName &propertyName) const
 {
   cimmofMessages::arglist arglist;
   arglist.append(propertyName.getString());
@@ -1169,8 +1169,8 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
   } catch (Exception &e) {
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::GET_INSTANCE_PROPERTY_ERROR,
-			       arglist);
+        cimmofMessages::GET_INSTANCE_PROPERTY_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1181,8 +1181,8 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
     arglist.append(className.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::FIND_CLASS_OF_INSTANCE_ERROR,
-			       arglist);
+        cimmofMessages::FIND_CLASS_OF_INSTANCE_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1200,8 +1200,8 @@ cimmofParser::PropertyFromInstance(CIMInstance &instance,
     arglist.append(getNamespacePath());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::GET_CLASS_ERROR,
-			       arglist);
+        cimmofMessages::GET_CLASS_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1225,8 +1225,8 @@ cimmofParser::ValueFromProperty(const CIMProperty &prop) const
     arglist.append(propname.getString());
     arglist.append(e.getMessage());
     cimmofMessages::getMessage(message,
-			       cimmofMessages::GET_PROPERTY_VALUE_ERROR,
-			       arglist);
+        cimmofMessages::GET_PROPERTY_VALUE_ERROR,
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1236,7 +1236,7 @@ cimmofParser::ValueFromProperty(const CIMProperty &prop) const
 
 CIMValue *
 cimmofParser::PropertyValueFromInstance(CIMInstance &instance,
-					const CIMName &propertyName)const
+    const CIMName &propertyName)const
 {
   CIMProperty *prop = PropertyFromInstance(instance, propertyName);
   CIMValue *value = ValueFromProperty(*prop);
@@ -1257,14 +1257,14 @@ cimmofParser::newReference(const objectName &oname)
   CIMObjectPath *ref = 0;
   try {
     ref = new CIMObjectPath(oname.host(), nameSpace, oname.className(),
-			   oname.KeyBindings());
+        oname.KeyBindings());
   } catch(Exception &e) {
     cimmofMessages::arglist arglist;
     arglist.append(oname.className());
     arglist.append(e.getMessage());
     String message;
     cimmofMessages::getMessage(message, cimmofMessages::NEW_REFERENCE_ERROR,
-			       arglist);
+        arglist);
     elog(message);
     maybeThrowParseError(message);
   }
@@ -1273,14 +1273,14 @@ cimmofParser::newReference(const objectName &oname)
 
 void
 cimmofParser::addClassAlias(const String &alias, const CIMClass *cd,
-		       Boolean isInstance)
+    Boolean isInstance)
 {
   // ATTN: P3 BB 2001 ClassAlias - to be deprecated.  Simply warning here
 }
 
 void
 cimmofParser::addInstanceAlias(const String &alias, const CIMInstance *cd,
-		       Boolean isInstance)
+    Boolean isInstance)
 {
   // ATTN:P3 BB 2001  As soon as we figure out what Aliases are for, do something
 }
@@ -1310,7 +1310,7 @@ cimmofParser::wlog(const String &msg) const
   if (_cmdline)
     if (!_cmdline->suppress_all_messages())
       if (!_cmdline->suppress_warnings())
-	_cmdline->warningos() << msg << endl;
+        _cmdline->warningos() << msg << endl;
 }
 
 //-------------------------------------------------------------------

@@ -73,7 +73,7 @@
 #include "AssocClassTable.h"
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
-// #define win32 
+// #define win32
 # include <zlib.h>
 # include <sstream>
 #endif
@@ -110,18 +110,18 @@ the test suite must be changed also.*/
 
 
 //
-//  Enable the filter test. (bug 2334, 1975, 1046) 
+//  Enable the filter test. (bug 2334, 1975, 1046)
 //  (see additional comments below)
-//  
+//
 //  Enabled in these two files
 //  src/Pegasus/Repository/CIMRepository.cpp
 //  Repository/tests/Repository2/Repository2.cpp
 //
 //  The #ifdef PEGASUS_ENABLE_INSTANCE_FILTER statements have been left in
 //  as an easy way to disable this code should any problems arise during
-//  the next week or so with this functionalty. after that the ifdefs 
+//  the next week or so with this functionalty. after that the ifdefs
 //  shall be removed.
-//                                       JR Wunderlch April 5, 05 
+//                                       JR Wunderlch April 5, 05
 ////     #define PEGASUS_ENABLE_INSTANCE_FILTER // enable filter test
 
 ////////////////////////////////////////////////////////////////////////
@@ -135,23 +135,23 @@ PEGASUS_NAMESPACE_BEGIN
 static const Uint32 _MAX_FREE_COUNT = 16;
 static int binaryMode = -1; // PEP 164
 
-#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY 
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 static int compressMode = 0; // PEP214
 #endif
 
-// #define TEST_OUTPUT	
+// #define TEST_OUTPUT
 
 ////////////////////////////////////////////////////////////////////////////////
 //
 // _LoadFileToMemory()  PEP214
 //
-// The gzxxxx functions read both compresed and non-compresed files. 
-// 
+// The gzxxxx functions read both compresed and non-compresed files.
+//
 // There is no conditional flag on reading of files since gzread()
 // (from zlib) is capable of reading compressed and non-compressed
 // files (so it contains the logic that examines the header
 // and magic number). Everything will work properly if the repository
-// has some compressed and some non-compressed files. 
+// has some compressed and some non-compressed files.
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -159,17 +159,17 @@ static int compressMode = 0; // PEP214
 void _LoadFileToMemory(Array<char>& data, const String& path)
 {
 
-#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY 
+#ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 
     Uint32 fileSize;
 
     if (!FileSystem::getFileSize(path, fileSize))
-	throw CannotOpenFile(path);
+        throw CannotOpenFile(path);
 
     gzFile fp = gzopen(path.getCString(), "rb");
 
     if (fp == NULL)
-	throw CannotOpenFile(path);
+        throw CannotOpenFile(path);
 
     data.reserveCapacity(fileSize);
     char buffer[4096];
@@ -180,7 +180,7 @@ void _LoadFileToMemory(Array<char>& data, const String& path)
 
     gzclose(fp);
 
-#else    
+#else
 
     FileSystem::loadFileToMemory(data, path);
 
@@ -509,41 +509,41 @@ void _SaveObject(const String& path, Array<char>& objectXml,
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
     if (compressMode)            // PEP214
-      {
-	PEGASUS_STD(ostringstream) os;
-	streamer->write(os, objectXml);
-	string str = os.str();
+    {
+        PEGASUS_STD(ostringstream) os;
+        streamer->write(os, objectXml);
+        string str = os.str();
 
-	gzFile fp = gzopen(path.getCString(), "wb");
+        gzFile fp = gzopen(path.getCString(), "wb");
 
-	if (fp == NULL)
-	  throw CannotOpenFile(path);
+        if (fp == NULL)
+          throw CannotOpenFile(path);
 
-	const char* ptr = str.data();
-	size_t rem = str.size();
-	int n;
+        const char* ptr = str.data();
+        size_t rem = str.size();
+        int n;
 
-	while (rem > 0 && (n = gzwrite(fp, (char*)ptr, rem)) > 0)
-	  {
-	    ptr += n;
-	    rem -= n;
-	  }
+        while (rem > 0 && (n = gzwrite(fp, (char*)ptr, rem)) > 0)
+        {
+            ptr += n;
+            rem -= n;
+        }
 
-	gzclose(fp);
-      }
+        gzclose(fp);
+    }
     else
 #endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
-      {
-	PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
+    {
+        PEGASUS_STD(ofstream) os(path.getCString() PEGASUS_IOS_BINARY);
 
-	if (!os)
-	  {
-	    PEG_METHOD_EXIT();
-	    throw CannotOpenFile(path);
-	  }
+        if (!os)
+        {
+            PEG_METHOD_EXIT();
+            throw CannotOpenFile(path);
+        }
 
-	streamer->write(os, objectXml);
-      }
+        streamer->write(os, objectXml);
+    }
     PEG_METHOD_EXIT();
 }
 
@@ -568,34 +568,34 @@ CIMRepository::CIMRepository(const String& repositoryRoot, const CIMRepository_M
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::CIMRepository");
 
     binaryMode = mode.flag & CIMRepository_Mode::BIN;
-    
+
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY    // PEP214
     // FUTURE?? -  compressMode = mode.flag & CIMRepository_Mode::COMPRESSED;
     compressMode=1;
 
     char *s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
     if (s && (strcmp(s, "build_non_compressed") == 0))
-      {
-	compressMode =0;
-#ifdef TEST_OUTPUT   
-	cout << "In Compress mode: build_non_compresed found" << endl;
+    {
+        compressMode =0;
+#ifdef TEST_OUTPUT
+        cout << "In Compress mode: build_non_compresed found" << endl;
 #endif /* TEST_OUTPUT */
-      }
-#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */ 
+    }
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
 
-#ifdef TEST_OUTPUT  
-    cout << "repositoryRoot = " << repositoryRoot << endl; 
+#ifdef TEST_OUTPUT
+    cout << "repositoryRoot = " << repositoryRoot << endl;
     cout << "CIMRepository: binaryMode="  << binaryMode << "mode.flag=" << mode.flag << "\n";
     cout << "CIMRepository: compressMode= " << compressMode << endl;
 #endif /* TEST_OUTPUT */
 
     if (binaryMode>0) { // PEP 164
-      // BUILD BINARY 
+      // BUILD BINARY
        streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
     }
     else { // streamer=new XmlStreamer();
-      // BUILD XML 
+      // BUILD XML
        streamer=new AutoStreamer(new XmlStreamer(),0xff);
        ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
@@ -626,27 +626,27 @@ CIMRepository::CIMRepository(const String& repositoryRoot)
 
     char *s = getenv("PEGASUS_ENABLE_COMPRESSED_REPOSITORY");
     if (s && (strcmp(s, "build_non_compressed") == 0))
-      {
-	compressMode =0;
-#ifdef TEST_OUTPUT   
-	cout << "In Compress mode: build_non_compresed found" << endl;
+    {
+        compressMode =0;
+#ifdef TEST_OUTPUT
+        cout << "In Compress mode: build_non_compresed found" << endl;
 #endif /* TEST_OUTPUT */
-      }
-#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */ 
+    }
+#endif /* PEGASUS_ENABLE_COMPRESSED_REPOSITORY */
 
-#ifdef TEST_OUTPUT  
-    cout << "repositoryRoot = " << repositoryRoot << endl; 
+#ifdef TEST_OUTPUT
+    cout << "repositoryRoot = " << repositoryRoot << endl;
     cout << "CIMRepository: binaryMode="  << binaryMode << endl;
     cout << "CIMRepository: compressMode= " << compressMode << endl;
 #endif /* TEST_OUTPUT */
 
     if (binaryMode>0) { // PEP 164
-      // BUILD BINARY 
+      // BUILD BINARY
        streamer=new AutoStreamer(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
     }
     else { // streamer=new XmlStreamer();
-      // BUILD XML 
+      // BUILD XML
        streamer=new AutoStreamer(new XmlStreamer(),0xff);
        ((AutoStreamer*)streamer)->addReader(new BinaryStreamer(),BINREP_MARKER);
        ((AutoStreamer*)streamer)->addReader(new XmlStreamer(),0);
@@ -1283,8 +1283,8 @@ void CIMRepository::createClass(
     if (contentLangs.size() > 0)
     {
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-			       "The Content-Language header is not supported for this request"));
+          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+              "The Content-Language header is not supported for this request"));
     }
 
     WriteLock lock(_lock);
@@ -1526,8 +1526,8 @@ CIMObjectPath CIMRepository::createInstance(
     if (contentLangs.size() > 0)
     {
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-			       "The Content-Language header is not supported for this request"));
+          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+              "The Content-Language header is not supported for this request"));
     }
 
     WriteLock lock(_lock);
@@ -1755,8 +1755,8 @@ void CIMRepository::modifyClass(
     if (contentLangs.size() > 0)
     {
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-			       "The Content-Language header is not supported for this request"));
+          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+              "The Content-Language header is not supported for this request"));
     }
 
     WriteLock lock(_lock);
@@ -1828,15 +1828,15 @@ void CIMRepository::_modifyClass(
       Array<String> assocFileName =
          _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceDelete);
       if (FileSystem::exists(assocFileName[0])) {
-	AssocClassTable::deleteAssociation(assocFileName[0], cimClass.getClassName());
-	// Create the association again.
-	_createAssocClassEntries(nameSpace, cimClass);
+        AssocClassTable::deleteAssociation(assocFileName[0], cimClass.getClassName());
+        // Create the association again.
+        _createAssocClassEntries(nameSpace, cimClass);
       }
       else
-	{
-	  PEG_METHOD_EXIT();
-	  throw CannotOpenFile(assocFileName[0]);
-	}
+      {
+          PEG_METHOD_EXIT();
+          throw CannotOpenFile(assocFileName[0]);
+      }
     }
 
     PEG_METHOD_EXIT();
@@ -1854,8 +1854,8 @@ void CIMRepository::modifyInstance(
     if (contentLangs.size() > 0)
     {
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-			       "The Content-Language header is not supported for this request"));
+          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+              "The Content-Language header is not supported for this request"));
     }
 
     WriteLock lock(_lock);
@@ -2993,7 +2993,7 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
     // The resultClass parameter implies subclasses, so retrieve them
     Array<CIMName> resultClassList;
 
-	try {
+  try {
     if (!resultClass.isNull())
     {
         _nameSpaceManager.getSubClassNames(
@@ -3016,7 +3016,7 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
 
         Array<String> assocFileName = _nameSpaceManager.getAssocClassPath(nameSpace,NameSpaceRead);
 
-	Boolean refs=false;
+        Boolean refs=false;
         for (int i=0,m=assocFileName.size(); !refs && i<m; i++)
            if (AssocClassTable::getReferenceNames(
                   assocFileName[i],
@@ -3044,14 +3044,19 @@ Array<CIMObjectPath> CIMRepository::_referenceNames(
             // Ignore error! It's okay not to have references.
         }
     }
-	}
-	catch (const CIMException& exception) {
-		if(exception.getCode() == CIM_ERR_INVALID_CLASS) {
-			throw PEGASUS_CIM_EXCEPTION(CIM_ERR_INVALID_PARAMETER, exception.getMessage());
-		}
-		else
-			throw;
-	}
+  }
+  catch (const CIMException& exception)
+  {
+    if (exception.getCode() == CIM_ERR_INVALID_CLASS)
+    {
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_PARAMETER, exception.getMessage());
+    }
+    else
+    {
+        throw;
+    }
+  }
 
     Array<CIMObjectPath> result;
 
@@ -3143,8 +3148,8 @@ void CIMRepository::setProperty(
     if (contentLangs.size() > 0)
     {
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-			       "The Content-Language header is not supported for this request"));
+          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+              "The Content-Language header is not supported for this request"));
     }
 
     // It is not necessary to control access to the ReadWriteSem _lock here.
@@ -3231,8 +3236,8 @@ void CIMRepository::setQualifier(
     if (contentLangs.size() > 0)
     {
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-            MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-			       "The Content-Language header is not supported for this request."));
+          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
+              "The Content-Language header is not supported for this request."));
     }
 
     WriteLock lock(_lock);

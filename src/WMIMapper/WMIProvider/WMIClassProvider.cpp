@@ -141,7 +141,7 @@ CIMClass WMIClassProvider::getClass(
 			case CIM_ERR_INVALID_CLASS: 
                 throw CIMException(CIM_ERR_NOT_FOUND); 
                 break;
-			default: throw e;
+			default: throw;
 		}
 	}
 
@@ -485,7 +485,7 @@ void WMIClassProvider::createClass(const String& nameSpace,
 			pServices, 
 			pNewClass);
 	}
-	catch (CIMException &e) 
+	catch (CIMException&) 
 	{
 		if (pServices)
 			pServices.Release();
@@ -493,7 +493,7 @@ void WMIClassProvider::createClass(const String& nameSpace,
 		if (pNewClass)
 			pNewClass.Release();
 
-		throw e;
+		throw;
 	}
 	
 	// Store the new class into WMI
@@ -651,7 +651,7 @@ Boolean WMIClassProvider::classAlreadyExists (const String& className)
 		switch(e.getCode())
 		{
 			case CIM_ERR_NOT_FOUND: return false; break;
-			default: throw e;
+			default: throw;
 		}
 	}
 
@@ -826,7 +826,7 @@ void WMIClassProvider::createClassNameAndClassQualifiers(const CIMClass& newClas
 			
 			createQualifier(qualifier, pNewClassQualifier);
 		}
-		catch (CIMException &e)
+		catch (CIMException&)
 		{
 			if (*pNewClass)
 				(*pNewClass)->Release();
@@ -834,7 +834,7 @@ void WMIClassProvider::createClassNameAndClassQualifiers(const CIMClass& newClas
 			if (pNewClassQualifier)
 				pNewClassQualifier.Release();
 
-			throw e;
+			throw;
 		}
 	}
 
@@ -871,9 +871,9 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
 		{
 			createProperty(prop, pNewClass);
 		}
-		catch (CIMException &e)
+		catch (CIMException&)
 		{
-			throw e;
+			throw;
 		}
 		
 		// get a pointer to work with qualifiers 
@@ -906,12 +906,12 @@ void WMIClassProvider::createProperties(const CIMClass& newClass,
 			{
 				createQualifier(qualifier, pQual);
 			}
-			catch (CIMException &e)
+			catch (CIMException&)
 			{
 				if (pQual)
 					pQual.Release();
 
-				throw e;
+				throw;
 			}
 		}
 
@@ -977,9 +977,9 @@ void WMIClassProvider::createMethods(const CIMClass& newClass,
 		{
 			createMethod(method, pServices, pNewClass);
 		}
-		catch (CIMException &e)
+		catch (CIMException&)
 		{
-			throw e;
+			throw;
 		}
 	}
 
@@ -1153,14 +1153,14 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
             {
                 createParam(param, pinParameters);
             }
-            catch (CIMException &e)
+            catch (CIMException&)
             {
                 if (pinParameters)
                     pinParameters.Release();
                 if (poutParameters)
                     poutParameters.Release();
 
-                throw e;
+                throw;
             }		
         } 
 		
@@ -1170,14 +1170,14 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
             {
                 createParam(param, poutParameters);
             }
-            catch (CIMException &e)
+            catch (CIMException&)
             {
                 if (pinParameters)
                     pinParameters.Release();
                 if (poutParameters)
                     poutParameters.Release();
 
-                throw e;
+                throw;
             }		
         }
 	}
@@ -1235,12 +1235,12 @@ void WMIClassProvider::createMethod (CIMConstMethod &method,
 		{
 			createQualifier(qualifier, pQual);
 		}
-		catch (CIMException &e)
+		catch (CIMException&)
 		{
 			if (pQual)
 				pQual.Release();
 
-			throw e;
+			throw;
 		}
 	}
 
@@ -1318,12 +1318,12 @@ void WMIClassProvider::createParam(const CIMConstParameter &param,
 		{
 			createQualifier(qualifier, pQual);
 		}
-		catch (CIMException &e)
+		catch (CIMException&)
 		{
 			if (pQual)
 				pQual.Release();
 
-			throw e;
+			throw;
 		}
 	}
 	

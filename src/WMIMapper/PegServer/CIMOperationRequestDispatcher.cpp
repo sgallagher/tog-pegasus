@@ -1898,15 +1898,15 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                         false, //includeClassOrigin,
                         CIMPropertyList());
                 }
-                catch (CIMException& exception)
+                catch (CIMException&)
                 {
                     PEG_METHOD_EXIT();
-                    throw exception;
+                    throw;
                 }
-                catch (Exception& exception)
+                catch (Exception&)
                 {
                     PEG_METHOD_EXIT();
-                    throw exception;
+                    throw;
                 }
                 catch (...)
                 {

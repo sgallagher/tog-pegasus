@@ -689,14 +689,14 @@ void WMIInstanceProvider::modifyInstance(
 			{
 				propertyValue.getAsVariant(&v);
 			}
-			catch (CIMException &e)
+			catch (CIMException&)
 			{
 				if (pInstance)
 					pInstance.Release();
 
 				v.Clear();
 
-				throw e;
+				throw;
 			}
 			
 			CComBSTR bs = sPropName.getCString();
@@ -835,14 +835,14 @@ CIMObjectPath WMIInstanceProvider::createInstance(
 		{
 			WMIValue(propertyValue).getAsVariant(&v);
 		}
-		catch (CIMException &e)
+		catch (CIMException&)
 		{
 			if (pNewInstance)
 				pNewInstance.Release();
 
 			v.Clear();
 
-			throw e;
+			throw;
 		}
 		
 		bs.Empty();

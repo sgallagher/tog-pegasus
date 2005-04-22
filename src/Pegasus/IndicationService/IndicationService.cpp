@@ -40,6 +40,8 @@
 //               Amit K Arora, IBM (amita@in.ibm.com) for Bug#1730
 //               Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //               Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//               David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -579,7 +581,7 @@ void IndicationService::_initialize (void)
         //  significant performance issue.
         //
         Array <ProviderClassList> acceptedProviders;
-        acceptedProviders = _sendWaitCreateRequests 
+        acceptedProviders = _sendWaitCreateRequests
             (indicationProviders, sourceNameSpace,
             propertyList, condition, query, queryLanguage,
             activeSubscriptions [i],
@@ -3580,7 +3582,7 @@ void IndicationService::_checkRequiredProperty (
             //
             //  Check that the property value is of the correct type
             //
-            if ((theValue.getType () != expectedType) || 
+            if ((theValue.getType () != expectedType) ||
 		(theValue.isArray () != isArray))
             {
                 if (theValue.isArray ())
@@ -3931,7 +3933,7 @@ String IndicationService::_checkPropertyWithDefault (
         {
             theProperty.setValue (CIMValue (defaultValue));
         }
-        else if ((theValue.getType () != CIMTYPE_STRING) || 
+        else if ((theValue.getType () != CIMTYPE_STRING) ||
                  (theValue.isArray ()))
         {
             //
@@ -4255,7 +4257,7 @@ Boolean IndicationService::_canDelete (
         (superClass.equal (PEGASUS_CLASSNAME_LSTNRDST)) ||
         (instanceReference.getClassName().equal (PEGASUS_CLASSNAME_INDFILTER)))
     {
-        if (instanceReference.getClassName ().equal 
+        if (instanceReference.getClassName ().equal
                (PEGASUS_CLASSNAME_INDFILTER))
         {
             propName = _PROPERTY_FILTER;
@@ -5258,7 +5260,7 @@ Boolean IndicationService::_getTimeRemaining (
             durationValue.get (duration);
 
             //
-            //  A Start Time set to the _ZERO_INTERVAL_STRING indicates that 
+            //  A Start Time set to the _ZERO_INTERVAL_STRING indicates that
             //  the subscription has not yet been enabled for the first time
             //  In this case, the time remaining is equal to the Duration
             //
@@ -5282,7 +5284,7 @@ Boolean IndicationService::_getTimeRemaining (
             else
             {
                 //
-                //  Get current date time, and calculate Subscription Time 
+                //  Get current date time, and calculate Subscription Time
                 //  Remaining
                 //
                 CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime();
@@ -5295,10 +5297,10 @@ Boolean IndicationService::_getTimeRemaining (
                 }
 
                 // Check if the date time is out of range.
-                catch (DateTimeOutOfRangeException& e)
+                catch (const DateTimeOutOfRangeException& )
                 {
                     PEG_METHOD_EXIT();
-                    throw e;
+                    throw;
                 }
 
                 PEGASUS_ASSERT (difference >= 0);
@@ -6328,7 +6330,7 @@ void IndicationService::_handleCreateResponseAggregation (
         }
         else  //  CIM_MODIFY_INSTANCE_REQUEST_MESSAGE
         {
-            PEGASUS_ASSERT (operationAggregate->getOrigType () == 
+            PEGASUS_ASSERT (operationAggregate->getOrigType () ==
                 CIM_MODIFY_INSTANCE_REQUEST_MESSAGE);
 
             //

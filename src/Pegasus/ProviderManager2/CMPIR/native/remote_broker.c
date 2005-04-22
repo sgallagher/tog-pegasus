@@ -752,9 +752,10 @@ void cleanup_remote_brokers ( long timeout,
 {
 	CMPI_COND_TYPE  c = NULL;
 	CMPI_MUTEX_TYPE m = NULL;
-	struct timespec wait;
+	struct timespec wait = {0,0};
 	struct timeval t;
 	struct __remote_broker ** __rb, * tmp;
+    int rc = 0;
 
 	TRACE_VERBOSE(("entered function."));
 	TRACE_NORMAL(("Cleaning up remote providers."));
@@ -764,7 +765,6 @@ void cleanup_remote_brokers ( long timeout,
 	c=CMPI_BrokerExt_Ftab->newCondition(0);
 	m=CMPI_BrokerExt_Ftab->newMutex(0);
 
-	CMPI_BrokerExt_Ftab->lockMutex(m);
 
 	do {
 		TRACE_NORMAL(("Looking for remote providers "
@@ -789,10 +789,16 @@ void cleanup_remote_brokers ( long timeout,
                 CMPI_BrokerExt_Ftab->unlockMutex(__remote_brokers_lock);
 
 		wait.tv_sec = t.tv_sec + check_interval;
-	} while ( CMPI_BrokerExt_Ftab->timedCondWait( c, m, &wait ) );
+		wait.tv_nsec = 0;
+
+	    CMPI_BrokerExt_Ftab->lockMutex(m);
+        CMPI_BrokerExt_Ftab->timedCondWait( c, m, &wait );
+	    CMPI_BrokerExt_Ftab->unlockMutex(m);
+
+	} while (  rc );
 
 	CMPI_BrokerExt_Ftab->destroyMutex(m);
-	CMPI_BrokerExt_Ftab->destroyCondition(0);
+	CMPI_BrokerExt_Ftab->destroyCondition(c);
 
 	TRACE_CRITICAL(("Timed wait failed, leaving function."));
 }

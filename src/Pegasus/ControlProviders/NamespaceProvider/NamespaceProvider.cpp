@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -164,7 +166,7 @@ void _getKeyValue (
        propertyValue = namespaceInstance.getProperty(pos).getValue();
        if (propertyValue.getType() != CIMTYPE_STRING)
        {
-       		//l10n 
+       		//l10n
            //throw CIMInvalidParameterException("Invalid type for property: "
                                  //+ NAMESPACE_PROPERTYNAME.getString());
            throw CIMInvalidParameterException(MessageLoaderParms(
@@ -242,7 +244,7 @@ void _generateFullNamespaceName(
                                         parentNamespaceName.getString()));
           }
           // Create full namespace name by prepending parentNamespaceName
-          fullNamespaceName = CIMNamespaceName (parentNamespaceName.getString() 
+          fullNamespaceName = CIMNamespaceName (parentNamespaceName.getString()
               + "/" + childNamespaceName.getString());
         }
         else
@@ -270,13 +272,13 @@ void NamespaceProvider::createInstance(
        {
 	   PEG_METHOD_EXIT();
 	   		//l10n
-           //throw CIMNotSupportedException(myInstance.getClassName().getString() 
+           //throw CIMNotSupportedException(myInstance.getClassName().getString()
                //+ " not supported by Namespace Provider");
            throw CIMNotSupportedException(MessageLoaderParms(
            						"ControlProviders.NamespaceProvider.NamespaceProvider.NOT_SUPPORTED_BY_NAMESPACEPROVIDER",
            						"$0 not supported by Namespace Provider",
            						myInstance.getClassName().getString()));
-               
+
        }
 
        //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
@@ -315,19 +317,19 @@ void NamespaceProvider::createInstance(
 	   _repository->createNameSpace(newNamespaceName);
 
 	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-	       "Namespace = " + newNamespaceName.getString() + 
+	       "Namespace = " + newNamespaceName.getString() +
                " successfully created.");
 
        }
-       catch(CIMException& e)
+       catch(const CIMException&)
        {
-	  PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
-       catch(Exception& e)
+       catch(const Exception&)
        {
-	  PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
 
        // return key (i.e., CIMObjectPath) for newly created namespace
@@ -416,19 +418,19 @@ void NamespaceProvider::deleteInstance(
 	   _repository->deleteNameSpace(deleteNamespaceName);
 
 	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-	       "Namespace = " + deleteNamespaceName.getString() + 
+	       "Namespace = " + deleteNamespaceName.getString() +
                " successfully deleted.");
 
        }
-       catch(CIMException& e)
+       catch(const CIMException&)
        {
-	  PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
-       catch(Exception& e)
+       catch(const Exception&)
        {
-          PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
 
        // complete processing the request
@@ -509,19 +511,19 @@ void NamespaceProvider::getInstance(
            }
 
 	   PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-	       "Namespace = " + getNamespaceName.getString() + 
+	       "Namespace = " + getNamespaceName.getString() +
                " successfully found.");
 
        }
-       catch(CIMException& e)
+       catch(const CIMException&)
        {
-	  PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
-       catch(Exception& e)
+       catch(const Exception&)
        {
-          PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
 
        //Set name of class
@@ -591,7 +593,7 @@ void NamespaceProvider::enumerateInstances(
 
        try
        {
-	   Array<CIMNamespaceName> namespaceNames = 
+	   Array<CIMNamespaceName> namespaceNames =
                _repository->enumerateNameSpaces();
 
 	  // Build the instances. For now simply build the __Namespace instances
@@ -614,15 +616,15 @@ void NamespaceProvider::enumerateInstances(
               }
           }
        }
-       catch(CIMException& e)
+       catch(const CIMException&)
        {
-          PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
-       catch(Exception& e)
+       catch(const Exception&)
        {
-          PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
 
        handler.deliver(instanceArray);
@@ -677,7 +679,7 @@ void NamespaceProvider::enumerateInstanceNames(
 
        try
        {
-	   Array<CIMNamespaceName> namespaceNames = 
+	   Array<CIMNamespaceName> namespaceNames =
                _repository->enumerateNameSpaces();
 	   Array<CIMKeyBinding> keyBindings;
 
@@ -702,15 +704,15 @@ void NamespaceProvider::enumerateInstanceNames(
               }
           }
        }
-       catch(CIMException& e)
+       catch(const CIMException&)
        {
-          PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
-       catch(Exception& e)
+       catch(const Exception&)
        {
-          PEG_METHOD_EXIT();
-	  throw e;
+            PEG_METHOD_EXIT();
+            throw;
        }
 
 	handler.deliver(instanceRefs);

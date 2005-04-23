@@ -390,9 +390,9 @@ void CIMClientRep::connectLocal()
             _connectSSLContext.reset(
                 new SSLContext(String::EMPTY, NULL, randFile));
         }
-        catch (SSLException &se)
+        catch (const SSLException &)
         {
-            throw se;
+            throw;
         }
 
         _connect();

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,21 +51,21 @@ inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
 {
     switch (op)
     {
-	case WQL_EQ: 
+	case WQL_EQ:
 	    return x == y;
 
-	case WQL_NE: 
+	case WQL_NE:
 	    return x != y;
 
-	case WQL_LT: 
+	case WQL_LT:
 	    return x < y;
-	case WQL_LE: 
+	case WQL_LE:
 	    return x <= y;
 
-	case WQL_GT: 
+	case WQL_GT:
 	    return x > y;
 
-	case WQL_GE: 
+	case WQL_GE:
 	    return x >= y;
 
 	default:
@@ -74,8 +76,8 @@ inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
 }
 
 static Boolean _Evaluate(
-    const WQLOperand& lhs, 
-    const WQLOperand& rhs, 
+    const WQLOperand& lhs,
+    const WQLOperand& rhs,
     WQLOperation op)
 {
     switch (lhs.getType())
@@ -209,10 +211,10 @@ const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList () const
         //
         return CIMPropertyList ();
     }
-    else 
+    else
     {
         //
-        //  Return CIMPropertyList for properties referenced in the projection 
+        //  Return CIMPropertyList for properties referenced in the projection
         //  list (SELECT clause)
         //
         return CIMPropertyList (_selectPropertyNames);
@@ -222,7 +224,7 @@ const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList () const
 const CIMPropertyList WQLSelectStatementRep::getWherePropertyList () const
 {
     //
-    //  Return CIMPropertyList for properties referenced in the condition 
+    //  Return CIMPropertyList for properties referenced in the condition
     //  (WHERE clause)
     //  The list may be empty, but may not be NULL
     //
@@ -275,7 +277,7 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
     Stack<Boolean> stack;
     stack.reserveCapacity(16);
 
-    // 
+    //
     // Counter for operands:
     //
 
@@ -454,17 +456,17 @@ void WQLSelectStatementRep::applyProjection(CIMInstance& ci) throw (Exception)
    }
 }
 
-void WQLSelectStatementRep::applyProjection(CIMObject& ci) 
+void WQLSelectStatementRep::applyProjection(CIMObject& ci)
 {
    if (_allProperties) return;
- 
+
    for (int i=ci.getPropertyCount(); i!=0; i--) {
       CIMName pn=ci.getProperty(i-1).getName();
       for (int ii=0,mm=_selectPropertyNames.size(); ii<mm; ii++) {
          if (_selectPropertyNames[ii]==pn) break;
          ci.removeProperty(i-1);
          break;
-      }	 
+      }
    }
 }
 
@@ -473,7 +475,7 @@ void WQLSelectStatementRep::print() const
     //
     // Print the header:
     //
-    
+
     cout << "WQLSelectStatement" << endl;
     cout << "{" << endl;
 
@@ -483,7 +485,7 @@ void WQLSelectStatementRep::print() const
 
     cout << "    _className: \"" << _className.getString() << '"' << endl;
 
-    // 
+    //
     // Print the select properties:
     //
 
@@ -540,7 +542,7 @@ Boolean WQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 	WQLInstancePropertySource source(inCI);
 	return evaluateWhereClause(&source);
 }
-                 
+
 void WQLSelectStatementRep::validate() throw (Exception)
 {
 	if(_ctx == NULL){
@@ -552,7 +554,7 @@ void WQLSelectStatementRep::validate() throw (Exception)
 	try
    {
      fromClass = _ctx->getClass(_className);
-		
+
      Array<CIMName> whereProps = getWherePropertyList().getPropertyNameArray();
      Array<CIMName> selectProps = getSelectPropertyList().getPropertyNameArray();
 
@@ -593,7 +595,7 @@ void WQLSelectStatementRep::validate() throw (Exception)
        }
      }
    }
-   catch (CIMException& ce)
+   catch (const CIMException& ce)
    {
      if (ce.getCode() == CIM_ERR_INVALID_CLASS ||
          ce.getCode() == CIM_ERR_NOT_FOUND)
@@ -605,17 +607,17 @@ void WQLSelectStatementRep::validate() throw (Exception)
      }
      else
      {
-       throw ce;
+       throw;
      }
    }
 }
-                   
+
 CIMPropertyList WQLSelectStatementRep::getPropertyList(const CIMObjectPath& inClassName)
 {
 	if(_ctx == NULL){
 		MessageLoaderParms parms("WQL.WQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                                "Trying to process a query with a NULL Query Context.");
-      throw QueryRuntimeException(parms);        
+      throw QueryRuntimeException(parms);
 	}
 
 	if(_allProperties)
@@ -642,7 +644,7 @@ CIMPropertyList WQLSelectStatementRep::getPropertyList(const CIMObjectPath& inCl
 
 	Array<CIMName> names = getWherePropertyList().getPropertyNameArray();
 	Array<CIMName> selectList = getSelectPropertyList().getPropertyNameArray();
-	
+
 	// check for duplicates and remove them
 	for(Uint32 i = 0; i < names.size(); i++){
 		for(Uint32 j = 0; j < selectList.size(); j++){

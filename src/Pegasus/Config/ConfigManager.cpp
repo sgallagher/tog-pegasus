@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -40,6 +40,8 @@
 //      Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //      Dave Rosckes (rosckes@us.ibm.com)
 //      Chip Vincent (cvincent@us.ibm.com)
+//      David Dillard, VERITAS Software Corp.
+//          (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -315,17 +317,17 @@ Boolean ConfigManager::updateCurrentValue(
             }
         }
     }
-    catch (NonDynamicConfigProperty& ndcp)
+    catch (const NonDynamicConfigProperty&)
     {
-        throw ndcp;
+        throw;
     }
-    catch (InvalidPropertyValue& ipv)
+    catch (const InvalidPropertyValue&)
     {
-        throw ipv;
+        throw;
     }
-    catch (UnrecognizedConfigProperty& ucp)
+    catch (const UnrecognizedConfigProperty&)
     {
-        throw ucp;
+        throw;
     }
 
     return true;
@@ -392,17 +394,17 @@ Boolean ConfigManager::updatePlannedValue(
             }
         }
     }
-    catch (NonDynamicConfigProperty& ndcp)
+    catch (const NonDynamicConfigProperty&)
     {
-        throw ndcp;
+        throw;
     }
-    catch (InvalidPropertyValue& ipv)
+    catch (const InvalidPropertyValue&)
     {
-        throw ipv;
+        throw;
     }
-    catch (UnrecognizedConfigProperty& ucp)
+    catch (const UnrecognizedConfigProperty&)
     {
-        throw ucp;
+        throw;
     }
 
     return true;

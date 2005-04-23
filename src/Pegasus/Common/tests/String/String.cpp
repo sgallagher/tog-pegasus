@@ -384,16 +384,17 @@ int main(int argc, char** argv)
     }
 
     {
+        //
         // Test String unicode enablement
+        //
+
         char utf8chr[]    = {
                               '\xCE', '\x99', '\xCE', '\xBF', '\xCF', '\x8D',
                               '\xCE', '\xBD', '\xCE', '\xB9', '\xCE', '\xBA',
                               '\xCE', '\xBF', '\xCE', '\xBD', '\xCF', '\x84',
                               '\0'
                             }; // utf8 string with mutliple byte characters
-        char utf8bad[]    = {
-                              '\xFF','\xFF', '\xFF'
-                            }; // utf8 string with mutliple byte characters
+
         Char16 utf16chr[] = {
                               0x0399,0x03BF,0x03CD,0x03BD,0x03B9,
                               0x03BA,0x03BF,0x03BD,0x03C4,0x00
@@ -428,6 +429,9 @@ int main(int argc, char** argv)
                 UTF8_NEXT(utf8chr,count);
         }
 
+        char utf8bad[]    = {
+                              '\xFF','\xFF', '\xFF'
+                            }; // utf8 string with mutliple byte characters
         count = 0;
         size = sizeof(utf8bad);
         while(count<size)
@@ -435,17 +439,6 @@ int main(int argc, char** argv)
                 assert(isUTF8(&utf8bad[count]) == false);
                 UTF8_NEXT(utf8bad,count);
         }
-        String little("the quick brown fox jumped over the lazy dog");
-        String    big("THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG");
-
-        String tmpBig = big;
-        String tmpLittle = little;
-
-        tmpBig.toLower();
-        assert(tmpBig == little);
-
-        tmpBig.toUpper();
-        assert(tmpBig == big);
 
         Char16 utf16Chars[] =
         {
@@ -468,6 +461,176 @@ int main(int argc, char** argv)
 
         String ugly(utf16Chars);
         assert(ugly == utf16Chars);
+
+        //
+        // Test passing bad utf-8 into String
+        //
+
+        // A utf-8 sequence with a byte zeroed out in a bad spot
+        char utf8bad1[]    = {
+                              '\xCE', '\x99', '\xCE', '\xBF', '\xCF', '\x8D',
+                              '\xCE', '\xBD', '\xCE', '\0', '\xCE', '\xBA',
+                              '\xCE', '\xBF', '\xCE', '\xBD', '\xCF', '\x84',
+                              '\0'
+                            }; // utf8 string with mutliple byte characters     
+
+        // Test String(char *)
+        try
+        {
+          // the first terminator causes invalid utf-8
+          String tmp(utf8bad1);
+          assert(false);
+        }
+        catch (Exception &)
+        {
+          // expect an error
+        }
+
+        // Test String(char *, Uint32)
+        try
+        {
+          // bogus utf-8 char in the middle
+          String tmp(utf8bad1, sizeof(utf8bad1)-1);
+          assert(false);
+        }
+        catch (Exception &)
+        {
+          // expect an error
+        }
+
+        // Test String(char *, Uint32)
+        try
+        {
+          // good, but the last utf-8 char extends past the last byte
+          String tmp(utf8chr, sizeof(utf8chr) - 2);
+          assert(false);
+        }
+        catch (Exception &)
+        {
+          // expect an error
+        }
+
+        // Test String::assign(char *)
+        String assigntest(utf8chr);  // good so far
+        try
+        {
+          // the first terminator causes invalid utf-8
+          assigntest.assign(utf8bad1);  // bad
+          assert(false);
+        }
+        catch (Exception &)
+        {
+          // expect an error
+        }
+
+        // Test String::assign(char *, Uint32)
+        try
+        {
+          // bogus utf-8 char in the middle
+          assigntest.assign(utf8bad1, sizeof(utf8bad1) - 1);  // bad
+          assert(false);
+        }
+        catch (Exception &)
+        {
+          // expect an error
+        }
+
+        // Test String::assign(char *, Uint32)
+        try
+        {
+          // good, but the last utf-8 char extends past the end
+          assigntest.assign(utf8chr, sizeof(utf8chr) - 2);  // bad
+          assert(false);
+        }
+        catch (Exception &)
+        {
+          // expect an error
+        }
+
+        //
+        // Test passing in good utf-8 with an embedded terminator
+        //
+
+        // A utf-8 sequence with a byte zeroed out in an ok spot
+        char utf8good1[]    = {
+                              '\xCE', '\x99', '\xCE', '\xBF', '\xCF', '\x8D',
+                              '\xCE', '\xBD', 'A', '\0', '\xCE', '\xBA',
+                              '\xCE', '\xBF', '\xCE', '\xBD', '\xCF', '\x84',
+                              '\0'
+                            }; // utf8 string with mutliple byte characters     
+
+        // Test String(char *)
+        try
+        {
+          // terminator after 5 chars
+          String tmp(utf8good1);
+          assert (tmp.size() == 5); 
+        }
+        catch (Exception &)
+        {
+          // didn't see that one coming
+          assert(false);
+        }
+
+        // Test String(char *, Uint32)
+        try
+        {
+          // embedded terminator counts as 1 char
+          String tmp(utf8good1, sizeof(utf8good1) - 1);
+          assert (tmp.size() == 10); 
+        }
+        catch (Exception &)
+        {
+          // didn't see that one coming
+          assert(false);
+        }
+
+        assigntest.clear();
+
+        // Test String::assign(char *)
+        try
+        {
+          // terminator after 5 chars
+          assigntest.assign(utf8good1);
+          assert (assigntest.size() == 5); 
+        }
+        catch (Exception &)
+        {
+          // didn't see that one coming
+          assert(false);
+        }
+
+        assigntest.clear();
+
+        // Test String::assign(char *, Uint32)
+        try
+        {
+          // embedded terminator counts as 1 char
+          assigntest.assign(utf8good1, sizeof(utf8good1) - 1);
+          assert (assigntest.size() == 10); 
+        }
+        catch (Exception &)
+        {
+          // didn't see that one coming
+          assert(false);
+        }
+
+
+        //
+        // Casing tests
+        //
+
+        String little("the quick brown fox jumped over the lazy dog");
+        String    big("THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG");
+
+        String tmpBig = big;
+        String tmpLittle = little;
+
+        tmpBig.toLower();
+        assert(tmpBig == little);
+
+        tmpBig.toUpper();
+        assert(tmpBig == big);
     }
 
 #if 0

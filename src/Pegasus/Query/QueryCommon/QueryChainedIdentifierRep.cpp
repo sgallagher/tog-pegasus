@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,7 +32,8 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +56,7 @@ QueryChainedIdentifierRep::QueryChainedIdentifierRep(const QueryChainedIdentifie
 }
 
 QueryChainedIdentifierRep::~QueryChainedIdentifierRep(){
-	
+
 }
 
 const Array<QueryIdentifier>& QueryChainedIdentifierRep::getSubIdentifiers()const
@@ -114,7 +115,7 @@ Uint32 QueryChainedIdentifierRep::size()const{
 
 Boolean QueryChainedIdentifierRep::prepend(const QueryIdentifier & id){
 	/*
-	   Compare id against the first element in _subIdentifiers, 
+	   Compare id against the first element in _subIdentifiers,
 	   if not an exact match, then prepend.  This is used to fully
 	   qualify the chained identifier.
 	*/
@@ -130,7 +131,7 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
   if (_subIdentifiers.size() == 0)
     return;
 
-  // Chained identifiers that are standalone symbolic constants 
+  // Chained identifiers that are standalone symbolic constants
   // should have had the context applied already.  If this method
   // is called and this is still a standalone symbolic constant,
   // then that is an error.
@@ -144,9 +145,9 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
   }
 
   QueryIdentifier firstId = _subIdentifiers[0];
-  
+
   // Process if the first identifier has some contents.
-  if ((firstId.getName().getString().size() != 0) || firstId.isWildcard()) 
+  if ((firstId.getName().getString().size() != 0) || firstId.isWildcard())
   {
     Array<QueryIdentifier> fromList = inContext.getFromList();
 
@@ -155,13 +156,13 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
       // First chain element is wildcarded.
       // Prepend the FROM class.
       _subIdentifiers.prepend(fromList[0]);
-    }  
+    }
     else
     {
       // Not a wildcard.
       if (firstId.isScoped())
       {
-        // The first identifier is a scoped property or a 
+        // The first identifier is a scoped property or a
         // scoped symbolic constant.
         // Prepend the FROM class.
         // Example: SELECT * FROM F WHERE someprop = X::p#'OK'
@@ -193,9 +194,9 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
           // are assumed to be on the FROM class.
           //
           // SELECT * FROM F WHERE F.someprop = ClassNotInFromList.prop#'OK'
-          // We don't want to prepend the FROM class to ClassNotInFromList 
+          // We don't want to prepend the FROM class to ClassNotInFromList
           // in this case. But we need to get the FROM class from the schema
-          // to make sure ClassNotInFromList is not a property on the FROM class. 
+          // to make sure ClassNotInFromList is not a property on the FROM class.
           //
           // SELECT * FROM F WHERE F.someprop = embeddedObjectOnF.X::p#'OK'
           // In this case embeddedObjectOnF is an embedded object property
@@ -214,26 +215,26 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
           //
 
           if (firstId.isSymbolicConstant() ||
-              !getLastIdentifier().isSymbolicConstant()) 
+              !getLastIdentifier().isSymbolicConstant())
           {
             // Must be a property on the FROM class.
-            _subIdentifiers.prepend(fromList[0]);            
+            _subIdentifiers.prepend(fromList[0]);
           }
           else
           {
-            // Get the FROM class. 
+            // Get the FROM class.
             try
             {
               CIMClass fromClass = inContext.getClass(fromList[0].getName());
               if (fromClass.findProperty(firstId.getName()) != PEG_NOT_FOUND)
               {
                 // A property on the FROM class.
-                _subIdentifiers.prepend(fromList[0]);                              
+                _subIdentifiers.prepend(fromList[0]);
               }
             }
-            catch (CIMException& ce)
+            catch (const CIMException& ce)
             {
-              if (ce.getCode() == CIM_ERR_INVALID_CLASS || 
+              if (ce.getCode() == CIM_ERR_INVALID_CLASS ||
                   ce.getCode() == CIM_ERR_NOT_FOUND)
               {
                 throw QueryParseException(
@@ -243,14 +244,14 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
               }
               else
               {
-                throw ce;
+                throw;
               }
             }
-          }  
+          }
         }
         else
-        {	
-          // The firstId was found in the FROM list, but it could have been 
+        {
+          // The firstId was found in the FROM list, but it could have been
           // an alias
           if (!matchedId.getName().equal(firstId.getName()))
           {
@@ -258,7 +259,7 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
             // Replace the alias with the FROM class
             _subIdentifiers[0] = matchedId;
           }
-          else 
+          else
           {
             // It was not an alias. Do nothing.
             ;
@@ -267,7 +268,7 @@ void QueryChainedIdentifierRep::applyContext(QueryContext& inContext)
       }  // else first identifier was not scoped
     }  // else first identifier was not wildcard
   }  // first identifier has some contents
-  
+
   // Go through and replace any aliases on scoping classes
   for (Uint32 i = 0; i < _subIdentifiers.size(); i++)
   {

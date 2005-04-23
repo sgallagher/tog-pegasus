@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -73,7 +73,7 @@ class CloseConnectionMessage : public Message
 {
    public:
 
-      CloseConnectionMessage(Sint32 socket_) 
+      CloseConnectionMessage(Sint32 socket_)
 	 : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
 
       Sint32 socket;
@@ -87,7 +87,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 {
    public:
       typedef MessageQueue Base;
-      
+
       /** Constructor. */
       HTTPConnection(
 	 Monitor* monitor,
@@ -95,24 +95,24 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 	 MessageQueue * ownerMessageQueue,
 	 MessageQueue * outputMessageQueue,
          Boolean exportConnection);
-            
+
 
       /** Destructor. */
       ~HTTPConnection();
 
       /** This method is called whenever a SocketMessage is enqueued
 	  on the input queue of the HTTPConnection object.
-      */ 
+      */
       virtual void handleEnqueue(Message *);
-      
+
       virtual void handleEnqueue();
 
       /** Return socket this connection is using. */
       Sint32 getSocket() { return _socket->getSocket();}
 
       MP_Socket& getMPSocket() { return *_socket;}
-      
-      /** Return the number of outstanding requests for all HTTPConnection 
+
+      /** Return the number of outstanding requests for all HTTPConnection
 	  instances.
       */
       Uint32 getRequestCount();
@@ -127,19 +127,19 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::lock_connection - LOCK ACQUIRED");
       }
-      
+
       void unlock_connection(void)
       {
 	 _connection_mut.unlock();
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::unlock_connection - LOCK RELEASED");
-      } 
-      
+      }
+
       MessageQueue & get_owner(void)
       {
 	 return *_ownerMessageQueue;
       }
-      
+
 			// was the request for chunking ?
 			Boolean isChunkRequested();
 
@@ -165,7 +165,10 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       void _clearIncoming();
 
-      void _getContentLengthAndContentOffset() throw (Exception);
+      /**
+        @exception  Exception   Indicates an error occurred.
+      */
+      void _getContentLengthAndContentOffset();
 
       void _closeConnection();
 
@@ -184,7 +187,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       MessageQueue* _ownerMessageQueue;
       MessageQueue* _outputMessageQueue;
 
-      Sint32 _contentOffset; 
+      Sint32 _contentOffset;
       Sint32 _contentLength;
       Array<char> _incomingBuffer;
       AutoPtr<AuthenticationInfo> _authInfo;
@@ -194,7 +197,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       // requests that have been received on this connection.
       Uint32 _connectionRequestCount;
 
-      // The _responsePending flag has been added to help 
+      // The _responsePending flag has been added to help
       // isolate "client connection" problems. When the
       // HTTPConnection object is created, this flag is
       // initialized to false.  It is set to true when a
@@ -208,14 +211,14 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       // The _connectionClosePending flag will be set to true if
       // the connection receives a close connection socket message.
-      // This flag is used to set the connection status to 
+      // This flag is used to set the connection status to
       // either Monitor::IDLE (_connectionClosePending == false)
-      // or Monitor::DYING (_connectionClosePending == true) when 
+      // or Monitor::DYING (_connectionClosePending == true) when
       // returning control of the connection to the Monitor.
       Boolean _connectionClosePending;
 
       int _entry_index;
-      
+
 			// When used by the client, it is an offset (from start of http message)
 			// representing last NON completely parsed chunk of a transfer encoding.
 			// When used by the server, it is the message index that comes down

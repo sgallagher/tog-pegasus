@@ -52,6 +52,8 @@ extern int CQL_error(const char*);
 #endif
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/MessageLoader.h>
 #include "CQLParserState.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -309,6 +311,18 @@ Z [Zz]
 	 size_t n;
 	 if(CQL_lval.strValue)
 	         delete [] CQL_lval.strValue;
+
+    // chuck
+    if (!isUTF8Str(yytext))
+    {	
+        sprintf(msg_,"LEX: [STRING]-> BAD UTF\n");
+        printf__(msg_);
+        throw CQLSyntaxErrorException(
+                                      MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+                                      String("Bad UTF8 encountered parsing rule $0 in position $1."),
+                                      String("identifier"),
+                                      CQL_globalParserState->currentTokenPos));
+    }
 				
 	 String s(yytext);
 	 Uint32 index = s.find("'");
@@ -482,6 +496,19 @@ Z [Zz]
 
     String _esc_doubleslash = "\\\\";
     String _esc_singlequote = "\\'";
+
+    // chuck
+    if (!isUTF8Str(yytext))
+    {	
+        sprintf(msg_,"LEX: [STRING]-> BAD UTF\n");
+        printf__(msg_);
+        throw CQLSyntaxErrorException(
+                                      MessageLoaderParms(String("CQL.CQL_y.BAD_UTF8"),
+                                      String("Bad UTF8 encountered parsing rule $0 in position $1."),
+                                      String("literal_string"),
+                                      CQL_globalParserState->currentTokenPos));
+    }
+
     String s(yytext);
 
     Uint32 index = 1;

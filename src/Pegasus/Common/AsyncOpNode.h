@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,6 +31,8 @@
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1188
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,34 +105,69 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       Boolean  operator == (const void *key) const;
       Boolean operator == (const AsyncOpNode & node) const;
 
-      void get_timeout_interval(struct timeval *buffer) ;
+      void get_timeout_interval(struct timeval *buffer);
       void set_timeout_interval(const struct timeval *interval);
 
-      Boolean timeout(void)  ;
+      Boolean timeout(void);
 
-      OperationContext & get_context(void) ;
+      OperationContext & get_context(void);
 
-      void put_request(const Message *request) ;
+      void put_request(const Message *request);
       Message *get_request(void) ;
 
-      void put_response(const Message *response) ;
+      void put_response(const Message *response);
       Message *get_response(void) ;
 
-      Uint32 read_state(void) ;
-      void write_state(Uint32) ;
+      Uint32 read_state(void);
+      void write_state(Uint32);
 
       Uint32 read_flags(void);
       void write_flags(Uint32);
 
-      void lock(void)  throw(IPCException);
-      void unlock(void) throw(IPCException);
-      void udpate(void) throw(IPCException);
-      void deliver(const Uint32 count) throw(IPCException);
-      void reserve(const Uint32 size) throw(IPCException);
-      void processing(void) throw(IPCException) ;
-      void processing(OperationContext *context) throw(IPCException);
-      void complete(void) throw(IPCException) ;
-      void complete(OperationContext *context) throw(IPCException);
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void lock(void);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void unlock(void);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void udpate(void);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void deliver(const Uint32 count);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void reserve(const Uint32 size);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void processing(void);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void processing(OperationContext *context);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void complete(void);
+
+      /**
+        @exception  IPCException    Indicates an IPC error occurred.
+      */
+      void complete(OperationContext *context);
       void release(void);
       void wait(void);
 
@@ -172,8 +209,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       void _adopt_child(AsyncOpNode *child) ;
       void _disown_child(AsyncOpNode *child) ;
       void (*_async_callback)(AsyncOpNode *,
-			      MessageQueue *,
-			      void *);
+                  MessageQueue *,
+                  void *);
       void (*__async_callback)(Message *, void *, void *);
       // << Tue Mar 12 14:44:51 2002 mdd >>
       // pointers for async callbacks  - don't use
@@ -196,7 +233,7 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       friend class BinaryMessageHandler;
  public:
       // << Tue Jun  4 16:44:09 2002 mdd >>
-      // debug artifact 
+      // debug artifact
       Uint32 _source_queue;
       // << Fri Jul 19 08:41:45 2002 mdd >>
       // debugging utility
@@ -227,7 +264,6 @@ inline void AsyncOpNode::get_timeout_interval(struct timeval *buffer)
       buffer->tv_sec = _timeout_interval.tv_sec;
       buffer->tv_usec = _timeout_interval.tv_usec;
    } // mutex unlocks here
-   return;
 }
 
 inline void AsyncOpNode::set_timeout_interval(const struct timeval *interval)
@@ -247,12 +283,12 @@ inline Boolean AsyncOpNode::timeout(void)
    struct timeval now;
    gettimeofday(&now, NULL);
    Boolean ret = false;
-   
+
    AutoMutex autoMut(_mut);
    if((_updated.tv_sec + _timeout_interval.tv_sec ) < now.tv_sec)
        if((_updated.tv_usec + _timeout_interval.tv_usec ) < now.tv_usec)
     ret =  true;
-   
+
    return ret;
 }
 
@@ -272,7 +308,6 @@ inline  void AsyncOpNode::put_request(const Message *request)
    _request.insert_last( const_cast<Message *>(request) ) ;
 
 //   _request = const_cast<Message *>(request);
-
 }
 
 inline Message * AsyncOpNode::get_request(void)
@@ -302,17 +337,15 @@ inline Message * AsyncOpNode::get_response(void)
    ret = _response.remove_first();
 //   ret = _response;
 
-
    return ret;
 }
 
 inline Uint32 AsyncOpNode::read_state(void)
 {
-
    AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    Uint32 ret = _state;
-  
+
    return ret;
 
 }
@@ -329,7 +362,7 @@ inline Uint32 AsyncOpNode::read_flags(void)
    AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
    Uint32 ret = _flags;
-  
+
    return ret;
 }
 
@@ -342,61 +375,46 @@ inline void AsyncOpNode::write_flags(Uint32 flags)
 
 
 inline  void AsyncOpNode::lock(void)
-   throw(IPCException)
 {
    _mut.lock(pegasus_thread_self());
 }
 
 inline void AsyncOpNode::unlock(void)
-   throw(IPCException)
 {
    _mut.unlock();
 }
 
 inline void AsyncOpNode::udpate(void)
-   throw(IPCException)
 {
    AutoMutex autoMut(_mut);
    gettimeofday(&_updated, NULL);
-
-   return;
 }
 
 inline void AsyncOpNode::deliver(const Uint32 count)
-   throw(IPCException)
 {
    AutoMutex autoMut(_mut);
    _completed_ops = count;
    _state |= ASYNC_OPSTATE_DELIVER;
    gettimeofday(&_updated, NULL);
-
-   return;
 }
 
 inline void AsyncOpNode::reserve(const Uint32 size)
-   throw(IPCException)
 {
    AutoMutex autoMut(_mut);
    _total_ops = size;
    _state |= ASYNC_OPSTATE_RESERVE;
    gettimeofday(&_updated, NULL);
-
-   return;
 }
 
 inline void AsyncOpNode::processing(void)
-   throw(IPCException)
 {
    AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_PROCESSING;
    gettimeofday(&_updated, NULL);
-
-   return;
 }
 
 // con will be empty upon return of this member function
 inline void AsyncOpNode::processing(OperationContext *con)
-   throw(IPCException)
 {
    AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_PROCESSING;
@@ -410,23 +428,16 @@ inline void AsyncOpNode::processing(OperationContext *con)
       c = con->remove_context();
    }
    */
-
-   return;
 }
 
 inline void AsyncOpNode::complete(void)
-   throw(IPCException)
 {
    AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
-   
-
-   return;
 }
 
 inline void AsyncOpNode::complete(OperationContext *con)
-   throw(IPCException)
 {
    AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_COMPLETE;
@@ -439,7 +450,6 @@ inline void AsyncOpNode::complete(OperationContext *con)
       c = con->remove_context();
    }
    */
-
 }
 
 inline void AsyncOpNode::wait(void)
@@ -451,7 +461,6 @@ inline void AsyncOpNode::release(void)
 {
    AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_RELEASED;
-
 }
 
 inline  void AsyncOpNode::_set_lifetime(struct timeval *lifetime)
@@ -469,7 +478,7 @@ inline Boolean AsyncOpNode::_check_lifetime(void)
    gettimeofday(&now, NULL);
    if((_start.tv_sec + _lifetime.tv_sec ) >= now.tv_sec)
       if((_start.tv_usec + _lifetime.tv_usec ) >= now.tv_usec)
-	 return true;
+            return true;
    return false;
 }
 

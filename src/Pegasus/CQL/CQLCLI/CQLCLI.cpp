@@ -1023,7 +1023,14 @@ int main(int argc, char ** argv)
           } // end-try
           catch(Exception& e){
             cout << "Caught Exception: " << getStatementString(e.getMessage())  << endl;
-            cout << "Statement with error = " << getStatementString(String(text)) << endl;
+            try
+            {
+              cout << "Statement with error = " << getStatementString(String(text)) << endl;
+            }
+            catch(Exception & e1)
+            {
+              cout << "Error printing statement: " << getStatementString(e1.getMessage()) << endl;
+            }
             _ss.clear();
             statementsInError++;
           } // end-catch

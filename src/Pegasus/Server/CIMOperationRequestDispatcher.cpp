@@ -47,6 +47,8 @@
 //      Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP#140/phase2
 //      Heather Sterling, IBM (hsterl@us.ibm.com), PEP#187
 //      Amit K Arora, IBM (amita@in.ibm.com), for PEP#193
+//      David Dillard, VERITAS Software Corp.
+//          (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1540,11 +1542,11 @@ String CIMOperationRequestDispatcher::_lookupMethodProvider(
             assocClass,
             role);
     }
-    catch(CIMException& exception)
+    catch(const CIMException& exception)
     {
         cimException = exception;
     }
-    catch(Exception& exception)
+    catch(const Exception& exception)
     {
         cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5672,10 +5674,10 @@ void CIMOperationRequestDispatcher::handleExecQueryRequest(
    exception=true;
 #else
    if (QuerySupportRouter::routeHandleExecQueryRequest(this,request)==false) {
-      try { 
+      try {
          SubscriptionFilterConditionContainer sub_cntr = request->operationContext.get(SubscriptionFilterConditionContainer::NAME);
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, sub_cntr.getQueryLanguage());
-      } catch (Exception) 
+      } catch (Exception)
       {
          cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_QUERY_LANGUAGE_NOT_SUPPORTED, request->queryLanguage);
       }

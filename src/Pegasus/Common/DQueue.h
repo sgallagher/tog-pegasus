@@ -63,32 +63,107 @@ private:
 
 public:
     typedef internal_dq Base;
-    DQueue(void);
+    DQueue();
     DQueue(Boolean head);
 
     virtual ~DQueue();
 
-    void lock(void) throw(IPCException);
-    void unlock(void) throw(IPCException);
-    void try_lock() throw(IPCException);
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void lock();
 
-    void insert_first_no_lock(L *element) throw(IPCException);
-    void insert_first(L *element) throw(IPCException);
-    void insert_last_no_lock(L *element) throw(IPCException);
-    void insert_last(L *element) throw(IPCException);
-    void empty_list( void ) throw(IPCException);
-    L *remove_first ( void ) throw(IPCException);
-    L *remove_last ( void ) throw(IPCException);
-    L *remove_no_lock(const void *key) throw(IPCException);
-    L *remove_no_lock(const L *key) throw(IPCException);
-    L *remove(const void *key) throw(IPCException);
-    L *remove(const L *key) throw(IPCException);
-    L *reference(const void *key) throw(IPCException);
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void unlock();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void try_lock();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_first_no_lock(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_first(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_last_no_lock(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_last(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void empty_list();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_first();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_last();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_no_lock(const void *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_no_lock(const L *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove(const void *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove(const L *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *reference(const void *key);
+
     L *reference(const L *key);
-    L *next( const void * ref) throw(IPCException);
-    L *prev( const void *ref) throw(IPCException);
-    Boolean exists(const void *key) throw(IPCException);
-    Boolean exists(const L *key) throw(IPCException);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *next(const void * ref);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *prev(const void *ref);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    Boolean exists(const void *key);
+
+     /**
+        @exception  IPCException    Indicates an IPC error occurred.
+     */
+    Boolean exists(const L *key);
 
     Uint32 count(void) { return _actual_count->value() ; }
     Uint32 size(void) { return _actual_count->value() ; }
@@ -114,55 +189,177 @@ private: // asyncdqueue
 
     static AsyncDQueue *_headOfFreeList;
     static const int BLOCK_SIZE;
-     static Mutex _alloc_mut;
+    static Mutex _alloc_mut;
 
-    void _insert_prep(void) throw(IPCException);
-    void _insert_recover(void) throw(IPCException);
-    void _unlink_prep(void) throw(IPCException);
-    void _unlink_recover(void) throw(IPCException);
-    L *_remove_no_lock(const void *key) throw(IPCException);
-    L *_remove_no_lock(const L *key) throw(IPCException);
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void _insert_prep();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void _insert_recover();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void _unlink_prep();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void _unlink_recover();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *_remove_no_lock(const void *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *_remove_no_lock(const L *key);
 
 public:
     typedef internal_dq Base;
 
-    AsyncDQueue(void) ;
-    AsyncDQueue(Boolean head, Uint32 capacity );
-    virtual ~AsyncDQueue(void);
-    void shutdown_queue(void);
-    Boolean is_full(void);
-    Boolean is_empty(void);
-    Boolean is_shutdown(void);
-    void try_lock(PEGASUS_THREAD_TYPE myself) throw(IPCException);
-    void lock(PEGASUS_THREAD_TYPE myself) throw(IPCException);
+    AsyncDQueue() ;
+    AsyncDQueue(Boolean head, Uint32 capacity);
+    virtual ~AsyncDQueue();
+    void shutdown_queue();
+    Boolean is_full();
+    Boolean is_empty();
+    Boolean is_shutdown();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void try_lock(PEGASUS_THREAD_TYPE myself);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void lock(PEGASUS_THREAD_TYPE myself);
+
     void unlock(void);
-    void signal_slot(void) throw(IPCException);
-    void signal_node(void) throw(IPCException);
-    Condition *get_node_cond(void);
-    Condition *get_slot_cond(void);
-    void wait_for_node(void) throw(IPCException);
-    void set_capacity(Uint32 capacity) throw(IPCException);
-    Uint32 get_capacity(void);
-    void insert_first(L *element) throw(IPCException);
-    void insert_first_wait(L *element) throw(IPCException);
-    void insert_last(L *element) throw(IPCException);
-    void insert_last_wait(L *element) throw(IPCException);
-    void empty_list(void) throw(IPCException);
-    L *remove_first(void) throw(IPCException);
-    L *remove_first_wait(void) throw(IPCException);
-    L *remove_last(void) throw(IPCException);
-    L *remove_last_wait(void) throw(IPCException);
-    L *remove(const void *key) throw(IPCException);
-    L *remove(const L *key) throw(IPCException);
-    L *remove_no_lock(const void *key) throw(IPCException);
-    L *remove_no_lock(const L *key) throw(IPCException);
-    L *remove_wait(const void *key) throw(IPCException);
-    L *next(const L *ref) throw(IPCException);
-    L *prev(const L *ref) throw(IPCException);
-    L *reference(const void *key) throw(IPCException);
-    L *reference(const L *key) throw(IPCException);
-    Uint32 count(void) ;
-    Uint32 size(void) ;
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void signal_slot(void);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void signal_node();
+
+    Condition *get_node_cond();
+    Condition *get_slot_cond();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void wait_for_node();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void set_capacity(Uint32 capacity);
+
+    Uint32 get_capacity();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_first(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_first_wait(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_last(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void insert_last_wait(L *element);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    void empty_list();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_first();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_first_wait();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_last();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_last_wait();
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove(const void *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove(const L *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_no_lock(const void *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_no_lock(const L *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *remove_wait(const void *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *next(const L *ref);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *prev(const L *ref);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *reference(const void *key);
+
+    /**
+        @exception  IPCException    Indicates an IPC error occurred.
+    */
+    L *reference(const L *key);
+    Uint32 count();
+    Uint32 size();
 };
 
 template<class L> DQueue<L> * DQueue<L>::_headOfFreeList = 0;
@@ -256,7 +453,7 @@ template<class L> void AsyncDQueue<L>::operator delete(void *deadObject, size_t 
     _headOfFreeList = p;
 }
 
-template<class L> DQueue<L>::DQueue(void)
+template<class L> DQueue<L>::DQueue()
     : Base(false)
 {
 
@@ -279,22 +476,22 @@ template<class L> DQueue<L>::~DQueue()
 }
 
 
-template<class L> void DQueue<L>::lock(void) throw(IPCException)
+template<class L> void DQueue<L>::lock()
 {
     _mutex->lock(pegasus_thread_self());
 }
 
-template<class L> void DQueue<L>::unlock(void) throw(IPCException)
+template<class L> void DQueue<L>::unlock()
 {
     _mutex->unlock();
 }
 
-template<class L> void DQueue<L>::try_lock() throw(IPCException)
+template<class L> void DQueue<L>::try_lock()
 {
     _mutex->try_lock(pegasus_thread_self());
 }
 
-template<class L> void DQueue<L>::insert_first_no_lock(L *element) throw(IPCException)
+template<class L> void DQueue<L>::insert_first_no_lock(L *element)
 {
     if( pegasus_thread_self() != _mutex->get_owner())
         throw Permission(pegasus_thread_self());
@@ -302,7 +499,7 @@ template<class L> void DQueue<L>::insert_first_no_lock(L *element) throw(IPCExce
     (*_actual_count.get())++;
 }
 
-template<class L> void DQueue<L>::insert_first(L *element) throw(IPCException)
+template<class L> void DQueue<L>::insert_first(L *element)
 {
     if(element == 0)
         return;
@@ -311,7 +508,7 @@ template<class L> void DQueue<L>::insert_first(L *element) throw(IPCException)
     (*_actual_count.get())++;
 }
 
-template<class L> void DQueue<L>::insert_last_no_lock(L *element) throw(IPCException)
+template<class L> void DQueue<L>::insert_last_no_lock(L *element)
 {
     if( pegasus_thread_self() != _mutex->get_owner())
         throw Permission(pegasus_thread_self());
@@ -320,7 +517,7 @@ template<class L> void DQueue<L>::insert_last_no_lock(L *element) throw(IPCExcep
 }
 
 
-template<class L> void DQueue<L>::insert_last(L *element) throw(IPCException)
+template<class L> void DQueue<L>::insert_last(L *element)
 {
     if(element == 0)
         return;
@@ -330,7 +527,7 @@ template<class L> void DQueue<L>::insert_last(L *element) throw(IPCException)
 }
 
 
-template<class L> void DQueue<L>::empty_list( void ) throw(IPCException)
+template<class L> void DQueue<L>::empty_list()
 {
     if( Base::count() > 0)
     {
@@ -341,7 +538,7 @@ template<class L> void DQueue<L>::empty_list( void ) throw(IPCException)
 }
 
 
-template<class L> L * DQueue<L>::remove_first ( void ) throw(IPCException)
+template<class L> L * DQueue<L>::remove_first()
 {
     L *ret = 0;
 
@@ -356,7 +553,7 @@ template<class L> L * DQueue<L>::remove_first ( void ) throw(IPCException)
     return ret;
 }
 
-template<class L> L *DQueue<L>::remove_last ( void ) throw(IPCException)
+template<class L> L *DQueue<L>::remove_last()
 {
     L * ret = 0;
     if( _actual_count->value() )
@@ -370,7 +567,7 @@ template<class L> L *DQueue<L>::remove_last ( void ) throw(IPCException)
     return ret;
 }
 
-template<class L> L *DQueue<L>::remove_no_lock(const void *key) throw(IPCException)
+template<class L> L *DQueue<L>::remove_no_lock(const void *key)
 {
     if(key == 0 )
         return 0;
@@ -397,7 +594,7 @@ template<class L> L *DQueue<L>::remove_no_lock(const void *key) throw(IPCExcepti
     return 0 ;
 }
 
-template<class L> L * DQueue<L>::remove_no_lock(const L *key) throw(IPCException)
+template<class L> L * DQueue<L>::remove_no_lock(const L *key)
 {
     if(key == 0 )
         return 0;
@@ -425,7 +622,7 @@ template<class L> L * DQueue<L>::remove_no_lock(const L *key) throw(IPCException
 }
 
 
-template<class L> L * DQueue<L>::remove(const void *key) throw(IPCException)
+template<class L> L * DQueue<L>::remove(const void *key)
 {
     L *ret = 0;
 
@@ -438,7 +635,7 @@ template<class L> L * DQueue<L>::remove(const void *key) throw(IPCException)
     return(ret);
 }
 
-template<class L>L *DQueue<L>::remove(const L *key) throw(IPCException)
+template<class L>L *DQueue<L>::remove(const L *key)
 {
     L *ret = 0;
 
@@ -473,7 +670,7 @@ template<class L> L *DQueue<L>::reference(const L *key)
     return(0);
 }
 
-template<class L> L *DQueue<L>::reference(const void *key) throw(IPCException)
+template<class L> L *DQueue<L>::reference(const void *key)
 {
     if(key == 0)
         return 0;
@@ -495,7 +692,7 @@ template<class L> L *DQueue<L>::reference(const void *key) throw(IPCException)
     return(0);
 }
 
-template<class L> L * DQueue<L>::next( const void * ref) throw(IPCException)
+template<class L> L * DQueue<L>::next( const void * ref)
 {
     if (_mutex->get_owner() != pegasus_thread_self())
         throw Permission(pegasus_thread_self()) ;
@@ -503,7 +700,7 @@ template<class L> L * DQueue<L>::next( const void * ref) throw(IPCException)
     return static_cast<L *>(Base::next(ref));
 }
 
-template<class L> L *DQueue<L>::prev( const void *ref) throw(IPCException)
+template<class L> L *DQueue<L>::prev( const void *ref)
 {
     if (_mutex->get_owner() != pegasus_thread_self())
         throw Permission(pegasus_thread_self());
@@ -511,7 +708,7 @@ template<class L> L *DQueue<L>::prev( const void *ref) throw(IPCException)
     return  static_cast<L *>(Base::prev(ref));
 }
 
-template<class L> Boolean DQueue<L>::exists(const void *key) throw(IPCException)
+template<class L> Boolean DQueue<L>::exists(const void *key)
 {
     if(key == 0)
         return false;
@@ -526,7 +723,7 @@ template<class L> Boolean DQueue<L>::exists(const void *key) throw(IPCException)
     return(ret);
 }
 
-template<class L> Boolean DQueue<L>::exists(const L *key) throw(IPCException)
+template<class L> Boolean DQueue<L>::exists(const L *key)
 {
     if(key == 0)
         return false;
@@ -541,7 +738,7 @@ template<class L> Boolean DQueue<L>::exists(const L *key) throw(IPCException)
     return(ret);
 }
 
-template<class L> void AsyncDQueue<L>::_insert_prep(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::_insert_prep()
 {
     if(_disallow->value() > 0)
     {
@@ -561,14 +758,14 @@ template<class L> void AsyncDQueue<L>::_insert_prep(void) throw(IPCException)
     }
 }
 
-template<class L> void AsyncDQueue<L>::_insert_recover(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::_insert_recover()
 {
     _node->unlocked_signal(pegasus_thread_self());
     (*_actual_count.get())++;
     unlock();
 }
 
-template<class L> void AsyncDQueue<L>::_unlink_prep(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::_unlink_prep()
 {
     if(_disallow->value() > 0)
     {
@@ -587,14 +784,14 @@ template<class L> void AsyncDQueue<L>::_unlink_prep(void) throw(IPCException)
     }
 }
 
-template<class L> void AsyncDQueue<L>::_unlink_recover(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::_unlink_recover()
 {
     _slot->unlocked_signal(pegasus_thread_self());
     (*_actual_count.get())--;
     unlock();
 }
 
-template<class L> L * AsyncDQueue<L>::_remove_no_lock(const void *key) throw(IPCException)
+template<class L> L * AsyncDQueue<L>::_remove_no_lock(const void *key)
 {
     if(_disallow->value() > 0)
     {
@@ -617,7 +814,7 @@ template<class L> L * AsyncDQueue<L>::_remove_no_lock(const void *key) throw(IPC
     return 0;
 }
 
-template<class L> L *AsyncDQueue<L>::_remove_no_lock(const L *key) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::_remove_no_lock(const L *key)
 {
     if(_disallow->value() > 0)
     {
@@ -641,14 +838,14 @@ template<class L> L *AsyncDQueue<L>::_remove_no_lock(const L *key) throw(IPCExce
 }
 
 
-template<class L> AsyncDQueue<L>::AsyncDQueue(void)
+template<class L> AsyncDQueue<L>::AsyncDQueue()
     : Base(false)
 {
 
 }
 
-template<class L> AsyncDQueue<L>::AsyncDQueue(Boolean head, Uint32 capacity )
-   : Base(head)
+template<class L> AsyncDQueue<L>::AsyncDQueue(Boolean head, Uint32 capacity)
+    : Base(head)
 {
     if(head == true)
     {
@@ -661,13 +858,13 @@ template<class L> AsyncDQueue<L>::AsyncDQueue(Boolean head, Uint32 capacity )
     }
 }
 
-template<class L> AsyncDQueue<L>::~AsyncDQueue(void)
+template<class L> AsyncDQueue<L>::~AsyncDQueue()
 {
 
 }
 
 
-template<class L> void AsyncDQueue<L>::shutdown_queue(void)
+template<class L> void AsyncDQueue<L>::shutdown_queue()
 {
     try
     {
@@ -687,7 +884,7 @@ template<class L> void AsyncDQueue<L>::shutdown_queue(void)
     }
 }
 
-template<class L> Boolean AsyncDQueue<L>::is_full(void)
+template<class L> Boolean AsyncDQueue<L>::is_full()
 {
     return false;
 
@@ -700,7 +897,7 @@ template<class L> Boolean AsyncDQueue<L>::is_full(void)
     return false;
 }
 
-template<class L> Boolean AsyncDQueue<L>::is_empty(void)
+template<class L> Boolean AsyncDQueue<L>::is_empty()
 {
     if(_actual_count->value() == 0)
        return true;
@@ -708,14 +905,14 @@ template<class L> Boolean AsyncDQueue<L>::is_empty(void)
 }
 
 
-template<class L> Boolean AsyncDQueue<L>::is_shutdown(void)
+template<class L> Boolean AsyncDQueue<L>::is_shutdown()
 {
     if( _disallow->value() > 0)
         return true;
      return false;
 }
 
-template<class L> void AsyncDQueue<L>::try_lock(PEGASUS_THREAD_TYPE myself) throw(IPCException)
+template<class L> void AsyncDQueue<L>::try_lock(PEGASUS_THREAD_TYPE myself)
 {
     if(_disallow->value() > 0)
     {
@@ -725,7 +922,7 @@ template<class L> void AsyncDQueue<L>::try_lock(PEGASUS_THREAD_TYPE myself) thro
     _cond->try_lock(myself);
 }
 
-template<class L> void AsyncDQueue<L>::lock(PEGASUS_THREAD_TYPE myself) throw(IPCException)
+template<class L> void AsyncDQueue<L>::lock(PEGASUS_THREAD_TYPE myself)
 {
     if(_disallow->value() > 0)
     {
@@ -734,99 +931,101 @@ template<class L> void AsyncDQueue<L>::lock(PEGASUS_THREAD_TYPE myself) throw(IP
     _cond->lock(myself);
 }
 
-template<class L> void AsyncDQueue<L>::unlock(void)
+template<class L> void AsyncDQueue<L>::unlock()
 {
     _cond->unlock();
 }
 
-template<class L> void AsyncDQueue<L>::signal_slot(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::signal_slot()
 {
     AutoMutex autoMut(*_cond.get());
     _slot->unlocked_signal(pegasus_thread_self());
 }
 
-template<class L> void AsyncDQueue<L>::signal_node(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::signal_node()
 {
     AutoMutex autoMut(*_cond.get());
     _node->unlocked_signal(pegasus_thread_self());
 }
 
-template<class L> Condition *AsyncDQueue<L>::get_node_cond(void)
+template<class L> Condition *AsyncDQueue<L>::get_node_cond()
 {
     return _node.get() ;
 }
 
-template<class L> Condition * AsyncDQueue<L>::get_slot_cond(void)
+template<class L> Condition * AsyncDQueue<L>::get_slot_cond()
 {
     return _slot.get();
 }
 
-template<class L> void AsyncDQueue<L>::wait_for_node(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::wait_for_node()
 {
     _unlink_prep();
 }
 
-template<class L> void AsyncDQueue<L>::set_capacity(Uint32 capacity) throw(IPCException)
+template<class L> void AsyncDQueue<L>::set_capacity(Uint32 capacity)
 {
     lock(pegasus_thread_self());
     *_capacity.get() = capacity;
     unlock();
 }
 
-template<class L> Uint32 AsyncDQueue<L>::get_capacity(void)
+template<class L> Uint32 AsyncDQueue<L>::get_capacity()
 {
     return _capacity->value();
 }
 
-template<class L> void AsyncDQueue<L>::insert_first(L *element) throw(IPCException)
+template<class L> void AsyncDQueue<L>::insert_first(L *element)
 {
-    if(element == 0)
-        return;
-
-    lock(pegasus_thread_self());
-    if(true == is_full())
+    if(element != 0)
     {
-        unlock();
-        throw ListFull(_capacity->value());
+        lock(pegasus_thread_self());
+        if(true == is_full())
+        {
+            unlock();
+            throw ListFull(_capacity->value());
+        }
+        Base::insert_first(static_cast<void *>(element));
+        _insert_recover();
     }
-    Base::insert_first(static_cast<void *>(element));
-    _insert_recover();
 }
 
-template<class L> void AsyncDQueue<L>::insert_first_wait(L *element) throw(IPCException)
+template<class L> void AsyncDQueue<L>::insert_first_wait(L *element)
 {
-    if(element == 0)
-       return;
-
-    _insert_prep();
-    Base::insert_first(static_cast<void *>(element));
-    _insert_recover();
-}
-
-template<class L> void AsyncDQueue<L>::insert_last(L *element) throw(IPCException)
-{
-    if(element == 0)
-       return;
-    lock(pegasus_thread_self());
-    if(true == is_full())
+    if(element != 0)
     {
-        unlock();
-        throw ListFull(_capacity->value());
+        _insert_prep();
+        Base::insert_first(static_cast<void *>(element));
+        _insert_recover();
     }
-    Base::insert_last(static_cast<void *>(element));
-    _insert_recover();
 }
 
-template<class L> void AsyncDQueue<L>::insert_last_wait(L *element) throw(IPCException)
+template<class L> void AsyncDQueue<L>::insert_last(L *element)
+{
+    if(element != 0)
+    {
+        lock(pegasus_thread_self());
+        if(true == is_full())
+        {
+            unlock();
+            throw ListFull(_capacity->value());
+        }
+        Base::insert_last(static_cast<void *>(element));
+        _insert_recover();
+    }
+}
+
+template<class L> void AsyncDQueue<L>::insert_last_wait(L *element)
 {
     if(element == 0)
-        return;
-    _insert_prep();
-    Base::insert_last(element);
-    _insert_recover();
+    {
+        _insert_prep();
+        Base::insert_last(element);
+        _insert_recover();
+    }
 }
 
-template<class L> void AsyncDQueue<L>::empty_list(void) throw(IPCException)
+template<class L> void AsyncDQueue<L>::empty_list()
 {
     lock(pegasus_thread_self());
     Base::empty_list();
@@ -835,7 +1034,7 @@ template<class L> void AsyncDQueue<L>::empty_list(void) throw(IPCException)
     unlock();
 }
 
-template<class L> L *AsyncDQueue<L>::remove_first(void) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove_first()
 {
 
     lock(pegasus_thread_self());
@@ -849,7 +1048,7 @@ template<class L> L *AsyncDQueue<L>::remove_first(void) throw(IPCException)
     return ret;
 }
 
-template<class L> L *AsyncDQueue<L>::remove_first_wait(void) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove_first_wait()
 {
     _unlink_prep();
     L *ret = static_cast<L *>(Base::remove_first());
@@ -857,7 +1056,7 @@ template<class L> L *AsyncDQueue<L>::remove_first_wait(void) throw(IPCException)
     return ret;
 }
 
-template<class L> L *AsyncDQueue<L>::remove_last(void) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove_last()
 {
     lock(pegasus_thread_self());
 
@@ -871,7 +1070,7 @@ template<class L> L *AsyncDQueue<L>::remove_last(void) throw(IPCException)
     return ret;
 }
 
-template<class L> L *AsyncDQueue<L>::remove_last_wait(void) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove_last_wait()
 {
     _unlink_prep();
     L *ret = static_cast<L *>(Base::remove_last());
@@ -879,7 +1078,7 @@ template<class L> L *AsyncDQueue<L>::remove_last_wait(void) throw(IPCException)
     return ret;
 }
 
-template<class L> L *AsyncDQueue<L>::remove(const void *key) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove(const void *key)
 {
     if(key == 0)
         return 0;
@@ -895,7 +1094,7 @@ template<class L> L *AsyncDQueue<L>::remove(const void *key) throw(IPCException)
     return ret;
 }
 
-template<class L>L *AsyncDQueue<L>::remove(const L *key) throw(IPCException)
+template<class L>L *AsyncDQueue<L>::remove(const L *key)
 {
     if(key == 0)
         return 0;
@@ -911,7 +1110,7 @@ template<class L>L *AsyncDQueue<L>::remove(const L *key) throw(IPCException)
     return ret;
 }
 
-template<class L> L *AsyncDQueue<L>::remove_no_lock(const void *key) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove_no_lock(const void *key)
 {
     if(_disallow->value() > 0)
     {
@@ -938,7 +1137,7 @@ template<class L> L *AsyncDQueue<L>::remove_no_lock(const void *key) throw(IPCEx
 }
 
 
-template<class L> L *AsyncDQueue<L>::remove_no_lock(const L *key) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove_no_lock(const L *key)
 {
     if(_disallow->value() > 0)
     {
@@ -964,7 +1163,7 @@ template<class L> L *AsyncDQueue<L>::remove_no_lock(const L *key) throw(IPCExcep
     return ret;
 }
 
-template<class L> L *AsyncDQueue<L>::remove_wait(const void *key) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::remove_wait(const void *key)
 {
 
     if(key == 0)
@@ -997,7 +1196,7 @@ template<class L> L *AsyncDQueue<L>::remove_wait(const void *key) throw(IPCExcep
     return ret;
 }
 
-template<class L> L *AsyncDQueue<L>::next(const L *ref) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::next(const L *ref)
 {
    if( pegasus_thread_self() != _cond->get_owner())
         throw Permission(pegasus_thread_self());
@@ -1005,7 +1204,7 @@ template<class L> L *AsyncDQueue<L>::next(const L *ref) throw(IPCException)
     return static_cast<L *>(Base::next( reinterpret_cast<const void *>(ref)));
 }
 
-template<class L> L *AsyncDQueue<L>::prev(const L *ref) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::prev(const L *ref)
 {
     if( pegasus_thread_self() != _cond->get_owner())
         throw Permission(pegasus_thread_self());
@@ -1013,7 +1212,7 @@ template<class L> L *AsyncDQueue<L>::prev(const L *ref) throw(IPCException)
     return static_cast<L *>(Base::prev( reinterpret_cast<const void *>(ref)));
 }
 
-template<class L> L *AsyncDQueue<L>::reference(const void *key) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::reference(const void *key)
 {
     if(_disallow->value() > 0)
     {
@@ -1041,7 +1240,7 @@ template<class L> L *AsyncDQueue<L>::reference(const void *key) throw(IPCExcepti
     return(0);
 }
 
-template<class L> L *AsyncDQueue<L>::reference(const L *key) throw(IPCException)
+template<class L> L *AsyncDQueue<L>::reference(const L *key)
 {
     if(_disallow->value() > 0)
     {
@@ -1069,12 +1268,12 @@ template<class L> L *AsyncDQueue<L>::reference(const L *key) throw(IPCException)
     return(0);
 }
 
-template<class L> Uint32 AsyncDQueue<L>::count(void)
+template<class L> Uint32 AsyncDQueue<L>::count()
 {
     return _actual_count->value();
 }
 
-template<class L> Uint32 AsyncDQueue<L>::size(void)
+template<class L> Uint32 AsyncDQueue<L>::size()
 {
     return _actual_count->value();
 }

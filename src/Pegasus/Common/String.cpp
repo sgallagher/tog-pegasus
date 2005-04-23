@@ -133,6 +133,72 @@ inline Uint32 _StrLen(const Char16* str)
     return n;
 }
 
+//
+// Converts a utf-8 char buffer to utf-16 and appends the utf-16 to the Array.
+// n is the length of the input char *, if stopAtTerm is 0
+// A terminator character is appended to the end.
+// Note that each input char is converted individually, which gives
+// the fastest performance.
+//
+void _convertAndAppend(const char* str, Array<Char16>& c16a, Uint32 n, Uint8 stopAtTerm)
+{
+    Uint32 i = 0;
+    while ((stopAtTerm && *str) || (!stopAtTerm && i < n))
+    {
+        if (*(Uint8*)str <= 0x7f)
+        { 
+            // Current byte sequence is in the us-ascii range.
+            c16a.append(Uint8(*str++));
+        }
+        else
+        {
+            //
+            // Current byte sequence is not in the us-ascii range.
+            //
+
+            // Check if the byte sequence is valid utf-8, and if so,
+            // call the converter to utf-16
+            Uint16 tgt[3];
+            tgt[1] = 0;
+            Uint8 c = UTF_8_COUNT_TRAIL_BYTES(*str);
+            if ( (!stopAtTerm && i + c >= n) ||
+                 (!isValid_U8((const Uint8 *)str, c+1)) )
+            {
+                // Note about error conditions.
+                // It is possible that the last utf-8 char before the 
+                // end of input string extends past the end of the input string.
+                // This is caught in both cases -
+                // If counting up to n, then the test above catches it.
+                // If converting until terminator found, then a terminator
+                // in the middle of a multi-byte utf-8 char is invalid.
+                MessageLoaderParms parms("Common.String.BAD_UTF8",
+                  "The byte sequence starting at index $0 is not valid UTF-8 encoding.",
+                  i);
+                throw Exception(parms);
+            }
+            else
+            {
+                //  str is incremented by this call to the start of the next char
+                Uint16 * tgtBuf = tgt;
+                UTF8toUTF16((const Uint8 **)&str, (Uint8 *)&str[c+1], &tgtBuf,  &tgtBuf[2]); 
+                c16a.append(tgt[0]);
+                if (tgt[1])
+                { 
+                    // Its a utf-16 surrogate pair (uses 2 Char16's)
+                    c16a.append(tgt[1]);
+                }
+  
+                // bump by the trailing byte count
+                i += c;
+            }
+        }
+
+        i++;
+    }  // end while
+
+    c16a.append('\0');
+}
+
 class StringRep
 {
 public:
@@ -187,13 +253,13 @@ String::String(const Char16* str, Uint32 n)
 String::String(const char* str)
 {
     _rep = new StringRep;
-    assign(str);
+    _convertAndAppend(str, _rep->c16a, 0, 1);
 }
 
 String::String(const char* str, Uint32 n)
 {
     _rep = new StringRep;
-    assign(str, n);
+    _convertAndAppend(str, _rep->c16a, n, 0);
 }
 
 String::~String()
@@ -231,15 +297,17 @@ String& String::assign(const Char16* str, Uint32 n)
     return *this;
 }
 
+String& String::assign(const char* str)
+{
+    _rep->c16a.clear();
+    _convertAndAppend(str, _rep->c16a, 0, 1);
+    return *this;
+}
+
 String& String::assign(const char* str, Uint32 n)
 {
-    char *tmpStr = new char[n+1];
-    memset(tmpStr,0x00,n+1);
-
-    strncpy(tmpStr,str,n);
-    assign(tmpStr);
-    delete [] tmpStr;
-
+    _rep->c16a.clear();
+    _convertAndAppend(str, _rep->c16a, n, 0);
     return *this;
 }
 
@@ -610,36 +678,6 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
 #endif
 }
 
-// UTF8 specific code:
-String& String::assign(const char* str)
-{
-    _rep->c16a.clear();
-    Uint32 n = strlen(str) + 1;
-
-    const Uint8 *strsrc = (Uint8 *)str;
-    Uint8 *endsrc = (Uint8 *)&str[n-1];
-
-    Char16 *msg16 = new Char16[n];
-    Uint16 *strtgt = (Uint16 *)msg16;
-    Uint16 *endtgt = (Uint16 *)&msg16[n];
-
-    UTF8toUTF16(&strsrc,
-		endsrc,
-		&strtgt,
-		endtgt);
-
-    Uint32 count;
-
-    for(count = 0; ((msg16[count]) != Char16(0x00)) && (count < (n - 1)); ++count);
-
-    _rep->c16a.append(msg16, count);
-
-    _rep->c16a.append('\0');
-
-    delete [] msg16;
-
-    return *this;
-}
 
 CString String::getCString() const
 {

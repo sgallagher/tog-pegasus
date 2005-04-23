@@ -87,14 +87,11 @@ void CQLParser::parse(
     {
         CQL_parse();
     }
-    catch(const Exception&)
-    {
-        CQL_Bison_Cleanup();
-        throw;
-    }
     catch(...)
     {
         CQL_Bison_Cleanup();
+        PEG_METHOD_EXIT();
+        throw;
     }
 
     if (CQL_globalParserState->error)

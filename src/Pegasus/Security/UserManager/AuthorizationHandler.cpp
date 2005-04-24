@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,13 +33,15 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
-// This file implements the functionality required to manage auth table. 
+//
+// This file implements the functionality required to manage auth table.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -85,10 +87,10 @@ static const CIMName PROPERTY_NAME_AUTHORIZATION   = CIMName ("Authorization");
 // List of all the CIM Operations
 //
 // Note: The following tables contain all the existing CIM Operations.
-//       Any new CIM Operations created must be included in one of these tables, 
-//       otherwise no CIM requests will have authorization to execute those 
+//       Any new CIM Operations created must be included in one of these tables,
+//       otherwise no CIM requests will have authorization to execute those
 //       new operations.
-//     
+//
 
 //
 // List of read only CIM Operations
@@ -108,7 +110,7 @@ static const CIMName READ_OPERATIONS []    = {
     CIMName ("EnumerateInstances"),
     CIMName ("ExecQuery"),
     CIMName ("GetProperty") };
-    
+
 //
 // List of write CIM Operations
 //
@@ -126,7 +128,7 @@ static const CIMName WRITE_OPERATIONS []    = {
     CIMName ("EnableIndicationSubscription"),
     CIMName ("ModifyIndicationSubscription"),
     CIMName ("DisableIndicationSubscription") };
-    
+
 
 //
 // Constructor
@@ -155,7 +157,7 @@ AuthorizationHandler::AuthorizationHandler(CIMRepository* repository)
 }
 
 //
-// Destructor. 
+// Destructor.
 //
 AuthorizationHandler::~AuthorizationHandler()
 {
@@ -168,7 +170,7 @@ AuthorizationHandler::~AuthorizationHandler()
 //
 // Check if a given namespace exists
 //
-Boolean AuthorizationHandler::verifyNamespace( 
+Boolean AuthorizationHandler::verifyNamespace(
     const CIMNamespaceName& nameSpace )
 {
     PEG_METHOD_ENTER(
@@ -177,7 +179,7 @@ Boolean AuthorizationHandler::verifyNamespace(
     try
     {
         //
-        // call enumerateNameSpaces to get all the namespaces 
+        // call enumerateNameSpaces to get all the namespaces
         // in the repository
         //
         Array<CIMNamespaceName> namespaceNames =
@@ -208,7 +210,7 @@ Boolean AuthorizationHandler::verifyNamespace(
     return false;
 }
 
-// 
+//
 // Load all user names and password
 //
 void AuthorizationHandler::_loadAllAuthorizations()
@@ -224,7 +226,7 @@ void AuthorizationHandler::_loadAllAuthorizations()
         // call enumerateInstances of the repository
         //
         namedInstances = _repository->enumerateInstances(
-            PEGASUS_NAMESPACENAME_AUTHORIZATION, PEGASUS_CLASSNAME_AUTHORIZATION); 
+            PEGASUS_NAMESPACENAME_AUTHORIZATION, PEGASUS_CLASSNAME_AUTHORIZATION);
 
         //
         // get all the user names, namespaces, and authorizations
@@ -261,10 +263,10 @@ void AuthorizationHandler::_loadAllAuthorizations()
         }
 
     }
-    catch(Exception& e)
+    catch(const Exception&)
     {
         PEG_METHOD_EXIT();
-        throw e;
+        throw;
     }
 
     PEG_METHOD_EXIT();
@@ -394,7 +396,7 @@ Boolean AuthorizationHandler::verifyAuthorization(
 	  ycmVerifyFunctionAuthorization(user,
 					 ns,
 					 cimMeth);
-	if (os400auth == TRUE) 
+	if (os400auth == TRUE)
 	    authorized = true;
     }
 #else

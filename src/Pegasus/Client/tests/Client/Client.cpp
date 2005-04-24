@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,6 +35,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1979,#2011
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -130,11 +132,11 @@ static void TestQualifierOperations(CIMClient& client)
 {
     // Create two qualifier declarations:
 
-    CIMQualifierDecl qd1(CIMName ("qd1"), false, CIMScope::CLASS, 
+    CIMQualifierDecl qd1(CIMName ("qd1"), false, CIMScope::CLASS,
         CIMFlavor::TOSUBCLASS);
     client.setQualifier(SAMPLEPROVIDER_NAMESPACE, qd1);
 
-    CIMQualifierDecl qd2(CIMName ("qd2"), String("Hello"), 
+    CIMQualifierDecl qd2(CIMName ("qd2"), String("Hello"),
         CIMScope::PROPERTY + CIMScope::CLASS, CIMFlavor::OVERRIDABLE);
     client.setQualifier(SAMPLEPROVIDER_NAMESPACE, qd2);
 
@@ -148,7 +150,7 @@ static void TestQualifierOperations(CIMClient& client)
 
     // Enumerate the qualifiers:
 
-    Array<CIMQualifierDecl> qualifierDecls 
+    Array<CIMQualifierDecl> qualifierDecls
 	= client.enumerateQualifiers(SAMPLEPROVIDER_NAMESPACE);
 
     for (Uint32 i = 0; i < qualifierDecls.size(); i++)
@@ -184,18 +186,18 @@ static void TestInstanceOperations(CIMClient& client)
            client.deleteInstance(SAMPLEPROVIDER_NAMESPACE, instanceNames[i]);
         }
     }
-    catch (InvalidNameException& e)
+    catch (const InvalidNameException&)
     {
        // Ignore Invalid Name exception
     }
-    catch (CIMException& e)
+    catch (const CIMException& e)
     {
        CIMStatusCode code = e.getCode();
 
        // Ignore CIM_ERR_INVALID_CLASS and CIM_ERR_NOT_FOUND exceptions
        if(code != CIM_ERR_INVALID_CLASS && code != CIM_ERR_NOT_FOUND)
        {
-          throw e;
+          throw;
        }
     }
 
@@ -203,12 +205,12 @@ static void TestInstanceOperations(CIMClient& client)
     {
         client.deleteClass(SAMPLEPROVIDER_NAMESPACE, CIMName ("myclass"));
     }
-    catch (CIMException& e)
+    catch (const CIMException& e)
     {
        // Ignore CIM_ERR_NOT_FOUND exception
        if(e.getCode() != CIM_ERR_NOT_FOUND)
        {
-          throw e;
+          throw;
        }
     }
 
@@ -254,13 +256,13 @@ static void TestAssociators(CIMClient& client)
     CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObject> result = client.associators(
-	SAMPLEPROVIDER_NAMESPACE, 
-	instanceName, 
-	CIMName ("Lineage"), 
-	CIMName ("Person"), 
-	"parent", 
-	"child", 
-	true, 
+	SAMPLEPROVIDER_NAMESPACE,
+	instanceName,
+	CIMName ("Lineage"),
+	CIMName ("Person"),
+	"parent",
+	"child",
+	true,
 	true);
 
     for (Uint32 i = 0; i < result.size(); i++)
@@ -278,11 +280,11 @@ static void TestAssociatorNames(CIMClient& client)
     CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObjectPath> result = client.associatorNames(
-	SAMPLEPROVIDER_NAMESPACE, 
-	instanceName, 
-	CIMName ("Lineage"), 
-	CIMName ("Person"), 
-	"parent", 
+	SAMPLEPROVIDER_NAMESPACE,
+	instanceName,
+	CIMName ("Lineage"),
+	CIMName ("Person"),
+	"parent",
 	"child");
 
     for (Uint32 i = 0; i < result.size(); i++)
@@ -296,11 +298,11 @@ static void TestAssociatorClassNames(CIMClient& client)
     CIMObjectPath className = CIMObjectPath ("Person");
 
     Array<CIMObjectPath> result = client.associatorNames(
-	SAMPLEPROVIDER_NAMESPACE, 
-	className, 
-	CIMName ("Lineage"), 
-	CIMName ("Person"), 
-	"parent", 
+	SAMPLEPROVIDER_NAMESPACE,
+	className,
+	CIMName ("Lineage"),
+	CIMName ("Person"),
+	"parent",
 	"child");
 
     for (Uint32 i = 0; i < result.size(); i++)
@@ -314,9 +316,9 @@ static void TestReferenceNames(CIMClient& client)
     CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObjectPath> result = client.referenceNames(
-	SAMPLEPROVIDER_NAMESPACE, 
-	instanceName, 
-	CIMName ("Lineage"), 
+	SAMPLEPROVIDER_NAMESPACE,
+	instanceName,
+	CIMName ("Lineage"),
 	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)
@@ -330,9 +332,9 @@ static void TestReferences(CIMClient& client)
     CIMObjectPath instanceName = CIMObjectPath ("Person.name=\"Mike\"");
 
     Array<CIMObject> result = client.references(
-	SAMPLEPROVIDER_NAMESPACE, 
-	instanceName, 
-	CIMName ("Lineage"), 
+	SAMPLEPROVIDER_NAMESPACE,
+	instanceName,
+	CIMName ("Lineage"),
 	"parent");
 
     for (Uint32 i = 0; i < result.size(); i++)
@@ -350,8 +352,8 @@ static void TestReferenceClassNames(CIMClient& client)
     CIMObjectPath className = CIMObjectPath ("Person");
 
     Array<CIMObjectPath> result = client.referenceNames(
-	SAMPLEPROVIDER_NAMESPACE, 
-	className, 
+	SAMPLEPROVIDER_NAMESPACE,
+	className,
 	CIMName(),
 	"parent");
 

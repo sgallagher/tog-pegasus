@@ -1017,7 +1017,7 @@ template<class L> void AsyncDQueue<L>::insert_last(L *element)
 
 template<class L> void AsyncDQueue<L>::insert_last_wait(L *element)
 {
-    if(element == 0)
+    if(element != 0)
     {
         _insert_prep();
         Base::insert_last(element);

@@ -67,7 +67,11 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
 #if defined (PEGASUS_OS_VMS)
     String fileName = FileSystem::buildLibraryFileName(handlerId);
 #elif defined(PEGASUS_OS_OS400)
-    String fileName = handlerId;
+    Uint32 lastSlash = handlerId.reverseFind('/');
+    if (lastSlash == PEG_NOT_FOUND)
+      throw DynamicLoadFailed(handlerId);
+    String fileName = handlerId.subString(0, lastSlash);
+    String os400HandlerId = handlerId.subString(lastSlash + 1);
 #else
     String fileName = ConfigManager::getHomedPath((PEGASUS_DEST_LIB_DIR) +
         String("/") + FileSystem::buildLibraryFileName(handlerId));
@@ -88,7 +92,11 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
     // Lookup the create handler symbol:
 
     String functionName = "PegasusCreateHandler_";
+#ifndef PEGASUS_OS_OS400
     functionName.append(handlerId);
+#else
+    functionName.append(os400HandlerId);
+#endif
 
     CreateHandlerFunc func = (CreateHandlerFunc)System::loadDynamicSymbol(
 	libraryHandle, functionName.getCString());

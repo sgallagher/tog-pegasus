@@ -71,7 +71,7 @@ PRESTARTTEST_FILES = \
 PEGASUS_TEST_PROVIDERS = \
    libSampleInstanceProvider \
    libSampleMethodProvider \
-   libSampleFamilyProvider
+   libFamilyProvider
 
 POSTSTARTTEST_FILES = \
    TestClient \

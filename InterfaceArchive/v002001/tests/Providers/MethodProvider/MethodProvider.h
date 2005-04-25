@@ -31,28 +31,31 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
 
+PEGASUS_NAMESPACE_BEGIN
 
-class MethodProvider : public PEGASUS_NAMESPACE(CIMMethodProvider)
+class MethodProvider : public CIMMethodProvider
 {
 public:
 	MethodProvider(void);
 	virtual ~MethodProvider(void);
 
 	// CIMProvider interface
-	virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
+	virtual void initialize(CIMOMHandle & cimom);
 	virtual void terminate(void);
 
 	// CIMMethodProviderFacade
 	virtual void invokeMethod(
-		const PEGASUS_NAMESPACE(OperationContext) & context,
-		const PEGASUS_NAMESPACE(CIMObjectPath) & objectReference,
-		const PEGASUS_NAMESPACE(CIMName) & methodName,
-		const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMParamValue)> & inParameters,
-		PEGASUS_NAMESPACE(MethodResultResponseHandler) & handler);
+		const OperationContext & context,
+		const CIMObjectPath & objectReference,
+		const CIMName & methodName,
+		const Array<CIMParamValue> & inParameters,
+		MethodResultResponseHandler & handler);
 
 protected:
 
 };
 
+PEGASUS_NAMESPACE_END
 
 #endif
+

@@ -27,7 +27,7 @@
 
 #include "MethodProvider.h"
 
-PEGASUS_USING_PEGASUS;
+PEGASUS_NAMESPACE_BEGIN
 
 MethodProvider::MethodProvider(void)
 {
@@ -93,4 +93,6 @@ void MethodProvider::invokeMethod(
 	
 	handler.complete();
 }
+
+PEGASUS_NAMESPACE_END
 

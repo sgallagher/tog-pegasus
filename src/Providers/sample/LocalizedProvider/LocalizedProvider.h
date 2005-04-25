@@ -29,7 +29,7 @@
 //
 // Author: Chuck Carmack (carmack@us.ibm.com)
 //
-// Modified By:
+// Modified By: Vijay Eli (vijay.eli@ini.ibm.com) for bug #2330
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,64 +48,62 @@
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ContentLanguages.h>
 
-PEGASUS_USING_PEGASUS;
-
 class LocalizedProvider :
-      public CIMInstanceProvider,
+      public PEGASUS_NAMESPACE(CIMInstanceProvider),
 //    public CIMAssociationProvider,
-      public CIMMethodProvider,
+      public PEGASUS_NAMESPACE(CIMMethodProvider),
 //    public CIMQueryProvider,
-      public CIMIndicationProvider,
-      public CIMIndicationConsumerProvider
+      public PEGASUS_NAMESPACE(CIMIndicationProvider),
+      public PEGASUS_NAMESPACE(CIMIndicationConsumerProvider)
 {
 public:
     LocalizedProvider();
     virtual ~LocalizedProvider(void);
 
     // CIMProvider interface
-    virtual void initialize(CIMOMHandle & cimom);
+    virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
     virtual void terminate(void);
 
     // CIMInstanceProvider interface
     virtual void getInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        InstanceResponseHandler & handler);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & instanceReference,
+        const PEGASUS_NAMESPACE(Boolean) includeQualifiers,
+        const PEGASUS_NAMESPACE(Boolean) includeClassOrigin,
+        const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+        PEGASUS_NAMESPACE(InstanceResponseHandler) & handler);
 
     virtual void enumerateInstances(
-        const OperationContext & context,
-        const CIMObjectPath & classxReference,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList & propertyList,
-        InstanceResponseHandler & handler);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & classxReference,
+        const PEGASUS_NAMESPACE(Boolean) includeQualifiers,
+        const PEGASUS_NAMESPACE(Boolean) includeClassOrigin,
+        const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+        PEGASUS_NAMESPACE(InstanceResponseHandler) & handler);
 
     virtual void enumerateInstanceNames(
-        const OperationContext & context,
-        const CIMObjectPath & classReference,
-        ObjectPathResponseHandler & handler);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & classReference,
+        PEGASUS_NAMESPACE(ObjectPathResponseHandler) & handler);
 
     virtual void modifyInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        const CIMInstance & instanceObject,
-        const Boolean includeQualifiers,
-        const CIMPropertyList & propertyList,
-        ResponseHandler & handler);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & instanceReference,
+        const PEGASUS_NAMESPACE(CIMInstance) & instanceObject,
+        const PEGASUS_NAMESPACE(Boolean) includeQualifiers,
+        const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+        PEGASUS_NAMESPACE(ResponseHandler) & handler);
 
     virtual void createInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        const CIMInstance & instanceObject,
-        ObjectPathResponseHandler & handler);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & instanceReference,
+        const PEGASUS_NAMESPACE(CIMInstance) & instanceObject,
+        PEGASUS_NAMESPACE(ObjectPathResponseHandler) & handler);
 
     virtual void deleteInstance(
-        const OperationContext & context,
-        const CIMObjectPath & instanceReference,
-        ResponseHandler & handler);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & instanceReference,
+        PEGASUS_NAMESPACE(ResponseHandler) & handler);
 
 /*
     // CIMAssociationProvider interface
@@ -150,11 +148,11 @@ public:
 
     // CIMMethodProviderFacade
     virtual void invokeMethod(
-        const OperationContext & context,
-        const CIMObjectPath & objectReference,
-        const CIMName & methodName,
-        const Array<CIMParamValue> & inParameters,
-        MethodResultResponseHandler & handler);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & objectReference,
+        const PEGASUS_NAMESPACE(CIMName) & methodName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMParamValue)> & inParameters,
+        PEGASUS_NAMESPACE(MethodResultResponseHandler) & handler);
    
 
     // CIMQueryProvider interface
@@ -169,72 +167,73 @@ public:
 
     // CIMIndicationProvider interface
     virtual void enableIndications(
-        IndicationResponseHandler & handler);
+        PEGASUS_NAMESPACE(IndicationResponseHandler) & handler);
 
     virtual void disableIndications(void);
 
     virtual void createSubscription(
-        const OperationContext & context,
-        const CIMObjectPath & subscriptionName,
-        const Array<CIMObjectPath> & classNames,
-        const CIMPropertyList & propertyList,
-        const Uint16 repeatNotificationPolicy);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
+        const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
     virtual void modifySubscription(
-        const OperationContext & context,
-        const CIMObjectPath & subscriptionName,
-        const Array<CIMObjectPath> & classNames,
-        const CIMPropertyList & propertyList,
-        const Uint16 repeatNotificationPolicy);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
+        const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+        const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
     virtual void deleteSubscription(
-        const OperationContext & context,
-        const CIMObjectPath & subscriptionName,
-        const Array<CIMObjectPath> & classNames);
+        const PEGASUS_NAMESPACE(OperationContext) & context,
+        const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
+        const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> & classNames);
 
-    virtual void consumeIndication(const OperationContext& context,
-				   const String & url, 
-				   const CIMInstance& indicationInstance);
+    virtual void consumeIndication(const PEGASUS_NAMESPACE(OperationContext)& context,
+				   const PEGASUS_NAMESPACE(String) & url, 
+				   const PEGASUS_NAMESPACE(CIMInstance)& indicationInstance);
 
 private:
-    Array<CIMObjectPath> _instanceNames;
-    Array<CIMInstance> _instances;
-    Array<ContentLanguages> _instanceLangs;
+    PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> _instanceNames;
+    PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMInstance)> _instances;
+    PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(ContentLanguages)> _instanceLangs;
 	
-    MessageLoaderParms msgParms;
-    MessageLoaderParms notSupportedErrorParms;	
-    MessageLoaderParms contentLangParms;	
-    MessageLoaderParms roundTripErrorParms;
+    PEGASUS_NAMESPACE(MessageLoaderParms) msgParms;
+    PEGASUS_NAMESPACE(MessageLoaderParms) notSupportedErrorParms;	
+    PEGASUS_NAMESPACE(MessageLoaderParms) contentLangParms;	
+    PEGASUS_NAMESPACE(MessageLoaderParms) roundTripErrorParms;
 	
-    String roundTripString;
+    PEGASUS_NAMESPACE(String) roundTripString;
 	
-    void _checkRoundTripString(const OperationContext & context,
-				   const CIMInstance& instanceObject);	
+    void _checkRoundTripString(const PEGASUS_NAMESPACE(OperationContext) & context,
+				   const PEGASUS_NAMESPACE(CIMInstance)& instanceObject);	
 
-    AcceptLanguages getRequestAcceptLanguages(const OperationContext & context);
+    PEGASUS_NAMESPACE(AcceptLanguages) getRequestAcceptLanguages(const PEGASUS_NAMESPACE(OperationContext) &context);
 
-    ContentLanguages getRequestContentLanguages(const OperationContext & context);
+    PEGASUS_NAMESPACE(ContentLanguages) getRequestContentLanguages(const PEGASUS_NAMESPACE(OperationContext) &context);
 
-    CIMObjectPath buildRefFromInstance(const CIMInstance& instanceObject);
+    PEGASUS_NAMESPACE(CIMObjectPath) buildRefFromInstance(const PEGASUS_NAMESPACE(CIMInstance)&instanceObject);
     	
-    ContentLanguages _loadLocalizedProps(AcceptLanguages & acceptLangs,
-					 ContentLanguages & contentLangs,
-					 CIMInstance & instance);		
+    PEGASUS_NAMESPACE(ContentLanguages) _loadLocalizedProps(PEGASUS_NAMESPACE(AcceptLanguages) &acceptLangs,
+					 PEGASUS_NAMESPACE(ContentLanguages) & contentLangs,
+					 PEGASUS_NAMESPACE(CIMInstance) & instance);		
 	
-    ContentLanguages _addResourceBundleProp(AcceptLanguages & acceptLangs,
-					    CIMInstance & instance);
+    PEGASUS_NAMESPACE(ContentLanguages) _addResourceBundleProp(PEGASUS_NAMESPACE(AcceptLanguages) &acceptLangs,
+					    PEGASUS_NAMESPACE(CIMInstance) & instance);
 	
-    ContentLanguages _addResourceBundleProp(CIMInstance & instance);	
+    PEGASUS_NAMESPACE(ContentLanguages) _addResourceBundleProp(PEGASUS_NAMESPACE(CIMInstance) &instance);	
 	
-    void _replaceRBProperty(CIMInstance & instance, String newProp);	
-										
-    ContentLanguages _addContentLanguagesProp(CIMInstance & instance);
+    void _replaceRBProperty(PEGASUS_NAMESPACE(CIMInstance) & instance,
+                           PEGASUS_NAMESPACE(String) newProp);											
+    PEGASUS_NAMESPACE(ContentLanguages) _addContentLanguagesProp(PEGASUS_NAMESPACE(CIMInstance) & instance);
 
-    void _setHandlerLanguages(ResponseHandler & handler, ContentLanguages & langs);
+    void _setHandlerLanguages(PEGASUS_NAMESPACE(ResponseHandler) & handler, 
+                              PEGASUS_NAMESPACE(ContentLanguages) & langs);
 
     void _testCIMOMHandle();
 
-    void _validateCIMOMHandleResponse(String expectedLang);
+    void _validateCIMOMHandleResponse(PEGASUS_NAMESPACE(String) expectedLang);
 
     void _generateIndication();
 };

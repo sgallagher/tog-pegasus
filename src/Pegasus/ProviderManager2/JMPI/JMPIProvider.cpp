@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,7 +31,7 @@
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company(yi_zhou@hp.com)
 //              Mike Day, IBM (mdday@us.ibm.com)
-//              Adrian Schuur, schuur@de.ibm.com 
+//              Adrian Schuur, schuur@de.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +44,7 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
+#include "Convert.h"
 
 // set current operations to 1 to prevent an unload
 // until the provider has had a chance to initialize
@@ -106,7 +107,7 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 #endif
 
     JNIEnv *env=JMPIjvm::attachThread(&jv);
-    
+
     jmethodID id=env->GetMethodID((jclass)jProviderClass,"initialize",
        "(Lorg/pegasus/jmpi/CIMOMHandle;)V");
     JMPIjvm::checkException(env);
@@ -114,7 +115,9 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
     jstring jName=env->NewStringUTF(_name.getCString());
     JMPIjvm::checkException(env);
 
-    jobject hdl=env->NewObject(jv->CIMOMHandleClassRef,jv->CIMOMHandleNewI,(jint)&cimom,jName);
+    jint jCimom = DEBUG_ConvertCToJava (CIMOMHandle*, jint, &cimom);
+
+    jobject hdl=env->NewObject(jv->CIMOMHandleClassRef,jv->CIMOMHandleNewI,jCimom,jName);
     env->CallVoidMethod((jobject)jProvider,id,hdl);
 
     JMPIjvm::detachThread();

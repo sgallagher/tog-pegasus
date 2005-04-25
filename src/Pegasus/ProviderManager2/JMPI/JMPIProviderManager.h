@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -55,7 +55,7 @@ struct CMPI_SelectExp;
 class PEGASUS_SERVER_LINKAGE JMPIProviderManager : public ProviderManager
 {
 public:
-    enum Mode { 
+    enum Mode {
        CMPI_MODE,
        CMPI_R_MODE,
        CMPI_O_MODE
@@ -64,17 +64,17 @@ public:
     Mode getMode() { return mode; }
     JMPIProviderManager(Mode=CMPI_MODE);
     virtual ~JMPIProviderManager(void);
-    
-    virtual Boolean insertProvider(const ProviderName & providerName, 
+
+    virtual Boolean insertProvider(const ProviderName & providerName,
             const String &ns, const String &cn);
-  
+
     virtual Message * processMessage(Message * request) throw();
 
     static String resolveFileName(String name);
 
     virtual Boolean hasActiveProviders();
     virtual void unloadIdleProviders();
-    
+
    struct indProvRecord {
       indProvRecord() : enabled(false), count(1), handler(NULL), ctx(NULL) {}
       Boolean enabled;
@@ -97,7 +97,7 @@ public:
    static IndProvTab provTab;
    static IndSelectTab selxTab;
    static ProvRegistrar provReg;
-   
+
 protected:
     JMPILocalProviderManager providerManager;
     Mode mode;
@@ -137,6 +137,11 @@ protected:
     Message * handleSubscriptionInitCompleteRequest (const Message * message);
 
     ProviderName _resolveProviderName(const ProviderIdContainer & providerId);
+
+private:
+    void debugPrintMethodPointers (JNIEnv *env, jclass jc);
+
+    static int trace;
 };
 
 PEGASUS_NAMESPACE_END

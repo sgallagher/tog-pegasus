@@ -12,10 +12,10 @@
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
 // deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// rights to use, copy, modify, merge, publish, distribute, subglicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author: Yi Zhou (yi.zhou@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +47,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static char * verbose;
+static const char * verbose;
 
 static void testGetErrorElement()
 {
@@ -62,11 +63,11 @@ static void testGetErrorElement()
 
     XmlReader::getErrorElement(parser, cimException);
 
-    if (((unsigned)cimException.getCode() != (unsigned)errorCode) || 
-	(cimException.getMessage() == errorDescription)
+    if (((unsigned)cimException.getCode() != (unsigned)errorCode) ||
+        (cimException.getMessage() == errorDescription)
        )
     {
-	throw cimException;
+        throw cimException;
     }
 }
 
@@ -92,8 +93,9 @@ static void testGetInstanceElement(const char* testDataFile)
     CIMValue cimValue;
     CIMType cimType;
     assert(cimInstance.getPropertyCount() == 3);
-    
-    assert((idx = cimInstance.findProperty(CIMName("IndicationIdentifier"))) != PEG_NOT_FOUND);
+
+    idx = cimInstance.findProperty(CIMName("IndicationIdentifier"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -101,8 +103,9 @@ static void testGetInstanceElement(const char* testDataFile)
     String myString;
     cimValue.get(myString);
     assert(strcmp(myString.getCString(), "0") == 0);
-    
-    assert((idx = cimInstance.findProperty(CIMName("IndicationTime"))) != PEG_NOT_FOUND);
+
+    idx = cimInstance.findProperty(CIMName("IndicationTime"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -110,8 +113,9 @@ static void testGetInstanceElement(const char* testDataFile)
     CIMDateTime myDateTime;
     cimValue.get(myDateTime);
     assert(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
-    
-    assert((idx = cimInstance.findProperty(CIMName("SourceInstance"))) != PEG_NOT_FOUND);
+
+    idx = cimInstance.findProperty(CIMName("SourceInstance"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -120,8 +124,9 @@ static void testGetInstanceElement(const char* testDataFile)
     cimValue.get(cimObject);
     assert(cimObject.getClassName() == CIMName("Sample_LifecycleIndicationProviderClass"));
     assert(cimObject.getPropertyCount() == 2);
-    
-    assert((idx = cimObject.findProperty(CIMName("uniqueId"))) != PEG_NOT_FOUND);
+
+    idx = cimObject.findProperty(CIMName("uniqueId"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimObject.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -130,7 +135,8 @@ static void testGetInstanceElement(const char* testDataFile)
     cimValue.get(myUint32);
     assert(myUint32 == 1);
 
-    assert((idx = cimObject.findProperty(CIMName("lastOp"))) != PEG_NOT_FOUND);
+    idx = cimObject.findProperty(CIMName("lastOp"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimObject.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -157,8 +163,9 @@ static void testGetInstanceElement2(const char* testDataFile)
     CIMValue cimValue;
     CIMType cimType;
     assert(cimInstance.getPropertyCount() == 3);
-    
-    assert((idx = cimInstance.findProperty(CIMName("IndicationIdentifier"))) != PEG_NOT_FOUND);
+
+    idx = cimInstance.findProperty(CIMName("IndicationIdentifier"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -166,8 +173,9 @@ static void testGetInstanceElement2(const char* testDataFile)
     String myString;
     cimValue.get(myString);
     assert(strcmp(myString.getCString(), "0") == 0);
-    
-    assert((idx = cimInstance.findProperty(CIMName("IndicationTime"))) != PEG_NOT_FOUND);
+
+    idx = cimInstance.findProperty(CIMName("IndicationTime"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -175,8 +183,9 @@ static void testGetInstanceElement2(const char* testDataFile)
     CIMDateTime myDateTime;
     cimValue.get(myDateTime);
     assert(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
-    
-    assert((idx = cimInstance.findProperty(CIMName("SourceInstance"))) != PEG_NOT_FOUND);
+
+    idx = cimInstance.findProperty(CIMName("SourceInstance"));
+    assert(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
@@ -207,38 +216,38 @@ static void testGetInstanceElement2(const char* testDataFile)
             else
                 assert(false);
         }
-    }    
+    }
 }
 
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-    try 
+    try
     {
         testGetErrorElement();
-        
+
         //
         if (verbose)
         {
             cout << "Testing EmbeddedObject VALUE Property with XML entity references." << endl;
         }
-	    testGetInstanceElement("./getInstanceElement.xml");
-        
+        testGetInstanceElement("./getInstanceElement.xml");
+
         //
         if (verbose)
         {
             cout << "Testing EmbeddedObject VALUE.ARRAY Property with XML entity references." << endl;
         }
         testGetInstanceElement2("./getInstanceElement2.xml");
-        
+
         //
         if (verbose)
         {
             cout << "Testing EmbeddedObject VALUE Property with <![CDATA[...]]> escaping." << endl;
         }
         testGetInstanceElement("./getInstanceElementCDATA.xml");
-        
+
         //
         if (verbose)
         {
@@ -248,8 +257,8 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;	
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

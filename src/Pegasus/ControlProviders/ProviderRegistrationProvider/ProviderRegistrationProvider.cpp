@@ -141,9 +141,9 @@ void ProviderRegistrationProvider::getInstance(
 							     includeClassOrigin,
 							     propertyList);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     handler.deliver(instance);
@@ -192,9 +192,9 @@ void ProviderRegistrationProvider::enumerateInstances(
 			 				     includeClassOrigin, 
 							     propertyList);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     handler.deliver(enumInstances);
@@ -235,12 +235,12 @@ void ProviderRegistrationProvider::enumerateInstanceNames(
     // get all instance names from repository
     try
     {
-    	enumInstanceNames =
-	    _providerRegistrationManager->enumerateInstanceNames(classReference);
+        enumInstanceNames =
+            _providerRegistrationManager->enumerateInstanceNames(classReference);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     handler.deliver(enumInstanceNames);
@@ -334,9 +334,9 @@ void ProviderRegistrationProvider::modifyInstance(
 						     includeQualifiers, 
 	    					     propertyArray);
     }
-    catch(CIMException& e)
+    catch(const CIMException& e)
     {
-	throw (e);
+        throw;
     }
 
     // complete processing the request
@@ -808,12 +808,12 @@ void ProviderRegistrationProvider::createInstance(
 	
     try
     {
-    	returnReference =
-	    _providerRegistrationManager->createInstance(instanceReference, instance);
+        returnReference =
+            _providerRegistrationManager->createInstance(instanceReference, instance);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     handler.deliver(returnReference);
@@ -1019,20 +1019,20 @@ void ProviderRegistrationProvider::deleteInstance(
 						"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.DISABLE_PROVIDER_MODULE_FAILED_PROVIDER_BUSY",
                      	"disable the provider module failed: Provider is busy."));
             }
-	}
-    	catch(CIMException& e)
-    	{
-	    throw (e);
-    	}
+        }
+        catch(const CIMException&)
+        {
+            throw;
+        }
     }
 
     try
     {
-    	_providerRegistrationManager->deleteInstance(instanceReference);
+        _providerRegistrationManager->deleteInstance(instanceReference);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     // complete processing the request
@@ -1131,19 +1131,18 @@ void ProviderRegistrationProvider::invokeMethod(
     	     ret_value =  _enableModule(objectReference, moduleName, al);
 	}
         else
-    	{
-	    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
-    	}
+        {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_METHOD_NOT_AVAILABLE, String::EMPTY);
+        }
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     CIMValue retValue(ret_value);
     handler.deliver(retValue);
     handler.complete();
-    return;
 }
 
 // get provider manager service
@@ -1190,11 +1189,11 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
              (dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
     if (response->cimException.getCode() != CIM_ERR_SUCCESS)
     {
-	CIMException e = response->cimException;
+        CIMException e = response->cimException;
         delete asyncRequest;
         delete asyncReply;
         delete response;
-	throw (e);
+        throw e;
     }
 
     Array<Uint16> operationalStatus = response->operationalStatus;
@@ -1347,7 +1346,7 @@ void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
         if (response->cimException.getCode () != CIM_ERR_SUCCESS)
         {
             CIMException e = response->cimException;
-            throw (e);
+            throw e;
         }
     }
 }
@@ -1745,13 +1744,13 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
 		(dynamic_cast<AsyncLegacyOperationResult *>(asyncReply))->get_result());
 
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)
-	{
-	    CIMException e = response->cimException;
-	    delete asyncRequest;
-	    delete asyncReply;
-	    delete response;
-	    throw (e);
-	}
+        {
+            CIMException e = response->cimException;
+            delete asyncRequest;
+            delete asyncReply;
+            delete response;
+            throw e;
+        }
 
         delete asyncRequest;
         delete asyncReply;

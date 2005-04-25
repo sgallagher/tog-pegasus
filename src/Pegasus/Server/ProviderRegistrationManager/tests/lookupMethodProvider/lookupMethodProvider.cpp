@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,15 +64,15 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance(CLASSNAME);
 
-    cimInstance.addProperty(CIMProperty(CIMName ("Name"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("Name"),
         String("providersModule1")));
     cimInstance.addProperty(CIMProperty(CIMName ("Vendor"), String("HP")));
     cimInstance.addProperty(CIMProperty(CIMName ("Version"), String("2.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceType"),
         String("PG_DefaultC++")));
-    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("InterfaceVersion"),
         String("2.0")));
-    cimInstance.addProperty(CIMProperty(CIMName ("Location"), 
+    cimInstance.addProperty(CIMProperty(CIMName ("Location"),
         String("/tmp/module1")));
 
     CIMObjectPath instanceName = cimInstance.buildPath(cimClass);
@@ -82,9 +84,9 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
     {
     	returnRef = prmanager.createInstance(instanceName, cimInstance);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     // create PG_Provider instances
@@ -95,9 +97,9 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance2(CLASSNAME2);
 
-    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+    cimInstance2.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
         String("providersModule1")));
-    cimInstance2.addProperty(CIMProperty(CIMName ("Name"), 
+    cimInstance2.addProperty(CIMProperty(CIMName ("Name"),
         String("PG_ProviderInstance1")));
 
     CIMObjectPath instanceName2 = cimInstance2.buildPath(cimClass2);
@@ -109,9 +111,9 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
     {
     	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     //
@@ -124,7 +126,7 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     namespaces.append("test_namespace1");
     namespaces.append("test_namespace2");
-    
+
     providerType.append(2);
     providerType.append(5);
 
@@ -137,18 +139,18 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
 
     CIMInstance cimInstance3(CLASSNAME3);
 
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderModuleName"),
         String("providersModule1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderName"),
         String("PG_ProviderInstance1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("CapabilityID"),
         String("capability1")));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ClassName"),
         String("test_class1")));
     cimInstance3.addProperty(CIMProperty(CIMName ("Namespaces"), namespaces));
-    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("ProviderType"),
         providerType));
-    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"), 
+    cimInstance3.addProperty(CIMProperty(CIMName ("SupportedMethods"),
         supportedMethods));
 
     CIMObjectPath instanceName3 = cimInstance3.buildPath(cimClass3);
@@ -156,13 +158,13 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    try 
+    try
     {
     	returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     //
@@ -174,8 +176,8 @@ Boolean TestLookupMethodProvider(ProviderRegistrationManager & prmanager)
     CIMInstance providerIns;
     CIMInstance providerModuleIns;
 
-    if (prmanager.lookupMethodProvider(CIMNamespaceName ("test_namespace1"), 
-        CIMName ("test_class1"), CIMName ("test_method2"), 
+    if (prmanager.lookupMethodProvider(CIMNamespaceName ("test_namespace1"),
+        CIMName ("test_class1"), CIMName ("test_method2"),
         providerIns, providerModuleIns))
     {
 	providerIns.getProperty(providerIns.findProperty
@@ -237,6 +239,6 @@ int main(int argc, char** argv)
     }
 
     PEGASUS_STD(cout) << argv[0] <<  " +++++ passed all tests" << PEGASUS_STD(endl);
-    
+
     exit (0);
 }

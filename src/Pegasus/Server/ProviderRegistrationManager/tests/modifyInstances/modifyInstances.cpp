@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +120,7 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
 
     namespaces.append("root/cimv2");
     namespaces.append("root/cimv3");
-    
+
     providerType.append(2);
     providerType.append(5);
 
@@ -152,31 +154,31 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
     {
         returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     // create CIMObjectPath
     Array<CIMKeyBinding> keys;
-    CIMKeyBinding kb1(CIMName ("ProviderModuleName"), "providersModule1", 
+    CIMKeyBinding kb1(CIMName ("ProviderModuleName"), "providersModule1",
         CIMKeyBinding::STRING);
-    CIMKeyBinding kb2(CIMName ("ProviderName"), "PG_ProviderInstance1", 
+    CIMKeyBinding kb2(CIMName ("ProviderName"), "PG_ProviderInstance1",
         CIMKeyBinding::STRING);
-    CIMKeyBinding kb3(CIMName ("CapabilityID"), "capability1", 
+    CIMKeyBinding kb3(CIMName ("CapabilityID"), "capability1",
         CIMKeyBinding::STRING);
- 
+
     keys.append(kb1);
     keys.append(kb2);
     keys.append(kb3);
- 
+
     instanceName3.setKeyBindings(keys);
 
     Array <String> supportedMethods2;
     Array <String> namespaces2;
     Array<CIMName> propertyList;
 
-    // create new instance which will replace cimInstance3 
+    // create new instance which will replace cimInstance3
     CIMInstance cimInstance4(CLASSNAME3);
     namespaces2.append("root/cimv4");
     namespaces2.append("root/cimv5");
@@ -189,14 +191,14 @@ void TestModifyInstances(ProviderRegistrationManager & prmanager)
 
     propertyList.append(CIMName ("Namespaces"));
     propertyList.append(CIMName ("SupportedMethods"));
-   
+
     try
     {
         prmanager.modifyInstance(instanceName3, cimInstance4, false, propertyList);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 }
 
@@ -234,6 +236,6 @@ int main(int argc, char** argv)
     }
 
     PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
-    
+
     exit (0);
 }

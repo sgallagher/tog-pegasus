@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG#3348
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,6 +49,11 @@ AutoStreamer::AutoStreamer(ObjectStreamer *primary, Uint8 marker) {
    }
    else _defaultReader=primary;
    _primary=primary; 
+}
+
+AutoStreamer::~AutoStreamer(){
+      for (Uint32 i=0;i<8;i++)
+           delete _readers[i].reader;
 }
 
 void AutoStreamer::addReader(ObjectStreamer *reader, Uint8 marker) {

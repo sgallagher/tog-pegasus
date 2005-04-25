@@ -300,6 +300,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
       if(propertyIndex == PEG_NOT_FOUND)
 	{
 	  _valueType = CQLValue::Null_type;
+	  _isResolved = true;
 	  return;
 	}
       
@@ -316,6 +317,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	    {
 	      // The chain is not inline with scope.
 	      _valueType = CQLValue::Null_type;
+              _isResolved = true;
 	      return;
 	    }
 	}
@@ -323,6 +325,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	{
 	  // The chain is not inline with scope.
 	  _valueType = CQLValue::Null_type;
+          _isResolved = true;
 	  return;
 	}
      
@@ -337,6 +340,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	{
 	  // Object is not embedded.
 	  _valueType = CQLValue::Null_type;
+          _isResolved = true;
 	  return;
 	}
       propObj.getValue().get(objectContext);
@@ -362,7 +366,7 @@ void CQLValueRep::_process_value(CIMProperty& propObj,
 
       _theValue.set(cimObj.clone());
       _valueType = CQLValue::CIMObject_type;
-
+      _isResolved = true;
     }
   else // Primitive
     {

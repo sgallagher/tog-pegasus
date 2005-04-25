@@ -2577,8 +2577,10 @@ void __srv_reg_local ( struct slp_client *client,
   if(reg != NULL){
     int16 len;
     char *scope_copy = strdup(scopes);
-    if(scope_copy == NULL)
-      return;
+    if(scope_copy == NULL){
+       free(reg);
+       return;
+    }
     if(NULL == (reg->url = lslpAllocURL()))
       abort();
     reg->directoryTime = lifetime + time(NULL);

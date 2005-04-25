@@ -39,44 +39,42 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMIndicationProvider.h>
 
-PEGASUS_USING_PEGASUS;
-
 class IndicationProvider :
-    public CIMIndicationProvider
+    public PEGASUS_NAMESPACE(CIMIndicationProvider)
 {
 public:
     IndicationProvider(void) throw();
     virtual ~IndicationProvider(void) throw();
 
     // CIMProvider interface
-    virtual void initialize(CIMOMHandle & cimom);
+    virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
     virtual void terminate(void);
 
     // CIMIndicationProvider interface
-    virtual void enableIndications(IndicationResponseHandler & handler);
+    virtual void enableIndications(PEGASUS_NAMESPACE(IndicationResponseHandler) & handler);
     virtual void disableIndications(void);
 
     virtual void createSubscription(
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array<CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy);
+	const PEGASUS_NAMESPACE(OperationContext) & context,
+	const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
+	const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
+	const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+	const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
     virtual void modifySubscription(
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array<CIMObjectPath> & classNames,
-	const CIMPropertyList & propertyList,
-	const Uint16 repeatNotificationPolicy);
+	const PEGASUS_NAMESPACE(OperationContext) & context,
+	const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
+	const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> & classNames,
+	const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+	const PEGASUS_NAMESPACE(Uint16) repeatNotificationPolicy);
 
     virtual void deleteSubscription(
-	const OperationContext & context,
-	const CIMObjectPath & subscriptionName,
-	const Array<CIMObjectPath> & classNames);
+	const PEGASUS_NAMESPACE(OperationContext) & context,
+	const PEGASUS_NAMESPACE(CIMObjectPath) & subscriptionName,
+	const PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> & classNames);
 
 protected:
-    CIMOMHandle _cimom;
+    PEGASUS_NAMESPACE(CIMOMHandle) _cimom;
 
 };
 

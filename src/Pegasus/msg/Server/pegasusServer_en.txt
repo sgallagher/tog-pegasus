@@ -1379,7 +1379,6 @@ en:table {
 
         /**
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX
-        *   Substitution {0} is the version of the MOF compiler (a string)
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
         *   When translating this message, make sure that each line fits in 80 characters,
         *    preserves the indenting, 
@@ -1387,7 +1386,7 @@ en:table {
         */
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX:string {
 
-          "\nMOF Compiler version {0}\n\n"
+          "\n\n"
            "Usage: cimmof [ -h ] [ --help ] [ --version ] [-w]\n"
            "              [ -uc ] [ -aE | -aV | -aEV ]\n"
            "              [ -I path ] [ -n namespace ]\n"
@@ -1407,7 +1406,6 @@ en:table {
 
         /**
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400
-        *   Substitution {0} is the version of the MOF compiler (a string)
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
         *   When translating this message, make sure that each line fits in 80 characters, 
         *    preserves the indenting,
@@ -1415,7 +1413,7 @@ en:table {
         */
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400:string {
 
-          "\nMOF Compiler version {0}\n\n"
+          "\n\n"
            "Usage: cimmof [ -h ] [ -E ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --xml ] [ --trace ] [ -q ] <mof_file1 mof_file2...>\n"
            "Options :\n"
            "  -h, --help   - Display this help message.\n"
@@ -1439,7 +1437,6 @@ en:table {
 
         /**
         * @note  Compiler.cmdline.cimmof.cmdline.MENU.STANDARD
-        *   Substitution {0} is the version of the MOF compiler (a string)
         *   Do not translate the cimmof command or options.  Just translate the text that explains the options.
         *   When translating this message, make sure that each line fits in 80 characters, 
         *    preserves the indenting,
@@ -1447,7 +1444,7 @@ en:table {
         */
         Compiler.cmdline.cimmof.cmdline.MENU.STANDARD:string {
 
-          "\nMOF Compiler version {0}\n\n"
+          "\n\n"
            "Usage: cimmof [ -h ] [ -E ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --xml ] [ --trace ] <mof_file1 mof_file2...>\n"
            "Options :\n"
            "  -h, --help   - Display this help message.\n"

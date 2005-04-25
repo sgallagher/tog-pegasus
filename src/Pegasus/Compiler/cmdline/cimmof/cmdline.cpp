@@ -68,10 +68,6 @@ PEGASUS_USING_PEGASUS;
 #include <qycmutilu2.H>
 #endif 
 
-
-// COMPILER VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
-#define COMPILER_VERSION "1.2.00" /* as of April 28, 2003 */
-// COMPILER_VERSION ++++++++++++++++++++++++++++++++++++++++++++++++++++
  
 #define DEFAULT_SERVER_AND_PORT "localhost:5988"
 
@@ -182,13 +178,13 @@ help(ostream &os, int progtype) {
 // now localize the menu based on platform, use help as the default menu which
 // has been appropriately built above for the specific platform
 
-MessageLoaderParms parms("Compiler.cmdline.cimmof.cmdline.MENU.STANDARD",help,COMPILER_VERSION); 
+MessageLoaderParms parms("Compiler.cmdline.cimmof.cmdline.MENU.STANDARD",help); 
 
 #ifdef PEGASUS_OS_HPUX
-	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX",help,COMPILER_VERSION);	
+	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX",help);	
 #endif
 #ifdef PEGASUS_OS_OS400
-	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400",help,COMPILER_VERSION);
+	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400",help);
 #endif
 
   os << MessageLoader::getMessage(parms);

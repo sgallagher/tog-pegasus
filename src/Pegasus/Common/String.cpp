@@ -39,6 +39,7 @@
 #include <cstring>
 #include "String.h"
 #include "Array.h"
+#include "AutoPtr.h"
 #include "InternalException.h"
 #include <iostream>
 #include <fstream>
@@ -253,13 +254,19 @@ String::String(const Char16* str, Uint32 n)
 String::String(const char* str)
 {
     _rep = new StringRep;
+    AutoPtr<StringRep> tempRep(_rep);
+    // An exception can be thrown, so use a temp AutoPtr.
     _convertAndAppend(str, _rep->c16a, 0, 1);
+    tempRep.release();
 }
 
 String::String(const char* str, Uint32 n)
 {
     _rep = new StringRep;
+    AutoPtr<StringRep> tempRep(_rep);
+    // An exception can be thrown, so use a temp AutoPtr.
     _convertAndAppend(str, _rep->c16a, n, 0);
+    tempRep.release();
 }
 
 String::~String()

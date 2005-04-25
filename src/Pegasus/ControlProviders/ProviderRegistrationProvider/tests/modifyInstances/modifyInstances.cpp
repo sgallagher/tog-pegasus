@@ -79,9 +79,9 @@ void TestModifyInstances(CIMClient& client)
     {
         returnRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     // create PG_Provider instances
@@ -104,11 +104,11 @@ void TestModifyInstances(CIMClient& client)
 
     try
     {
-	returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+        returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     //
@@ -163,9 +163,9 @@ void TestModifyInstances(CIMClient& client)
     {
         returnRef3 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     // create CIMObjectPath
@@ -209,9 +209,9 @@ void TestModifyInstances(CIMClient& client)
     {
         client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, modifyedInstance, false, propertyList);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     CIMKeyBinding kbm1(CIMName ("Name"), "providersModule1",

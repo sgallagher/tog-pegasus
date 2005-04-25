@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -78,9 +80,9 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     {
     	returnRef = prmanager.createInstance(instanceName, cimInstance);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     // create PG_Provider instances
@@ -103,9 +105,9 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     {
     	returnRef2 = prmanager.createInstance(instanceName2, cimInstance2);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     CIMObjectPath returnRef4;
@@ -126,9 +128,9 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     {
     	returnRef4 = prmanager.createInstance(instanceName4, cimInstance4);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     //
@@ -142,7 +144,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     namespaces.append("test_namespace1");
     namespaces.append("test_namespace2");
-    
+
     providerType.append(4);
 
     supportedMethods.append("test_method1");
@@ -174,13 +176,13 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     instanceName3.setNameSpace(NAMESPACE);
     instanceName3.setClassName(CLASSNAME3);
 
-    try 
+    try
     {
     	returnRef3 = prmanager.createInstance(instanceName3, cimInstance3);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     Array <String> supportedProperties2;
@@ -210,13 +212,13 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
     instanceName5.setNameSpace(NAMESPACE);
     instanceName5.setClassName(CLASSNAME3);
 
-    try 
+    try
     {
     	returnRef5 = prmanager.createInstance(instanceName5, cimInstance5);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     //
@@ -235,7 +237,7 @@ Boolean TestLookupIndicationProvider(ProviderRegistrationManager & prmanager)
 
     CIMPropertyList requiredPropertyList(requiredProperties);
 
-    if (prmanager.getIndicationProviders("test_namespace1", 
+    if (prmanager.getIndicationProviders("test_namespace1",
 	"test_class1", requiredPropertyList, providerIns, providerModuleIns))
     {
 	return (true);
@@ -284,6 +286,6 @@ endl);
     }
 
     PEGASUS_STD(cout) << argv[0] << " +++++ passed all tests" << PEGASUS_STD(endl);
-    
+
     exit (0);
 }

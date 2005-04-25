@@ -308,19 +308,19 @@ void ProviderRegistrationManager::initializeProviders(
 	    }
         }
     }
-    catch(CIMException & e)
+    catch(const CIMException & e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "CIMException: " + e.getMessage());
         PEG_METHOD_EXIT();
-	throw (e);
+        throw;
     }
-    catch(Exception & e)
+    catch(const Exception & e)
     {
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: " + e.getMessage());
         PEG_METHOD_EXIT();
-	throw (e);
+        throw;
     }
     catch(...)
     {
@@ -1493,13 +1493,13 @@ CIMObjectPath ProviderRegistrationManager::createInstance(
 
         return (cimRef);
     }
-    catch (CIMException & exception)
+    catch (const CIMException &)
     {
-        throw (exception);
+        throw;
     }
-    catch (Exception & exception)
+    catch (const Exception &)
     {
-        throw (exception);
+        throw;
     }
 }
 
@@ -1518,15 +1518,14 @@ void ProviderRegistrationManager::deleteInstance(
                     instanceReference.toString());
     }
 
-    catch (CIMException & exception)
+    catch (const CIMException &)
     {
-        throw (exception);
+        throw;
     }
-    catch (Exception & exception)
+    catch (const Exception &)
     {
-        throw (exception);
+        throw;
     }
-
 }
 
 // modify a registered provider
@@ -2433,19 +2432,19 @@ CIMObjectPath ProviderRegistrationManager::_createInstance(
 		    {
 		        instance.getProperty(pos).getValue().get(autoStart);
                     }
-		    catch (CIMException & e)
+		    catch (const CIMException & e)
 		    {
 			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
 			    "CIMException: " + e.getMessage());
                         PEG_METHOD_EXIT();
-			throw (e);
+			throw;
 		    }
-		    catch (Exception & e)
+		    catch (const Exception & e)
 		    {
 			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
 			    "Exception: " + e.getMessage());
                         PEG_METHOD_EXIT();
-			throw (e);
+			throw;
 		    }
 
 		    if (autoStart)
@@ -3946,7 +3945,7 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
             (_controller->ClientSendWait (* _client_handle, _queueId,
             &asyncRequest));
 
-	AutoPtr <CIMNotifyProviderRegistrationResponseMessage> response
+        AutoPtr <CIMNotifyProviderRegistrationResponseMessage> response
             (reinterpret_cast <CIMNotifyProviderRegistrationResponseMessage *>
             ((dynamic_cast <AsyncLegacyOperationResult *>
             (asyncReply.get ()))->get_result ()));
@@ -3954,7 +3953,7 @@ void ProviderRegistrationManager::_sendMessageToSubscription(
         if (response->cimException.getCode () != CIM_ERR_SUCCESS)
         {
             CIMException e = response->cimException;
-            throw (e);
+            throw e;
         }
     }
 }

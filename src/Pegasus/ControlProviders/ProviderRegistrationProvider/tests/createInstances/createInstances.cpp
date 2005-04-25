@@ -79,9 +79,9 @@ void TestCreateInstances(CIMClient& client)
     {
         returnRef = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-	throw (e);
+        throw;
     }
 
     // Test create PG_Provider instances
@@ -104,11 +104,11 @@ void TestCreateInstances(CIMClient& client)
 
     try
     {
-	returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
+        returnRef2 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance2);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     //
@@ -163,9 +163,9 @@ void TestCreateInstances(CIMClient& client)
     {
         returnRef3 = client.createInstance(PEGASUS_NAMESPACENAME_INTEROP, cimInstance3);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     CIMKeyBinding kb1(CIMName ("Name"), "providersModule1", 
@@ -180,9 +180,9 @@ void TestCreateInstances(CIMClient& client)
     {
     	client.getInstance(PEGASUS_NAMESPACENAME_INTEROP, instanceName);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     // test enumerateInstances
@@ -190,9 +190,9 @@ void TestCreateInstances(CIMClient& client)
     {
     	client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
     // test enumerateInstanceNames
@@ -200,9 +200,9 @@ void TestCreateInstances(CIMClient& client)
     {
     	client.enumerateInstanceNames(PEGASUS_NAMESPACENAME_INTEROP, PEGASUS_CLASSNAME_PROVIDER);
     }
-    catch(CIMException& e)
+    catch(const CIMException&)
     {
-        throw (e);
+        throw;
     }
 
 

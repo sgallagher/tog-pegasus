@@ -40,71 +40,69 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceQueryProvider.h>
 
-PEGASUS_USING_PEGASUS;
-
 class InstanceQueryProvider :
-	public CIMInstanceQueryProvider
+	public PEGASUS_NAMESPACE(CIMInstanceQueryProvider)
 {
 public:
 	InstanceQueryProvider(void);
 	virtual ~InstanceQueryProvider(void);
 
 	// CIMProvider interface
-	virtual void initialize(CIMOMHandle & cimom);
+	virtual void initialize(PEGASUS_NAMESPACE(CIMOMHandle) & cimom);
 	virtual void terminate(void);
 
 	// CIMInstanceProvider interface
 	virtual void getInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+		const PEGASUS_NAMESPACE(OperationContext) & context,
+		const PEGASUS_NAMESPACE(CIMObjectPath) & ref,
+		const PEGASUS_NAMESPACE(Boolean) includeQualifiers,
+		const PEGASUS_NAMESPACE(Boolean) includeClassOrigin,
+		const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+		PEGASUS_NAMESPACE(InstanceResponseHandler) & handler);
 
 	virtual void enumerateInstances(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const Boolean includeQualifiers,
-		const Boolean includeClassOrigin,
-		const CIMPropertyList & propertyList,
-		InstanceResponseHandler & handler);
+		const PEGASUS_NAMESPACE(OperationContext) & context,
+		const PEGASUS_NAMESPACE(CIMObjectPath) & ref,
+		const PEGASUS_NAMESPACE(Boolean) includeQualifiers,
+		const PEGASUS_NAMESPACE(Boolean) includeClassOrigin,
+		const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+		PEGASUS_NAMESPACE(InstanceResponseHandler) & handler);
 
 	virtual void enumerateInstanceNames(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ObjectPathResponseHandler & handler);
+		const PEGASUS_NAMESPACE(OperationContext) & context,
+		const PEGASUS_NAMESPACE(CIMObjectPath) & ref,
+		PEGASUS_NAMESPACE(ObjectPathResponseHandler) & handler);
 
 	virtual void modifyInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		const Boolean includeQualifiers,
-		const CIMPropertyList & propertyList,
-		ResponseHandler & handler);
+		const PEGASUS_NAMESPACE(OperationContext) & context,
+		const PEGASUS_NAMESPACE(CIMObjectPath) & ref,
+		const PEGASUS_NAMESPACE(CIMInstance) & obj,
+		const PEGASUS_NAMESPACE(Boolean) includeQualifiers,
+		const PEGASUS_NAMESPACE(CIMPropertyList) & propertyList,
+		PEGASUS_NAMESPACE(ResponseHandler) & handler);
 
 	virtual void createInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		const CIMInstance & obj,
-		ObjectPathResponseHandler & handler);
+		const PEGASUS_NAMESPACE(OperationContext) & context,
+		const PEGASUS_NAMESPACE(CIMObjectPath) & ref,
+		const PEGASUS_NAMESPACE(CIMInstance) & obj,
+		PEGASUS_NAMESPACE(ObjectPathResponseHandler) & handler);
 
 	virtual void deleteInstance(
-		const OperationContext & context,
-		const CIMObjectPath & ref,
-		ResponseHandler & handler);
+		const PEGASUS_NAMESPACE(OperationContext) & context,
+		const PEGASUS_NAMESPACE(CIMObjectPath) & ref,
+		PEGASUS_NAMESPACE(ResponseHandler) & handler);
 
     virtual void execQuery(
-       const OperationContext & context,
-       const CIMObjectPath & objectPath,
-       const QueryExpression & query,
-       InstanceResponseHandler & handler);
+       const PEGASUS_NAMESPACE(OperationContext) & context,
+       const PEGASUS_NAMESPACE(CIMObjectPath) & objectPath,
+       const PEGASUS_NAMESPACE(QueryExpression) & query,
+       PEGASUS_NAMESPACE(InstanceResponseHandler) & handler);
 
 
 
 protected:
-	Array<CIMObjectPath> _instanceNames;
-	Array<CIMInstance> _instances;
+	PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> _instanceNames;
+	PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMInstance)> _instances;
 
 };
 

@@ -42,6 +42,7 @@
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //              David Dillard, VERITAS Software Corp.
 //                   (david.dillard@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3347
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -664,6 +665,7 @@ CIMRepository::~CIMRepository()
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::~CIMRepository");
 
+    delete streamer;
     delete _context;
 
     PEG_METHOD_EXIT();

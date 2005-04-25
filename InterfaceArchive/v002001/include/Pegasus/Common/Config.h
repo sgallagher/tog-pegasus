@@ -67,7 +67,6 @@
 #ifdef PEGASUS_HAVE_NAMESPACES
 # define PEGASUS_NAMESPACE_BEGIN namespace Pegasus {
 # define PEGASUS_NAMESPACE_END }
-# define PEGASUS_NAMESPACE(X) Pegasus::X
 
 #ifndef PEGASUS_HAVE_NO_STD
 # define PEGASUS_STD(X) std::X
@@ -80,7 +79,6 @@
 #else
 # define PEGASUS_NAMESPACE_BEGIN /* empty */
 # define PEGASUS_NAMESPACE_END /* empty */
-# define PEGASUS_NAMESPACE(X) X
 # define PEGASUS_STD(X) X
 # define PEGASUS_USING_STD
 # define PEGASUS_USING_PEGASUS

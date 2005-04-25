@@ -46,10 +46,7 @@ repository:
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" InstanceQueryProviderR.mof
 endif
-	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
-	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
+
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
@@ -79,10 +76,7 @@ repositoryServer:
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@ cimmof "-n$(INTEROPNS)" InstanceQueryProviderR.mof
 endif
-	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
-	@ cimmof "-n$(SAMPLEPROVIDERNS)" TST_Family.mof
-	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
-	@ cimmof "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
+
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof

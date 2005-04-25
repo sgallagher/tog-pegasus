@@ -233,7 +233,7 @@ CIMNamespaceName _interopNamespace = PEGASUS_NAMESPACENAME_INTEROP;
 CIMName namePropertyName = "name";
 
 // This is the dynamic entry point into this dynamic module. The name of
-// this provider is "SampleFamilyProvider" which is appened to
+// this provider is "FamilyProvider" which is appened to
 // "PegasusCreateProvider_" to form a symbol name. This function is called
 // by the ProviderModule to load this provider.
 //

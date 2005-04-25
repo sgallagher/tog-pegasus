@@ -21,8 +21,9 @@ include $(ROOT)/mak/configschema.mak
 
 TESTPROVIDERNS=test/TestProvider
 TESTPROVIDERNSDIRECTORY=$(REPOSITORY_ROOT)/test\#TestProvider
-
-# Clean the existing repository and load the test MOF with cimmofl.
+##
+## Clean the existing repository and load the test MOF with cimmofl.
+##
 repository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
 	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
@@ -42,6 +43,13 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" TestInstanceProviderRegistration.mof
 	@ $(ECHO) +++++ Registering IndicationStressTest Provider  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" IndicationStressTestProviderR.mof
+
+
+	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" TST_Family.mof
+	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
+
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
@@ -70,7 +78,9 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 endif
 endif
 
-# Load the test MOF with cimmof.  (Do not remove the existing repository.)
+##
+## Load the test MOF with cimmof.  (Do not remove the existing repository.)
+##
 repositoryServer:
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(TESTPROVIDERNS) namespace ...
 	@ cimmof -n$(TESTPROVIDERNS) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
@@ -82,6 +92,12 @@ repositoryServer:
 	@ cimmof "-n$(TESTPROVIDERNS)" IndicationStressTestProviderSchema.mof
 	@ $(ECHO) +++++ Registering IndicationStressTest Provider  ...
 	@ cimmof "-n$(INTEROPNS)" IndicationStressTestProviderR.mof
+
+	@ $(ECHO) +++++ Installing the Family MOF file for the association provider
+	@ cimmof "-n$(TESTPROVIDERNS)" TST_Family.mof
+	@ $(ECHO) +++++ Registering FamilyProvider schema Providers  ...
+	@ cimmof "-n$(INTEROPNS)" FamilyProviderSchemaR.mof
+
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
@@ -108,12 +124,17 @@ ifndef PEGASUS_DISABLE_PROV_USERCTXT_CIMSERVER
 endif
 endif
 
+##
+##
+##
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
 	@ $(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
 
+
 unregister:
 	$(MAKE) -i unregisterproviders
+
 
 unregisterproviders:
 	cimprovider -r -m IndicationStressTestProviderModule

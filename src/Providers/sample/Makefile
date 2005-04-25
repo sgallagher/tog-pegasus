@@ -7,8 +7,6 @@ DIRS = \
 	IndicationProvider \
 	SNMPIndicationProvider \
 	RT_Indication \
-	FamilyProvider \
-	FamilyProvider/tests \
 	AssociationProvider \
 	AssociationProvider/testclient \
 	LocalizedProvider \

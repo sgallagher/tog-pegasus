@@ -11,6 +11,8 @@ DIRS = \
 	ClientProvider \
 	DefaultInstanceProvider \
 	DynamicIndicationProvider \
+	FamilyProvider \
+	FamilyProvider/tests \
 	IndicationStressTestProvider \
 	IndicationStressTestProvider/testclient \
 	InstanceProvider \

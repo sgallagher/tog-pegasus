@@ -37,6 +37,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1979,#2011
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3383
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -185,10 +186,6 @@ static void TestInstanceOperations(CIMClient& client)
         {
            client.deleteInstance(SAMPLEPROVIDER_NAMESPACE, instanceNames[i]);
         }
-    }
-    catch (const InvalidNameException&)
-    {
-       // Ignore Invalid Name exception
     }
     catch (const CIMException& e)
     {

@@ -161,13 +161,35 @@ Array<CIMObjectPath> WMIAssociatorProvider::associatorNames(
 	// now get the names from the object
 	Uint32 size = objects.size();
 	Uint32 i;
+	
+	//check if namespace is remote
+	CIMNamespaceName oNamespace(nameSpace);
+	String strNamespace = oNamespace.getString();
+	String strNamespaceLower = strNamespace;
+	strNamespaceLower.toLower();
+	String strRemotePrefix = "";
+	
+	if (strNamespaceLower.subString(0, 4) != "root")
+	{
+		Uint32 uiPos = strNamespaceLower.find("root");
+		if (uiPos == PEG_NOT_FOUND)
+			throw CIMException(CIM_ERR_FAILED);
+
+		strRemotePrefix = strNamespace.subString(0, uiPos);
+	}
 
 	for (i=0; i<size; i++)
-	{
-		CIMObjectPath objPath;
-
-		objPath = objects[i].getPath();
-		objectNames.append(objPath);
+	{	
+		CIMObjectPath oObjectPath = objects[i].getPath();
+		
+		if (strRemotePrefix != "")
+		{
+			strNamespace = strRemotePrefix;
+			oNamespace = strNamespace.append(oObjectPath.getNameSpace().getString());
+			oObjectPath.setNameSpace(oNamespace);			
+		}
+		
+		objectNames.append(oObjectPath);
 	}
 
 	PEG_METHOD_EXIT();

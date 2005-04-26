@@ -137,7 +137,7 @@ extern "C" {
       return (CMPIDateTime*)new CMPI_Object(dt);
    }
 
-   static CMPIDateTime* dtClone(CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIDateTime* dtClone(const CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
       if (!dt) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -151,7 +151,7 @@ extern "C" {
       return neDt;
    }
 
-   static CMPIBoolean dtIsInterval(CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIBoolean dtIsInterval(const CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
       if (!dt) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -162,7 +162,7 @@ extern "C" {
       return dt->isInterval();
    }
 
-   static CMPIString *dtGetStringFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIString *dtGetStringFormat(const CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
       if (!dt) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -173,7 +173,7 @@ extern "C" {
       return str;
    }
 
-   static CMPIUint64 dtGetBinaryFormat(CMPIDateTime* eDt, CMPIStatus* rc) {
+   static CMPIUint64 dtGetBinaryFormat(const CMPIDateTime* eDt, CMPIStatus* rc) {
       CIMDateTime* dt=(CIMDateTime*)eDt->hdl;
       if (!dt) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);

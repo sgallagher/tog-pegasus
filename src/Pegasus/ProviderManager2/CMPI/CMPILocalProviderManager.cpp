@@ -356,7 +356,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getRemoteProvider(
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (Exception e) {
+    catch (const Exception &e) {
 #ifdef PEGASUS_DEBUG
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
 #endif
@@ -390,7 +390,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getProvider(
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (Exception e) {
+    catch (const Exception &e) {
 #ifdef PEGASUS_DEBUG
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
 #endif
@@ -527,12 +527,12 @@ CMPILocalProviderManager::getIndicationProvidersToEnable ()
         }
 
     }
-    catch (CIMException & e)
+    catch (const CIMException & e)
     {
         PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "CIMException: " + e.getMessage ());
     }
-    catch (Exception & e)
+    catch (const Exception & e)
     {
         PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Exception: " + e.getMessage ());

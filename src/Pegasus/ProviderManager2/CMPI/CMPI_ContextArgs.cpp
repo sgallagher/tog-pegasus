@@ -62,7 +62,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIArgs* argsClone(CMPIArgs* eArg, CMPIStatus* rc) {
+   static CMPIArgs* argsClone(const CMPIArgs* eArg, CMPIStatus* rc) {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       Array<CIMParamValue>* cArg=new Array<CIMParamValue>();
       for (long i=0,s=arg->size(); i<s; i++) {
@@ -84,7 +84,7 @@ extern "C" {
       return -1;
    }
 
-   static CMPIStatus argsAddArg(CMPIArgs* eArg, const char *name, CMPIValue* data, CMPIType type) {
+   static CMPIStatus argsAddArg(const CMPIArgs* eArg, const char *name, const CMPIValue* data, const CMPIType type) {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       CMPIrc rc;
       CIMValue v=value2CIMValue(data,type,&rc);
@@ -97,8 +97,10 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIData argsGetArgAt(CMPIArgs* eArg, CMPICount pos, CMPIString** name,
-                  CMPIStatus* rc) {
+   static CMPIData argsGetArgAt(const CMPIArgs* eArg, CMPICount pos, 
+				CMPIString** name,
+				CMPIStatus* rc) {
+
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       CMPIData data={0,CMPI_nullValue | CMPI_notFound,{0}};
 
@@ -122,7 +124,7 @@ extern "C" {
       return data;
    }
 
-   static CMPIData argsGetArg(CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
+   static CMPIData argsGetArg(const CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       CIMName eName(name);
 
@@ -134,7 +136,7 @@ extern "C" {
       return data;
    }
 
-   static CMPICount argsGetArgCount(CMPIArgs* eArg, CMPIStatus* rc) {
+   static CMPICount argsGetArgCount(const CMPIArgs* eArg, CMPIStatus* rc) {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return arg->size();
@@ -176,21 +178,21 @@ static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
    CMReturn(CMPI_RC_OK);
 }
 
-   static CMPIData contextGetEntry(CMPIContext* eCtx, const char *name, CMPIStatus* rc) {
+   static CMPIData contextGetEntry(const CMPIContext* eCtx, const char *name, CMPIStatus* rc) {
       return argsGetArg((CMPIArgs*)eCtx,name,rc);
    }
 
-   CMPIData contextGetEntryAt(CMPIContext* eCtx, CMPICount pos,
+   CMPIData contextGetEntryAt(const CMPIContext* eCtx, CMPICount pos,
                CMPIString** name, CMPIStatus* rc) {
       return argsGetArgAt((CMPIArgs*)eCtx,pos,name,rc);
    }
 
-   static CMPICount contextGetEntryCount(CMPIContext* eCtx, CMPIStatus* rc) {
+   static CMPICount contextGetEntryCount(const CMPIContext* eCtx, CMPIStatus* rc) {
       return argsGetArgCount((CMPIArgs*)eCtx,rc);
    }
 
-   static CMPIStatus contextAddEntry(CMPIContext* eCtx, const char *name,
-               CMPIValue* data, CMPIType type) {
+   static CMPIStatus contextAddEntry(const CMPIContext* eCtx, const char *name,
+               const CMPIValue* data, const CMPIType type) {
       if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) {
          OperationContext *ctx=((CMPI_Context*)eCtx)->ctx;
          if (type==CMPI_chars) {

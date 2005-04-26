@@ -57,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
    for (int i=0; i<aSize; i++) ar##pt[i]=*((pt*)aData[i].value.ct->hdl); \
    v.set(ar##pt); }
 
-CIMValue value2CIMValue(CMPIValue* data, CMPIType type, CMPIrc *rc) {
+CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) {
    CIMValue v;
    if (rc) *rc=CMPI_RC_OK;
 

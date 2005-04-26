@@ -55,24 +55,24 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   CMPISubCond* sbcClone(CMPISubCond* eSc, CMPIStatus* rc) {
+   CMPISubCond* sbcClone(const CMPISubCond* eSc, CMPIStatus* rc) {
          if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
          return NULL;
    }
 
-   CMPICount sbcGetCount(CMPISubCond* eSbc, CMPIStatus* rc) {
+   CMPICount sbcGetCount(const CMPISubCond* eSbc, CMPIStatus* rc) {
       
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
-	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(eSbc);
+	  const CMPI_Object *obj=reinterpret_cast<const CMPI_Object*>(eSbc);
 	  CMPI_TableauRow* row = (CMPI_TableauRow* )obj->priv;
 	  if (row)	  
       	return row->size();
 	  return 0;
    }
 
-   CMPIPredicate* sbcGetPredicateAt(CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
+   CMPIPredicate* sbcGetPredicateAt(const CMPISubCond* eSbc, unsigned int index, CMPIStatus* rc) {
 
-	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(eSbc);
+	  const CMPI_Object *obj=reinterpret_cast<const CMPI_Object*>(eSbc);
 	  CMPI_TableauRow* row = (CMPI_TableauRow* )obj->priv;
 
 	  if (row)
@@ -94,7 +94,7 @@ extern "C" {
       return NULL; 
    }
 
-   CMPIPredicate* sbcGetPredicate(CMPISubCond* eSbc, const char *name, CMPIStatus* rc) {
+   CMPIPredicate* sbcGetPredicate(const CMPISubCond* eSbc, const char *name, CMPIStatus* rc) {
       //CMPI_SubCond *sc=(CMPI_SubCond*)eSbc;
       return NULL;
    }

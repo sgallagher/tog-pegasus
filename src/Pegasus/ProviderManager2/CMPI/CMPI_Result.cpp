@@ -48,7 +48,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   static CMPIStatus resultReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
+   static CMPIStatus resultReturnData(const CMPIResult* eRes, const CMPIValue* data,const  CMPIType type) {
       CMPIrc rc;
       if ((eRes->hdl == NULL) || (data == NULL))
 	     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -72,7 +72,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultReturnInstance(CMPIResult* eRes, CMPIInstance* eInst) {
+   static CMPIStatus resultReturnInstance(const CMPIResult* eRes, const CMPIInstance* eInst) {
 
       InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
       if ((res == NULL) || (eInst == NULL))
@@ -95,7 +95,7 @@ extern "C" {
 
       // Check if a property filter has been set. If yes throw out
       // all properties which are not found in the filter list.
-      char **listroot=(char**)(reinterpret_cast<CMPI_Object*>(eInst))->priv;
+      char **listroot=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
 
       if (listroot && *listroot)
       {
@@ -128,7 +128,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultReturnObject(CMPIResult* eRes, CMPIInstance* eInst) {
+   static CMPIStatus resultReturnObject(const CMPIResult* eRes, const CMPIInstance* eInst) {
       ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
 
       if ((res == NULL) || (eInst == NULL))
@@ -152,7 +152,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultReturnExecQuery(CMPIResult* eRes, CMPIInstance* eInst) {
+   static CMPIStatus resultReturnExecQuery(const CMPIResult* eRes, const CMPIInstance* eInst) {
       ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
       if ((res == NULL) || (eInst == NULL))
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -169,7 +169,7 @@ extern "C" {
       res->deliver(inst);
       CMReturn(CMPI_RC_OK);
    }
-   static CMPIStatus resultReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
+   static CMPIStatus resultReturnObjectPath(const CMPIResult* eRes, const CMPIObjectPath* eRef) {
       ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
 
       if ((res == NULL) || (eRef == NULL))
@@ -187,7 +187,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultReturnInstDone(CMPIResult* eRes) {
+   static CMPIStatus resultReturnInstDone(const CMPIResult* eRes) {
       InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -197,7 +197,7 @@ extern "C" {
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
       CMReturn(CMPI_RC_OK)}
 
-   static CMPIStatus resultReturnRefDone(CMPIResult* eRes) {
+   static CMPIStatus resultReturnRefDone(const CMPIResult* eRes) {
       ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -207,7 +207,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultReturnDataDone(CMPIResult* eRes) {
+   static CMPIStatus resultReturnDataDone(const CMPIResult* eRes) {
       ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -217,7 +217,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultReturnMethDone(CMPIResult* eRes) {
+   static CMPIStatus resultReturnMethDone(const CMPIResult* eRes) {
       MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -227,7 +227,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultReturnObjDone(CMPIResult* eRes) {
+   static CMPIStatus resultReturnObjDone(const CMPIResult* eRes) {
       ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -236,7 +236,7 @@ extern "C" {
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
       CMReturn(CMPI_RC_OK);
    }
-   static CMPIStatus resultReturnExecQueryDone(CMPIResult* eRes) {
+   static CMPIStatus resultReturnExecQueryDone(const CMPIResult* eRes) {
       ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
@@ -246,15 +246,15 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIStatus resultBadReturnData(CMPIResult* eRes, const CMPIValue* data, CMPIType type) {
+   static CMPIStatus resultBadReturnData(const CMPIResult* eRes, const CMPIValue* data, const CMPIType type) {
       CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
 
-   static CMPIStatus resultBadReturnInstance(CMPIResult* eRes, CMPIInstance* eInst) {
+   static CMPIStatus resultBadReturnInstance(const CMPIResult* eRes, const CMPIInstance* eInst) {
       CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
 
-   static CMPIStatus resultBadReturnObjectPath(CMPIResult* eRes, CMPIObjectPath* eRef) {
+   static CMPIStatus resultBadReturnObjectPath(const CMPIResult* eRes, const CMPIObjectPath* eRef) {
       CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
 

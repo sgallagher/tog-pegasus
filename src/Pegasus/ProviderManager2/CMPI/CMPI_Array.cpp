@@ -55,7 +55,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIArray* arrayClone(CMPIArray* eArray, CMPIStatus* rc) {
+   static CMPIArray* arrayClone(const CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData* dta=(CMPIData*)eArray->hdl;
 
 	  if (!dta) {
@@ -128,7 +128,7 @@ extern "C" {
       return nArray;
    }
 
-   static CMPIData arrayGetElementAt(CMPIArray* eArray, CMPICount pos, CMPIStatus* rc) {
+   static CMPIData arrayGetElementAt(const CMPIArray* eArray, CMPICount pos, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
 	  if (!dta) {
@@ -143,7 +143,7 @@ extern "C" {
    }
 
    CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
-                                       CMPIValue *val, CMPIType type) {
+                                       const CMPIValue *val, CMPIType type) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
 	  if (!dta) 
 		CMReturn( CMPI_RC_ERR_INVALID_PARAMETER);
@@ -165,7 +165,7 @@ extern "C" {
       CMReturn(CMPI_RC_ERR_NOT_FOUND);
    }
 
-   static CMPICount arrayGetSize(CMPIArray* eArray, CMPIStatus* rc) {
+   static CMPICount arrayGetSize(const CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
 	  if (!dta) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -175,7 +175,7 @@ extern "C" {
       return dta->value.uint32;
    }
 
-   static CMPIType arrayGetType(CMPIArray* eArray, CMPIStatus* rc) {
+   static CMPIType arrayGetType(const CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
 	  if (!dta) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);

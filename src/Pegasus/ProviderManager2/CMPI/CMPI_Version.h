@@ -35,4 +35,4 @@
 
 // This file sets the CMPI implementation version.
 
-#define CMPI_VER_90 1
+// By default, cmpidt.h sets it to the 100 - the CMPI standard.

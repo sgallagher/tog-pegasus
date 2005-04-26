@@ -95,7 +95,7 @@ CMPI_ThreadContext* CMPI_ThreadContext::getThreadContext() {
    #endif
 }
 
-CMPIBroker* CMPI_ThreadContext::getBroker() {
+const CMPIBroker* CMPI_ThreadContext::getBroker() {
    //return getThreadContext()->broker;
     CMPI_ThreadContext *ctx = getThreadContext();
     if (ctx)
@@ -103,11 +103,11 @@ CMPIBroker* CMPI_ThreadContext::getBroker() {
     return 0;
 }
 
-CMPIContext* CMPI_ThreadContext::getContext() {
+const CMPIContext* CMPI_ThreadContext::getContext() {
    return getThreadContext()->context;
 }
 
-CMPI_ThreadContext::CMPI_ThreadContext(CMPIBroker *mb, CMPIContext *ctx ) {
+CMPI_ThreadContext::CMPI_ThreadContext(const CMPIBroker *mb, const CMPIContext *ctx ) {
    CIMfirst=CIMlast=NULL;
    broker=mb;
    context=ctx;

@@ -131,31 +131,32 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
         const OperationContext opc;
         CMPI_ContextOnStack eCtx(opc);
         CMPI_ThreadContext thr(&broker,&eCtx);
+	    CMPIStatus rc = {CMPI_RC_OK, NULL};
 
         if (miVector.genericMode) {
            CString mName=name.getCString();
            if (miVector.miTypes & CMPI_MIType_Instance)
-              miVector.instMI=miVector.createGenInstMI(&broker,&eCtx,mName);
+              miVector.instMI=miVector.createGenInstMI(&broker,&eCtx,mName, &rc);
            if (miVector.miTypes & CMPI_MIType_Association)
-              miVector.assocMI=miVector.createGenAssocMI(&broker,&eCtx,mName);
+              miVector.assocMI=miVector.createGenAssocMI(&broker,&eCtx,mName, &rc);
            if (miVector.miTypes & CMPI_MIType_Method) 
-              miVector.methMI=miVector.createGenMethMI(&broker,&eCtx,mName);
+              miVector.methMI=miVector.createGenMethMI(&broker,&eCtx,mName, &rc);
            if (miVector.miTypes & CMPI_MIType_Property)
-              miVector.propMI=miVector.createGenPropMI(&broker,&eCtx,mName);
+              miVector.propMI=miVector.createGenPropMI(&broker,&eCtx,mName, &rc);
            if (miVector.miTypes & CMPI_MIType_Indication)
-              miVector.indMI=miVector.createGenIndMI(&broker,&eCtx,mName);
+              miVector.indMI=miVector.createGenIndMI(&broker,&eCtx,mName, &rc);
         }
         else {
            if (miVector.miTypes & CMPI_MIType_Instance)
-              miVector.instMI=miVector.createInstMI(&broker,&eCtx);
+              miVector.instMI=miVector.createInstMI(&broker,&eCtx, &rc);
            if (miVector.miTypes & CMPI_MIType_Association)
-              miVector.assocMI=miVector.createAssocMI(&broker,&eCtx);
+              miVector.assocMI=miVector.createAssocMI(&broker,&eCtx, &rc);
            if (miVector.miTypes & CMPI_MIType_Method) 
-              miVector.methMI=miVector.createMethMI(&broker,&eCtx);
+              miVector.methMI=miVector.createMethMI(&broker,&eCtx, &rc);
            if (miVector.miTypes & CMPI_MIType_Property)
-              miVector.propMI=miVector.createPropMI(&broker,&eCtx);
+              miVector.propMI=miVector.createPropMI(&broker,&eCtx, &rc);
            if (miVector.miTypes & CMPI_MIType_Indication)
-              miVector.indMI=miVector.createIndMI(&broker,&eCtx);
+              miVector.indMI=miVector.createIndMI(&broker,&eCtx, &rc);
         }
 }
 
@@ -205,7 +206,8 @@ Boolean CMPIProvider::tryTerminate(void)
       try
       {
 	if (noUnload==false) {
-	   terminate();
+		// False means that the CIMServer is not shutting down.
+	   _terminate(false);
 	   if (noUnload==true) {
 	      _status=savedStatus;
 	      return false;
@@ -229,7 +231,7 @@ Boolean CMPIProvider::tryTerminate(void)
   return terminated;
 }
 
-void CMPIProvider::_terminate(void)
+void CMPIProvider::_terminate(Boolean terminating)
 {
     if (broker.clsCache) {
 	ClassCache::Iterator i=broker.clsCache->start();
@@ -243,32 +245,48 @@ void CMPIProvider::_terminate(void)
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPI_ContextOnStack eCtx(opc);
     CMPI_ThreadContext thr(&broker,&eCtx);
-
+    CMPIBoolean term = terminating;
+/*
+ @param terminating When true, the terminating argument indicates that the MB is in the process of
+     terminating and that cleanup must be done. When set to false, the MI may respond with
+     CMPI_IRC_DO_NOT_UNLOAD, or CMPI_IRC_NEVER_UNLOAD, indicating that unload will
+     interfere with current MI processing.
+     @return Function return status. The following CMPIrc codes shall be recognized:
+        CMPI_RC_OK Operation successful.
+        CMPI_RC_ERR_FAILED Unspecific error occurred.
+        CMPI_RC_DO_NOT_UNLOAD Operation successful - do not unload now.
+        CMPI_RC_NEVER_UNLOAD Operation successful - never unload.
+*/
     if (miVector.miTypes & CMPI_MIType_Instance) {
-       rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx);
+       rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, &term);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
+	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Association) {
-       rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx);
+       rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx, &term);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
+	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Method) {
-       rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx);
+       rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx, &term);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
+	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Property) {
-       rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx);
+       rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx, &term);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
+	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Indication) {
-       rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx);
+       rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx, &term);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
+	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
 
 }
 
 
-void CMPIProvider::terminate(void)
+void CMPIProvider::terminate()
 {
   Status savedStatus=_status;     
   if(_status == INITIALIZED)
@@ -277,7 +295,7 @@ void CMPIProvider::terminate(void)
 	  pegasus_yield();
 	  try 
     {
-        _terminate();
+        _terminate(false);
 	      if (noUnload==true) {
             _status=savedStatus;
 	          return;

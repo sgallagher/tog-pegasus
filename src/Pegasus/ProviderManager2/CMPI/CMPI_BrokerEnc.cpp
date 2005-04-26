@@ -92,6 +92,49 @@ static String typeToString(CIMType t) {
    }
 }
 
+#define CMPIInstance_str "CMPIInstance"
+#define CMPIInstance_str_l 13
+
+#define CMPIObjectPath_str "CMPIObjectPath"
+#define CMPIObjectPath_str_l 16
+
+#define CMPIArgs_str "CMPIArgs"
+#define CMPIArgs_str_l 8
+
+#define CMPIContext_str "CMPIContext"
+#define CMPIContext_str_l 11
+
+#define CMPIResult_str "CMPIResult"
+#define CMPIResult_str_l 12
+
+#define CMPIDateTime_str "CMPIDateTime"
+#define CMPIDateTime_str_l 12
+
+#define CMPIArray_str "CMPIArray"
+#define CMPIArray_str_l 9
+
+#define CMPIString_str "CMPIString"
+#define CMPIString_str_l 10
+
+#define CMPISelectExp_str "CMPISelectExp"
+#define CMPISelectExp_str_l 13
+
+#define CMPISelectCond_str "CMPISelectCond"
+#define CMPISelectCond_str_l 14
+
+#define CMPISubCond_str "CMPISubCond"
+#define CMPISubCond_str_l 11
+
+#define CMPIPredicate_str "CMPIPredicate"
+#define CMPIPredicate_str_l 13
+
+#define CMPIBroker_str "CMPIBroker"
+#define CMPIBroker_str_l 10
+
+#define CMPIEnumeration_str "CMPIEnumeration"
+#define CMPIEnumeration_str_l 15
+
+
 
 static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
 
@@ -145,9 +188,9 @@ static inline CIMName Name(const char *n) {
 
 extern "C" {
 
-   static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc);
+   static CMPIString* mbEncToString(const CMPIBroker*,const void *o, CMPIStatus *rc);
 
-   static CMPIInstance* mbEncNewInstance(CMPIBroker* mb, CMPIObjectPath* eCop,
+   static CMPIInstance* mbEncNewInstance(const CMPIBroker* mb, const CMPIObjectPath* eCop,
                                        CMPIStatus *rc) {
       if (!eCop) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -165,7 +208,7 @@ extern "C" {
 
       if (cls) {
          ci=new CIMInstance(cop->getClassName());
-         CMPIContext *ctx=CMPI_ThreadContext::getContext();
+         const CMPIContext *ctx=CMPI_ThreadContext::getContext();
          CMPIFlags flgs=ctx->ft->getEntry(ctx,CMPIInvocationFlags,rc).value.uint32;
          if ((flgs & CMPI_FLAG_IncludeQualifiers)!=0) {
             for (int i=0,m=cls->getQualifierCount(); i<m; i++)
@@ -201,12 +244,13 @@ extern "C" {
 
       ci->setPath(*cop);
       CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(new CMPI_Object(ci));
+      neInst->ft->ftVersion = 100;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
    //   CMPIString *str=mbEncToString(mb,neInst,NULL);
       return neInst;
    }
 
-   static CMPIObjectPath* mbEncNewObjectPath(CMPIBroker* mb, const char *ns, const char *cls,
+   static CMPIObjectPath* mbEncNewObjectPath(const CMPIBroker* mb, const char *ns, const char *cls,
                      CMPIStatus *rc) {
    //   cout<<"--- mbEncNewObjectPath() "<<ns<<"-"<<cls<<endl;
       Array<CIMKeyBinding> keyBindings;
@@ -225,12 +269,12 @@ extern "C" {
       return nePath;
    }
 
-   static CMPIArgs* mbEncNewArgs(CMPIBroker* mb, CMPIStatus *rc) {
+   static CMPIArgs* mbEncNewArgs(const CMPIBroker* mb, CMPIStatus *rc) {
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return reinterpret_cast<CMPIArgs*>(new CMPI_Object(new Array<CIMParamValue>()));
    }
 
-   static CMPIString* mbEncNewString(CMPIBroker* mb, const char *cStr, CMPIStatus *rc) {
+   static CMPIString* mbEncNewString(const CMPIBroker* mb, const char *cStr, CMPIStatus *rc) {
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
 	  if (cStr == NULL)
       	return reinterpret_cast<CMPIString*>(new CMPI_Object(""));
@@ -241,7 +285,7 @@ extern "C" {
       return mbEncNewString(NULL,s,NULL);
    }
 
-   CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
+   CMPIArray* mbEncNewArray(const CMPIBroker* mb, CMPICount count, CMPIType type,
                                  CMPIStatus *rc) {
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       CMPIData *dta=new CMPIData[count+1];
@@ -257,7 +301,7 @@ extern "C" {
 
    extern CMPIDateTime *newDateTime();
 
-   static CMPIDateTime* mbEncNewDateTime(CMPIBroker* mb, CMPIStatus *rc) {
+   static CMPIDateTime* mbEncNewDateTime(const CMPIBroker* mb, CMPIStatus *rc) {
    // cout<<"--- mbEncNewDateTime()"<<endl;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return newDateTime();
@@ -265,7 +309,7 @@ extern "C" {
 
    extern CMPIDateTime *newDateTimeBin(CMPIUint64,CMPIBoolean);
 
-   static CMPIDateTime* mbEncNewDateTimeFromBinary(CMPIBroker* mb, CMPIUint64 time,
+   static CMPIDateTime* mbEncNewDateTimeFromBinary(const CMPIBroker* mb, CMPIUint64 time,
          CMPIBoolean interval ,CMPIStatus *rc) {
    // cout<<"--- mbEncNewDateTimeFromBinary()"<<endl;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
@@ -274,7 +318,7 @@ extern "C" {
 
    extern CMPIDateTime *newDateTimeChar(char*);
 
-   static CMPIDateTime* mbEncNewDateTimeFromString(CMPIBroker* mb, char *t ,CMPIStatus *rc) {
+   static CMPIDateTime* mbEncNewDateTimeFromString(const CMPIBroker* mb, char *t ,CMPIStatus *rc) {
    //   cout<<"--- mbEncNewDateTimeFromString()"<<endl;
 	  CMPIDateTime *date = NULL;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
@@ -284,7 +328,7 @@ extern "C" {
 	  return date;
    }
 
-   static CMPIString* mbEncToString(CMPIBroker*,void *o, CMPIStatus *rc) {
+   static CMPIString* mbEncToString(const CMPIBroker*,const void *o, CMPIStatus *rc) {
       CMPI_Object *obj=(CMPI_Object*)o;
       String str;
       char msg[128];
@@ -311,22 +355,15 @@ extern "C" {
                " = "+p.getValue().toString()+";\n");
          }
          str.append("};\n");
-   //      cout<<str<<endl;
       }
 
       else if (obj->getFtab()==(void*)CMPI_ObjectPath_Ftab ||
          obj->getFtab()==(void*)CMPI_ObjectPathOnStack_Ftab) {
          str=((CIMObjectPath*)obj->getHdl())->toString();
       }
-      /* else if (obj->ftab==(void*)CMPI_SelectExp_Ftab ||
-         obj->ftab==(void*)CMPI_SelectCondDoc_Ftab ||
-         obj->ftab==(void*)CMPI_SelectCondCod_Ftab ||
-         obj->ftab==(void*)CMPI_SubCond_Ftab ||
-         obj->ftab==(void*)CMPI_Predicate_Ftab) {
-         sprintf(msg,"** Object not supported (%p) **",o);
-         if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
-         return (CMPIString*) new CMPI_Object(msg);
-      } */
+	  else if (obj->getFtab()==(void*)CMPI_String_Ftab) {
+		str=String((const char*)obj->getHdl());
+	  }
       else {
          sprintf(msg,"** Object not recognized (%p) **",o);
          if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -337,17 +374,20 @@ extern "C" {
       return reinterpret_cast<CMPIString*>(new CMPI_Object(String(msg)+str));
    }
 
-   static CMPIBoolean mbEncClassPathIsA(CMPIBroker *mb, CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {
+   static CMPIBoolean mbEncClassPathIsA(const CMPIBroker *mb, const CMPIObjectPath *eCp, const char *type, CMPIStatus *rc) {
 	
 	  if ((eCp==NULL) || (type==NULL)) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return false;
 	  }
-	
+      if (CIMName::legal(type) == false)
+		{
+      if (rc) CMSetStatus(rc,CMPI_RC_ERR_INVALID_CLASS);
+	   return 0;
+		}	
       CIMObjectPath* cop=(CIMObjectPath*)eCp->hdl;
+	
       const CIMName tcn(type);
-
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
       if (tcn==cop->getClassName()) return 1;
 
@@ -365,9 +405,11 @@ extern "C" {
       return 0;
    }
 
-   static CMPIBoolean mbEncIsOfType(CMPIBroker *mb, void *o, const char *type, CMPIStatus *rc) {
+   static CMPIBoolean mbEncIsOfType(const CMPIBroker *mb, const void *o, const char *type, CMPIStatus *rc) {
       CMPI_Object *obj=(CMPI_Object*)o;
       char msg[128];
+      void *Ftab = NULL;
+
       if (obj==NULL) {
          sprintf(msg,"** Null object ptr (%p) **",o);
          if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
@@ -376,33 +418,63 @@ extern "C" {
 
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
 
-      if (obj->getFtab()==(void*)CMPI_Instance_Ftab &&
-            strcmp(type,"CMPIInstance")==0) return 1;
-      if (obj->getFtab()==(void*)CMPI_ObjectPath_Ftab &&
-            strcmp(type,"CMPIObjectPath")==0) return 1;
-      if (obj->getFtab()==(void*)CMPI_SelectExp_Ftab &&
-            strcmp(type,"CMPISelectExp")==0) return 1;
-      /*if (obj->getFtab()=(void*)CMPI_SelectCondDoc_Ftab &&
-            strcmp(type,"CMPISelectCondDoc")==0) return 1; 
-      if (obj->getFtab()=(void*)CMPI_SelectCondCod_Ftab &&
-            strcmp(type,"CMPISelectCondCod")==0) return 1;*/
-      if (obj->getFtab()==(void*)CMPI_SelectCond_Ftab &&
-            strcmp(type,"CMPISelectCond")==0) return 1;
-      /*if (obj->getFtab()==(void*)CMPI_SubCond_Ftab &&
-            strcmp(type,"CMPISubCond")==0) return 1;
-      if (obj->getFtab()=(void*)CMPI_Predicate_Ftab &&
-            strcmp(type,"CMPIPredicate")==0) return 1;*/
-      if (obj->getFtab()==(void*)CMPI_Array_Ftab &&
-            strcmp(type,"CMPIArray")==0) return 1;
+      Ftab = obj->getFtab();
+
+      if (((Ftab==(void*)CMPI_Instance_Ftab) || (Ftab==(void*)CMPI_InstanceOnStack_Ftab)) && 
+            strncmp(type,CMPIInstance_str, CMPIInstance_str_l)==0) return 1;
+      if (((Ftab==(void*)CMPI_ObjectPath_Ftab) || (Ftab==(void*)CMPI_ObjectPathOnStack_Ftab)) &&
+            strncmp(type,CMPIObjectPath_str, CMPIObjectPath_str_l)==0) return 1;
+
+      if (((Ftab==(void*)CMPI_Args_Ftab) || (Ftab==(void*)CMPI_ArgsOnStack_Ftab)) &&
+            strncmp(type,CMPIArgs_str, CMPIArgs_str_l)==0) return 1;
+
+      if (((Ftab==(void*)CMPI_Context_Ftab) || (Ftab==(void*)CMPI_ContextOnStack_Ftab)) &&
+            strncmp(type,CMPIContext_str, CMPIContext_str_l)==0) return 1;
+
+      if (((Ftab==(void*)CMPI_ResultRefOnStack_Ftab) || (Ftab==(void*)CMPI_ResultInstOnStack_Ftab) ||
+		   (Ftab==(void*)CMPI_ResultData_Ftab) || (Ftab==(void*)CMPI_ResultMethOnStack_Ftab) ||
+           (Ftab==(void*)CMPI_ResultResponseOnStack_Ftab) || (Ftab==(void*)CMPI_ResultExecQueryOnStack_Ftab)) &&
+            strncmp(type,CMPIResult_str, CMPIResult_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_DateTime_Ftab &&
+            strncmp(type,CMPIDateTime_str, CMPIDateTime_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_Array_Ftab &&
+            strncmp(type,CMPIArray_str, CMPIArray_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_String_Ftab &&
+            strncmp(type,CMPIString_str, CMPIString_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_SelectExp_Ftab &&
+            strncmp(type,CMPISelectExp_str, CMPISelectExp_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_SelectCond_Ftab &&
+            strncmp(type,CMPISelectCond_str, CMPISelectCond_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_SubCond_Ftab &&
+            strncmp(type,CMPISubCond_str, CMPISubCond_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_Predicate_Ftab &&
+            strncmp(type,CMPIPredicate_str, CMPIPredicate_str_l)==0) return 1;
+
+      if (Ftab==(void*)CMPI_Broker_Ftab &&
+            strncmp(type,CMPIBroker_str, CMPIBroker_str_l)==0) return 1;
+
+      if (((Ftab==(void*)CMPI_ObjEnumeration_Ftab) || 
+		  (Ftab==(void*)CMPI_InstEnumeration_Ftab) || 
+          (Ftab==(void*)CMPI_OpEnumeration_Ftab)) &&
+            strncmp(type,CMPIEnumeration_str, CMPIEnumeration_str_l)==0) return 1;
 
       sprintf(msg,"** Object not recognized (%p) **",o);
       if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
       return 0;
    }
 
-   static CMPIString* mbEncGetType(CMPIBroker *mb, void* o, CMPIStatus *rc) {
+   static CMPIString* mbEncGetType(const CMPIBroker *mb,const  void* o, CMPIStatus *rc) {
       CMPI_Object *obj=(CMPI_Object*)o;
       char msg[128];
+      void *Ftab= NULL;
+
       if (obj==NULL) {
          sprintf(msg,"** Null object ptr (%p) **",o);
          if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
@@ -410,26 +482,53 @@ extern "C" {
       }
 
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
+	  Ftab = obj->getFtab();
 
-      if (obj->getFtab()==(void*)CMPI_Instance_Ftab)
-            return mb->eft->newString(mb,"CMPIInstance",rc);
-      if (obj->getFtab()==(void*)CMPI_ObjectPath_Ftab)
-            return mb->eft->newString(mb,"CMPIObjectPath",rc);
-      if (obj->getFtab()==(void*)CMPI_SelectExp_Ftab)
-            return mb->eft->newString(mb,"CMPISelectExp",rc);
-      /*if (obj->getFtab()==(void*)CMPI_SelectCondDoc_Ftab)
-            return mb->eft->newString(mb,"CMPISelectCondDoc",rc);
-      if (obj->getFtab()==(void*)CMPI_SelectCondCod_Ftab)
-            return mb->eft->newString(mb,"CMPISelectCondCod",rc);*/
-      if (obj->getFtab()==(void*)CMPI_SelectCond_Ftab)
-            return mb->eft->newString(mb,"CMPISelectCond",rc);
-	/*
-      if (obj->getFtab()=(void*)CMPI_SubCond_Ftab)
-            return mb->eft->newString(mb,"CMPISubCond",rc);
-      if (obj->getFtab()==(void*)CMPI_Predicate_Ftab)
-         return mb->eft->newString(mb,"CMPIPredicate",rc);*/
-      if (obj->getFtab()==(void*)CMPI_Array_Ftab)
-            return mb->eft->newString(mb,"CMPIArray",rc);
+      if ((Ftab==(void*)CMPI_Instance_Ftab) || (Ftab==(void*)CMPI_InstanceOnStack_Ftab))
+            return mb->eft->newString(mb,CMPIInstance_str,rc);
+
+      if ((Ftab==(void*)CMPI_ObjectPath_Ftab) || (Ftab==(void*)CMPI_ObjectPathOnStack_Ftab))
+            return mb->eft->newString(mb,CMPIObjectPath_str,rc);
+
+      if ((Ftab==(void*)CMPI_Args_Ftab) || (Ftab==(void*)CMPI_ArgsOnStack_Ftab))
+            return mb->eft->newString(mb,CMPIArgs_str,rc);
+
+      if ((Ftab==(void*)CMPI_Context_Ftab) || (Ftab==(void*)CMPI_ContextOnStack_Ftab))
+            return mb->eft->newString(mb,CMPIContext_str,rc);
+
+      if ((Ftab==(void*)CMPI_ResultRefOnStack_Ftab) || (Ftab==(void*)CMPI_ResultInstOnStack_Ftab) ||
+		   (Ftab==(void*)CMPI_ResultData_Ftab) || (Ftab==(void*)CMPI_ResultMethOnStack_Ftab) ||
+           (Ftab==(void*)CMPI_ResultResponseOnStack_Ftab) || (Ftab==(void*)CMPI_ResultExecQueryOnStack_Ftab))
+            return mb->eft->newString(mb,CMPIResult_str,rc);
+
+      if (Ftab==(void*)CMPI_DateTime_Ftab)
+            return mb->eft->newString(mb,CMPIDateTime_str,rc);
+
+      if (Ftab==(void*)CMPI_Array_Ftab)
+            return mb->eft->newString(mb,CMPIArray_str,rc);
+
+      if (Ftab==(void*)CMPI_String_Ftab)
+            return mb->eft->newString(mb,CMPIString_str,rc);
+
+      if (Ftab==(void*)CMPI_SelectExp_Ftab)
+            return mb->eft->newString(mb,CMPISelectExp_str,rc);
+
+      if (Ftab==(void*)CMPI_SelectCond_Ftab)
+            return mb->eft->newString(mb,CMPISelectCond_str,rc);
+
+      if (Ftab==(void*)CMPI_SubCond_Ftab)
+            return mb->eft->newString(mb,CMPISubCond_str,rc);
+
+      if (Ftab==(void*)CMPI_Predicate_Ftab)
+            return mb->eft->newString(mb,CMPIPredicate_str,rc);
+
+      if (Ftab==(void*)CMPI_Broker_Ftab)
+            return mb->eft->newString(mb,CMPIBroker_str,rc);
+
+      if ((Ftab==(void*)CMPI_ObjEnumeration_Ftab) || 
+		  (Ftab==(void*)CMPI_InstEnumeration_Ftab) || 
+          (Ftab==(void*)CMPI_OpEnumeration_Ftab))
+            return mb->eft->newString(mb,CMPIEnumeration_str,rc);
 
       sprintf(msg,"** Object not recognized (%p) **",o);
       if (rc) { CMSetStatusWithChars(mb,rc,CMPI_RC_ERR_FAILED,msg); }
@@ -438,7 +537,7 @@ extern "C" {
 
    #if defined (CMPI_VER_85)
 
-   static CMPIString* mbEncGetMessage(CMPIBroker *mb, const char *msgId, const char *defMsg,
+   static CMPIString* mbEncGetMessage(const CMPIBroker *mb, const char *msgId, const char *defMsg,
                CMPIStatus* rc, unsigned int count, ...) {
 
       MessageLoaderParms parms(msgId,defMsg);
@@ -478,10 +577,25 @@ extern "C" {
       String nMsg=MessageLoader::getMessage(parms);
       return string2CMPIString(nMsg);
    }
+#endif
 
-   #endif
+#if defined(CMPI_VER_100)
+  CMPIStatus mbEncLogMessage 
+       (const CMPIBroker*,int severity ,const char *id,const char *text,
+	const CMPIString *string) {
+  /* IBMLR: Have not yet implemented this */
+      CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED);
+  }
 
-  static CMPISelectExp *mbEncNewSelectExp (CMPIBroker * mb, const char *query,
+  CMPIStatus mbEncTracer      (const CMPIBroker*,int level,const char *component,const char *text,
+			      const CMPIString *string)
+  {
+  /* IBMLR: Have not yet implemented this */
+      CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED);
+  }
+#endif
+
+  static CMPISelectExp *mbEncNewSelectExp (const CMPIBroker * mb, const char *query,
                                            const char *lang,
                                            CMPIArray ** projection,
                                            CMPIStatus * st)
@@ -567,7 +681,7 @@ extern "C" {
           useShortNames = 1;
 		}
         // Get the namespace.
-        CMPIContext *ctx = CMPI_ThreadContext::getContext ();
+        const CMPIContext *ctx = CMPI_ThreadContext::getContext ();
 
         CMPIData data = ctx->ft->getEntry (ctx, CMPINamespace, &rc);
         if (rc.rc != CMPI_RC_OK)
@@ -670,7 +784,7 @@ extern "C" {
     return NULL;
   }
 
-   #if defined (CMPI_VER_90)
+#if defined (CMPI_VER_90) && !defined(CMPI_VER_100)
 
    static CMPIArray * mbEncGetKeyList(CMPIBroker *mb, CMPIContext *ctx,
                   CMPIObjectPath *cop, CMPIStatus *rc) {
@@ -703,6 +817,7 @@ extern "C" {
       return ar;
    }
 
+
    #endif
 
 }
@@ -725,8 +840,12 @@ static CMPIBrokerEncFT brokerEnc_FT={
 #if defined (CMPI_VER_85)
      mbEncGetMessage,
 #endif
-#if defined (CMPI_VER_90)
+#if defined (CMPI_VER_90) && !defined(CMPI_VER_100)
      mbEncGetKeyList
+#endif
+#if defined (CMPI_VER_100)
+     mbEncLogMessage,
+     mbEncTracer
 #endif
 };
 

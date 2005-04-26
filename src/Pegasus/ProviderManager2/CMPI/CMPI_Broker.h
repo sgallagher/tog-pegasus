@@ -58,7 +58,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define CM_IncludeQualifiers(flgs) (((flgs) & CMPI_FLAG_IncludeQualifiers)!=0)
 #define CM_DeepInheritance(flgs) (((flgs) & CMPI_FLAG_DeepInheritance)!=0)
 
-CIMClass *mbGetClass(CMPIBroker *mb, const CIMObjectPath &cop);
+CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
 
 typedef HashTable<String, CIMClass *,
       EqualFunc<String>,  HashFunc<String> > ClassCache;

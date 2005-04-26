@@ -63,7 +63,7 @@ static CMPIStatus stringRelease(CMPIString *eStr) {
    CMReturn(CMPI_RC_OK);
 }
 
-   static CMPIString* stringClone(CMPIString *eStr, CMPIStatus* rc) {
+   static CMPIString* stringClone(const CMPIString *eStr, CMPIStatus* rc) {
       char* str=(char*)eStr->hdl;
       char* newstr=::strdup(str);
       CMPI_Object* obj=new CMPI_Object(newstr);
@@ -72,7 +72,7 @@ static CMPIStatus stringRelease(CMPIString *eStr) {
       return (CMPIString*)obj;
    }
 
-   static char * stringGetCharPtr(CMPIString *eStr, CMPIStatus* rc) {
+   static char * stringGetCharPtr(const CMPIString *eStr, CMPIStatus* rc) {
       char* ptr=(char*)eStr->hdl;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return ptr;

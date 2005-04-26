@@ -62,7 +62,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIInstance* instClone(CMPIInstance* eInst, CMPIStatus* rc) {
+   static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc) {
 	  if (!eInst->hdl)  {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
 	    return NULL;
@@ -76,7 +76,7 @@ extern "C" {
       return neInst;
    }
 
-   static CMPIData instGetPropertyAt(CMPIInstance* eInst, CMPICount pos, CMPIString** name,
+   static CMPIData instGetPropertyAt(const CMPIInstance* eInst, CMPICount pos, CMPIString** name,
                               CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
@@ -107,7 +107,7 @@ extern "C" {
       return data;
    }
 
-   static CMPIData instGetProperty(CMPIInstance* eInst, const char *name, CMPIStatus* rc) {
+   static CMPIData instGetProperty(const CMPIInstance* eInst, const char *name, CMPIStatus* rc) {
 
       CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
@@ -127,7 +127,7 @@ extern "C" {
    }
 
 
-   static CMPICount instGetPropertyCount(CMPIInstance* eInst, CMPIStatus* rc) {
+   static CMPICount instGetPropertyCount(const CMPIInstance* eInst, CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
 	  if (!inst)  {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -137,13 +137,13 @@ extern "C" {
       return inst->getPropertyCount();
    }
 
-   static CMPIStatus instSetProperty(CMPIInstance* eInst, const char *name,
-                           CMPIValue* data, CMPIType type) {
+   static CMPIStatus instSetProperty(const CMPIInstance* eInst, const char *name,
+                           const CMPIValue* data, const CMPIType type) {
       CIMInstance *inst=(CIMInstance*)eInst->hdl;
 	  if (!inst)  {
 	    CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
 	  }
-      char **list=(char**)(reinterpret_cast<CMPI_Object*>(eInst))->priv;
+      char **list=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
       CMPIrc rc;
 
       if (list) {
@@ -165,7 +165,7 @@ extern "C" {
          try {
             cp.setValue(v);
          }
-         catch (TypeMismatchException &) {
+         catch (const TypeMismatchException &e) {
 #ifdef PEGASUS_DEBUG
            cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
            if (getenv("CMPI_CHECKTYPES")!=NULL) {
@@ -175,7 +175,7 @@ extern "C" {
 #endif
             CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
          }
-         catch (Exception &e) {
+         catch (const Exception &e) {
 #ifdef PEGASUS_DEBUG
             cerr<<"-+- "<<e.getMessage()<<" exception for: "<<name<<endl;
             if (getenv("CMPI_CHECKTYPES")!=NULL) {
@@ -198,7 +198,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIObjectPath* instGetObjectPath(CMPIInstance* eInst, CMPIStatus* rc) {
+   static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst, CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
 	  if (!inst)  {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -218,12 +218,18 @@ extern "C" {
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return cop;
    }
+   static CMPIStatus instSetObjectPath( CMPIInstance* eInst, const CMPIObjectPath *obj)
+   {
+	/* IBMLR: Have not yet implemented this */
+     CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED);
+   }
 
    static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
-               char** propertyList, char **keys){
+               const char** propertyList, const char **keys){
 	  if (!eInst->hdl)  {
 	    CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
 	  }
+
       CMPI_Object *inst=reinterpret_cast<CMPI_Object*>(eInst);
       char **list=(char**)inst->priv;    // Thank you Warren !
       int i,s;
@@ -252,8 +258,9 @@ extern "C" {
    }
 
    static CMPIStatus instSetPropertyFilterIgnore(CMPIInstance* eInst,
-               char** propertyList, char **keys){
-      CMReturn(CMPI_RC_OK);
+               const char** propertyList, const char **keys){
+	/* We ignore it.  */
+     CMReturn ( CMPI_RC_OK);
    }
 
 }
@@ -268,6 +275,9 @@ static CMPIInstanceFT instance_FT={
      instSetProperty,
      instGetObjectPath,
      instSetPropertyFilter,
+#if defined(CMPI_VER_100)
+     instSetObjectPath,
+#endif
 };
 
 static CMPIInstanceFT instanceOnStack_FT={
@@ -280,6 +290,9 @@ static CMPIInstanceFT instanceOnStack_FT={
      instSetProperty,
      instGetObjectPath,
      instSetPropertyFilterIgnore,
+#if defined(CMPI_VER_100)
+     instSetObjectPath,
+#endif
 };
 
 CMPIInstanceFT *CMPI_Instance_Ftab=&instance_FT;

@@ -89,7 +89,7 @@ extern "C" {
    //   CMReturn(CMPI_RC_OK);
    //}
 
-   static CMPIEnumeration* enumClone(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   static CMPIEnumeration* enumClone(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
    //   CIMInstance* enm=(CIMInstance*)eEnum->hdl;
    //   CIMInstance* cInst=new CIMInstance(enum->clone());
    //   CMPIEnumeration* neEnum=(CMPIEnumeration*)new CMPI_Object(cInst,CMPI_Instance_Ftab);
@@ -98,7 +98,7 @@ extern "C" {
       return NULL;
    }
 
-   static CMPIData enumGetNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   static CMPIData enumGetNext(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
       CMPIData data={0,CMPI_nullValue,{0}};
       if (!eEnum->hdl)
         {
@@ -143,7 +143,7 @@ extern "C" {
       return data;
    }
 
-   static CMPIBoolean enumHasNext(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   static CMPIBoolean enumHasNext(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
       if (!eEnum->hdl)
         {
             if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -165,12 +165,12 @@ extern "C" {
       return false;
    }
 
-   extern CMPIArray* mbEncNewArray(CMPIBroker* mb, CMPICount count, CMPIType type,
+   extern CMPIArray* mbEncNewArray(const CMPIBroker* mb, CMPICount count, CMPIType type,
                                  CMPIStatus *rc);
    extern CMPIStatus arraySetElementAt(CMPIArray* eArray, CMPICount pos,
-                                       CMPIValue *val, CMPIType type);
+                                       const CMPIValue *val, CMPIType type);
 
-   static CMPIArray* enumToArray(CMPIEnumeration* eEnum, CMPIStatus* rc) {
+   static CMPIArray* enumToArray(const CMPIEnumeration* eEnum, CMPIStatus* rc) {
       Uint32 size;
       CMPI_Object* obj;
       CMPIArray *nar=NULL;

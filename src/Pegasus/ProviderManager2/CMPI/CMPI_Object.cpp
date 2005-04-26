@@ -49,7 +49,7 @@ CMPI_Object::CMPI_Object(CMPI_Object *obj) {
    ftab=obj->ftab;
    priv=obj->priv;
 }
-
+// Add a flag here?
 CMPI_Object::CMPI_Object(CIMInstance* ci) {
    CMPI_ThreadContext::addObject(this);
    hdl=(void*)ci;

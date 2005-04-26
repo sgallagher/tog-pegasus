@@ -59,7 +59,7 @@ extern "C"
     CMReturn (CMPI_RC_OK);
   }
 
-  static CMPISelectExp *selxClone (CMPISelectExp * eSx, CMPIStatus * rc)
+  static CMPISelectExp *selxClone (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
     if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
@@ -119,7 +119,7 @@ extern "C"
     return true;
   }
 
-  static CMPIBoolean selxEvaluate (CMPISelectExp * eSx, CMPIInstance * inst,
+  static CMPIBoolean selxEvaluate (const CMPISelectExp * eSx, const CMPIInstance * inst,
                                    CMPIStatus * rc)
   {
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
@@ -181,7 +181,7 @@ extern "C"
     return false;
   }
 
-  static CMPIBoolean selxEvaluateUsingAccessor (CMPISelectExp * eSx,
+  static CMPIBoolean selxEvaluateUsingAccessor (const CMPISelectExp * eSx,
                                                 CMPIAccessor * accessor,
                                                 void *parm, CMPIStatus * rc)
   {
@@ -241,7 +241,7 @@ extern "C"
     return false;
   }
 
-  static CMPIString *selxGetString (CMPISelectExp * eSx, CMPIStatus * rc)
+  static CMPIString *selxGetString (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
     if (rc)
@@ -249,7 +249,7 @@ extern "C"
     return string2CMPIString (sx->cond);
   }
 
-  static CMPISelectCond *selxGetDOC (CMPISelectExp * eSx, CMPIStatus * rc)
+  static CMPISelectCond *selxGetDOC (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
 
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
@@ -285,7 +285,7 @@ extern "C"
               CQLParser::parse (sx->cond, selectStatement);
               dnf = new CMPI_Cql2Dnf (selectStatement);
             }
-            catch (Exception &)
+            catch (const Exception &e)
             {
               if (dnf)
                 delete dnf;
@@ -313,7 +313,7 @@ extern "C"
     return NULL;
   }
 
-  static CMPISelectCond *selxGetCOD (CMPISelectExp * eSx, CMPIStatus * rc)
+  static CMPISelectCond *selxGetCOD (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
     if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);

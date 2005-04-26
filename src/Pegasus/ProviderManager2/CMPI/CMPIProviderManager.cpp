@@ -105,7 +105,7 @@ class CMPIPropertyList {
          free(props);
       }
    }
-   char **getList() {
+    char  **getList()  {
       return props;
    }
 };
@@ -308,12 +308,12 @@ void CMPIProviderManager::unloadIdleProviders()
      HandlerIntroBase(type,type,message,request,response,handler,NOVOIDINTRO(respType))
 
 #define HandlerCatch(handler) \
-    catch(CIMException & e)  \
+    catch(const CIMException & e)  \
     { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
                 "Exception: " + e.getMessage()); \
         handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); \
     } \
-    catch(Exception & e) \
+    catch(const Exception & e) \
     { PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, \
                 "Exception: " + e.getMessage()); \
         handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); \
@@ -416,7 +416,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->getInstance
-        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList());
+        (pr.miVector.instMI,&eCtx,&eRes,&eRef,(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -526,7 +526,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         STAT_GETSTARTTIME;
 
         rc=pr.miVector.instMI->ft->enumInstances
-        (pr.miVector.instMI,&eCtx,&eRes,&eRef,props.getList());
+	  (pr.miVector.instMI,&eCtx,&eRes,&eRef,(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -843,8 +843,8 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         STAT_GETSTARTTIME;
 
-        rc=pr.miVector.instMI->ft->setInstance
-        (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,props.getList());
+        rc=pr.miVector.instMI->ft->modifyInstance
+	  (pr.miVector.instMI,&eCtx,&eRes,&eRef,&eInst,(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -1187,7 +1187,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         rc=pr.miVector.assocMI->ft->associators(
                          pr.miVector.assocMI,&eCtx,&eRes,&eRef,CHARS(aClass),
-                         CHARS(rClass),CHARS(rRole),CHARS(resRole),props.getList());
+                         CHARS(rClass),CHARS(rRole),CHARS(resRole),(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -1424,7 +1424,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         rc=pr.miVector.assocMI->ft->references(
                          pr.miVector.assocMI,&eCtx,&eRes,&eRef,
-                         CHARS(rClass),CHARS(rRole),props.getList());
+                         CHARS(rClass),CHARS(rRole),(const char **)props.getList());
 
         STAT_PMS_PROVIDEREND;
 
@@ -1826,11 +1826,27 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                 }
 #endif
         STAT_GETSTARTTIME;
-
+		if (pr.miVector.indMI->ft->ftVersion >= 100) 
+		{
         rc=pr.miVector.indMI->ft->activateFilter(
-           pr.miVector.indMI,&eCtx,NULL,eSelx,
+           pr.miVector.indMI,&eCtx,eSelx,
            CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
            &eRef,false);
+		}
+		else
+		{
+			// Older version of (pre 1.00) also pass in a CMPIResult
+
+		rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
+						CMPIResult*, CMPISelectExp*,
+						const char *, CMPIObjectPath*,
+						CMPIBoolean))
+						pr.miVector.indMI->ft->activateFilter)(
+						   pr.miVector.indMI,&eCtx,NULL,eSelx,
+           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
+           &eRef,false);
+		}
+		
 
        STAT_PMS_PROVIDEREND;
 
@@ -1977,10 +1993,26 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                 }
 #endif
         STAT_GETSTARTTIME;
+		if (pr.miVector.indMI->ft->ftVersion >= 100) 
+		{
         rc=pr.miVector.indMI->ft->deActivateFilter(
-           pr.miVector.indMI,&eCtx,NULL,eSelx,
+						   pr.miVector.indMI,&eCtx,eSelx,
            CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
            &eRef,prec==NULL);
+		}
+		else
+		{
+			// Older version of (pre 1.00) also pass in a CMPIResult
+
+		rc = ((CMPIStatus (*)(CMPIIndicationMI*, CMPIContext*,
+						CMPIResult*, CMPISelectExp*,
+						const char *, CMPIObjectPath*,
+						CMPIBoolean))
+						pr.miVector.indMI->ft->deActivateFilter)(
+						   pr.miVector.indMI,&eCtx,NULL,eSelx,
+           CHARS(eSelx->classNames[0].getClassName().getString().getCString()),
+           &eRef,prec==NULL);
+		}
 
        STAT_PMS_PROVIDEREND;
 
@@ -2234,12 +2266,12 @@ Message * CMPIProviderManager::handleSubscriptionInitCompleteRequest
 
             _callEnableIndications (provider, _indicationCallback, ph);
         }
-        catch (CIMException & e)
+        catch (const CIMException & e)
         {
             PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "CIMException: " + e.getMessage ());
         }
-        catch (Exception & e)
+        catch (const Exception & e)
         {
             PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                 "Exception: " + e.getMessage ());
@@ -2334,7 +2366,7 @@ void CMPIProviderManager::_callEnableIndications
             CMPIProvider::pm_service_op_lock op_lock(&pr);
             ph.GetProvider().protect();
 
-            pr.miVector.indMI->ft->enableIndications(pr.miVector.indMI);
+            pr.miVector.indMI->ft->enableIndications(pr.miVector.indMI,&eCtx);
         }
         else
         {
@@ -2347,7 +2379,7 @@ void CMPIProviderManager::_callEnableIndications
                 "that does not support this function"<<endl);
         }
     }
-    catch (CIMException & e)
+    catch (const CIMException & e)
     {
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "CIMException: " + e.getMessage ());
@@ -2358,7 +2390,7 @@ void CMPIProviderManager::_callEnableIndications
             "Failed to enable indications for provider $0: $1.",
             ph.GetProvider ().getName (), e.getMessage ());
     }
-    catch (Exception & e)
+    catch (const Exception & e)
     {
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "Exception: " + e.getMessage ());
@@ -2417,7 +2449,7 @@ void CMPIProviderManager::_callDisableIndications
 
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
-        pr.miVector.indMI->ft->disableIndications(pr.miVector.indMI);
+        pr.miVector.indMI->ft->disableIndications(pr.miVector.indMI, &eCtx);
 
         ph.GetProvider().unprotect();
     }

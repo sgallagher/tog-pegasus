@@ -67,8 +67,8 @@ class CMPI_ThreadContext {
  //  static pthread_key_t getContextKey();
    static PEGASUS_THREAD_KEY_TYPE getContextKey();
    CMPI_ThreadContext* prev;
-   CMPIBroker *broker;
-   CMPIContext *context;
+   const CMPIBroker *broker;
+   const CMPIContext *context;
 
    CMPI_Object *CIMfirst,*CIMlast;
    void add(CMPI_Object *o);
@@ -78,9 +78,10 @@ class CMPI_ThreadContext {
    static void addObject(CMPI_Object*);
    static void remObject(CMPI_Object*);
    static CMPI_ThreadContext* getThreadContext();
-   static CMPIBroker* getBroker();
-   static CMPIContext* getContext();
-   CMPI_ThreadContext(CMPIBroker*,CMPIContext*);
+   static const CMPIBroker* getBroker();
+   static const CMPIContext* getContext();
+   //   CMPI_ThreadContext(CMPIBroker*,CMPIContext*);
+   CMPI_ThreadContext(const CMPIBroker*,const CMPIContext*);
    ~CMPI_ThreadContext();
 };
 

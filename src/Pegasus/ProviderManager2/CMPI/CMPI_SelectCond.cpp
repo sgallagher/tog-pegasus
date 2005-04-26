@@ -58,12 +58,12 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   CMPISelectCond* scndClone(CMPISelectCond* eSc, CMPIStatus* rc) {
+   CMPISelectCond* scndClone(const CMPISelectCond* eSc, CMPIStatus* rc) {
          if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
          return NULL;
    }
 
-   CMPICount scndGetCountAndType(CMPISelectCond* eSc, int* type, CMPIStatus* rc) {
+   CMPICount scndGetCountAndType(const CMPISelectCond* eSc, int* type, CMPIStatus* rc) {
 
 	  CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
 	  CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
@@ -77,7 +77,7 @@ extern "C" {
 	  return 0;
    }
 
-   CMPISubCond* scndGetSubCondAt(CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
+   CMPISubCond* scndGetSubCondAt(const CMPISelectCond* eSc, unsigned int index, CMPIStatus* rc) {
       CMPI_SelectCond *sc=(CMPI_SelectCond*)eSc;
       CMPI_SelectCondData *data = (CMPI_SelectCondData *)sc->priv;
 	  if (data)

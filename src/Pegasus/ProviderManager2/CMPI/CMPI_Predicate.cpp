@@ -54,15 +54,15 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   CMPIPredicate* prdClone(CMPIPredicate* ePrd, CMPIStatus* rc) {
+   CMPIPredicate* prdClone(const CMPIPredicate* ePrd, CMPIStatus* rc) {
          if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
          return NULL;
    }
 
-   CMPIStatus prdGetData(CMPIPredicate* ePrd, CMPIType* type,
+   CMPIStatus prdGetData(const CMPIPredicate* ePrd, CMPIType* type,
                   CMPIPredOp* op, CMPIString** lhs, CMPIString** rhs) {
       //CMPI_Predicate *prd=(CMPI_Predicate*)ePrd;
-	  CMPI_Object *obj=reinterpret_cast<CMPI_Object*>(ePrd);
+	  const CMPI_Object *obj=reinterpret_cast<const CMPI_Object*>(ePrd);
 	  CMPI_term_el *term =  (CMPI_term_el *)obj->priv;
 	 
       if (term) 
@@ -88,6 +88,12 @@ extern "C" {
          return 0;
    }
 
+  CMPIBoolean prdEvaluateUsingAccessor (const CMPIPredicate*,  CMPIAccessor *f, void *p, CMPIStatus *rc) {
+
+    	 if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
+         return 0;
+  }
+
 }
    
 static CMPIPredicateFT prd_FT={
@@ -95,7 +101,12 @@ static CMPIPredicateFT prd_FT={
      prdRelease,
      prdClone,
      prdGetData,
+#if defined (CMPI_VER_87) && !defined(CMPI_VER_100)
      prdEvaluate,
+#endif
+#if defined(CMPI_VER_100)
+     prdEvaluateUsingAccessor
+#endif
  };
 
 CMPIPredicateFT *CMPI_Predicate_Ftab=&prd_FT;

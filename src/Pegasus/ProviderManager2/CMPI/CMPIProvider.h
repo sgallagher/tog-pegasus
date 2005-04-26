@@ -41,7 +41,7 @@
 
 #include "CMPI_Object.h"
 #include "CMPI_Broker.h"
-
+#include "CMPI_Version.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
@@ -64,7 +64,22 @@ class CMPIResolverModule;
 #define CMPI_MIType_Property    8
 #define CMPI_MIType_Indication 16
 
+/* Ver 1.00 CMPI spec - which added a new parameter. */
+#ifdef CMPI_VER_100
 
+typedef CMPIInstanceMI* 	(*CREATE_INST_MI)(const CMPIBroker*,const CMPIContext*,  CMPIStatus *rc);
+typedef CMPIAssociationMI* 	(*CREATE_ASSOC_MI)(const CMPIBroker*,const CMPIContext*,  CMPIStatus *rc);
+typedef CMPIMethodMI* 		(*CREATE_METH_MI)(const CMPIBroker*,const CMPIContext*,  CMPIStatus *rc);
+typedef CMPIPropertyMI* 	(*CREATE_PROP_MI)(const CMPIBroker*,const CMPIContext*,  CMPIStatus *rc);
+typedef CMPIIndicationMI* 	(*CREATE_IND_MI)(const CMPIBroker*,const CMPIContext*,  CMPIStatus *rc);
+
+typedef CMPIInstanceMI*    (*CREATE_GEN_INST_MI)(const CMPIBroker*,const CMPIContext*,const char*,  CMPIStatus *rc);
+typedef CMPIAssociationMI* (*CREATE_GEN_ASSOC_MI)(const CMPIBroker*,const CMPIContext*,const char*, CMPIStatus *rc);
+typedef CMPIMethodMI* 	    (*CREATE_GEN_METH_MI)(const CMPIBroker*,const CMPIContext*,const char*, CMPIStatus *rc);
+typedef CMPIPropertyMI*    (*CREATE_GEN_PROP_MI)(const CMPIBroker*,const CMPIContext*,const char*, CMPIStatus *rc);
+typedef CMPIIndicationMI*  (*CREATE_GEN_IND_MI)(const CMPIBroker*,const CMPIContext*,const char*,  CMPIStatus *rc);
+
+#else
 typedef CMPIInstanceMI* 	(*CREATE_INST_MI)(CMPIBroker*,CMPIContext*);
 typedef CMPIAssociationMI* 	(*CREATE_ASSOC_MI)(CMPIBroker*,CMPIContext*);
 typedef CMPIMethodMI* 		(*CREATE_METH_MI)(CMPIBroker*,CMPIContext*);
@@ -76,6 +91,7 @@ typedef CMPIAssociationMI* (*CREATE_GEN_ASSOC_MI)(CMPIBroker*,CMPIContext*,const
 typedef CMPIMethodMI* 	    (*CREATE_GEN_METH_MI)(CMPIBroker*,CMPIContext*,const char*);
 typedef CMPIPropertyMI*    (*CREATE_GEN_PROP_MI)(CMPIBroker*,CMPIContext*,const char*);
 typedef CMPIIndicationMI*  (*CREATE_GEN_IND_MI)(CMPIBroker*,CMPIContext*,const char*);
+#endif
 
 struct ProviderVector {
    int			miTypes;
@@ -128,31 +144,20 @@ public:
 
  //  typedef CMPIProviderFacade Base;
 
-    CMPIProvider(const String & name,
-        CMPIProviderModule *module,
-        ProviderVector *mv);
     CMPIProvider(CMPIProvider*);
 
     virtual ~CMPIProvider(void);
 
     virtual void initialize(CIMOMHandle & cimom);
-    static void initialize(CIMOMHandle & cimom,
-                           ProviderVector & miVector,
-			   String & name,
-                           CMPI_Broker & broker);
+
     void setLocation(String loc) { _location=loc; }
 
     virtual Boolean tryTerminate(void);
     virtual void terminate(void);
-    virtual void _terminate(void);
 
     Status getStatus(void);
     String getName(void) const;
     void setResolver(CMPIResolverModule *rm) { _rm=rm; }
-
-    void set(CMPIProviderModule *&module,
-            ProviderVector base,
-            CIMOMHandle *&cimomHandle);
 
     void reset();
 
@@ -243,6 +248,21 @@ protected:
     Boolean noUnload;
 
 private:
+    virtual void _terminate(Boolean term);
+    CMPIProvider(const String & name,
+        CMPIProviderModule *module,
+        ProviderVector *mv);
+
+    static void initialize(CIMOMHandle & cimom,
+                           ProviderVector & miVector,
+			   				String & name,
+                           CMPI_Broker & broker);
+
+
+    void set(CMPIProviderModule *&module,
+            ProviderVector base,
+            CIMOMHandle *&cimomHandle);
+
     friend class CMPILocalProviderManager;
     friend class CMPIProviderManager;
     friend class CMPI_RProviderManager;

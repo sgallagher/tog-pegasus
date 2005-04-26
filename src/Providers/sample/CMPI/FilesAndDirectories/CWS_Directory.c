@@ -39,14 +39,22 @@
 
 #define LOCALCLASSNAME "CWS_Directory"
 
+#ifdef CMPI_VER_100
+static const CMPIBroker * _broker;
+#else
 static CMPIBroker * _broker;
-
+#endif
 /* ------------------------------------------------------------------ *
  * Instance MI Cleanup
  * ------------------------------------------------------------------ */
 
-CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi,
-				 CMPIContext * ctx)
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi, 
+				 const CMPIContext * ctx, CMPIBoolean *term) 
+#else
+CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi, 
+				 CMPIContext * ctx) 
+#endif
 {
   CMReturn(CMPI_RC_OK);
 }
@@ -55,11 +63,18 @@ CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi,
  * Instance MI Functions
  * ------------------------------------------------------------------ */
 
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi, 
+					   const CMPIContext * ctx, 
+					   const CMPIResult * rslt, 
+					   const CMPIObjectPath * ref) 
 
-CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi,
-					   CMPIContext * ctx,
-					   CMPIResult * rslt,
-					   CMPIObjectPath * ref)
+#else
+CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi, 
+					   CMPIContext * ctx, 
+					   CMPIResult * rslt, 
+					   CMPIObjectPath * ref) 
+#endif
 {
    CMPIObjectPath *op;
   CMPIStatus      st = {CMPI_RC_OK,NULL};
@@ -95,11 +110,19 @@ CMPIStatus CWS_DirectoryEnumInstanceNames( CMPIInstanceMI * mi,
   return st;
 }
 
-CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi,
-				       CMPIContext * ctx,
-				       CMPIResult * rslt,
-				       CMPIObjectPath * ref,
-				       char ** properties)
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi, 
+				       const CMPIContext * ctx, 
+				       const CMPIResult * rslt, 
+				       const CMPIObjectPath * ref, 
+				       const char ** properties) 
+#else
+CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi, 
+				       CMPIContext * ctx, 
+				       CMPIResult * rslt, 
+				       CMPIObjectPath * ref, 
+				       char ** properties) 
+#endif
 {
   CMPIInstance   *in;
   CMPIStatus      st = {CMPI_RC_OK,NULL};
@@ -135,12 +158,19 @@ CMPIStatus CWS_DirectoryEnumInstances( CMPIInstanceMI * mi,
   return st;
 }
 
-
-CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi,
-				     CMPIContext * ctx,
-				     CMPIResult * rslt,
-				     CMPIObjectPath * cop,
-				     char ** properties)
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi, 
+				     const CMPIContext * ctx, 
+				     const CMPIResult * rslt, 
+				     const CMPIObjectPath * cop, 
+				     const char ** properties) 
+#else
+CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi, 
+				     CMPIContext * ctx, 
+				     CMPIResult * rslt, 
+				     CMPIObjectPath * cop, 
+				     char ** properties) 
+#endif
 {
   CMPIInstance *in = NULL;
   CMPIStatus    st = {CMPI_RC_OK,NULL};
@@ -168,11 +198,19 @@ CMPIStatus CWS_DirectoryGetInstance( CMPIInstanceMI * mi,
   return st;
 }
 
-CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi,
-					CMPIContext * ctx,
-					CMPIResult * rslt,
-					CMPIObjectPath * cop,
-					CMPIInstance * ci)
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi, 
+					const CMPIContext * ctx, 
+					const CMPIResult * rslt, 
+					const CMPIObjectPath * cop, 
+					const CMPIInstance * ci) 
+#else
+CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi, 
+					CMPIContext * ctx, 
+					CMPIResult * rslt, 
+					CMPIObjectPath * cop, 
+					CMPIInstance * ci) 
+#endif
 {
   CMPIStatus st = {CMPI_RC_OK,NULL};
   CWS_FILE   filebuf;
@@ -193,13 +231,21 @@ CMPIStatus CWS_DirectoryCreateInstance( CMPIInstanceMI * mi,
 
   return st;
 }
-
-CMPIStatus CWS_DirectorySetInstance( CMPIInstanceMI * mi,
-				     CMPIContext * ctx,
-				     CMPIResult * rslt,
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryModifyInstance( CMPIInstanceMI * mi, 
+				     const CMPIContext * ctx, 
+				     const CMPIResult * rslt, 
+				     const CMPIObjectPath * cop,
+				     const CMPIInstance * ci, 
+				     const char **properties) 
+#else
+CMPIStatus CWS_DirectorySetInstance( CMPIInstanceMI * mi, 
+				     CMPIContext * ctx, 
+				     CMPIResult * rslt, 
 				     CMPIObjectPath * cop,
-				     CMPIInstance * ci,
-				     char **properties)
+				     CMPIInstance * ci, 
+				     char **properties) 
+#endif
 {
   CMPIStatus st = {CMPI_RC_OK,NULL};
   CWS_FILE   filebuf;
@@ -213,20 +259,36 @@ CMPIStatus CWS_DirectorySetInstance( CMPIInstanceMI * mi,
   return st;
 }
 
-CMPIStatus CWS_DirectoryDeleteInstance( CMPIInstanceMI * mi,
-					CMPIContext * ctx,
-					CMPIResult * rslt,
-					CMPIObjectPath * cop)
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryDeleteInstance( CMPIInstanceMI * mi, 
+					const CMPIContext * ctx, 
+					const CMPIResult * rslt, 
+					const CMPIObjectPath * cop) 
+#else
+CMPIStatus CWS_DirectoryDeleteInstance( CMPIInstanceMI * mi, 
+					CMPIContext * ctx, 
+					CMPIResult * rslt, 
+					CMPIObjectPath * cop) 
+#endif
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }
 
-CMPIStatus CWS_DirectoryExecQuery( CMPIInstanceMI * mi,
-				   CMPIContext * ctx,
-				   CMPIResult * rslt,
-				   CMPIObjectPath * cop,
-				   const char * lang,
-				   const char * query)
+#ifdef CMPI_VER_100
+CMPIStatus CWS_DirectoryExecQuery( CMPIInstanceMI * mi, 
+				   const CMPIContext * ctx, 
+				   const CMPIResult * rslt, 
+				   const CMPIObjectPath * cop, 
+				   const char * lang, 
+				   const char * query) 
+#else
+CMPIStatus CWS_DirectoryExecQuery( CMPIInstanceMI * mi, 
+				   CMPIContext * ctx, 
+				   CMPIResult * rslt, 
+				   CMPIObjectPath * cop, 
+				   char * lang, 
+				   char * query) 
+#endif
 {
   CMReturn( CMPI_RC_ERR_NOT_SUPPORTED );
 }

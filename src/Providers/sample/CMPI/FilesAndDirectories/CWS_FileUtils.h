@@ -53,12 +53,19 @@ char * FSCreationClassName();
 char * FSName();
 
 
-CMPIObjectPath *makePath(CMPIBroker *broker, const char *classname,
+#ifdef CMPI_VER_100
+CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
 			 const char *Namespace, CWS_FILE *cwsf);
-CMPIInstance   *makeInstance(CMPIBroker *broker, const char *classname,
+CMPIInstance   *makeInstance(const CMPIBroker *broker, const char *classname,
 			     const char *Namespace, CWS_FILE *cwsf);
-int             makeFileBuf(CMPIInstance *instance, CWS_FILE *cwsf);
-
+int             makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf);
+#else
+CMPIObjectPath *makePath( CMPIBroker *broker, const char *classname,
+			 const char *Namespace, CWS_FILE *cwsf);
+CMPIInstance   *makeInstance( CMPIBroker *broker, const char *classname,
+			     const char *Namespace, CWS_FILE *cwsf);
+int             makeFileBuf( CMPIInstance *instance, CWS_FILE *cwsf);
+#endif
 int silentMode();
 
 #endif

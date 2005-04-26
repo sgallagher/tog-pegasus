@@ -1695,13 +1695,13 @@ CIMDateTime CIMDateTime::operator/(Uint64 num) const
     CIMDateTime cur_cDT = CIMDateTime((String)(this->_rep->data));
 
     if (!(this->isInterval())){
-        MessageLoaderParms parmsD("Common.CIMDateTime.INVAID_OPERATION_DIV_INT",
+        MessageLoaderParms parmsD("Common.CIMDateTime.INVALID_OPERATION_DIV_INT",
                                  "Can not divide a TimeStamp by an integer");
         throw TypeMismatchException(parmsD);
     }
 
     if (num == 0) {
-        MessageLoaderParms parmsZ("Common.CIMDateTime.INVAID_OPERATION_DIV_ZERO",
+        MessageLoaderParms parmsZ("Common.CIMDateTime.INVALID_OPERATION_DIV_ZERO",
                                  "Can not divide CIMDateTime by zero");
         throw Exception(parmsZ);
     }
@@ -1740,7 +1740,7 @@ Uint64 CIMDateTime::operator/(const CIMDateTime & cDT) const
 
 
     if (!cur_cDT.isInterval() || !opt_cDT.isInterval()) {
-        MessageLoaderParms parmsMM("Common.CIMDateTime.INVAID_OPERATION_DIV_TS",
+        MessageLoaderParms parmsMM("Common.CIMDateTime.INVALID_OPERATION_DIV_TS",
                              "Can not divide two CIMDateTime objects if one of them is a TimeStamp");
         throw TypeMismatchException(parmsMM);
     }
@@ -1749,7 +1749,7 @@ Uint64 CIMDateTime::operator/(const CIMDateTime & cDT) const
     Uint64 cur_num = cur_cDT.toMicroSeconds();
 
     if (opt_num == 0) {
-        MessageLoaderParms parmsDZ("Common.CIMDateTime.INVAID_OPERATION_DIV_ZERO_CDT",
+        MessageLoaderParms parmsDZ("Common.CIMDateTime.INVALID_OPERATION_DIV_ZERO_CDT",
                              "Trying to divide a CIMDateTime objects by a zero value CIMDateTime object");
         throw Exception(parmsDZ);
     }
@@ -1769,7 +1769,7 @@ Boolean CIMDateTime::operator<(const CIMDateTime & cDT) const
     CIMDateTime opt_cDT = cDT;
 
     if ((!cur_cDT.isInterval() && opt_cDT.isInterval()) || (cur_cDT.isInterval() && !opt_cDT.isInterval())) {
-        MessageLoaderParms parms("Common.CIMDateTime.INVAID_OPERATION_COMP_DIF",
+        MessageLoaderParms parms("Common.CIMDateTime.INVALID_OPERATION_COMP_DIF",
                              "Trying to compare CIMDateTime objects of differing types");
         throw TypeMismatchException(parms);
     }

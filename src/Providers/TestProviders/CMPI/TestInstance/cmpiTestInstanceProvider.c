@@ -34,7 +34,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define CMPI_VER_90 1
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -52,7 +51,11 @@
 #define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestInstance/tests/"
 #define _LogExtension ".log"
 
+#ifdef CMPI_VER_100
+static const CMPIBroker *_broker;
+#else
 static CMPIBroker *_broker;
+#endif
 
 unsigned char CMPI_true = 1;
 unsigned char CMPI_false = 0;
@@ -93,12 +96,12 @@ PROV_LOG_OPEN (const char *file)
 {
   char *path = NULL;
   const char *env;
-  int i = 0;
-  int j = 0;
-  int len = strlen (file);
-  int env_len = 0;
-  int loc_len = strlen (_ProviderLocation);
-  int ext_len = strlen (_LogExtension);
+  size_t i = 0;
+  size_t j = 0;
+  size_t len = strlen (file);
+  size_t env_len = 0;
+  size_t loc_len = strlen (_ProviderLocation);
+  size_t ext_len = strlen (_LogExtension);
 
   env = getenv ("PEGASUS_ROOT");
   if (env)
@@ -355,16 +358,16 @@ strCMPIValue (CMPIValue value)
 /* ---------------------------------------------------------------------------*/
 
 CMPIObjectPath *
-make_ObjectPath (const char *ns, const char *clss)
+make_ObjectPath (const char *ns, const char *class)
 {
   CMPIObjectPath *objPath = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
   PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
-  objPath = CMNewObjectPath (_broker, ns, clss, &rc);
+  objPath = CMNewObjectPath (_broker, ns, class, &rc);
   //assert ( rc.rc == CMPI_RC_OK);
   PROV_LOG ("----- %s", strCMPIStatus (rc));
-  CMAddKey (objPath, "ElementName", clss, CMPI_chars);
+  CMAddKey (objPath, "ElementName", (CMPIValue *) class, CMPI_chars);
 
   return objPath;
 }
@@ -377,7 +380,7 @@ make_Instance (CMPIObjectPath * op)
   CMPIInstance *ci = NULL;
 
 
-  PROV_LOG ("--- make_ObjectPath: CMNewInstance");
+  PROV_LOG ("--- make_Instance: CMNewInstance");
   ci = CMNewInstance (_broker, op, &rc);
   PROV_LOG ("----- %s", strCMPIStatus (rc));
   if (rc.rc == CMPI_RC_ERR_NOT_FOUND)
@@ -418,12 +421,14 @@ _setProperty (CMPIInstance * ci, const char *p)
   if ((strncmp (property, "ElementName", 11) == 0)
       && (strlen (property) == 11))
     {
-      rc = CMSetProperty (ci, "ElementName", _ClassName, CMPI_chars);
+      rc =
+        CMSetProperty (ci, "ElementName", (CMPIValue *) _ClassName,
+                       CMPI_chars);
       PROV_LOG ("---- %s", strCMPIStatus (rc));
     }
   else if ((strncmp (property, "s", 1) == 0) && (strlen (property) == 1))
     {
-      rc = CMSetProperty (ci, "s", "s", CMPI_chars);
+      rc = CMSetProperty (ci, "s", (CMPIValue *) "s", CMPI_chars);
       PROV_LOG ("---- %s", strCMPIStatus (rc));
     }
   else if ((strncmp (property, "n32", 3) == 0) && (strlen (property) == 3))
@@ -453,7 +458,7 @@ _setProperty (CMPIInstance * ci, const char *p)
   else if ((strncmp (property, "d", 1) == 0) && (strlen (property) == 1))
     {
       PROV_LOG ("---- CMNewDateTime");
-      val.dateTime = CMNewDateTime(_broker, &rc);
+      val.dateTime = CMNewDateTime (_broker, &rc);
       PROV_LOG ("---- %s", strCMPIStatus (rc));
       rc = CMSetProperty (ci, "d", &val, CMPI_dateTime);
       PROV_LOG ("---- %s", strCMPIStatus (rc));
@@ -485,9 +490,14 @@ _setProperty (CMPIInstance * ci, const char *p)
 /*                      Instance Provider Interface                           */
 /* ---------------------------------------------------------------------------*/
 
-
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderCleanup (CMPIInstanceMI * mi, const CMPIContext * ctx,
+                                 CMPIBoolean * term)
+#else
 CMPIStatus
 TestCMPIInstanceProviderCleanup (CMPIInstanceMI * mi, CMPIContext * ctx)
+#endif
 {
 
   //PROV_LOG("--- %s CMPI Cleanup() called",_ClassName);
@@ -495,11 +505,19 @@ TestCMPIInstanceProviderCleanup (CMPIInstanceMI * mi, CMPIContext * ctx)
   CMReturn (CMPI_RC_OK);
 }
 
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
+                                           const CMPIContext * ctx,
+                                           const CMPIResult * rslt,
+                                           const CMPIObjectPath * ref)
+#else
 CMPIStatus
 TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
                                            CMPIContext * ctx,
                                            CMPIResult * rslt,
                                            CMPIObjectPath * ref)
+#endif
 {
   CMPIObjectPath *op = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -511,7 +529,7 @@ TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
   op = make_ObjectPath (CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
 
   /* Just one key */
-  CMAddKey (op, "ElementName", _ClassName, CMPI_chars);
+  CMAddKey (op, "ElementName", (CMPIValue *) _ClassName, CMPI_chars);
 
   CMReturnObjectPath (rslt, op);
   CMReturnDone (rslt);
@@ -521,12 +539,21 @@ TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
   return rc;
 }
 
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderEnumInstances (CMPIInstanceMI * mi,
+                                       const CMPIContext * ctx,
+                                       const CMPIResult * rslt,
+                                       const CMPIObjectPath * ref,
+                                       const char **properties)
+#else
 CMPIStatus
 TestCMPIInstanceProviderEnumInstances (CMPIInstanceMI * mi,
                                        CMPIContext * ctx,
                                        CMPIResult * rslt,
                                        CMPIObjectPath * ref,
                                        char **properties)
+#endif
 {
 
   CMPIObjectPath *op = NULL;
@@ -557,11 +584,20 @@ TestCMPIInstanceProviderEnumInstances (CMPIInstanceMI * mi,
   return rc;
 }
 
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderGetInstance (CMPIInstanceMI * mi,
+                                     const CMPIContext * ctx,
+                                     const CMPIResult * rslt,
+                                     const CMPIObjectPath * cop,
+                                     const char **properties)
+#else
 CMPIStatus
 TestCMPIInstanceProviderGetInstance (CMPIInstanceMI * mi,
                                      CMPIContext * ctx,
                                      CMPIResult * rslt,
                                      CMPIObjectPath * cop, char **properties)
+#endif
 {
   /*CMPIInstance * ci = NULL; */
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -577,12 +613,21 @@ TestCMPIInstanceProviderGetInstance (CMPIInstanceMI * mi,
   return rc;
 }
 
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderCreateInstance (CMPIInstanceMI * mi,
+                                        const CMPIContext * ctx,
+                                        const CMPIResult * rslt,
+                                        const CMPIObjectPath * cop,
+                                        const CMPIInstance * ci)
+#else
 CMPIStatus
 TestCMPIInstanceProviderCreateInstance (CMPIInstanceMI * mi,
                                         CMPIContext * ctx,
                                         CMPIResult * rslt,
                                         CMPIObjectPath * cop,
                                         CMPIInstance * ci)
+#endif
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
@@ -597,12 +642,22 @@ TestCMPIInstanceProviderCreateInstance (CMPIInstanceMI * mi,
   return rc;
 }
 
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderModifyInstance (CMPIInstanceMI * mi,
+                                        const CMPIContext * ctx,
+                                        const CMPIResult * rslt,
+                                        const CMPIObjectPath * cop,
+                                        const CMPIInstance * ci,
+                                        const char **properties)
+#else
 CMPIStatus
 TestCMPIInstanceProviderSetInstance (CMPIInstanceMI * mi,
                                      CMPIContext * ctx,
                                      CMPIResult * rslt,
                                      CMPIObjectPath * cop,
                                      CMPIInstance * ci, char **properties)
+#endif
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
@@ -618,11 +673,19 @@ TestCMPIInstanceProviderSetInstance (CMPIInstanceMI * mi,
   return rc;
 }
 
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderDeleteInstance (CMPIInstanceMI * mi,
+                                        const CMPIContext * ctx,
+                                        const CMPIResult * rslt,
+                                        const CMPIObjectPath * cop)
+#else
 CMPIStatus
 TestCMPIInstanceProviderDeleteInstance (CMPIInstanceMI * mi,
                                         CMPIContext * ctx,
                                         CMPIResult * rslt,
                                         CMPIObjectPath * cop)
+#endif
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
@@ -638,15 +701,23 @@ TestCMPIInstanceProviderDeleteInstance (CMPIInstanceMI * mi,
   return rc;
 }
 
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
+                                   const CMPIContext * ctx,
+                                   const CMPIResult * rslt,
+                                   const CMPIObjectPath * ref,
+                                   const char *lang, const char *query)
+#else
 CMPIStatus
 TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
                                    CMPIContext * ctx,
                                    CMPIResult * rslt,
                                    CMPIObjectPath * ref,
-                                   const char *lang, const char *query)
+                                   char *lang, char *query)
+#endif
 {
 
-  //CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIStatus rc_Eval = { CMPI_RC_OK, NULL };
   CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
@@ -657,20 +728,19 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   CMPISelectExp *se_def = NULL;
   CMPISelectExp *se_CQL = NULL;
   CMPISelectExp *clone = NULL;
-  CMPIBoolean evalRes;
+  CMPIBoolean evalRes, classType;
   CMPIInstance *inst = NULL;
   CMPIObjectPath *objPath = NULL;
   unsigned int idx;
   CMPIString *name = NULL;
   CMPIStatus rc_CMGetPropertyAt = { CMPI_RC_OK, NULL };
-  CMPIData prop_data;
   CMPIData data;
   CMPIArray *projection = NULL;
   CMPICount cnt = 0;
   int rc_setProperty = 0;
 
   PROV_LOG_OPEN (_ClassName);
-
+  
   PROV_LOG ("--- %s CMPI ExecQuery() called", _ClassName);
   PROV_LOG ("--- Query: [%s], language: [%s]", query, lang);
 
@@ -678,18 +748,14 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   // Create instance
 
   objPath = make_ObjectPath (_Namespace, _ClassName);
-  type = CDGetType (_broker, objPath, &rc_Inst);
-  PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
-  CMRelease (type);
 
-  PROV_LOG ("-- #2 Instance");
 
   inst = make_Instance (objPath);
   if (!inst)
     {
       CMReturn (CMPI_RC_ERR_NOT_FOUND);
     }
-
+  PROV_LOG("--- #2 CDGetType");
   type = CDGetType (_broker, inst, &rc_Inst);
   if (type)
     {
@@ -704,6 +770,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   /* This is used to figure what properties to construct against */
   if (se_def)
     {
+
       PROV_LOG ("--- Projection list is: ");
       if (projection)
         {
@@ -762,8 +829,8 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
 
 
   PROV_LOG ("-- #4 CMPI_CQL_NewSelectExp");
-  se_CQL = CMPI_CQL_NewSelectExp (_broker, query, lang, &projection, &rc_Clone);
-  //se_CQL = CMNewSelectExp (_broker, query, "CIM:CQL", &projection, &rc_Clone);
+  //se_CQL = CMPI_CQL_NewSelectExp (_broker, query, lang, &projection, &rc_Clone);
+  se_CQL = CMNewSelectExp (_broker, query, "CIMxCQL", &projection, &rc_Clone);
   PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
   /* This can be used to figure what properties to construct against when using CQL */
   if (se_CQL)

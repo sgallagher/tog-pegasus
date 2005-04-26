@@ -3,10 +3,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -124,10 +123,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -195,10 +193,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -228,10 +225,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -299,10 +295,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -370,10 +365,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -414,10 +408,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -485,10 +478,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK
@@ -556,10 +548,9 @@
  -- #1 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
- -- #2 Instance
- --- make_ObjectPath: CMNewInstance
+ --- make_Instance: CMNewInstance
  ----- CMPI_RC_OK
+ --- #2 CDGetType
  ---- CMPIInstance (CMPI_RC_OK)
  -- #3 CMNewSelectExp
  ---- CMPI_RC_OK

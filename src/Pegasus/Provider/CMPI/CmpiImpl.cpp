@@ -1199,8 +1199,8 @@ static const char * _nullkeys[] = {0};
 
 void CmpiInstance::setPropertyFilter(const char** properties, const char** keys) {
   if (keys==0) keys = _nullkeys;
-  CMPIStatus rc=getEnc()->ft->setPropertyFilter(getEnc(),(char**)properties,
-						 (char**)keys);
+  CMPIStatus rc=getEnc()->ft->setPropertyFilter(getEnc(),properties,
+						 keys);
   if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
@@ -1476,7 +1476,7 @@ CmpiInstance CmpiBroker::getInstance(const CmpiContext& ctx,
 {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIInstance* ci=getEnc()->bft->getInstance
-     (getEnc(),ctx.getEnc(),cop.getEnc(),(char **)properties,&rc);
+     (getEnc(),ctx.getEnc(),cop.getEnc(),properties,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return CmpiInstance(ci);
 }
@@ -1497,8 +1497,13 @@ CmpiObjectPath CmpiBroker::createInstance(const CmpiContext& ctx,
 void CmpiBroker::setInstance(const CmpiContext& ctx, const CmpiObjectPath& cop,
                              const CmpiInstance& inst, const char** properties)
 {
+#ifdef CMPI_VER_100
+   CMPIStatus rc=getEnc()->bft->modifyInstance
+     (getEnc(),ctx.getEnc(),cop.getEnc(),inst.getEnc(), properties);
+#else
    CMPIStatus rc=getEnc()->bft->setInstance
-     (getEnc(),ctx.getEnc(),cop.getEnc(),inst.getEnc(), (char**)properties);
+     (getEnc(),ctx.getEnc(),cop.getEnc(),inst.getEnc(), properties);
+#endif
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
@@ -1524,7 +1529,7 @@ CmpiEnumeration CmpiBroker::enumInstances(const CmpiContext& ctx,
 {
    CMPIStatus rc={CMPI_RC_OK,NULL};
    CMPIEnumeration* en=getEnc()->bft->enumInstances
-      (getEnc(),ctx.getEnc(),cop.getEnc(),(char**)properties,&rc);
+      (getEnc(),ctx.getEnc(),cop.getEnc(),properties,&rc);
    if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
    return CmpiEnumeration(en);
 }
@@ -1918,8 +1923,11 @@ CmpiBooleanData CmpiFalse(false);
 //--
 //-----------------------------------------------------------
 
-
+#ifdef CMPI_VER_100
+static  CMPIBroker __providerBaseBroker = {0,0,0,0};
+#else
 static CMPIBroker __providerBaseBroker = {0,0,0};
+#endif
 
 CmpiProviderBase::CmpiProviderBase() {
   useCount=0;

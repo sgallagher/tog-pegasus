@@ -29,8 +29,7 @@
 //
 // Author:      Konrad Rzeszutek <konradr@us.ibm.com>
 //
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
+// Modified By: 
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -93,10 +92,10 @@ The following CMPIrc codes shall be recognized:
       CMPI_IRC_INVALID_HANDLE The mb handle is invalid.
    */
    CMPISelectExp *CMPI_CQL_NewSelectExp
-    (CMPIBroker * mb, const char *query, const char *lang,
-     CMPIArray ** projection, CMPIStatus * rc)
+    (const CMPIBroker * mb, const char *query, const char *lang,
+     const CMPIArray ** projection, CMPIStatus * rc)
   {
-    return ((mb)->eft->newSelectExp (mb, query,"CIMxCQL", projection, rc));
+    return ((mb)->eft->newSelectExp ((CMPIBroker *)(mb),  (char *)(query),"CIMxCQL", (CMPIArray **)(projection), rc));
   }
 
 #endif

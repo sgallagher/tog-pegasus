@@ -158,6 +158,7 @@ make --directory=$PEGASUS_ROOT -f Makefile.ReleaseTest stageTEST \
 %define PEGASUS_SBIN_DIR       %PEGASUS_PROD_DIR/sbin
 %define PEGASUS_BIN_DIR        %PEGASUS_PROD_DIR/bin
 %define PEGASUS_PRODSHARE_DIR  %PEGASUS_PROD_DIR/share
+%define PEGASUS_DOC_DIR        %PEGASUS_PRODSHARE_DIR/doc
 %define PEGASUS_MAN_DIR        %PEGASUS_PRODSHARE_DIR/man
 %define PEGASUS_MANUSER_DIR    %PEGASUS_MAN_DIR/man1
 %define PEGASUS_MANADMIN_DIR   %PEGASUS_MAN_DIR/man8
@@ -192,6 +193,7 @@ mkdir -p $RPM_BUILD_ROOT/%PEGASUS_LOCAL_AUTH_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_PROVIDER_LIB_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_CONFIG_DIR 
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_LOG_DIR
+mkdir -p $RPM_BUILD_ROOT/%PEGASUS_DOC_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_MAN_DIR/{man1,man8}
 mkdir -p $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/{CIM28,Pegasus}
 mkdir -p $RPM_BUILD_ROOT%PEGASUS_LOCAL_DOMAIN_SOCKET_DIR
@@ -426,6 +428,11 @@ chmod 0744 $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/init_repository
 # script to add tog-pegasus paths to /etc/profile
 #
 install -D -m 0744 %PEGASUS_INSTALL_SCRIPT_DIR/settogpath $RPM_BUILD_ROOT%PEGASUS_SBIN_DIR/settogpath
+
+#
+# doc files
+#
+install -D -m 0444  $PEGASUS_ROOT/doc/Admin_Guide_Release_2.4.pdf $RPM_BUILD_ROOT%PEGASUS_DOC_DIR/Admin_Guide_Release_2.4.pdf
 
 #
 # man pages
@@ -766,6 +773,7 @@ fi
 %defattr(-,root,root)
 %PEGASUS_REPOSITORY_DIR
 %doc %PEGASUS_PROD_DIR/%PEGASUS_LICENSE_FILE
+%doc %PEGASUS_DOC_DIR/Admin_Guide_Release_2.4.pdf
 %doc %PEGASUS_MANUSER_DIR/cimmof.1
 %doc %PEGASUS_MANUSER_DIR/cimprovider.1
 %doc %PEGASUS_MANUSER_DIR/osinfo.1

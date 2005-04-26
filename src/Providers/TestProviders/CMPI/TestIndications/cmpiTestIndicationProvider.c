@@ -34,7 +34,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define CMPI_VER_87 1
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -51,7 +50,11 @@
 #define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestIndications/tests/"
 #define _LogExtension ".log"
 
+#ifdef CMPI_VER_100
+static const CMPIBroker *_broker;
+#else
 static CMPIBroker *_broker;
+#endif
 
 unsigned char CMPI_true = 1;
 unsigned char CMPI_false = 0;
@@ -81,7 +84,8 @@ PROV_LOG (const char *fmt, ...)
 void
 PROV_LOG_CLOSE ()
 {
-  fclose (fd);
+  if (fd != stderr)
+  	fclose (fd);
   fd = stderr;
 }
 
@@ -420,10 +424,16 @@ instance_accessor (const char *name, void *param)
 /*                       Indication Provider Interface                        */
 /* ---------------------------------------------------------------------------*/
 
-
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
+                                             const CMPIContext * ctx,
+											 CMPIBoolean *term)
+#else
 CMPIStatus
 TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
                                              CMPIContext * ctx)
+#endif
 {
   /*
      PROV_LOG ("--- %s CMPI IndicationCleanup() called", _IndClassName);
@@ -432,6 +442,16 @@ TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
   CMReturn (CMPI_RC_OK);
 }
 
+#ifdef CMPI_VER_100
+/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
+CMPIStatus
+TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
+                                           const CMPIContext * ctx,
+                                           const CMPISelectExp * se,
+                                           const char *ns,
+                                           const CMPIObjectPath * op,
+                                           const char *user)
+#else
 CMPIStatus
 TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
                                            CMPIContext * ctx,
@@ -440,6 +460,7 @@ TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
                                            const char *ns,
                                            CMPIObjectPath * op,
                                            const char *user)
+#endif
 {
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -451,25 +472,33 @@ TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
   if (strcmp (ns, _IndClassName) == 0)
     {
       PROV_LOG ("--- %s Correct class", _IndClassName);
-      CMReturnData (rslt, (CMPIValue *) & CMPI_true, CMPI_boolean);
-      CMReturnDone (rslt);
     }
   else
-    CMReturnData (rslt, (CMPIValue *) & CMPI_false, CMPI_boolean);
-
+	{
+      CMReturn (CMPI_RC_ERR_INVALID_CLASS);		
+	}
   PROV_LOG ("--- %s CMPI AuthorizeFilter() exited", _IndClassName);
 
   PROV_LOG_CLOSE ();
   CMReturn (CMPI_RC_OK);
 }
 
-
+#ifdef CMPI_VER_100
+/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
+CMPIStatus
+TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
+                                    const CMPIContext * ctx,
+                                    const CMPISelectExp * se,
+                                    const char *ns, 
+									const CMPIObjectPath * op)
+#else
 CMPIStatus
 TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
                                     CMPIContext * ctx,
                                     CMPIResult * rslt,
                                     CMPISelectExp * se,
                                     const char *ns, CMPIObjectPath * op)
+#endif
 {
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -477,15 +506,24 @@ TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
   PROV_LOG_OPEN (_IndClassName);
 
   PROV_LOG ("--- %s CMPI MustPoll() called", _IndClassName);
-  /* no polling */
-  CMReturnData (rslt, (CMPIValue *) & (CMPI_false), CMPI_boolean);
-  CMReturnDone (rslt);
+
   PROV_LOG ("--- %s CMPI MustPoll() exited", _IndClassName);
 
   PROV_LOG_CLOSE ();
-  CMReturn (CMPI_RC_OK);
+  /* no polling */
+  CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
 }
 
+#ifdef CMPI_VER_100
+/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
+CMPIStatus
+TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
+                                          const CMPIContext * ctx,
+                                          const CMPISelectExp * se,
+                                          const char *ns,
+                                          const CMPIObjectPath * op,
+                                          CMPIBoolean firstActivation)
+#else
 CMPIStatus
 TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
                                           CMPIContext * ctx,
@@ -494,6 +532,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
                                           const char *ns,
                                           CMPIObjectPath * op,
                                           CMPIBoolean firstActivation)
+#endif
 {
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -556,29 +595,29 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
     {
       if (projection)
         {
-          PROV_LOG ("--- Projection list is: ");
+          PROV_LOG ("--- #1.2 Projection list is: ");
           cnt = CMGetArrayCount (projection, &rc_Array);
           PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
-          PROV_LOG ("---- CMGetArrayCount, %d", cnt);
+          PROV_LOG ("--- #1.3 CMGetArrayCount, %d", cnt);
           for (idx = 0; idx < cnt; idx++)
             {
-              PROV_LOG ("--- CMGetArrayElementAt");
+              PROV_LOG ("--- #1.4 CMGetArrayElementAt");
               data = CMGetArrayElementAt (projection, idx, &rc_Array);
               PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
               PROV_LOG ("---- type is : %d", data.type);
               if (data.type == CMPI_chars)
                 {
-                  PROV_LOG ("---- %s", data.value.chars);
+                  PROV_LOG ("---- %s (chars)", data.value.chars);
                 }
               if (data.type == CMPI_string)
                 {
-                  PROV_LOG ("---- %s", CMGetCharPtr (data.value.string));
+                  PROV_LOG ("---- %s (string)", CMGetCharPtr (data.value.string));
                 }
             }
         }
       else
         {
-          PROV_LOG ("--- No projection list, meaning it is SELECT * .... ");
+          PROV_LOG ("--- #1.2 No projection list, meaning it is SELECT * .... ");
         }
     }
 
@@ -680,7 +719,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
         PROV_LOG ("---- %s", strCMPIStatus (rc));
 
 
-        PROV_LOG ("---- Number of disjunctives: %d, Type: %X", cnt, type);
+        PROV_LOG ("---- Number of disjunctives: %d, Type: %X", cnt, sub_type);
 
         /* Parsing the disjunctives */
         for (idx = 0; idx < cnt; idx++)
@@ -713,12 +752,18 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
                           CMGetCharPtr (left_side),
                           CMGetCharPtr (right_side));
 
+                PROV_LOG ("--- #6.5 Evaluate using predicate");
+#ifdef CMPI_VER_100
+// The CMEvaluatePredicate is gone in the CMPI 1.0 standard.
+			    evalRes = 
+				   CMEvaluatePredicateUsingAccessor(pred, instance_accessor, 
+													NULL, &rc_Pred);
+#else
                 // One can also evaluate this specific predicate
-                PROV_LOG ("--- #6.5 CMEvaluatePredicate");
-
                 evalRes =
                   CMEvaluatePredicate (pred, "PredicateEvaluation",
                                        CMPI_chars, &rc_Pred);
+#endif
                 PROV_LOG ("---- %s", strCMPIStatus (rc_Pred));
 
                 if (evalRes == CMPI_true)
@@ -748,7 +793,17 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   PROV_LOG_CLOSE ();
   CMReturn (CMPI_RC_OK);
 }
+#ifdef CMPI_VER_100
+/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
+CMPIStatus
+TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
+                                            const CMPIContext * ctx,
+                                            const CMPISelectExp * se,
+                                            const char *ns,
+                                            const CMPIObjectPath * op,
+                                            CMPIBoolean lastActivation)
 
+#else
 CMPIStatus
 TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
                                             CMPIContext * ctx,
@@ -757,6 +812,7 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
                                             const char *ns,
                                             CMPIObjectPath * op,
                                             CMPIBoolean lastActivation)
+#endif
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIString *str = NULL;
@@ -771,15 +827,24 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
   CMReturn (CMPI_RC_OK);
 }
 
+#ifdef CMPI_VER_100
+void
+TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi, const CMPIContext *ctx)
+#else
 void
 TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi)
+#endif
 {
   //PROV_LOG ("--- CMPI EnableIndication() called");
 }
 
-
+#ifdef CMPI_VER_100
+void
+TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi, const CMPIContext *ctx)
+#else
 void
 TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
+#endif
 {
   //PROV_LOG ("---  CMPI DisableIndication() called");
 }
@@ -790,7 +855,6 @@ TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
 
 CMIndicationMIStub (TestCMPIIndicationProvider,
                     TestCMPIIndicationProvider, _broker, CMNoHook);
-
 
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */

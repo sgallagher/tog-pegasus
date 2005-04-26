@@ -4240,7 +4240,7 @@ CIM server listening on HTTPS port {0}."}
         *   version 2.5
         *   do not translate CIMDateTime because it is a class name.
         */
-        Common.CIMDateTime.INVALID_OPERATION_DIV_ZERO_CDT:string {"PGS14407: Trying to divide a CIMDateTime objects by a zero value CIMDateTime object."}
+        Common.CIMDateTime.INVALID_OPERATION_DIV_ZERO_CDT:string {"PGS14407: Trying to divide a CIMDateTime object by a zero value CIMDateTime object."}
 
         /**
         * @note  PGS14408

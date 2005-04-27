@@ -728,7 +728,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   CMPISelectExp *se_def = NULL;
   CMPISelectExp *se_CQL = NULL;
   CMPISelectExp *clone = NULL;
-  CMPIBoolean evalRes, classType;
+  CMPIBoolean evalRes;
   CMPIInstance *inst = NULL;
   CMPIObjectPath *objPath = NULL;
   unsigned int idx;

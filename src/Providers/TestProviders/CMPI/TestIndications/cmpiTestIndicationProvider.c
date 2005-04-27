@@ -94,12 +94,12 @@ PROV_LOG_OPEN (const char *file)
 {
   char *path = NULL;
   const char *env;
-  int i = 0;
-  int j = 0;
-  int len = strlen (file);
-  int env_len = 0;
-  int loc_len = strlen (_ProviderLocation);
-  int ext_len = strlen (_LogExtension);
+  size_t i = 0;
+  size_t j = 0;
+  size_t len = strlen (file);
+  size_t env_len = 0;
+  size_t loc_len = strlen (_ProviderLocation);
+  size_t ext_len = strlen (_LogExtension);
 
   env = getenv ("PEGASUS_ROOT");
   if (env)

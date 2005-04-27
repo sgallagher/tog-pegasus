@@ -54,7 +54,7 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-CIMNamespaceName NAMESPACE("root/SampleProvider");
+CIMNamespaceName NAMESPACE("test/TestProvider");
 
 void testQuery1(CIMClient& client)
 {

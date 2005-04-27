@@ -74,7 +74,7 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
  */
 struct mi_context {
 	unsigned long int id;	/*!< the ID of the stored context */
-	CMPIContext * ctx;	/*!< the stored CMPIContext object */
+	CONST CMPIContext * ctx;	/*!< the stored CMPIContext object */
 	struct mi_context * next; /*!< pointer to the next element */
 };
 
@@ -97,7 +97,7 @@ static struct mi_context * __contexts = NULL;
   \return a unique ID to retrieve and/or delete the context from the list
   later.
  */
-unsigned long int save_context ( CMPIContext * ctx )
+unsigned long int save_context ( CONST CMPIContext * ctx )
 {
 	struct mi_context * tmp =
 		(struct mi_context *) malloc ( sizeof ( struct mi_context ) );
@@ -130,7 +130,7 @@ unsigned long int save_context ( CMPIContext * ctx )
 
   \return the proper CMPIContext object or NULL.
  */
-CMPIContext * get_context ( unsigned long int id )
+CONST CMPIContext * get_context ( unsigned long int id )
 {
 	struct mi_context * tmp;
 
@@ -143,7 +143,7 @@ CMPIContext * get_context ( unsigned long int id )
 
 		if ( tmp->id == id ) {
 
-			CMPIContext * ctx = tmp->ctx;
+			CONST CMPIContext * ctx = tmp->ctx;
                         CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 
 			TRACE_INFO(("returning context."));

@@ -86,7 +86,8 @@ static CMPIStatus __aft_release ( CMPIArgs * args )
 }
 
 
-static CMPIArgs * __aft_clone ( CMPIArgs * args, CMPIStatus * rc )
+static CMPIArgs * __aft_clone ( CONST CMPIArgs * args, CMPIStatus * rc )
+
 {
 	struct native_args * a   = (struct native_args *) args;
 	struct native_args * new = __new_empty_args ( TOOL_MM_NO_ADD, rc );
@@ -99,10 +100,12 @@ static CMPIArgs * __aft_clone ( CMPIArgs * args, CMPIStatus * rc )
 }
 
 
-static CMPIStatus __aft_addArg ( CMPIArgs * args,
+
+static CMPIStatus __aft_addArg ( CONST CMPIArgs * args,
 				 const char * name,
-				 CMPIValue * value,
-				 CMPIType type )
+				 CONST CMPIValue * value,
+				 CONST CMPIType type )
+
 {
 	struct native_args * a = (struct native_args *) args;
 
@@ -117,20 +120,22 @@ static CMPIStatus __aft_addArg ( CMPIArgs * args,
 }
 
 
-static CMPIData __aft_getArg ( CMPIArgs * args,
+
+static CMPIData __aft_getArg ( CONST CMPIArgs * args,
 			       const char * name,
 			       CMPIStatus * rc )
+
 {
 	struct native_args * a = (struct native_args *) args;
 
 	return propertyFT.getDataProperty ( a->data, name, rc );
 }
 
-
-static CMPIData __aft_getArgAt ( CMPIArgs * args,
+static CMPIData __aft_getArgAt ( CONST CMPIArgs * args,
 				 unsigned int index,
 				 CMPIString ** name,
 				 CMPIStatus * rc )
+
 {
 	struct native_args * a = (struct native_args *) args;
 
@@ -138,7 +143,9 @@ static CMPIData __aft_getArgAt ( CMPIArgs * args,
 }
 
 
-static unsigned int __aft_getArgCount ( CMPIArgs * args, CMPIStatus * rc )
+static unsigned int __aft_getArgCount ( CONST CMPIArgs * args, CMPIStatus * rc )
+
+
 {
 	struct native_args * a = (struct native_args *) args;
 

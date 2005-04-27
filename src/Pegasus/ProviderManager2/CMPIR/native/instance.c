@@ -80,13 +80,13 @@ static void __release_list ( char ** list )
 }
 
 
-static char ** __duplicate_list ( char ** list, int mem_state )
+static  char ** __duplicate_list (  char ** list, int mem_state )
 {
 	char ** result = NULL;
 
 	if ( list ) {
 		size_t size = 1;
-		char ** tmp = list;
+		char ** tmp = (char **)list;
 
 		while ( *tmp++ ) ++size;
 
@@ -141,7 +141,8 @@ static CMPIStatus __ift_release ( CMPIInstance * instance )
 }
 
 
-static CMPIInstance * __ift_clone ( CMPIInstance * instance, CMPIStatus * rc )
+static CMPIInstance * __ift_clone ( CONST CMPIInstance * instance, CMPIStatus * rc )
+
 {
 	struct native_instance * i   = (struct native_instance *) instance;
 	struct native_instance * new =
@@ -160,7 +161,7 @@ static CMPIInstance * __ift_clone ( CMPIInstance * instance, CMPIStatus * rc )
 }
 
 
-static CMPIData __ift_getProperty ( CMPIInstance * instance,
+static CMPIData __ift_getProperty ( CONST CMPIInstance * instance,
 				    const char * name,
 				    CMPIStatus * rc )
 {
@@ -170,10 +171,12 @@ static CMPIData __ift_getProperty ( CMPIInstance * instance,
 }
 
 
-static CMPIData __ift_getPropertyAt ( CMPIInstance * instance,
+
+static CMPIData __ift_getPropertyAt ( CONST CMPIInstance * instance,
 				      unsigned int index,
 				      CMPIString ** name,
 				      CMPIStatus * rc )
+
 {
 	struct native_instance * i = (struct native_instance *) instance;
 
@@ -181,8 +184,10 @@ static CMPIData __ift_getPropertyAt ( CMPIInstance * instance,
 }
 
 
-static unsigned int __ift_getPropertyCount ( CMPIInstance * instance,
+
+static unsigned int __ift_getPropertyCount ( CONST CMPIInstance * instance,
 					     CMPIStatus * rc )
+
 {
 	struct native_instance * i = (struct native_instance *) instance;
 
@@ -190,9 +195,10 @@ static unsigned int __ift_getPropertyCount ( CMPIInstance * instance,
 }
 
 
-static CMPIStatus __ift_setProperty ( CMPIInstance * instance,
+
+static CMPIStatus __ift_setProperty ( CONST CMPIInstance * instance,
 				      const char * name,
-				      CMPIValue * value,
+				      CONST CMPIValue * value,
 				      CMPIType type )
 {
 	struct native_instance * i = (struct native_instance *) instance;
@@ -220,8 +226,9 @@ static CMPIStatus __ift_setProperty ( CMPIInstance * instance,
 }
 
 
-static CMPIObjectPath * __ift_getObjectPath ( CMPIInstance * instance,
+static CMPIObjectPath * __ift_getObjectPath ( CONST CMPIInstance * instance,
 					      CMPIStatus * rc )
+
 {
 	int j,f=0;
 	CMPIStatus tmp;
@@ -250,6 +257,7 @@ static CMPIObjectPath * __ift_getObjectPath ( CMPIInstance * instance,
 		}
 
 	}
+#ifndef CMPI_VER_100
 	if (f==0) {
 	   CMPIData d;
 	   CMPIContext *ctx;
@@ -268,13 +276,15 @@ static CMPIObjectPath * __ift_getObjectPath ( CMPIInstance * instance,
 		  CMAddKey (cop,CMGetCharPtr(n),&d.value,d.type);
            }
 	}
+#endif
 	return cop;
 }
 
 
 static CMPIStatus __ift_setPropertyFilter ( CMPIInstance * instance,
-					    char ** propertyList,
-					    char ** keys )
+					    CONST char ** propertyList,
+					    CONST char ** keys )
+
 {
 	struct native_instance * i = (struct native_instance *) instance;
 
@@ -285,11 +295,18 @@ static CMPIStatus __ift_setPropertyFilter ( CMPIInstance * instance,
 	}
 
 	i->filtered = 1;
-	i->property_list = __duplicate_list ( propertyList, i->mem_state );
-	i->key_list      = __duplicate_list ( keys, i->mem_state );
+	i->property_list = __duplicate_list ( (char **)propertyList, i->mem_state );
+	i->key_list      = __duplicate_list ( (char **)keys, i->mem_state );
 
 	CMReturn ( CMPI_RC_OK );
 }
+#ifdef CMPI_VER_100
+static CMPIStatus __ift_setObjectPath ( CMPIInstance * instance,
+					const CMPIObjectPath *op)
+{
+	CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED );
+}
+#endif
 
 void add(char **buf, unsigned int *p, unsigned int *m, char *data)
 {
@@ -314,11 +331,14 @@ void add(char **buf, unsigned int *p, unsigned int *m, char *data)
    *p+=ds-1;
 }
 
-extern char * value2Chars ( CMPIType type, CMPIValue * value );
-extern CMPIString *__oft_toString( CMPIObjectPath * cop, CMPIStatus *rc);
-extern CMPIString * __oft_getClassName ( CMPIObjectPath * cop, CMPIStatus * rc );
 
-CMPIString *instance2String(CMPIInstance *inst, CMPIStatus *rc)
+extern char * value2Chars ( CMPIType type, CMPIValue * value );
+
+extern CMPIString *__oft_toString( CONST CMPIObjectPath * cop, CMPIStatus *rc);
+extern CMPIString * __oft_getClassName ( CONST CMPIObjectPath * cop, CMPIStatus * rc );
+
+CMPIString *instance2String(CONST CMPIInstance *inst, CMPIStatus *rc)
+
 {
    CMPIObjectPath *path;
    CMPIData data;
@@ -363,12 +383,17 @@ static CMPIInstanceFT ift = {
 	__ift_setProperty,
 	__ift_getObjectPath,
 	__ift_setPropertyFilter
+#ifdef CMPI_VER_100
+	,__ift_setObjectPath
+#endif
 };
 
 CMPIInstanceFT *CMPI_Instance_FT=&ift;
 
-CMPIInstance * native_new_CMPIInstance ( CMPIObjectPath * cop,
+
+CMPIInstance * native_new_CMPIInstance ( CONST CMPIObjectPath * cop,
 					 CMPIStatus * rc )
+
 {
 	static CMPIInstance i = {
 		"CMPIInstance",

@@ -90,7 +90,7 @@ static CMPIStatus __oft_release ( CMPIObjectPath * cop )
 }
 
 
-static CMPIObjectPath * __oft_clone ( CMPIObjectPath * cop, CMPIStatus * rc )
+static CMPIObjectPath * __oft_clone ( CONST CMPIObjectPath * cop, CMPIStatus * rc )
 {
 	CMPIStatus tmp;
 	struct native_cop * o   = (struct native_cop *) cop;
@@ -127,7 +127,7 @@ static CMPIStatus __oft_setNameSpace ( CMPIObjectPath * cop,
 }
 
 
-static CMPIString * __oft_getNameSpace ( CMPIObjectPath * cop,
+static CMPIString * __oft_getNameSpace ( CONST CMPIObjectPath * cop,
 					 CMPIStatus * rc )
 {
 	struct native_cop * o = (struct native_cop *) cop;
@@ -142,7 +142,7 @@ static CMPIStatus __oft_setHostName ( CMPIObjectPath * cop, const char * hn )
 }
 
 
-static CMPIString * __oft_getHostName ( CMPIObjectPath * cop,
+static CMPIString * __oft_getHostName ( CONST CMPIObjectPath * cop,
 					CMPIStatus * rc )
 {
 	if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
@@ -168,7 +168,7 @@ static CMPIStatus __oft_setClassName ( CMPIObjectPath * cop,
 }
 
 
-CMPIString * __oft_getClassName ( CMPIObjectPath * cop,
+CMPIString * __oft_getClassName ( CONST CMPIObjectPath * cop,
 					 CMPIStatus * rc )
 {
 	struct native_cop * o = (struct native_cop *) cop;
@@ -179,8 +179,8 @@ CMPIString * __oft_getClassName ( CMPIObjectPath * cop,
 
 static CMPIStatus __oft_addKey ( CMPIObjectPath * cop,
 				 const char * name,
-				 CMPIValue * value,
-				 CMPIType type )
+				 CONST CMPIValue * value,
+				 CONST CMPIType type )
 {
 	struct native_cop * o = (struct native_cop *) cop;
 
@@ -195,7 +195,7 @@ static CMPIStatus __oft_addKey ( CMPIObjectPath * cop,
 }
 
 
-static CMPIData __oft_getKey ( CMPIObjectPath * cop,
+static CMPIData __oft_getKey ( CONST CMPIObjectPath * cop,
 			       const char * name,
 			       CMPIStatus * rc )
 {
@@ -205,7 +205,7 @@ static CMPIData __oft_getKey ( CMPIObjectPath * cop,
 }
 
 
-static CMPIData __oft_getKeyAt ( CMPIObjectPath * cop,
+static CMPIData __oft_getKeyAt ( CONST CMPIObjectPath * cop,
 				 unsigned int index,
 				 CMPIString ** name,
 				 CMPIStatus * rc )
@@ -216,7 +216,7 @@ static CMPIData __oft_getKeyAt ( CMPIObjectPath * cop,
 }
 
 
-static unsigned int __oft_getKeyCount ( CMPIObjectPath * cop, CMPIStatus * rc )
+static unsigned int __oft_getKeyCount ( CONST CMPIObjectPath * cop, CMPIStatus * rc )
 {
 	struct native_cop * o = (struct native_cop *) cop;
 
@@ -225,7 +225,7 @@ static unsigned int __oft_getKeyCount ( CMPIObjectPath * cop, CMPIStatus * rc )
 
 
 static CMPIStatus __oft_setNameSpaceFromObjectPath ( CMPIObjectPath * cop,
-						     CMPIObjectPath * src )
+						     CONST CMPIObjectPath * src )
 {
 	struct native_cop * s = (struct native_cop *) src;
 	return __oft_setNameSpace ( cop, s->namespace );
@@ -233,7 +233,7 @@ static CMPIStatus __oft_setNameSpaceFromObjectPath ( CMPIObjectPath * cop,
 
 extern char * value2Chars ( CMPIType type, CMPIValue * value );
 
-CMPIString *__oft_toString( CMPIObjectPath * cop,
+CMPIString *__oft_toString( CONST CMPIObjectPath * cop,
                                   CMPIStatus *rc)
 {
 //            "//atp:9999/root/cimv25:TennisPlayer.first="Patrick",last="Rafter";

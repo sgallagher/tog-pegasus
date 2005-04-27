@@ -45,14 +45,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define CMPI_VERSION 90
-
-#include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
-#include <Pegasus/Provider/CMPI/cmpift.h>
-
 #include "resolver.h"
 #include "debug.h"
+
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
 
 
 /****************************************************************************/
@@ -68,8 +66,7 @@ static void _free_addresses ( provider_address * addr )
 	}
 }
 
-
-static provider_address * outofprocess_resolver ( CMPIBroker * broker, const char * provider )
+static provider_address * outofprocess_resolver ( CONST CMPIBroker * broker, const char * provider )
 {
 	provider_address * addr;
 	char *module;
@@ -86,8 +83,7 @@ static provider_address * outofprocess_resolver ( CMPIBroker * broker, const cha
 	return addr;
 }
 
-
-static provider_address * namespace_resolver ( CMPIBroker * broker,
+static provider_address * namespace_resolver ( CONST CMPIBroker * broker,
         const char * provider, char *hostname)
 {
 	provider_address * addr;
@@ -111,10 +107,8 @@ static provider_address * namespace_resolver ( CMPIBroker * broker,
     free( in_between );
 	return addr;
 }
-
-
-provider_address * resolve_instance ( CMPIBroker * broker,
-        CMPIContext * ctx, CMPIObjectPath * cop, const char * provider, CMPIStatus * rc)
+provider_address * resolve_instance ( CONST CMPIBroker * broker,
+        CONST CMPIContext * ctx, CONST CMPIObjectPath * cop, const char * provider, CMPIStatus * rc)
 {
         CMPIStatus irc;
         char *ip;
@@ -141,9 +135,8 @@ provider_address * resolve_instance ( CMPIBroker * broker,
 	return a;
 }
 
-
-provider_address * resolve_class ( CMPIBroker * broker,
-        CMPIContext * ctx, CMPIObjectPath * cop, const char * provider, CMPIStatus * rc)
+provider_address * resolve_class ( CONST CMPIBroker * broker,
+        CONST CMPIContext * ctx, CONST CMPIObjectPath * cop, const char * provider, CMPIStatus * rc)
 {
 	TRACE_NORMAL(("Resolve requested for provider: %s", provider ));
 	return resolve_instance ( broker, ctx, cop, provider, rc );

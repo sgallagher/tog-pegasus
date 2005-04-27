@@ -75,7 +75,7 @@ static CMPIStatus __rft_release ( CMPIResult * result )
 }
 
 
-static CMPIResult * __rft_clone ( CMPIResult * result,
+static CMPIResult * __rft_clone ( CONST CMPIResult * result,
 				  CMPIStatus * rc )
 {
 	CMPIArray * a = ( (struct native_result *) result )->data;
@@ -90,9 +90,9 @@ static CMPIResult * __rft_clone ( CMPIResult * result,
 }
 
 
-static CMPIStatus __rft_returnData ( CMPIResult * result,
+static CMPIStatus __rft_returnData ( CONST CMPIResult * result,
 				     const CMPIValue * val,
-				     CMPIType type )
+				     CONST CMPIType type )
 {
 	struct native_result * r = (struct native_result *) result;
 
@@ -112,27 +112,27 @@ static CMPIStatus __rft_returnData ( CMPIResult * result,
 }
 
 
-static CMPIStatus __rft_returnInstance ( CMPIResult * result,
-					 CMPIInstance * instance )
+static CMPIStatus __rft_returnInstance ( CONST CMPIResult * result,
+					 CONST CMPIInstance * instance )
 {
 	CMPIValue v;
-	v.inst = instance;
+	v.inst = (CMPIInstance *)instance;
 
 	return __rft_returnData ( result, &v, CMPI_instance );
 }
 
 
-static CMPIStatus __rft_returnObjectPath ( CMPIResult * result,
-					   CMPIObjectPath * cop )
+static CMPIStatus __rft_returnObjectPath ( CONST CMPIResult * result,
+					   CONST CMPIObjectPath * cop )
 {
 	CMPIValue v;
-	v.ref = cop;
+	v.ref = (CMPIObjectPath *)cop;
 
 	return __rft_returnData ( result, &v, CMPI_ref );
 }
 
 
-static CMPIStatus __rft_returnDone ( CMPIResult * result )
+static CMPIStatus __rft_returnDone ( CONST CMPIResult * result )
 {
 	CMReturn ( CMPI_RC_OK );
 }

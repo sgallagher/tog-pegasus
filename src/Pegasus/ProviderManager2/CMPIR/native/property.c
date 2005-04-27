@@ -94,12 +94,12 @@ static CMPIData __convert2CMPIData ( struct native_property * prop,
 static int __addProperty ( struct native_property ** prop,
 			   int mm_add, 
 			   const char * name,
-			   CMPIType type,  
+			   CONST CMPIType type,  
 			   CMPIValueState state, 
-			   CMPIValue * value )
+			   CONST CMPIValue * value )
 {
 	CMPIValue v;
-
+	
 	if ( *prop == NULL ) {
 		struct native_property * tmp = *prop =
 			(struct native_property *) 
@@ -110,15 +110,16 @@ static int __addProperty ( struct native_property ** prop,
 
 		if ( mm_add == TOOL_MM_ADD ) tool_mm_add ( tmp->name );
 
+		tmp->type  = type;
 		if ( type == CMPI_chars ) {
 
-			type = CMPI_string;
+			tmp->type = CMPI_string;
 			v.string = native_new_CMPIString ( (char *) value,
 							   NULL );
 			value = &v;
 		}
 
-		tmp->type  = type;
+
 
 		if ( type != CMPI_null ) {
 			tmp->state = state;
@@ -155,7 +156,7 @@ static int __setProperty ( struct native_property * prop,
 			   int mm_add,
 			   const char * name, 
 			   CMPIType type,
-			   CMPIValue * value )
+			   CONST CMPIValue * value )
 {
 	CMPIValue v;
 	if ( prop == NULL ) {

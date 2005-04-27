@@ -65,9 +65,9 @@
 struct socket_mi_function {
 	char * name;		/*!< function name */
 	void (* function) ( int,
-			    CMPIBroker *,
-			    CMPIContext *,
-			    CMPIObjectPath * ); /*!< function pointer */
+			    CONST CMPIBroker *,
+			    CONST CMPIContext *,
+			    CONST CMPIObjectPath * ); /*!< function pointer */
 };
 
 
@@ -80,7 +80,7 @@ struct socket_mi_function {
  */
 struct socket_mb_function {
 	char * name;		/*!< function name  */
-	void (* function) ( int, CMPIBroker *, CMPIContext * );	/*!< function
+	void (* function) ( int, CONST CMPIBroker *, CONST CMPIContext * );	/*!< function
 								  pointer  */
 };
 
@@ -94,22 +94,22 @@ extern char * RCMPI_CTX_ID;
 
 void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst );
 
-void socketcomm_array2result ( CMPIArray * array, CMPIResult * result );
+void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result );
 
 void socketcomm_serialize_props ( int socket,
 				  const struct BinarySerializerFT * sft,
 				  char ** props );
 char ** socketcomm_deserialize_props ( int socket,
 				       const struct BinarySerializerFT * sft,
-				       CMPIBroker * broker );
+				       CONST CMPIBroker * broker );
 
 void socketcomm_serialize_context ( int socket,
 				    const struct BinarySerializerFT * sft,
-				    CMPIContext * ctx );
+				    CONST CMPIContext * ctx );
 void socketcomm_deserialize_context ( int socket,
 				      const struct BinarySerializerFT * sft,
-				      CMPIBroker * broker,
-				      CMPIContext * ctx );
+				      CONST CMPIBroker * broker,
+				      CONST CMPIContext * ctx );
 
 #endif
 

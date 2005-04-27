@@ -46,7 +46,17 @@
 #define CIMOM_LISTEN_PORT 9000
 #define REMOTE_LISTEN_PORT 9001
 
-#define CMPI_VERSION 90
+#ifndef CMPI_VER_100
+#define CMPI_VER_100
+#endif
+
+#ifndef CONST 
+  #ifdef CMPI_VER_100 
+  #define CONST const
+  #else
+  #define CONST 
+  #endif
+#endif
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
@@ -54,8 +64,8 @@
 
 struct accept_thread {
         int socket;
-        CMPIBroker * broker;
-        CMPIContext * context;
+        CONST CMPIBroker * broker;
+        CONST CMPIContext * context;
 };
 
 #endif

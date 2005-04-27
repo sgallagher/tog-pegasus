@@ -78,7 +78,7 @@ static CMPIStatus __sft_release ( CMPIString * string )
 }
 
 
-static CMPIString * __sft_clone ( CMPIString * string, CMPIStatus * rc )
+static CMPIString * __sft_clone ( CONST CMPIString * string, CMPIStatus * rc )
 {
 	return (CMPIString * )
 		__new_string ( TOOL_MM_NO_ADD,
@@ -87,7 +87,7 @@ static CMPIString * __sft_clone ( CMPIString * string, CMPIStatus * rc )
 }
 
 
-static char * __sft_getCharPtr ( CMPIString * string, CMPIStatus * rc )
+static char * __sft_getCharPtr ( CONST CMPIString * string, CMPIStatus * rc )
 {
 	return (char *) string->hdl;
 }

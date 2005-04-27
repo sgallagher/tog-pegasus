@@ -78,14 +78,14 @@ static CMPIStatus __cft_release ( CMPIContext * ctx )
 }
 
 
-static CMPIContext * __cft_clone ( CMPIContext * ctx, CMPIStatus * rc )
+static CMPIContext * __cft_clone ( CONST CMPIContext * ctx, CMPIStatus * rc )
 {
 	if ( rc ) CMSetStatus ( rc, CMPI_RC_ERR_NOT_SUPPORTED );
 	return NULL;
 }
 
 
-static CMPIData __cft_getEntry ( CMPIContext * ctx,
+static CMPIData __cft_getEntry ( CONST CMPIContext * ctx,
 				 const char * name,
 				 CMPIStatus * rc )
 {
@@ -95,7 +95,7 @@ static CMPIData __cft_getEntry ( CMPIContext * ctx,
 }
 
 
-static CMPIData __cft_getEntryAt ( CMPIContext * ctx, 
+static CMPIData __cft_getEntryAt ( CONST CMPIContext * ctx, 
 				   unsigned int index,
 				   CMPIString ** name,
 				   CMPIStatus * rc )
@@ -106,7 +106,7 @@ static CMPIData __cft_getEntryAt ( CMPIContext * ctx,
 }
 
 
-static unsigned int __cft_getEntryCount ( CMPIContext * ctx, CMPIStatus * rc )
+static unsigned int __cft_getEntryCount ( CONST CMPIContext * ctx, CMPIStatus * rc )
 {
 	struct native_context * c = (struct native_context *) ctx;
   
@@ -114,10 +114,10 @@ static unsigned int __cft_getEntryCount ( CMPIContext * ctx, CMPIStatus * rc )
 }
 
 
-static CMPIStatus __cft_addEntry ( CMPIContext * ctx,
+static CMPIStatus __cft_addEntry ( CONST CMPIContext * ctx,
 				   const char * name,
-				   CMPIValue * value,
-				   CMPIType type )
+				   CONST CMPIValue * value,
+				   CONST CMPIType type )
 {
 	struct native_context * c = (struct native_context *) ctx;
 
@@ -166,7 +166,7 @@ CMPIContext * native_new_CMPIContext ( int mem_state )
 }
 
 
-void native_release_CMPIContext ( CMPIContext * ctx )
+void native_release_CMPIContext ( CONST CMPIContext * ctx )
 {
 	struct native_context * c = (struct native_context *) ctx;
 

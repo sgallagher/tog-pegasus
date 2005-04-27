@@ -45,8 +45,18 @@
 
 typedef struct comm_ticket comm_ticket;
 
-#define CMPI_VERSION 90
 
+#ifndef CMPI_VER_100
+#define CMPI_VER_100
+#endif
+
+#ifndef CONST 
+  #ifdef CMPI_VER_100 
+  #define CONST const
+  #else
+  #define CONST 
+  #endif
+#endif
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 
 //! Communication ticket given to remote providers to grant them up-calls.
@@ -57,15 +67,15 @@ typedef struct comm_ticket comm_ticket;
  */
 struct comm_ticket {
 	unsigned long id;	/*!< ticket id */
-	CMPIBroker * broker;	/*!< originating broker */
+	CONST CMPIBroker * broker;	/*!< originating broker */
 	struct comm_ticket * next; /*! next element pointer */
 };
 
 
 /****************************************************************************/
 
-CMPIBroker * verify_ticket ( const comm_ticket * ticket );
-comm_ticket generate_ticket ( CMPIBroker * broker );
+CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket );
+comm_ticket generate_ticket ( CONST CMPIBroker * broker );
 int revoke_ticket ( comm_ticket * ticket );
 int compare_ticket ( const comm_ticket *, const comm_ticket * );
 

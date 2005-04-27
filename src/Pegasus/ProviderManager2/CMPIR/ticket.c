@@ -55,12 +55,13 @@
 #include <error.h>
 #endif
 
-#include <Pegasus/Provider/CMPI/cmpimacs.h>
-#include <Pegasus/Provider/CMPI/cmpidt.h>
-#include <Pegasus/Provider/CMPI/cmpift.h>
 
 #include "ticket.h"
 #include "debug.h"
+
+#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
+#include <Pegasus/Provider/CMPI/cmpift.h>
 
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 
@@ -80,7 +81,7 @@ static CMPI_MUTEX_TYPE _tickets_lock=NULL;
   \param ticket the ticket to be verified.
   \return a valid broker handle or NULL.
  */
-CMPIBroker * verify_ticket ( const comm_ticket * ticket )
+CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket )
 {
 	comm_ticket * tmp;
 
@@ -93,9 +94,7 @@ CMPIBroker * verify_ticket ( const comm_ticket * ticket )
 
 		if ( tmp->id     == ticket->id &&
 		     tmp->broker == ticket->broker ) {
-
-			CMPIBroker * b = tmp->broker;
-
+			CONST CMPIBroker * b = tmp->broker;
 			TRACE_INFO(("ID accepted, returning broker: %p", b ));
 
                         CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
@@ -118,7 +117,7 @@ CMPIBroker * verify_ticket ( const comm_ticket * ticket )
   \param broker the broker handle to create the ticket for.
   \return the communication ticket.
  */
-comm_ticket generate_ticket ( CMPIBroker * broker )
+comm_ticket generate_ticket ( CONST CMPIBroker * broker )
 {
 	static unsigned long id = 0;
 

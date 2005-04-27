@@ -57,7 +57,11 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#include <Pegasus/ProviderManager2/CMPI/CMPI_Version.h>
+
+#ifndef CMPI_VER_100
+#define CMPI_VER_100
+#endif
+
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>

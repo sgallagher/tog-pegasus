@@ -96,10 +96,13 @@ static CMPI_THREAD_TYPE spawn_enumerate_thread(provider_comm * comm,
 
 #endif
 
-
-
+#ifdef CMPI_VER_100
+static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
+				       const CMPIContext * ctx, CMPIBoolean *term)
+#else
 static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
 				       CMPIContext * ctx)
+#endif
 {
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
@@ -116,11 +119,10 @@ static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
     free(rcThis);
     CMReturn(CMPI_RC_OK);
 };
-
 static CMPIStatus __InstanceMI_enumInstanceNames(CMPIInstanceMI * cThis,
-						 CMPIContext * ctx,
-						 CMPIResult * rslt,
-						 CMPIObjectPath * cop)
+						 CONST CMPIContext * ctx,
+						 CONST CMPIResult * rslt,
+						 CONST CMPIObjectPath * cop)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
@@ -155,11 +157,10 @@ static CMPIStatus __InstanceMI_enumInstanceNames(CMPIInstanceMI * cThis,
 };
 
 
-
 static CMPIStatus __InstanceMI_enumInstances(CMPIInstanceMI * cThis,
-					     CMPIContext * ctx,
-					     CMPIResult * rslt,
-					     CMPIObjectPath * cop, char **props)
+					     CONST CMPIContext * ctx,
+					     CONST CMPIResult * rslt,
+					     CONST CMPIObjectPath * cop, CONST char **props)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
@@ -196,11 +197,10 @@ static CMPIStatus __InstanceMI_enumInstances(CMPIInstanceMI * cThis,
 
 
 
-
 static CMPIStatus __InstanceMI_getInstance(CMPIInstanceMI * cThis,
-					   CMPIContext * ctx,
-					   CMPIResult * rslt,
-					   CMPIObjectPath * cop, char **props)
+					   CONST CMPIContext * ctx,
+					   CONST CMPIResult * rslt,
+					   CONST CMPIObjectPath * cop, CONST char **props)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
@@ -224,14 +224,11 @@ static CMPIStatus __InstanceMI_getInstance(CMPIInstanceMI * cThis,
 };
 
 
-
-
-
 static CMPIStatus __InstanceMI_createInstance(CMPIInstanceMI * cThis,
-					      CMPIContext * ctx,
-					      CMPIResult * rslt,
-					      CMPIObjectPath * cop,
-					      CMPIInstance * inst)
+					      CONST CMPIContext * ctx,
+					      CONST CMPIResult * rslt,
+					      CONST CMPIObjectPath * cop,
+					      CONST CMPIInstance * inst)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
@@ -255,14 +252,23 @@ static CMPIStatus __InstanceMI_createInstance(CMPIInstanceMI * cThis,
 };
 
 
-
-
+#ifdef CMPI_VER_100
+/* This function prototype should be called 'modifyInstance' but since this
+   proxy provider is not using the MI macro stub functions which use that, it is
+   ok to leave it as is. */
+static CMPIStatus __InstanceMI_setInstance(CMPIInstanceMI * cThis,
+					   const CMPIContext * ctx,
+					   const CMPIResult * rslt,
+					   const CMPIObjectPath * cop,
+					   const CMPIInstance * inst, const char **props)
+#else
 
 static CMPIStatus __InstanceMI_setInstance(CMPIInstanceMI * cThis,
 					   CMPIContext * ctx,
 					   CMPIResult * rslt,
 					   CMPIObjectPath * cop,
 					   CMPIInstance * inst, char **props)
+#endif
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
@@ -288,12 +294,10 @@ static CMPIStatus __InstanceMI_setInstance(CMPIInstanceMI * cThis,
 
 
 
-
-
 static CMPIStatus __InstanceMI_deleteInstance(CMPIInstanceMI * cThis,
-					      CMPIContext * ctx,
-					      CMPIResult * rslt,
-					      CMPIObjectPath * cop)
+					      CONST CMPIContext * ctx,
+					      CONST CMPIResult * rslt,
+					      CONST CMPIObjectPath * cop)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
@@ -316,12 +320,11 @@ static CMPIStatus __InstanceMI_deleteInstance(CMPIInstanceMI * cThis,
 };
 
 
-
 static CMPIStatus __InstanceMI_execQuery(CMPIInstanceMI * cThis,
-					 CMPIContext * ctx,
-					 CMPIResult * rslt,
-					 CMPIObjectPath * cop, char *lang,
-					 char *query)
+					 CONST CMPIContext * ctx,
+					 CONST CMPIResult * rslt,
+					 CONST CMPIObjectPath * cop, CONST char *lang,
+					 CONST char *query)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIInstanceMI *rcThis = (RemoteCMPIInstanceMI *) cThis;
@@ -359,10 +362,15 @@ static CMPIStatus __InstanceMI_execQuery(CMPIInstanceMI * cThis,
 
 
 
-
+#ifdef CMPI_VER_100
+CMPIInstanceMI *_Generic_Create_InstanceMI(const CMPIBroker * broker,
+					   const CMPIContext * context,
+					   const char *provider, CMPIStatus *rc)
+#else
 CMPIInstanceMI *_Generic_Create_InstanceMI(CMPIBroker * broker,
 					   CMPIContext * context,
 					   const char *provider)
+#endif
 {
     static CMPIInstanceMIFT miFT =
 	{ CMPICurrentVersion,
@@ -389,9 +397,13 @@ CMPIInstanceMI *_Generic_Create_InstanceMI(CMPIBroker * broker,
     return (CMPIInstanceMI *) mi;
 };
 
-
+#ifdef CMPI_VER_100
+static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
+					  const CMPIContext * ctx, CMPIBoolean *term)
+#else
 static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
 					  CMPIContext * ctx)
+#endif
 {
     RemoteCMPIAssociationMI *rcThis = (RemoteCMPIAssociationMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
@@ -407,13 +419,13 @@ static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
 };
 
 static CMPIStatus __AssociationMI_associators(CMPIAssociationMI * cThis,
-					      CMPIContext * ctx,
-					      CMPIResult * rslt,
-					      CMPIObjectPath * cop,
+					      CONST CMPIContext * ctx,
+					      CONST CMPIResult * rslt,
+					      CONST CMPIObjectPath * cop,
 					      const char *assocclass,
 					      const char *resultclass,
 					      const char *role, const char *resultrole,
-					      char **props)
+					      CONST char **props)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIAssociationMI *rcThis = (RemoteCMPIAssociationMI *) cThis;
@@ -451,12 +463,14 @@ static CMPIStatus __AssociationMI_associators(CMPIAssociationMI * cThis,
 
 
 static CMPIStatus __AssociationMI_associatorNames(CMPIAssociationMI *
-						  cThis, CMPIContext * ctx,
-						  CMPIResult * rslt,
-						  CMPIObjectPath * cop,
+						  cThis, 
+						  CONST CMPIContext * ctx,
+						  CONST CMPIResult * rslt,
+						  CONST CMPIObjectPath * cop,
 						  const char *assocclass,
 						  const char *resultclass,
 						  const char *role, const char *resultrole)
+
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIAssociationMI *rcThis = (RemoteCMPIAssociationMI *) cThis;
@@ -494,11 +508,11 @@ static CMPIStatus __AssociationMI_associatorNames(CMPIAssociationMI *
 
 
 static CMPIStatus __AssociationMI_references(CMPIAssociationMI * cThis,
-					     CMPIContext * ctx,
-					     CMPIResult * rslt,
-					     CMPIObjectPath * cop,
+					     CONST CMPIContext * ctx,
+					     CONST CMPIResult * rslt,
+					     CONST CMPIObjectPath * cop,
 					     const char *assocclass, const char *role,
-					     char **props)
+					     CONST char **props)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIAssociationMI *rcThis = (RemoteCMPIAssociationMI *) cThis;
@@ -537,11 +551,10 @@ static CMPIStatus __AssociationMI_references(CMPIAssociationMI * cThis,
 
 
 
-
 static CMPIStatus __AssociationMI_referenceNames(CMPIAssociationMI * cThis,
-						 CMPIContext * ctx,
-						 CMPIResult * rslt,
-						 CMPIObjectPath * cop,
+						 CONST CMPIContext * ctx,
+						 CONST CMPIResult * rslt,
+						 CONST CMPIObjectPath * cop,
 						 const char *assocclass, const char *role)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
@@ -579,12 +592,17 @@ static CMPIStatus __AssociationMI_referenceNames(CMPIAssociationMI * cThis,
 
 
 
+#ifdef CMPI_VER_100
+CMPIAssociationMI *_Generic_Create_AssociationMI(const CMPIBroker * broker,
+						 const CMPIContext * context,
+						 const char *provider,
+						 CMPIStatus *rc)
 
-
-
+#else
 CMPIAssociationMI *_Generic_Create_AssociationMI(CMPIBroker * broker,
 						 CMPIContext * context,
 						 const char *provider)
+#endif
 {
     static CMPIAssociationMIFT miFT = { CMPICurrentVersion, CMPICurrentVersion,
 	"Association" "RemoteCMPI", __AssociationMI_cleanup,
@@ -606,7 +624,11 @@ CMPIAssociationMI *_Generic_Create_AssociationMI(CMPIBroker * broker,
 };
 
 
+#ifdef CMPI_VER_100
+static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, const CMPIContext * ctx, CMPIBoolean *term)
+#else
 static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, CMPIContext * ctx)
+#endif
 {
     RemoteCMPIMethodMI *rcThis = (RemoteCMPIMethodMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
@@ -622,10 +644,10 @@ static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, CMPIContext * ctx)
 };
 
 static CMPIStatus __MethodMI_invokeMethod(CMPIMethodMI * cThis,
-					  CMPIContext * ctx,
-					  CMPIResult * rslt,
-					  CMPIObjectPath * cop,
-					  const char *method, CMPIArgs * in,
+					  CONST CMPIContext * ctx,
+					  CONST CMPIResult * rslt,
+					  CONST CMPIObjectPath * cop,
+					  const char *method, CONST CMPIArgs * in,
 					  CMPIArgs * out)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
@@ -654,10 +676,17 @@ static CMPIStatus __MethodMI_invokeMethod(CMPIMethodMI * cThis,
 
 
 
+#ifdef CMPI_VER_100
+CMPIMethodMI *_Generic_Create_MethodMI(CMPIBroker * broker,
+				       const CMPIContext * context,
+				       const char *provider, 
+				       CMPIStatus *rc)
 
+#else
 CMPIMethodMI *_Generic_Create_MethodMI(CMPIBroker * broker,
 				       CMPIContext * context,
 				       const char *provider)
+#endif
 {
     static CMPIMethodMIFT miFT =
 	{ CMPICurrentVersion, CMPICurrentVersion, "Method" "RemoteCMPI",
@@ -676,8 +705,15 @@ CMPIMethodMI *_Generic_Create_MethodMI(CMPIBroker * broker,
 };
 
 
+#ifdef CMPI_VER_100
+static CMPIStatus __PropertyMI_cleanup(CMPIPropertyMI * cThis,
+				       const CMPIContext * ctx,
+				       CMPIBoolean *term)
+
+#else
 static CMPIStatus __PropertyMI_cleanup(CMPIPropertyMI * cThis,
 				       CMPIContext * ctx)
+#endif
 {
     RemoteCMPIPropertyMI *rcThis = (RemoteCMPIPropertyMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
@@ -693,10 +729,10 @@ static CMPIStatus __PropertyMI_cleanup(CMPIPropertyMI * cThis,
 };
 
 static CMPIStatus __PropertyMI_setProperty(CMPIPropertyMI * cThis,
-					   CMPIContext * ctx,
-					   CMPIResult * rslt,
-					   CMPIObjectPath * cop,
-					   const char *name, CMPIData data)
+					   CONST CMPIContext * ctx,
+					   CONST CMPIResult * rslt,
+					   CONST CMPIObjectPath * cop,
+					   const char *name, CONST CMPIData data)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIPropertyMI *rcThis = (RemoteCMPIPropertyMI *) cThis;
@@ -722,12 +758,10 @@ static CMPIStatus __PropertyMI_setProperty(CMPIPropertyMI * cThis,
 
 
 
-
-
 static CMPIStatus __PropertyMI_getProperty(CMPIPropertyMI * cThis,
-					   CMPIContext * ctx,
-					   CMPIResult * rslt,
-					   CMPIObjectPath * cop, const char *name)
+					   CONST CMPIContext * ctx,
+					   CONST CMPIResult * rslt,
+					   CONST CMPIObjectPath * cop, const char *name)
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIPropertyMI *rcThis = (RemoteCMPIPropertyMI *) cThis;
@@ -745,18 +779,29 @@ static CMPIStatus __PropertyMI_getProperty(CMPIPropertyMI * cThis,
 	}
 	addr->destructor(addr);
     } else
+      {
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not resolve location");
+      }
+
     return rc;
+
 };
 
 
 
 
+#ifdef CMPI_VER_100
+CMPIPropertyMI *_Generic_Create_PropertyMI(CMPIBroker * broker,
+					   const CMPIContext * context,
+					   const char *provider,
+					   CMPIStatus *rc)
 
+#else
 CMPIPropertyMI *_Generic_Create_PropertyMI(CMPIBroker * broker,
 					   CMPIContext * context,
 					   const char *provider)
+#endif
 {
     static CMPIPropertyMIFT miFT =
 	{ CMPICurrentVersion, CMPICurrentVersion, "Property" "RemoteCMPI",
@@ -774,9 +819,14 @@ CMPIPropertyMI *_Generic_Create_PropertyMI(CMPIBroker * broker,
     return (CMPIPropertyMI *) mi;
 };
 
+#ifdef CMPI_VER_100
+static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
+					 const CMPIContext * ctx, CMPIBoolean *term)
+#else
 
 static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
 					 CMPIContext * ctx)
+#endif
 {
     RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
@@ -791,6 +841,14 @@ static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
     CMReturn(CMPI_RC_OK);
 };
 
+#ifdef CMPI_VER_100
+static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
+						 const CMPIContext * ctx,
+						 const CMPISelectExp * filter,
+						 const char *indType,
+						 const CMPIObjectPath * cop,
+						 const char *owner)
+#else
 static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
 						 CMPIContext * ctx,
 						 CMPIResult * rslt,
@@ -798,6 +856,7 @@ static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
 						 const char *indType,
 						 CMPIObjectPath * cop,
 						 const char *owner)
+#endif
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
@@ -810,9 +869,16 @@ static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
 	provider_comm *comm =
 	    load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
 	if (comm != NULL) {
+#ifdef CMPI_VER_100
+	    rc = comm->IndicationMI_authorizeFilter(addr, rcThis, ctx,
+						     filter,
+						    indType, cop,owner);
+#else
+	    // IBMKR: This looks like a wrong prototype.
 	    rc = comm->IndicationMI_authorizeFilter(addr, rcThis, ctx,
 						    rslt, cop, filter,
 						    indType, owner);
+#endif
 	} else {
 	    tmp->destructor(tmp);
 	    CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
@@ -823,7 +889,9 @@ static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
 	    return rc;
 	}
     }
+#ifndef CMPI_VER_100
     CMReturnDone(rslt);
+#endif
     if (tmp)
 	tmp->destructor(tmp);
     else
@@ -837,12 +905,20 @@ static CMPIStatus __IndicationMI_authorizeFilter(CMPIIndicationMI * cThis,
 
 
 
+#ifdef CMPI_VER_100
+static CMPIStatus __IndicationMI_mustPoll(CMPIIndicationMI * cThis,
+					  const CMPIContext * ctx,
+					  const CMPISelectExp * filter,
+					  const char *indType, 
+					  const CMPIObjectPath * cop)
 
+#else
 static CMPIStatus __IndicationMI_mustPoll(CMPIIndicationMI * cThis,
 					  CMPIContext * ctx,
 					  CMPIResult * rslt,
 					  CMPISelectExp * filter,
 					  const char *indType, CMPIObjectPath * cop)
+#endif
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
@@ -855,8 +931,16 @@ static CMPIStatus __IndicationMI_mustPoll(CMPIIndicationMI * cThis,
 	provider_comm *comm =
 	    load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
 	if (comm != NULL) {
+#ifdef CMPI_VER_100
+	  rc = comm->IndicationMI_mustPoll(addr, rcThis, ctx, filter,
+					   indType, cop);
+
+#else
+	  //IBMKR: The set of arguments looks wrong?
 	    rc = comm->IndicationMI_mustPoll(addr, rcThis, ctx, rslt, cop,
 					     filter, indType);
+
+#endif
 	} else {
 	    tmp->destructor(tmp);
 	    CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
@@ -867,7 +951,9 @@ static CMPIStatus __IndicationMI_mustPoll(CMPIIndicationMI * cThis,
 	    return rc;
 	}
     }
+#ifndef CMPI_VER_100
     CMReturnDone(rslt);
+#endif
     if (tmp)
 	tmp->destructor(tmp);
     else
@@ -879,7 +965,14 @@ static CMPIStatus __IndicationMI_mustPoll(CMPIIndicationMI * cThis,
 
 
 
-
+#ifdef CMPI_VER_100
+static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
+						const CMPIContext * ctx,
+						const CMPISelectExp * filter,
+						const char *indType,
+						const CMPIObjectPath * cop,
+						CMPIBoolean firstActivation)
+#else
 
 static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
 						CMPIContext * ctx,
@@ -888,6 +981,7 @@ static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
 						const char *indType,
 						CMPIObjectPath * cop,
 						CMPIBoolean firstActivation)
+#endif
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
@@ -900,9 +994,17 @@ static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
 	provider_comm *comm =
 	    load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
 	if (comm != NULL) {
+#ifdef CMPI_VER_100
+	    rc = comm->IndicationMI_activateFilter(addr, rcThis, ctx,
+						   filter, indType,cop,
+						   firstActivation);
+#else
+	    // IBMKR: This function prototype looks wrong.
 	    rc = comm->IndicationMI_activateFilter(addr, rcThis, ctx, rslt,
 						   cop, filter, indType,
 						   firstActivation);
+
+#endif
 	} else {
 	    tmp->destructor(tmp);
 	    CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
@@ -913,7 +1015,9 @@ static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
 	    return rc;
 	}
     }
+#ifndef CMPI_VER_100
     CMReturnDone(rslt);
+#endif
     if (tmp)
 	tmp->destructor(tmp);
     else
@@ -925,9 +1029,14 @@ static CMPIStatus __IndicationMI_activateFilter(CMPIIndicationMI * cThis,
 
 
 
-
-
-
+#ifdef CMPI_VER_100
+static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
+						  const CMPIContext * ctx,
+						  const CMPISelectExp * filter,
+						  const char *indType,
+						  const CMPIObjectPath * cop,
+						  CMPIBoolean lastActivation)
+#else
 static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
 						  CMPIContext * ctx,
 						  CMPIResult * rslt,
@@ -935,6 +1044,7 @@ static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
 						  const char *indType,
 						  CMPIObjectPath * cop,
 						  CMPIBoolean lastActivation)
+#endif
 {
     CMPIStatus rc = { CMPI_RC_ERR_FAILED, NULL };
     RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
@@ -947,9 +1057,16 @@ static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
 	provider_comm *comm =
 	    load_provider_comm(addr->comm_layer_id, rcThis->broker, ctx);
 	if (comm != NULL) {
+#if defined (CMPI_VER_100)
+	    rc = comm->IndicationMI_deActivateFilter(addr, rcThis, ctx,
+						     filter,indType,
+						     cop, lastActivation);
+#else
 	    rc = comm->IndicationMI_deActivateFilter(addr, rcThis, ctx,
 						     rslt, cop, filter,
 						     indType, lastActivation);
+
+#endif
 	} else {
 	    tmp->destructor(tmp);
 	    CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
@@ -960,7 +1077,9 @@ static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
 	    return rc;
 	}
     }
+#ifndef CMPI_VER_100
     CMReturnDone(rslt);
+#endif
     if (tmp)
 	tmp->destructor(tmp);
     else
@@ -970,23 +1089,36 @@ static CMPIStatus __IndicationMI_deActivateFilter(CMPIIndicationMI * cThis,
 };
 
 
+#ifdef CMPI_VER_100
+static void __IndicationMI_enableIndications(CMPIIndicationMI * cThis, const CMPIContext *ctx)
+#else
 static void __IndicationMI_enableIndications(CMPIIndicationMI * cThis)
+#endif
 {
     TRACE_NORMAL(("enableIndications ignored"));
 }
 
 
+#ifdef CMPI_VER_100
+static void __IndicationMI_disableIndications(CMPIIndicationMI * cThis,const CMPIContext *ctx)
+#else
 static void __IndicationMI_disableIndications(CMPIIndicationMI * cThis)
+#endif
 {
     TRACE_NORMAL(("disableIndications ignored"));
 }
 
 
-
-
+#ifdef CMPI_VER_100
+CMPIIndicationMI *_Generic_Create_IndicationMI(CMPIBroker * broker,
+					       const CMPIContext * context,
+					       const char *provider,
+					       CMPIStatus *rc)
+#else
 CMPIIndicationMI *_Generic_Create_IndicationMI(CMPIBroker * broker,
 					       CMPIContext * context,
 					       const char *provider)
+#endif
 {
     static CMPIIndicationMIFT miFT = { CMPICurrentVersion, CMPICurrentVersion,
 	"Indication" "RemoteCMPI", __IndicationMI_cleanup,

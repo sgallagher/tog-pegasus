@@ -77,7 +77,7 @@ static CMPIStatus __eft_release ( CMPIEnumeration * enumeration )
 }
 
 
-static CMPIEnumeration * __eft_clone ( CMPIEnumeration * enumeration,
+static CMPIEnumeration * __eft_clone ( CONST CMPIEnumeration * enumeration,
 				       CMPIStatus * rc )
 {
 	CMPIStatus tmp;
@@ -97,7 +97,7 @@ static CMPIEnumeration * __eft_clone ( CMPIEnumeration * enumeration,
 }
 
 
-static CMPIData __eft_getNext ( CMPIEnumeration * enumeration,
+static CMPIData __eft_getNext ( CONST CMPIEnumeration * enumeration,
 				CMPIStatus * rc )
 {
 	struct native_enum * e = (struct native_enum *) enumeration;
@@ -105,7 +105,7 @@ static CMPIData __eft_getNext ( CMPIEnumeration * enumeration,
 }
 
 
-static CMPIBoolean __eft_hasNext ( CMPIEnumeration * enumeration,
+static CMPIBoolean __eft_hasNext ( CONST CMPIEnumeration * enumeration,
 				   CMPIStatus * rc )
 {
 	struct native_enum * e = (struct native_enum *) enumeration;
@@ -113,7 +113,7 @@ static CMPIBoolean __eft_hasNext ( CMPIEnumeration * enumeration,
 }
 
 
-static CMPIArray * __eft_toArray ( CMPIEnumeration * enumeration,
+static CMPIArray * __eft_toArray ( CONST CMPIEnumeration * enumeration,
 				   CMPIStatus * rc )
 {
 	struct native_enum * e = (struct native_enum *) enumeration;

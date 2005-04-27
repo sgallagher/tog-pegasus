@@ -74,7 +74,9 @@
 typedef struct remote_broker remote_broker;
 
 
-#define CMPI_VERSION 90
+#ifndef CMPI_VER_100
+#define CMPI_VER_100
+#endif
 
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>

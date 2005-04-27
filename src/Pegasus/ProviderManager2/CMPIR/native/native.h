@@ -52,7 +52,9 @@
 
 #define NATIVE_FT_VERSION 1
 
-#define CMPI_VERSION 90
+#ifndef CMPI_VERSION
+#define CMPI_VERSION 100
+#endif
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
@@ -70,6 +72,65 @@ struct native_property;
 
   \sa propertyFT in native.h
 */
+#ifdef CMPI_VER_100
+#define CONST const
+struct native_propertyFT {
+
+	//! Adds a new native_property to a list.
+	int (* addProperty) ( struct native_property **,
+			      int,
+			      const char *,
+			      const CMPIType,
+			      CMPIValueState,
+			      const CMPIValue * );
+
+	//! Resets the values of an existing native_property, if existant.
+	int (* setProperty) ( struct native_property *,
+			      int,
+			      const char *,
+			      CMPIType,
+			      const CMPIValue * );
+
+	//! Looks up a specifix native_property in CMPIData format.
+	CMPIData (* getDataProperty) ( struct native_property *,
+				       const char *,
+				       CMPIStatus * );
+
+	//! Extract an indexed native_property in CMPIData format.
+	CMPIData (* getDataPropertyAt) ( struct native_property *,
+					 unsigned int,
+					 CMPIString **,
+					 CMPIStatus * );
+
+	//! Yields the number of native_property items in a list.
+	CMPICount (* getPropertyCount) ( struct native_property *,
+					 CMPIStatus * );
+
+	//! Releases a complete list of native_property items.
+	void (* release) ( struct native_property * );
+
+	//! Clones a complete list of native_property items.
+	struct native_property * (* clone) ( struct native_property *,
+					     CMPIStatus * );
+};
+struct _NativeCMPIBrokerFT {
+   CMPIBrokerFT brokerFt;
+   CMPIString* (*getMessage) (const CMPIBroker* mb,
+        const char *msgId, const char *defMsg, CMPIStatus* rc,
+	unsigned int count, va_list);
+   CMPIStatus (*logMessage)
+       (const CMPIBroker*,int severity ,const char *id,const char *text,
+    const CMPIString *string);
+
+     CMPIStatus (*trace)
+       (const CMPIBroker*,int level,const char *component,const char *text,
+    const CMPIString *string);
+
+   CMPIBoolean (*classPathIsA) ( const CMPIBroker * broker,
+        const CMPIObjectPath * cop, const char * type, CMPIStatus * rc );
+};
+#else
+#define CONST
 struct native_propertyFT {
 
 	//! Adds a new native_property to a list.
@@ -110,7 +171,6 @@ struct native_propertyFT {
 					     CMPIStatus * );
 };
 
-
 struct _NativeCMPIBrokerFT {
    CMPIBrokerFT brokerFt;
    CMPIArray *(*getKeyNames)(CMPIBroker * broker,
@@ -121,23 +181,23 @@ struct _NativeCMPIBrokerFT {
    CMPIBoolean (*classPathIsA) ( CMPIBroker * broker,
         CMPIObjectPath * cop, const char * type, CMPIStatus * rc );
 };
-
+#endif
 typedef struct _NativeCMPIBrokerFT NativeCMPIBrokerFT;
 
 
 /****************************************************************************/
 
 void native_release_CMPIValue ( CMPIType, CMPIValue * val );
-CMPIValue native_clone_CMPIValue ( CMPIType, CMPIValue * val, CMPIStatus * );
+CMPIValue native_clone_CMPIValue ( CMPIType, CONST CMPIValue * val, CMPIStatus * );
 CMPIString * native_new_CMPIString ( const char *, CMPIStatus * );
 CMPIArray * native_new_CMPIArray ( CMPICount size,
 				   CMPIType type,
 				   CMPIStatus * );
 void native_array_increase_size ( CMPIArray *, CMPICount );
+CMPIInstance * native_new_CMPIInstance ( CONST CMPIObjectPath *, CMPIStatus * );
 CMPIResult * native_new_CMPIResult ( CMPIStatus * );
 CMPIArray * native_result2array ( CMPIResult * );
 CMPIEnumeration * native_new_CMPIEnumeration ( CMPIArray *, CMPIStatus * );
-CMPIInstance * native_new_CMPIInstance ( CMPIObjectPath *, CMPIStatus * );
 CMPIObjectPath * native_new_CMPIObjectPath ( const char *,
 					     const char *,
 					     CMPIStatus * );
@@ -153,7 +213,7 @@ CMPISelectExp * native_new_CMPISelectExp ( const char *,
 					   CMPIArray **,
 					   CMPIStatus * );
 CMPIContext * native_new_CMPIContext ( int mem_state );
-void native_release_CMPIContext ( CMPIContext * );
+void native_release_CMPIContext ( CONST CMPIContext * );
 
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 

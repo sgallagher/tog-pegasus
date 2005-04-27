@@ -201,7 +201,7 @@ void * tool_mm_realloc ( void * oldptr, size_t size )
  *   not finally adds it. Additionally the array size for stored void
  *   pointers may have to be enlarged by MT_SIZE_STEP.
  */
-int tool_mm_add ( void * ptr )
+int tool_mm_add (  void * ptr )
 {
 	managed_thread * mt;
 
@@ -226,7 +226,7 @@ int tool_mm_add ( void * ptr )
 
 	return 1;
 }
-void tool_mm_set_broker ( void * broker, void * ctx )
+void tool_mm_set_broker (  void * broker,  void * ctx )
 {
 	managed_thread * mt;
 

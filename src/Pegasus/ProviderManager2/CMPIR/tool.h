@@ -45,7 +45,6 @@
 
 //#include "mm.h"
 
-#define CMPI_VERSION 90
 
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>

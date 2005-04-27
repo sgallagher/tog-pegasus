@@ -118,7 +118,9 @@ static CMPIStatus __aft_release ( CMPIArray * array )
 }
 
 
-static CMPIArray * __aft_clone ( CMPIArray * array, CMPIStatus * rc )
+
+static CMPIArray * __aft_clone ( CONST CMPIArray * array, CMPIStatus * rc )
+
 {
 	CMPIStatus tmp;
 	struct native_array * a   = (struct native_array *) array;
@@ -147,7 +149,7 @@ static CMPIArray * __aft_clone ( CMPIArray * array, CMPIStatus * rc )
 }
 
 
-static CMPICount __aft_getSize ( CMPIArray * array, CMPIStatus * rc )
+static CMPICount __aft_getSize ( CONST CMPIArray * array, CMPIStatus * rc )
 {
 	struct native_array * a = (struct native_array *) array;
 
@@ -156,7 +158,7 @@ static CMPICount __aft_getSize ( CMPIArray * array, CMPIStatus * rc )
 }
 
 
-static CMPIType __aft_getSimpleType ( CMPIArray * array, CMPIStatus * rc )
+static CMPIType __aft_getSimpleType ( CONST CMPIArray * array, CMPIStatus * rc )
 {
 	struct native_array * a = (struct native_array *) array;
 
@@ -165,7 +167,7 @@ static CMPIType __aft_getSimpleType ( CMPIArray * array, CMPIStatus * rc )
 }
 
 
-static CMPIData __aft_getElementAt ( CMPIArray * array,
+static CMPIData __aft_getElementAt ( CONST CMPIArray * array,
 				     CMPICount index,
 				     CMPIStatus * rc )
 {
@@ -186,7 +188,7 @@ static CMPIData __aft_getElementAt ( CMPIArray * array,
 
 static CMPIStatus __aft_setElementAt ( CMPIArray * array,
 				       CMPICount index,
-				       CMPIValue * val,
+				       CONST CMPIValue * val,
 				       CMPIType type )
 {
 	struct native_array * a = (struct native_array *) array;

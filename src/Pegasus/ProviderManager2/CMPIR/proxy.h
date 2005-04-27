@@ -52,27 +52,34 @@ typedef struct _RemoteCMPIIndicationMI  RemoteCMPIIndicationMI;
 
 typedef struct provider_comm            provider_comm;
 
+#ifndef CMPI_VER_100
+#define CMPI_VER_100
+#endif
 
-#define CMPI_VERSION 90
+#ifndef CONST 
+  #ifdef CMPI_VER_100 
+  #define CONST const
+  #else
+  #define CONST 
+  #endif
+#endif
 
-#include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
+#include <Pegasus/Provider/CMPI/cmpimacs.h>
 
 #include "ticket.h"
 #include "resolver.h"
 
 
-typedef provider_comm * (* INIT_COMM_LAYER) ( CMPIBroker *, CMPIContext * );
-
+typedef provider_comm * (* INIT_COMM_LAYER) ( CONST CMPIBroker *, CONST CMPIContext * );
 #define REMOTE_CMPI_MI(name) \
         struct _RemoteCMPI##name##MI { \
                 CMPI##name##MI ref; \
                 char * provider; \
-                CMPIBroker * broker; \
+                CONST CMPIBroker * broker; \
                 comm_ticket ticket; \
         };
-
 
 REMOTE_CMPI_MI(Instance);
 REMOTE_CMPI_MI(Association);
@@ -82,8 +89,154 @@ REMOTE_CMPI_MI(Indication);
 
 
 
+#ifdef CMPI_VER_100
 
+/**
+ * provides access to the communication layer for MI calls
+ */
+struct provider_comm {
 
+  char * id;
+
+  // instance provider function pointers
+  CMPIStatus (* InstanceMI_enumInstanceNames) ( provider_address *,
+						RemoteCMPIInstanceMI *,
+						const CMPIContext *,
+						const CMPIResult *,
+						const CMPIObjectPath * );
+  CMPIStatus (* InstanceMI_enumInstances) ( provider_address *,
+					    RemoteCMPIInstanceMI *,
+					    const CMPIContext *,
+					    const CMPIResult *,
+					    const CMPIObjectPath *,
+					    const char ** );
+  CMPIStatus (* InstanceMI_getInstance) ( provider_address *,
+					  RemoteCMPIInstanceMI *,
+					  const CMPIContext *,
+					  const CMPIResult *,
+					  const CMPIObjectPath *,
+					  const char ** );
+  CMPIStatus (* InstanceMI_createInstance) ( provider_address *,
+					     RemoteCMPIInstanceMI *,
+					     const CMPIContext *,
+					     const CMPIResult *,
+					     const CMPIObjectPath *,
+					     const CMPIInstance * );
+  CMPIStatus (* InstanceMI_setInstance) ( provider_address *,
+					  RemoteCMPIInstanceMI *,
+					  const CMPIContext *,
+					  const CMPIResult *,
+					  const CMPIObjectPath *,
+					  const CMPIInstance *,
+					  const char ** );
+  CMPIStatus (* InstanceMI_deleteInstance) ( provider_address *,
+					     RemoteCMPIInstanceMI *,
+					     const CMPIContext *,
+					     const CMPIResult *,
+					     const CMPIObjectPath * );
+  CMPIStatus (* InstanceMI_execQuery) ( provider_address *,
+					RemoteCMPIInstanceMI *,
+					const CMPIContext *,
+					const CMPIResult *,
+					const CMPIObjectPath *,
+					const char *,
+					const char * );
+
+  // associator provider function pointers
+  CMPIStatus (* AssociationMI_associators) ( provider_address *,
+					     RemoteCMPIAssociationMI *,
+					     const CMPIContext *,
+					     const CMPIResult *,
+					     const CMPIObjectPath *,
+					     const char *,
+					     const char *,
+					     const char *,
+					     const char *,
+					     const char ** );
+  CMPIStatus (* AssociationMI_associatorNames) ( provider_address *,
+						 RemoteCMPIAssociationMI *,
+						 const CMPIContext *,
+						 const CMPIResult *,
+						 const CMPIObjectPath *,
+						 const char *,
+						 const char *,
+						 const char *,
+						 const char * );
+  CMPIStatus (* AssociationMI_references) ( provider_address *,
+					    RemoteCMPIAssociationMI *,
+					    const CMPIContext *,
+					    const CMPIResult *,
+					    const CMPIObjectPath *,
+					    const char *,
+					    const char *,
+					    const char ** );
+  CMPIStatus (* AssociationMI_referenceNames) ( provider_address *,
+						RemoteCMPIAssociationMI *,
+						const CMPIContext *,
+						const CMPIResult *,
+						const CMPIObjectPath *,
+						const char *,
+						const char * );
+
+  // method provider function pointers
+  CMPIStatus (* MethodMI_invokeMethod) ( provider_address *,
+					 RemoteCMPIMethodMI *,
+					 const CMPIContext *,
+					 const CMPIResult *,
+					 const CMPIObjectPath *,
+					 const char *,
+					 const CMPIArgs *,
+					 CMPIArgs * );
+
+  // property provider function pointers
+  CMPIStatus (* PropertyMI_setProperty) ( provider_address *,
+					  RemoteCMPIPropertyMI *,
+					  const CMPIContext *,
+					  const CMPIResult *,
+					  const CMPIObjectPath *,
+					  const char *,
+					  const CMPIData );
+  CMPIStatus (* PropertyMI_getProperty) ( provider_address *,
+					  RemoteCMPIPropertyMI *,
+					  const CMPIContext *,
+					  const CMPIResult *,
+					  const CMPIObjectPath *,
+					  const char * );
+
+  // indication provider function pointers
+  CMPIStatus (* IndicationMI_authorizeFilter) ( provider_address *,
+						RemoteCMPIIndicationMI *,
+						const CMPIContext *,
+						const CMPISelectExp *,
+						const char *,
+						const CMPIObjectPath *,
+						const char * );
+  CMPIStatus (* IndicationMI_mustPoll) ( provider_address *,
+					 RemoteCMPIIndicationMI *,
+					 const CMPIContext *,
+					 const CMPISelectExp *,
+					 const char *, 
+					 const CMPIObjectPath *);
+  CMPIStatus (* IndicationMI_activateFilter) ( provider_address *,
+					       RemoteCMPIIndicationMI *,
+					       const CMPIContext *,
+					       const CMPISelectExp *,
+					       const char *,
+					       const CMPIObjectPath *,
+					       CMPIBoolean );
+  CMPIStatus (* IndicationMI_deActivateFilter) ( provider_address *,
+						 RemoteCMPIIndicationMI *,
+						 const CMPIContext *,
+						 const CMPISelectExp *,
+						 const char *,
+						 const CMPIObjectPath *,
+						 CMPIBoolean );
+
+  struct provider_comm * next;
+  void * handle;
+};
+
+#else
 /**
  * provides access to the communication layer for MI calls
  */
@@ -232,18 +385,16 @@ struct provider_comm {
   struct provider_comm * next;
   void * handle;
 };
-
-
+#endif
 
 provider_comm * load_provider_comm ( const char * comm_id,
-				     CMPIBroker * broker,
-				     CMPIContext * ctx );
-
+				     CONST CMPIBroker * broker,
+				     CONST CMPIContext * ctx );
 void unload_provider_comms ( void );
 
 
-unsigned long int save_context ( CMPIContext * ctx );
-CMPIContext * get_context ( unsigned long int id );
+unsigned long int save_context ( CONST CMPIContext * ctx );
+CONST CMPIContext * get_context ( unsigned long int id );
 void remove_context ( unsigned long int id );
 
 #endif

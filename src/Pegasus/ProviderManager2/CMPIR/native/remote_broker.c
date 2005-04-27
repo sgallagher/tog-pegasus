@@ -172,15 +172,28 @@ static CMPIContext * __remote_brokers_context = NULL;
 
   \return the status of the provider's cleanup() call.
 */
+#ifdef CMPI_VER_100
+
 static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
-					 CMPIContext * ctx )
+					 CONST CMPIContext * ctx,
+					 CMPIBoolean *term)
+#else
+static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
+					 CMPIContext * ctx)
+					 
+#endif
+					 
 {
 	struct tracked_indication * __mi =
 		(struct tracked_indication *) mi;
 	CMPIStatus rc;
 
 	TRACE_INFO(("relaying call to real provider."));
+#ifdef CMPI_VER_100
+	rc = __mi->saved_mi->ft->cleanup ( __mi->saved_mi, ctx, term);
+#else
 	rc = __mi->saved_mi->ft->cleanup ( __mi->saved_mi, ctx );
+#endif
 
 	TRACE_INFO(("freeing wrapper CMPIIndicationMIFT."));
 	free ( __mi );
@@ -196,11 +209,13 @@ static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
   \return the status of the provider's authorizeFilter() call.
  */
 static CMPIStatus __indication_authorizeFilter ( CMPIIndicationMI * mi,
-						 CMPIContext * ctx,
+						 CONST CMPIContext * ctx,
+#ifndef CMPI_VER_100
 						 CMPIResult * result,
-						 CMPISelectExp * sexp,
+#endif
+						 CONST CMPISelectExp * sexp,
 						 const char * ns,
-						 CMPIObjectPath * cop,
+						 CONST CMPIObjectPath * cop,
 						 const char * user )
 {
 	struct tracked_indication * __mi =
@@ -208,8 +223,13 @@ static CMPIStatus __indication_authorizeFilter ( CMPIIndicationMI * mi,
 
 	TRACE_INFO(("relaying call to real provider."));
 	return __mi->saved_mi->ft->authorizeFilter ( __mi->saved_mi, ctx,
-						     result, sexp,
+#ifndef CMPI_VER_100
+						     result, 
+#endif
+						     sexp,
 						     ns, cop, user );
+
+
 }
 
 
@@ -221,17 +241,22 @@ static CMPIStatus __indication_authorizeFilter ( CMPIIndicationMI * mi,
   \return the status of the provider's mustPoll() call.
  */
 static CMPIStatus __indication_mustPoll ( CMPIIndicationMI * mi,
-					  CMPIContext * ctx,
+					  CONST CMPIContext * ctx,
+#ifndef CMPI_VER_100					  
 					  CMPIResult * result,
-					  CMPISelectExp * sexp,
+#endif
+					  CONST CMPISelectExp * sexp,
 					  const char * ns,
-					  CMPIObjectPath * cop )
+					  CONST CMPIObjectPath * cop )
 {
 	struct tracked_indication * __mi =
 		(struct tracked_indication *) mi;
 
 	TRACE_INFO(("relaying call to real provider."));
-	return __mi->saved_mi->ft->mustPoll ( __mi->saved_mi, ctx, result,
+	return __mi->saved_mi->ft->mustPoll ( __mi->saved_mi, ctx, 
+#ifndef CMPI_VER_100
+					      result,
+#endif
 					      sexp, ns, cop );
 }
 
@@ -247,11 +272,13 @@ static CMPIStatus __indication_mustPoll ( CMPIIndicationMI * mi,
   \return the status of the provider's activateFilter() call.
  */
 static CMPIStatus __indication_activateFilter ( CMPIIndicationMI * mi,
-						CMPIContext * ctx,
+						CONST CMPIContext * ctx,
+#ifndef CMPI_VER_100
 						CMPIResult * result,
-						CMPISelectExp * sexp,
+#endif
+						CONST CMPISelectExp * sexp,
 						const char * ns,
-						CMPIObjectPath * cop,
+						CONST CMPIObjectPath * cop,
 						CMPIBoolean first )
 {
 	struct tracked_indication * __mi =
@@ -262,8 +289,11 @@ static CMPIStatus __indication_activateFilter ( CMPIIndicationMI * mi,
 	RBAcquireMI ( __mi->rb );
 
 	TRACE_INFO(("relaying call to real provider."));
-	return __mi->saved_mi->ft->activateFilter ( __mi->saved_mi, ctx,
-						    result, sexp,
+	return __mi->saved_mi->ft->activateFilter (__mi->saved_mi, ctx,
+#ifndef CMPI_VER_100						   
+						    result, 
+#endif
+						    sexp,
 						    ns, cop, first );
 }
 
@@ -278,11 +308,13 @@ static CMPIStatus __indication_activateFilter ( CMPIIndicationMI * mi,
   \return the status of the provider's deActivateFilter() call.
  */
 static CMPIStatus __indication_deactivateFilter ( CMPIIndicationMI * mi,
-						  CMPIContext * ctx,
+						  CONST CMPIContext * ctx,
+#ifndef CMPI_VER_100
 						  CMPIResult * result,
-						  CMPISelectExp * sexp,
+#endif
+						  CONST CMPISelectExp * sexp,
 						  const char * ns,
-						  CMPIObjectPath * cop,
+						  CONST CMPIObjectPath * cop,
 						  CMPIBoolean last )
 {
 	struct tracked_indication * __mi =
@@ -294,16 +326,26 @@ static CMPIStatus __indication_deactivateFilter ( CMPIIndicationMI * mi,
 
 	TRACE_INFO(("relaying call to real provider."));
 	return __mi->saved_mi->ft->deActivateFilter ( __mi->saved_mi, ctx,
-						      result, sexp,
+#ifndef CMPI_VER_100
+						      result,
+#endif
+						      sexp,
 						      ns, cop, last );
 }
 
+#ifdef CMPI_VER_100
+void __indication_enableIndications (CMPIIndicationMI* mi, const CMPIContext *ctx)
+#else
 void __indication_enableIndications (CMPIIndicationMI* mi)
+#endif
 {
 }
 
-
+#ifdef CMPI_VER_100
+void __indication_disableIndications (CMPIIndicationMI* mi, const CMPIContext *ctx)
+#else
 void __indication_disableIndications (CMPIIndicationMI* mi)
+#endif
 {
 }
 
@@ -430,35 +472,58 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 {
 	TRACE_VERBOSE(("entered function."));
 	TRACE_NORMAL(("Deactivating remote provider."));
+#ifdef CMPI_VER_100
+	CMPIBoolean term = 0;
+#endif
 
 	if ( __rb->instanceMI != NULL ) {
 		TRACE_INFO(("Calling cleanup() on instanceMI handle."));
 		__rb->instanceMI->ft->cleanup ( __rb->instanceMI,
-						__remote_brokers_context );
+						__remote_brokers_context
+#ifdef CMPI_VER_100
+						,&term
+#endif
+						);
 	}
 
 	if ( __rb->associationMI != NULL ) {
 		TRACE_INFO(("Calling cleanup() on associationMI handle."));
 		__rb->associationMI->ft->cleanup ( __rb->associationMI,
-						   __remote_brokers_context );
+						   __remote_brokers_context
+#ifdef CMPI_VER_100
+						,&term
+#endif
+						   );
 	}
 
 	if ( __rb->methodMI != NULL ) {
 		TRACE_INFO(("Calling cleanup() on methodMI handle."));
 		__rb->methodMI->ft->cleanup ( __rb->methodMI,
-					      __remote_brokers_context );
+					      __remote_brokers_context
+#ifdef CMPI_VER_100
+						,&term
+#endif
+					      );
 	}
 
 	if ( __rb->propertyMI != NULL ) {
 		TRACE_INFO(("Calling cleanup() on propertyMI handle."));
 		__rb->propertyMI->ft->cleanup ( __rb->propertyMI,
-						__remote_brokers_context );
+						__remote_brokers_context 
+#ifdef CMPI_VER_100
+						,&term
+#endif
+						);
 	}
 
 	if ( __rb->indicationMI != NULL ) {
 		TRACE_INFO(("Calling cleanup() on indicationMI handle."));
 		__rb->indicationMI->ft->cleanup ( __rb->indicationMI,
-						  __remote_brokers_context );
+						  __remote_brokers_context 
+#ifdef CMPI_VER_100
+						,&term
+#endif
+						  );
 	}
 	tool_mm_flush ();
 

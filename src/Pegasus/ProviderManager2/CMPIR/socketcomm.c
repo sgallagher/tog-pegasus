@@ -97,7 +97,7 @@ void socketcomm_copy_args ( CMPIArgs * src, CMPIArgs * dst )
   \param array the source array.
   \param result the destination result.
  */
-void socketcomm_array2result ( CMPIArray * array, CMPIResult * result )
+void socketcomm_array2result ( CMPIArray * array, CONST CMPIResult * result )
 {
 	TRACE_VERBOSE(("entered function."));
 
@@ -155,7 +155,7 @@ void socketcomm_serialize_props ( int socket,
 
 char ** socketcomm_deserialize_props ( int socket,
 				       const struct BinarySerializerFT * sft,
-				       CMPIBroker * broker )
+				       CONST CMPIBroker * broker )
 {
 	int i;
 	char ** r = NULL;
@@ -175,7 +175,7 @@ char ** socketcomm_deserialize_props ( int socket,
 
 void socketcomm_serialize_context ( int socket,
 				    const struct BinarySerializerFT * sft,
-				    CMPIContext * ctx )
+				    CONST CMPIContext * ctx )
 {
 	unsigned int size = CMGetContextEntryCount ( ctx, NULL ), i;
 
@@ -201,8 +201,8 @@ void socketcomm_serialize_context ( int socket,
 
 void socketcomm_deserialize_context ( int socket,
 				      const struct BinarySerializerFT * sft,
-				      CMPIBroker * broker,
-				      CMPIContext * ctx )
+				      CONST CMPIBroker * broker,
+				      CONST CMPIContext * ctx )
 {
 	unsigned int size;
 

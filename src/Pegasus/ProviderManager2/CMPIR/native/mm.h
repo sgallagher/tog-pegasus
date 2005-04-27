@@ -60,7 +60,6 @@
 #define MT_SIZE_STEP 100
 
 
-
 typedef struct _managed_thread managed_thread;
 
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
@@ -91,8 +90,8 @@ void * tool_mm_load_lib ( const char * libname );
 void tool_mm_flush ();
 void * tool_mm_alloc ( int, size_t );
 void * tool_mm_realloc ( void *, size_t );
-int tool_mm_add ( void * );
-void tool_mm_set_broker ( void * , void *);
+int tool_mm_add (  void * );
+void tool_mm_set_broker (  void * ,  void *);
 int tool_mm_remove ( void * );
 void * tool_mm_get_broker(void **);
 

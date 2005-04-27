@@ -49,6 +49,17 @@
 typedef struct provider_address provider_address;
 
 
+#ifndef CMPI_VER_100
+#define CMPI_VER_100
+#endif
+
+#ifndef CONST 
+  #ifdef CMPI_VER_100 
+    #define CONST const
+  #else
+    #define CONST 
+  #endif
+#endif
 
 //! Address of a remote provider.
 /*!
@@ -70,19 +81,19 @@ struct provider_address {
 /****************************************************************************/
 
 //! Resolves a list of remote provider addresses for an enumerative request.
-provider_address * resolve_class ( CMPIBroker *,
-				   CMPIContext *,
-				   CMPIObjectPath *,
+
+provider_address * resolve_class ( CONST CMPIBroker *,
+				   CONST CMPIContext *,
+				   CONST CMPIObjectPath *,
                                    const char *,
 				   CMPIStatus *);
 
 //! Resolves a single address of a remote provider.
-provider_address * resolve_instance ( CMPIBroker *,
-				      CMPIContext *,
-				      CMPIObjectPath *,
+provider_address * resolve_instance ( CONST CMPIBroker *,
+				      CONST CMPIContext *,
+				      CONST CMPIObjectPath *,
                                       const char *,
 				      CMPIStatus *);
-
 //! Frees previously resolved address(es).
 //void free_addresses ( provider_address * );
 

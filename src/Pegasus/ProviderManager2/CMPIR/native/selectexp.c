@@ -88,7 +88,7 @@ static CMPIStatus __eft_release ( CMPISelectExp * exp )
 }
 
 
-static CMPISelectExp * __eft_clone ( CMPISelectExp * exp, CMPIStatus * rc )
+static CMPISelectExp * __eft_clone ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
 	struct native_selectexp * e   = (struct native_selectexp *) exp;
 
@@ -101,8 +101,8 @@ static CMPISelectExp * __eft_clone ( CMPISelectExp * exp, CMPIStatus * rc )
 
 
 
-CMPIBoolean __eft_evaluate ( CMPISelectExp * exp,
-			     CMPIInstance * inst,
+CMPIBoolean __eft_evaluate ( CONST CMPISelectExp * exp,
+			     CONST CMPIInstance * inst,
 			     CMPIStatus * rc )
 {
 	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
@@ -110,27 +110,27 @@ CMPIBoolean __eft_evaluate ( CMPISelectExp * exp,
 }
 
 
-CMPIString * __eft_getString ( CMPISelectExp * exp, CMPIStatus * rc )
+CMPIString * __eft_getString ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
 	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
 	return NULL;
 }
 
 
-CMPISelectCond * __eft_getDOC ( CMPISelectExp * exp, CMPIStatus * rc )
+CMPISelectCond * __eft_getDOC ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
 	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
 	return NULL;
 }
 
 
-CMPISelectCond * __eft_getCOD ( CMPISelectExp * exp, CMPIStatus * rc )
+CMPISelectCond * __eft_getCOD ( CONST CMPISelectExp * exp, CMPIStatus * rc )
 {
 	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;
 	return NULL;
 }
 
-CMPIBoolean __eft_evaluateUsingAccessor (CMPISelectExp* se,
+CMPIBoolean __eft_evaluateUsingAccessor (CONST CMPISelectExp* se,
         CMPIAccessor *accessor, void *parm, CMPIStatus* rc)
 {
 	if (rc) rc->rc = CMPI_RC_ERR_NOT_SUPPORTED;

@@ -95,10 +95,11 @@ static void _unload_lib ( void * libhandle )
   \return pointer to the provider_comm structure from the comm-layer, or NULL.
  */
 static provider_comm * load_comm_library ( const char * id,
-					   CMPIBroker * broker,
-					   CMPIContext * ctx )
+					   CONST CMPIBroker * broker,
+					   CONST CMPIContext * ctx )
 {
 	void * hLibrary;
+    CMPIStatus rc = {CMPI_RC_OK, NULL};
 
 	TRACE_VERBOSE(("entered function."));
 	TRACE_NORMAL(("loading comm-layer library: lib%s.so", id));
@@ -177,8 +178,8 @@ static CMPI_MUTEX_TYPE __mutex=NULL;
   \return the comm-layer matching the id or NULL if it cannot be loaded.
  */
 provider_comm * load_provider_comm ( const char * comm_id,
-				     CMPIBroker * broker,
-				     CMPIContext * ctx )
+				     CONST CMPIBroker * broker,
+				     CONST CMPIContext * ctx )
 {
 	provider_comm * tmp;
 

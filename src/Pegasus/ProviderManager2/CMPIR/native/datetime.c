@@ -120,7 +120,7 @@ static CMPIStatus __dtft_release ( CMPIDateTime * dt )
   \return a copy of the given CMPIDateTime object that won't be freed
   from memory before calling __dtft_release().
  */
-static CMPIDateTime * __dtft_clone ( CMPIDateTime * dt, CMPIStatus * rc )
+static CMPIDateTime * __dtft_clone ( CONST CMPIDateTime * dt, CMPIStatus * rc )
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
 	struct native_datetime * new = __new_datetime ( TOOL_MM_NO_ADD,
@@ -139,7 +139,7 @@ static CMPIDateTime * __dtft_clone ( CMPIDateTime * dt, CMPIStatus * rc )
 
   \return an amount of microseconds.
  */
-static CMPIUint64 __dtft_getBinaryFormat ( CMPIDateTime * dt,
+static CMPIUint64 __dtft_getBinaryFormat ( CONST CMPIDateTime * dt,
 					   CMPIStatus * rc )
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
@@ -159,7 +159,7 @@ static CMPIUint64 __dtft_getBinaryFormat ( CMPIDateTime * dt,
   - yyyymmddhhmmss.mmmmmmsutc (for absolute times)
   - ddddddddhhmmss.mmmmmm:000 (for time intervals)
  */
-static CMPIString * __dtft_getStringFormat ( CMPIDateTime * dt,
+static CMPIString * __dtft_getStringFormat ( CONST CMPIDateTime * dt,
 					     CMPIStatus * rc )
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
@@ -220,7 +220,7 @@ static CMPIString * __dtft_getStringFormat ( CMPIDateTime * dt,
 
   \return zero, if it is an absolute time, non-zero for intervals.
  */
-static CMPIBoolean __dtft_isInterval ( CMPIDateTime * dt, CMPIStatus * rc )
+static CMPIBoolean __dtft_isInterval ( CONST CMPIDateTime * dt, CMPIStatus * rc )
 {
 	struct native_datetime * ndt   = (struct native_datetime *) dt;
 

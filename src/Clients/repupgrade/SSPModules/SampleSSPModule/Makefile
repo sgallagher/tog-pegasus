@@ -1,6 +1,6 @@
 ROOT = ../../../../../
 
-DIR = RepositoryUpgrade/SSPModule/SampleSSPModule
+DIR = Clients/repupgrade/SSPModules/SampleSSPModule
 
 include $(ROOT)/mak/config.mak
 

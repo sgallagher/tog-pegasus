@@ -1,6 +1,8 @@
 ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
+DIR = Clients/SendTestIndications
+
 PROGRAM = SendTestIndications
 SOURCES = SendTestIndications.cpp
 

@@ -79,7 +79,7 @@ en:table {
     "                 --version\n"
     "  Options:\n"
     "     -g          - Get the value of the specified configuration property.\n" 
-    "     -c          - Use thecurrent configuration.\n"
+    "     -c          - Use the current configuration.\n"
     "     -p          - Configuration user on the next CIM server start.\n"
     "     -d          - Use the default configuration.\n"
     "     -s          - Add or update configuration property value.\n"

@@ -118,14 +118,7 @@ Thread::~Thread()
 {
     try
     {
-        if ((! _is_detached) && (_handle.thid != 0) && (_cancelled == false))
-        {
-#ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-            pthread_join(_handle.thid,NULL);
-#else
-            pthread_join(*(pthread_t *)&_handle.thid,NULL);
-#endif
-        }
+        join();
         pthread_attr_destroy(&_handle.thatt);
 
         empty_tsd();

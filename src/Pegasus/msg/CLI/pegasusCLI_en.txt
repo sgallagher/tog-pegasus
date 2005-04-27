@@ -110,7 +110,7 @@ en:table {
     "     -s          - Add or update configuration property value.\n"
     "     -u          - Reset configuration property to its default value.\n"
     "     -l          - Display all the configuration properties.\n"  
-    "     -c          - Use thecurrent configuration.\n"
+    "     -c          - Use the current configuration.\n"
     "     -p          - Configuration user on the next CIM Server start.\n"
     "     -d          - Use the default configuration.\n"
     "     -q          - Specify quiet mode, avoiding output to stdout or stderr.\n"
@@ -517,7 +517,7 @@ en:table {
 
         /**
  	* @note Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD:
-	*    Do not translate the cimprovider command or options, translate the text 
+	*    Do not translate the ssltrustmgr command or options, translate the text 
 	*    that explains the options.
         *    When translating this message, make sure that each line fits in 80 characters, 
         *    preserves the indenting,
@@ -528,7 +528,7 @@ en:table {
         "ssltrustmgr -a -T trustpath -f certfile\n"
         "ssltrustmgr -a -R -f crlfile\n"
         "ssltrustmgr -r [ -t truststore | -T trustpath ] -i issuername -n serialnumber\n"
-        "ssltrustmgr -r -R -i issuername"  <
+        "ssltrustmgr -r -R -i issuername\n"  
         "ssltrustmgr -l [ -t truststore | -T trustpath ] [ -i issuername [ -n serialnumber ] ]\n"
         "ssltrustmgr -l -R [ -i issuername ]\n"
         "ssltrustmgr -v | --version\n"
@@ -552,10 +552,6 @@ en:table {
 	"\n"
 	}
 
-	/*
- 	 * @note PGC00900:
-	 *     "ssltrustmgr" should not be translated since it is the name of the command
-	 */
 
         Clients.ssltrustmgr.SSLTrustMgr.REQUIRED_ARGS_MISSING:string {"PGC00900: Required arguments missing."}
 

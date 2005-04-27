@@ -117,12 +117,12 @@ inline void pegasus_yield(void)
 // pthreads cancellation calls 
 inline void disable_cancel(void)
 {
-   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+   pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
 }
 
 inline void enable_cancel(void)
 {
-   pthread_setcanceltype(PTHREAD_CANCEL_DISABLE, NULL);
+   pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 }
 
 

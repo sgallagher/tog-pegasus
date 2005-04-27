@@ -388,6 +388,7 @@ CMPI_ResultOnStack::CMPI_ResultOnStack(const ExecQueryResponseHandler& handler,
    }
 
 CMPI_ResultOnStack::~CMPI_ResultOnStack() {
+	try {
       if ((flags & RESULT_set)==0)  {
          if (ft==CMPI_ResultRefOnStack_Ftab) ((ObjectPathResponseHandler*)hdl)->processing();
          else if (ft==CMPI_ResultInstOnStack_Ftab) ((InstanceResponseHandler*)hdl)->processing();
@@ -406,6 +407,10 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack() {
          else if (ft==CMPI_ResultExecQueryOnStack_Ftab) ((ExecQueryResponseHandler*)hdl)->complete();
          else ((ResponseHandler*)hdl)->complete();  // shoul not get here
       }
+	} catch (const CIMException &e)
+	{
+		// Ignore the exception
+	}
   }
 
 PEGASUS_NAMESPACE_END

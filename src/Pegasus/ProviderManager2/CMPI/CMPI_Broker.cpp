@@ -548,7 +548,7 @@ extern "C" {
             try {
                context->get(SubscriptionInstanceNamesContainer::NAME);
             }
-            catch (const Exception &e) {
+            catch (const Exception &) {
                Array<CIMObjectPath> subscriptionInstanceNames;
                context->insert(SubscriptionInstanceNamesContainer(subscriptionInstanceNames));
             }

@@ -61,7 +61,7 @@ CMPILocalProviderManager::CMPILocalProviderManager(void)
 
 CMPILocalProviderManager::~CMPILocalProviderManager(void)
 {
-    Uint32 ccode;
+    //Uint32 ccode;
 
 //    _provider_ctrl(UNLOAD_ALL_PROVIDERS, this, &ccode);
 
@@ -356,7 +356,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getRemoteProvider(
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (const Exception &e) {
+    catch (const Exception &) {
 #ifdef PEGASUS_DEBUG
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
 #endif
@@ -390,7 +390,7 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getProvider(
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (const Exception &e) {
+    catch (const Exception &) {
 #ifdef PEGASUS_DEBUG
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
 #endif

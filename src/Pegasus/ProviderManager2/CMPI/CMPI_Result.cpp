@@ -407,7 +407,7 @@ CMPI_ResultOnStack::~CMPI_ResultOnStack() {
          else if (ft==CMPI_ResultExecQueryOnStack_Ftab) ((ExecQueryResponseHandler*)hdl)->complete();
          else ((ResponseHandler*)hdl)->complete();  // shoul not get here
       }
-	} catch (const CIMException &e)
+	} catch (const CIMException &)
 	{
 		// Ignore the exception
 	}

@@ -36,13 +36,12 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 static sigset_t *block_signal_mask(sigset_t *sig)
 {
     sigemptyset(sig);
     // should not be used for main()
     sigaddset(sig, SIGHUP);
-    sigaddset(sig, SIGINT); 
+    sigaddset(sig, SIGINT);
     // maybe useless, since KILL can't be blocked according to POSIX
     sigaddset(sig, SIGKILL);
 
@@ -53,7 +52,7 @@ static sigset_t *block_signal_mask(sigset_t *sig)
 
 // Note: older versions of the linux pthreads library use SIGUSR1 and SIGUSR2
 // internally to stop and start threads that are blocking, the newer ones
-// implement this through the kernel's real time signals 
+// implement this through the kernel's real time signals
 
 // since SIGSTOP/CONT can handle suspend()/resume() on Linux
 // block them
@@ -87,19 +86,20 @@ extern "C" {
 
 ////////////////////////////////////////////////////////////////////////////
 
-Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
-		void *parameter, 
-		Boolean detached ) : _is_detached(detached), 
-				     _cancel_enabled(true), 
-				   _cancelled(false),
-				     _suspend_count(), 
-				     _start(start), 
-				     _cleanup(true),
-				     _tsd(true),
-				     _thread_parm(parameter), 
-				     _exit_code(0)
+Thread::Thread(
+    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start)(void *),
+    void *parameter,
+    Boolean detached)
+    : _is_detached(detached),
+      _cancel_enabled(true),
+      _cancelled(false),
+      _suspend_count(),
+      _start(start),
+      _cleanup(true),
+      _tsd(true),
+      _thread_parm(parameter),
+      _exit_code(0)
 {
-
     pthread_attr_init(&_handle.thatt);
 
 #if defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
@@ -116,26 +116,24 @@ Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
 
 Thread::~Thread()
 {
-   try 
-   {
-      
-      empty_tsd();
-      if( (! _is_detached) && (_handle.thid != 0) && (_cancelled == false))
-      {
+    try
+    {
+        if ((! _is_detached) && (_handle.thid != 0) && (_cancelled == false))
+        {
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
             pthread_join(_handle.thid,NULL);
 #else
             pthread_join(*(pthread_t *)&_handle.thid,NULL);
 #endif
-      }
-      pthread_attr_destroy(&_handle.thatt);
-   }
-   catch(...)
-   {
-   }
-   
+        }
+        pthread_attr_destroy(&_handle.thatt);
+
+        empty_tsd();
+    }
+    catch (...)
+    {
+        // Do not allow the destructor to throw an exception
+    }
 }
-
-
 
 PEGASUS_NAMESPACE_END

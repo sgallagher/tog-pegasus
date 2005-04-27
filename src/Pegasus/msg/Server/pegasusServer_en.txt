@@ -3338,7 +3338,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
          * @note  PGS10226:
-         * @note DO NOT TRANSLATE "NULL"
+         * DO NOT TRANSLATE "NULL"
          *    Substitution {0} is a string containing the property name
          */
          IndicationService.IndicationService._MSG_PROPERTY_VALUE_IS_NULL:string {"PGS10226: The value of property {0} is NULL."}
@@ -3982,28 +3982,28 @@ CIM server listening on HTTPS port {0}."}
         // ==========================================================
         /*
          * @note  PGS13300:
-          * @note DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
+          * DO NOT TRANSLATE "sslTrustStore" or "sslClientVerificationMode"
          * @version 2.5
          */
          Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_TRUSTSTORE:string {"PGS13300: The \"sslTrustStore\" configuration property must be set if \"sslClientVerificationMode\" is 'required'. The CIM server is not started."}
 
         /*
          * @note  PGS13301:
-          * @note DO NOT TRANSLATE "sslClientVerificationMode"
+          * DO NOT TRANSLATE "sslClientVerificationMode"
          * @version 2.5
          */
          Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_HTTP_NOT_ENABLED_WITH_REQUIRED:string {"PGS13301: The HTTP port must be enabled if \"sslClientVerificationMode\" is 'required' in order for the cimserver to properly shutdown. The CIM server not started."}
 
         /*
          * @note  PGS13302:
-          * @note DO NOT TRANSLATE "sslTrustStoreUserName" or "sslClientVerificationMode"
+          * DO NOT TRANSLATE "sslTrustStoreUserName" or "sslClientVerificationMode"
          * @version 2.5
          */
          Pegasus.Server.SSLContextManager.SSL_CLIENT_VERIFICATION_EMPTY_USERNAME:string {"PGS13302: The \"sslTrustStoreUserName\" property must specify a truststore user name to associate with the trusted certificates if \"sslClientVerificationMode\" is 'required' or 'optional', and a trust store is specified. The CIM server is not started."}
 
         /*
          * @note  PGS13303:
-         * @note DO NOT TRANSLATE "exportSSLTrustStore" or "enableSSLsslClientVerification"
+         * DO NOT TRANSLATE "exportSSLTrustStore" or "enableSSLsslClientVerification"
          * @version 2.5
          */
          Pegasus.Server.SSLContextManager.EXPORT_TRUST_EMPTY:string {"PGS13303: The \"exportSSLTrustStore\" configuration property must be set when \"enableSSLExportClientVerification\" is true. The CIM server not started."}
@@ -4052,7 +4052,7 @@ CIM server listening on HTTPS port {0}."}
 
         /*
          * @note  PGS13311:
-          * @note DO NOT TRANSLATE "sslClientVerificationMode"
+          * DO NOT TRANSLATE "sslClientVerificationMode"
          * @version 2.5
          */
          Pegasus.Server.SSLContextManager.INVALID_CONF_HTTPS_REQUIRED:string {"PGS13311: Do not set the \"sslClientVerificationMode\" property to \"required\" if HTTP is disabled because the cimserver will be unable to properly shutdown. It is recommended that you change the property value to \"optional\". The CIM server is not started."}
@@ -5185,7 +5185,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
          * @note PGS16601
-         * @note DO NOT TRANSLATE "sendmail"
+         * DO NOT TRANSLATE "sendmail"
          */
 
          Handler.EmailListenerDestination.EmailListenerDestination.UNSUPPORTED_OPERATION:string {"PGS16601: sendmail is not supported."}
@@ -5199,7 +5199,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
          * @note  PGS16603:
-          * @note DO NOT TRANSLATE "fopen"
+          * DO NOT TRANSLATE "fopen"
          *    Substitution {0} is a string containing the path
          *    Substitution {1} is a string containing the error message
          */
@@ -5230,13 +5230,13 @@ CIM server listening on HTTPS port {0}."}
 
         /**
          * @note  PGS16608:
-         * @note DO NOT TRANSLATE "popen"
+         * DO NOT TRANSLATE "popen"
          */
          Handler.EmailListenerDestination.EmailListenerDestination._MSG_POPEN_OF_SENDMAIL_FAILED:string {"PGS16608: popen of sendmail failed."}
 
         /**
          * @note  PGS16609:
-         * @note DO NOT TRANSLATE "popen"
+         * DO NOT TRANSLATE "popen"
          */
          Handler.EmailListenerDestination.EmailListenerDestination._MSG_NO_ASSOCIATED_STREAM:string {"PGS16609: No associated stream with this popen command."}
 
@@ -5251,7 +5251,7 @@ CIM server listening on HTTPS port {0}."}
 
         /**
           * @note PGS16700
-          * @note DO NOT TRANSLATE "Interop"
+          * DO NOT TRANSLATE "Interop"
           */
  
          ControlProviders.InteropProvider.CREATE_INSTANCE_NOT_ALLOWED:string {"PGS16700: Interop provider for class {0} does not allow create instance operations."}
@@ -5259,13 +5259,13 @@ CIM server listening on HTTPS port {0}."}
 
         /**
           * @note PGS16701
-          * @note DO NOT TRANSLATE "Interop"
+          * DO NOT TRANSLATE "Interop"
           */
          ControlProviders.InteropProvider.MODIFY_INSTANCE_NOT_ALLOWED:string {"PGS16701: Interop provider for class {0} does not allow modify instance operations."}
 
         /**
           * @note PGS16702
-          * @note DO NOT TRANSLATE "Interop"
+          * DO NOT TRANSLATE "Interop"
           */
          ControlProviders.InteropProvider.DELETE_INSTANCE_NOT_ALLOWED:string {"PGS16702: Interop provider for class {0} does not allow delete instance operations."}
 
@@ -5298,7 +5298,7 @@ CIM server listening on HTTPS port {0}."}
         
         /**
          * @note  PGS16803:
-          * @note DO NOT TRANSLATE "createProvider"
+          * DO NOT TRANSLATE "createProvider"
          *    Substitution {0} is a string containing the library path
          *    Substitution {1} is a string containing the consumer name
          */  
@@ -5306,7 +5306,7 @@ CIM server listening on HTTPS port {0}."}
         
         /**
          * @note  PGS16804:
-          * @note DO NOT TRANSLATE "CIMIndicationConsumerProvider"
+          * DO NOT TRANSLATE "CIMIndicationConsumerProvider"
          *    Substitution {0} is a string containing the library path
          *    Substitution {1} is a string containing the consumer name
          */  
@@ -5334,7 +5334,7 @@ CIM server listening on HTTPS port {0}."}
         
         /**
          * @note  PGS16808:
-         * @note DO NOT TRANSLATE "SSLContext"
+         * DO NOT TRANSLATE "SSLContext"
          */ 
          DynListener.ListenerService.INVALID_SSL_CONFIGURATION: string {"PGS16808: SSL configuration is not valid.  No SSLContext is specified."}
         
@@ -5348,7 +5348,7 @@ CIM server listening on HTTPS port {0}."}
         
         /**
          * @note  PGS16813:
-          * @note DO NOT TRANSLATE "CIMXMLIndicationHandler"
+          * DO NOT TRANSLATE "CIMXMLIndicationHandler"
          *    Substitution {0} is a string containing the URL destination
          */  
          DynListener.DynamicListenerIndicationDispatcher.BAD_URL: string {"PGS16813: CIMXMLIndicationHandler destination {0} is not valid."}

@@ -50,6 +50,7 @@
 #include "OS400ConvertChar.h"
 #include "SSLWrapperOS400.h"
 #include "OS400SystemState.h"
+#include "CIMRepositoryUpdate400.h"  // upgrade utility
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <except.h>
 
@@ -109,6 +110,10 @@ String ServerProcess::getHome(void) { return String::EMPTY; }
 ///////////////////////////////////////////////////////////////////////
 int ServerProcess::cimserver_fork(void) 
 {
+  // First migrate the server configuration settings into the planned file.
+  CIMRepositoryUpdate400 obj;
+  obj.preserveConfigSettings();
+
 #pragma convert(37)
   char rc5[3] = "05"; // rc5 means the CIMOM Server failed to start
   char cppServ[10] = "QYCMCIMOM";
@@ -283,6 +288,10 @@ int ServerProcess::cimserver_initialize(void)
 
       return(-1);
   }
+  
+  // Call into the upgrade utility.  This will perform any necessary upgrade step that need to be done.  The upgrade program keys off of marker files which are created on install.  This means that in most cases, nothing will be done unless the server is starting for the first time after an install.
+  CIMRepositoryUpdate400 obj;
+  obj.doIt();
 
    // TODO:  this is currently commented out because it causes build errors -
    //        it compiles just fine though.  Hopefully this problem will be fixed

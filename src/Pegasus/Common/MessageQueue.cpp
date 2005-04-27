@@ -105,7 +105,7 @@ MessageQueue::MessageQueue(
     strcpy(_name, name);
 
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::MessageQueue  name = %s, queueId = %i", name, queueId);
+        "MessageQueue::MessageQueue  name = %s, queueId = %u", name, queueId);
 
     //
     // Insert into queue table:
@@ -353,7 +353,7 @@ MessageQueue* MessageQueue::lookup(Uint32 queueId) throw(IPCException)
     // Not found!
 
     Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL3,
-        "MessageQueue::lookup failure queueId = %i", queueId);
+        "MessageQueue::lookup failure queueId = %u", queueId);
 
     return 0;
 }

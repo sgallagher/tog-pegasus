@@ -114,6 +114,9 @@ int ServerProcess::cimserver_fork(void)
   CIMRepositoryUpdate400 obj;
   obj.preserveConfigSettings();
 
+  // TODO:  This is here for now until we can move it into initialize.  Right now it doesn't run because qycmsetupr won't work in a multi-threaded environment.  See issue #AD2
+  obj.doIt();
+
 #pragma convert(37)
   char rc5[3] = "05"; // rc5 means the CIMOM Server failed to start
   char cppServ[10] = "QYCMCIMOM";
@@ -186,6 +189,7 @@ void CancelHandler (_CNL_Hndlr_Parms_T *cancelParms)
 //       so that iNavigator can start/stop it.
 //    -- Swaps the job user to QSYS. 
 //    -- Changes the authority of QYCMJOBD
+//    -- Calls the upgrade utility
 ////////////////////////////////////////////////////
 int ServerProcess::cimserver_initialize(void)
 {
@@ -289,9 +293,10 @@ int ServerProcess::cimserver_initialize(void)
       return(-1);
   }
   
+// TODO:  add this back in when we fix the problem with setupr not working in a multi-threaded environment.
   // Call into the upgrade utility.  This will perform any necessary upgrade step that need to be done.  The upgrade program keys off of marker files which are created on install.  This means that in most cases, nothing will be done unless the server is starting for the first time after an install.
-  CIMRepositoryUpdate400 obj;
-  obj.doIt();
+//  CIMRepositoryUpdate400 obj;
+//  obj.doIt();
 
    // TODO:  this is currently commented out because it causes build errors -
    //        it compiles just fine though.  Hopefully this problem will be fixed

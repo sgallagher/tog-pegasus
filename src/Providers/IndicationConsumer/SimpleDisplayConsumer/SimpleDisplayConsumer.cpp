@@ -181,7 +181,10 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%llu\n", propertyValueUint64);
+                        fprintf(
+                            _indicationLogHandle,
+                            "%" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
+                            propertyValueUint64);
                     }
                     break;
 
@@ -194,7 +197,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%i\n", propertyValueSint8);
+                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint8);
                     }
                     break;
 
@@ -207,7 +210,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%i\n", propertyValueSint16);
+                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint16);
                     }
                     break;
 
@@ -220,7 +223,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%i\n", propertyValueSint32);
+                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint32);
                     }
                     break;
 
@@ -233,7 +236,10 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(_indicationLogHandle, "%lli\n", propertyValueSint64);
+                        fprintf(
+                            _indicationLogHandle,
+                            "%" PEGASUS_64BIT_CONVERSION_WIDTH "d\n",
+                            propertyValueSint64);
                     }
                     break;
 

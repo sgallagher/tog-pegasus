@@ -611,7 +611,8 @@ int main(int argc, char** argv)
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
             char buffer [32];
-            sprintf (buffer, "%lli", differenceInMicroseconds);
+            sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                differenceInMicroseconds);
             cout << "differenceInMicroseconds : " << buffer << endl;
         }
     

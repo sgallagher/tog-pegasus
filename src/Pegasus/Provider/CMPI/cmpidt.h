@@ -71,7 +71,7 @@ extern "C" {
      #define CMPI_VER_87 1
    #elif (CMPI_VERSION==90)
      #define CMPI_VER_90 1
-   #elif (CMPI_VERSION=100)
+   #elif (CMPI_VERSION==100)
      #define CMPI_VER_100 1
   #else
      #error Unsupported CMPI_VERSION defined

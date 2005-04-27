@@ -3894,6 +3894,11 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.SSLWrapperOS400.PASE_SIGNAL:string {"PGS12422: Unable to create the server certificate.  The PASE command {0} exited abnormally with signal number {1}."}
 
+        /**
+        * @note  PGS12423:
+	*    Do not translate CIM since it is the name of a product.
+        */
+        src.Upgrade.CIMRepositoryUpdate400.INITIATING_MIGRATE:string {"PGS12423: The CIM server is migrating the repository from an earlier version.  This will take several minutes, during which the server will not be available.  Stopping the server job might result in a loss of data."}
 
         // End OS/400 messages
 

@@ -60,31 +60,29 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
 
  
 cimmofl -h
-Usage: cimmofl [ -h ] [ --help ] [ --version ] [ -E ] [ -w ]
-               [ -uc ] [ -aE | -aV | -aEV ]
-               [ -I path ] [ -n namespace ] [ --namespace namespace ]
-               [ --xml ] [ --trace ]
-               [ -R repositorydir ] [ --CIMRepository repositorydir ] 
-               [ -N repositoryname ] [ -M repositorymode] 
-               <mof_file1 mof_file2...>
-Options : 
-    -aE             - Allow Experimental Schema changes
-    -aEV            - Allow both Experimental and Version Schema changes
-    -aV             - Allow both Major and Down Revision Schema changes
-    --CIMRepository - Specify the repository directory
-    -E              - Syntax check only
-    -h, --help      - Display this help message
-    -I              - Specify an include path
-    -n              - Override default CIM Repository namespace (root/cimv2)
-    --namespace     - Override default CIM Repository namespace (root/cimv2)
-    -R              - Specify the repository directory
-    -N              - Specify the repository name - defaults to "repository"
-    -M              - Repository mode [XML, BIN] - defaults to "XML"
-    --trace         - Trace to file (default to stdout)
-    -uc             - Allow update of an existing class definition
-    --version       - Display CIM Server version
-    -w              - Suppress warning messages
-    --xml           - Output XML only, to stdout. Do not update repository
+Usage: cimmofl [ -h | --help ]
+               [ --version ]
+               [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
+               [ -n namespace | --namespace namespace ] [ --xml ]
+               [ --trace ]
+               [ -R repositorydir ] [ --CIMRepository repositorydir ]
+               [ -N repositoryname ] [ -M repositorymode]  [ mof_file... ]
+Options :
+    -h, --help          - Display this help message
+    --version           - Display CIM Server version
+    -E                  - Syntax check only
+    -w                  - Suppress warning messages
+    -I                  - Specify an include path
+    -n, --namespace     - Override default CIM Repository namespace (root/cimv2)
+    -uc                 - Allow update of an existing class definition
+    -aE                 - Allow Experimental Schema changes
+    -aV                 - Allow both Major and Down Revision Schema changes
+    -aEV                - Allow both Experimental and Version Schema changes
+    --xml               - Output XML only, to stdout. Do not update repository
+    --trace             - Trace to file (default to stdout)
+    -R, --CIMRepository - Specify the repository directory
+    -N                  - Specify the repository name - defaults to "repository"
+    -M                  - Repository mode [XML, BIN] - defaults to "XML"
 
 
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
@@ -92,31 +90,29 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmof is the recommended OpenPegasus MOF compiler.
  
 cimmofl --help
-Usage: cimmofl [ -h ] [ --help ] [ --version ] [ -E ] [ -w ]
-               [ -uc ] [ -aE | -aV | -aEV ]
-               [ -I path ] [ -n namespace ] [ --namespace namespace ]
-               [ --xml ] [ --trace ]
-               [ -R repositorydir ] [ --CIMRepository repositorydir ] 
-               [ -N repositoryname ] [ -M repositorymode] 
-               <mof_file1 mof_file2...>
-Options : 
-    -aE             - Allow Experimental Schema changes
-    -aEV            - Allow both Experimental and Version Schema changes
-    -aV             - Allow both Major and Down Revision Schema changes
-    --CIMRepository - Specify the repository directory
-    -E              - Syntax check only
-    -h, --help      - Display this help message
-    -I              - Specify an include path
-    -n              - Override default CIM Repository namespace (root/cimv2)
-    --namespace     - Override default CIM Repository namespace (root/cimv2)
-    -R              - Specify the repository directory
-    -N              - Specify the repository name - defaults to "repository"
-    -M              - Repository mode [XML, BIN] - defaults to "XML"
-    --trace         - Trace to file (default to stdout)
-    -uc             - Allow update of an existing class definition
-    --version       - Display CIM Server version
-    -w              - Suppress warning messages
-    --xml           - Output XML only, to stdout. Do not update repository
+Usage: cimmofl [ -h | --help ]
+               [ --version ]
+               [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
+               [ -n namespace | --namespace namespace ] [ --xml ]
+               [ --trace ]
+               [ -R repositorydir ] [ --CIMRepository repositorydir ]
+               [ -N repositoryname ] [ -M repositorymode]  [ mof_file... ]
+Options :
+    -h, --help          - Display this help message
+    --version           - Display CIM Server version
+    -E                  - Syntax check only
+    -w                  - Suppress warning messages
+    -I                  - Specify an include path
+    -n, --namespace     - Override default CIM Repository namespace (root/cimv2)
+    -uc                 - Allow update of an existing class definition
+    -aE                 - Allow Experimental Schema changes
+    -aV                 - Allow both Major and Down Revision Schema changes
+    -aEV                - Allow both Experimental and Version Schema changes
+    --xml               - Output XML only, to stdout. Do not update repository
+    --trace             - Trace to file (default to stdout)
+    -R, --CIMRepository - Specify the repository directory
+    -N                  - Specify the repository name - defaults to "repository"
+    -M                  - Repository mode [XML, BIN] - defaults to "XML"
 
 
 Warning: Use of cimmofl can corrupt the CIM Server Repository.

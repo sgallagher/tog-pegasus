@@ -45,9 +45,9 @@ static char * verbose;
 
 String repositoryRoot;
 
-void test01()
+void test01(CIMRepository_Mode mode)
 {
-    CIMRepository r (repositoryRoot);
+  CIMRepository r (repositoryRoot, mode);
 
     const String NAMESPACE = "aa/bb";
 
@@ -81,13 +81,13 @@ void test01()
 
 }
 
-void test02()
+void test02(CIMRepository_Mode mode)
 {
     //--------------------------------------------------------------------------
     // Create repository:
     //--------------------------------------------------------------------------
 
-    CIMRepository r (repositoryRoot);
+  CIMRepository r (repositoryRoot, mode);
 
     const String NAMESPACE = "aa/bb";
     const CIMName SUPERCLASS = "SuperClass";
@@ -190,7 +190,7 @@ void test02()
     assert(superClassNames[0] == SUPERCLASS);
 }
 
-void test03()
+void test03(CIMRepository_Mode mode)
 {
     const char* home = getenv("PEGASUS_HOME");
 
@@ -202,7 +202,7 @@ void test03()
 
     String repositoryRoot = home;
     repositoryRoot.append("/repository");
-    CIMRepository r(repositoryRoot);
+    CIMRepository r(repositoryRoot, mode);
 
     Array<CIMObjectPath> names = r.associatorNames(
 	CIMNamespaceName ("root/cimv2"),
@@ -216,6 +216,7 @@ void test03()
 		}
 	}
 }
+
 
 int main(int argc, char** argv)
 {
@@ -234,9 +235,22 @@ int main(int argc, char** argv)
 
     try 
     {
-	test01();
-	test02();
-	// test03();
+      CIMRepository_Mode mode;
+      if (!strcmp(argv[1],"XML") )
+	{
+	  mode.flag = CIMRepository_Mode::NONE;
+	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+	}
+      else
+	{
+	  mode.flag = CIMRepository_Mode::BIN;
+	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+	}
+
+      test01(mode);
+      test02(mode);
+      // test03(mode);
+
     }
     catch (Exception& e)
     {

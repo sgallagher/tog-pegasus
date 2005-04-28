@@ -12,7 +12,9 @@ include $(ROOT)/mak/program.mak
 
 tests:
 	@ $(RMREPOSITORY) $(TMP_DIR)/repository
-	$(PROGRAM)
+	$(PROGRAM) XML
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository
+	$(PROGRAM) BIN
 	@ $(RMREPOSITORY) $(TMP_DIR)/repository
 
 poststarttests:

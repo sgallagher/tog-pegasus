@@ -82,9 +82,9 @@ cimrepository.cpp. See CIMRepository and bugs */
 
 String repositoryRoot;
 
-void TestNameSpaces()
+void TestNameSpaces(CIMRepository_Mode mode)
 {
-    CIMRepository r (repositoryRoot);
+  CIMRepository r (repositoryRoot, mode);
 
     r.createNameSpace(CIMNamespaceName ("namespace0"));
     r.createNameSpace(CIMNamespaceName ("namespace1"));
@@ -115,11 +115,11 @@ void TestNameSpaces()
     assert(nameSpaces[0] == CIMNamespaceName ("root"));
 }
 
-void TestCreateClass()
+void TestCreateClass(CIMRepository_Mode mode)
 {
     // -- Create repository and "xyz" namespace:
 
-    CIMRepository r (repositoryRoot);
+  CIMRepository r (repositoryRoot, mode);
     const CIMNamespaceName NS = CIMNamespaceName ("TestCreateClass");
 
     try
@@ -548,11 +548,11 @@ void TestCreateClass()
     r.deleteNameSpace(NS);
 }
 
-void TestQualifiers()
+void TestQualifiers(CIMRepository_Mode mode)
 {
     // -- Create repository and "xyz" namespace:
 
-    CIMRepository r (repositoryRoot);
+  CIMRepository r (repositoryRoot, mode);
 
     const CIMNamespaceName NS = CIMNamespaceName ("TestQualifiers");
 
@@ -606,9 +606,21 @@ int main(int argc, char** argv)
 
     try 
     {
-	TestNameSpaces();
-	TestCreateClass();
-	TestQualifiers();
+      CIMRepository_Mode mode;
+      if (!strcmp(argv[1],"XML") )
+	{
+	  mode.flag = CIMRepository_Mode::NONE;
+	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+	}
+      else
+	{
+	  mode.flag = CIMRepository_Mode::BIN;
+	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+	}
+
+	TestNameSpaces(mode);
+	TestCreateClass(mode);
+	TestQualifiers(mode);
 
     }
     catch (Exception& e)

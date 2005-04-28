@@ -108,8 +108,8 @@ help(ostream &os, int progtype) {
     help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ]");
     help.append("\n               [ -N repositoryname ] [ -M repositorymode]");
   }
-  else
-    help.append( " [ mof_file ... ]\n");
+
+  help.append( " [ mof_file ... ]\n");
   help.append("Options : \n");  
   help.append( "    -h, --help      - Display this help message \n");
   help.append( "    --version       - Display CIM Server version\n");
@@ -143,7 +143,7 @@ help(ostream &os, int progtype) {
       help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ]");
       help.append("\n               [ -N repositoryname ] [ -M repositorymode]");
   }
-  //help.append("\n");
+
 #ifdef PEGASUS_OS_OS400
   help.append( " mof_file...\n");
 #else

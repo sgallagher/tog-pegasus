@@ -20,7 +20,7 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 ##       -rpath     adds a directory to the runtime library search path
 #
 
-PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -fPIC
 
 PROGRAM_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
 

@@ -61,23 +61,23 @@ repository:
 	@ echo +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
 	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
 	@ echo +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ echo +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -I$(CIM_SCHEMA_DIR) -n$(SAMPLEPROVIDERNS) $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Event$(CIM_SCHEMA_VER).mof
 
 	@ echo +++++ Loading All Sample Providers class definitions into $(SAMPLEPROVIDERNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS)	CIMOMSampleProvider.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) LargeDataProvider.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) MultithreadingSampleProvider.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) ExceptionsTest.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(SAMPLEPROVIDERNS) TimingProvider.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS)	CIMOMSampleProvider.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) LargeDataProvider.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) MultithreadingSampleProvider.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) ExceptionsTest.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(SAMPLEPROVIDERNS) TimingProvider.mof
 
 	@ echo +++++ Registering All Sample Providers ....
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) CIMOMSampleProviderR.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) LargeDataProviderR.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) MultithreadingSampleProviderR.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) ExceptionsTestR.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(INTEROPNS) TimingProviderR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) CIMOMSampleProviderR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) LargeDataProviderR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) MultithreadingSampleProviderR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) ExceptionsTestR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(INTEROPNS) TimingProviderR.mof
 
 # Load the sample mofe through the Client interface compiler but do not
 # clean out the existing version.

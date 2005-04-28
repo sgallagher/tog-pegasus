@@ -62,10 +62,10 @@ all:
 # Delete and rebuild the repository using the MOF compiler.
 
 repository:
-	@ $(foreach i, $(MOFS), $(ECHO) +++++ Loading $(i) into $(MANAGEDSYSTEMNS) namespace ...; cimmofl "-I$(MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" $(MOF_PATH)/$(i);)
+	@ $(foreach i, $(MOFS), $(ECHO) +++++ Loading $(i) into $(MANAGEDSYSTEMNS) namespace ...; cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(MOF_PATH)" "-n$(MANAGEDSYSTEMNS)" $(MOF_PATH)/$(i);)
 
 register:
-	@ $(foreach i, $(REGISTRATIONMOFS), $(ECHO) +++++ Loading $(i) into $(INTEROPNS) namespace ...; cimmofl "-I$(MOF_PATH)" "-n$(INTEROPNS)" $(MOF_PATH)/$(i);)
+	@ $(foreach i, $(REGISTRATIONMOFS), $(ECHO) +++++ Loading $(i) into $(INTEROPNS) namespace ...; cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(MOF_PATH)" "-n$(INTEROPNS)" $(MOF_PATH)/$(i);)
 
 clean:
 

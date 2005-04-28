@@ -32,8 +32,8 @@ include $(ROOT)/mak/program.mak
 
 repository:
 	@ echo +++++ Loading CQL Test Schema into $(CQLTESTNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(CQLTESTNS) CQLTestSchema.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -n$(CQLTESTNS) CQLTestSchemaR.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(CQLTESTNS) CQLTestSchema.mof
+	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(CQLTESTNS) CQLTestSchemaR.mof
 
 repositoryServer:
 	@ echo +++++ Loading CQL Test Schema into $(CQLTESTNS) namespace ...

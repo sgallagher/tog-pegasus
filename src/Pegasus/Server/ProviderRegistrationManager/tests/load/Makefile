@@ -27,9 +27,9 @@ localrep:
 	@ $(ECHO) +++++ Removing existing repository named $(NAMESPACEDIR)
 	@ $(RMREPOSITORY) $(NAMESPACEDIR)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
-	@ cimmofl "-I$(CIM_SCHEMA_DIR)" "-R$(REPOSITORYDIR)" "-n$(NAMESPACENAME)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl "-I$(CIM_SCHEMA_DIR)" "-R$(REPOSITORYDIR)" -M$(REPOSITORY_MODE) "-n$(NAMESPACENAME)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading PG_ProviderModule$(PG_SCHEMA_VER) into $(NAMESPACEDIR) namespace ...
-	@ cimmofl "-I$(PG_MOF_PATH)" "-R$(REPOSITORYDIR)" "-n$(NAMESPACENAME)" $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
+	@ cimmofl "-I$(PG_MOF_PATH)" "-R$(REPOSITORYDIR)" -M$(REPOSITORY_MODE) "-n$(NAMESPACENAME)" $(PG_MOF_PATH)/PG_ProviderModule$(PG_SCHEMA_VER).mof
 
 clean:
 	@ $(ECHO) +++++ Removing existing CIM Repository named $(NAMESPACEDIR)

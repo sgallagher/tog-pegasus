@@ -28,8 +28,8 @@ tests:
 ifndef PEGASUS_USE_RELEASE_DIRS
 	@$(RMREPOSITORY) $(OLD_REPOSITORY_PATH)repository/test#repupgrade
 	@$(RMREPOSITORY) ./newRepository
-	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTNAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
-	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-n$(TESTNAMESPACE)" $(ROOT)/src/Providers/TestProviders/Load/TST_Family.mof
+	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(TESTNAMESPACE)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof
+	@ cimmofl "-R$(OLD_REPOSITORY_PATH)" "-M$(REPOSITORY_MODE)" "-n$(TESTNAMESPACE)" $(ROOT)/src/Providers/TestProviders/Load/TST_Family.mof
 	@ $(MKDIRHIER) $(NEW_REPOSITORY_PATH)
 	@repupgrade -o $(OLD_REPOSITORY_PATH)repository -n $(NEW_REPOSITORY_PATH)
 	$(PROGRAM) $(OLD_REPOSITORY_PATH)repository $(NEW_REPOSITORY_PATH)

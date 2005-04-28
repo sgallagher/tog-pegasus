@@ -26,11 +26,11 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(TESTPROVIDERNS)
 	@$(RMREPOSITORY) $(TESTPROVIDERNSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_MOF_PATH)" "-n$(TESTPROVIDERNS)" $(CIM_MOF_PATH)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading TestProvider class definitions into $(TESTPROVIDERNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(TESTPROVIDERNS)" ClientProviderSchema.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" ClientProviderSchema.mof
 	@ $(ECHO) +++++ Registering TestProvider schema Providers  ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-n$(INTEROPNS)" ClientProviderSchemaR.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" ClientProviderSchemaR.mof
 
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(TESTPROVIDERNS) namespace ...

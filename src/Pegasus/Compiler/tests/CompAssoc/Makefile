@@ -11,12 +11,13 @@ SOURCES = CompAssoc.cpp
 include $(ROOT)/mak/program.mak
 
 MOF_PATH = $(ROOT)/Schemas/CIM25
+REPOSITORYDIR = $(TMP_DIR)
 
 tests:
-	@ $(RMDIRHIER) $(TMP_DIR)/repository
-	@ cimmofl "-R$(TMP_DIR)" "-I$(MOF_PATH)" -nroot $(MOF_PATH)/CIM_Core25.mof
-	@ cimmofl "-R$(TMP_DIR)" -nroot CompAssoc.mof
+	@ $(RMDIRHIER) $(REPOSITORYDIR)/repository
+	@ cimmofl "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" "-I$(MOF_PATH)" -nroot $(MOF_PATH)/CIM_Core25.mof
+	@ cimmofl "-R$(REPOSITORYDIR)" "-M$(REPOSITORY_MODE)" -nroot CompAssoc.mof
 	@ $(PROGRAM)
-	@ $(RMDIRHIER) $(TMP_DIR)/repository
+	@ $(RMDIRHIER) $(REPOSITORYDIR)/repository
 
 poststarttests:

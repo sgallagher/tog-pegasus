@@ -63,16 +63,44 @@ LIB_DIR = $(HOME_DIR)/lib
 # define the location for the compiled messages
 MSG_ROOT = $(HOME_DIR)/msg
 
+#############################################################################
+##  The following REPOSITORY_XXX variables are only used within the 
+## makefiles for building the repository (cimmofl) and running the tests. 
+## They have no effect on CIMconfig initial startup configuration.
+
+#
 # define the location for the repository
+#
+# NOTE: There is another variable efined in many of the test makefiles
+# called REPOSITORYDIR. It is a local variable in each of those Makefiles
+# to localally control where the temporay small repository they 
+# build, use and then delete is located. Most of the time it is set to TMP_DIR.
+#
+ifndef REPOSITORY_DIR
 REPOSITORY_DIR = $(HOME_DIR)
+endif
+
+#
+# WARNING: The REPOSITORY_NAME varible is not used by all the test, 
+# many of them are still hardcoded to "repository".  What this means
+# is that you can change the repository name and build it. But you 
+# cannot run the test without many of them failing
+#
+ifndef REPOSITORY_NAME
 REPOSITORY_NAME = repository
+endif
+
 REPOSITORY_ROOT = $(REPOSITORY_DIR)/$(REPOSITORY_NAME)
 
 # define the repository mode 
 #       XML = XML format
 #       BIN = Binary format
 #
+ifndef REPOSITORY_MODE
 REPOSITORY_MODE = XML
+endif
+
+###########################################################################
 
 # The two variables, CIM_SCHEMA_DIR and CIM_SCHEMA_VER,
 # are used to control the version of the CIM Schema

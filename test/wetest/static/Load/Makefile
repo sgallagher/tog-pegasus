@@ -20,14 +20,14 @@ repository:
 	@ $(ECHO) +++++ Removing existing repository named $(STATICTESTNS)
 	@$(RMREPOSITORY) $(STATICTESTNSDIRECTORY)
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-I$(CIM_SCHEMA_DIR)" -n$(STATICTESTNS) \
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" -n$(STATICTESTNS) \
                      $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading WET_Schema into $(STATICTESTNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" -n$(STATICTESTNS) WET_Schema.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(STATICTESTNS) WET_Schema.mof
 	@ $(ECHO) +++++ Loading Static Test Schema into $(STATICTESTNS) namespace ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" -n$(STATICTESTNS) StaticTestSchema.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(STATICTESTNS) StaticTestSchema.mof
 	@ $(ECHO) +++++ Registering Static Tests Schema Providers  ...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" -n$(INTEROPNS) StaticTestSchemaR.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" -n$(INTEROPNS) StaticTestSchemaR.mof
 
 repositoryServer:
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(STATICTESTNS) namespace ...

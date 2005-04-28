@@ -2186,7 +2186,7 @@ not be valid."}
         * @note  PGS05419:
         *    Do not translate the words 'SIMPLEREQ' or 'CIMObject' since they are HTTP extensions for CIM
         */
-        Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER:string{"PGS05419: Simple request tag (SIMPLEREQ) is missing the CIMObject HTTP header."}
+        Server.CIMOperationRequestDecoder.MISSING_CIMOBJECT_HTTP_HEADER:string{"PGS05419: Simple request tag (SIMPLEREQ) is missing the CIMObject HTTP header."}
 
         /**
         * @note  PGS05420:
@@ -2194,14 +2194,14 @@ not be valid."}
         *    Substitution {1} is the namespace path element (a string)
         *    Do not translate the word 'CIMObject' since it is an HTTP extension header for CIM
         */
-        Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:string {"PGS05420: CIMObject value \"{0}\" does not match the CIM request object \"{1}\"."}
+        Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:string {"PGS05420: CIMObject value \"{0}\" does not match the CIM request object \"{1}\"."}
 
         /**
         * @note  PGS05421:
         *    Substitution {0} is the value of the CIMObject in the header(a string)
         *    Do not translate the word 'CIMObject' since it is an HTTP extension header for CIM
         */
-        Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE:string {"PGS05421: Cannot parse CIMObject value \"{0}\"."}
+        Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE:string {"PGS05421: Cannot parse CIMObject value \"{0}\"."}
 
 
         // ==========================================================

@@ -61,7 +61,7 @@ protected:
 
    /** status - Returns CMPIStatus struct, to be used by MI drivers only.
    */
-   CMPIStatus status() const;
+   const CMPIStatus status() const;
 
 private:
 
@@ -89,11 +89,11 @@ public:
 
    /** rc - get the rc value.
    */
-   CMPIrc rc() const;
+   const CMPIrc rc() const;
 
    /** msg - get the msg component.
    */
-   const char*  msg();
+   const char*  msg() const;
 };
 
 #endif

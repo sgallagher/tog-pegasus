@@ -96,9 +96,10 @@ CMPIStatus CmpiBaseMI::driveBaseCleanup
      rc = CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED);
    }
    return rc.status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
-
+#endif
     return stat.status();
   }
 }
@@ -119,7 +120,9 @@ CmpiStatus CmpiBaseMI::initialize(const CmpiContext& ctx) {
 }
 
 CmpiStatus CmpiBaseMI::cleanup(CmpiContext& ctx) {
+#ifdef PEGASUS_DEBUG
     cerr << "cleaning up provider" << endl;
+#endif
    return CmpiStatus(CMPI_RC_OK);
 }
 
@@ -144,8 +147,10 @@ CMPIStatus CmpiInstanceMI::driveEnumInstanceNames
    CmpiBaseMI* cmi = reinterpret_cast<CmpiBaseMI*> (mi->hdl);
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->enumInstanceNames(ctx,rslt,cop).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -162,8 +167,10 @@ CMPIStatus CmpiInstanceMI::driveEnumInstances
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->enumInstances
       (ctx,rslt,cop,(const char**)properties).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -180,8 +187,10 @@ CMPIStatus CmpiInstanceMI::driveGetInstance
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->getInstance
       (ctx,rslt,cop,(const char**)properties).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -199,8 +208,10 @@ CMPIStatus CmpiInstanceMI::driveCreateInstance
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->createInstance
       (ctx,rslt,cop,inst).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -218,8 +229,10 @@ CMPIStatus CmpiInstanceMI::driveSetInstance
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->setInstance
       (ctx,rslt,cop,inst,(const char**)properties).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -236,8 +249,11 @@ CMPIStatus CmpiInstanceMI::driveDeleteInstance
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->deleteInstance
       (ctx,rslt,cop).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
+
     return stat.status();
   }
 }
@@ -254,8 +270,10 @@ CMPIStatus CmpiInstanceMI::driveExecQuery
    CmpiInstanceMI* imi = dynamic_cast<CmpiInstanceMI*>(cmi);
    return imi->execQuery
     (ctx,rslt,cop,language,query).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -332,8 +350,10 @@ CMPIStatus CmpiAssociationMI::driveAssociators
       (ctx,rslt,cop,
        (const char*)assocClass,resultClass,
        role,resultRole,(const char**)properties).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -352,8 +372,10 @@ CMPIStatus CmpiAssociationMI::driveAssociatorNames
       (ctx,rslt,cop,
        assocClass,resultClass,
        role,resultRole).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -371,8 +393,10 @@ CMPIStatus CmpiAssociationMI::driveReferences
    return ami->references
       (ctx,rslt,cop,
        resultClass,role,(const char**)properties).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -389,8 +413,10 @@ CMPIStatus CmpiAssociationMI::driveReferenceNames
    return ami->referenceNames
       (ctx,rslt,cop,
        resultClass,role).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -455,8 +481,10 @@ CMPIStatus CmpiMethodMI::driveInvokeMethod
    CmpiMethodMI* mmi = dynamic_cast<CmpiMethodMI*>(cmi);
    return mmi->invokeMethod
       (ctx,rslt,cop,methodName,in,out).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -502,8 +530,10 @@ CMPIStatus CmpiPropertyMI::driveSetProperty
    CmpiPropertyMI* pmi = dynamic_cast<CmpiPropertyMI*>(cmi);
    return pmi->setProperty
       (ctx,rslt,cop,name,data).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -519,8 +549,10 @@ CMPIStatus CmpiPropertyMI::driveGetProperty
    CmpiPropertyMI* pmi = dynamic_cast<CmpiPropertyMI*>(cmi);
    return pmi->getProperty
       (ctx,rslt,cop,name).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -568,8 +600,10 @@ CMPIStatus CmpiIndicationMI::driveAuthorizeFilter
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
    return nmi->authorizeFilter
       (ctx,rslt,se,ns,cop,user).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -586,9 +620,11 @@ CMPIStatus CmpiIndicationMI::driveMustPoll
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
    return nmi->mustPoll
       (ctx,rslt,se,ns,cop).status();
-  } catch (CmpiStatus& stat) {
-    return stat.status();
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
+    return stat.status();
   }
 }
 
@@ -605,9 +641,11 @@ CMPIStatus CmpiIndicationMI::driveActivateFilter
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
    return nmi->activateFilter
       (ctx,rslt,se,ns,cop,first).status();
-  } catch (CmpiStatus& stat) {
-    return stat.status();
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
+    return stat.status();
   }
 }
 
@@ -624,8 +662,10 @@ CMPIStatus CmpiIndicationMI::driveDeActivateFilter
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
    return nmi->deActivateFilter
       (ctx,rslt,se,ns,cop,last).status();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
     return stat.status();
   }
 }
@@ -638,8 +678,10 @@ void CmpiIndicationMI::driveEnableIndications
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
    nmi->enableIndications
      ();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
   }
 }
 
@@ -651,8 +693,10 @@ void CmpiIndicationMI::driveDisableIndications
    CmpiIndicationMI* nmi = dynamic_cast<CmpiIndicationMI*>(cmi);
    nmi->disableIndications
      ();
-  } catch (CmpiStatus& stat) {
+  } catch (const CmpiStatus& stat) {
+#ifdef PEGASUS_DEBUG
     cerr << "caught status :" << stat.rc() << " "  << stat.msg() << endl;
+#endif
   }
 }
 
@@ -1218,7 +1262,7 @@ CmpiObjectPath CmpiInstance::getObjectPath() const {
 //--
 //---------------------------------------------------
 
-CMPIStatus CmpiStatus::status() const {
+const CMPIStatus CmpiStatus::status() const {
    return st;
 }
 CmpiStatus::CmpiStatus(const CMPIrc rcp, const char *msg) {
@@ -1226,11 +1270,11 @@ CmpiStatus::CmpiStatus(const CMPIrc rcp, const char *msg) {
    st.msg=CMNewString(CmpiProviderBase::getBroker(),(char*)msg,NULL);
 }
 
-CMPIrc CmpiStatus::rc() const {
+const CMPIrc CmpiStatus::rc() const {
    return st.rc;
 }
 
-const char*  CmpiStatus::msg() {
+const char*  CmpiStatus::msg() const {
    return st.msg ? CMGetCharPtr(st.msg) : 0;
 }
 

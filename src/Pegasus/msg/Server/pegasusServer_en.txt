@@ -2203,6 +2203,12 @@ not be valid."}
         */
         Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE:string {"PGS05421: Cannot parse CIMObject value \"{0}\"."}
 
+        /**
+        * @note  PGS05422:
+        *    Do not translate the word 'Host' since it is an HTTP header
+        */
+        Server.CIMOperationRequestDecoder.MISSING_HOST_HEADER:string {"PGS05422: HTTP request message lacks a Host header field."}
+
 
         // ==========================================================
         // Messages for CIMOperationRequestDispatcher
@@ -3630,6 +3636,12 @@ CIM server listening on HTTPS port {0}."}
         * @version 2.4
         */
         ExportServer.CIMExportRequestDecoder.REQUEST_NOT_VALID:string{"PGS11203:  The request is not valid."}
+
+        /**
+        * @note PGS11204:
+        *    Do not translate the word 'Host' since it is an HTTP header
+        */
+        ExportServer.CIMExportRequestDecoder.MISSING_HOST_HEADER:string {"PGS11204: HTTP request message lacks a Host header field."}
 
         // ==========================================================
         // Messages for CIMExportResponseDecoder

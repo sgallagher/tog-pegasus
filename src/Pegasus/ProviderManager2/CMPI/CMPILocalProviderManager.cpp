@@ -315,10 +315,37 @@ Sint32 CMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
                     for (Uint32 index=0; index < upaIndex; index++) {
                        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                         "Now trying to unload CMPIProvider " + provider->getName());
-                       if (provider->unload_ok() == true)
-                       {
-                          _unloadProvider(unloadProviderArray[index]);
+		       CMPIProvider *provider = unloadProviderArray[index];
+
+		       // lock the provider mutex
+		       AutoMutex pr_lock(provider->_statusMutex);
+		       
+		       if (provider->tryTerminate() == false) {
+			 // provider not unloaded -- we are respecting this!
+			 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+					  "Provider refused to unload: " +
+					  unloadProviderArray[index]->_name );
+			 continue;
                        }
+
+		       // delete the cimom handle
+		       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+					"Destroying CMPIProvider's CIMOM Handle " + provider->_name );
+		       _providers.remove(provider->getName());
+		       delete provider->_cimom_handle;
+		       
+		       PEGASUS_ASSERT(provider->_module != 0);
+		       
+		       // unload provider module
+		       provider->_module->unloadModule();
+		       
+		       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				   "CMPILocalProviderManager::_provider_crtl -  Unload provider $0",
+				   provider->getName());
+		       
+		       // set provider status to UNINITIALIZED
+		       provider->reset();
+		       delete provider;
                     }
                 }
                 catch(...) {

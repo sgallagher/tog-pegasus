@@ -96,12 +96,26 @@ help(ostream &os, int progtype) {
   String help;
 #ifdef PEGASUS_OS_HPUX
   if(progtype == 1)
+  {
       help.append("Usage: ").append("cimmofl");
+  }
   else
+  {
       help.append("Usage: ").append("cimmof ");
+  }
   help.append( " [ -h | --help ]\n" );
-  help.append( "               [ --version ]\n" );
-  help.append( "              [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n") ;
+
+  if(progtype == 1)
+      help.append("       cimmofl");
+  else
+      help.append("       cimmof ");
+  help.append(" [ --version ]\n");
+
+  if(progtype == 1)
+      help.append("       cimmofl");
+  else
+      help.append("       cimmof ");
+  help.append( " [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
   help.append( "              [ -n namespace | --namespace namespace ]");
   if(progtype == 1)
   {
@@ -125,14 +139,24 @@ help(ostream &os, int progtype) {
       help.append( "    -N                  - Specify the repository name - defaults to \"repository\"\n");
       help.append( "    -M                  - Repository mode [XML, BIN] - defaults to \"XML\"\n");
   }
-#else
+#else 
   if(progtype == 1)
       help.append("Usage: ").append("cimmofl");
   else
       help.append("Usage: ").append("cimmof ");
   help.append( " [ -h | --help ]\n");
-  help.append( "               [ --version ]\n");
-  help.append( "               [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
+
+  if(progtype == 1)
+      help.append("       cimmofl");
+  else
+      help.append("       cimmof ");
+  help.append(" [ --version ]\n");
+
+  if(progtype == 1)
+      help.append("       cimmofl");
+  else
+      help.append("       cimmof ");
+  help.append( " [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
   help.append( "               [ -n namespace | --namespace namespace ] [ --xml ]\n");
   help.append( "               [ --trace ]");
 #ifdef PEGASUS_OS_OS400

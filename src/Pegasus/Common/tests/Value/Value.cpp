@@ -295,35 +295,34 @@ void test02(const Array<T>& x)
 template<class T1, class T2, class T3>
 void test03( Array<T1>& arrObj1, Array<T1>& arrObj2, T2 obj, T3 val1, T3 val2)
 {
-    // Array<Boolean> arrObj1(10,val[0]);
     assert( 10 == arrObj1.size() && arrObj1[5] == val1);
-    assert( 10 == arrObj2.size() && arrObj2[0] == val1);
+    assert( 1 == arrObj2.size() && arrObj2[0] == val1);
     *obj = val2;
-    arrObj2.append(obj,5);
-    assert( 15 == arrObj2.size() && arrObj2[10] == val2 );
+    arrObj2.append(obj,1);
+    assert( 2 == arrObj2.size() && arrObj2[1] == val2 );
     arrObj1.appendArray(arrObj2);
-    assert( 25 == arrObj1.size() && arrObj1[10] == val1 && arrObj1[20] == val2);
+    assert( 12 == arrObj1.size() && arrObj1[10] == val1 && arrObj1[11] == val2);
     arrObj2.clear();
     assert( 0 == arrObj2.size() );
-    assert( 32 == arrObj1.getCapacity() && 8 == arrObj2.getCapacity() );
+    assert( 16 == arrObj1.getCapacity() && 8 == arrObj2.getCapacity() );
     arrObj2.grow(10,val1);
     assert( 10 == arrObj2.size() && arrObj2[5] == val1);
     arrObj2.insert(10,val2);
     assert( 11 == arrObj2.size() && arrObj2[10] == val2);
-    arrObj2.insert(10, obj, 10);
-    assert( 21 == arrObj2.size() );
+    arrObj2.insert(10, obj, 1);
+    assert( 12 == arrObj2.size() );
     arrObj2.prepend(val2);
-    assert( 22 == arrObj2.size() && arrObj2[0] == val2);
+    assert( 13 == arrObj2.size() && arrObj2[12] == val2);
     *obj = val1;
-    arrObj2.prepend(obj,10);
-    assert( 32 == arrObj2.size() && arrObj2[0] == val1);
+    arrObj2.prepend(obj,1);
+    assert( 14 == arrObj2.size() && arrObj2[0] == val1);
     arrObj1.swap(arrObj2);
-    assert( 32 == arrObj1.size() && 25 == arrObj2.size() &&
-                        arrObj2[0] == val1 && arrObj1[0] == val1 );
+    assert( 14 == arrObj1.size() && 12 == arrObj2.size() &&
+                        arrObj2[10] == val1 && arrObj1[12] == val2 );
     arrObj1.remove(1);
-    assert( 31 == arrObj1.size() );
+    assert( 13 == arrObj1.size() );
     arrObj1.remove(1,1);
-    assert( 30 == arrObj1.size() );
+    assert( 12 == arrObj1.size() );
 }
 
 int main(int argc, char** argv)
@@ -518,9 +517,48 @@ int main(int argc, char** argv)
     test02(arr16);
 
     // Calling remaining  Array tests..
+    CIMDateTime D1("19991224120000.000000+100");
+    Array<CIMDateTime> arrD1(10,D1);
+    CIMDateTime *D2 = new CIMDateTime("19991224120000.000000+100");
+    Array<CIMDateTime> arrD2(D2,1);
+    test03(arrD1, arrD2, D2, CIMDateTime("19991224120000.000000+100"),
+                     CIMDateTime("29991224120000.000000+100"));
+    delete D2;
+
+    AcceptLanguageElement al1("en-US-mn;;");
+    Array<AcceptLanguageElement> al_arr1(10,al1);
+    AcceptLanguageElement *al2 = new AcceptLanguageElement("en-US-mn;;");
+    Array<AcceptLanguageElement> al_arr2(al2,1);
+    test03(al_arr1, al_arr2, al2, AcceptLanguageElement("en-US-mn;;"),
+                                  AcceptLanguageElement("en-US"));
+    delete al2;
+
+    CIMName cimname1("yourName");
+    Array<CIMName> arrcimname1(10,cimname1);
+    CIMName *cimname2 = new CIMName("yourName");
+    Array<CIMName> arrcimname2(cimname2,1);
+    test03(arrcimname1, arrcimname2, cimname2, CIMName("yourName"), CIMName("myName"));
+    delete cimname2;
+
+    CIMKeyBinding cimbind1(cimname1, "myKey" ,Pegasus::CIMKeyBinding::STRING);
+    CIMKeyBinding cimbind2(cimname1, "yourKey" ,Pegasus::CIMKeyBinding::STRING);
+    Array<CIMKeyBinding> arrcimbind1(10,cimbind1);
+    CIMKeyBinding *cimbind3 = new CIMKeyBinding(cimname1, "myKey" ,Pegasus::CIMKeyBinding::STRING); 
+    Array<CIMKeyBinding> arrcimbind2(cimbind3,1);
+    test03(arrcimbind1, arrcimbind2, cimbind3, cimbind1, cimbind2 );
+    delete cimbind3;
+
+    CIMNamespaceName cimnamespace1("root/SampleProvider");
+    Array<CIMNamespaceName> arrcimnamespace1(10,cimnamespace1);
+    CIMNamespaceName *cimnamespace2 = new CIMNamespaceName("root/SampleProvider");
+    Array<CIMNamespaceName> arrcimnamespace2(cimnamespace2,1);
+    test03(arrcimnamespace1, arrcimnamespace2, cimnamespace2, CIMNamespaceName("root/SampleProvider"), 
+                                  CIMNamespaceName("root/SampleProvider2")); 
+    delete cimnamespace2;
+
     Array<Boolean> arrB1(10,true);
     Boolean *b = new Boolean(true);
-    Array<Boolean> arrB2(b,10);
+    Array<Boolean> arrB2(b,1);
     Array<Boolean> arrB3(2);
     Boolean b1 = true, b2=false;
     test03(arrB1, arrB2, b, Boolean(true),Boolean(false));
@@ -530,7 +568,7 @@ int main(int argc, char** argv)
     Real32 creal321(2.5);
     Array<Real32> arrreal322(10, creal321);
     Real32 *creal322 = new Real32(2.5);
-    Array<Real32> arrreal323(creal322,10);
+    Array<Real32> arrreal323(creal322,1);
     Array<Real32> arrreal324(arrreal321); 
     test03(arrreal322, arrreal323, creal322,Real32(2.5),Real32(3.5)); 
     delete creal322;
@@ -539,7 +577,7 @@ int main(int argc, char** argv)
     Real64 creal641(20000.54321);
     Array<Real64> arrreal642(10, creal641);
     Real64 *creal642 = new Real64(20000.54321);
-    Array<Real64> arrreal643(creal642,10);
+    Array<Real64> arrreal643(creal642,1);
     Array<Real64> arrreal644(arrreal641);
     test03(arrreal642, arrreal643, creal642,Real64(20000.54321), Real64(30000.54321));
     delete creal642;
@@ -548,7 +586,7 @@ int main(int argc, char** argv)
     Sint16 cSint161(-2000);
     Array<Sint16> arrSint162(10, cSint161);
     Sint16 *cSint162 = new Sint16(-2000);
-    Array<Sint16> arrSint163(cSint162,10);
+    Array<Sint16> arrSint163(cSint162,1);
     Array<Sint16> arrSint164(arrSint161);
     test03(arrSint162, arrSint163, cSint162, Sint16(-2000), Sint16(-3000));
     delete cSint162;
@@ -557,28 +595,26 @@ int main(int argc, char** argv)
     Sint32 cSint321(-200000000);
     Array<Sint32> arrSint322(10, cSint321);
     Sint32 *cSint322 = new Sint32(-200000000);
-    Array<Sint32> arrSint323(cSint322,10);
+    Array<Sint32> arrSint323(cSint322,1);
     Array<Sint32> arrSint324(arrSint321);
     test03(arrSint322, arrSint323, cSint322, Sint32(-200000000), Sint32(-300000000));
     delete cSint322;
 
-#ifdef NOTDEF // doesn't work on several Linux versions bug 3264
-
     Array<Sint64> arrSint641(10);
-    Sint64 cSint641(-20000000000000000);
+    Sint64 cSint641(Sint64(-2000000)*Sint64(10000000) );
     Array<Sint64> arrSint642(10, cSint641);
-    Sint64 *cSint642 = new Sint64(-20000000000000000);
-    Array<Sint64> arrSint643(cSint642,10);
+    Sint64 *cSint642 = new Sint64(Sint64(-2000000)*Sint64(10000000));
+    Array<Sint64> arrSint643(cSint642,1);
     Array<Sint64> arrSint644(arrSint641);
-    test03(arrSint642, arrSint643, cSint642,Sint64(-20000000000000000), Sint64(-30000000000000000));
+    test03(arrSint642, arrSint643, cSint642,Sint64(-2000000)*Sint64(10000000), 
+                           Sint64(-3000000)*Sint64(10000000));
     delete cSint642;
-#endif
 
     Array<Sint8> arrSint81(10);
     Sint8 cSint81(-20);
     Array<Sint8> arrSint82(10, cSint81);
     Sint8 *cSint82 = new Sint8(-20);
-    Array<Sint8> arrSint83(cSint82,10);
+    Array<Sint8> arrSint83(cSint82,1);
     Array<Sint8> arrSint84(arrSint81);
     test03(arrSint82, arrSint83, cSint82, Sint8(-20), Sint8(-22));
     delete cSint82;
@@ -587,7 +623,7 @@ int main(int argc, char** argv)
     Uint16 cUint161(200);
     Array<Uint16> arrUint162(10, cUint161);
     Uint16 *cUint162 = new Uint16(200);
-    Array<Uint16> arrUint163(cUint162,10);
+    Array<Uint16> arrUint163(cUint162,1);
     Array<Uint16> arrUint164(arrUint161);
     test03(arrUint162, arrUint163, cUint162, Uint16(200), Uint16(255));
     delete cUint162;
@@ -596,27 +632,26 @@ int main(int argc, char** argv)
     Uint32 cUint321(2000);
     Array<Uint32> arrUint322(10, cUint321);
     Uint32 *cUint322 = new Uint32(2000);
-    Array<Uint32> arrUint323(cUint322,10);
+    Array<Uint32> arrUint323(cUint322,1);
     Array<Uint32> arrUint324(arrUint321);
     test03(arrUint322, arrUint323, cUint322, Uint32(2000), Uint32(3000));
     delete cUint322;
 
-#ifdef NOTDEF // doesn't work on several Linux versions bug 3264
     Array<Uint64> arrUint641(10);
-    Uint64 cUint641(2000000000000000);
+    Uint64 cUint641(Uint64(2000000)*Uint64(10000000));
     Array<Uint64> arrUint642(10, cUint641);
-    Uint64 *cUint642 = new Uint64(2000000000000000);
-    Array<Uint64> arrUint643(cUint642,10);
+    Uint64 *cUint642 = new Uint64(Uint64(2000000)*Uint64(10000000));
+    Array<Uint64> arrUint643(cUint642,1);
     Array<Uint64> arrUint644(arrUint641);
-    test03(arrUint642, arrUint643, cUint642,Uint64(2000000000000000),Uint64(25500000000000000));
+    test03(arrUint642, arrUint643, cUint642,Uint64(2000000)*Uint64(10000000),
+                           Uint64(255000)*Uint64(10000000));
     delete cUint642;
-#endif
 
     Array<Uint8> arrUint81(10);
     Uint8 cUint81(200);
     Array<Uint8> arrUint82(10, cUint81);
     Uint8 *cUint82 = new Uint8(200);
-    Array<Uint8> arrUint83(cUint82,10);
+    Array<Uint8> arrUint83(cUint82,1);
     Array<Uint8> arrUint84(arrUint81);
     test03(arrUint82, arrUint83, cUint82, Uint8(200), Uint8(255));
     delete cUint82;
@@ -625,7 +660,7 @@ int main(int argc, char** argv)
     Char16 cChar161('Z');
     Array<Char16> arrChar162(10, cChar161);
     Char16 *cChar162 = new Char16('Z');
-    Array<Char16> arrChar163(cChar162,10);
+    Array<Char16> arrChar163(cChar162,1);
     Array<Char16> arrChar164(arrChar161);
     test03(arrChar162, arrChar163, cChar162, Char16('Z'), Char16('z'));
     delete cChar162;
@@ -635,3 +670,4 @@ int main(int argc, char** argv)
 
     return 0;
 }
+

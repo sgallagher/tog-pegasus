@@ -99,24 +99,23 @@ help(ostream &os, int progtype) {
       help.append("Usage: ").append("cimmofl");
   else
       help.append("Usage: ").append("cimmof ");
-  help.append( " [ -h | --help ] \n" );
-  help.append( "               [ --version ] \n " );
-  help.append( "              [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] \n ") ;
-  help.append( "              [ -n namespace | --namespace namespace ] ");
+  help.append( " [ -h | --help ]\n" );
+  help.append( "               [ --version ]\n" );
+  help.append( "              [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n") ;
+  help.append( "              [ -n namespace | --namespace namespace ]");
   if(progtype == 1)
   {
-    help.append( " \n" );
-    help.append( "               [ -R repositorydir | --CIMRepository repositorydir ] \n");
-    help.append( "               [ -N repositoryname ] [ -M repositorymode] [ mof_file ... ] \n");
+    help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ]");
+    help.append("\n               [ -N repositoryname ] [ -M repositorymode]");
   }
   else
     help.append( " [ mof_file ... ]\n");
   help.append("Options : \n");  
   help.append( "    -h, --help      - Display this help message \n");
   help.append( "    --version       - Display CIM Server version\n");
-  help.append( "    -w              - Suppress warning messages \n");
-  help.append( "    -I              - Specify an include path \n");
-  help.append( "    -n, --namespace - Override the default CIM Repository namespace \n");
+  help.append( "    -w              - Suppress warning messages\n");
+  help.append( "    -I              - Specify an include path\n");
+  help.append( "    -n, --namespace - Override the default CIM Repository namespace\n");
   help.append( "    -uc             - Allow update of an existing class definition\n");
   help.append( "    -aE             - Allow Experimental Schema changes\n");
   help.append( "    -aV             - Allow both Major and Down Revision Schema changes\n");
@@ -131,26 +130,26 @@ help(ostream &os, int progtype) {
       help.append("Usage: ").append("cimmofl");
   else
       help.append("Usage: ").append("cimmof ");
-  help.append( " [ -h | --help ] \n");
-  help.append( "               [ --version ] \n");
+  help.append( " [ -h | --help ]\n");
+  help.append( "               [ --version ]\n");
   help.append( "               [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
-  help.append( "               [ -n namespace | --namespace namespace ] [ --xml ] ");
-  help.append("\n               [ --trace ]");
+  help.append( "               [ -n namespace | --namespace namespace ] [ --xml ]\n");
+  help.append( "               [ --trace ]");
 #ifdef PEGASUS_OS_OS400
-  help.append("  [ -q ] ");
+  help.append("  [ -q ]");
 #endif
   if(progtype == 1)
   {
-      help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ] ");
-      help.append("\n               [ -N repositoryname ] [ -M repositorymode] ");
+      help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ]");
+      help.append("\n               [ -N repositoryname ] [ -M repositorymode]");
   }
   //help.append("\n");
 #ifdef PEGASUS_OS_OS400
-   help.append( " mof_file...\n");
+  help.append( " mof_file...\n");
 #else
   help.append( " [ mof_file... ]\n");
 #endif
-  help.append("Options : \n");  
+  help.append("Options :\n");  
   help.append( "    -h, --help          - Display this help message\n");
   help.append( "    --version           - Display CIM Server version\n");
   help.append( "    -E                  - Syntax check only\n");
@@ -171,7 +170,7 @@ help(ostream &os, int progtype) {
   help.append( "    --trace             - Trace to file (default to stdout)\n");
   // PEP167 - '-R', '--CIMRepository' disabled for cimmof ONLY.
   if(progtype == 1) {
-        help.append( "    -R, --CIMRepository - Specify the repository directory\n");
+      help.append( "    -R, --CIMRepository - Specify the repository directory\n");
       help.append( "    -N                  - Specify the repository name - defaults to \"repository\"\n");
       help.append( "    -M                  - Repository mode [XML, BIN] - defaults to \"XML\"\n");
   }

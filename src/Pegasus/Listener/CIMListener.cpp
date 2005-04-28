@@ -290,29 +290,27 @@ Uint32 CIMListenerService::getOutstandingRequestCount()
 
 CIMListenerIndicationDispatcher* CIMListenerService::getIndicationDispatcher() const
 {
-	return _dispatcher;
+    return _dispatcher;
 }
 void CIMListenerService::setIndicationDispatcher(CIMListenerIndicationDispatcher* dispatcher)
 {
-	_dispatcher = dispatcher;
+    _dispatcher = dispatcher;
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine(void *param)
 {
-  CIMListenerService *svc = reinterpret_cast<CIMListenerService *>(param);
+    AutoPtr<CIMListenerService> svc(reinterpret_cast<CIMListenerService *>(param));
 
-  //svc->init(); bug 1394
-  while(!svc->terminated())
-  {
+    //svc->init(); bug 1394
+    while(!svc->terminated())
+    {
 #if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-    pthread_testcancel();
+        pthread_testcancel();
 #endif
-    svc->runForever();
-  }
+        svc->runForever();
+    }
 
-  delete svc;
-
-  return 0;
+    return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////

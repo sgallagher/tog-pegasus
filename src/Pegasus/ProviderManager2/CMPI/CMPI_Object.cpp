@@ -76,9 +76,9 @@ CMPI_Object::CMPI_Object(const String& str) {
    ftab=CMPI_String_Ftab;
 }
 
-CMPI_Object::CMPI_Object(char *str) {
+CMPI_Object::CMPI_Object(const char *str) {
    CMPI_ThreadContext::addObject(this);
-   hdl=(void*)strdup((const char*)str);
+   hdl=(void*)strdup(str);
    ftab=CMPI_String_Ftab;
 }
 

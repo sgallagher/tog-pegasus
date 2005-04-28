@@ -822,7 +822,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                              //String("CIMObject value \"") + cimObjectInHeader +
                                  //"\" does not match CIM request object \"" +
                                  //nameSpace + "\".");
-               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+               MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
    								 "CIMObject value \"$0\" does not match CIM request object \"$1\".",
    								 cimObjectInHeader,
    								 nameSpace);
@@ -1102,7 +1102,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
             //sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
                           //String("Could not parse CIMObject value \"") +
                               //cimObjectInHeader + "\".");
-            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE",
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.COULD_NOT_PARSE_CIMOBJECT_VALUE",
    								 "Could not parse CIMObject value \"$0\".",
    								 cimObjectInHeader);
    			sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
@@ -1118,7 +1118,7 @@ void CIMOperationRequestDecoder::handleMethodCall(
                           //String("CIMObject value \"") + cimObjectInHeader +
                               //"\" does not match CIM request object \"" +
                               //reference.toString() + "\".");
-            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
+            MessageLoaderParms parms("Server.CIMOperationRequestDecoder.CIMOBJECT_VALUE_DOES_NOT_MATCH_REQUEST_OBJECT:",
    								 "CIMObject value \"$0\" does not match CIM request object \"$1\".",
    								 cimObjectInHeader,
    								 reference.toString());

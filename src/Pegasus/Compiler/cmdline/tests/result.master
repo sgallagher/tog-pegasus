@@ -61,12 +61,12 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
  
 cimmofl -h
 Usage: cimmofl [ -h | --help ]
-               [ --version ]
-               [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
+       cimmofl [ --version ]
+       cimmofl [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
                [ -n namespace | --namespace namespace ] [ --xml ]
                [ --trace ]
                [ -R repositorydir ] [ --CIMRepository repositorydir ]
-               [ -N repositoryname ] [ -M repositorymode]  [ mof_file... ]
+               [ -N repositoryname ] [ -M repositorymode] [ mof_file... ]
 Options :
     -h, --help          - Display this help message
     --version           - Display CIM Server version
@@ -91,12 +91,12 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
  
 cimmofl --help
 Usage: cimmofl [ -h | --help ]
-               [ --version ]
-               [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
+       cimmofl [ --version ]
+       cimmofl [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
                [ -n namespace | --namespace namespace ] [ --xml ]
                [ --trace ]
                [ -R repositorydir ] [ --CIMRepository repositorydir ]
-               [ -N repositoryname ] [ -M repositorymode]  [ mof_file... ]
+               [ -N repositoryname ] [ -M repositorymode] [ mof_file... ]
 Options :
     -h, --help          - Display this help message
     --version           - Display CIM Server version

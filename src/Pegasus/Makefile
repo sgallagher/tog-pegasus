@@ -149,7 +149,8 @@ DIRS += \
     msg/Server \
     msg/CLI \
     DynListener/tests \
-    WQL/tests 
+    WQL/tests \
+    msg/Listener
 
 ifneq ($(OS),HPUX)
   DIRS+= \

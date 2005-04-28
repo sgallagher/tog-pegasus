@@ -33,6 +33,7 @@
 //              -- PEP 43
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333, #2351
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3370
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -97,75 +98,83 @@ help(ostream &os, int progtype) {
   if(progtype == 1)
       help.append("Usage: ").append("cimmofl");
   else
-      help.append("Usage: ").append("cimmof");
-  help.append(" [ -h ] [ --help ] [ --version ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --namespace namespace ] <mof_file1 mof_file2...>\n");
+      help.append("Usage: ").append("cimmof ");
+  help.append( " [ -h | --help ] \n" );
+  help.append( "               [ --version ] \n " );
+  help.append( "              [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] \n ") ;
+  help.append( "              [ -n namespace | --namespace namespace ] ");
+  if(progtype == 1)
+  {
+    help.append( " \n" );
+    help.append( "               [ -R repositorydir | --CIMRepository repositorydir ] \n");
+    help.append( "               [ -N repositoryname ] [ -M repositorymode] [ mof_file ... ] \n");
+  }
+  else
+    help.append( " [ mof_file ... ]\n");
   help.append("Options : \n");  
-  help.append( "    -aE          - Allow Experimental Schema changes\n");
-  help.append( "    -aEV         - Allow both Experimental and Version Schema changes\n");
-  help.append( "    -aV          - Allow both Major and Down Revision Schema changes\n");
-  help.append( "    -h, --help   - Display this help message \n");
-  help.append( "    -I           - Specify an include path \n");
-  help.append( "    -n           - Override the default CIM Repository namespace \n");
-  help.append( "    -uc          - Allow update of an existing class definition\n");
-  help.append( "    --version    - Display CIM Server version\n");
-  help.append( "    -w           - Suppress warning messages \n");
+  help.append( "    -h, --help      - Display this help message \n");
+  help.append( "    --version       - Display CIM Server version\n");
+  help.append( "    -w              - Suppress warning messages \n");
+  help.append( "    -I              - Specify an include path \n");
+  help.append( "    -n, --namespace - Override the default CIM Repository namespace \n");
+  help.append( "    -uc             - Allow update of an existing class definition\n");
+  help.append( "    -aE             - Allow Experimental Schema changes\n");
+  help.append( "    -aV             - Allow both Major and Down Revision Schema changes\n");
+  help.append( "    -aEV            - Allow both Experimental and Version Schema changes\n");
+  if(progtype == 1) {
+      help.append( "    -R, --CIMRepository - Specify the repository directory\n");
+      help.append( "    -N                  - Specify the repository name - defaults to \"repository\"\n");
+      help.append( "    -M                  - Repository mode [XML, BIN] - defaults to \"XML\"\n");
+  }
 #else
   if(progtype == 1)
       help.append("Usage: ").append("cimmofl");
   else
-      help.append("Usage: ").append("cimmof");
-  help.append( " [ -h ] [ --help ] [ --version ] [ -E ] [ -w ]\n");
-  if(progtype == 1)
-      help.append(" "); //Display alignment, if cimmofl is used
-  help.append("              [ -uc ] [ -aE | -aV | -aEV ]\n");
-  if(progtype == 1)
-      help.append(" "); //Display alignment, if cimmofl is used
-  help.append( "              [ -I path ] [ -n namespace ] [ --namespace namespace ]\n");
-  if(progtype == 1)
-      help.append(" "); //Display alignment, if cimmofl is used
-  help.append("              [ --xml ] [ --trace ]");
+      help.append("Usage: ").append("cimmof ");
+  help.append( " [ -h | --help ] \n");
+  help.append( "               [ --version ] \n");
+  help.append( "               [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n");
+  help.append( "               [ -n namespace | --namespace namespace ] [ --xml ] ");
+  help.append("\n               [ --trace ]");
 #ifdef PEGASUS_OS_OS400
-  help.append(" [ -q ] ");
+  help.append("  [ -q ] ");
 #endif
   if(progtype == 1)
   {
       help.append("\n               [ -R repositorydir ] [ --CIMRepository repositorydir ] ");
       help.append("\n               [ -N repositoryname ] [ -M repositorymode] ");
   }
-  help.append("\n");
-  if(progtype == 1)
-      help.append(" "); //Display alignment, if cimmofl is used
-  help.append("              <mof_file1 mof_file2...>\n");
-  help.append("Options : \n");  
-  help.append( "    -aE             - Allow Experimental Schema changes\n");
-  help.append( "    -aEV            - Allow both Experimental and Version Schema changes\n");
-  help.append( "    -aV             - Allow both Major and Down Revision Schema changes\n");
-  // PEP167 - '--CIMRepository' disabled for cimmof ONLY.
-  if(progtype == 1)
-      help.append( "    --CIMRepository - Specify the repository directory\n");
-  help.append( "    -E              - Syntax check only\n");
-  help.append( "    -h, --help      - Display this help message\n");
-  help.append( "    -I              - Specify an include path\n");
-  help.append( "    -n              - Override default CIM Repository namespace (root/cimv2)\n");
-  help.append( "    --namespace     - Override default CIM Repository namespace (root/cimv2)\n");
+  //help.append("\n");
 #ifdef PEGASUS_OS_OS400
-  help.append( "    -q              - Suppress all messages except command line usage errors\n");
+   help.append( " mof_file...\n");
+#else
+  help.append( " [ mof_file... ]\n");
 #endif
-  // PEP167 - '-R' disabled for cimmof ONLY.
-  if(progtype == 1) {
-      help.append( "    -R              - Specify the repository directory\n");
-      help.append( "    -N              - Specify the repository name - defaults to \"repository\"\n");
-      help.append( "    -M              - Repository mode [XML, BIN] - defaults to \"XML\"\n");
-
-  }
+  help.append("Options : \n");  
+  help.append( "    -h, --help          - Display this help message\n");
+  help.append( "    --version           - Display CIM Server version\n");
+  help.append( "    -E                  - Syntax check only\n");
+  help.append( "    -w                  - Suppress warning messages\n");
+  help.append( "    -I                  - Specify an include path\n");
+  help.append( "    -n, --namespace     - Override default CIM Repository namespace (root/cimv2)\n");
+  help.append( "    -uc                 - Allow update of an existing class definition\n");
+  help.append( "    -aE                 - Allow Experimental Schema changes\n");
+  help.append( "    -aV                 - Allow both Major and Down Revision Schema changes\n");
+  help.append( "    -aEV                - Allow both Experimental and Version Schema changes\n");
+#ifdef PEGASUS_OS_OS400
+  help.append( "    -q                  - Suppress all messages except command line usage errors\n");
+#endif
   //PEP167 - Remove and disable 'f' and 'file' options. No longer required
   //help.append( "  -ffile -- specify file containing a list of MOFs to compile.\n");
   //help.append( " --file=file -- specify file containing list of MOFs.\n");
-  help.append( "    --trace         - Trace to file (default to stdout)\n");
-  help.append( "    -uc             - Allow update of an existing class definition\n");
-  help.append( "    --version       - Display CIM Server version\n");
-  help.append( "    -w              - Suppress warning messages\n");
-  help.append( "    --xml           - Output XML only, to stdout. Do not update repository\n");
+  help.append( "    --xml               - Output XML only, to stdout. Do not update repository\n");
+  help.append( "    --trace             - Trace to file (default to stdout)\n");
+  // PEP167 - '-R', '--CIMRepository' disabled for cimmof ONLY.
+  if(progtype == 1) {
+        help.append( "    -R, --CIMRepository - Specify the repository directory\n");
+      help.append( "    -N                  - Specify the repository name - defaults to \"repository\"\n");
+      help.append( "    -M                  - Repository mode [XML, BIN] - defaults to \"XML\"\n");
+  }
 #endif
 
   if(progtype == 1)
@@ -177,16 +186,29 @@ help(ostream &os, int progtype) {
 
 // now localize the menu based on platform, use help as the default menu which
 // has been appropriately built above for the specific platform
+MessageLoaderParms parms ;
+if(progtype == 1)
+{
+   parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.STANDARD",help); 
 
-MessageLoaderParms parms("Compiler.cmdline.cimmof.cmdline.MENU.STANDARD",help); 
+   #ifdef PEGASUS_OS_HPUX
+      parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX",help);
+   #endif
+   #ifdef PEGASUS_OS_OS400
+      parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_OS400",help);
+   #endif
+}
+else
+{
+   parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.STANDARD",help); 
 
-#ifdef PEGASUS_OS_HPUX
-	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX",help);	
-#endif
-#ifdef PEGASUS_OS_OS400
-	parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400",help);
-#endif
-
+   #ifdef PEGASUS_OS_HPUX
+      parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX",help);
+   #endif
+   #ifdef PEGASUS_OS_OS400
+      parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400",help);
+   #endif
+}
   os << MessageLoader::getMessage(parms);
   return os;
 }

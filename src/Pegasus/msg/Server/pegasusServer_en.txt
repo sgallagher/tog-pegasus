@@ -1376,6 +1376,115 @@ not be valid."}
         */
         getoopt.getoopt.MISSING_VALUE_FOR_FLAG:string {"PGS04602:  Missing required value for flag {0}."}
 
+        // ==========================================================
+        // Messages for CIMMOFL
+        //  Please use message prefix "PGS04900"
+        // ==========================================================
+
+        /**
+        * @note  Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX
+        *   Do not translate the cimmofl command or options.  Just translate the text that explains the options.
+        *   When translating this message, make sure that each line fits in 80 characters,
+        *    preserves the indenting, 
+        *   and ends with a newline character (\n).
+        */
+        Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX:string {
+
+          "\n\n"
+           "Usage: cimmofl [ -h | --help ]\n"
+           "               [ --version ]\n"
+           "               [ -w ] [ -uc ][ -aE | -aV | -aEV ] [ -I path ] \n"
+           "               [ -n namespace | --namespace namespace ] \n"
+           "               [ -R repositorydir | --CIMRepository repositorydir ] \n"
+	   "               [ -N repositoryname ] [ -M repositorymode] [ mof_file ... ] \n"
+           "Options :\n"
+           "    -h, --help           - Display this help message.\n"
+           "    --version            - Display CIM Server version.\n"
+           "    -w                   - Suppress warning messages.\n"
+           "    -I                   - Specify an include path.\n"
+           "    -n, --namespace      - Override default CIM Repository namespace (root/cimv2).\n"
+           "    -uc                  - Used to allow the update of an existing class definition.\n"
+           "    -aE                  - Allow Experimental Schema changes.\n"
+           "    -aV                  - Allow both Major and Down Revision Schema changes.\n"
+           "    -aEV                 - Allow both Experimental and Version Schema changes.\n"  
+           "    -R, --CIMRepository  - Specify the repository directory\n"
+           "    -N                   - Specify the repository name - defaults to \"repository\"\n"
+           "    -M                   - Repository mode [XML, BIN] - defaults to \"XML\" \n"
+        }
+
+
+        /**
+        * @note  Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_OS400
+        *   Do not translate the cimmofl command or options.  Just translate the text that explains the options.
+        *   When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *   and ends with a newline character (\n).
+        */
+        Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_OS400:string {
+
+          "\n\n"
+           "Usage: cimmofl [ -h | --help ]\n"
+           "               [ --version ] \n"              
+           "               [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
+           "               [ -n namespace | --namespace namespace ] [ --xml ]\n"
+           "               [ --trace ] [ -q ] \n"
+           "               [ -R repositorydir | --CIMRepository repositorydir ] \n"
+	   "               [ -N repositoryname ] [ -M repositorymode]  mof_file... \n"           
+           "Options :\n"
+           "  -h, --help            - Display this help message.\n"
+           "  --version             - Display CIM Server version.\n"
+           "  -E                    - Syntax check only.\n"
+           "  -w                    - Suppress warning messages.\n"
+           "  -I                    - Specify an include path.\n"
+           "  -n, --namespace       - Override default CIM Repository namespace (root/cimv2).\n"
+           "  -uc                   - Allow update of an existing class definition.\n"
+           "  -aE                   - Allow Experimental Schema changes.\n"
+           "  -aV                   - Allow both Major and Down Revision Schema changes.\n"
+           "  -aEV                  - Allow both Experimental and Version Schema changes.\n"
+           "  -q                    - Suppress all messages except command line usage errors.\n"
+           "  --xml                 - Output XML only, to stdout. Do not update repository.\n"
+           "  --trace               - Trace to file (default to stdout).\n"
+           "  -R, --CIMRepository   - Specify the repository directory\n"
+           "  -N                    - Specify the repository name - defaults to \"repository\"\n"
+           "  -M                    - Repository mode [XML, BIN] - defaults to \"XML\" \n"
+        }
+
+
+        /**
+        * @note  Compiler.cmdline.cimmofl.cmdline.MENU.STANDARD
+        *   Do not translate the cimmofl command or options.  Just translate the text that explains the options.
+        *   When translating this message, make sure that each line fits in 80 characters, 
+        *    preserves the indenting,
+        *   and ends with a newline character (\n).
+        */
+        Compiler.cmdline.cimmofl.cmdline.MENU.STANDARD:string {
+
+          "\n\n"
+           "Usage: cimmofl [ -h | --help ]\n"
+           "               [ --version ] \n"
+           "               [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
+           "               [ -n namespace | --namespace namespace ] [ --xml ]\n"
+           "               [ --trace ] \n"
+           "               [ -R repositorydir | --CIMRepository repositorydir ] \n"
+           "               [ -N repositoryname ] [ -M repositorymode]  [ mof_file... ] \n"           
+           "Options :\n"
+           "  -h, --help            - Display this help message.\n"
+           "  --version             - Display CIM Server version.\n"
+           "  -E                    - Syntax check only.\n"
+           "  -w                    - Suppress warning messages.\n"
+           "  -I                    - Specify an include path.\n"
+           "  -n, --namespace       - Override default CIM Repository namespace (root/cimv2).\n"
+           "  -uc                   - Allow update of an existing class definition.\n"
+           "  -aE                   - Allow Experimental Schema changes.\n"
+           "  -aV                   - Allow both Major and Down Revision Schema changes.\n"
+           "  -aEV                  - Allow both Experimental and Version Schema changes.\n"
+           "  --xml                 - Output XML only, to stdout. Do not update repository.\n"
+           "  --trace               - Trace to file (default to stdout).\n"           
+           "  -R, --CIMRepository   - Specify the repository directory\n"
+           "  -N                    - Specify the repository name - defaults to \"repository\"\n"
+           "  -M                    - Repository mode [XML, BIN] - defaults to \"XML\" \n"
+        }
+
 
         // ==========================================================
         // Messages for CIMMOF
@@ -1392,20 +1501,20 @@ not be valid."}
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX:string {
 
           "\n\n"
-           "Usage: cimmof [ -h ] [ --help ] [ --version ] [-w]\n"
-           "              [ -uc ] [ -aE | -aV | -aEV ]\n"
-           "              [ -I path ] [ -n namespace ]\n"
-           "              <mof_file1 mof_file2...>\n"
+           "Usage: cimmof [ -h | --help ]\n"
+	   "              [ --version ]\n"
+	   "              [ -w ] [ -uc ][ -aE | -aV | -aEV ] [ -I path ] \n"
+           "              [ -n namespace | --namespace namespace ] [ mof_file ... ]\n"
            "Options :\n"
-           "    -h, --help   - Display this help message.\n"
-           "    -w           - Suppress warning messages.\n"
-           "    -I           - Specify an include path.\n"
-           "    -n           - Override default CIM repository namespace (root/cimv2).\n" 
-           "    -uc          - Allow the update of an existing class definition.\n"
-           "    -aE          - Allow experimental schema changes.\n" 
-           "    -aV          - Allow both major and down revision schema changes.\n" 
-           "    -aEV         - Allow both experimental and version schema changes.\n"
-           "    --version    - Display CIM server version.\n" 
+           "    -h, --help       - Display this help message.\n"
+           "    --version        - Display CIM Server version.\n"
+           "    -w               - Suppress warning messages.\n"
+           "    -I               - Specify an include path.\n"
+           "    -n, --namespace  - Override default CIM repository namespace (root/cimv2).\n" 
+           "    -uc              - Allow the update of an existing class definition.\n"
+           "    -aE              - Allow experimental schema changes.\n" 
+           "    -aV              - Allow both major and down revision schema changes.\n" 
+           "    -aEV             - Allow both experimental and version schema changes.\n"           
         }
 
 
@@ -1419,23 +1528,25 @@ not be valid."}
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400:string {
 
           "\n\n"
-           "Usage: cimmofl [ -h ] [ -E ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --xml ] [ --trace ] [ -q ] <mof_file1 mof_file2...>\n"
+           "Usage: cimmof [ -h | --help ]\n"
+	   "              [ --version ] \n"              
+	   "              [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
+	   "              [ -n namespace | --namespace namespace ] [ --xml ]\n"
+	   "              [ --trace ] [ -q ] mof_file...\n"
            "Options :\n"
-           "  -h, --help   - Display this help message.\n"
-           "  --version    - Display CIM server version.\n"
-           "  -E           - Syntax check only.\n"
-           "  -w           - Suppress warning messages.\n"
-           "  -uc          - Allow update of an existing class definition.\n"
-           "  -aE          - Allow experimental schema changes.\n"
-           "  -aV          - Allow both major and down revision schema changes.\n"
-           "  -aEV         - Allow both experimental and version schema changes.\n"
-           "  -q           - Suppress all messages except command line usage errors.\n"
-           "  -R           - Specify the repository directory.\n"
-           "  -I           - Specify an include path.\n"
-           "  -n           - Override default CIM repository namespace (root/cimv2).\n"
-           "  --namespace   - Override default CIM repository namespace (root/cimv2).\n"
-           "  --xml         - Output XML only, to stdout. Do not update repository.\n"
-           "  --trace       - Trace to file (default to stdout).\n"
+           "  -h, --help       - Display this help message.\n"
+           "  --version        - Display CIM server version.\n"
+           "  -E               - Syntax check only.\n"
+           "  -w               - Suppress warning messages.\n"
+           "  -I               - Specify an include path.\n"
+           "  -n, --namespace  - Override default CIM repository namespace (root/cimv2).\n"           
+           "  -uc              - Allow update of an existing class definition.\n"
+           "  -aE              - Allow experimental schema changes.\n"
+           "  -aV              - Allow both major and down revision schema changes.\n"
+           "  -aEV             - Allow both experimental and version schema changes.\n"
+           "  -q               - Suppress all messages except command line usage errors.\n"
+           "  --xml            - Output XML only, to stdout. Do not update repository.\n"
+           "  --trace           - Trace to file (default to stdout).\n"
 
         }
 
@@ -1450,21 +1561,24 @@ not be valid."}
         Compiler.cmdline.cimmof.cmdline.MENU.STANDARD:string {
 
           "\n\n"
-           "Usage: cimmof [ -h ] [ -E ] [ -w ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ] [ -n namespace ] [ --xml ] [ --trace ] <mof_file1 mof_file2...>\n"
+           "Usage: cimmof [ -h | --help ]\n"
+           "              [ --version ] \n"
+           "              [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
+           "              [ -n namespace | --namespace namespace ] [ --xml ]\n"
+           "              [ --trace ] [ mof_file... ]\n"
            "Options :\n"
-           "  -h, --help   - Display this help message.\n"
-           "  -E           - Syntax check only.\n"
-           "  -w           - Suppress warning messages.\n"
-           "  -uc          - Allow update of an existing class definition.\n"
-           "  -aE          - Allow experimental schema changes.\n"
-           "  -aV          - Allow both major and down revision schema changes.\n" 
-           "  -aEV         - Allow both experimental and version schema changes.\n"
-           "  -I           - Specify an include path.\n"
-           "  -n           - Override default CIM repository namespace (root/cimv2).\n"
-           "  --namespace  - Override default CIM repository namespace (root/cimv2).\n"
-           "  --xml        - Output XML only, to stdout. Do not update repository.\n"
-           "  --trace      - Trace to file (default to stdout).\n"
-           "  --version    - Display CIM server version.\n"
+           "  -h, --help       - Display this help message.\n"
+           "  --version        - Display CIM server version.\n"
+           "  -E               - Syntax check only.\n"
+           "  -w               - Suppress warning messages.\n"
+           "  -I               - Specify an include path.\n"
+           "  -n, --namespace  - Override default CIM repository namespace (root/cimv2).\n"
+           "  -uc              - Allow update of an existing class definition.\n"
+           "  -aE              - Allow experimental schema changes.\n"
+           "  -aV              - Allow both major and down revision schema changes.\n" 
+           "  -aEV             - Allow both experimental and version schema changes.\n"
+           "  --xml            - Output XML only, to stdout. Do not update repository.\n"
+           "  --trace          - Trace to file (default to stdout).\n"           
         }
 
         Compiler.cmdline.cimmof.cmdline.CMDLINE_ERRORS:string {"PGS04800: command line errors: \n"}

@@ -65,7 +65,7 @@ class CMPI_Object {
    CMPI_Object(CIMDateTime*);
    CMPI_Object(OperationContext*);
    CMPI_Object(const String&);
-   CMPI_Object(char*);
+   CMPI_Object(const char*);
    CMPI_Object(Array<CIMParamValue>*);
    CMPI_Object(CMPIData*);
    CMPI_Object(CMPI_Object*);

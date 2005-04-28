@@ -356,12 +356,14 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getRemoteProvider(
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (const Exception &) {
 #ifdef PEGASUS_DEBUG
+    catch (const Exception &e) {
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
+#else
+	catch (const Exception &) {
 #endif
        PEG_METHOD_EXIT();
-        throw;
+       throw;
    }
     catch(...) {
         PEG_METHOD_EXIT();
@@ -390,12 +392,14 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getProvider(
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (const Exception &) {
 #ifdef PEGASUS_DEBUG
+    catch (const Exception &e) {
        cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
+#else
+    catch (const Exception &) {
 #endif
        PEG_METHOD_EXIT();
-        throw;
+       throw;
    }
     catch(...) {
         PEG_METHOD_EXIT();

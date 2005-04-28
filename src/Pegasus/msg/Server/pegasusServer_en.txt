@@ -3623,7 +3623,7 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS11202:
         *    Substitution {0} is a string containing the export method name
         */
-        ExportServer.CIMExportRequestDispatcher.UNRECOGNIZED_EXPORT_METHOD:string {"PGS11202:  Unrecognized export method: {0}"}
+        ExportServer.CIMExportRequestDecoder.UNRECOGNIZED_EXPORT_METHOD:string {"PGS11202:  Unrecognized export method: {0}"}
 
     /**
         * @note PGS11203:

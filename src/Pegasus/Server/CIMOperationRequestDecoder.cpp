@@ -269,6 +269,33 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String cimMethod;
    String cimObject;
 
+   if (httpVersion == "HTTP/1.1")
+   {
+      // Validate the presence of a "Host" header.  The HTTP/1.1 specification
+      // says this in section 14.23 regarding the Host header field:
+      //
+      //     All Internet-based HTTP/1.1 servers MUST respond with a 400 (Bad
+      //     Request) status code to any HTTP/1.1 request message which lacks
+      //     a Host header field.
+      //
+      // Note:  The Host header value is not validated.
+
+      String hostHeader;
+      Boolean hostHeaderFound = HTTPMessage::lookupHeader(
+         headers, "Host", hostHeader, false);
+
+      if (!hostHeaderFound)
+      {
+         MessageLoaderParms parms(
+            "Server.CIMOperationRequestDecoder.MISSING_HOST_HEADER",
+            "HTTP request message lacks a Host header field.");
+         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "",
+            MessageLoader::getMessage(parms));
+         PEG_METHOD_EXIT();
+         return;
+      }
+   }
+
    // Validate the "CIMOperation" header:
 
    Boolean operationHeaderFound = HTTPMessage::lookupHeader(

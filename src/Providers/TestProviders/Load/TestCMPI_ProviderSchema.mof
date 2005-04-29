@@ -30,3 +30,20 @@ class TestCMPI_Instance : TestCMPI_Parent
 
 
 };
+
+class TestCMPI_Method : TestCMPI_Parent
+{
+
+	uint32 TestCMPIBroker (
+	 [IN, Description (
+		"The requested are to test different CMPI data structure operations."),
+		ValueMap { "1", "2", "3", "4", "5", "6"},
+		Values {"CDGetType", "CDToString", "CDIsOfType", "CMGetMessage",  "CMLogMessage","CDTraceMessage"}]
+			uint32 Operation,
+	  [OUT, Description (
+		" The result of what the operation carried out.")]
+			string Result);
+
+	String returnString();
+	Uint32 returnUint32();
+};

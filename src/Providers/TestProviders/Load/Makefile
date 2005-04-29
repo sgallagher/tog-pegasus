@@ -141,6 +141,7 @@ unregisterproviders:
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m TestCMPIIndicationProviderModule
 	cimprovider -r -m TestCMPIInstanceProviderModule
+	cimprovider -r -m TestCMPIMethodProviderModule
 endif 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR

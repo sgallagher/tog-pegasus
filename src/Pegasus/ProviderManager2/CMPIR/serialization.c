@@ -110,13 +110,13 @@ static CMPIArgs * __deserialize_CMPIArgs ( int, CONST CMPIBroker * );
 static ssize_t __serialize_string ( int, const char * );
 static char * __deserialize_string ( int, CONST CMPIBroker * );
 
-static ssize_t __serialize_CMPIString ( int, CMPIString * );
+static ssize_t __serialize_CMPIString ( int, CONST CMPIString * );
 static CMPIString * __deserialize_CMPIString ( int, CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIObjectPath ( int, CONST CMPIObjectPath * );
 static CMPIObjectPath * __deserialize_CMPIObjectPath ( int, CONST CMPIBroker * );
 
-static ssize_t __serialize_CMPIArray ( int, CMPIArray * );
+static ssize_t __serialize_CMPIArray ( int, CONST CMPIArray * );
 static CMPIArray * __deserialize_CMPIArray ( int, CONST CMPIBroker * );
 
 static ssize_t __serialize_CMPIInstance ( int, CONST CMPIInstance * );
@@ -701,7 +701,7 @@ static CMPIString * __deserialize_CMPIString ( int fd, CONST CMPIBroker * broker
 }
 
 
-static ssize_t __serialize_CMPIArgs ( int fd, CMPIArgs * args )
+static ssize_t __serialize_CMPIArgs ( int fd, CONST CMPIArgs * args )
 {
 	ssize_t out;
 	unsigned int i, arg_count;
@@ -770,7 +770,7 @@ static CMPIArgs * __deserialize_CMPIArgs ( int fd, CONST CMPIBroker * broker )
 }
 
 
-static ssize_t __serialize_CMPIObjectPath ( int fd, CMPIObjectPath * cop )
+static ssize_t __serialize_CMPIObjectPath ( int fd, CONST CMPIObjectPath * cop )
 {
 	ssize_t out, tmp;
 	unsigned int key_count, i;
@@ -874,7 +874,7 @@ static CMPIObjectPath * __deserialize_CMPIObjectPath ( int fd,
 }
 
 
-static ssize_t __serialize_CMPIArray ( int fd, CMPIArray * array )
+static ssize_t __serialize_CMPIArray ( int fd, CONST CMPIArray * array )
 {
 	CMPICount i, size;
 	CMPIType type;
@@ -1037,7 +1037,7 @@ static CMPIInstance * __deserialize_CMPIInstance ( int fd,
 }
 
 
-static ssize_t __serialize_CMPISelectExp ( int fd, CMPISelectExp * sexp )
+static ssize_t __serialize_CMPISelectExp ( int fd, CONST CMPISelectExp * sexp )
 {
 	if ( __serialized_NULL ( fd, sexp ) ) return 0;
 

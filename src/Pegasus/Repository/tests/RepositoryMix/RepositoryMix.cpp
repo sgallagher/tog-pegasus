@@ -414,26 +414,33 @@ int main(int argc, char** argv)
 	  if (verbose) cout << ProgName<< ": using BIN mode repository" << endl;
 	}
 
+#define MIXED_MODE
+
       TestOpenRepo(mode);
       TestInitRepo();
       TestCreateClass();
       TestEnumerateClass();
       TestCreateInstance1();
-
+#ifdef MIXED_MODE
       TestCloseRepo();
       TestOpenRepo(modeother);
+#endif
       TestCreateInstance2();
 
+#ifdef MIXED_MODE
       TestCloseRepo();
       TestOpenRepo(mode);
+#endif
       TestCreateInstance3();
-
+#ifdef MIXED_MODE
       TestCloseRepo();
       TestOpenRepo(modeother);
+#endif
       TestCreateInstance4();
-
+#ifdef MIXED_MODE
       TestCloseRepo();
       TestOpenRepo(mode);
+#endif
       TestCreateInstance5();
 
       TestEnumerateInstance(5);

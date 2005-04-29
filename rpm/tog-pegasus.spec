@@ -694,7 +694,7 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/test/mak/commands.mak
 %attr(555,root ,root) /opt/tog-pegasus/test/lib/libSampleInstanceProvider.so.1
 %attr(555,root ,root) /opt/tog-pegasus/test/lib/libSampleMethodProvider.so.1
-%attr(555,root ,root) /opt/tog-pegasus/test/lib/libSampleFamilyProvider.so.1
+%attr(555,root ,root) /opt/tog-pegasus/test/lib/libFamilyProvider.so.1
 %attr(555,root ,root) /opt/tog-pegasus/test/bin/TestAbstract
 %attr(555,root ,root) /opt/tog-pegasus/test/bin/TestArray
 %attr(555,root ,root) /opt/tog-pegasus/test/bin/TestBase64

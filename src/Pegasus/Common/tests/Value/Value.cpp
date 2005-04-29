@@ -540,10 +540,11 @@ int main(int argc, char** argv)
     test03(arrcimname1, arrcimname2, cimname2, CIMName("yourName"), CIMName("myName"));
     delete cimname2;
 
-    CIMKeyBinding cimbind1(cimname1, "myKey" ,Pegasus::CIMKeyBinding::STRING);
-    CIMKeyBinding cimbind2(cimname1, "yourKey" ,Pegasus::CIMKeyBinding::STRING);
+    CIMKeyBinding cimbind1(cimname1, "myKey", CIMKeyBinding::STRING);
+    CIMKeyBinding cimbind2(cimname1, "yourKey", CIMKeyBinding::STRING);
     Array<CIMKeyBinding> arrcimbind1(10,cimbind1);
-    CIMKeyBinding *cimbind3 = new CIMKeyBinding(cimname1, "myKey" ,Pegasus::CIMKeyBinding::STRING); 
+    CIMKeyBinding *cimbind3 =
+        new CIMKeyBinding(cimname1, "myKey", CIMKeyBinding::STRING); 
     Array<CIMKeyBinding> arrcimbind2(cimbind3,1);
     test03(arrcimbind1, arrcimbind2, cimbind3, cimbind1, cimbind2 );
     delete cimbind3;

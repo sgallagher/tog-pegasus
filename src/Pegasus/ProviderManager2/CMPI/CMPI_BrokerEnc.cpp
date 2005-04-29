@@ -46,6 +46,12 @@
 #if defined (CMPI_VER_85)
 #include <Pegasus/Common/MessageLoader.h>
 #endif
+#if defined(CMPI_VER_100)
+#include <Pegasus/Common/Logger.h>
+#include <Pegasus/Common/TraceComponents.h>
+#include <Pegasus/Common/Tracer.h>
+#endif
+
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLParser.h>
@@ -364,6 +370,15 @@ extern "C" {
 	  else if (obj->getFtab()==(void*)CMPI_String_Ftab) {
 		str=String((const char*)obj->getHdl());
 	  }
+	  else if (obj->getFtab()==(void*)CMPI_Args_Ftab || 
+			  obj->getFtab()==(void*)CMPI_ArgsOnStack_Ftab) 
+			  {
+			      const Array<CIMParamValue>* arg=(Array<CIMParamValue>*)obj->getHdl();
+				  for (int i=0,m=arg->size(); i < m; i++) {
+						  const CIMParamValue &p=(*arg)[i];
+				  		  str.append(p.getParameterName()+":"+p.getValue().toString()+"\n");
+				 }
+			  }
       else {
          sprintf(msg,"** Object not recognized (%p) **",o);
          if (rc) CMSetStatus(rc,CMPI_RC_ERR_FAILED);
@@ -583,15 +598,90 @@ extern "C" {
   CMPIStatus mbEncLogMessage 
        (const CMPIBroker*,int severity ,const char *id,const char *text,
 	const CMPIString *string) {
-  /* IBMLR: Have not yet implemented this */
-      CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED);
+
+	  if ( !id || !(text || string))
+			  CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+
+	  String logString = id;
+      Uint32 logSeverity = Logger::INFORMATION;
+
+
+	  logString.append(":");
+
+	  if (string)
+		{
+           logString.append( ( char*)CMGetCharsPtr(string,NULL));
+		}
+	  else
+	    {
+           logString.append( text );     
+		}
+    // There are no notion in CMPI spec about what 'severity' means.
+	// So we are going to try to map 
+	if (severity <= 1)
+			logSeverity = Logger::INFORMATION;
+	else if (severity == 2)
+			logSeverity = Logger::WARNING;
+	else if (severity == 3)
+			logSeverity = Logger::SEVERE;
+	else if (severity == 4)
+			logSeverity = Logger::FATAL;
+
+	Logger::put(Logger::STANDARD_LOG, id, logSeverity, logString); 
+    CMReturn ( CMPI_RC_OK);
   }
 
   CMPIStatus mbEncTracer      (const CMPIBroker*,int level,const char *component,const char *text,
 			      const CMPIString *string)
   {
-  /* IBMLR: Have not yet implemented this */
-      CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED);
+	if ( !component || !(text || string))
+		  CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+
+	String traceString = String::EMPTY;
+	Uint32 traceComponent = TRC_PROVIDERMANAGER;
+    Uint32 traceLevel = Tracer::LEVEL1;
+
+    // There are no notion in CMPI spec about what 'level' means.
+	// So we are going to try to map . We don't want to map to LEVEL1
+	// as it requires the PEG_METHOD_ENTER and PEG_METHOD_EXIT macros.
+	if (level <= 2)
+			traceLevel = Tracer::LEVEL2;
+	else if (level == 3)
+			traceLevel = Tracer::LEVEL3;
+	else if (level == 4)
+			traceLevel = Tracer::LEVEL4;
+
+	// Next is figuring if 'component' maps to the Pegasus types;
+	{
+		Uint32 i =0;
+		Uint32 m =sizeof(TRACE_COMPONENT_LIST)/sizeof(TRACE_COMPONENT_LIST[0]); 
+		for (; i < m; i++)
+		{
+			if (System::strcasecmp(component, TRACE_COMPONENT_LIST[i]) == 0)
+			{
+					traceComponent = i;
+					break;
+			}
+		}
+		// if not found, just use TRC_PROVIDERMANAGER and put the 
+		// 'component' in the traceString.
+    	if ((m = i) && (traceComponent == TRC_PROVIDERMANAGER))
+		{
+			traceString=String(component);
+			traceString.append(":");
+		}
+	}
+	if (string)
+	   {
+         traceString.append( ( char*)CMGetCharsPtr(string,NULL));
+	   }
+	else
+	   {
+         traceString.append( text );
+	   }
+
+	Tracer::trace(traceComponent, traceLevel, traceString.getCString()); 
+    CMReturn ( CMPI_RC_OK);
   }
 #endif
 

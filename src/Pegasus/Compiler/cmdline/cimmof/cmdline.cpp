@@ -103,13 +103,13 @@ help(ostream &os, int progtype) {
   {
       help.append("Usage: ").append("cimmof ");
   }
-  help.append( " [ -h | --help ]\n" );
+  help.append( " -h | --help\n" );
 
   if(progtype == 1)
       help.append("       cimmofl");
   else
       help.append("       cimmof ");
-  help.append(" [ --version ]\n");
+  help.append(" --version\n");
 
   if(progtype == 1)
       help.append("       cimmofl");
@@ -144,13 +144,13 @@ help(ostream &os, int progtype) {
       help.append("Usage: ").append("cimmofl");
   else
       help.append("Usage: ").append("cimmof ");
-  help.append( " [ -h | --help ]\n");
+  help.append( " -h | --help\n");
 
   if(progtype == 1)
       help.append("       cimmofl");
   else
       help.append("       cimmof ");
-  help.append(" [ --version ]\n");
+  help.append(" --version\n");
 
   if(progtype == 1)
       help.append("       cimmofl");

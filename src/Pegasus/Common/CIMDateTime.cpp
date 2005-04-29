@@ -1750,7 +1750,7 @@ Uint64 CIMDateTime::operator/(const CIMDateTime & cDT) const
 
     if (opt_num == 0) {
         MessageLoaderParms parmsDZ("Common.CIMDateTime.INVALID_OPERATION_DIV_ZERO_CDT",
-                             "Trying to divide a CIMDateTime objects by a zero value CIMDateTime object");
+                             "Trying to divide a CIMDateTime object by a zero value CIMDateTime object");
         throw Exception(parmsDZ);
     }
 

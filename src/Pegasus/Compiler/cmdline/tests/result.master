@@ -60,8 +60,8 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
 
  
 cimmofl -h
-Usage: cimmofl [ -h | --help ]
-       cimmofl [ --version ]
+Usage: cimmofl -h | --help
+       cimmofl --version
        cimmofl [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
                [ -n namespace | --namespace namespace ] [ --xml ]
                [ --trace ]
@@ -90,8 +90,8 @@ Warning: Use of cimmofl can corrupt the CIM Server Repository.
          cimmof is the recommended OpenPegasus MOF compiler.
  
 cimmofl --help
-Usage: cimmofl [ -h | --help ]
-       cimmofl [ --version ]
+Usage: cimmofl -h | --help
+       cimmofl --version
        cimmofl [ -w ] [-E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]
                [ -n namespace | --namespace namespace ] [ --xml ]
                [ --trace ]

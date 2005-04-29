@@ -122,7 +122,8 @@ PEGASUS_ADMIN_CMDS = \
    cimserver \
    cimuser \
    cimprovagt \
-   cimservera
+   cimservera \
+   repupgrade
 
 PEGASUS_USER_CMDS = \
    cimmof \

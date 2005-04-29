@@ -276,6 +276,12 @@ if [ $1 -eq 1 ]; then
        cp %PEGASUS_PEM_DIR/truststore-2048.pem %PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE
        chmod 444 %PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE
    fi
+   if [[ -d %PEGASUS_PREV_REPOSITORY_DIR ]]
+   then
+     # Running Repository Upgrade utility
+     %PEGASUS_SBIN_DIR/repupgrade %PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_REPOSITORY_DIR 2>>%PEGASUS_INSTALL_LOG
+   fi
+
 
    /usr/lib/lsb/install_initd /etc/init.d/tog-pegasus
 
@@ -496,6 +502,7 @@ fi
 %attr(500,root ,root) /opt/tog-pegasus/sbin/cimuser
 %attr(500,root ,root) /opt/tog-pegasus/sbin/cimprovagt
 %attr(500,root ,root) /opt/tog-pegasus/sbin/cimservera
+%attr(500,root ,root) /opt/tog-pegasus/sbin/repupgrade
 %attr(500,root ,root) /opt/tog-pegasus/sbin/init_repository
 %attr(500,root ,root) /opt/tog-pegasus/sbin/settogpath
 

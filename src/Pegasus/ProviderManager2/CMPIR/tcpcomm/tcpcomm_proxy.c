@@ -641,7 +641,7 @@ static int
 __provider_connect(provider_address * addr,
 		   char *provider,
 		   comm_ticket * ticket,
-		   char *function, CONST CMPIContext * ctx,
+		   const char *function, CONST CMPIContext * ctx,
 		   CONST CMPIObjectPath * cop)
 {
     int socket = open_connection(addr->dst_address,

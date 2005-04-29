@@ -1391,12 +1391,12 @@ not be valid."}
         Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX:string {
 
           "\n\n"
-           "Usage: cimmofl [ -h | --help ]\n"
-           "       cimmofl [ --version ]\n"
+           "Usage: cimmofl -h | --help\n"
+           "       cimmofl --version\n"
            "       cimmofl [ -w ] [ -uc ][ -aE | -aV | -aEV ] [ -I path ] \n"
            "               [ -n namespace | --namespace namespace ] \n"
            "               [ -R repositorydir | --CIMRepository repositorydir ] \n"
-	   "               [ -N repositoryname ] [ -M repositorymode] [ mof_file ... ] \n"
+           "               [ -N repositoryname ] [ -M repositorymode] [ mof_file ... ] \n"
            "Options :\n"
            "    -h, --help           - Display this help message.\n"
            "    --version            - Display CIM Server version.\n"
@@ -1423,8 +1423,8 @@ not be valid."}
         Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_OS400:string {
 
           "\n\n"
-           "Usage: cimmofl [ -h | --help ]\n"
-           "       cimmofl [ --version ] \n"              
+           "Usage: cimmofl -h | --help\n"
+           "       cimmofl --version\n"              
            "       cimmofl [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
            "               [ -n namespace | --namespace namespace ] [ --xml ]\n"
            "               [ --trace ] [ -q ] \n"
@@ -1460,8 +1460,8 @@ not be valid."}
         Compiler.cmdline.cimmofl.cmdline.MENU.STANDARD:string {
 
           "\n\n"
-           "Usage: cimmofl [ -h | --help ]\n"
-           "       cimmofl [ --version ] \n"
+           "Usage: cimmofl -h | --help\n"
+           "       cimmofl --version\n"
            "       cimmofl [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
            "               [ -n namespace | --namespace namespace ] [ --xml ]\n"
            "               [ --trace ] \n"
@@ -1501,8 +1501,8 @@ not be valid."}
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX:string {
 
           "\n\n"
-           "Usage: cimmof [ -h | --help ]\n"
-           "       cimmof [ --version ]\n"
+           "Usage: cimmof -h | --help\n"
+           "       cimmof --version\n"
 	       "       cimmof [ -w ] [ -uc ][ -aE | -aV | -aEV ] [ -I path ] \n"
            "              [ -n namespace | --namespace namespace ] [ mof_file ... ]\n"
            "Options :\n"
@@ -1528,8 +1528,8 @@ not be valid."}
         Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_OS400:string {
 
           "\n\n"
-           "Usage: cimmof [ -h | --help ]\n"
-	       "       cimmof [ --version ] \n"              
+           "Usage: cimmof -h | --help\n"
+	       "       cimmof --version\n"              
 	       "       cimmof [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
 	       "              [ -n namespace | --namespace namespace ] [ --xml ]\n"
 	       "              [ --trace ] [ -q ] mof_file...\n"
@@ -1561,8 +1561,8 @@ not be valid."}
         Compiler.cmdline.cimmof.cmdline.MENU.STANDARD:string {
 
           "\n\n"
-           "Usage: cimmof [ -h | --help ]\n"
-           "       cimmof [ --version ] \n"
+           "Usage: cimmof -h | --help\n"
+           "       cimmof --version\n"
            "       cimmof [ -w ] [ -E ] [ -uc ] [ -aE | -aV | -aEV ] [ -I path ]\n"
            "              [ -n namespace | --namespace namespace ] [ --xml ]\n"
            "              [ --trace ] [ mof_file... ]\n"

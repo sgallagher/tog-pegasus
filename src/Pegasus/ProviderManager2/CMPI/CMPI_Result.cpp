@@ -166,6 +166,37 @@ extern "C" {
       }
       CIMInstance& inst=*(CIMInstance*)(eInst->hdl);
       CMPI_Result *xRes=(CMPI_Result*)eRes;
+      // Check if a property filter has been set. If yes throw out
+      // all properties which are not found in the filter list.
+      char **listroot=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
+
+      if (listroot && *listroot)
+      {
+         int propertyCount = inst.getPropertyCount()-1;
+         for (int idx=propertyCount; idx >=0 ; idx--)
+         {
+            CIMConstProperty prop = inst.getProperty(idx);
+            String sName = prop.getName().getString();
+            char * name = strdup(sName.getCString());
+            char **list = listroot;
+            int found = false;
+            while (*list)
+            {
+               if (System::strcasecmp(name,*list)==0)
+               {
+                  found = true;
+                  break;
+               }
+               list++;
+            }
+            free(name);
+            if (!found)
+            {
+               inst.removeProperty(idx);
+            }
+         }
+      }
+
       res->deliver(inst);
       CMReturn(CMPI_RC_OK);
    }

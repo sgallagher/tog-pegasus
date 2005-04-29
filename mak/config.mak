@@ -76,9 +76,8 @@ MSG_ROOT = $(HOME_DIR)/msg
 # to localally control where the temporay small repository they 
 # build, use and then delete is located. Most of the time it is set to TMP_DIR.
 #
-ifndef REPOSITORY_DIR
+
 REPOSITORY_DIR = $(HOME_DIR)
-endif
 
 #
 # WARNING: The REPOSITORY_NAME varible is not used by all the test, 
@@ -86,9 +85,9 @@ endif
 # is that you can change the repository name and build it. But you 
 # cannot run the test without many of them failing
 #
-ifndef REPOSITORY_NAME
+
 REPOSITORY_NAME = repository
-endif
+
 
 REPOSITORY_ROOT = $(REPOSITORY_DIR)/$(REPOSITORY_NAME)
 
@@ -96,9 +95,23 @@ REPOSITORY_ROOT = $(REPOSITORY_DIR)/$(REPOSITORY_NAME)
 #       XML = XML format
 #       BIN = Binary format
 #
-ifndef REPOSITORY_MODE
-REPOSITORY_MODE = XML
+ifndef PEGASUS_REPOSITORY_MODE
+   ## set to default value
+   REPOSITORY_MODE = XML
+else 
+   ## validate assigned value
+   ifeq ($(PEGASUS_REPOSITORY_MODE),XML)
+       REPOSITORY_MODE = XML
+   else
+     ifeq ($(PEGASUS_REPOSITORY_MODE),BIN)
+      REPOSITORY_MODE = BIN
+     else
+      $(error PEGASUS_REPOSITORY_MODE ($(PEGASUS_REPOSITORY_MODE)) \
+		 is invalid. It must be set to either XML or BIN)
+     endif
+   endif
 endif
+
 
 ###########################################################################
 

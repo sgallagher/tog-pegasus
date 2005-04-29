@@ -400,53 +400,80 @@ int main(int argc, char** argv)
     {
       CIMRepository_Mode mode;
       CIMRepository_Mode modeother;
+      int mixed_mode;
 
       if (!strcmp(argv[1],"XML") )
 	{
 	  mode.flag = CIMRepository_Mode::NONE;
 	  modeother.flag = CIMRepository_Mode::BIN;
-	  if (verbose) cout << ProgName<< ": using XML mode repository" << endl;
+	  mixed_mode = 0;
+	  if (verbose) cout << ProgName<< ": Single test using XML mode repository" << endl;
 	}
-      else
+      else if (!strcmp(argv[1],"BIN") )
 	{
 	  mode.flag = CIMRepository_Mode::BIN;
 	  modeother.flag = CIMRepository_Mode::NONE;
-	  if (verbose) cout << ProgName<< ": using BIN mode repository" << endl;
+	  mixed_mode = 0;
+	  if (verbose) cout << ProgName<< ": Single test using BIN mode repository" << endl;
 	}
-
-#define MIXED_MODE
+      else if (!strcmp(argv[1],"XMLMIX") )
+	{
+	  mode.flag = CIMRepository_Mode::NONE;
+	  modeother.flag = CIMRepository_Mode::BIN;
+	  mixed_mode = 1;
+	  if (verbose) cout << ProgName<< ": Mixed test using XML mode repository first" << endl;
+	}
+      else if (!strcmp(argv[1],"BINMIX") )
+	{
+	  mode.flag = CIMRepository_Mode::BIN;
+	  modeother.flag = CIMRepository_Mode::NONE;
+	  mixed_mode = 1;
+	  if (verbose) cout << ProgName<< ": Mixed test using BIN mode repository first" << endl;
+	}
+      else
+	{
+	  cout << ProgName<< ": invalid argument: " << argv[1] << endl;
+	  return 0;
+	}
 
       TestOpenRepo(mode);
       TestInitRepo();
       TestCreateClass();
       TestEnumerateClass();
       TestCreateInstance1();
-#ifdef MIXED_MODE
-      TestCloseRepo();
-      TestOpenRepo(modeother);
-#endif
+      if (mixed_mode) 
+	{
+	  TestCloseRepo();
+	  TestOpenRepo(modeother);
+	}
+
       TestCreateInstance2();
 
-#ifdef MIXED_MODE
-      TestCloseRepo();
-      TestOpenRepo(mode);
-#endif
-      TestCreateInstance3();
-#ifdef MIXED_MODE
-      TestCloseRepo();
-      TestOpenRepo(modeother);
-#endif
-      TestCreateInstance4();
-#ifdef MIXED_MODE
-      TestCloseRepo();
-      TestOpenRepo(mode);
-#endif
-      TestCreateInstance5();
+      if (mixed_mode) 
+	{
+	  TestCloseRepo();
+	  TestOpenRepo(mode);
+	}
 
+      TestCreateInstance3();
+
+      if (mixed_mode) 
+	{
+	  TestCloseRepo();
+	  TestOpenRepo(modeother);
+	}
+      TestCreateInstance4();
+
+      if (mixed_mode) 
+	{
+	  TestCloseRepo();
+	  TestOpenRepo(mode);
+	}
+
+      TestCreateInstance5();
       TestEnumerateInstance(5);
       TestEnumerateInstances(5);      
       TestEnumerateInstancesForClass(5);      
-
       TestQualifiers();
 
     }

@@ -29,7 +29,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,42 +37,54 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-ProviderManagerModule::ProviderManagerModule(void)
+ProviderManagerModule::ProviderManagerModule()
+    : DynamicLibrary(),
+      _createProviderManager(0)
 {
 }
 
-ProviderManagerModule::ProviderManagerModule(const ProviderManagerModule & module) : DynamicLibrary(module)
+ProviderManagerModule::ProviderManagerModule(
+    const ProviderManagerModule& module)
+    : DynamicLibrary(module),
+      _createProviderManager(module._createProviderManager)
 {
 }
 
-ProviderManagerModule::ProviderManagerModule(const String & fileName) : DynamicLibrary(fileName)
+ProviderManagerModule::ProviderManagerModule(
+    const String& fileName)
+    : DynamicLibrary(fileName),
+      _createProviderManager(0)
 {
 }
 
-ProviderManagerModule::~ProviderManagerModule(void)
+ProviderManagerModule::~ProviderManagerModule()
 {
 }
 
-ProviderManagerModule & ProviderManagerModule::operator=(const ProviderManagerModule & module)
+ProviderManagerModule& ProviderManagerModule::operator=(
+    const ProviderManagerModule& module)
 {
-    if(this == &module)
+    if (this == &module)
     {
         return(*this);
     }
 
     DynamicLibrary::operator=(module);
 
+    _createProviderManager = module._createProviderManager;
+
     return(*this);
 }
 
-Boolean ProviderManagerModule::load(void)
+Boolean ProviderManagerModule::load()
 {
-    if(DynamicLibrary::load())
+    if (DynamicLibrary::load())
     {
         // export entry points
-        _createProviderManager = (CREATE_PROVIDER_MANAGER_FUNCTION)getSymbol("PegasusCreateProviderManager");
+        _createProviderManager = (CREATE_PROVIDER_MANAGER_FUNCTION)
+            getSymbol("PegasusCreateProviderManager");
 
-        if(_createProviderManager != 0)
+        if (_createProviderManager != 0)
         {
             return(true);
         }
@@ -83,13 +95,19 @@ Boolean ProviderManagerModule::load(void)
     return(false);
 }
 
-Boolean ProviderManagerModule::unload(void)
+Boolean ProviderManagerModule::unload()
 {
     return(DynamicLibrary::unload());
 }
 
-ProviderManager * ProviderManagerModule::getProviderManager(const String & s) const
+ProviderManager* ProviderManagerModule::getProviderManager(
+    const String& s) const
 {
+    if (!isLoaded())
+    {
+        return(0);
+    }
+
     return(_createProviderManager(s));
 }
 

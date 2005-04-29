@@ -26,6 +26,14 @@ DIRS = \
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \
 	CMPI/TestIndications \
-	CMPI/TestIndications/tests
+	CMPI/TestIndications/tests \
+	CMPI/TestMethod \
+	CMPI/TestMethod/tests
+
+ifdef PEGASUS_ENABLE_EXECQUERY
+DIRS += \
+	CMPI/TestInstance \
+	CMPI/TestInstance/tests
+endif
 endif
 include $(ROOT)/mak/recurse.mak

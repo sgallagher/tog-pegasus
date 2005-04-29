@@ -34,7 +34,7 @@
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2619, #2685,#3354 
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2619, #2685,#3354
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,6 +44,7 @@
 #include <Pegasus/Common/OperationContextInternal.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/ProviderManager2/OperationResponseHandler.h>
@@ -99,10 +100,38 @@ public:
         _interfaceName = interfaceName;
 
         _module = ProviderManagerModule(_physicalName);
-        _module.load();
+        Boolean moduleLoaded = _module.load();
 
-        _manager = _module.getProviderManager(_logicalName);
-        PEGASUS_ASSERT(_manager != 0);
+        if (moduleLoaded)
+        {
+            _manager = _module.getProviderManager(_logicalName);
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "ProviderManagerModule load failed.");
+        }
+
+        if (_manager == 0)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "Failed to load ProviderManager \"" + _physicalName + "\".");
+
+            Logger::put_l(
+                Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "ProviderManager.BasicProviderManagerRouter."
+                    "PROVIDERMANAGER_LOAD_FAILED",
+                "Failed to load the Provider Manager for interface type \"$0\""
+                    " from library \"$1\".",
+                _interfaceName, _physicalName);
+
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+                "ProviderManager.BasicProviderManagerRouter."
+                    "PROVIDERMANAGER_LOAD_FAILED",
+                "Failed to load the Provider Manager for interface type \"$0\""
+                    " from library \"$1\".",
+                _interfaceName, _physicalName));
+        }
 
         _manager->setIndicationCallback(indicationCallback);
 
@@ -215,21 +244,21 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
 
     if ((dynamic_cast<CIMOperationRequestMessage*>(request) != 0) ||
         (request->getType() == CIM_EXPORT_INDICATION_REQUEST_MESSAGE) ||
-	(request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
+        (request->getType() == CIM_INITIALIZE_PROVIDER_REQUEST_MESSAGE))
     {
         // Provider information is in OperationContext
         ProviderIdContainer pidc = (ProviderIdContainer)
             request->operationContext.get(ProviderIdContainer::NAME);
         providerModule = pidc.getModule();
-	remoteNameSpaceRequest=pidc.isRemoteNameSpace();
+        remoteNameSpaceRequest=pidc.isRemoteNameSpace();
     }
     else if (dynamic_cast<CIMIndicationRequestMessage*>(request) != 0)
     {
         // Provider information is in CIMIndicationRequestMessage
         CIMIndicationRequestMessage* indReq =
             dynamic_cast<CIMIndicationRequestMessage*>(request);
-		ProviderIdContainer pidc = indReq->operationContext.get(ProviderIdContainer::NAME); 
-        providerModule = pidc.getModule(); 
+        ProviderIdContainer pidc = indReq->operationContext.get(ProviderIdContainer::NAME);
+        providerModule = pidc.getModule();
     }
     else if (request->getType() == CIM_ENABLE_MODULE_REQUEST_MESSAGE)
     {
@@ -246,9 +275,9 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
         providerModule = dmReq->providerModule;
     }
     else if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
-             (request->getType() == 
+             (request->getType() ==
               CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE) ||
-	     (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
+             (request->getType() == CIM_NOTIFY_CONFIG_CHANGE_REQUEST_MESSAGE))
     {
         // This operation is not provider-specific
     }
@@ -267,12 +296,12 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     //
 
     if ((request->getType() == CIM_STOP_ALL_PROVIDERS_REQUEST_MESSAGE) ||
-        (request->getType() == 
+        (request->getType() ==
          CIM_SUBSCRIPTION_INIT_COMPLETE_REQUEST_MESSAGE))
     {
         _subscriptionInitComplete = true;
 
-        // Send CIMStopAllProvidersRequestMessage or 
+        // Send CIMStopAllProvidersRequestMessage or
         // CIMSubscriptionInitCompleteRequestMessage to all ProviderManagers
         ReadLock tableLock(_providerManagerTableLock);
         for (Uint32 i = 0, n = _providerManagerTable.size(); i < n; i++)
@@ -301,15 +330,35 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
             providerModule.findProperty("InterfaceType")).getValue();
         itValue.get(interfaceType);
 
-        // Look up the appropriate ProviderManager by InterfaceType
-        ProviderManager* pm = _lookupProviderManager(interfaceType);
-	if (remoteNameSpaceRequest && !pm->supportsRemoteNameSpaces()) {
-           CIMResponseMessage* resp = request->buildResponse();
-           resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-               "Remote Namespace operations not supported for interface type "+interfaceType);
-           response = resp;
-	}
-        else response = pm->processMessage(request);
+        ProviderManager* pm = 0;
+        Boolean gotError = false;
+        try
+        {
+            // Look up the appropriate ProviderManager by InterfaceType
+            pm = _lookupProviderManager(interfaceType);
+        }
+        catch (const CIMException& e)
+        {
+            CIMResponseMessage* cimResponse = request->buildResponse();
+            cimResponse->cimException = e;
+            response = cimResponse;
+            gotError = true;
+        }
+
+        if (remoteNameSpaceRequest && !pm->supportsRemoteNameSpaces())
+        {
+            CIMResponseMessage* resp = request->buildResponse();
+            resp->cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+                "Remote Namespace operations not supported for interface type "
+                    + interfaceType);
+            response = resp;
+            gotError = true;
+        }
+
+        if (!gotError)
+        {
+            response = pm->processMessage(request);
+        }
     }
 
     // preserve message key

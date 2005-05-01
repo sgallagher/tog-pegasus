@@ -12,7 +12,7 @@ include $(ROOT)/mak/program.mak
 
 tests: testxml testbin testbinmix testxmlmix
 	@ $(RMREPOSITORY) $(TMP_DIR)/repository
-	@ $ECHO) $(PROGRAM) +++++ all test passed
+	@ $(ECHO) $(PROGRAM) +++++ passed all test
 
 testxml:
 	@ $(RMREPOSITORY) $(TMP_DIR)/repository

@@ -34,6 +34,7 @@
 //                Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //                David Dillard, VERITAS Software Corp.
 //                    (david.dillard@veritas.com)
+//                Vijay Eli, IBM (vijay.eli@in.ibm.com) for bug#3425
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -170,16 +171,15 @@ void CIMListenerService::init()
 {
 	PEG_METHOD_ENTER(TRC_LISTENER, "CIMListenerService::init");
 
-  _monitor = new Monitor();
+  if(NULL == _monitor) _monitor = new Monitor();
 
 	//_dispatcher = new CIMListenerIndicationDispatcher();
 
-  _responseEncoder = new CIMExportResponseEncoder();
-  _requestDecoder = new CIMExportRequestDecoder(
-		_dispatcher,
-		_responseEncoder->getQueueId());
+  if(NULL == _responseEncoder) _responseEncoder = new CIMExportResponseEncoder();
+  if(NULL == _requestDecoder) _requestDecoder = new CIMExportRequestDecoder(
+                                      _dispatcher,_responseEncoder->getQueueId());
 
-  _acceptor = new HTTPAcceptor(
+  if(NULL == _acceptor) _acceptor = new HTTPAcceptor(
 		 _monitor,
 		 _requestDecoder,
 		 false,

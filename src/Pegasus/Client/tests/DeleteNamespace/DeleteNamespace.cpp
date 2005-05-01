@@ -484,7 +484,7 @@ int main(int argc, char** argv)
 
     // Set up number of test repetitions.  Will repeat entire test this number of times
     // Default is zero
-    String repeats;
+    // String repeats;
     Uint32 repeatTestCount = 0;
     /* ATTN: KS P0 Test and fix function added to Option Manager
     */

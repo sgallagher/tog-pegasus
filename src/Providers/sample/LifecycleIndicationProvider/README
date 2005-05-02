@@ -1,0 +1,12 @@
+Pegasus Lifecycle Indications
+=============================
+
+The Lifecycle Indication sample provider and test client are located in the 
+
+    src/Unsupported/LifecycleIndicationProvider
+    
+directory. Refer to the file
+
+    src/Unsupported/LifecycleIndicationProvider/readme.LifecycleIndications.htm
+    
+for more details on the Lifecycle Indications support.

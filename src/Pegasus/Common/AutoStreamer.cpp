@@ -36,7 +36,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include <iostream.h>
+#include <iostream>
 
 
 #include "ObjectStreamer.h"
@@ -106,7 +106,7 @@ void AutoStreamer::decode(const Array<char>& in, unsigned int pos, CIMInstance& 
    for (Uint16 i=0,m=_readerCount; i<m; i++) {
       if (_readers[i].marker==in[pos]) {
 #ifdef DEBUG
-	cout << "AutoStreamer:decode instance: pos = " << pos << "in[pos] = " ;
+    std::cout << "AutoStreamer:decode instance: pos = " << pos << "in[pos] = " ;
 	printf("0x'%02x%02x%02x%02x  0x'%02x%02x%02x%02x\n", 
                 in[pos], in[pos+1], in[pos+2], in[pos+3],
                 in[pos+4], in[pos+5], in[pos+6], in[pos+7]);

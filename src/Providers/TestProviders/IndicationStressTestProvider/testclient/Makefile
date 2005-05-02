@@ -6,15 +6,13 @@ include $(ROOT)/mak/config.mak
 
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 LIBRARIES = \
-     pegserver \
+     peglistener \
      pegclient \
-     pegrepository \
-     pegconfig \
      pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DINDICATION_DIR=\"$(DISPLAYCONSUMER_DIR)\"
+LOCAL_DEFINES = -DINDICATION_DIR=\"$(DISPLAYCONSUMER_DIR)\"
 
 PROGRAM = TestIndicationStressTest
 
@@ -29,16 +27,16 @@ poststarttests:
 	@$(PROGRAM) setup wql
 	@$(ECHO) "TestIndicationStressTest run 1"
 	@$(PROGRAM) run 1
-	@$(ECHO) "TestIndicationStressTest run 10"
-	@$(PROGRAM) run 10
+	@$(ECHO) "TestIndicationStressTest run 10 3"
+	@$(PROGRAM) run 10 3
 	@$(ECHO) "TestIndicationStressTest cleanup"
 	@$(PROGRAM) cleanup
 	@$(ECHO) "TestIndicationStressTest setup cim:cql"
 	@$(PROGRAM) setup cim:cql
 	@$(ECHO) "TestIndicationStressTest run 1"
 	@$(PROGRAM) run 1
-	@$(ECHO) "TestIndicationStressTest run 10"
-	@$(PROGRAM) run 10
+	@$(ECHO) "TestIndicationStressTest run 10 3"
+	@$(PROGRAM) run 10 3
 	@$(ECHO) "TestIndicationStressTest cleanup"
 	@$(PROGRAM) cleanup
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"

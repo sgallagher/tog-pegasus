@@ -40,7 +40,7 @@
 //         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
 //         David Dillard, VERITAS Software Corp.
 //             (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, #3424
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -261,7 +261,7 @@ WbemExecCommand::WbemExecCommand ()
     usage.append (LONG_HELP);
     usage.append (" ] [ --");
     usage.append (LONG_VERSION);
-    usage.append (" ]\n                < inputfilepath >\n");
+    usage.append (" ]\n                [ inputfilepath ]\n");
 
     usage.append("Options : \n");
     usage.append("    -h         - Connect to CIM Server on specified hostname\n");

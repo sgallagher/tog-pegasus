@@ -27,16 +27,16 @@ poststarttests:
 	@$(PROGRAM) setup wql
 	@$(ECHO) "TestIndicationStressTest run 1"
 	@$(PROGRAM) run 1
-	@$(ECHO) "TestIndicationStressTest run 10 3"
-	@$(PROGRAM) run 10 3
+	@$(ECHO) "TestIndicationStressTest run 10 1"
+	@$(PROGRAM) run 10 1
 	@$(ECHO) "TestIndicationStressTest cleanup"
 	@$(PROGRAM) cleanup
 	@$(ECHO) "TestIndicationStressTest setup cim:cql"
 	@$(PROGRAM) setup cim:cql
 	@$(ECHO) "TestIndicationStressTest run 1"
 	@$(PROGRAM) run 1
-	@$(ECHO) "TestIndicationStressTest run 10 3"
-	@$(PROGRAM) run 10 3
+	@$(ECHO) "TestIndicationStressTest run 10 1"
+	@$(PROGRAM) run 10 1
 	@$(ECHO) "TestIndicationStressTest cleanup"
 	@$(PROGRAM) cleanup
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"

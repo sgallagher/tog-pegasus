@@ -35,9 +35,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifdef DEBUG
 #include <stdio.h>
 #include <iostream>
-
+#endif
 
 #include "ObjectStreamer.h"
 

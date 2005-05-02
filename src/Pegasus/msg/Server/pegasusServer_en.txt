@@ -3973,9 +3973,10 @@ CIM server listening on HTTPS port {0}."}
         * @note  PGS12416:
         *    Substitution {0} is the error code number
         *    Substitution {1} is the symbol name
-    	*    Do not translate QUTL/QOSSL
+        *    Substitution {2} is the service program name
+    	*    Do not translate OpenSSL
         */
-        Common.SSLWrapperOS400.SYM_ERR:string {"PGS12416:  The error code {0} was received while loading symbol {1} from the OpenSSL service program QUTL/QOSSL."}
+        Common.SSLWrapperOS400.SYM_ERR:string {"PGS12416:  The error code {0} was received while loading symbol {1} from the OpenSSL service program {2}."}
 
         /**
         * @note  PGS12417:
@@ -3992,8 +3993,10 @@ CIM server listening on HTTPS port {0}."}
         /**
         * @note  PGS12419:
         *    Substitution {0} is the error code number
+        *    Substitution {1} is the name of the service program
+        *    Do not translate OpenSSL
         */
-        Common.SSLWrapperOS400.ACT_ERR:string {"PGS12419: The error {0} was received when activating the OpenSSL QUTL/QOSSL *SRVPGM."}
+        Common.SSLWrapperOS400.ACT_ERR:string {"PGS12419: The error {0} was received when activating the OpenSSL service program {1}."}
 
         /**
         * @note  PGS12420:

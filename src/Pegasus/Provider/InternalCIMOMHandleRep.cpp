@@ -278,6 +278,7 @@ void InternalCIMOMHandleRep::handleEnqueue(Message* message)
     case CIM_REFERENCE_NAMES_RESPONSE_MESSAGE:
     case CIM_GET_PROPERTY_RESPONSE_MESSAGE:
     case CIM_SET_PROPERTY_RESPONSE_MESSAGE:
+    case CIM_INVOKE_METHOD_RESPONSE_MESSAGE:
         try
         {
             _response.insert_last_wait(message);
@@ -285,15 +286,15 @@ void InternalCIMOMHandleRep::handleEnqueue(Message* message)
         }
         catch (...)
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3, "IPC Exception");
+            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL2, "IPC Exception");
             delete message;
         }
         break;
 
     default:
         {
-            PEG_TRACE_STRING(TRC_CIMOM_HANDLE, Tracer::LEVEL3,
-                "unexpected message");
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Error: unexpected message type");
             delete message;
         }
     }
@@ -1944,6 +1945,7 @@ CIMValue InternalCIMOMHandleRep::invokeMethod(
     }
 
     CIMValue value = response->retValue;
+    outParameters = response->outParameters;
 
     delete response;
     PEG_METHOD_EXIT();

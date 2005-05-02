@@ -1,0 +1,18 @@
+[Version ("2.5.0")]
+class Test_MethodProviderClass
+{
+    [key]
+    string Id;
+
+    uint32 Test1(
+        [in] uint32 InParam1,
+        [in] uint32 InParam2,
+        [out] uint32 OutParam1,
+        [out] uint32 OutParam2);
+
+    uint32 Test2(
+        [in] uint32 InParam1,
+        [in] uint32 InParam2,
+        [out] uint32 OutParam1,
+        [out] uint32 OutParam2);
+};

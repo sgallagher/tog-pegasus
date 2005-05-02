@@ -1,0 +1,31 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Test provider for extrinsic method support";
+    Caption = "Pegasus Method Test Provider Module";
+    Name = "MethodTestProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.5.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.5.0";
+    Location = "MethodTestProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "MethodTestProviderModule";
+    Name = "MethodTestProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "MethodTestProviderModule";
+    ProviderName = "MethodTestProvider";
+    CapabilityID = "MethodTestProviderCapability1";
+    ClassName = "Test_MethodProviderClass";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 5 };
+    SupportedProperties = NULL;
+    SupportedMethods = { "Test1", "Test2" };
+};

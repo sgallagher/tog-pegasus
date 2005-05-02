@@ -17,6 +17,8 @@ DIRS = \
 	IndicationStressTestProvider/testclient \
 	InstanceProvider \
 	InstanceProvider/testclient \
+	MethodTestProvider \
+	MethodTestProvider/testclient \
 	MCCA_TestAssocProvider \
 	PG_TestPropertyTypes \
 	ProcessIndicationProvider \

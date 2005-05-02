@@ -814,7 +814,7 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
 static void TestAssociationOperations(CIMClient* client, Boolean
                      activeTest, Boolean verboseTest, String uniqueID)
 {
-    CIMNamespaceName nameSpace = "root/sampleprovider";
+    CIMNamespaceName nameSpace = "test/TestProvider";
     // If the sample provider class is loaded, this function tests the
     // association functions against the FamilyProvider
     Boolean runTest = true;

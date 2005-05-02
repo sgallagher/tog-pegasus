@@ -621,11 +621,27 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         elapsedTime.stop();
 
         // clean up
-        for(Uint32 i=0; i< clientConnections.size(); i++){
-            if(clientConnections[i]) delete clientConnections[i];
+        for(Uint32 i=0; i< clientConnections.size(); i++)
+        {
+            if(clientConnections[i]) 
+                delete clientConnections[i];
         }
-        for(Uint32 i=0; i < clientThreads.size(); i++){
-            if(clientThreads[i]) delete clientThreads[i];
+        for(Uint32 i=0; i < clientThreads.size(); i++)
+        {
+            if(clientThreads[i]) 
+                delete clientThreads[i];
+        }
+
+        //
+        //  Allow time for the indication to be received and forwarded
+        //  Wait up to 30 seconds, in 5 second intervals.
+        //
+        for (Uint32 i = 1; i <= 6; i++)
+        {
+            System::sleep (5);
+            if ((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value())
+                break;
+            cout << "      sleeping " << i*5 << " more secs..." << endl;
         }
 
         cout << "+++++ Stopping the listener"  << endl;

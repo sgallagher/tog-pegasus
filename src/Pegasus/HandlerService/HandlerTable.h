@@ -29,7 +29,7 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By:
+// Modified By: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,9 +66,9 @@ public:
 
     HandlerTable();
 
-    CIMHandler* lookupHandler(const String& handlerId);
+    CIMHandler* getHandler(const String& handlerId,
+			   CIMRepository* repository);
 
-    CIMHandler* loadHandler(const String& handlerId);
 
 private:
 
@@ -79,6 +79,12 @@ private:
     };
 
     Array<Entry> _handlers;
+
+    CIMHandler* _lookupHandler(const String& handlerId);
+
+    CIMHandler* _loadHandler(const String& handlerId);
+
+    ReadWriteSem _handlerTableLock;
 
 public:
 

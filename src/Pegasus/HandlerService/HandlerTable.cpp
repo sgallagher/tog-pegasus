@@ -44,6 +44,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include "HandlerTable.h"
 
+PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 HandlerTable::HandlerTable()
@@ -51,7 +52,36 @@ HandlerTable::HandlerTable()
 
 }
 
-CIMHandler* HandlerTable::lookupHandler(const String& handlerId)
+CIMHandler* HandlerTable::getHandler(
+    const String& handlerId,
+    CIMRepository* repository)
+{
+    CIMHandler * handler;
+    {
+        ReadLock lock(_handlerTableLock);
+        handler = _lookupHandler(handlerId);
+	if (handler)
+        {
+            return (handler);
+        }
+    }
+
+    {
+        WriteLock lock(_handlerTableLock);
+	handler = _lookupHandler(handlerId);
+        // Note: Lock handler table until handler initialize is done.
+	// This is ok for handler since the initialization is simple.
+	if (!handler)
+        {
+            handler = _loadHandler(handlerId);
+            handler->initialize(repository);
+        }
+
+        return (handler);
+    }
+}
+
+CIMHandler* HandlerTable::_lookupHandler(const String& handlerId)
 {
     for (Uint32 i = 0, n = _handlers.size(); i < n; i++)
 	if (String::equal(_handlers[i].handlerId, handlerId))
@@ -62,7 +92,7 @@ CIMHandler* HandlerTable::lookupHandler(const String& handlerId)
 
 typedef CIMHandler* (*CreateHandlerFunc)();
 
-CIMHandler* HandlerTable::loadHandler(const String& handlerId)
+CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 {
 #if defined (PEGASUS_OS_VMS)
     String fileName = FileSystem::buildLibraryFileName(handlerId);
@@ -101,19 +131,23 @@ CIMHandler* HandlerTable::loadHandler(const String& handlerId)
     CreateHandlerFunc func = (CreateHandlerFunc)System::loadDynamicSymbol(
 	libraryHandle, functionName.getCString());
 
+
     if (!func)
+    {
 	throw DynamicLookupFailed(functionName);
+    }
 
     // Create the handler:
 
     CIMHandler* handler = func();
 
     if (!handler)
+    {
 	throw CreateHandlerReturnedNull(
 	    fileName, 
 	    functionName);
-
-    if (handler)
+    }
+    else
     {
 	Entry entry;
 	entry.handlerId = handlerId;

@@ -383,12 +383,12 @@ void IndicationHandlerService::_loadHandler(
     CIMException & cimException)
 {
     CIMName className = request->handlerInstance.getClassName();
-    AutoPtr<CIMHandler> handlerLib(_lookupHandlerForClass(className));
-
-    if (handlerLib.get())
+    try
     {
-	try
-	{
+        AutoPtr<CIMHandler> handlerLib(_lookupHandlerForClass(className));
+
+        if (handlerLib.get())
+        {
 	    ContentLanguages langs = 
                 ((ContentLanguageListContainer)request->operationContext.
                 get(ContentLanguageListContainer::NAME)).getLanguages();
@@ -400,21 +400,27 @@ void IndicationHandlerService::_loadHandler(
                 request->handlerInstance,
                 request->subscriptionInstance,
                 langs);
-	}
-	catch(CIMException& e)
-	{
-            cimException =
-                PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
-	}
-    }
-    else
-    {
-        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-            MessageLoaderParms("HandlerService."
+        }
+        else
+        {
+            cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+                MessageLoaderParms("HandlerService."
                 "IndicationHandlerService.FAILED_TO_LOAD",
                 "Failed to load Handler"));
+        }
+
+        handlerLib.release();
     }
-    handlerLib.release();
+    catch (Exception& e)
+    {
+        cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch (...)
+    {
+        cimException =
+            PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Exception: Unknown");
+    }
 }
 
 CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
@@ -449,16 +455,7 @@ CIMHandler* IndicationHandlerService::_lookupHandlerForClass(
    else
        return 0;
 
-   CIMHandler* handler = _handlerTable.lookupHandler(handlerId);
-   if (!handler)
-   {
-      handler = _handlerTable.loadHandler(handlerId);
-
-      if (!handler)
-          throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
-
-      handler->initialize(_repository);
-   }
+   CIMHandler* handler = _handlerTable.getHandler(handlerId, _repository);
 
    return handler;
 }

@@ -57,6 +57,8 @@
 //
 // Modified By: Heather Sterling, IBM (hsterl@us.ibm.com) - PEP#222
 //
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3452
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
@@ -1018,7 +1020,8 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
             portNumberHttps = strtol(portString, &end, 10);
             if(!(end != 0 && *end == '\0'))
             {
-                PEGASUS_STD(cerr) << "Bad HTTPS Port Value" << PEGASUS_STD(endl);
+                InvalidPropertyValue e("httpsPort", httpsPort);
+                cerr << e.getMessage() << endl;
                 exit(1);
             }
         }
@@ -1044,7 +1047,8 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
             portNumberHttp = strtol(portString, &end, 10);
             if(!(end != 0 && *end == '\0'))
             {
-                PEGASUS_STD(cerr) << "Bad HTTP Port Value" << PEGASUS_STD(endl);
+                InvalidPropertyValue e("httpPort", httpPort);
+                cerr << e.getMessage() << endl;
                 exit(1);
             }
         }

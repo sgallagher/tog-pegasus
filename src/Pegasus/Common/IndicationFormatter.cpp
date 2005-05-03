@@ -1650,9 +1650,9 @@ Boolean IndicationFormatter::_canLocalize(
         String country = elements[0].getCountry();
         String variant = elements[0].getVariant();
 
-        locale = Locale::Locale((const char *) language.getCString(),
-				(const char *) country.getCString(),
-				(const char *) variant.getCString());
+        locale = Locale((const char *) language.getCString(),
+			(const char *) country.getCString(),
+			(const char *) variant.getCString());
 
         // the locale is bogus state
         if (locale.isBogus())

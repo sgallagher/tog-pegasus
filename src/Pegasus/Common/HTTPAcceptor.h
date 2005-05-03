@@ -70,7 +70,9 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 	  only for local connections.  If true, the portNumber argument is
 	  ignored.
 	  @param portNumber Specifies which port number this acceptor is to
-	  listen on.
+	  listen on.  If this value is 0 then a port is automatically selected
+	  by bind().  In this case, the actual port number used can be retrieved
+	  using getPortNumber().
 	  @param sslcontext If null, this acceptor does not create SSL
 	  connections.  If non-null, the argument specifies an SSL context to
 	  use for connections established by this acceptor.
@@ -121,7 +123,12 @@ class PEGASUS_COMMON_LINKAGE HTTPAcceptor : public MessageQueue
 
       /** Returns the number of outstanding requests
        */
-      Uint32 getOutstandingRequestCount();
+      Uint32 getOutstandingRequestCount() const;
+
+      /** Returns the port number used for the connection.  If the number
+          is 0 that means that the socket is not bound.
+      */
+      Uint32 getPortNumber() const;
 
    private:
 

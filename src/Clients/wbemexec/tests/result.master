@@ -23,7 +23,7 @@ wbemexec -p 5988 -v 1.1 -m M-POST -t 10000 -u guest -w guest ./cimrequest.xml
 Usage: wbemexec [ -h hostname ] [ -p portnumber ] [ -v httpversion ]
                 [ -m httpmethod ] [ -t timeout ] [ -u username ]
                 [ -w password ] [ -s ] [ --help ] [ --version ]
-                < inputfilepath >
+                [ inputfilepath ]
 Options : 
     -h         - Connect to CIM Server on specified hostname
     --help     - Display this help message

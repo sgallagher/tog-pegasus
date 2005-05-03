@@ -81,6 +81,27 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+//
+// Determine the correct type to use for the length passed to getsockname().
+// The default is to use the 'socklen_t'.
+//
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_OS400)
+#define PEGASUS_SOCKLEN_T   int
+#endif
+
+#if defined(PEGASUS_OS_HPUX) && !defined(_XOPEN_SOURCE_EXTENDED)
+#define PEGASUS_SOCKLEN_T   int
+#endif
+
+#ifdef PEGASUS_OS_VMS
+#define PEGASUS_SOCKLEN_T   unsigned
+#endif
+
+#ifndef PEGASUS_SOCKLEN_T
+#define PEGASUS_SOCKLEN_T   socklen_t
+#endif
+
 static int MAX_CONNECTION_QUEUE_LENGTH = -1;
 
 
@@ -425,7 +446,7 @@ void HTTPAcceptor::_bind()
    if ( _portNumber == 0 )
    {
       sockaddr_in buf;
-      int bufSize = sizeof(buf);
+      PEGASUS_SOCKLEN_T bufSize = sizeof(buf);
       if ( getsockname(_rep->socket, reinterpret_cast<sockaddr *>(&buf), &bufSize) == 0 )
       {
           _portNumber = ntohs(buf.sin_port);

@@ -72,7 +72,6 @@ void MethodTestProvider::invokeMethod(
 
     if (methodName.equal("test1"))
     {
-cout << "In test1" << endl;
         CIMValue returnValue;
         Array<CIMParamValue> inParams;
         Array<CIMParamValue> outParams;
@@ -136,7 +135,6 @@ cout << "In test1" << endl;
     }
     else if (methodName.equal("test2"))
     {
-cout << "In test2" << endl;
         if (inParameters.size() != 2)
         {
             throw CIMOperationFailedException("Incorrect in parameters");

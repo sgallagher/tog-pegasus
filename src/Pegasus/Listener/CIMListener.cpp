@@ -84,7 +84,7 @@ public:
 
 	/** Return true if the server has shutdown, false otherwise.
 	*/
-	Boolean terminated() { return _dieNow; };
+	Boolean terminated() const { return _dieNow; };
 
 	/** Call to resume the sever.
 	*/
@@ -101,17 +101,21 @@ public:
 	 */
 	CIMListenerIndicationDispatcher* getIndicationDispatcher() const;
 
-  /** Returns the indication listener dispatcher
+	/** Returns the indication listener dispatcher
 	 */
 	void setIndicationDispatcher(CIMListenerIndicationDispatcher* dispatcher);
+
+	/** Returns the port number being used.
+	 */
+	Uint32 getPortNumber() const;
 
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _listener_routine(void *param);
 
 private:
-	Uint32			_portNumber;
+	Uint32 _portNumber;
 	SSLContext* _sslContext;
-	Monitor*				_monitor;
-  HTTPAcceptor*   _acceptor;
+	Monitor* _monitor;
+	HTTPAcceptor* _acceptor;
 
   Boolean					_dieNow;
 
@@ -191,6 +195,7 @@ void CIMListenerService::init()
 
   PEG_METHOD_EXIT();
 }
+
 void CIMListenerService::bind()
 {
   if(_acceptor!=NULL)
@@ -292,9 +297,23 @@ CIMListenerIndicationDispatcher* CIMListenerService::getIndicationDispatcher() c
 {
     return _dispatcher;
 }
+
 void CIMListenerService::setIndicationDispatcher(CIMListenerIndicationDispatcher* dispatcher)
 {
     _dispatcher = dispatcher;
+}
+
+Uint32 CIMListenerService::getPortNumber() const
+{
+
+    Uint32 portNumber = _portNumber;
+
+    if (( portNumber == 0 ) && ( _acceptor != 0 ))
+    {
+        portNumber = _acceptor->getPortNumber();
+    }
+
+    return(portNumber);
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine(void *param)
@@ -382,7 +401,15 @@ CIMListenerRep::~CIMListenerRep()
 
 Uint32 CIMListenerRep::getPortNumber() const
 {
-    return _portNumber;
+    Uint32 portNumber;
+
+    if ( _svc == 0 )
+    {
+        portNumber = _portNumber;
+    }
+    else portNumber = _svc->getPortNumber();
+
+    return portNumber;
 }
 
 SSLContext* CIMListenerRep::getSSLContext() const
@@ -446,7 +473,7 @@ void CIMListenerRep::stop()
     {
       _listener_sem->time_wait(3000);
     }
-    catch (TimeOut &)
+    catch (const TimeOut &)
     {
       // No need to do anything, the thread pool will be deleted below
       // to cancel the _listener_routine thread if it is still running.

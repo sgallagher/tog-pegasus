@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,15 +30,17 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By:
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Dave Rosckes (rosckes@us.ibm.com)
-//         Denise Eckstein (denise.eckstein@hp.com)
-//         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
-//         Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2065
+//          Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//          Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//          Dave Rosckes (rosckes@us.ibm.com)
+//          Denise Eckstein (denise.eckstein@hp.com)
+//          Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//          Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
+//          Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//          Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2065
+//          David Dillard, VERITAS Software Corp.
+//              (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +103,7 @@ public:
 #else
             PEGASUS_ASSERT(false);
 #endif
-        }  
+        }
         else
         {
             address = reinterpret_cast<struct sockaddr*>(new struct sockaddr_in);
@@ -119,7 +121,7 @@ public:
    int address_size;
 #endif
       Mutex _connection_mut;
-      
+
       Sint32 socket;
       Array<HTTPConnection*> connections;
 };
@@ -149,7 +151,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
      _sslContextObjectLock(sslContextObjectLock)
 {
    Socket::initializeInterface();
- 
+
    /*
         Platforms interpret the value of MAX_CONNECTION_QUEUE_LENGTH differently.  Some platforms interpret
         the value literally, while others multiply a fudge factor. When the server is under
@@ -173,7 +175,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
 #endif
     if(!env){
         MAX_CONNECTION_QUEUE_LENGTH = 15;
-    }else{  
+    }else{
         char *end = NULL;
         MAX_CONNECTION_QUEUE_LENGTH = strtol(env, &end, 10);
         if(*end)
@@ -183,7 +185,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
    }
 */
    MAX_CONNECTION_QUEUE_LENGTH = 15;
-    
+
 }
 
 HTTPAcceptor::~HTTPAcceptor()
@@ -197,13 +199,13 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 {
    if (! message)
       return;
-   
+
    switch (message->getType())
    {
       case SOCKET_MESSAGE:
       {
      SocketMessage* socketMessage = (SocketMessage*)message;
-     
+
      // If this is a connection request:
 
      if (socketMessage->socket == _rep->socket &&
@@ -223,14 +225,14 @@ void HTTPAcceptor::handleEnqueue(Message *message)
 
       case CLOSE_CONNECTION_MESSAGE:
       {
-     CloseConnectionMessage* closeConnectionMessage 
+     CloseConnectionMessage* closeConnectionMessage
         = (CloseConnectionMessage*)message;
 
      AutoMutex autoMut(_rep->_connection_mut);
-     
+
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
-        HTTPConnection* connection = _rep->connections[i];  
+        HTTPConnection* connection = _rep->connections[i];
         Sint32 socket = connection->getSocket();
 
         if (socket == closeConnectionMessage->socket)
@@ -241,7 +243,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
            break;
         }
      }
-     
+
      break;
       }
 
@@ -266,7 +268,7 @@ void HTTPAcceptor::handleEnqueue()
            "HTTPAcceptor::handleEnqueue(): No message on queue.");
       return;
    }
-   
+
    handleEnqueue(message);
 
 }
@@ -275,7 +277,7 @@ void HTTPAcceptor::bind()
 {
    if (_rep){
     //l10n
-      //throw BindFailedException("HTTPAcceptor already bound");  
+      //throw BindFailedException("HTTPAcceptor already bound");
 
       MessageLoaderParms parms("Common.HTTPAcceptor.ALREADY_BOUND",
                    "HTTPAcceptor already bound");
@@ -331,7 +333,7 @@ void HTTPAcceptor::_bind()
    }
 
    // Create socket:
-    
+
    if (_localConnection)
    {
        _rep->socket = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -356,7 +358,7 @@ void HTTPAcceptor::_bind()
 
 
 // set the close-on-exec bit for this file handle.
-// any unix that forks needs this bit set. 
+// any unix that forks needs this bit set.
 #if !defined PEGASUS_PLATFORM_WIN32_IX86_MSVC && !defined(PEGASUS_OS_VMS)
    int sock_flags;
  if( (sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
@@ -373,7 +375,7 @@ void HTTPAcceptor::_bind()
                   "HTTPAcceptor::_bind: fcntl(F_SETFD) failed");
       }
    }
-#endif 
+#endif
 
 
    //
@@ -398,8 +400,10 @@ void HTTPAcceptor::_bind()
       throw BindFailedException(parms);
    }
 
-   // Bind socket to port:
 
+   //
+   // Bind socket to port:
+   //
    if (::bind(_rep->socket, _rep->address, _rep->address_size) < 0)
    {
       Socket::close(_rep->socket);
@@ -414,14 +418,29 @@ void HTTPAcceptor::_bind()
       throw BindFailedException(parms);
    }
 
+
+   //
+   // Get the actual port value used if the caller specified a port value of 0.
+   //
+   if ( _portNumber == 0 )
+   {
+      sockaddr_in buf;
+      int bufSize = sizeof(buf);
+      if ( getsockname(_rep->socket, reinterpret_cast<sockaddr *>(&buf), &bufSize) == 0 )
+      {
+          _portNumber = ntohs(buf.sin_port);
+      }
+   }
+
+
    //
    //  Change permissions on Linux local domain socket to allow writes by others.
    //
 #if !defined(PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET) && defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
    if (_localConnection)
    {
-     if (::chmod( PEGASUS_LOCAL_DOMAIN_SOCKET_PATH, 
-                  S_IRUSR | S_IWUSR | S_IXUSR | 
+     if (::chmod( PEGASUS_LOCAL_DOMAIN_SOCKET_PATH,
+                  S_IRUSR | S_IWUSR | S_IXUSR |
                   S_IRGRP | S_IWGRP | S_IXGRP |
                   S_IROTH | S_IWOTH | S_IXOTH ) < 0 )
      {
@@ -462,7 +481,7 @@ void HTTPAcceptor::_bind()
    if ( -1 == ( _entry_index = _monitor->solicitSocketMessages(
       _rep->socket,
       SocketMessage::READ | SocketMessage::EXCEPTION,
-      getQueueId(), 
+      getQueueId(),
       Monitor::ACCEPTOR)))
    {
       Socket::close(_rep->socket);
@@ -520,24 +539,34 @@ void HTTPAcceptor::reopenConnectionSocket()
 /**
    getOutstandingRequestCount - returns the number of outstanding requests.
 */
-Uint32 HTTPAcceptor::getOutstandingRequestCount()
+Uint32 HTTPAcceptor::getOutstandingRequestCount() const
 {
    Uint32 count = 0;
-   
+
    AutoMutex autoMut(_rep->_connection_mut);
    if (_rep->connections.size() > 0)
    {
-      HTTPConnection* connection = _rep->connections[0];    
+      HTTPConnection* connection = _rep->connections[0];
       count = connection->getRequestCount();
    }
-   
+
    return count;
+}
+
+
+/**
+    getPortNumber - returns the port number used for the connection
+*/
+Uint32 HTTPAcceptor::getPortNumber() const
+{
+    return _portNumber;
 }
 
 void HTTPAcceptor::unbind()
 {
    if (_rep)
    {
+      _portNumber = 0;
       Socket::close(_rep->socket);
 
       if (_localConnection)
@@ -569,7 +598,7 @@ void HTTPAcceptor::destroyConnections()
    AutoMutex autoMut(_rep->_connection_mut);
    for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
    {
-      HTTPConnection* connection = _rep->connections[i];    
+      HTTPConnection* connection = _rep->connections[i];
       Sint32 socket = connection->getSocket();
 
       // Unsolicit SocketMessages:
@@ -583,7 +612,7 @@ void HTTPAcceptor::destroyConnections()
    }
 
    _rep->connections.clear();
-   
+
 }
 
 void HTTPAcceptor::_acceptConnection()
@@ -637,7 +666,7 @@ void HTTPAcceptor::_acceptConnection()
       return;
    }
 
-// set the close on exec flag 
+// set the close on exec flag
 #if !defined PEGASUS_PLATFORM_WIN32_IX86_MSVC && !defined(PEGASUS_OS_VMS)
    int sock_flags;
  if( (sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
@@ -654,7 +683,7 @@ void HTTPAcceptor::_acceptConnection()
                         "HTTPAcceptor: fcntl(F_SETFD) failed");
       }
    }
-#endif 
+#endif
 
 
    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
@@ -670,7 +699,7 @@ void HTTPAcceptor::_acceptConnection()
    if (_sslcontext)
    {
        //
-       // For SSL connections, obtain read lock to SSLContext object before 
+       // For SSL connections, obtain read lock to SSLContext object before
        // calling the accept() method of MP_Socket.
        //
        ReadLock rlock(*_sslContextObjectLock);
@@ -681,7 +710,7 @@ void HTTPAcceptor::_acceptConnection()
        retVal = mp_socket->accept();
    }
 
-   if (retVal < 0) 
+   if (retVal < 0)
    {
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: SSL_accept() failed");
@@ -689,12 +718,12 @@ void HTTPAcceptor::_acceptConnection()
        return;
    }
 
-   HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket, 
+   HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket,
        this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
 
    // Solicit events on this new connection's socket:
    int index;
-   
+
    if (-1 ==  (index = _monitor->solicitSocketMessages(
       connection->getSocket(),
       SocketMessage::READ | SocketMessage::EXCEPTION,
@@ -713,7 +742,6 @@ void HTTPAcceptor::_acceptConnection()
    connection->_entry_index = index;
    AutoMutex autoMut(_rep->_connection_mut);
    _rep->connections.append(connection);
-   
 }
 
 PEGASUS_NAMESPACE_END

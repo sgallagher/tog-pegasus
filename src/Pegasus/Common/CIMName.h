@@ -177,6 +177,10 @@ PEGASUS_COMMON_LINKAGE Boolean operator==(
     const CIMName& name1,
     const CIMName& name2);
 
+PEGASUS_COMMON_LINKAGE Boolean operator!=(
+    const CIMName& name1,
+    const CIMName& name2);
+
 #define PEGASUS_ARRAY_T CIMName
 # include "ArrayInter.h"
 #undef PEGASUS_ARRAY_T
@@ -313,6 +317,10 @@ private:
 };
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(
+    const CIMNamespaceName& name1,
+    const CIMNamespaceName& name2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator!=(
     const CIMNamespaceName& name1,
     const CIMNamespaceName& name2);
 

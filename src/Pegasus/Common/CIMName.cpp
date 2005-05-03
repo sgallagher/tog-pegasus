@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,7 +31,9 @@
 //
 // Modified By: Roger Kumpf, Hewlett Packard Company (roger_kumpf@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -151,6 +153,11 @@ Boolean CIMName::equal(const CIMName& name) const
 Boolean operator==(const CIMName& name1, const CIMName& name2)
 {
     return name1.equal(name2);
+}
+
+Boolean operator!=(const CIMName& name1, const CIMName& name2)
+{
+    return !name1.equal(name2);
 }
 
 
@@ -290,6 +297,11 @@ Boolean CIMNamespaceName::equal(const CIMNamespaceName& name) const
 Boolean operator==(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
 {
     return name1.equal(name2);
+}
+
+Boolean operator!=(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
+{
+    return !name1.equal(name2);
 }
 
 PEGASUS_NAMESPACE_END

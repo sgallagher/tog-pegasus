@@ -107,11 +107,12 @@ Boolean CQLSelectStatement::evaluate(const CIMInstance& inCI)
    return _rep->evaluate(inCI);
 }
 
-void CQLSelectStatement::applyProjection(CIMInstance& inCI) throw(Exception)
+void CQLSelectStatement::applyProjection(CIMInstance& inCI,
+    Boolean allowMissing) throw(Exception)
 {
   PEGASUS_ASSERT(_rep != NULL);
 
-   _rep->applyProjection(inCI);
+   _rep->applyProjection(inCI, allowMissing);
 }
 
 void CQLSelectStatement::validate() throw(Exception)

@@ -179,6 +179,16 @@ Boolean _checkIndicationLog
             {
                 numProperties = 3;
             }
+
+            if (String::equal (methodName, 
+                String ("SendTestIndicationMissingProperty")))
+            {
+                //
+                //  indication instance will contain one fewer property
+                //
+                numProperties--;
+            }
+
             String propertyName;
             String propertyValue;
             for (Uint32 i = 0; i < numProperties; i++)
@@ -226,7 +236,18 @@ Boolean _checkIndicationLog
                 else if (String::equalNoCase (propertyName, 
                     "CorrelatedIndications"))
                 {
-                    if (propertyValue.size () != 0)
+                    //
+                    //  CorrelatedIndications property should not be present for
+                    //  SendTestIndicationMissingProperty method
+                    //
+                    if (String::equal (methodName,
+                        String ("SendTestIndicationMissingProperty")))
+                    {
+                        _renameLogFile (indicationLogFileName);
+                        return false;
+                    }
+
+                    else if (propertyValue.size () != 0)
                     {
                         _renameLogFile (indicationLogFileName);
                         return false;
@@ -524,12 +545,15 @@ void _usage ()
 {
     PEGASUS_STD (cerr) 
         << "Usage: TestProcessIndication "
-        << "{setup | create1 | create2 | sendNormal | sendMissing | sendExtra "
+        << "{setup | create1 | create2 | create3 | create4 "
+        << "| sendNormal | sendMissing | sendExtra "
         << "| sendMatching | sendUnmatchingNamespace | sendUnmatchingClassName "
         << "| checkNormal | checkMissing | checkExtra | checkMatching "
         << "| checkUnmatchingNamespace | checkUnmatchingClassName "
         << "| checkNormalAll | checkMissingAll | checkExtraAll "
-        << "| delete1 | delete2 | cleanup} {wql | cim:cql}" 
+        << "| checkNormalWhere | checkMissingWhere "
+        << "| checkNormalWhereNotSatisfied "
+        << "| delete1 | delete2 | delete3 | delete4 | cleanup} {wql | cim:cql}" 
         << PEGASUS_STD (endl);
 }
 
@@ -538,11 +562,57 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         _createFilterInstance (client, String ("PIFilter01"), String 
-            ("SELECT IndicationIdentifier, MethodName, CorrelatedIndications FROM RT_TestIndication"),
+            ("SELECT IndicationIdentifier, MethodName, CorrelatedIndications "
+             "FROM RT_TestIndication"),
             qlang);
         _createFilterInstance (client, String ("PIFilter02"),
             String ("SELECT * FROM RT_TestIndication"),
             qlang);
+
+        //
+        //  Filter03 and Filter04 are not created for WQL because WQL does not 
+        //  support array properties in the WHERE clause
+        //
+        if (!String::equalNoCase (qlang, "wql"))
+        {
+            //
+            //  The following filters are used to test that only properties 
+            //  required for the WHERE clause are treated as required for 
+            //  indications.
+            //  Normally, the RT_Indication test provider generates an 
+            //  indication that includes a non-NULL CorrelatedIndications 
+            //  property value.
+            //  When the SendTestIndicationMissingProperty method is invoked, 
+            //  the RT_Indication test provider generates an indication that 
+            //  is missing the CorrelatedIndications property.
+            //  For PIFilter03, normally the generated indication includes all
+            //  required properties, and the generated indication satisfies the
+            //  query condition (WHERE clause).
+            //  However, when the SendTestIndicationMissingProperty method is 
+            //  used, the generated indication does not include all the required
+            //  properties, and the indication is not forwarded.
+            //  For PIFilter04, normally the generated indication includes all
+            //  required properties, but the generated indication does not 
+            //  satisfy the query condition (WHERE clause), because the 
+            //  CorrelatedIndications property has a non-NULL value, so the
+            //  indication is not forwarded.
+            //  When the SendTestIndicationMissingProperty method is used, the 
+            //  generated indication does not include all the required
+            //  properties, and the indication is not forwarded.
+            //
+            _createFilterInstance (client, String ("PIFilter03"), String 
+                ("SELECT IndicationIdentifier, MethodName, "
+                 "CorrelatedIndications "
+                 "FROM RT_TestIndication "
+                 "WHERE CorrelatedIndications IS NOT NULL"),
+                qlang);
+            _createFilterInstance (client, String ("PIFilter04"), String 
+                ("SELECT IndicationIdentifier, MethodName, "
+                 "CorrelatedIndications "
+                 "FROM RT_TestIndication WHERE CorrelatedIndications IS NULL"),
+                qlang);
+        }
+
         _createHandlerInstance (client, String ("PIHandler01"), 
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
     }
@@ -614,6 +684,66 @@ void _create2 (CIMClient & client)
     }
 
     PEGASUS_STD (cout) << "+++++ create2 completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _create3 (CIMClient & client)
+{
+    try
+    {
+        String filterPathString;
+        filterPathString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"PIFilter03\",SystemCreationClassName=\"");
+        filterPathString.append (System::getSystemCreationClassName ());
+        filterPathString.append ("\",SystemName=\"");
+        filterPathString.append (System::getFullyQualifiedHostName ());
+        filterPathString.append ("\"");
+        String handlerPathString;
+        handlerPathString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"PIHandler01\",SystemCreationClassName=\"");
+        handlerPathString.append (System::getSystemCreationClassName ());
+        handlerPathString.append ("\",SystemName=\"");
+        handlerPathString.append (System::getFullyQualifiedHostName ());
+        handlerPathString.append ("\"");
+        _createSubscriptionInstance (client, CIMObjectPath (filterPathString),
+            CIMObjectPath (handlerPathString));
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "create3 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ create3 completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _create4 (CIMClient & client)
+{
+    try
+    {
+        String filterPathString;
+        filterPathString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"PIFilter04\",SystemCreationClassName=\"");
+        filterPathString.append (System::getSystemCreationClassName ());
+        filterPathString.append ("\",SystemName=\"");
+        filterPathString.append (System::getFullyQualifiedHostName ());
+        filterPathString.append ("\"");
+        String handlerPathString;
+        handlerPathString.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"PIHandler01\",SystemCreationClassName=\"");
+        handlerPathString.append (System::getSystemCreationClassName ());
+        handlerPathString.append ("\",SystemName=\"");
+        handlerPathString.append (System::getFullyQualifiedHostName ());
+        handlerPathString.append ("\"");
+        _createSubscriptionInstance (client, CIMObjectPath (filterPathString),
+            CIMObjectPath (handlerPathString));
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "create4 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ create4 completed successfully"
                        << PEGASUS_STD (endl);
 }
 
@@ -795,13 +925,59 @@ void _delete2 (CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
-void _cleanup (CIMClient & client)
+void _delete3 (CIMClient & client)
+{
+    try
+    {
+        _deleteSubscriptionInstance (client, String ("PIFilter03"),
+            String ("PIHandler01"));
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "delete3 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ delete3 completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _delete4 (CIMClient & client)
+{
+    try
+    {
+        _deleteSubscriptionInstance (client, String ("PIFilter04"),
+            String ("PIHandler01"));
+    }
+    catch (Exception & e)
+    {
+        PEGASUS_STD (cerr) << "delete4 failed: " << e.getMessage ()
+                           << PEGASUS_STD (endl);
+        exit (-1);
+    }
+
+    PEGASUS_STD (cout) << "+++++ delete4 completed successfully"
+                       << PEGASUS_STD (endl);
+}
+
+void _cleanup (CIMClient & client, String & qlang)
 {
     try
     {
         _deleteHandlerInstance (client, String ("PIHandler01"));
         _deleteFilterInstance (client, String ("PIFilter01"));
         _deleteFilterInstance (client, String ("PIFilter02"));
+
+        //
+        //  Filter03 and Filter04 are not created for WQL because WQL does not 
+        //  support array properties in the WHERE clause
+        //
+        if (!String::equalNoCase (qlang, "wql"))
+        {
+            _deleteFilterInstance (client, String ("PIFilter03"));
+            _deleteFilterInstance (client, String ("PIFilter04"));
+        }
     }
     catch (Exception & e)
     {
@@ -827,6 +1003,14 @@ int _test(CIMClient& client, const char* opt, String& qlang)
   else if (String::equalNoCase (opt, "create2"))
   {
     _create2 (client);
+  }
+  else if (String::equalNoCase (opt, "create3"))
+  {
+    _create3 (client);
+  }
+  else if (String::equalNoCase (opt, "create4"))
+  {
+    _create4 (client);
   }
   else if (String::equalNoCase (opt, "sendNormal"))
   {
@@ -879,11 +1063,11 @@ int _test(CIMClient& client, const char* opt, String& qlang)
   {
     //
     //  Check indications received by Simple Display Consumer
-    //  None should be received in this case, since a required property
-    //  is missing from the indication instance
+    //  An indication should be received because the missing property is a
+    //  project list property, not a property required by the WHERE clause
     //
     _check (opt, 3, 
-            String ("SendTestIndicationMissingProperty"), false, true, qlang);
+            String ("SendTestIndicationMissingProperty"), false, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtra"))
   {
@@ -945,11 +1129,11 @@ int _test(CIMClient& client, const char* opt, String& qlang)
   {
     //
     //  Check indications received by Simple Display Consumer
-    //  None should be received in this case, since a required property
-    //  is missing from the indication instance
+    //  An indication should be received because the missing property is a
+    //  project list property, not a property required by the WHERE clause
     //
     _check (opt, 9, 
-            String ("SendTestIndicationMissingProperty"), true, true, qlang);
+            String ("SendTestIndicationMissingProperty"), true, false, qlang);
   }
   else if (String::equalNoCase (opt, "checkExtraAll"))
   {
@@ -963,6 +1147,38 @@ int _test(CIMClient& client, const char* opt, String& qlang)
     _check (opt, 10, 
             String ("SendTestIndicationExtraProperty"), true, false, qlang);
   }
+  else if (String::equalNoCase (opt, "checkNormalWhere"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  An indication should be received because the generated indication
+    //  satisfies the WHERE clause condition
+    //  Only the properties included in the SELECT list of the filter 
+    //  query should be included in the indication instance
+    //
+    _check (opt, 11, String ("SendTestIndicationNormal"), 
+            false, false, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkMissingWhere"))
+  {
+    //
+    //  Check indications received by Simple Display Consumer
+    //  No indication should be received because the missing property is a
+    //  property required by the WHERE clause
+    //
+    _check (opt, 12, 
+            String ("SendTestIndicationMissingProperty"), false, true, qlang);
+  }
+  else if (String::equalNoCase (opt, "checkNormalWhereNotSatisfied"))
+  {    
+    //
+    //  Check indications received by Simple Display Consumer
+    //  No indication should be received because the generated instance does
+    //  not satisfy the WHERE clause condition
+    //
+    _check (opt, 13, 
+            String ("SendTestIndicationNormal"), true, true, qlang);
+   }
   else if (String::equalNoCase (opt, "delete1"))
   {
     _delete1 (client);
@@ -971,9 +1187,17 @@ int _test(CIMClient& client, const char* opt, String& qlang)
   {
     _delete2 (client);
   }
+  else if (String::equalNoCase (opt, "delete3"))
+  {
+    _delete3 (client);
+  }
+  else if (String::equalNoCase (opt, "delete4"))
+  {
+    _delete4 (client);
+  }
   else if (String::equalNoCase (opt, "cleanup"))
   {
-    _cleanup (client);
+    _cleanup (client, qlang);
   }
   else
   {

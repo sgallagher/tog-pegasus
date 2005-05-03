@@ -75,10 +75,12 @@ Boolean WQLQueryExpressionRep::evaluate(const CIMInstance & inst) const
     return false; 
 }
 
-void WQLQueryExpressionRep::applyProjection(CIMInstance & ci) {
+void WQLQueryExpressionRep::applyProjection(CIMInstance & ci,
+    Boolean allowMissing)
+{
    if (_stmt==NULL) ((WQLQueryExpressionRep*)this)->_parse();
 
-   _stmt->applyProjection(ci);
+   _stmt->applyProjection(ci, allowMissing);
 }
 
 PEGASUS_NAMESPACE_END

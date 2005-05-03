@@ -54,7 +54,7 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
       WQLInstancePropertySource ips(enr->cimNamedInstances[i]);
       try {
          if (qs->evaluateWhereClause(&ips)) {
-	    qs->applyProjection(enr->cimNamedInstances[i]);
+	    qs->applyProjection(enr->cimNamedInstances[i], false);
          }
          else enr->cimNamedInstances.remove(i);
       }

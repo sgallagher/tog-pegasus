@@ -81,7 +81,7 @@ Boolean _applyProjection(QueryExpression& qe,
         {
           CIMInstance projInst = _instances[j].clone();
 
-          qe.applyProjection(projInst);
+          qe.applyProjection(projInst, false);
 
           Uint32 cnt = projInst.getPropertyCount(); 
           if (cnt == 0)

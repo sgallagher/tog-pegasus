@@ -122,6 +122,30 @@ poststarttests:
 	@$(PROGRAM) checkExtraAll cim:cql
 	@$(ECHO) "TestProcessIndication delete2 cim:cql"
 	@$(PROGRAM) delete2 cim:cql
+	@$(ECHO) "TestProcessIndication create3 cim:cql"
+	@$(PROGRAM) create3 cim:cql
+	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
+	@$(PROGRAM) sendNormal cim:cql
+	@$(ECHO) "TestProcessIndication checkNormalWhere cim:cql"
+	@$(PROGRAM) checkNormalWhere cim:cql
+	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
+	@$(PROGRAM) sendMissing cim:cql
+	@$(ECHO) "TestProcessIndication checkMissingWhere cim:cql"
+	@$(PROGRAM) checkMissingWhere cim:cql
+	@$(ECHO) "TestProcessIndication delete3 cim:cql"
+	@$(PROGRAM) delete3 cim:cql
+	@$(ECHO) "TestProcessIndication create4 cim:cql"
+	@$(PROGRAM) create4 cim:cql
+	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
+	@$(PROGRAM) sendNormal cim:cql
+	@$(ECHO) "TestProcessIndication checkNormalWhereNotSatisfied cim:cql"
+	@$(PROGRAM) checkNormalWhereNotSatisfied cim:cql
+	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
+	@$(PROGRAM) sendMissing cim:cql
+	@$(ECHO) "TestProcessIndication checkMissingWhere cim:cql"
+	@$(PROGRAM) checkMissingWhere cim:cql
+	@$(ECHO) "TestProcessIndication delete4 cim:cql"
+	@$(PROGRAM) delete4 cim:cql
 	@$(ECHO) "TestProcessIndication cleanup cim:cql"
 	@$(PROGRAM) cleanup cim:cql
 	@$(ECHO) "+++++ TestProcessIndication passed all tests"

@@ -193,6 +193,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       ie.applyContext has been called.  See the applyContext function.
 
       @param inCI - The instance to be projected.
+      @param allowMissing indicates whether missing project properties are 
+                          allowed
       @return None
       @throw  CQLRuntimeException if the instance cannot be projected
       @throw CQLValidationException for applyContext error.
@@ -200,7 +202,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    void applyProjection(CIMInstance& inCI) throw(Exception);
+    void applyProjection(CIMInstance& inCI,
+        Boolean allowMissing) throw(Exception);
 
     /**  
       Validates the classes and properties used in the select statement

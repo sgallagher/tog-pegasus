@@ -75,7 +75,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
     Boolean evaluate(const CIMInstance& inCI);
 
-    void applyProjection(CIMInstance& inCI) throw(Exception);
+    void applyProjection(CIMInstance& inCI,
+        Boolean allowMissing) throw(Exception);
 
     void validate() throw(Exception);
 
@@ -124,7 +125,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
     Boolean applyProjection(PropertyNode* node,
                             CIMProperty& nodeProp,
-                            Boolean& preservePropsForParent);
+                            Boolean& preservePropsForParent,
+                            Boolean allowMissing);
 
     void validateProperty(QueryChainedIdentifier& chainId);
 
@@ -147,7 +149,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
                         Boolean& allPropsRequired,
                         const CIMName& allPropsClass,
                         Array<CIMName>& requiredProps,
-                        Boolean& preserveProps);
+                        Boolean& preserveProps,
+                        Boolean allowMissing);
 
     Boolean containsProperty(const CIMName& name,
                              const Array<CIMName>& props);

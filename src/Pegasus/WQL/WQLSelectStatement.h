@@ -132,10 +132,19 @@ public:
     const CIMName& getSelectPropertyName(Uint32 i) const;
 
     /** 
-        Returns a CIMPropertyList containing the selected properties.
-        The list is NULL if the query selects all properties (SELECT * FROM...).
+        Returns the required properties from the SELECT clause for the specified
+        class.
+
+        @param  inClassName  name of the class; must be one of the classes from
+                             the FROM clause
+
+        @return  CIMPropertyList containing the required properties from the
+                 SELECT clause for the specified class;
+                 or a null CIMPropertyList if all properties of the specified
+                 class are required
     */
-    const CIMPropertyList getSelectPropertyList() const;
+    CIMPropertyList getSelectPropertyList 
+        (const CIMObjectPath& inClassName = CIMObjectPath ());
 
     /** Appends a property name to the property name list. The user should
 	not call this method; it should only be called by the parser.
@@ -151,10 +160,19 @@ public:
     const CIMName& getWherePropertyName(Uint32 i) const;
 
     /** 
-        Returns a CIMPropertyList containing the unique properties used in the 
-        WHERE clause
+        Returns the required properties from the WHERE clause for the specified
+        class.
+
+        @param  inClassName  name of the class; must be one of the classes from
+                             the FROM clause
+
+        @return  CIMPropertyList containing the required properties from the
+                 WHERE clause for the specified class;
+                 or a null CIMPropertyList if all properties of the specified
+                 class are required
     */
-    const CIMPropertyList getWherePropertyList() const;
+    CIMPropertyList getWherePropertyList 
+        (const CIMObjectPath& inClassName = CIMObjectPath ());
 
     /** Appends a property name to the where property name list. The user 
 	should not call this method; it should only be called by the parser.
@@ -183,9 +201,14 @@ public:
     Boolean evaluateWhereClause(const WQLPropertySource* source) const;
 
     /** Inspect an instance and remove properties not listed in Select projection.
+
+        @param  allowMissing  Boolean specifying whether missing project
+                              properties are allowed
     */
-    void applyProjection(CIMInstance& inst) throw (Exception);
-    void applyProjection(CIMObject& inst);
+    void applyProjection(CIMInstance& inst,
+        Boolean allowMissing) throw (Exception);
+    void applyProjection(CIMObject& inst,
+        Boolean allowMissing);
     
     /** Prints out the members of this class.
     */

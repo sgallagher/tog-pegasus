@@ -206,7 +206,8 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
   PEGASUS_UNREACHABLE( return true; ) //should never get here
 }
 
-void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
+void CQLSelectStatementRep::applyProjection(CIMInstance& inCI,
+    Boolean allowMissing) throw(Exception)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyProjection(inCI)");
 
@@ -407,7 +408,8 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
         // will not remove properties when filtering the embedded instance.
         // This call returns whether the embedded instance property
         // should be added to the required property list.
-        childRequired = applyProjection(childNode, childProp, allPropsRequired);
+        childRequired = applyProjection(childNode, childProp, allPropsRequired,
+            allowMissing);
         inCI.addProperty(childProp);
       }
     }
@@ -430,12 +432,14 @@ void CQLSelectStatementRep::applyProjection(CIMInstance& inCI) throw(Exception)
                  allPropsRequired,
                  fromList[0].getName(),
                  requiredProps,
-                 preserve);
+                 preserve,
+                 allowMissing);
 }
 
 Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
                                                CIMProperty& nodeProp,
-                                               Boolean& preservePropsForParent)
+                                               Boolean& preservePropsForParent,
+                                               Boolean allowMissing)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyProjection(node, nodeProp)");
 
@@ -563,7 +567,8 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
         // should be added to the required property list.
         Boolean preserve =
           node->endpoint || allPropsRequired || preservePropsForParent;
-        childRequired = applyProjection(curChild, childProp, preserve);
+        childRequired = applyProjection(curChild, childProp, preserve, 
+            allowMissing);
         nodeInst.addProperty(childProp);
       }
     }
@@ -590,7 +595,8 @@ Boolean CQLSelectStatementRep::applyProjection(PropertyNode* node,
                  allPropsRequired,
                  nodeInst.getClassName(),
                  requiredProps,
-                 preserveProps);
+                 preserveProps,
+                 allowMissing);
 
   // Put the projected instance back into the property.
   CIMObject newNodeObj(nodeInst);
@@ -675,9 +681,10 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
                                            Boolean& allPropsRequired,
                                            const CIMName& allPropsClass,
                                            Array<CIMName>& requiredProps,
-                                           Boolean& preserveProps)
+                                           Boolean& preserveProps,
+    Boolean allowMissing)
 {
-  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::removeUnneededProperties");
+  PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::filterInstance");
   PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"instance = " + inst.getClassName().getString());
   PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"allPropsClass = " + allPropsClass.getString());
 
@@ -721,17 +728,23 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
   }
 
   // Check that all required properties are on the instance.
-  for (Uint32 i = 0; i < requiredProps.size(); i++)
+  if (!allowMissing)
   {
-    if (!containsProperty(requiredProps[i], supportedProps))
-    {
-      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"missing:" + requiredProps[i].getString());
-      PEG_METHOD_EXIT();
-      MessageLoaderParms parms("CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
-                               "The property $0 is missing on the instance of class $1.",
-                               requiredProps[i].getString(), inst.getClassName().getString());
-      throw QueryRuntimePropertyException(parms);
-    }
+      for (Uint32 i = 0; i < requiredProps.size(); i++)
+      {
+          if (!containsProperty(requiredProps[i], supportedProps))
+          {
+              PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"missing:" + 
+                  requiredProps[i].getString());
+              PEG_METHOD_EXIT();
+              MessageLoaderParms parms
+                  ("CQL.CQLSelectStatementRep.PROJ_MISSING_PROP",
+                  "The property $0 is missing on the instance of class $1.",
+                  requiredProps[i].getString(),
+                  inst.getClassName().getString());
+              throw QueryRuntimePropertyException(parms);
+          }
+      }
   }
 
   // If requested, remove the properties on the instance that are not required.
@@ -1667,14 +1680,14 @@ void  CQLSelectStatementRep::clear()
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::clear");
 
-	if(_ctx == NULL)
-   {
+    if(_ctx == NULL)
+    {
      PEG_TRACE_STRING (TRC_CQL, Tracer::LEVEL4,"null QC");
      PEG_METHOD_EXIT();
      MessageLoaderParms parms("CQL.CQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                               "Trying to process a query with a NULL Query Context.");
      throw CQLRuntimeException(parms);
-  	}
+    }
 
    _ctx->clear();
    _hasWhereClause = false;

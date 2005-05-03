@@ -528,14 +528,15 @@ private:
         const Array <CIMName> & indicationSubclasses) const;
 
     /**
-        Retrieves the list of properties referenced by the specified
-        filter query expression.
+        Retrieves the list of required properties (all the properties 
+        referenced in the WHERE clause) for the specified filter query 
+        expression.
 
         @param   queryExpression       the query expression
         @param   nameSpaceName         the namespace
         @param   indicationClassName   the indication class name
 
-        @return  CIMPropertyList of properties referenced by the filter query 
+        @return  CIMPropertyList of required properties for the filter query 
                  expression
      */
     CIMPropertyList _getPropertyList (

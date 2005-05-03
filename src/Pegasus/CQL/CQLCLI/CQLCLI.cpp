@@ -239,7 +239,7 @@ Boolean _applyProjection(Array<CQLSelectStatement>& _statements,
             projInst.removeProperty(missing);
           }
 
-          _statements[i].applyProjection(projInst);
+          _statements[i].applyProjection(projInst, false);
 
           Uint32 cnt = projInst.getPropertyCount(); 
           if (cnt == 0)

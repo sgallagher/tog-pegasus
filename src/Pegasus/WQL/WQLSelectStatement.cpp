@@ -113,14 +113,16 @@ void WQLSelectStatement::setAllProperties(const Boolean allProperties)
     _rep->setAllProperties(allProperties);
 }
 
-const CIMPropertyList WQLSelectStatement::getSelectPropertyList () const
+CIMPropertyList WQLSelectStatement::getSelectPropertyList
+    (const CIMObjectPath& inClassName)
 {
-	return _rep->getSelectPropertyList();
+	return _rep->getSelectPropertyList(inClassName);
 }
 
-const CIMPropertyList WQLSelectStatement::getWherePropertyList () const
+CIMPropertyList WQLSelectStatement::getWherePropertyList
+    (const CIMObjectPath& inClassName)
 {
-    return _rep->getWherePropertyList();
+    return _rep->getWherePropertyList(inClassName);
 }
 
 Boolean WQLSelectStatement::appendWherePropertyName(const CIMName& x)
@@ -134,14 +136,16 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 	return _rep->evaluateWhereClause(source);
 }
 
-void WQLSelectStatement::applyProjection(CIMInstance& ci) throw (Exception)
+void WQLSelectStatement::applyProjection(CIMInstance& ci,
+    Boolean allowMissing) throw (Exception)
 {
-	_rep->applyProjection(ci);
+	_rep->applyProjection(ci, allowMissing);
 }
 
-void WQLSelectStatement::applyProjection(CIMObject& ci) 
+void WQLSelectStatement::applyProjection(CIMObject& ci,
+    Boolean allowMissing) 
 {
-	_rep->applyProjection(ci);
+	_rep->applyProjection(ci, allowMissing);
 }
 
 void WQLSelectStatement::print() const

@@ -256,7 +256,59 @@ CIMPropertyList QueryExpression::getPropertyList(const CIMObjectPath& objectPath
   }
 }
 
-void QueryExpression::applyProjection(CIMInstance instance){
+CIMPropertyList QueryExpression::getSelectPropertyList 
+    (const CIMObjectPath& objectPath) const
+{
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms ("Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException (parms);
+    }
+
+    try
+    {
+        return _ss->getSelectPropertyList (objectPath);
+    }
+    catch (QueryException&)
+    {
+        throw;
+    }
+    catch (Exception& e)
+    {
+        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (), 
+            e.getMessage ());
+    }
+}
+
+CIMPropertyList QueryExpression::getWherePropertyList
+    (const CIMObjectPath& objectPath) const
+{
+    if (_ss == NULL)
+    {
+        MessageLoaderParms parms ("Query.QueryExpression.SS_IS_NULL",
+            "Trying to process a query with a NULL SelectStatement.");
+        throw QueryException (parms);
+    }
+
+    try
+    {
+        return _ss->getWherePropertyList (objectPath);
+    }
+    catch (QueryException&)
+    {
+        throw;
+    }
+    catch (Exception& e)
+    {
+        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (), 
+            e.getMessage ());
+    }
+}
+
+void QueryExpression::applyProjection(CIMInstance instance,
+    Boolean allowMissing)
+{
   if(_ss == NULL){
     MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
                              "Trying to process a query with a NULL SelectStatement.");
@@ -265,7 +317,7 @@ void QueryExpression::applyProjection(CIMInstance instance){
 
   try
   {
-    _ss->applyProjection(instance);
+    _ss->applyProjection(instance, allowMissing);
   }
   catch (QueryException&)
   {

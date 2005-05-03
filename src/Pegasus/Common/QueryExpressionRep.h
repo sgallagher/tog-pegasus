@@ -55,7 +55,7 @@ class PEGASUS_COMMON_LINKAGE QueryExpressionRep {
 
     virtual const CIMPropertyList getPropertyList() const = 0;
     virtual Boolean evaluate(const CIMInstance &) const = 0;
-    virtual void applyProjection(CIMInstance &) = 0;
+    virtual void applyProjection(CIMInstance &, Boolean allowMissing) = 0;
   protected:
     const String _queryLanguage;
     const String _query;

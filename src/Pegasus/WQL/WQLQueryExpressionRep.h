@@ -63,7 +63,7 @@ class PEGASUS_WQL_LINKAGE WQLQueryExpressionRep : public QueryExpressionRep {
 
     virtual const CIMPropertyList getPropertyList() const;
     virtual Boolean evaluate(const CIMInstance &) const;
-    virtual void applyProjection(CIMInstance &);
+    virtual void applyProjection(CIMInstance &, Boolean allowMissing);
 
     void _parse();
     WQLSelectStatement *_stmt;

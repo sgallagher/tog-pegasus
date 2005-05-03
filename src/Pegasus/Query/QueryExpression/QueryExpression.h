@@ -118,7 +118,38 @@ class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
     */
     CIMPropertyList getPropertyList(const CIMObjectPath& objectPath = CIMObjectPath()) const;
 
-    void applyProjection(CIMInstance instance);
+    /**
+        Returns the required properties from the SELECT clause for the specified
+        class.
+
+        @param  objectPath  the class; must be one of the classes from the FROM
+                            clause
+
+        @return  CIMPropertyList containing the required properties from the
+                 SELECT clause for the specified class;
+                 or a null CIMPropertyList if all properties of the specified
+                 class are required
+    */
+    CIMPropertyList getSelectPropertyList 
+        (const CIMObjectPath& objectPath = CIMObjectPath ()) const;
+
+    /**
+        Returns the required properties from the WHERE clause for the specified
+        class.
+
+        @param  objectPath  the class; must be one of the classes from the FROM
+                            clause
+
+        @return  CIMPropertyList containing the required properties from the
+                 WHERE clause for the specified class;
+                 or a null CIMPropertyList if all properties of the specified
+                 class are required
+    */
+    CIMPropertyList getWherePropertyList 
+        (const CIMObjectPath& objectPath = CIMObjectPath ()) const;
+
+    void applyProjection(CIMInstance instance, 
+        Boolean allowMissing);
 
     void validate();
 

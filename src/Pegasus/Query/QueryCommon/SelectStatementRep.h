@@ -109,7 +109,8 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
         /**  Input the CIMInstance object in which to apply the
               projection.
            */
-        CIMInstance& inCI) throw(Exception) = 0;
+        CIMInstance& inCI,
+        Boolean allowMissing) throw(Exception) = 0;
 
     /** Validates that all the property name identifiers actually exist on a
     class from the FROM list of the query string.  It checks the class

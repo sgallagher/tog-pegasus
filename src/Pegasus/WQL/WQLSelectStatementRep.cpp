@@ -199,7 +199,8 @@ void WQLSelectStatementRep::setAllProperties(const Boolean allProperties)
     _allProperties = allProperties;
 }
 
-const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList () const
+const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList 
+    (const CIMObjectPath& inClassName) const
 {
     //
     //  Check for "*"
@@ -211,18 +212,97 @@ const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList () const
         //
         return CIMPropertyList ();
     }
-    else
+
+    CIMName className = inClassName.getClassName();
+    if (className.isNull())
     {
         //
-        //  Return CIMPropertyList for properties referenced in the projection
-        //  list (SELECT clause)
+        //  If the caller passed in an empty className, then the FROM class is 
+        //  to be used
         //
-        return CIMPropertyList (_selectPropertyNames);
+        className = _className;
     }
+
+    //
+    //  Check if inClassName is the FROM class
+    //
+    if (!(className == _className))
+    {
+        //
+        //  Check for NULL Query Context
+        //
+        if (_ctx == NULL)
+        {
+            MessageLoaderParms parms
+                ("WQL.WQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
+                "Trying to process a query with a NULL Query Context.");
+            throw QueryRuntimeException(parms);        
+        }
+
+        //
+        //  Check if inClassName is a subclass of the FROM class
+        //
+        if (!_ctx->isSubClass(_className,className))
+        {
+            MessageLoaderParms parms
+                ("WQL.WQLSelectStatementRep.CLASS_NOT_FROM_LIST_CLASS",
+                "Class $0 does not match the FROM class or any of its "
+                "subclasses.",
+                className.getString());
+            throw QueryRuntimeException(parms);
+        }
+    }
+
+    //
+    //  Return CIMPropertyList for properties referenced in the projection 
+    //  list (SELECT clause)
+    //
+    return CIMPropertyList (_selectPropertyNames);
 }
 
-const CIMPropertyList WQLSelectStatementRep::getWherePropertyList () const
+const CIMPropertyList WQLSelectStatementRep::getWherePropertyList 
+    (const CIMObjectPath& inClassName) const
 {
+    CIMName className = inClassName.getClassName();
+    if (className.isNull())
+    {
+        //
+        //  If the caller passed in an empty className, then the FROM class is 
+        //  to be used
+        //
+        className = _className;
+    }
+
+    //
+    //  Check if inClassName is the FROM class
+    //
+    if (!(className == _className))
+    {
+        //
+        //  Check for NULL Query Context
+        //
+        if (_ctx == NULL)
+        {
+            MessageLoaderParms parms
+                ("WQL.WQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
+                "Trying to process a query with a NULL Query Context.");
+            throw QueryRuntimeException(parms);        
+        }
+
+        //
+        //  Check if inClassName is a subclass of the FROM class
+        //
+        if (!_ctx->isSubClass(_className,className))
+        {
+            MessageLoaderParms parms
+                ("WQL.WQLSelectStatementRep.CLASS_NOT_FROM_LIST_CLASS",
+                "Class $0 does not match the FROM class or any of its "
+                "subclasses.",
+                className.getString());
+            throw QueryRuntimeException(parms);
+        }
+    }
+
     //
     //  Return CIMPropertyList for properties referenced in the condition
     //  (WHERE clause)
@@ -414,7 +494,8 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
     return stack.top();
 }
 
-void WQLSelectStatementRep::applyProjection(CIMInstance& ci) throw (Exception)
+void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
+    Boolean allowMissing) throw (Exception)
 {
    if (_allProperties) return;
 
@@ -436,27 +517,33 @@ void WQLSelectStatementRep::applyProjection(CIMInstance& ci) throw (Exception)
    }
 
    //check for properties on select list missing from the instance
-   Boolean foundInInst;
-   for (Uint32 i=0; i < _selectPropertyNames.size(); i++)
+   if (!allowMissing)
    {
-     foundInInst = false;
-     CIMName sn=_selectPropertyNames[i];
-     for (Uint32 j = ci.getPropertyCount(); j != 0; j--)
-     {
-       CIMName in = ci.getProperty(j-1).getName();
-       if (sn == in) foundInInst = true;
-     }
+       Boolean foundInInst;
+       for (Uint32 i=0; i < _selectPropertyNames.size(); i++)
+       {
+           foundInInst = false;
+           CIMName sn=_selectPropertyNames[i];
+           for (Uint32 j = ci.getPropertyCount(); j != 0; j--)
+           {
+               CIMName in = ci.getProperty(j-1).getName();
+               if (sn == in) foundInInst = true;
+           }
 
-     if(!foundInInst)
-     {
-       MessageLoaderParms parms("WQL.WQLSelectStatementRep.MISSING_PROPERTY_ON_INSTANCE",
-                               "A property in the Select list is missing from the instance");
-       throw QueryRuntimePropertyException(parms);
-     }
+           if(!foundInInst)
+           {
+               MessageLoaderParms parms
+                   ("WQL.WQLSelectStatementRep.MISSING_PROPERTY_ON_INSTANCE",
+                   "A property in the Select list is missing from the "
+                   "instance");
+               throw QueryRuntimePropertyException(parms);
+           }
+       }
    }
 }
 
-void WQLSelectStatementRep::applyProjection(CIMObject& ci)
+void WQLSelectStatementRep::applyProjection(CIMObject& ci,
+    Boolean allowMissing) 
 {
    if (_allProperties) return;
 
@@ -554,11 +641,14 @@ void WQLSelectStatementRep::validate() throw (Exception)
 	try
    {
      fromClass = _ctx->getClass(_className);
+		
+    CIMObjectPath className (String::EMPTY, _ctx->getNamespace (), _className);
+     Array<CIMName> whereProps = 
+        getWherePropertyList(className).getPropertyNameArray();
+     Array<CIMName> selectProps = 
+        getSelectPropertyList(className).getPropertyNameArray();
 
-     Array<CIMName> whereProps = getWherePropertyList().getPropertyNameArray();
-     Array<CIMName> selectProps = getSelectPropertyList().getPropertyNameArray();
-
-     // make sure all properties match propties on the from class
+     // make sure all properties match properties on the from class
      for(Uint32 i = 0; i < whereProps.size(); i++){
          Uint32 index = fromClass.findProperty(whereProps[i]);
 			if(index == PEG_NOT_FOUND){
@@ -642,9 +732,11 @@ CIMPropertyList WQLSelectStatementRep::getPropertyList(const CIMObjectPath& inCl
 		}
 	}
 
-	Array<CIMName> names = getWherePropertyList().getPropertyNameArray();
-	Array<CIMName> selectList = getSelectPropertyList().getPropertyNameArray();
-
+	Array<CIMName> names = 
+            getWherePropertyList(inClassName).getPropertyNameArray();
+	Array<CIMName> selectList = 
+            getSelectPropertyList(inClassName).getPropertyNameArray();
+	
 	// check for duplicates and remove them
 	for(Uint32 i = 0; i < names.size(); i++){
 		for(Uint32 j = 0; j < selectList.size(); j++){

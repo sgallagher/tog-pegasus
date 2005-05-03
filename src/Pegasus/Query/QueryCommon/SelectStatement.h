@@ -105,16 +105,23 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatement
 
     /** applyProjection() method operates on a single CIMInstance to
     determine what properties to include.
-         On that CIMInstance it will remove all propoerties that are not
+         On that CIMInstance it will remove all properties that are not
          included in the projection.
+
+        @param  allowMissing  Boolean specifying whether missing project 
+                              properties are allowed
     
         TODO:  document the exceptions!
      */
     virtual void applyProjection(
-        /**  Input the CIMInstance object in which to apply the
+    /**  Input the CIMInstance object in which to apply the
               projection.
-           */
-        CIMInstance& inCI) throw(Exception) = 0;
+
+        @param  allowMissing  Boolean specifying whether missing project 
+                              properties are allowed
+     */
+        CIMInstance& inCI,
+        Boolean allowMissing) throw(Exception) = 0;
 
     /** Validates that all the property name identifiers actually exist on a
     class from the FROM list of the query string.  It checks the class
@@ -144,6 +151,42 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatement
               classes from the FROM list.
            */
         const CIMObjectPath& inClassName) = 0;
+
+    /** 
+        Returns the required properties from the SELECT clause for the specified
+        class.
+
+        This is a pure virtual function that must be implemented in one or more
+        subclasses.
+
+        @param  inClassName  name of the class; must be one of the classes from
+                             the FROM clause
+    
+        @return  CIMPropertyList containing the required properties from the 
+                 SELECT clause for the specified class; 
+                 or a null CIMPropertyList if all properties of the specified 
+                 class are required
+     */
+    virtual CIMPropertyList getSelectPropertyList
+        (const CIMObjectPath& inClassName) = 0;
+
+    /** 
+        Returns the required properties from the WHERE clause for the specified
+        class.
+
+        This is a pure virtual function that must be implemented in one or more
+        subclasses.
+    
+        @param  inClassName  name of the class; must be one of the classes from
+                             the FROM clause
+    
+        @return  CIMPropertyList containing the required properties from the 
+                 WHERE clause for the specified class; 
+                 or a null CIMPropertyList if all properties of the specified 
+                 class are required
+     */
+    virtual CIMPropertyList getWherePropertyList
+        (const CIMObjectPath& inClassName) = 0;
 
   protected:
 

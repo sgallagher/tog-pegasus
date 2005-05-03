@@ -839,7 +839,7 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
         {
             //
             //  If the instance is of the PEGASUS_CLASSNAME_INDSUBSCRIPTION
-        //  class or the PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION
+            //  class or the PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION
             //  class and subscription state is enabled, determine if any
             //  providers can serve the subscription
             //
@@ -854,8 +854,8 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
 
             if ((instance.getClassName ().equal
                 (PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
-        (instance.getClassName ().equal
-        (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+                (instance.getClassName ().equal
+                (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
             {
                 //
                 //  Get subscription state
@@ -2054,11 +2054,9 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 sourceNamespace,
                 queryLanguage);
 
-            // ATTN: assumes a single namespace was on the request message
             QueryExpression queryExpr = _getQueryExpression(filterQuery,
                                                             queryLanguage,
-                                                            nameSpaces[0]);
-
+                                                            request->nameSpace);
 
 #ifdef PEGASUS_INDICATION_PERFINST
             stopWatch.reset();
@@ -2106,7 +2104,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 //
                 try
                 {
-                  queryExpr.applyProjection(formattedIndication);
+                  queryExpr.applyProjection(formattedIndication, true);
                 }
                 catch (QueryRuntimePropertyException& re)
                 {
@@ -4382,8 +4380,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
                 (queryExpr, sourceNameSpace);
 
             //
-            //  Get property list from filter query (SELECT and
-            //  WHERE clauses)
+            //  Get required property list from filter query (WHERE clause)
             //
             //  Note that the supportedClass is passed in,
             //  not the indicationClassName.
@@ -4418,7 +4415,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             else
             {
                 //
-                //  Compare subscription property list
+                //  Compare subscription required property list
                 //  with supported property list
                 //
                 for (Uint32 j = 0;
@@ -4537,8 +4534,7 @@ void IndicationService::_getModifiedSubscriptions (
             sourceNameSpace);
 
         //
-        //  Get property list from filter query (FROM and WHERE
-        //  clauses)
+        //  Get required property list from filter query (WHERE clause)
         //
         //  Note: the supportedClass is passed to _getPropertyList
         //  rather than the FROM class because CQL could have
@@ -4599,8 +4595,7 @@ void IndicationService::_getModifiedSubscriptions (
             sourceNameSpace);
 
         //
-        //  Get property list from filter query (FROM and WHERE
-        //  clauses)
+        //  Get required property list from filter query (WHERE clause)
         //
         //  Note: the supportedClass is passed to _getPropertyList
         //  rather than the FROM class because CQL could have
@@ -4804,8 +4799,8 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
     //
     for (Uint32 i = 0; i < indicationSubclasses.size (); i++)
     {
-        //  Get property list from filter query (FROM and WHERE
-        //  clauses) from this indication subclass,
+        //  Get required property list from filter query (WHERE clause) 
+        //  from this indication subclass
         //
         requiredPropertyList = _getPropertyList (queryExpression,
                                                  nameSpace,
@@ -4886,8 +4881,7 @@ CIMPropertyList IndicationService::_getPropertyList
 
     CIMPropertyList propertyList;
 
-    //  Get all the properties referenced in the projection list (SELECT clause)
-    //  and the WHERE clause.
+    //  Get all the properties referenced in the condition (WHERE clause)
     //  Note: for CQL, this only returns the properties directly on the
     //  class name passed in, not any properties on embedded objects.
     //
@@ -4896,7 +4890,7 @@ CIMPropertyList IndicationService::_getPropertyList
       CIMObjectPath classPath (String::EMPTY,
                                nameSpaceName,
                                indicationClassName);
-      propertyList = queryExpression.getPropertyList (classPath);
+      propertyList = queryExpression.getWherePropertyList (classPath);
     }
     catch (QueryException & qe)
     {
@@ -5437,11 +5431,13 @@ void IndicationService::_getCreateParams (
                                                          sourceNameSpace);
 
     //
-    //  Get property list from filter query (FROM and WHERE
-    //  clauses)
+    //  Get indication class name from filter query (FROM clause)
     //
     CIMName indicationClassName = _getIndicationClassName (queryExpression,
                                                            sourceNameSpace);
+    //
+    //  Get required property list from filter query (WHERE clause)
+    //
     propertyList = _getPropertyList (queryExpression,
         sourceNameSpace, indicationClassName);
 

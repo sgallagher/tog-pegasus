@@ -889,6 +889,7 @@ _append_preunSectionToSpecFile: FORCE
                       >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "      $(PEGASUS_SBIN_DIR)/cimserver -s"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   [ -f $(PEGASUS_VARDATA_DIR)/$(PEGASUS_CURRENT_CONFIG_FILE) ] && \
                        rm $(PEGASUS_VARDATA_DIR)/$(PEGASUS_CURRENT_CONFIG_FILE);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -902,7 +903,6 @@ _append_preunSectionToSpecFile: FORCE
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   rm -f $(PEGASUS_CIMSERVER_START_FILE)" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   # Delete the Link to the rc.* Startup Directories" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

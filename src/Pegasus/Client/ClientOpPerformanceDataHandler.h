@@ -27,170 +27,170 @@
 //
 //==============================================================================
 //
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef ClientOpPerformanceDataHandler_h
 #define ClientOpPerformanceDataHandler_h
 
-
-#include <Pegasus/Common/CIMOperationType.h> 
+#include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Client/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 
-
 struct PEGASUS_CLIENT_LINKAGE ClientOpPerformanceData
 {
-   /** Identifies operation type for statistical information being
-       provided
+    /** Identifies the operation type for the statistical information
+        provided.
     */
     CIMOperationType operationType;
 
-    /** serverTimeKnown is true if the CIM server has sent back
-    a valid WBEMServerResponseTime header field.
+    /** Indicates whether the serverTime member contains valid data.  This
+        flag is true if a WBEMServerResponseTime value is received from the
+        CIM Server, false otherwise.
     */
     Boolean serverTimeKnown;
 
-    /** serverTime is the number of micro seconds the CIM Server
-     has taken to process request.
+    /** Contains the number of microseconds elapsed during the CIM Server
+        processing of the request.
     */
     Uint64 serverTime;
 
-    /** roundTripTime is the number of micro seconds a request/response
-    has spent in the network and server combined. roundTripTime includes
-    serverTime
+    /** Contains the number of microseconds elapsed during the complete
+        processing of the request, including time spent on the network and
+        in the CIM Server (serverTime).
     */
     Uint64 roundTripTime;
 
-    /**requestSize is the request message size in bytes.
+    /** Contains the size of the request message (in bytes).
     */
-    Uint64 requestSize; 
+    Uint64 requestSize;
 
-    /**responseSize is the response message size in bytes.
+    /** Contains the size of the response message (in bytes).
     */
-    Uint64 responseSize; 
- };
+    Uint64 responseSize;
+};
 
-     
 
-/** A sub-class of the ClientOpPerformanceDataHandler class is registered by 
-the client app. This sub-class should have the same scope as the CIMClient object
-that is registering it. 
-*/                                                                           
+/** A ClientOpPerformanceDataHandler subclass object may be registered with a
+    CIMClient object by a client application.  The subclass object must not
+    be destructed while it is registered with a CIMClient object, so it is
+    recommended that these objects have the same scope.
+*/
 class PEGASUS_CLIENT_LINKAGE ClientOpPerformanceDataHandler
 {
 public:
 
-    /**Callback method held by the ClientOpPerformanceDataHandler class. It is 
-    called by the CIMClient library for each operation performed against the 
-    server. The client application implements this method in a derived class 
-    of this class, and does whatever it wants to do with the 
-    raw data item it gets as an argument. For instance, it can accumulate the 
-    single values to allow calculating the average across a number of operations.
-    Exceptions thrown by this method are not handled by the CIMClient code. The
-    exception will appear to the client application and causes the server respones 
-    information not to be delivered. 
-    @param item The client statistics data item being delivered.
+    virtual ~ClientOpPerformanceDataHandler();
+
+    /**
+        Processes client operation performance data.  When a
+        ClientOpPerformanceDataHandler subclass object is registered with a
+        CIMClient object, this method is called by the CIMClient object with
+        performance data for each completed CIM operation.
+
+        This method may, for example, accumulate the performance data to
+        calculate average processing times for multiple operations.
+
+        Exceptions thrown by this method are not caught by the CIMClient.
+        Therefore, a client application would receive an exception from this
+        method in place of CIM operation response data.
+
+        @param item A ClientOpPerformanceData object containing performance
+        data for a single CIM operation.
     */
-    
-    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item) = 0;
-}; 
+    virtual void handleClientOpPerformanceData(
+        const ClientOpPerformanceData& item) = 0;
+};
 
 
 /*
 
-The following example shows how the callback function can be used by a client application
+The following example shows how a ClientOpPerformanceDataHandler callback may
+be used by a client application.
 
-
-//   An implementation of a client statistics catcher that prints all the data in the 
-//   ClientOpPerformanceData object
+// A ClientOpPerformanceDataHandler implementation that simply prints the
+// data from the ClientOpPerformanceData object.
 
 class ClientStatisticsAccumulator : public ClientOpPerformanceDataHandler
 {
 public:
 
-    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item)
+    virtual void handleClientOpPerformanceData(
+        const ClientOpPerformanceData& item)
+    {
+        cout << "ClientStatisticsAccumulator data:" << endl;
+        cout << " operationType is " << (Uint32)item.operationType << endl;
+        cout << " serverTime is " << (Uint32)item.serverTime << endl;
+        cout << " roundTripTime is " << (Uint32)item.roundTripTime << endl;
+        cout << " requestSize is " << (Uint32)item.requestSize << endl;
+        cout << " responseSize is " << (Uint32)item.responseSize << endl;
+        if (item.serverTimeKnown)
         {
-            cout << "This is the client app talking" << endl;
-            cout << "operationType is " << (Uint32)item.operationType << endl;
-            cout << "serverTime is " << (Uint32)item.serverTime << endl;
-            cout << "roundTripTime is " << (Uint32)item.roundTripTime << endl;
-            cout << "requestSize is " << (Uint32)item.requestSize << endl;
-            cout << "responseSize is " << (Uint32)item.responseSize << endl;
-            if (item.serverTimeKnown) {
-                cout << "serverTimeKnow is true" << endl;
-            }
-            else{
-                cout << "serverTimeKnow is false" << endl;
-            }
+            cout << " serverTimeKnown is true" << endl;
         }
+        else
+        {
+            cout << " serverTimeKnown is false" << endl;
+        }
+    }
 };
-
-
-
 
 int main(int argc, char** argv)
 {
-   // Establish the namespace from the input parameters
-   String nameSpace = "root/cimv2";
+    // Establish the namespace from the input parameters
+    String nameSpace = "root/cimv2";
 
-   //Get hostname
-   String location = "localhost";
+    //Get hostname
+    String location = "localhost";
 
-   //Get port number
-   Uint32 port = 5988;
+    //Get port number
+    Uint32 port = 5988;
 
-   //Get user name and password
-   String userN = String::EMPTY;
-   String passW = String::EMPTY;
-   
+    //Get user name and password
+    String userN = String::EMPTY;
+    String passW = String::EMPTY;
 
-   //The next sectoin of code connects to the server
+    // Connect to the server
 
-   String className = "PG_ComputerSystem";
-   CIMClient client;
-                                          //NOTE: ClientStatisticsAccumulator variable must have the same 
-                                          //      scope as the CIMClient variable    
-   ClientStatisticsAccumulator accumulator = ClientStatisticsAccumulator();
+    String className = "PG_ComputerSystem";
+    CIMClient client;
+    // Note: The ClientStatisticsAccumulator object should have the same
+    // scope as the CIMClient object.
+    ClientStatisticsAccumulator accumulator;
 
-   try
-   {
-      client.connect(location, port, userN, passW);
-   }
+    try
+    {
+        client.connect(location, port, userN, passW);
+    }
+    catch (Exception& e)
+    {
+        cerr << argv[0] << "Exception connecting to: " << location << endl;
+        cerr << e.getMessage() << endl;
+        exit(1);
+    }
 
-   catch (Exception& e)
-   {
-      cerr << argv[0] << " Exception connecting to : " << location << endl;
-      cerr << e.getMessage() << endl;
-      exit(1);
-   }
-                
-    Array<CIMObjectPath> instances;
+    ///////////////////////////////////////////////////
+    // Register callback and EnumerateInstances
+    /////////////////////////////////////////////////////
 
-   ///////////////////////////////////////////////////
-   // Register callback and EnumerateInstances 
-   /////////////////////////////////////////////////////
-     
-   client.registerClientOpPerformanceDataHandler(accumulator);
+    client.registerClientOpPerformanceDataHandler(accumulator);
 
-     
-   //issue command to use callback  
-        
-   try
-   {     
-      instances = client.enumerateInstanceNames(nameSpace,
-                                                className);
-   }
-   catch (Exception& e)
-   {
-      cerr << "Exception : " << e.getMessage() << endl;
-      exit(1);
-   }    
+    try
+    {
+        Array<CIMObjectPath> instances;
 
+        // Note: Completion of this CIMClient operation will invoke the
+        // ClientOpPerformanceDataHandler callback.
+        instances = client.enumerateInstanceNames(nameSpace, className);
+    }
+    catch (Exception& e)
+    {
+        cerr << "Exception: " << e.getMessage() << endl;
+        exit(1);
+    }
 
-   return 0;
+    return 0;
 }
 
 */

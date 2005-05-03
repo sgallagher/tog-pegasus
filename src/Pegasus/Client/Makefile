@@ -30,6 +30,7 @@ PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
     ClientPerfDataStore.cpp \
+    ClientOpPerformanceDataHandler.cpp \
     CIMClientRep.cpp \
     CIMClient.cpp \
     CIMOperationRequestEncoder.cpp \

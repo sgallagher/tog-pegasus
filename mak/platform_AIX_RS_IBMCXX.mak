@@ -22,7 +22,7 @@ else
 FLAGS = -O2 -s
 endif
 
-FLAGS += -qrtti=dyna -qcpluscmt
+FLAGS += -qrtti=dyna -qcpluscmt -qlanglvl=newexcp
 
 SYS_LIBS = -ldl 
 

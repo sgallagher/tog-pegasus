@@ -30,6 +30,14 @@ Environment settings
    export LD_ASSUME_KERNEL=2.2.5
    cd $PEGASUS_HOME
 
+   There is now a new variable to determine which JVM to link with.  The choices are as follows:
+	PEGASUS_JVM	sun	Sun's jvm (ex: j2sdk1.4.2_07)
+	PEGASUS_JVM	ibm	IBM's jvm (ex: IBMJava2-142)
+	PEGASUS_JVM	bea	Suse's IBM jvm (ex: BEAJava2-1.4.2)
+   So, pick one and export that variable to the environment.  For example,
+	export PEGASUS_JVM=sun
+   NOTE: This is currently listened to for Linux builds.
+
    There are a couple of optional environment variables to determine how the JRE is initialized.  These are
    as follows (the variable name and what JRE option that it corresponds to):
 

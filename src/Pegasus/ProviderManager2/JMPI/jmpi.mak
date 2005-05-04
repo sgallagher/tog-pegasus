@@ -5,9 +5,24 @@ DIR = Pegasus/ProviderManager2/JMPI
 include $(ROOT)/mak/config.mak
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+ifndef PEGASUS_JVM
+   PEGASUS_JVM=sun
+endif
+ifeq ($(PEGASUS_JVM),sun)
    JAVALIBS=$(JAVA_SDK)/jre/lib/i386
    EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include -I$(JAVA_SDK)/include/linux
    EXTRA_LIBRARIES += -L$(JAVALIBS)/native_threads -L$(JAVALIBS)/client -ljvm -lhpi -lcrypt -lpegclient
+endif
+ifeq ($(PEGASUS_JVM),ibm)
+   JAVALIBS=$(JAVA_SDK)/jre/bin
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/classic/ -L$(JAVALIBS)/ -ljvm -lhpi -lcrypt -lpegclient
+endif
+ifeq ($(PEGASUS_JVM),bea)
+   JAVALIBS=$(JAVA_SDK)/jre/lib/i386
+   EXTRA_INCLUDES = $(SYS_INCLUDES) -I$(JAVA_SDK)/include/ -I$(JAVA_SDK)/include/linux/
+   EXTRA_LIBRARIES += -L$(JAVALIBS)/ -L$(JAVALIBS)/jrockit/ -L$(JAVALIBS)/native_threads/ -ljvm -lhpi -lcrypt -lpegclient
+endif
 endif
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
    JAVALIBS=$(JAVA_SDK)/jre/lib/

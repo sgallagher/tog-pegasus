@@ -1290,7 +1290,13 @@ void CIMDateTime::convertToUTC()
 }
 
 
-
+/*returns true if object is an interval.  Note: This method exists only for
+  compatibility reasons.  It is superceded by the "const" form of the method.
+*/
+Boolean CIMDateTime::isInterval()
+{
+    return ((const CIMDateTime*)this)->isInterval();
+}
 
 /*returns true if object is an interval
 */
@@ -1299,11 +1305,8 @@ Boolean CIMDateTime::isInterval() const
     const Uint32 	SIGN_OFFSET = 21;
 
     Boolean isInterval = strcmp(&_rep->data[SIGN_OFFSET], ":000") == 0 ;
-
     return isInterval;
 }
-
-
 
 
 /*compares caller to passed in paramiter for eqaulity
@@ -1334,7 +1337,7 @@ Boolean CIMDateTime::equal (const CIMDateTime & x) const
 
 /*subtacts two CIMDateTime objects of like types
 */
-Sint64 CIMDateTime::getDifference(const CIMDateTime & startTime, const CIMDateTime & finishTime)
+Sint64 CIMDateTime::getDifference(CIMDateTime startTime, CIMDateTime finishTime)
 {
 
     CIMDateTime sta = startTime;

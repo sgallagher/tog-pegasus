@@ -8,6 +8,7 @@ PEGASUS_ZOS_PROGRAM_OBJECT = yes
 LIBRARIES = \
      peglistener \
      pegclient \
+     pegexportserver \
      pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)

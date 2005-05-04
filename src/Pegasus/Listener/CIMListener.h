@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author: Dong Xiang, EMC Corporation (xiang_dong@emc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,76 +53,91 @@ class CIMIndicationConsumer;
 class PEGASUS_LISTENER_LINKAGE CIMListener
 {
 public:
-	/**
-	 * Constructs a CIMListener object.
-	 * 
-	 * @param portNumber	the specified socket port the listener will listen to
-   * @param sslContext	the specifed SSL context 
-	 */
-	CIMListener(Uint32 portNumber, SSLContext* sslContext=NULL);
-	/**
-	 * Destructor of a CIMLIstener object.
-	 */
+    /**
+     * Constructs a CIMListener object.
+     *
+     * @param portNumber the specified socket port the listener will listen to
+     * @param sslContext the specifed SSL context
+     */
+    CIMListener(Uint32 portNumber, SSLContext* sslContext=NULL);
+
+    /**
+     * Destructor of a CIMLIstener object.
+     */
     ~CIMListener();
 
-	/**
-	 * Returns the socket port number
-	 *
-	 * @return the socket port number.
-    */
-	Uint32 getPortNumber() const;
+    /**
+     * Returns the socket port number
+     *
+     * @return the socket port number.
+     */
+    Uint32 getPortNumber() const;
 
-	/**
-	 * Returns the SSL context
-	 *
-	 * @return the SSL context.
-    */
-	SSLContext* getSSLContext() const;
+    /**
+     * Returns the SSL context
+     *
+     * @return the SSL context.
+     */
+    SSLContext* getSSLContext() const;
 
-	/** 
-	 * Sets the SSL context
-	 *
-	 * @param the SSL context.
-    */
-	void setSSLContext(SSLContext* sslContext);
+    /**
+     * Sets the SSL context
+     *
+     * @param the SSL context.
+     */
+    void setSSLContext(SSLContext* sslContext);
 
-	/** 
-	 * Starts for listening.
-    */
-	void start();
+    /**
+     * Starts for listening.
+     */
+    void start();
 
-	/**
-	 * Stops listening
-    */
-	void stop();
+    /**
+     * Stops listening
+     */
+    void stop();
 
-	/**
-	 * Returns if the listener is active
-	 *
-	 * @return true if the listener is active;
-	 *				 false otherwise.
-    */
-	Boolean isAlive();
+    /**
+     * Returns if the listener is active
+     *
+     * @return true if the listener is active;
+     *              false otherwise.
+     */
+    Boolean isAlive();
 
-	/** 
-	 * Adds a CIMIndicationConsumer to the listener
-   *
-	 * @param the CIMIndicationConsumer to add.
-	 * @return true if the indication consumer has been added successfully
-	 *				 false otherwise.
-	 */
-	Boolean addConsumer(CIMIndicationConsumer* consumer);
-	/** 
-	 * Removes a CIMIndicationConsumer from the listener.
-	 *
-	 * @param the CIMIndicationConsumer to remove.
-	 * @return true if the indication consumer has been removed successfully
-	 *				 false otherwise.
-	 */
-	Boolean removeConsumer(CIMIndicationConsumer* consumer);
+    /**
+     * Adds a CIMIndicationConsumer to the listener
+     *
+     * @param consumer the CIMIndicationConsumer to add.
+     * @return true if the indication consumer has been added successfully
+     *              false otherwise.
+     */
+    Boolean addConsumer(CIMIndicationConsumer* consumer);
+
+    /**
+     * Removes a CIMIndicationConsumer from the listener.
+     *
+     * @param the CIMIndicationConsumer to remove.
+     * @return true if the indication consumer has been removed successfully
+     *              false otherwise.
+     */
+    Boolean removeConsumer(CIMIndicationConsumer* consumer);
 
 private:
-	void* _rep;
+    /*
+     * Copy constructor - not implemented
+     */
+    CIMListener(const CIMListener &);
+
+    /*
+     * Assignment operator - not implemented
+     */
+    CIMListener &operator=(const CIMListener &);
+
+    /*
+     * rep object
+     */
+    void* _rep;
 };
 
 PEGASUS_NAMESPACE_END

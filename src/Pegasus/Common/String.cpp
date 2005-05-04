@@ -867,12 +867,12 @@ Boolean String::match(const String& str, const String& pattern)
     /** matchNoCase Matches a String against a GLOB style pattern independent
         of case. 
         Returns true if the str parameter matches the pattern. C-Shell style
-	glob matching is used. Ignore case in all comparisons. Case is
+        glob matching is used. Ignore case in all comparisons. Case is
         ignored in the match.
         @parm str String containing the string to be matched\
         @parm pattern GLOB style patterh to use in the match.
         @return Boolean true if str matches patterh
-        @SeeAlso match
+        @see match
     */
 Boolean String::matchNoCase(const String& str, const String& pattern)
 {

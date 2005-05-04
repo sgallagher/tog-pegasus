@@ -169,7 +169,7 @@ public:
         connection is automatically authenticated for the current
         user.
         @return - No return defined. Failure to connect throws an exception.
-        @SeeAlso connect - The exceptions are defined in connect.
+        @see connect - The exceptions are defined in connect.
     */
     void connectLocal()
         throw(AlreadyConnectedException, InvalidLocatorException,

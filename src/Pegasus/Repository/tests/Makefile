@@ -19,6 +19,7 @@ include $(ROOT)/mak/config.mak
 DIRS = \
     Repository \
     Repository2 \
+    RepositoryMix \
     NameSpace \
     NameSpaceManager \
     AssocTable \

@@ -72,49 +72,49 @@ CQLValue::CQLValue(const CQLValue& val)
    _rep = new CQLValueRep(val._rep);
 }
 
-CQLValue::CQLValue(String inString, NumericType inValueType, Boolean inSign)
+CQLValue::CQLValue(const String& inString, NumericType inValueType, Boolean inSign)
 {
    _rep = new CQLValueRep(inString, inValueType, inSign);
 }
 
 
-CQLValue::CQLValue(CQLChainedIdentifier inCQLIdent)
+CQLValue::CQLValue(const CQLChainedIdentifier& inCQLIdent)
 {
    _rep = new CQLValueRep(inCQLIdent);
 }
 
 
-CQLValue::CQLValue(String inString)
+CQLValue::CQLValue(const String& inString)
 {
    _rep = new CQLValueRep(inString);
 }
 
-CQLValue::CQLValue(CIMInstance inInstance)
+CQLValue::CQLValue(const CIMInstance& inInstance)
 {
    _rep = new CQLValueRep(inInstance);
 }
 
-CQLValue::CQLValue(CIMClass inClass)
+CQLValue::CQLValue(const CIMClass& inClass)
 {
    _rep = new CQLValueRep(inClass);
 }
 
-CQLValue::CQLValue(CIMObject inObject)
+CQLValue::CQLValue(const CIMObject& inObject)
 {
    _rep = new CQLValueRep(inObject);
 }
 
-CQLValue::CQLValue(CIMValue inVal)
+CQLValue::CQLValue(const CIMValue& inVal)
 {
    _rep = new CQLValueRep(inVal);
 }
 
-CQLValue::CQLValue(CIMObjectPath inObjPath)
+CQLValue::CQLValue(const CIMObjectPath& inObjPath)
 {
    _rep = new CQLValueRep(inObjPath);
 }
 
-CQLValue::CQLValue(CIMDateTime inDateTime)
+CQLValue::CQLValue(const CIMDateTime& inDateTime)
 {
    _rep = new CQLValueRep(inDateTime);
 }
@@ -139,7 +139,7 @@ CQLValue::CQLValue(Real64 inReal)
    _rep = new CQLValueRep(inReal);
 }
 
-CQLValue::CQLValue(CQLValueRep rhs)
+CQLValue::CQLValue(const CQLValueRep& rhs)
 {
    _rep = new CQLValueRep(&rhs);
 }

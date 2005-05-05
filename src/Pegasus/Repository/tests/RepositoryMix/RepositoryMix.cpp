@@ -29,6 +29,8 @@
 //
 // Author: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +58,7 @@ CIMRepository *r;
 const CIMNamespaceName NS = CIMNamespaceName ("TestCreateClass");
 CIMQualifier d(CIMName("description"), String("*REMOVED*"));
 
-char ProgName[40];
+const char *ProgName;
 
 void TestOpenRepo(CIMRepository_Mode mode)
 {
@@ -383,7 +385,7 @@ void getClassOptions()
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
-    strcpy (ProgName, argv[0]);
+    ProgName = argv[0];
 
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
@@ -477,7 +479,7 @@ int main(int argc, char** argv)
       TestQualifiers();
 
     }
-    catch (Exception& e)
+    catch (const Exception& e)
     {
 	cout << e.getMessage() << endl;
 	exit(1);

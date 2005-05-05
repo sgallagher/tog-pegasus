@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,13 +59,12 @@ PEGASUS_USING_STD;
 #define CIMTYPE_EMBEDDED 15  //temporary
 CQLValue::CQLValue()
 {
-	_rep = new CQLValueRep();
+   _rep = new CQLValueRep();
 }
 
 CQLValue::~CQLValue()
 {
-   if(_rep)
-		delete _rep;
+   delete _rep;
 }
 
 CQLValue::CQLValue(const CQLValue& val)
@@ -110,7 +110,7 @@ CQLValue::CQLValue(CIMValue inVal)
 }
 
 CQLValue::CQLValue(CIMObjectPath inObjPath)
-{  
+{
    _rep = new CQLValueRep(inObjPath);
 }
 
@@ -145,55 +145,51 @@ CQLValue::CQLValue(CQLValueRep rhs)
 }
 
 void CQLValue::resolve(const CIMInstance& CI,const QueryContext& inQueryCtx)
-{   
+{
    _rep->resolve(CI, inQueryCtx);
 }
 
 CQLValue& CQLValue::operator=(const CQLValue& rhs)
 {
-	if(&rhs != this)
+   if(&rhs != this)
    {
-		if(_rep) delete _rep;
-		_rep = NULL;
-		_rep = new CQLValueRep(rhs._rep);
-	}
-	return *this;
+       delete _rep;
+       _rep = NULL;
+       _rep = new CQLValueRep(rhs._rep);
+   }
+   return *this;
 }
-Boolean CQLValue::operator==(const CQLValue& x)
+
+Boolean CQLValue::operator==(const CQLValue& x) const
 {
    return _rep->operator==(x._rep);
 }
 
 //##ModelId=40FBFF9502BB
-Boolean CQLValue::operator!=(const CQLValue& x)
+Boolean CQLValue::operator!=(const CQLValue& x) const
 {
    return _rep->operator!=(x._rep);
 }
 
-
-Boolean CQLValue::operator<=(const CQLValue& x)
+Boolean CQLValue::operator<=(const CQLValue& x) const
 {
    return _rep->operator<=(x._rep);
 }
 
-
-Boolean CQLValue::operator>=(const CQLValue& x)
+Boolean CQLValue::operator>=(const CQLValue& x) const
 {
    return _rep->operator>=(x._rep);
 }
 
-
-Boolean CQLValue::operator<(const CQLValue& x)
+Boolean CQLValue::operator<(const CQLValue& x) const
 {
    return _rep->operator<(x._rep);
 }
 
-
-Boolean CQLValue::operator>(const CQLValue& x)
+Boolean CQLValue::operator>(const CQLValue& x) const
 {
    return _rep->operator>(x._rep);
 }
-
 
 CQLValue CQLValue::operator+(const CQLValue& x)
 {
@@ -217,40 +213,36 @@ CQLValue CQLValue::operator/(const CQLValue& x)
    return CQLValue(_rep->operator/(x._rep));
 }
 */
+
 //##ModelId=40FC3F6F0302
-CQLValue::CQLValueType CQLValue::getValueType()
+CQLValue::CQLValueType CQLValue::getValueType() const
 {
    return _rep->getValueType();
 }
-
 
 void CQLValue::setNull()
 {
    _rep->setNull();
 }
 
-
-Boolean CQLValue::isResolved()
+Boolean CQLValue::isResolved() const
 {
    return _rep->isResolved();
 }
 
-
-Boolean CQLValue::isNull()
+Boolean CQLValue::isNull() const
 {
    return _rep->isNull();
 }
 
-
-Boolean CQLValue::isa(const CQLChainedIdentifier& cid, QueryContext& QueryCtx)
+Boolean CQLValue::isa(const CQLChainedIdentifier& cid, QueryContext& QueryCtx) const
 {
    return _rep->isa(cid, QueryCtx);
 }
 
-
-Boolean CQLValue::like(const CQLValue& inVal)
+Boolean CQLValue::like(const CQLValue& inVal) const
 {
-   return _rep->like(inVal._rep);   
+   return _rep->like(inVal._rep);
 }
 
 /*
@@ -260,52 +252,52 @@ void CQLValue::invert()
 }
 */
 
-CQLChainedIdentifier CQLValue::getChainedIdentifier()const
+CQLChainedIdentifier CQLValue::getChainedIdentifier() const
 {
    return _rep->getChainedIdentifier();
 }
 
-Uint64 CQLValue::getUint()const
+Uint64 CQLValue::getUint() const
 {
    return _rep->getUint();
 }
 
-Boolean CQLValue::getBool()const
+Boolean CQLValue::getBool() const
 {
    return _rep->getBool();
 }
 
-Sint64 CQLValue::getSint()const
+Sint64 CQLValue::getSint() const
 {
    return _rep->getSint();
 }
 
-Real64 CQLValue::getReal()const
+Real64 CQLValue::getReal() const
 {
    return _rep->getReal();
 }
 
-String CQLValue::getString()const
+String CQLValue::getString() const
 {
    return _rep->getString();
 }
 
-CIMDateTime CQLValue::getDateTime()const
+CIMDateTime CQLValue::getDateTime() const
 {
    return _rep->getDateTime();
 }
 
-CIMObjectPath CQLValue::getReference()const
+CIMObjectPath CQLValue::getReference() const
 {
    return _rep->getReference();
 }
 
-CIMObject CQLValue::getObject()const
+CIMObject CQLValue::getObject() const
 {
    return _rep->getObject();
 }
 
-String CQLValue::toString()const
+String CQLValue::toString() const
 {
    return _rep->toString();
 }
@@ -313,7 +305,7 @@ String CQLValue::toString()const
 void CQLValue::applyContext(QueryContext& _ctx,
                             CQLChainedIdentifier& inCid)
 {
-	_rep->applyContext(_ctx,inCid);
+   _rep->applyContext(_ctx,inCid);
 }
 
 

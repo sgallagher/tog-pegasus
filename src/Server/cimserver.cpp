@@ -494,6 +494,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
                                      "Forced shutdown initiated.");
             PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
         }
+         PEGASUS_STD(cerr) << "Exit! " << endl;
         exit(1);
 #endif
     }
@@ -913,10 +914,12 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
         // We put String into Cstring because
         // Directory functions only handle Cstring.
         // ATTN-KS: create String based directory functions.
-
+#if !defined(PEGASUS_USE_SYSLOGS)
+		// When using syslog facility. No files anymore.
         logsDirectory = configManager->getCurrentValue("logdir");
         logsDirectory = 
         ConfigManager::getHomedPath(configManager->getCurrentValue("logdir"));
+#endif
 #ifdef PEGASUS_OS_OS400
     }  // end if (os400StartupOption == false)
 #endif
@@ -926,7 +929,7 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
         // ATTN: Need tool to completely disable logging.
 
 #if !defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_PLATFORM_LINUX_IA64_GNU) && \
-!defined(PEGASUS_OS_OS400)
+!defined(PEGASUS_OS_OS400) && !defined(PEGASUS_USE_SYSLOGS)
         Logger::setHomeDirectory(logsDirectory);
 #endif
 
@@ -964,9 +967,11 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
         // Leave this in until people get familiar with the logs.
         //l10n
         //cout << "Logs Directory = " << logsDirectory << endl;
+#if !defined(PEGASUS_USE_SYSLOGS)
         MessageLoaderParms parms("src.Server.cimserver.LOGS_DIRECTORY",
                                  "Logs Directory = ");
         cout << MessageLoader::getMessage(parms) << logsDirectory << endl;
+#endif
 #endif
     }
     catch (UnrecognizedConfigProperty& e)

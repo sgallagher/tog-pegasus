@@ -46,7 +46,9 @@
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB)
     {"traceFilePath",       "/var/opt/tog-pegasus/cache/cimserver.trc"},
+#if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",              "/var/opt/tog-pegasus/log"},
+#endif
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
     {"passwordFilePath",    "/etc/opt/tog-pegasus/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/opt/tog-pegasus/server.pem"},
@@ -60,7 +62,9 @@
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
     {"traceFilePath",       "/var/opt/lsb-pegasus/cache/cimserver.trc"},
+#if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",              "/var/opt/lsb-pegasus/log"},
+#endif
     {"tempLocalAuthDir",    "/var/opt/lsb-pegasus/cache/localauth"},
     {"passwordFilePath",    "/etc/opt/lsb-pegasus/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/opt/lsb-pegasus/server.pem"},

@@ -57,10 +57,14 @@ PEGASUS_NAMESPACE_BEGIN
 static struct ConfigPropertyRow properties[] =
 {
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+#if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+#endif
     {"logLevel", "SEVERE", IS_DYNAMIC, 0, 0, IS_HIDDEN}
 #else
+#if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+#endif
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
 #endif
 };
@@ -71,7 +75,9 @@ const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);
 /** Constructors  */
 LogPropertyOwner::LogPropertyOwner()
 {
+#if !defined(PEGASUS_USE_SYSLOGS)
     _logdir.reset(new ConfigProperty);
+#endif
     _logLevel.reset(new ConfigProperty);
 }
 
@@ -86,6 +92,7 @@ void LogPropertyOwner::initialize()
         //
         // Initialize the properties with default values
         //
+#if !defined (PEGASUS_USE_SYSLOGS)
         if (String::equalNoCase(properties[i].propertyName, "logdir"))
         {
             _logdir->propertyName = properties[i].propertyName;
@@ -97,7 +104,9 @@ void LogPropertyOwner::initialize()
             _logdir->domainSize = properties[i].domainSize;
             _logdir->externallyVisible = properties[i].externallyVisible;
         }
-        else if (String::equalNoCase(properties[i].propertyName, "logLevel"))
+		else
+#endif
+        if (String::equalNoCase(properties[i].propertyName, "logLevel"))
         {
             _logLevel->propertyName = properties[i].propertyName;
             _logLevel->defaultValue = properties[i].defaultValue;
@@ -116,11 +125,14 @@ void LogPropertyOwner::initialize()
 struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
     const String& name)
 {
+#if !defined(PEGASUS_USE_SYSLOGS)
     if (String::equalNoCase(_logdir->propertyName, name))
     {
         return _logdir.get();
     }
-    else if (String::equalNoCase(_logLevel->propertyName, name))
+    else 
+#endif
+	if (String::equalNoCase(_logLevel->propertyName, name))
     {
         return _logLevel.get();
     }

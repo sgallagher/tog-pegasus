@@ -94,7 +94,9 @@ static struct OwnerEntry _properties[] =
     {"traceLevel",          (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"traceComponents",     (ConfigPropertyOwner* )ConfigManager::traceOwner},
     {"traceFilePath",       (ConfigPropertyOwner* )ConfigManager::traceOwner},
+#if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",              (ConfigPropertyOwner* )ConfigManager::logOwner},
+#endif
     {"logLevel",            (ConfigPropertyOwner* )ConfigManager::logOwner},
     {"enableHttpConnection", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableHttpsConnection",(ConfigPropertyOwner* )ConfigManager::defaultOwner},

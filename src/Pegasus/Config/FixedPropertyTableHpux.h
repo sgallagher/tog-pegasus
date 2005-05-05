@@ -58,7 +58,9 @@
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/var/opt/wbem/cimserver.trc"},
+#ifndef PEGASUS_USE_SYSLOGS
     {"logdir",              "/var/opt/wbem/logs"},
+#endif
     {"tempLocalAuthDir",    "/var/opt/wbem/localauth"},
     {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},

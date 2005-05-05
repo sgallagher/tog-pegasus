@@ -302,9 +302,10 @@ Boolean ProviderAgent::_readAndProcessRequest()
             configManager->getCurrentValue("messageDir")));
 
         // Set the log file directory
+#if !defined(PEGASUS_USE_SYSLOGS)
         Logger::setHomeDirectory(ConfigManager::getHomedPath(
             configManager->getCurrentValue("logdir")));
-
+#endif
         System::bindVerbose = ipaRequest->bindVerbose;
 
         //

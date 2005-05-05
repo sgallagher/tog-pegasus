@@ -54,6 +54,8 @@
 # include <Pegasus/Common/Platform_NSK_NONSTOP_NMCPLUS.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include <Pegasus/Common/Platform_LINUX_IA64_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_X86_64_GNU)
+# include <Pegasus/Common/Platform_LINUX_X86_64_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_PPC_GNU)
 # include <Pegasus/Common/Platform_LINUX_PPC_GNU.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_PPC64_GNU)

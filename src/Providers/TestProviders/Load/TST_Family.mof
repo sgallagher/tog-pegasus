@@ -23,7 +23,7 @@
 //
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
-// Modified By:
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3341
 //
 //%/////////////////////////////////////////////////////////////////////////////
 // Family MOF file - Used as basis for Sample provider with Associations
@@ -45,7 +45,6 @@ class TST_Person
         "relationship ")]
 class TST_PersonS : TST_Person
 {
-    [key]
     string secondProperty = "empty";
     uint32 counter;
 };

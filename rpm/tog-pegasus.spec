@@ -103,6 +103,8 @@ sources.
 %endif
 %endif
 
+%endif
+
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec
 %package sdk
 Summary: The OpenPegasus Software Development Kit

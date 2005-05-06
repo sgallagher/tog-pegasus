@@ -787,6 +787,9 @@ _append_PreambleToSpecFile: FORCE
 	@$(ECHO-E) "%endif" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%endif" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_PackagesToSpecFile: FORCE
 	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

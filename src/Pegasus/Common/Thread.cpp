@@ -325,146 +325,159 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::_loop");
 
-    Thread* myself = (Thread *)parm;
-    PEGASUS_ASSERT(myself != 0);
-
-    // Set myself into thread specific storage
-    // This will allow code to get its own Thread
-    Thread::setCurrent(myself);
-
-    ThreadPool* pool = (ThreadPool *)myself->get_parm();
-    PEGASUS_ASSERT(pool != 0);
-
-    Semaphore* sleep_sem = 0;
-    struct timeval* lastActivityTime = 0;
-
     try
     {
-        sleep_sem = (Semaphore *)myself->reference_tsd("sleep sem");
-        myself->dereference_tsd();
-        PEGASUS_ASSERT(sleep_sem != 0);
+        Thread* myself = (Thread *)parm;
+        PEGASUS_ASSERT(myself != 0);
 
-        lastActivityTime =
-            (struct timeval *)myself->reference_tsd("last activity time");
-        myself->dereference_tsd();
-        PEGASUS_ASSERT(lastActivityTime != 0);
+        // Set myself into thread specific storage
+        // This will allow code to get its own Thread
+        Thread::setCurrent(myself);
+
+        ThreadPool* pool = (ThreadPool *)myself->get_parm();
+        PEGASUS_ASSERT(pool != 0);
+
+        Semaphore* sleep_sem = 0;
+        struct timeval* lastActivityTime = 0;
+
+        try
+        {
+            sleep_sem = (Semaphore *)myself->reference_tsd("sleep sem");
+            myself->dereference_tsd();
+            PEGASUS_ASSERT(sleep_sem != 0);
+
+            lastActivityTime =
+                (struct timeval *)myself->reference_tsd("last activity time");
+            myself->dereference_tsd();
+            PEGASUS_ASSERT(lastActivityTime != 0);
+        }
+        catch (...)
+        {
+            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "ThreadPool::_loop: Failure getting sleep_sem or "
+                    "lastActivityTime.");
+            PEGASUS_ASSERT(false);
+            pool->_idleThreads.remove(myself);
+            pool->_currentThreads--;
+            PEG_METHOD_EXIT();
+            return((PEGASUS_THREAD_RETURN)1);
+        }
+
+        while (1)
+        {
+            try
+            {
+                sleep_sem->wait();
+            }
+            catch (...)
+            {
+                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "ThreadPool::_loop: failure on sleep_sem->wait().");
+                PEGASUS_ASSERT(false);
+                pool->_idleThreads.remove(myself);
+                pool->_currentThreads--;
+                PEG_METHOD_EXIT();
+                return((PEGASUS_THREAD_RETURN)1);
+            }
+
+            // When we awaken we reside on the _runningThreads queue, not the
+            // _idleThreads queue.
+
+            PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL* work)(void *) = 0;
+            void* parm = 0;
+            Semaphore* blocking_sem = 0;
+
+            try
+            {
+                work = (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *))
+                    myself->reference_tsd("work func");
+                myself->dereference_tsd();
+                parm = myself->reference_tsd("work parm");
+                myself->dereference_tsd();
+                blocking_sem = (Semaphore *)myself->reference_tsd("blocking sem");
+                myself->dereference_tsd();
+            }
+            catch (...)
+            {
+                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "ThreadPool::_loop: Failure accessing work func, work parm, "
+                        "or blocking sem.");
+                PEGASUS_ASSERT(false);
+                pool->_idleThreads.remove(myself);
+                pool->_currentThreads--;
+                PEG_METHOD_EXIT();
+                return((PEGASUS_THREAD_RETURN)1);
+            }
+
+            if (work == 0)
+            {
+                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "ThreadPool::_loop: work func is 0, meaning we should exit.");
+                break;
+            }
+
+            gettimeofday(lastActivityTime, NULL);
+
+            try
+            {
+                PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4, "Work starting.");
+                work(parm);
+                PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4, "Work finished.");
+            }
+            catch (Exception & e)
+            {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    String("Exception from work in ThreadPool::_loop: ") +
+                        e.getMessage());
+            }
+#if !defined(PEGASUS_OS_LSB)
+            catch (exception& e)
+            {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    String("Exception from work in ThreadPool::_loop: ") +
+                        e.what());
+            }
+#endif
+            catch (...)
+            {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Unknown exception from work in ThreadPool::_loop.");
+            }
+
+            // put myself back onto the available list
+            try
+            {
+                gettimeofday(lastActivityTime, NULL);
+                if (blocking_sem != 0)
+                {
+                    blocking_sem->signal();
+                }
+
+                Boolean removed = pool->_runningThreads.remove((void *)myself);
+                PEGASUS_ASSERT(removed);
+
+                pool->_idleThreads.insert_first(myself);
+            }
+            catch (...)
+            {
+                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "ThreadPool::_loop: Adding thread to idle pool failed.");
+                PEGASUS_ASSERT(false);
+                pool->_currentThreads--;
+                PEG_METHOD_EXIT();
+                return((PEGASUS_THREAD_RETURN)1);
+            }
+        }
+    }
+    catch (const Exception& e)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught exception: \"" + e.getMessage() + "\".  Exiting _loop.");
     }
     catch (...)
     {
-        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "ThreadPool::_loop: Failure getting sleep_sem or "
-                "lastActivityTime.");
-        PEGASUS_ASSERT(false);
-        pool->_idleThreads.remove(myself);
-        pool->_currentThreads--;
-        PEG_METHOD_EXIT();
-        return((PEGASUS_THREAD_RETURN)1);
-    }
-
-    while (1)
-    {
-        try
-        {
-            sleep_sem->wait();
-        }
-        catch (...)
-        {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ThreadPool::_loop: failure on sleep_sem->wait().");
-            PEGASUS_ASSERT(false);
-            pool->_idleThreads.remove(myself);
-            pool->_currentThreads--;
-            PEG_METHOD_EXIT();
-            return((PEGASUS_THREAD_RETURN)1);
-        }
-
-        // When we awaken we reside on the _runningThreads queue, not the
-        // _idleThreads queue.
-
-        PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL* work)(void *) = 0;
-        void* parm = 0;
-        Semaphore* blocking_sem = 0;
-
-        try
-        {
-            work = (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *))
-                myself->reference_tsd("work func");
-            myself->dereference_tsd();
-            parm = myself->reference_tsd("work parm");
-            myself->dereference_tsd();
-            blocking_sem = (Semaphore *)myself->reference_tsd("blocking sem");
-            myself->dereference_tsd();
-        }
-        catch (...)
-        {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ThreadPool::_loop: Failure accessing work func, work parm, "
-                    "or blocking sem.");
-            PEGASUS_ASSERT(false);
-            pool->_idleThreads.remove(myself);
-            pool->_currentThreads--;
-            PEG_METHOD_EXIT();
-            return((PEGASUS_THREAD_RETURN)1);
-        }
-
-        if (work == 0)
-        {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ThreadPool::_loop: work func is 0, meaning we should exit.");
-            break;
-        }
-
-        gettimeofday(lastActivityTime, NULL);
-
-        try
-        {
-            PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4, "Work starting.");
-            work(parm);
-            PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4, "Work finished.");
-        }
-        catch (Exception & e)
-        {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                String("Exception from work in ThreadPool::_loop: ") +
-                    e.getMessage());
-        }
-#if !defined(PEGASUS_OS_LSB)
-        catch (exception& e)
-        {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                String("Exception from work in ThreadPool::_loop: ") +
-                    e.what());
-        }
-#endif
-        catch (...)
-        {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "Unknown exception from work in ThreadPool::_loop.");
-        }
-
-        // put myself back onto the available list
-        try
-        {
-            gettimeofday(lastActivityTime, NULL);
-            if (blocking_sem != 0)
-            {
-                blocking_sem->signal();
-            }
-
-            Boolean removed = pool->_runningThreads.remove((void *)myself);
-            PEGASUS_ASSERT(removed);
-
-            pool->_idleThreads.insert_first(myself);
-        }
-        catch (...)
-        {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                "ThreadPool::_loop: Adding thread to idle pool failed.");
-            PEGASUS_ASSERT(false);
-            pool->_currentThreads--;
-            PEG_METHOD_EXIT();
-            return((PEGASUS_THREAD_RETURN)1);
-        }
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught unrecognized exception.  Exiting _loop.");
     }
 
     PEG_METHOD_EXIT();

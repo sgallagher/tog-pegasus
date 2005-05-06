@@ -214,60 +214,56 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
 // Note: This method should not throw an exception.  It is used as a thread
 // entry point, and any exceptions thrown are ignored.
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
-ProviderManagerService::handleCimOperation(void * arg) 
+ProviderManagerService::handleCimOperation(void* arg) 
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderManagerService::handleCimOperation");
 
-    if(arg == 0)
-    {
-        // thread started with invalid argument.
-        return(PEGASUS_THREAD_RETURN(1));
-    }
+    PEGASUS_ASSERT(arg != 0);
 
     // get the service from argument
-    ProviderManagerService * service =
+    ProviderManagerService* service =
         reinterpret_cast<ProviderManagerService *>(arg);
-
-    if(service->_incomingQueue.size() == 0)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "ProviderManagerService::handleCimOperation() called with no "
-                "op node in queue");
-
-        PEG_METHOD_EXIT();
-
-        // thread started with no message in queue.
-        return(PEGASUS_THREAD_RETURN(1));
-    }
-
-    AsyncOpNode * op = service->_incomingQueue.dequeue();
-
-    if((op == 0) || (op->_request.count() == 0))
-    {
-        // ATTN: This may dereference a null pointer!
-        MessageQueue * queue = MessageQueue::lookup(op->_source_queue);
-
-        PEGASUS_ASSERT(queue != 0);
-
-        PEG_METHOD_EXIT();
-
-        // no request in op node
-        return(PEGASUS_THREAD_RETURN(1));
-    }
-
-    AsyncRequest * request = static_cast<AsyncRequest *>(op->_request.next(0));
-
-    if ((request == 0) ||
-        (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
-    {
-        // reply with NAK
-        PEG_METHOD_EXIT();
-        return(PEGASUS_THREAD_RETURN(0));
-    }
+    PEGASUS_ASSERT(service != 0);
 
     try
     {
+        if (service->_incomingQueue.size() == 0)
+        {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                "ProviderManagerService::handleCimOperation() called with no "
+                    "op node in queue");
+
+            PEG_METHOD_EXIT();
+            return(PEGASUS_THREAD_RETURN(1));
+        }
+
+        AsyncOpNode* op = service->_incomingQueue.dequeue();
+
+        if ((op == 0) || (op->_request.count() == 0))
+        {
+            // ATTN: This may dereference a null pointer!
+            MessageQueue* queue = MessageQueue::lookup(op->_source_queue);
+
+            PEGASUS_ASSERT(queue != 0);
+
+            PEG_METHOD_EXIT();
+
+            // no request in op node
+            return(PEGASUS_THREAD_RETURN(1));
+        }
+
+        AsyncRequest* request =
+            static_cast<AsyncRequest*>(op->_request.next(0));
+
+        if ((request == 0) ||
+            (request->getType() != async_messages::ASYNC_LEGACY_OP_START))
+        {
+            // reply with NAK
+            PEG_METHOD_EXIT();
+            return(PEGASUS_THREAD_RETURN(0));
+        }
+
         Message* legacy =
             static_cast<AsyncLegacyOperationStart *>(request)->get_action();
 
@@ -282,9 +278,9 @@ ProviderManagerService::handleCimOperation(void * arg)
 
             if (msg != 0)
             {
-		        AcceptLanguages* langs =
-                    new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
-											(AcceptLanguageListContainer::NAME)).getLanguages());
+                AcceptLanguages* langs = new AcceptLanguages(
+                    ((AcceptLanguageListContainer)msg->operationContext.get(
+                        AcceptLanguageListContainer::NAME)).getLanguages());
                 Thread::setLanguages(langs);
             }
             else
@@ -296,15 +292,15 @@ ProviderManagerService::handleCimOperation(void * arg)
         }
     }
     catch (const Exception& e)
-      {
+    {
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-			 "Unexpected exception in handleCimOperation: " + e.getMessage());
-      }
+            "Unexpected exception in handleCimOperation: " + e.getMessage());
+    }
     catch (...)
-      {
+    {
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-			 "Unexpected exception in handleCimOperation.");
-      }
+            "Unexpected exception in handleCimOperation.");
+    }
 
     PEG_METHOD_EXIT();
 

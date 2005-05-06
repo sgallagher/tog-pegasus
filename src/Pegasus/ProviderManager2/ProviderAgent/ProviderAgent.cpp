@@ -509,15 +509,30 @@ ProviderAgent::_processRequestAndWriteResponse(void* arg)
         reinterpret_cast<ProviderAgentRequest*>(arg));
     PEGASUS_ASSERT(agentRequest.get() != 0);
 
-    // Get the ProviderAgent and request message from the argument
-    ProviderAgent* agent = agentRequest->agent;
-    AutoPtr<CIMRequestMessage> request(agentRequest->request);
+    try
+    {
+        // Get the ProviderAgent and request message from the argument
+        ProviderAgent* agent = agentRequest->agent;
+        AutoPtr<CIMRequestMessage> request(agentRequest->request);
 
-    // Process the request
-    AutoPtr<Message> response(agent->_processRequest(request.get()));
+        // Process the request
+        AutoPtr<Message> response(agent->_processRequest(request.get()));
 
-    // Write the response
-    agent->_writeResponse(response.get());
+        // Write the response
+        agent->_writeResponse(response.get());
+    }
+    catch (const Exception& e)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught exception: \"" + e.getMessage() +
+                "\".  Exiting _processRequestAndWriteResponse.");
+    }
+    catch (...)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught unrecognized exception.  "
+                "Exiting _processRequestAndWriteResponse.");
+    }
 
     PEG_METHOD_EXIT();
     return(PEGASUS_THREAD_RETURN(0));

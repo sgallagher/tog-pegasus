@@ -268,69 +268,111 @@ void MessageQueueService::enqueue(Message *msg)
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_callback_proc(void *parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_callback_proc(
+    void* parm)
 {
-   Thread *myself = reinterpret_cast<Thread *>(parm);
-   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(myself->get_parm());
-   AsyncOpNode *operation = 0;
-   
-   while ( service->_die.value() == 0 ) 
-   {
-      service->_callback_ready.wait();
-      
-      service->_callback.lock();
-      operation = service->_callback.next(0);
-      while( operation != NULL)
-      {
-	 if( ASYNC_OPSTATE_COMPLETE & operation->read_state())
-	 {
-	    operation = service->_callback.remove_no_lock(operation);
-	    PEGASUS_ASSERT(operation != NULL);
-	    operation->_thread_ptr = myself;
-	    operation->_service_ptr = service;
-	    service->_handle_async_callback(operation);
-	    break;
-	 }
-	 operation = service->_callback.next(operation);
-      }
-      service->_callback.unlock();
-   }
-   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
-   return(0);
+    Thread* myself = reinterpret_cast<Thread*>(parm);
+    PEGASUS_ASSERT(myself != 0);
+
+    MessageQueueService* service =
+        reinterpret_cast<MessageQueueService*>(myself);
+    PEGASUS_ASSERT(service != 0);
+
+    AsyncOpNode* operation = 0;
+
+    try
+    {
+        while (service->_die.value() == 0)
+        {
+            service->_callback_ready.wait();
+
+            service->_callback.lock();
+            operation = service->_callback.next(0);
+            while (operation != NULL)
+            {
+                if (ASYNC_OPSTATE_COMPLETE & operation->read_state())
+                {
+                    operation = service->_callback.remove_no_lock(operation);
+                    PEGASUS_ASSERT(operation != NULL);
+                    operation->_thread_ptr = myself;
+                    operation->_service_ptr = service;
+                    service->_handle_async_callback(operation);
+                    break;
+                }
+                operation = service->_callback.next(operation);
+            }
+            service->_callback.unlock();
+        }
+    }
+    catch (const Exception& e)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            String("Caught exception: \"") + e.getMessage() +
+                "\".  Exiting _callback_proc.");
+    }
+    catch (...)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught unrecognized exception.  Exiting _callback_proc.");
+    }
+
+    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+    return(0);
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void * parm)
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
+    void * parm)
 {
-   MessageQueueService *service = reinterpret_cast<MessageQueueService *>(parm);
+    try
+    {
+        MessageQueueService* service =
+            reinterpret_cast<MessageQueueService*>(parm);
+        PEGASUS_ASSERT(service != 0);
 
-   if ( service->_die.value() != 0)
-		 return (0);
+        if (service->_die.value() != 0)
+        {
+            return (0);
+        }
 
-   // pull messages off the incoming queue and dispatch them. then 
-   // check pending messages that are non-blocking
-   AsyncOpNode *operation = 0;
+        // pull messages off the incoming queue and dispatch them. then
+        // check pending messages that are non-blocking
+        AsyncOpNode *operation = 0;
 
-	 // many operations may have been queued.
-	 do
-	 {
-		 try 
-		 {
-			 operation = service->_incoming.remove_first();
-		 }
-		 catch(ListClosed &)
-		 {
-			 break;
-		 }
+        // many operations may have been queued.
+        do
+        {
+            try
+            {
+                operation = service->_incoming.remove_first();
+            }
+            catch (ListClosed &)
+            {
+                PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "Caught ListClosed exception.  Exiting _req_proc.");
+                break;
+            }
 
-		 if (operation)
-		 {
-			 operation->_service_ptr = service;
-			 service->_handle_incoming_operation(operation);
-		 }
-	 } while (operation);
+            if (operation)
+            {
+               operation->_service_ptr = service;
+               service->_handle_incoming_operation(operation);
+            }
+        } while (operation);
+    }
+    catch (const Exception& e)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            String("Caught exception: \"") + e.getMessage() +
+                "\".  Exiting _req_proc.");
+    }
+    catch (...)
+    {
+        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Caught unrecognized exception.  Exiting _req_proc.");
+    }
 
-   return(0);
+    return(0);
 }
 
 Uint32 MessageQueueService::get_pending_callback_count(void)

@@ -118,7 +118,7 @@ public:
         @return   List of subscription instances
      */
     Array <CIMInstance> getSubscriptions (
-        const CIMNamespaceName & nameSpaceName) const;
+        const CIMNamespaceName & nameSpace) const;
 
     /**
         Gets the value of the SubscriptionState property from the specified
@@ -305,7 +305,7 @@ public:
     /**
         Retrieves the specified instance object from the repository.
 
-        @param   nameSpaceName         the namespace
+        @param   nameSpace             the namespace
         @param   instanceName          the instance object path
         @param   localOnly             return only local elements
         @param   includeQualifiers     return qualifier elements
@@ -325,7 +325,7 @@ public:
     /**
         Modifies the specified instance in the repository.
 
-        @param   nameSpaceName         the namespace
+        @param   nameSpace             the namespace
         @param   modifiedInstance      the modified instance object
         @param   includeQualifiers     return qualifier elements
         @param   propertyList          return specified properties
@@ -339,7 +339,7 @@ public:
     /**
         Deletes the specified instance from the repository.
 
-        @param   nameSpaceName         the namespace
+        @param   nameSpace             the namespace
         @param   instanceName          the instance object path
      */
     void deleteInstance (
@@ -349,7 +349,7 @@ public:
     /**
         Enumerates instances of the specified class from the repository.
 
-        @param   nameSpaceName         the namespace
+        @param   nameSpace             the namespace
         @param   className             the class name
         @param   deepInheritance       return inherited properties
         @param   localOnly             return only local elements
@@ -373,7 +373,7 @@ public:
     /**
         Enumerates instance names of the specified class from the repository.
 
-        @param   nameSpaceName         the namespace
+        @param   nameSpace             the namespace
         @param   className             the class name
         @param   includeInheritance    return names of instances of subclasses
 

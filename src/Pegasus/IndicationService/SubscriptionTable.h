@@ -192,7 +192,7 @@ public:
      */
     void updateProviders (
         const CIMObjectPath & subscriptionPath,
-        const ProviderClassList & providers,
+        const ProviderClassList & provider,
         Boolean addProvider);
 
     /**
@@ -238,7 +238,7 @@ public:
         subscription.  If this function returns False, the value of tableValue 
         is not changed.
 
-        @param   subscription          the object path of the subscription
+        @param   subscriptionPath      the object path of the subscription
         @param   tableValue            the retrieved table entry
 
         @return   True, if the specified subscription table entry was found;

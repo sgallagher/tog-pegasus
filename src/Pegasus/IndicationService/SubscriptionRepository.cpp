@@ -272,7 +272,7 @@ Boolean SubscriptionRepository::getActiveSubscriptions (
 }
 
 Array <CIMInstance> SubscriptionRepository::getSubscriptions (
-    const CIMNamespaceName & nameSpaceName) const
+    const CIMNamespaceName & nameSpace) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionRepository::getSubscriptions");
@@ -285,7 +285,7 @@ Array <CIMInstance> SubscriptionRepository::getSubscriptions (
     try
     {
         subscriptions = _repository->enumerateInstances
-            (nameSpaceName, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+            (nameSpace, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     }
     catch (const CIMException& e)
     {

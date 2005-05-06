@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,10 +64,10 @@ extern "C" {
    }
 
    static CMPIInstance* instClone(const CMPIInstance* eInst, CMPIStatus* rc) {
-	  if (!eInst->hdl)  {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-	    return NULL;
-	  }
+      if (!eInst->hdl)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return NULL;
+      }
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       CIMInstance* cInst=new CIMInstance(inst->clone());
       CMPI_Object* obj=new CMPI_Object(cInst);
@@ -81,10 +82,10 @@ extern "C" {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
 
-	  if (!inst)  {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-	    return data;
-	  }
+      if (!inst)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return data;
+      }
 
       if (pos>inst->getPropertyCount()) {
       if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_FOUND);
@@ -107,14 +108,14 @@ extern "C" {
       return data;
    }
 
-   static CMPIData instGetProperty(const CMPIInstance* eInst, const char *name, CMPIStatus* rc) {
+   static CMPIData instGetProperty(const CMPIInstance* eInst, const char *name, CMPIStatus* rc)   {
 
       CMPIData data={0,CMPI_nullValue|CMPI_notFound,{0}};
 
-	  if (!eInst->hdl)  {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-	    return data;
-	  }
+      if (!eInst->hdl)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return data;
+      }
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       Uint32 pos=inst->findProperty(String(name));
 
@@ -129,20 +130,20 @@ extern "C" {
 
    static CMPICount instGetPropertyCount(const CMPIInstance* eInst, CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
-	  if (!inst)  {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-	    return 0;
-	  }
+      if (!inst)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return 0;
+      }
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return inst->getPropertyCount();
    }
 
    static CMPIStatus instSetProperty(const CMPIInstance* eInst, const char *name,
-                           const CMPIValue* data, const CMPIType type) {
+                           const CMPIValue* data, CMPIType type) {
       CIMInstance *inst=(CIMInstance*)eInst->hdl;
-	  if (!inst)  {
-	    CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-	  }
+      if (!inst)  {
+        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      }
       char **list=(char**)(reinterpret_cast<const CMPI_Object*>(eInst))->priv;
       CMPIrc rc;
 
@@ -184,7 +185,7 @@ extern "C" {
             }
 #endif
             CMReturnWithString(CMPI_RC_ERR_FAILED,
-         reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
+            reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
          }
       }
       else {
@@ -200,10 +201,10 @@ extern "C" {
 
    static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst, CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
-	  if (!inst)  {
-		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
-	    return NULL;
-	  }
+      if (!inst)  {
+        if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
+        return NULL;
+      }
       const CIMObjectPath &clsRef=inst->getPath();
       CMPIObjectPath *cop=NULL;
       if (clsRef.getKeyBindings().size()==0) {
@@ -220,15 +221,15 @@ extern "C" {
    }
    static CMPIStatus instSetObjectPath( CMPIInstance* eInst, const CMPIObjectPath *obj)
    {
-	/* IBMLR: Have not yet implemented this */
+    /* IBMLR: Have not yet implemented this */
      CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED);
    }
 
    static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,
                const char** propertyList, const char **keys){
-	  if (!eInst->hdl)  {
-	    CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-	  }
+      if (!eInst->hdl)  {
+        CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+      }
 
       CMPI_Object *inst=reinterpret_cast<CMPI_Object*>(eInst);
       char **list=(char**)inst->priv;    // Thank you Warren !
@@ -259,7 +260,7 @@ extern "C" {
 
    static CMPIStatus instSetPropertyFilterIgnore(CMPIInstance* eInst,
                const char** propertyList, const char **keys){
-	/* We ignore it.  */
+    /* We ignore it.  */
      CMReturn ( CMPI_RC_OK);
    }
 
@@ -306,19 +307,3 @@ CMPI_InstanceOnStack::CMPI_InstanceOnStack(const CIMInstance& ci) {
 
 
 PEGASUS_NAMESPACE_END
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -34,6 +34,7 @@
 //         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
 //         David Eger (dteger@us.ibm.com)
 //         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp0.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -467,27 +468,28 @@ Condition::~Condition()
       _cond_mutex.release();
 }
 
- void Condition::signal(PEGASUS_THREAD_TYPE caller)
+void Condition::signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-
    _cond_mutex->lock(caller);
    pthread_cond_broadcast(&_condition);
    _cond_mutex->unlock();
 }
 
 
- void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
+void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
-   if(_cond_mutex->get_owner() != caller)
+   if (_cond_mutex->get_owner() != caller)
+   {
       throw Permission(_cond_mutex->get_owner());
+   }
+
    pthread_cond_broadcast(&_condition);
-   _cond_mutex->_set_owner(caller);
 }
 
 
- void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
+void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
 
@@ -496,7 +498,7 @@ Condition::~Condition()
    _cond_mutex->lock(caller);
 }
 
- void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
+void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
    if(_disallow.value() > 0)
@@ -504,7 +506,7 @@ Condition::~Condition()
    _cond_mutex->try_lock(caller);
 }
 
- void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
+void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
    throw(IPCException)
 {
    if(_disallow.value() > 0)
@@ -517,53 +519,80 @@ Condition::~Condition()
    }
 }
 
- void Condition::unlock_object(void)
+void Condition::unlock_object(void)
 {
    _cond_mutex->unlock();
 }
 
 
 // block until this semaphore is in a signalled state
- void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
+void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
    throw(IPCException)
 {
+   // The caller must own the Mutex in order to wait on the Condition
+   if (_cond_mutex->get_owner() != caller)
+   {
+      throw Permission(_cond_mutex->get_owner());
+   }
+
    if(_disallow.value() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();
    }
+
+   // pthread_cond_timedwait will release the Mutex
+   _cond_mutex->_set_owner(0);
+
    pthread_cond_wait(&_condition, &_cond_mutex->_mutex.mut);
+
+   // The caller holds the Mutex again when pthread_cond_timedwait returns
    _cond_mutex->_set_owner(caller);
 }
 
 // block until this semaphore is in a signalled state
- void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
+void Condition::unlocked_timed_wait(
+   int milliseconds,
+   PEGASUS_THREAD_TYPE caller) throw(IPCException)
 {
-   if(_disallow.value() > 0)
+   // The caller must own the Mutex in order to wait on the Condition
+   if (_cond_mutex->get_owner() != caller)
+   {
+      throw Permission(_cond_mutex->get_owner());
+   }
+
+   if (_disallow.value() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();
    }
+
    struct timeval now;
    struct timespec waittime;
-   int retcode;
    gettimeofday(&now, NULL);
    waittime.tv_sec = now.tv_sec;
    waittime.tv_nsec = now.tv_usec + (milliseconds * 1000);  // microseconds
    waittime.tv_sec += (waittime.tv_nsec / 1000000);  // roll overflow into
    waittime.tv_nsec = (waittime.tv_nsec % 1000000);  // the "seconds" part
    waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
-   do
-   {
-      retcode = pthread_cond_timedwait(&_condition, &_cond_mutex->_mutex.mut, &waittime) ;
-   } while ( retcode == EINTR ) ;
 
-   if(retcode)
-      throw(TimeOut(caller));
+   // pthread_cond_timedwait will release the Mutex
+   _cond_mutex->_set_owner(0);
 
+   int retcode = pthread_cond_timedwait(
+      &_condition, &_cond_mutex->_mutex.mut, &waittime);
+
+   // The caller holds the Mutex again when pthread_cond_timedwait returns
    _cond_mutex->_set_owner(caller);
 
+   if (retcode == ETIMEDOUT)
+   {
+      throw TimeOut(caller);
+   }
+   else if (retcode != EINTR)
+   {
+      throw WaitFailed(caller);
+   }
 }
 
 #endif // native conditional semaphore
@@ -629,7 +658,7 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
 // wait succeeds immediately if semaphore has a non-zero count,
 // return immediately and throw and exception if the
 // count is zero.
- void Semaphore::try_wait(void) throw(WaitFailed)
+void Semaphore::try_wait(void) throw(WaitFailed)
 {
    if (sem_trywait(&_semaphore.sem))
       throw(WaitFailed(_semaphore.owner));
@@ -645,7 +674,7 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
- void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
    int retcode, i = 0;
 
@@ -679,13 +708,13 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
 }
 
 // increment the count of the semaphore
- void Semaphore::signal()
+void Semaphore::signal()
 {
    sem_post(&_semaphore.sem);
 }
 
 // return the count of the semaphore
- int Semaphore::count()
+int Semaphore::count()
 {
    sem_getvalue(&_semaphore.sem,&_count);
    return _count;
@@ -720,7 +749,7 @@ Semaphore::~Semaphore()
 
 // block until this semaphore is in a signalled state, or
 // throw an exception if the wait fails
- void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
+void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
 {
    _semaphore.waiters++;
    if (sem_wait(_semaphore.sem))
@@ -731,7 +760,7 @@ Semaphore::~Semaphore()
 // wait succeeds immediately if semaphore has a non-zero count,
 // return immediately and throw and exception if the
 // count is zero.
- void Semaphore::try_wait(void) throw(WaitFailed)
+void Semaphore::try_wait(void) throw(WaitFailed)
 {
    if (sem_trywait(_semaphore.sem))
       throw(WaitFailed(_semaphore.owner));
@@ -739,7 +768,7 @@ Semaphore::~Semaphore()
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
- void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
 {
    int retcode, i = 0;
 
@@ -773,7 +802,7 @@ Semaphore::~Semaphore()
 }
 
 // increment the count of the semaphore
- void Semaphore::signal()
+void Semaphore::signal()
 {
    sem_post(_semaphore.sem);
 }

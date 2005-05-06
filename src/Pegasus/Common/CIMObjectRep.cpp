@@ -32,6 +32,7 @@
 // Modified By:
 //      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
 //      Chip Vincent (cvincent@us.ibm.com)
+//      Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3476
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +50,7 @@ CIMObjectRep::CIMObjectRep()
 }
 
 CIMObjectRep::CIMObjectRep(const CIMObjectRep& x)
-    : _reference(x._reference),
+    : Sharable(), _reference(x._reference),
     _resolved(x._resolved)
 {
     x._qualifiers.cloneTo(_qualifiers);

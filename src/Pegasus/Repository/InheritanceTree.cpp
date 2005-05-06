@@ -31,6 +31,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) for bug#3352
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -291,7 +292,13 @@ void InheritanceTree::insert(
     extNode->extNodes->append(new InheritanceTreeExt(tag,classNode));
 
     classNode->superClass = superClassNode;
-
+    if(extNode)
+    {
+       for(int i=0, m=extNode->extNodes->size(); i<m; i++)
+          if ((*extNode->extNodes)[i]) delete (*(extNode->extNodes))[i];
+       delete extNode;
+    }
+    extNode = NULL;
 }
 
 void InheritanceTree::insert(

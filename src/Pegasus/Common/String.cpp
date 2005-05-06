@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -124,12 +124,12 @@ const String String::EMPTY = String();
 inline Uint32 _StrLen(const Char16* str)
 {
     if (!str)
-	throw NullPointer();
+        throw NullPointer();
 
     Uint32 n = 0;
 
     while (*str++)
-	n++;
+        n++;
 
     return n;
 }
@@ -147,7 +147,7 @@ void _convertAndAppend(const char* str, Array<Char16>& c16a, Uint32 n, Uint8 sto
     while ((stopAtTerm && *str) || (!stopAtTerm && i < n))
     {
         if (*(Uint8*)str <= 0x7f)
-        { 
+        {
             // Current byte sequence is in the us-ascii range.
             c16a.append(Uint8(*str++));
         }
@@ -166,7 +166,7 @@ void _convertAndAppend(const char* str, Array<Char16>& c16a, Uint32 n, Uint8 sto
                  (!isValid_U8((const Uint8 *)str, c+1)) )
             {
                 // Note about error conditions.
-                // It is possible that the last utf-8 char before the 
+                // It is possible that the last utf-8 char before the
                 // end of input string extends past the end of the input string.
                 // This is caught in both cases -
                 // If counting up to n, then the test above catches it.
@@ -181,14 +181,14 @@ void _convertAndAppend(const char* str, Array<Char16>& c16a, Uint32 n, Uint8 sto
             {
                 //  str is incremented by this call to the start of the next char
                 Uint16 * tgtBuf = tgt;
-                UTF8toUTF16((const Uint8 **)&str, (Uint8 *)&str[c+1], &tgtBuf,  &tgtBuf[2]); 
+                UTF8toUTF16((const Uint8 **)&str, (Uint8 *)&str[c+1], &tgtBuf,  &tgtBuf[2]);
                 c16a.append(tgt[0]);
                 if (tgt[1])
-                { 
+                {
                     // Its a utf-16 surrogate pair (uses 2 Char16's)
                     c16a.append(tgt[1]);
                 }
-  
+
                 // bump by the trailing byte count
                 i += c;
             }
@@ -242,17 +242,32 @@ String::String(const String& str, Uint32 n)
 
 String::String(const Char16* str)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep = new StringRep(str);
 }
 
 String::String(const Char16* str, Uint32 n)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep = new StringRep;
     assign(str, n);
 }
 
 String::String(const char* str)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep = new StringRep;
     AutoPtr<StringRep> tempRep(_rep);
     // An exception can be thrown, so use a temp AutoPtr.
@@ -262,6 +277,11 @@ String::String(const char* str)
 
 String::String(const char* str, Uint32 n)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep = new StringRep;
     AutoPtr<StringRep> tempRep(_rep);
     // An exception can be thrown, so use a temp AutoPtr.
@@ -291,6 +311,11 @@ String& String::assign(const String& str)
 
 String& String::assign(const Char16* str)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep->c16a.clear();
     _rep->c16a.append(str, _StrLen(str) + 1);
     return *this;
@@ -298,6 +323,11 @@ String& String::assign(const Char16* str)
 
 String& String::assign(const Char16* str, Uint32 n)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep->c16a.clear();
     _rep->c16a.append(str, n);
     _rep->c16a.append('\0');
@@ -306,6 +336,11 @@ String& String::assign(const Char16* str, Uint32 n)
 
 String& String::assign(const char* str)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep->c16a.clear();
     _convertAndAppend(str, _rep->c16a, 0, 1);
     return *this;
@@ -313,6 +348,11 @@ String& String::assign(const char* str)
 
 String& String::assign(const char* str, Uint32 n)
 {
+    if ( str == 0 )
+    {
+        throw NullPointer();
+    }
+
     _rep->c16a.clear();
     _convertAndAppend(str, _rep->c16a, n, 0);
     return *this;
@@ -342,7 +382,7 @@ const Char16* String::getChar16Data() const
 Char16& String::operator[](Uint32 index)
 {
     if (index > size())
-	throw IndexOutOfBoundsException();
+        throw IndexOutOfBoundsException();
 
     return _rep->c16a[index];
 }
@@ -350,7 +390,7 @@ Char16& String::operator[](Uint32 index)
 const Char16 String::operator[](Uint32 index) const
 {
     if (index > size())
-	throw IndexOutOfBoundsException();
+        throw IndexOutOfBoundsException();
 
     return _rep->c16a[index];
 }
@@ -363,10 +403,11 @@ String& String::append(const Char16& c)
 
 String& String::append(const Char16* str, Uint32 n)
 {
-     if (!str)
+     if (str == 0)
      {
          throw NullPointer();
      }
+
     _rep->c16a.reserveCapacity(_rep->c16a.size() + n);
     _rep->c16a.remove(_rep->c16a.size() - 1);
     _rep->c16a.append(str, n);
@@ -382,26 +423,26 @@ String& String::append(const String& str)
 void String::remove(Uint32 index, Uint32 size)
 {
     if (size == PEG_NOT_FOUND)
-	size = this->size() - index;
+        size = this->size() - index;
 
     if (index + size > this->size())
-	throw IndexOutOfBoundsException();
+        throw IndexOutOfBoundsException();
 
     if (size)
-	_rep->c16a.remove(index, size);
+        _rep->c16a.remove(index, size);
 }
 
 String String::subString(Uint32 index, Uint32 length) const
 {
     if (index < size())
     {
-	if ((length == PEG_NOT_FOUND) || (length > size() - index))
-	    length = size() - index;
+        if ((length == PEG_NOT_FOUND) || (length > size() - index))
+            length = size() - index;
 
-	return String(getChar16Data() + index, length);
+        return String(getChar16Data() + index, length);
     }
-    else
-	return String();
+
+    return String();
 }
 
 Uint32 String::find(Char16 c) const
@@ -410,8 +451,8 @@ Uint32 String::find(Char16 c) const
 
     for (const Char16* p = first; *p; p++)
     {
-	if (*p == c)
-	    return  p - first;
+        if (*p == c)
+            return  p - first;
     }
 
     return PEG_NOT_FOUND;
@@ -423,8 +464,8 @@ Uint32 String::find(Uint32 index, Char16 c) const
 
     for (Uint32 i = index, n = size(); i < n; i++)
     {
-	if (data[i] == c)
-	    return i;
+        if (data[i] == c)
+            return i;
     }
 
     return PEG_NOT_FOUND;
@@ -446,19 +487,19 @@ Uint32 String::find(const String& s) const
     Uint32 loc = 0;
     for( ; loc <= (strLen-subStrLen); loc++)
     {
-	if (*pStr++ == *pSubStr)  // match first char
-	{
-	    // point to substr 2nd char
-	    const Char16* p = pSubStr + 1;
+        if (*pStr++ == *pSubStr)  // match first char
+        {
+            // point to substr 2nd char
+            const Char16* p = pSubStr + 1;
 
-	    // Test remaining chars for equal
-	    Uint32 i = 1;
-	    for (; i < subStrLen; i++)
-		if (*pStr++ != *p++ )
-		    {pStr-=i; break;} // break from loop
-	    if (i == subStrLen)
-		return loc;
-	}
+            // Test remaining chars for equal
+            Uint32 i = 1;
+            for (; i < subStrLen; i++)
+                if (*pStr++ != *p++ )
+                    {pStr-=i; break;} // break from loop
+            if (i == subStrLen)
+                return loc;
+        }
     }
     return PEG_NOT_FOUND;
 }
@@ -470,8 +511,8 @@ Uint32 String::reverseFind(Char16 c) const
 
     while (last != first)
     {
-	if (*--last == c)
-	    return last - first;
+        if (*--last == c)
+            return last - first;
     }
 
     return PEG_NOT_FOUND;
@@ -481,7 +522,7 @@ void String::toLower()
 {
 #ifdef PEGASUS_HAS_ICU
     // This will do a locale-insensitive, but context-sensitive convert.
-    // Context-sensitive prevents any optimizations that try to 
+    // Context-sensitive prevents any optimizations that try to
     // convert just the ascii before calling ICU.
     // The string may shrink or expand after the convert.
 
@@ -501,7 +542,7 @@ void String::toLower()
     if (U_FAILURE(err))
     {
         delete [] destbuf;
-        throw Exception(u_errorName(err));  
+        throw Exception(u_errorName(err));
     }
 
     if (needed == sz)
@@ -522,7 +563,7 @@ void String::toLower()
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
         if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
-	        *p = tolower(*p);
+                *p = tolower(*p);
     }
 #endif
 }
@@ -531,7 +572,7 @@ void String::toUpper()
 {
 #ifdef PEGASUS_HAS_ICU
     // This will do a locale-insensitive, but context-sensitive convert.
-    // Context-sensitive prevents any optimizations that try to 
+    // Context-sensitive prevents any optimizations that try to
     // convert just the ascii before calling ICU.
     // The string may shrink or expand after the convert.
 
@@ -551,7 +592,7 @@ void String::toUpper()
     if (U_FAILURE(err))
     {
         delete [] destbuf;
-        throw Exception(u_errorName(err));  
+        throw Exception(u_errorName(err));
     }
 
     if (needed == sz)
@@ -571,8 +612,8 @@ void String::toUpper()
 #else
     for (Char16* p = &_rep->c16a[0]; *p; p++)
     {
-	    if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
-	        *p = toupper(*p);
+            if (*p <= PEGASUS_MAX_PRINTABLE_CHAR)
+                *p = toupper(*p);
     }
 #endif
 }
@@ -584,10 +625,10 @@ int String::compare(const String& s1, const String& s2, Uint32 n)
 
     while (n--)
     {
-	int r = *s1c16++ - *s2c16++;
+        int r = *s1c16++ - *s2c16++;
 
-	if (r)
-	    return r;
+        if (r)
+            return r;
     }
 
     return 0;
@@ -600,16 +641,16 @@ int String::compare(const String& s1, const String& s2)
 
     while (*s1c16 && *s2c16)
     {
-	int r = *s1c16++ - *s2c16++;
+        int r = *s1c16++ - *s2c16++;
 
-	if (r)
-	    return r;
+        if (r)
+            return r;
     }
 
     if (*s2c16)
-	return -1;
+        return -1;
     else if (*s1c16)
-	return 1;
+        return 1;
 
     return 0;
 }
@@ -638,14 +679,14 @@ int String::compareNoCase(const String& s1, const String& s2)
             r = *_s1++ - *_s2++;
         }
 
-	if (r)
-	    return r;
+        if (r)
+            return r;
     }
 
     if (*_s2)
-	return -1;
+        return -1;
     else if (*_s1)
-	return 1;
+        return 1;
 
     return 0;
 #endif
@@ -662,7 +703,7 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
     return  compareNoCase(str1, str2) == 0;
 #else
     if (str1.size() != str2.size())
-	return false;
+        return false;
 
     const Char16* p = str1.getChar16Data();
     const Char16* q = str2.getChar16Data();
@@ -671,14 +712,14 @@ Boolean String::equalNoCase(const String& str1, const String& str2)
 
     while (n--)
     {
-	if (*p <= PEGASUS_MAX_PRINTABLE_CHAR &&
+        if (*p <= PEGASUS_MAX_PRINTABLE_CHAR &&
             *q <= PEGASUS_MAX_PRINTABLE_CHAR)
-	{
-	    if (tolower(*p++) != tolower(*q++))
-		return false;
-	}
-	else if (*p++ != *q++)
-	    return false;
+        {
+            if (tolower(*p++) != tolower(*q++))
+                return false;
+        }
+        else if (*p++ != *q++)
+            return false;
     }
 
     return true;
@@ -700,13 +741,13 @@ CString String::getCString() const
     Uint8 *endtgt = (Uint8 *)&str[n];
 
     UTF16toUTF8 (&strsrc,
-		 endsrc,
-		 &strtgt,
-		 endtgt);
+                 endsrc,
+                 &strtgt,
+                 endtgt);
 
-	char* str1 = new char[strlen(str)+1];
-	strcpy(str1,str);
-	delete [] str;
+        char* str1 = new char[strlen(str)+1];
+        strcpy(str1,str);
+        delete [] str;
 
     return CString(str1);
 }
@@ -719,18 +760,18 @@ CString String::getCString() const
 /* _StringMatch Match input MatchString against a GLOB style pattern
        Note that MatchChar is the char type so that this source
        in portable to different string types. This is an internal function
- 
-  Results: The return value is 1 if string matches pattern, and
- 	0 otherwise.  The matching operation permits the following
- 	special characters in the pattern: *?\[] (see the manual
- 	entry for details on what these mean).
 
- 
+  Results: The return value is 1 if string matches pattern, and
+        0 otherwise.  The matching operation permits the following
+        special characters in the pattern: *?\[] (see the manual
+        entry for details on what these mean).
+
+
   Side effects: None.
  */
-  
+
 /* MatchChar defined as a separate entity because this function source used
-    elsewhere was an unsigned char *. Here we use Uint16 to  maintain 16 bit 
+    elsewhere was an unsigned char *. Here we use Uint16 to  maintain 16 bit
     size.
 */
 typedef Uint16 MatchChar;
@@ -745,9 +786,9 @@ inline Boolean _Equal(MatchChar ch1, MatchChar ch2, int nocase)
 {
     // ICU_TODO:  If ICU is available we should do this the correct way.
     if (nocase)
-	return _ToLower(ch1) == _ToLower(ch2);
-    else
-	return ch1 == ch2;
+        return _ToLower(ch1) == _ToLower(ch2);
+
+    return ch1 == ch2;
 }
 
 
@@ -775,10 +816,10 @@ _matchrange(const MatchChar *range, MatchChar c, int nocase)
 }
 
 static int
-_StringMatch( 
-    const MatchChar *testString, 
+_StringMatch(
+    const MatchChar *testString,
     const MatchChar *pattern,
-    int nocase ) 		/* Ignore case if this is true */
+    int nocase )                /* Ignore case if this is true */
 {
   const MatchChar *pat = pattern;
   const MatchChar *str = testString;
@@ -839,7 +880,7 @@ _StringMatch(
 
     /** match matches a string against a GLOB style pattern.
         Return trues if the String parameter matches the pattern. C-Shell style
-	glob matching is used.
+        glob matching is used.
         @param str String to be matched against the pattern
         @param pattern Pattern to use in the match
         @return Boolean true if str matches pattern
@@ -861,11 +902,11 @@ _StringMatch(
 Boolean String::match(const String& str, const String& pattern)
 {
     return _StringMatch(
-	(Uint16*)str.getChar16Data(), (Uint16*)pattern.getChar16Data(), 0) != 0;
+        (Uint16*)str.getChar16Data(), (Uint16*)pattern.getChar16Data(), 0) != 0;
 }
 
     /** matchNoCase Matches a String against a GLOB style pattern independent
-        of case. 
+        of case.
         Returns true if the str parameter matches the pattern. C-Shell style
         glob matching is used. Ignore case in all comparisons. Case is
         ignored in the match.
@@ -877,7 +918,7 @@ Boolean String::match(const String& str, const String& pattern)
 Boolean String::matchNoCase(const String& str, const String& pattern)
 {
     return _StringMatch(
-	(Uint16*)str.getChar16Data(), (Uint16*)pattern.getChar16Data(), 1) != 0;
+        (Uint16*)str.getChar16Data(), (Uint16*)pattern.getChar16Data(), 1) != 0;
 }
 #endif
 
@@ -918,33 +959,33 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     os << utf8str;
 
 #elif defined(PEGASUS_HAS_ICU)
-	    char *buf = NULL;
-    	const int size = str.size() * 6;
-    	UnicodeString UniStr((const UChar *)str.getChar16Data(), (int32_t)str.size());
-    	Uint32 bufsize = UniStr.extract(0,size,buf);
-    
-    	buf = new char[bufsize+1];
-    	UniStr.extract(0,bufsize,buf);
-    	os << buf;
-    	os.flush();
-    	delete [] buf;
-#else
-    	for (Uint32 i = 0, n = str.size(); i < n; i++)
-    	{
-        	Uint16 code = str[i];
+        char *buf = NULL;
+        const int size = str.size() * 6;
+        UnicodeString UniStr((const UChar *)str.getChar16Data(), (int32_t)str.size());
+        Uint32 bufsize = UniStr.extract(0,size,buf);
 
-        	if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
-        	{
-           	 os << char(code);
-       	 	}
-        	else
-        	{
-            	// Print in hex format:
-            	char buffer[8];
-            	sprintf(buffer, "\\x%04X", code);
-            	os << buffer;
-        	}
-    	}
+        buf = new char[bufsize+1];
+        UniStr.extract(0,bufsize,buf);
+        os << buf;
+        os.flush();
+        delete [] buf;
+#else
+        for (Uint32 i = 0, n = str.size(); i < n; i++)
+        {
+                Uint16 code = str[i];
+
+                if (code > 0 && code <= PEGASUS_MAX_PRINTABLE_CHAR)
+                {
+                 os << char(code);
+                }
+                else
+                {
+                // Print in hex format:
+                char buffer[8];
+                sprintf(buffer, "\\x%04X", code);
+                os << buffer;
+                }
+        }
 #endif // End of PEGASUS_HAS_ICU #else leg.
 
     return os;

@@ -494,7 +494,6 @@ void shutdownCIMOM(Uint32 timeoutValue)
                                      "Forced shutdown initiated.");
             PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
         }
-         PEGASUS_STD(cerr) << "Exit! " << endl;
         exit(1);
 #endif
     }

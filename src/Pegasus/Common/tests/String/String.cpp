@@ -691,6 +691,116 @@ int main(int argc, char** argv)
 
         String tPattern = "When in the * of human*e??nts it be?ome[sS] [0-9] nec*";
 
+
+        try
+        {
+            String x(reinterpret_cast<const char *>(0));
+            cerr << "Error: Exception not thrown on NULL passed to constructor(const char *)" << endl;
+        }
+
+        catch ( const NullPointer & )
+        {
+            // This is the exception that should be thrown.
+        }
+
+        catch ( ... )
+        {
+            cerr << "Error: Wrong exception thrown on NULL passed to constructor(const char *)" << endl;
+        }
+
+
+        try
+        {
+            String x(reinterpret_cast<const Char16 *>(0));
+            cerr << "Error: Exception not thrown on NULL passed to constructor(const Char16 *)" << endl;
+        }
+
+        catch ( const NullPointer & )
+        {
+            // This is the exception that should be thrown.
+        }
+
+        catch ( ... )
+        {
+            cerr << "Error: Wrong exception thrown on NULL passed to constructor(const Char16 *)" << endl;
+        }
+
+
+        try
+        {
+            String x;
+
+            x.assign(reinterpret_cast<const char *>(0));
+            cerr << "Error: Exception not thrown on NULL passed to assign(const char *)" << endl;
+        }
+
+        catch ( const NullPointer & )
+        {
+            // This is the exception that should be thrown.
+        }
+
+        catch ( ... )
+        {
+            cerr << "Error: Wrong exception thrown on NULL passed to assign(const char *)" << endl;
+        }
+
+
+        try
+        {
+            String x;
+
+            x.assign(reinterpret_cast<const Char16 *>(0));
+            cerr << "Error: Exception not thrown on NULL passed to assign(const Char16 *)" << endl;
+        }
+
+        catch ( const NullPointer & )
+        {
+            // This is the exception that should be thrown.
+        }
+
+        catch ( ... )
+        {
+            cerr << "Error: Wrong exception thrown on NULL passed to assign(const Char16 *)" << endl;
+        }
+
+
+        try
+        {
+            String x;
+
+            x.append(reinterpret_cast<const char *>(0));
+            cerr << "Error: Exception not thrown on NULL passed to append(const char *)" << endl;
+        }
+
+        catch ( const NullPointer & )
+        {
+            // This is the exception that should be thrown.
+        }
+
+        catch ( ... )
+        {
+            cerr << "Error: Wrong exception thrown on NULL passed to append(const char *)" << endl;
+        }
+
+
+        try
+        {
+            String x;
+
+            x.append(reinterpret_cast<const Char16 *>(0));
+            cerr << "Error: Exception not thrown on NULL passed to append(const Char16 *)" << endl;
+        }
+
+        catch ( const NullPointer & )
+        {
+            // This is the exception that should be thrown.
+        }
+
+        catch ( ... )
+        {
+            cerr << "Error: Wrong exception thrown on NULL passed to append(const Char16 *)" << endl;
+        }
+
         // ATTN-RK-P3-20020603: This match code is broken
         //assert(String::match(
         //    "When in the course of human events it becomes 0 necessary",

@@ -263,42 +263,45 @@ void InheritanceTree::insert(
     InheritanceTreeNode* superClassNode = 0;
 
     if ((superClassName.size()) &&
-	!parentTree._rep->table.lookup(superClassName, superClassNode)) {
-	superClassNode = new InheritanceTreeNode(superClassName);
-	parentTree._rep->table.insert(superClassName, superClassNode);
+    	!parentTree._rep->table.lookup(superClassName, superClassNode)) {
+        	superClassNode = new InheritanceTreeNode(superClassName);
+        	parentTree._rep->table.insert(superClassName, superClassNode);
     }
 
     InheritanceTreeNode* extNode = 0;
 
     if (!parentTree._rep->table.lookup(className, extNode)) {
-	extNode = new InheritanceTreeNode(className);
-	parentTree._rep->table.insert(className, extNode);
-	extNode->extension=true;
-	extNode->extNodes=new Array<InheritanceTreeExt*>;
+    	extNode = new InheritanceTreeNode(className);
+    	parentTree._rep->table.insert(className, extNode);
+    	extNode->extension=true;
+    	extNode->extNodes=new Array<InheritanceTreeExt*>;
     }
 
     extNode->provisional = false;
 
     if (superClassNode)
-	superClassNode->addSubClass(extNode);
+    	superClassNode->addSubClass(extNode);
 
     InheritanceTreeNode* classNode = 0;
 
     if (!_rep->table.lookup(className, classNode)) {
-	classNode = new InheritanceTreeNode(className);
-	_rep->table.insert(className, classNode);
+    	classNode = new InheritanceTreeNode(className);
+    	_rep->table.insert(className, classNode);
     }
 
     extNode->extNodes->append(new InheritanceTreeExt(tag,classNode));
 
     classNode->superClass = superClassNode;
+    /* temp comment out this code from bug 3352.  See bug 3498 for reason
     if(extNode)
     {
-       for(int i=0, m=extNode->extNodes->size(); i<m; i++)
-          if ((*extNode->extNodes)[i]) delete (*(extNode->extNodes))[i];
+       for(int i=0, m=extNode->extNodes->size(); i < m; i++)
+          if ((*extNode->extNodes)[i]) 
+            delete (*(extNode->extNodes))[i];
        delete extNode;
-    }
-    extNode = NULL;
+    }    
+    extNode = NULL;*/
+
 }
 
 void InheritanceTree::insert(

@@ -78,8 +78,11 @@ sources.
 %global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
 %global PEGASUS_INSTALL_LOG /var/opt/tog-pegasus/log/install.log
 
-%ifarch ia64 x86_64
+%ifarch ia64
 %global PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU
+%else
+%ifarch x86_64
+%global PEGASUS_HARDWARE_PLATFORM LINUX_X86_64_GNU
 %else
 %ifarch ppc
 %global PEGASUS_HARDWARE_PLATFORM LINUX_PPC_GNU

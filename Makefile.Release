@@ -738,9 +738,15 @@ _append_PreambleToSpecFile: FORCE
 	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG $(PEGASUS_LOG_DIR)/install.log" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch ia64 x86_64" >> \
+	@$(ECHO-E) "%ifarch ia64" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%else" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ifarch x86_64" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_X86_64_GNU" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%else" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)

@@ -1864,7 +1864,7 @@ void ProviderRegistrationManager::_initialRegistrationTable()
             reference = cimNamedInstances[i].getPath ();
             String vendor, version, interfaceType, interfaceVersion, location;
             Boolean userContextSpecified = false;
-            Uint16 userContext;
+            Uint16 userContext = 0;
 
             //
             // Name, Version, InterfaceType, InterfaceVersion, and Location

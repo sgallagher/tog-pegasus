@@ -1,9 +1,9 @@
 // ===================================================================
 // Title      : PG_User MOF
 // Filename   : PG_User20.mof
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3366
 // Version    : 1.0
 // Date       : 11/05/2001
-// Author     : Sushma Fernandes
 // Description: This MOF file uses Pegasus convention. It provides 
 //              definitions for PG_User.
 //

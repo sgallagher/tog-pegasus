@@ -1,10 +1,8 @@
 // =============================================================================
 // Title:              PG_DNSService MOF
 // Filename:           PG_DNSService20.mof
-// Author:             Paulo F. Borges      <pfborges@wowmail.com>
-// Modified By:        
-//     Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//
+// Modified By:        Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
+//                     Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3366
 // Description:        This file specifies the PG_DNSService class.
 //                     It is an extension of the CIM_Service class which 
 //                     describes a Domain Name System (DNS). 

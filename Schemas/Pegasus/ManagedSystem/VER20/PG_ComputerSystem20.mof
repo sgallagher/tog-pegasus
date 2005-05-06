@@ -2,8 +2,8 @@
 // Title:              PG_ComputerSystem  MOF  
 // Filename:           PG_ComputerSystem20.mof
 // Date:               05/29/2001
-// Author:             Jim Metcalfe
 // Modified by:        Mike Glantz <michael_glantz@hp.com>
+//                     Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3366
 // Description:        This file specifies the PG_ComputerSystem class
 //
 // This class definitions contained in this file are:

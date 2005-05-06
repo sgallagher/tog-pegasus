@@ -1,14 +1,11 @@
 // ===================================================================
 // Title:       UNIX Processes, Threads, and Statistics
 // Filename:    PG_UnixProcess20.mof
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3366
 // Version:     2.6 Preliminary +
 // Release:     0
 // Date:        2002/03/14
 // ===================================================================
-// Author:      DMTF System and Devices Working Group
-//		    Jim Metcalfe
-//		    Lyle Wilkinson
-// ==================================================================
 // Clipped from:
 //
 //     - CIM_Core26.mof  (Prelimary)

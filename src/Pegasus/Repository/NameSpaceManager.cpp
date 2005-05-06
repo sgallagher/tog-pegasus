@@ -36,6 +36,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijay.eli@in.ibm.com) for bug#3346
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -806,8 +807,8 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
 
     delete nameSpaceNames;
     if (specialNames) {
-//       for (int i=0,m=specialNames->size(); i<m; i++)
-//          if ((*specialNames)[i]) delete (*specialNames)[i];
+       for (int i=0,m=specialNames->size(); i<m; i++)
+          if ((*specialNames)[i]) delete (*specialNames)[i];
        delete specialNames;
     }
     nameSpaceNames=NULL;

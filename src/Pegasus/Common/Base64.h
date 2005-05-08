@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,12 +35,12 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-/** This class encodes binary data to base64 Strings and 
+/** This class encodes binary data to base64 Strings and
     decodes Strings coded in base64 into the corresponding binary
     data.
-    The base 64 data representation is based on a 64-character alphabet
+    The base64 data representation is based on a 64-character alphabet:
     <pre>
-                               Table 1: The Base64 Alphabet
+                       Table 1: The Base64 Alphabet
 
       Value Encoding  Value Encoding  Value Encoding  Value Encoding
            0 A            17 R            34 i            51 z
@@ -63,12 +63,12 @@
     </pre>
     The input file is encoded 6 bits at a time into a single character
     in the 64-character alphabet. Where padding is required at the end
-    of the file, The padding character is '='.
+    of the stream, the padding character is '='.
     Finally, the output stream should also be broken into lines to improve
-    human readability.  We break it at 76 characters and insert a CR/LF into
-    the stream.  This increases the length by less than 3%.
+    human readability.  This class breaks it at 76 characters and insert a
+    CR/LF into the stream.  This increases the length by less than 3%.
     Since the decoding ingores characters that are outside the 64 character
-    alphabet, the CR,LF and padding character are dropped.
+    alphabet, the CR, LF and padding character are dropped.
 */
 
 #ifndef Pegasus_Base64_h
@@ -87,19 +87,28 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE Base64
 {
 public:
-    /** encode - Encodes a String into a base-64 "string"
-    @param
-    @return  String with the endoced data
-    */
-    static Array<char> encode(const Array<char>& vby);
     /**
+        Encodes an Array<char> into a base64 array.
+
+        @param vby Array<char> with the data to be encoded.
+        @return Array<char> with the encoded data
+        @exception bad_alloc Thrown if there is insufficient memory.
+    */
+    static Array<char> encode(const Array<char>& vby);  
+
+    /**
+        Decodes an base64 array into an Array<char>
+
+        @param str Array<char> with the data to be decoded.
+        @return Array<char> with the decoded data
+        @exception bad_alloc Thrown if there is insufficient memory.
     */
     static Array<char> decode(const Array<char>& str);
 
 private:
     static char _Encode(Uint8 uc);
     static Uint8 _Decode(char c);
-    static Boolean _IsBase64(char c); 
+    static Boolean _IsBase64(char c);
 };
 
 

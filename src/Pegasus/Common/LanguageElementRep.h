@@ -104,7 +104,7 @@ public:
 	/**
 	 * Destructor
 	 */
-	virtual ~LanguageElementRep();
+	~LanguageElementRep();
 
 	/**
 	 * Assignment operator, deep copy

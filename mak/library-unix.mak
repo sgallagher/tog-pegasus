@@ -1,7 +1,15 @@
 ifeq ($(COMPILER),xlc)
   LINK_COMMAND = xlC_r
   ifdef PEGASUS_USE_RELEASE_DIRS
-    LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:/usr/linux/lib:/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT)
+    ifdef PEGASUS_HAS_MESSAGES
+      ifdef ICU_ROOT
+        ifdef ICU_INSTALL
+          LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:/usr/linux/lib:/usr/lib:/lib:$(ICU_INSTALL)/lib -Wl,-bhalt:$(AIX_LD_HALT)
+        endif
+      endif
+    else
+      LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -blibpath:/usr/linux/lib:/usr/lib:/lib -Wl,-bhalt:$(AIX_LD_HALT)
+    endif
   else
     LINK_ARGUMENTS = -qmkshrobj=$(AIX_LIB_PRIORITY) -Wl,-bhalt:$(AIX_LD_HALT)
   endif

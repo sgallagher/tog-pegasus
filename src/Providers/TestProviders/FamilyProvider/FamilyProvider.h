@@ -167,6 +167,26 @@ protected:
 
 private:
 
+String _hostname;
+
+void _setCompleteObjectPath(
+         CIMObjectPath & path);
+
+
+void _setCompleteObjectPath(
+         CIMInstance & instance);
+
+/** clone the input instance and filter it in accordance with
+    the input variables.
+    @return cloned and filtered instance.
+*/
+CIMInstance _filter(
+	 const CIMInstance& instance,
+         const Boolean includeQualifiers,
+         const Boolean includeClassOrigin,
+	 const CIMPropertyList& pl);
+
+
 void _getInstance(
     const Array<CIMInstance> & instanceArray,    
 	const OperationContext & context,

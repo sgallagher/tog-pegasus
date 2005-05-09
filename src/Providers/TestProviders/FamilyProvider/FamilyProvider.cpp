@@ -116,8 +116,6 @@ const CIMName personDynamicSubclassClassName = "TST_PersonDynamicSubClass";
 const CIMName lineageDynamicAssocClassName = "TST_LineageDynamic";
 const CIMName labeledLineageDynamicAssocClassName = "TST_LabeledLineageDynamic";
 
-String _hostname;   
-
 // The namespace in which we expect to reside.
 // We need to think out some of the issues with this
 String nameSpace = "test/TestProvider";
@@ -244,13 +242,13 @@ Boolean _returnThisProperty(const CIMPropertyList& pl, const CIMName& pn)
 	return(false);
 }
 
-void _setCompleteObjectPath(CIMObjectPath & path)
+void FamilyProvider::_setCompleteObjectPath(CIMObjectPath & path)
 {
     path.setHost(_hostname);
     path.setNameSpace(nameSpace);
 }
 
-void _setCompleteObjectPath(CIMInstance & instance)
+void FamilyProvider::_setCompleteObjectPath(CIMInstance & instance)
 {
     CIMObjectPath p = instance.getPath();
     p.setHost(_hostname);
@@ -263,7 +261,7 @@ void _setCompleteObjectPath(CIMInstance & instance)
     the input variables.
     @return cloned and filtered instance.
 */
-CIMInstance _filter(const CIMInstance& instance,
+CIMInstance FamilyProvider::_filter(const CIMInstance& instance,
                     const Boolean includeQualifiers,
                     const Boolean includeClassOrigin,
                     const CIMPropertyList& pl)

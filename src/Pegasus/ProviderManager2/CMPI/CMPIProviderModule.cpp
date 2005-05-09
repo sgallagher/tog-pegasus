@@ -72,6 +72,8 @@ CMPIProviderModule::~CMPIProviderModule(void)
 
 ProviderVector CMPIProviderModule::load(const String & providerName)
 {
+   String realProviderName(providerName);
+   realProviderName.remove(0,1);
    if (!genericProviderModule)
     _library = System::loadDynamicLibrary((const char *)_fileName.getCString());
 
@@ -88,7 +90,7 @@ ProviderVector CMPIProviderModule::load(const String & providerName)
     }
 
     char symbolName[512];
-    CString mName=providerName.getCString();
+    CString mName=realProviderName.getCString();
     ProviderVector miVector;
     memset(&miVector,0,sizeof(ProviderVector));
     int specificMode=0;

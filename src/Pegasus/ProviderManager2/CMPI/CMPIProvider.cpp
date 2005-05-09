@@ -162,15 +162,17 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
 
 void CMPIProvider::initialize(CIMOMHandle & cimom)
 {
+    String providername(_name);
+    // remove the first letter
+    providername.remove(0,1);
 
     if(_status == UNINITIALIZED)
   {
       String compoundName;
       if (_location.size() == 0)
-      	  compoundName=_name;
+			compoundName= providername;
       else
-      	  compoundName=_location+":"+_name;
-
+			compoundName=_location+":"+providername;
       try {
 	 // yield before a potentially lengthy operation.
         pegasus_yield();

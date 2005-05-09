@@ -374,10 +374,13 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getRemoteProvider(
     Sint32 ccode;
     const String proxy("CMPIRProxyProvider");
 
+    String rproviderName("R");
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProvidertManager::geRemoteProvider");
 
+    rproviderName.append(providerName);
+    
     strings.fileName = &proxy;
-    strings.providerName = &providerName;
+    strings.providerName = &rproviderName;
     strings.location = &location;
 
     try {
@@ -410,10 +413,12 @@ CMPIProvider::OpProviderHolder CMPILocalProviderManager::getProvider(
     CTRL_STRINGS strings;
     Sint32 ccode;
 
+    String lproviderName("L");
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
 
+    lproviderName.append(providerName);
     strings.fileName = &fileName;
-    strings.providerName = &providerName;
+    strings.providerName = &lproviderName;
     strings.location=&String::EMPTY;
 
     try {

@@ -406,6 +406,7 @@ Boolean System::isSystemUser(const char* userName)
 
     char mUserName[UNLEN+1];
     char mDomainName[UNLEN+1];
+    char tUserName[UNLEN+1];
     wchar_t wUserName[UNLEN+1];
     wchar_t wDomainName[UNLEN+1];
     char* pbs;
@@ -416,26 +417,31 @@ Boolean System::isSystemUser(const char* userName)
     LPUSER_INFO_1 pUserInfo = NULL;
     NET_API_STATUS nStatus = NULL;
 
+    // Make a copy of the specified username, it cannot be used directly because it's
+    // declared as const and strchr() may modify the string.
+    strncpy(tUserName, userName, sizeof(tUserName) - 1);
+    tUserName[sizeof(tUserName)] = '\0';
+
     //separate the domain and user name if both are present.
-    if (NULL != (pbs = strchr(userName, '\\')))
+    if (NULL != (pbs = strchr(tUserName, '\\')))
     {
         *pbs = '\0';
-        strcpy(mDomainName, userName);
+        strcpy(mDomainName, tUserName);
         strcpy(mUserName, pbs+1);
         usingDomain = true;
 
-    } else if ((NULL != (pbs = (strchr(userName, '@')))) ||
-               (NULL != (pbs = (strchr(userName, '.')))))
+    } else if ((NULL != (pbs = (strchr(tUserName, '@')))) ||
+               (NULL != (pbs = (strchr(tUserName, '.')))))
     {
         *pbs = '\0';
         strcpy(mDomainName, pbs+1);
-        strcpy(mUserName, userName);
+        strcpy(mUserName, tUserName);
         usingDomain = true;
 
     } else
     {
         strcpy(mDomainName, ".");
-        strcpy(mUserName, userName);
+        strcpy(mUserName, tUserName);
     }
 
     //convert domain name to unicode

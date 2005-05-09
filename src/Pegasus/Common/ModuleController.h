@@ -107,7 +107,8 @@ class PEGASUS_COMMON_LINKAGE pegasus_module
 	    
 
 	    Mutex _thread_safety;
-	    AutoPtr<ModuleController> _controller;//PEP101
+		// Don't make this an AutoPtr. Refer to bug 3502
+	    ModuleController* _controller;
 	    String _name;
 	    AtomicInt _reference_count;
 	    AtomicInt _shutting_down;
@@ -471,7 +472,6 @@ class PEGASUS_COMMON_LINKAGE ModuleController : public MessageQueueService
 
       static void _async_handleEnqueue(AsyncOpNode *h, MessageQueue *q, void *parm);
       DQueue<pegasus_module> _modules;
-      pegasus_module _internal_module;
       AsyncReply *_send_wait(Uint32, AsyncRequest *);
       AsyncReply *_send_wait(Uint32, const String &, AsyncRequest *);
       Boolean _send_forget(Uint32, AsyncRequest *) throw(IPCException);

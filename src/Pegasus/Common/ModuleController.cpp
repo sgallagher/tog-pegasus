@@ -342,8 +342,7 @@ ModuleController::ModuleController(const char *name )
    :Base(name, MessageQueue::getNextQueueId(), 
 	 module_capabilities::module_controller |
 	 module_capabilities::async),
-    _modules(true),
-    _internal_module(this, String("INTERNAL"), this, NULL, NULL, NULL)
+    _modules(true)
 { 
 
 }

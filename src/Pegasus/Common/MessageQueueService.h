@@ -182,7 +182,6 @@ private:
     AtomicInt _incoming_queue_shutdown;
     Semaphore _callback_ready;
 
-    Thread _req_thread;
     Thread _callback_thread;
 
 protected:
@@ -193,7 +192,6 @@ private:
     static AtomicInt _xid;
     friend class cimom;
     friend class CIMServer;
-    friend class monitor_2;
 };
 
 PEGASUS_NAMESPACE_END

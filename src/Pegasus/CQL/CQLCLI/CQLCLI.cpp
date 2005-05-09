@@ -938,16 +938,32 @@ int main(int argc, char ** argv)
 
   
   // setup test environment
-  const char* env = getenv("PEGASUS_HOME");
-  String repositoryDir(env);
-  
+
+  // get the configuration variable PEGASUS_HOME
+  const char* peg_home = getenv("PEGASUS_HOME");
+	
+  // get the makefile build config variable REPOSITORY_NAME
+  const char* repo_name = getenv("REPOSITORY_NAME");
+
+
+   if (peg_home == NULL)
+     exit(-1);
+
+   if (repo_name == NULL)
+     repo_name = "repository";
+
+
+   	String repositoryDir(peg_home);
+	repositoryDir.append("/");
+	repositoryDir.append(repo_name);
+
   //
-  // Comment out the above line and umcomment the line below when testing with Rational Purify
+  // Comment out the above 3 lines and umcomment the line below when testing with Rational Purify
   //
   
   //String repositoryDir("c:/pegasus-cvs/pegasus");
   
-  repositoryDir.append("/repository");
+
 
   CIMNamespaceName _ns;
   if(nameSpace != String::EMPTY){

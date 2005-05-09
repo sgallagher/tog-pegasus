@@ -139,6 +139,66 @@ run_SSL_TS1:
             TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
 ###############################################################################
 
+##############################################################################
+##
+## TestBinReposiory rule is used to run the poststarttests suite on
+## the Binary Reposiory.
+##
+## Running the poststarttests as part of the nightly's I have three choices.
+## 1. a)remove repository, 
+##    b)build bin repository as repository, 
+##    c)run test, 
+##    d)remove repository, 
+##    e)build xml repository.
+##
+## 2. a)build bin repository as repository_bin, 
+##    b)run test on repository_bin
+##
+## Currently scenaerio 1 works but it is slow.
+## Scenaerio 2 is close to working. There may be a few test remaining that
+## don't honor the REPOSITORY_NAME build config variable.
+##
+
+
+
+TestBinRepository: TestBinRepository2
+	$(ECHO) TestBinRepository +++++ passed all test
+##
+## 1. a)remove repository, 
+##    b)build bin repository as repository, 
+##    c)run test, 
+##    d)remove repository, 
+##    e)build xml repository.
+##
+TestBinRepository1:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true"
+	$(SLEEP) 5
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+##
+## 2. a)build bin repository as repository_bin, 
+##    b)run test on repository_bin
+##
+TestBinRepository2:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean REPOSITORY_NAME=repository_bin
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true repositoryDir=$(PEGASUS_HOME)/repository_bin"
+	$(SLEEP) 5
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+
+
+
+
 ###############################################################################
 ##
 ## Trace Configuration

@@ -281,9 +281,23 @@ int main(int argc, char ** argv)
 	Array<CQLSelectStatement> _statements;
 
 	// setup test environment
-	const char* env = getenv("PEGASUS_HOME");
-        String repositoryDir(env);
-        repositoryDir.append("/repository");
+	// get the configuration variable PEGASUS_HOME
+	const char* peg_home = getenv("PEGASUS_HOME");
+	
+	// get the makefile build config variable REPOSITORY_NAME
+	const char* repo_name = getenv("REPOSITORY_NAME");
+
+
+   if (peg_home == NULL)
+     exit(-1);
+
+   if (repo_name == NULL)
+     repo_name = "repository";
+
+
+   	String repositoryDir(peg_home);
+	repositoryDir.append("/");
+	repositoryDir.append(repo_name);
 
 	CIMNamespaceName _ns;
 	if(nameSpace != String::EMPTY){

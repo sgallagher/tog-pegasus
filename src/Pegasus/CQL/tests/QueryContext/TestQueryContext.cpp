@@ -207,13 +207,23 @@ void drive_CIMOMHandleQueryContext()
 
 void drive_RepositoryQueryContext()
 {
-	const char* env = getenv("PEGASUS_HOME");
+  // get the configuration variable PEGASUS_HOME
+  const char* peg_home = getenv("PEGASUS_HOME");
 
-   if (env == NULL)
+  // get the makefile build config variable REPOSITORY_NAME
+  const char* repo_name = getenv("REPOSITORY_NAME");
+
+   if (peg_home == NULL)
      exit(-1);
 
-	String repositoryDir(env);
-	repositoryDir.append("/repository");
+   if (repo_name == NULL)
+     repo_name = "repository";
+
+
+   	String repositoryDir(peg_home);
+	repositoryDir.append("/");
+	repositoryDir.append(repo_name);
+
 	CIMNamespaceName _ns("root/SampleProvider");
 	CIMRepository *_rep = new CIMRepository(repositoryDir);
 	RepositoryQueryContext _queryOrig(_ns, _rep);
@@ -235,7 +245,8 @@ int main( int argc, char *argv[] )
   //
 
   //BEGIN TESTS....
-
+  String repositoryDir;
+  
   try
   {
 	drive_CIMOMHandleQueryContext();

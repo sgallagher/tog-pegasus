@@ -744,7 +744,12 @@ int main(int argc, char *argv[])
 {
   cout << "+++++ Testing Processor Provider" << endl;
   
-  if (String::equalNoCase(argv[1],"verbose")) processorTestVerbose = true;
+  processorTestVerbose = getenv("PEGASUS_TEST_VERBOSE");
+
+  if ((argc == 2) && String::equalNoCase(argv[1], "verbose"))
+  {
+    processorTestVerbose = true;
+  }
 
   // Connect
   try

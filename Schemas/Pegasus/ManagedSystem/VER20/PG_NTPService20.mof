@@ -1,8 +1,6 @@
 // =============================================================================
 // Title:              PG_NTPService MOF
 // Filename:           PG_NTPService20.mof
-// Modified By:        Lyle Wilkinson, Hewlett-Packard Company <lyle_wilkinson@hp.com>
-//                     Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3366
 // Description:        This MOF file defines the PG_NTPService class.
 //                     It is a subclass of CIM_Service class which describes
 //                     a Network Time Protocol (NTP).

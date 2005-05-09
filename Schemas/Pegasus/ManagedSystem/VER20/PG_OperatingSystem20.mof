@@ -1,11 +1,6 @@
 // =============================================================================
 // Title:              PG_OperatingSystem MOF
 // Filename:           PG_OperatingSystem20.mof
-// Modified By:        David Kennedy       <dkennedy@linuxcare.com>
-//                     Christopher Neufeld <neufeld@linuxcare.com>
-//                     Susan Campbell      <scampbell@hp.com>
-//                     Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3366
-//
 // Description:        This MOF file defines the PG_OperatingSystem class.
 //                     It is a subclass of CIM_OperatingSystem class which 
 //                     adds information not contained in the superclass.

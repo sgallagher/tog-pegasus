@@ -1,7 +1,6 @@
 // ===================================================================
 // Title      : PG_ShutdownService MOF
 // Filename   : PG_ShutdownService20.mof
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3366
 // Version    : 1.0
 // Date       : 11/09/2001
 // Description: This MOF file defines the PG_ShutdownService class.  The

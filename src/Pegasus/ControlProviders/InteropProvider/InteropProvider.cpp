@@ -750,7 +750,8 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
 
     _setPropertyValue(instance, OM_VERSION, CIMXMLProtocolVersion);
 
-    // Obsolete function _setPropertyValue(instance, "namespaceType", namespaceType);
+    // Obsolete function 
+    _setPropertyValue(instance, "namespaceType", namespaceType);
 
     _setPropertyValue(instance, "IPAddress", IPAddress);
 

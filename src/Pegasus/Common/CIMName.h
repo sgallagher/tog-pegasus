@@ -53,13 +53,13 @@ PEGASUS_NAMESPACE_BEGIN
     CIM names. A CIM name must match the following regular
     expression:
     <PRE>
-        [A-Z-a-z_][A-Za-z_0-9]*
+        [A-Za-z_][A-Za-z_0-9]*
     </PRE>
     <B>Examples:</B>
     <ul>
     <li>name - legal name
     <li>Type - legal name
-    <li>3types - Illegal CIMName.
+    <li>3types - Illegal CIM name
     </ul>
     The CIMName class includes the attribute Null which is required
     by the DMTF operations definitions.  Note that this and the regular
@@ -82,12 +82,12 @@ public:
     CIMName();
 
     /**
-        Constructor creates a new CIMName object from the String
-        provided as input. The String must be a legal name.
+        Constructor creates a new CIMName object from <TT>name</TT>.
+        <TT>name</TT> must be a legal CIM name.
 
-        @param name defining the CIMName
-        @exception InvalidNameException if the input String is 
-        not a legal CIMName
+        @param name The name to use for the object.
+        @exception InvalidNameException if <TT>name</TT> is not
+                   a legal CIMName
         @exception bad_alloc Thrown if there is insufficient memory.
     */
     CIMName(const String& name);
@@ -96,9 +96,9 @@ public:
         Constructor creates a new CIMName object from string
         provided as input. The string must be a legal name.
 
-        @param char* defining the CIMName text.
-        @exception InvalidNameException if the input String is 
-        not a legal CIMName
+        @param name The name to use for the object.
+        @exception InvalidNameException if <TT>name</TT> is not
+                   a legal CIMName
         @exception bad_alloc Thrown if there is insufficient memory.
     */
     CIMName(const char* name);
@@ -106,18 +106,17 @@ public:
     /**
         Assigns one CIMName to another.
 
-        @param name Source CIMName object to copy.
+        @param name CIMName object to copy.
         @exception bad_alloc Thrown if there is insufficient memory.
     */
     CIMName& operator=(const CIMName& name);
 
     /**
-        Sets the name of the associated object to the
-        specified String.
+        Sets the name of the associated object to <TT>name</TT>.
 
         @param name The new name to use for the object.
-        @exception InvalidNameException if the input String
-        is not a legal CIMName.
+        @exception InvalidNameException if <TT>name</TT> is not
+                   a legal CIMName
         @exception bad_alloc Thrown if there is insufficient memory.
 
         <pre>
@@ -167,11 +166,11 @@ public:
     void clear();
 
     /**
-        Compares the CIMName object against another CIMName object for equality.
+        Compares the CIMName object against another CIMName object
+        for equality.
 
-        @param name Object to compare with the associated object.
+        @param name CIMName to compare with the associated object.
         @return true if the name passed is equal to the name in this
-
         class. CIM names are case insensitive and so is this method.
         <pre>
         CIMName n1 = "name";

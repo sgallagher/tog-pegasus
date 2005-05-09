@@ -86,7 +86,8 @@ PEGASUS_NAMESPACE_BEGIN
 // Determine the correct type to use for the length passed to getsockname().
 // The default is to use the 'socklen_t'.
 //
-#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_ZOS) || defined(PEGASUS_OS_OS400)
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
 #define PEGASUS_SOCKLEN_T   int
 #endif
 
@@ -94,7 +95,8 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_SOCKLEN_T   int
 #endif
 
-#ifdef PEGASUS_OS_VMS
+
+#if defined(PEGASUS_OS_VMS) || defined(PEGASUS_OS_ZOS)
 #define PEGASUS_SOCKLEN_T   unsigned
 #endif
 

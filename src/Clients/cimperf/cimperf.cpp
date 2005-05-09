@@ -33,6 +33,7 @@
 //                (carolann_graves@hp.com)
 //              Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
 //              Willis White (whiwill@us.ibm.com)
+//              Josephine Eskaline Joyce (jojustin@in.ibm.com) for Bug#3449
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -214,7 +215,6 @@ void GetOptions(
 
     if (FileSystem::exists(configFile))
     {
-        cout << "Config file from " << configFile << endl;
         om.mergeFile(configFile);
     }
 
@@ -293,10 +293,7 @@ int main(int argc, char** argv)
 
     //Get hostname form (option manager) command line if none use default
     String location;
-    if(om.lookupValue("location", location))
-    {
-        cout << "Location = " << location << endl;
-    }
+    om.lookupValue("location", location);
 
 
     //Get port number from (option manager) command line if none use defualt
@@ -305,22 +302,13 @@ int main(int argc, char** argv)
     if(om.lookupValue("port", str_port))
     {
         port = (Uint32) atoi(str_port.getCString());
-        cout << "Port = " << port << endl;
     }
 
     //Get user name and password
     String userN;
     String passW;
     om.lookupValue("user name", userN);
-
-    if (userN == String::EMPTY) {
-        cout << "connection made with no user name" << endl;
-    }
-    else
-        cout << "user name equals " << userN << endl;
-
     om.lookupValue("pass word", passW);
-
 
  /****************************************************
  The next sectoin of code connects to the server and enumerates all the instances of the

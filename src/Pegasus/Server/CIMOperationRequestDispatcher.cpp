@@ -892,229 +892,41 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
 }
 
 ///////////////////////////////////////////////////////////////////////////
-//  PropertyList builder functions.
-//  Builds property list for enumerates based on input of cimclass,
-//  localOnly parameter (true/false) and input propertylist
-//
+//  PropertyList management functions
 //////////////////////////////////////////////////////////////////////////
-
-/* local support for display of propertyLists. Converts a property list
-   to a String for display. This function is only for diagnostic support.
-   Assumes that there is a propertylist and it is not empty or null.
-   @param pl CIMPropertyList to convert.
-   @return String representation of property list for display.
-*/
-static String _toStringPropertyList(const CIMPropertyList& pl)
-{
-    String tmp;
-    for (Uint32 i = 0; i < pl.size() ; i++)
-    {
-        if (i > 0)
-            tmp.append(", ");
-        tmp.append(pl[i].getString());
-    }
-    return(tmp);
-}
 
 /* _showPropertyList is local support for displaying the propertylist
    For display only. Generates String with property list names
    or "empty" or "NULL" if that is the case.
    @param pl CIMPropertyList to convert
    @return String containing the list of properties comma separated
-   or the keywords NULL or Empty.
+   or the keywords NULL or EMPTY.
  */
 static String _showPropertyList(const CIMPropertyList& pl)
 {
+    String returnString;
+
     if (pl.isNull())
-        return("NULL");
-
-    return((pl.size() == 0) ? String("EMPTY") : _toStringPropertyList(pl));
-}
-
-/** determine of the the input property is in the list.
-    @param pl property list
-    @param pn name of property to compare
-    @return Boolean true if the property pn is in the list.
-    Else returns false
-*/
-Boolean _containsProperty(const CIMPropertyList& pl, const CIMName& pn)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-           "CIMOperationRequestDispatcher::_containsProperty");
-    for (Uint32 i = 0; i < pl.size() ; i++)
     {
-        // if name found in propertyList return true
-        if (pn.equal(pl[i].getString()))
+        returnString = "NULL";
+    }
+    else if (pl.size() == 0)
+    {
+        returnString = "EMPTY";
+    }
+    else
+    {
+        for (Uint32 i = 0; i < pl.size(); i++)
         {
-            PEG_METHOD_EXIT();
-            return(true);
+            if (i > 0)
+            {
+                returnString.append(", ");
+            }
+            returnString.append(pl[i].getString());
         }
     }
-    PEG_METHOD_EXIT();
-    return(false);
-}
 
-/*  Determine of the the input property is in the array.
-    @param plA Array<CINMame> containing list of properties
-    @param name of property to compare
-    @return Boolean true if the property is in the array. Else false
-*/
-Boolean _containsPropertyArray(const Array<CIMName>& pl, const CIMName& pn)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-           "CIMOperationRequestDispatcher::_containsPropertyArray");
-
-    for (Uint32 i = 0; i < pl.size() ; i++)
-    {
-        // if name found in propertyList return true
-        if (pl[i].equal(pn))
-        {
-            PEG_METHOD_EXIT();
-            return(true);
-        }
-    }
-    PEG_METHOD_EXIT();
-    return(false);
-}
-
-/* build a propertylist from a CIMClass. Builds a list of the properties in the
-    class either localOnly properties (if localOnly in parameter is true) or
-    all properties in the class.
-    @param CIMClass cl - Class from which list is to be built
-    @param Boolean localOnly - if true only non-propagated properties are included
-    in the output list
-    @return Array<CIMName> list containing the properties.
-*/
-
-Array<CIMName> _buildPropertyList(const CIMClass& cl, const Boolean localOnly)
-{
-    Array<CIMName> outputPropertyListArray;
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-           "CIMOperationRequestDispatcher::_buildPropertyList");
-
-    for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
-    {
-         CIMConstProperty p = cl.getProperty(i);
-         CIMName n = p.getName();
-
-         if (!localOnly || (localOnly && !p.getPropagated()))
-             outputPropertyListArray.append(n);
-    }
-    PEG_METHOD_EXIT();
-    return(outputPropertyListArray);
-}
-
-
-/* Add properties to a propertyListArray based on the properties in
-   the class provided.  Note that this adds the localOnly properties and only
-   if they are not already in the list.  This function assumes that there
-   may be duplicated properties.
-   @param pl contains the current list of properties to which any new
-   local properties from the defined class must be added.
-   @param namespace - The namespace in which we are working.
-   @param class The class from which any new local properties should be
-   extracted.
-   @return true if any new properties added, false if no new properties added.
-*/
-Boolean _addPropertiesToArray(Array<CIMName>& pl, const CIMClass& cimClass)
-{
-
-   Boolean rtn = false;
-
-   // Build local list of properties from the class and flag
-   Array<CIMName> plLocalArray;
-   plLocalArray = _buildPropertyList(cimClass, true);
-
-   if (plLocalArray.size() == 0)
-       return(false);
-
-   // if new class properties are not already in current list,
-   // add them.
-   for (Uint32 i = 0 ; i < plLocalArray.size() ; i++)
-   {
-       if (!_containsPropertyArray(pl, plLocalArray[i]))
-       {
-           pl.append(plLocalArray[i]);
-           rtn = true;
-       }
-   }
-   return(rtn);
-}
-
-/*  Build list of properties based on class, localOnly and request input list.
-    <ul>
-    <li> localonly and property list.  local properties filtered with propertylist
-    <li> !localOnly and property list , all properties filtered with propertylist
-    <li> localonly and null property list - all local properties
-    <li> !localonly and null propertylist - all properties
-    <li> localonly and empty property list - empty propertyList
-    <li> !localonly and empty propertylist - empty propertylist
-    </ul>
-    @return true if we are to send list built.  False if we are to send
-    list as received.  The list is in the outputPropertyList parameter.
-    @param CIMClass target class. Used to determine list of local properties
-    for the propertylist.
-    @param localOnly Boolean indicating whether we do localOnly
-    @param pl CIMPropertyList input propertyList object. This list is used
-    to construct new list for output
-    @param reference to returned property list as array of CIMNames.
-    @return Boolean true if there is a propertylist returned
-*/
-
-Boolean _mergePropertyLists(const CIMClass& cl, const Boolean localOnly,
-     const Boolean di, const CIMPropertyList& pl,
-    Array<CIMName>& outputPropertyListArray)
-{
-    PEG_METHOD_ENTER(TRC_DISPATCHER,
-           "CIMOperationRequestDispatcher::_mergePropertyLists");
-
-    Boolean listIsNull = pl.isNull();
-
-    // if property list is  !NULL but empty, we send empty propertylist
-    // with NO properties independent of localOnly.
-    //
-    if (!listIsNull && (pl.size() == 0))
-    {
-        PEG_METHOD_EXIT();
-        return(false);
-    }
-
-    // if there is non_empty property list, simply use it as the base.
-    if (pl.size() != 0)
-    {
-       PEG_METHOD_EXIT();
-       return(false);
-    }
-
-   // ATTN: Spec says property must be in this class. Do we need additional
-   // test to assure that properties in list are in this class.  Or is this
-   // covered below? No.  Since this could be the class AND subclasses.
-   // If list null and !localOnly and di, request is for all properties from
-   // all providers.  Do not create a new list.
-   if (listIsNull && !localOnly && di)
-   {
-       PEG_METHOD_EXIT();
-       return(false);
-   }
-
-   // ATTN: Optimization: There is another option where there are NO nonlocal
-   // properties and localOnly not important. Set flag to determine
-   // !localOnly property count.
-
-   // Build property list from the class
-   for (Uint32 i = 0; i < cl.getPropertyCount(); i++)
-   {
-        CIMConstProperty p = cl.getProperty(i);
-        CIMName n = p.getName();
-
-        if (listIsNull || _containsProperty(pl, n))
-        {
-            if (!localOnly || (localOnly && !p.getPropagated()))
-                outputPropertyListArray.append(n);
-        }
-   }
-   PEG_METHOD_EXIT();
-   return(true);
+    return returnString;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -3356,8 +3168,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::handleEnumerateInstancesRequest");
 
-    CDEBUG("EnumerateInstances. lo = " << ((request->localOnly)? "true" : "false"));
-
     // get the class name
     CIMName className = request->className;
     CIMException checkClassException;
@@ -3385,45 +3195,26 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         return;
     }
 
-    // LocalOnly and PropertyList processing
-    // localonly and property list - local properties filtered with
-    //     propertylist
-    // !localOnly and property list - all properties filtered with
-    //     propertylist
-    // localonly and null property list - all local properties
-    // !localonly and null propertylist - all properties if di true,
-    //     else this class properties
-    // localonly and empty property list - empty propertyList
-    // !localonly and empty propertylist - empty propertylist
-    // Question if propertylist empty and deepInheritance = true --
-    //     WHAT Return?
+    CDEBUG("CIMOP ei client propertyList = " <<
+        _showPropertyList(request->propertyList));
 
-    CDEBUG("CIMOP ei propertyList0= " << _showPropertyList(request->propertyList));
-
-    Array<CIMName> localPropertyListArray;
-
-    Boolean rtn = false;
-    // Create a propertyList that represents the combination
-    // of the propertyList and the localOnly attribute.
-    rtn = _mergePropertyLists(
-        cimClass,
-        request->localOnly,
-        request->deepInheritance,
-        request->propertyList,
-        localPropertyListArray);
-
-    CDEBUG("CIMOP ei propertyList1= " << _showPropertyList(request->propertyList));
-
-    // if new propertyList built, reset it into the
-    // request propertylist.
-    if (rtn)
+    // If DeepInheritance==false and no PropertyList was specified by the
+    // client, the provider PropertyList should contain all the properties
+    // in the specified class.
+    if (!request->deepInheritance && request->propertyList.isNull())
     {
-        CIMPropertyList pl(localPropertyListArray);
-        request->propertyList = pl;
-        CDEBUG("CIMOP ei propertyList Modified= " << _showPropertyList(request->propertyList));
+        Array<CIMName> propertyNameArray;
+        Uint32 numProperties = cimClass.getPropertyCount();
+        for (Uint32 i = 0; i < numProperties; i++)
+        {
+            propertyNameArray.append(cimClass.getProperty(i).getName());
+        }
+
+        request->propertyList.set(propertyNameArray);
     }
 
-    CDEBUG("CIMOP ei propertyList2= " << _showPropertyList(request->propertyList));
+    CDEBUG("CIMOP ei provider propertyList = " <<
+        _showPropertyList(request->propertyList));
 
     //
     // Get names of descendent classes:
@@ -3709,18 +3500,6 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         }
 #endif
 
-        // if this is deep inheritance request and the original property list requested all
-        // properties and it is localOnly, we must expand the property list for each subclass.
-        if(request->deepInheritance && request->propertyList.isNull() && request->localOnly)
-        {
-            _addPropertiesToArray(localPropertyListArray, cimClass);
-
-            CIMPropertyList pl(localPropertyListArray);
-
-            requestCopy->propertyList = pl;
-        }
-
-        // Save for test cout << _toStringPropertyList(requestCopy->propertyList) << endl;
         if(checkClassException.getCode() == CIM_ERR_SUCCESS)
         {
             PEG_TRACE_STRING(

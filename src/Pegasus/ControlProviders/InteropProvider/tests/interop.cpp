@@ -1736,7 +1736,11 @@ int main(int argc, char** argv)
         //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl1, 1);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, pl1, 1);
         //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl1, 1);
-        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl1, 1);
+        // ATTN: The following test case is incorrect.  The
+        // GatherStatisticalData property is not defined in the
+        // CIM_WBEMService class, so it should not be returned on a
+        // non-deep enumeration operation.
+        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl1, 1);
 
 
         //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);

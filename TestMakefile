@@ -175,6 +175,7 @@ TestBinRepository1:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_MODE=BIN
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true"
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_MODE=BIN
@@ -191,6 +192,7 @@ TestBinRepository2:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean REPOSITORY_NAME=repository_bin
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true repositoryDir=$(PEGASUS_HOME)/repository_bin"
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN

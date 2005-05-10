@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,9 +31,11 @@
 //
 // Modified By: Mike Day (mdday@us.ibm.com) -- added native implementation
 // of AtomicInt class, exceptions
-//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//         David Eger (dteger@us.ibm.com)
-//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//          Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//          David Eger (dteger@us.ibm.com)
+//          Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//          David Dillard, VERITAS Software Corp.
+//              (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +50,7 @@ Mutex::Mutex()
    _mutex.owner = 0;
 }
 
-Mutex::Mutex(int mutex_type) 
+Mutex::Mutex(int mutex_type)
 {
    pthread_mutexattr_init(&_mutex.mutatt);
    pthread_mutex_init(&_mutex.mut,&_mutex.mutatt);
@@ -58,8 +60,8 @@ Mutex::Mutex(int mutex_type)
 // to be able share the mutex between different condition variables
 Mutex::Mutex(const Mutex& mutex)
 {
-   // only copy the handle, not the entire object. 
-   // avoid calling the destructor twice. 
+   // only copy the handle, not the entire object.
+   // avoid calling the destructor twice.
    _mutex.mut  = mutex._mutex.mut;
    _mutex.owner = 0;
 }
@@ -71,38 +73,38 @@ Mutex::~Mutex()
 }
 
 
-// block until gaining the lock - throw a deadlock 
-// exception if process already holds the lock 
+// block until gaining the lock - throw a deadlock
+// exception if process already holds the lock
 
-void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
+void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 {
    int errorcode;
-   if( 0 == (errorcode = pthread_mutex_lock(&(_mutex.mut)))) 
+   if( 0 == (errorcode = pthread_mutex_lock(&(_mutex.mut))))
    {
       _mutex.owner = caller;
       return;
    }
-   if (errorcode == EDEADLK) 
+   if (errorcode == EDEADLK)
       throw( Deadlock( _mutex.owner ) );
-   else 
+   else
       throw( WaitFailed( _mutex.owner) );
 }
-  
-// try to gain the lock - lock succeeds immediately if the 
-// mutex is not already locked. throws an exception and returns
-// immediately if the mutex is currently locked. 
 
-void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed)
+// try to gain the lock - lock succeeds immediately if the
+// mutex is not already locked. throws an exception and returns
+// immediately if the mutex is currently locked.
+
+void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 {
    int errorcode ;
-   if(0 == (errorcode = pthread_mutex_trylock(&_mutex.mut))) 
+   if(0 == (errorcode = pthread_mutex_trylock(&_mutex.mut)))
    {
       _mutex.owner = caller;
       return;
    }
-   else if (errorcode == EBUSY) 
+   else if (errorcode == EBUSY)
       throw(AlreadyLocked(_mutex.owner));
-   else if (errorcode == EDEADLK) 
+   else if (errorcode == EDEADLK)
       throw(Deadlock(_mutex.owner));
    else
       throw(WaitFailed(_mutex.owner));
@@ -112,7 +114,7 @@ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, 
 // expires without gaining the lock. Otherwise return without throwing an
 // exception.
 
-// Note: I was unable to get the expected behavior using pthread_mutex_timedlock. 
+// Note: I was unable to get the expected behavior using pthread_mutex_timedlock.
 // I don't know excactly why, but the locks were never timing out. Reimplemting
 // using pthread_mutex_trylock works reliably. The documentation says that
 // pthread_mutex_timedlock works with error checking mutexes but works
@@ -125,15 +127,14 @@ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, 
 // pthread_mutex_timedlock is not supported on HUPX
 // mdday Sun Aug  5 14:12:22 2001
 
-void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller) 
-   throw(Deadlock, TimeOut, WaitFailed)
+void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
 {
 
    struct timeval now, finish, remaining;
    int errorcode;
-  
+
    Uint32 usec;
-   
+
    gettimeofday(&finish, NULL);
    finish.tv_sec += (milliseconds / 1000 );
    milliseconds %= 1000;
@@ -146,7 +147,7 @@ void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
       errorcode = pthread_mutex_trylock(&_mutex.mut);
       if (errorcode == 0 )
 	 break;
-      
+
       if(errorcode == EBUSY)
       {
 	 gettimeofday(&now, NULL);
@@ -165,11 +166,11 @@ void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
 
 // unlock the mutex
 
-void Mutex::unlock() throw(Permission)
+void Mutex::unlock()
 {
    PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
    _mutex.owner = 0;
-   if(0 != pthread_mutex_unlock(&_mutex.mut)) 
+   if(0 != pthread_mutex_unlock(&_mutex.mut))
    {
       _mutex.owner = m_owner;
       throw(Permission(_mutex.owner));
@@ -183,13 +184,13 @@ void Mutex::unlock() throw(Permission)
 //-----------------------------------------------------------------
 
 
-ReadWriteSem::ReadWriteSem(void) :  _readers(0), _writers(0) 
+ReadWriteSem::ReadWriteSem() :  _readers(0), _writers(0)
 {
    pthread_rwlock_init(&_rwlock.rwlock, NULL);
    _rwlock.owner = 0;
 }
-    
-ReadWriteSem::~ReadWriteSem(void)
+
+ReadWriteSem::~ReadWriteSem()
 {
 
    while( EBUSY == pthread_rwlock_destroy(&_rwlock.rwlock))
@@ -199,12 +200,10 @@ ReadWriteSem::~ReadWriteSem(void)
 }
 
 
-void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
-   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
-
+void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 {
    int errorcode;
-   if (mode == PEG_SEM_READ) 
+   if (mode == PEG_SEM_READ)
    {
       if(0 == (errorcode = pthread_rwlock_rdlock(&_rwlock.rwlock)))
       {
@@ -221,20 +220,19 @@ void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 	 return;
       }
    }
-   else 
+   else
       throw(Permission(pegasus_thread_self()));
-    
+
    if (errorcode == EDEADLK)
       throw(Deadlock(_rwlock.owner));
    else
       throw(WaitFailed(pegasus_thread_self()));
 }
 
-void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
-   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
+void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 {
    int errorcode = 0;
-   if (mode == PEG_SEM_READ) 
+   if (mode == PEG_SEM_READ)
    {
       if( 0 == (errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock)))
       {
@@ -242,7 +240,7 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 	 return;
       }
    }
-   else if (mode == PEG_SEM_WRITE) 
+   else if (mode == PEG_SEM_WRITE)
    {
       if(0 == (errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock)))
       {
@@ -251,7 +249,7 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 	 return;
       }
    }
-   else 
+   else
       throw(Permission(pegasus_thread_self()));
 
    if (errorcode == EBUSY)
@@ -265,20 +263,19 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 
 // timedrdlock and timedwrlock are not supported on HPUX
 // mdday Sun Aug  5 14:21:00 2001
-void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) 
-   throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders)
+void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds)
 {
    int errorcode = 0, timeout ;
    struct timeval now, finish, remaining;
    Uint32 usec;
-   
+
    gettimeofday(&finish, NULL);
    finish.tv_sec += (milliseconds / 1000 );
    milliseconds %= 1000;
    usec = finish.tv_usec + ( milliseconds * 1000 );
    finish.tv_sec += (usec / 1000000);
    finish.tv_usec = usec % 1000000;
-   
+
    if (mode == PEG_SEM_READ)
    {
       do
@@ -286,7 +283,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock);
 	 gettimeofday(&now, NULL);
       }
-      while (errorcode == EBUSY && 
+      while (errorcode == EBUSY &&
 	     ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
       if(0 == errorcode)
       {
@@ -301,7 +298,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
 	 gettimeofday(&now, NULL);
       }
-      while (errorcode == EBUSY && 
+      while (errorcode == EBUSY &&
 	     ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
 
       if(0 == errorcode)
@@ -321,7 +318,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       throw(WaitFailed(pegasus_thread_self()));
 }
 
-void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permission)
+void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 {
    PEGASUS_THREAD_TYPE owner;
 
@@ -366,19 +363,19 @@ int ReadWriteSem::write_count()
 #ifdef PEGASUS_CONDITIONAL_NATIVE
 
 // Note: I felt uncomfortable exposing the condition mutex outside
-// of the class so I defined method calls to lock and unlock the 
+// of the class so I defined method calls to lock and unlock the
 // mutex object. This protects the (hidden) conditional mutex from
 // being called outside of the control of the object.
 
-// Further, the use model of conditions seems to require locking the object, 
-// examining the state of the condition variable while that variable is 
+// Further, the use model of conditions seems to require locking the object,
+// examining the state of the condition variable while that variable is
 // protected from other threads, and then determining whether to signal or
 //    wait on the condition variable. Then afterwards explicitly unlocking
-// the condition object. 
+// the condition object.
 
-// So I commented out the method calls that do all three operations 
-// without examining the state of the condition variable. 
-// i.e., lock, signal, unlock or lock, wait, unlock. 
+// So I commented out the method calls that do all three operations
+// without examining the state of the condition variable.
+// i.e., lock, signal, unlock or lock, wait, unlock.
 
 //    The method calls I commented out are: wait, signal, time_wait.
 // mdday Sun Aug  5 13:19:30 2001
@@ -413,16 +410,14 @@ Condition::~Condition()
       _cond_mutex.release();
 }
 
- void Condition::signal(PEGASUS_THREAD_TYPE caller) 
-   throw(IPCException) 
-{ 
-   _cond_mutex->lock(caller); 
+void Condition::signal(PEGASUS_THREAD_TYPE caller)
+{
+   _cond_mutex->lock(caller);
    pthread_cond_broadcast(&_condition);
-   _cond_mutex->unlock(); 
+   _cond_mutex->unlock();
 }
 
-void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller) 
-   throw(IPCException)
+void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 {
    if(_cond_mutex->get_owner() != caller)
       throw Permission(_cond_mutex->get_owner());
@@ -431,25 +426,22 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 }
 
 void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
-   if(_disallow.value() > 0) 
+   if(_disallow.value() > 0)
       throw ListClosed();
    _cond_mutex->lock(caller);
 }
 
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
-   if(_disallow.value() > 0) 
+   if(_disallow.value() > 0)
       throw ListClosed();
    _cond_mutex->try_lock(caller);
 }
 
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(IPCException)
 {
-   if(_disallow.value() > 0) 
+   if(_disallow.value() > 0)
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
    if( _disallow.value() > 0 )
@@ -459,18 +451,17 @@ void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
    }
 }
 
-void Condition::unlock_object(void)
+void Condition::unlock_object()
 {
    _cond_mutex->unlock();
 }
 
 
-// block until this semaphore is in a signalled state 
+// block until this semaphore is in a signalled state
 
-void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller) 
-   throw(IPCException)
+void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0) 
+   if(_disallow.value() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();
@@ -479,12 +470,11 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
    _cond_mutex->_set_owner(caller);
 }
 
-// block until this semaphore is in a signalled state 
+// block until this semaphore is in a signalled state
 
-void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
-   throw(IPCException)
+void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0) 
+   if(_disallow.value() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();
@@ -507,7 +497,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
       throw(TimeOut(caller));
 
    _cond_mutex->_set_owner(caller);
-   
+
 }
 #endif // native conditional semaphore
 
@@ -524,7 +514,7 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
 // implementation as used in ACE derived from Mutex + Condition Variable
 //
 
-Semaphore::Semaphore(Uint32 initial) 
+Semaphore::Semaphore(Uint32 initial)
 {
     pthread_mutex_init (&_semaphore.mutex,NULL);
     pthread_cond_init (&_semaphore.cond,NULL);
@@ -574,7 +564,7 @@ static void semaphore_cleanup(void *arg)
 // block until this semaphore is in a signalled state or
 // throw an exception if the wait fails
 
-void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted) 
+void Semaphore::wait(Boolean ignoreInterrupt)
 {
    // Acquire mutex to enter critical section.
 
@@ -585,7 +575,7 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
    _semaphore.waiters++;
 
    // Wait until the semaphore count is > 0, then atomically release
-   // <lock_> and wait for <count_nonzero_> to be signaled. 
+   // <lock_> and wait for <count_nonzero_> to be signaled.
 
    while (_count == 0)
       pthread_cond_wait (&_semaphore.cond,&_semaphore.mutex);
@@ -605,21 +595,21 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
    pthread_mutex_unlock (&_semaphore.mutex);
 }
 
-void Semaphore::try_wait(void) throw(WaitFailed)
+void Semaphore::try_wait()
 {
 // not implemented
 
       throw(WaitFailed(_semaphore.owner));
 }
 
-void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+void Semaphore::time_wait(Uint32 milliseconds)
 {
 // not implemented
 
       throw(WaitFailed(_semaphore.owner));
 }
 
-// increment the count of the semaphore 
+// increment the count of the semaphore
 
 void Semaphore::signal()
 {

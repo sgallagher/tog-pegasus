@@ -43,8 +43,8 @@ int gettimeofday (struct timeval *, struct timezone *) { return 0; }
 
 PEGASUS_NAMESPACE_BEGIN
 
-inline void disable_cancel(void) {}
-inline void enable_cancel(void) {}
+inline void disable_cancel() {}
+inline void enable_cancel() {}
 void native_cleanup_push( void (*)(void *), void * ) {}
 void native_cleanup_pop(Boolean execute) {}
 inline void init_crit(PEGASUS_CRIT_TYPE *crit) {}
@@ -52,7 +52,7 @@ inline void enter_crit(PEGASUS_CRIT_TYPE *crit) {}
 inline void try_crit(PEGASUS_CRIT_TYPE *crit) {}
 inline void destroy_crit(PEGASUS_CRIT_TYPE *crit) {}
 inline void exit_crit(PEGASUS_CRIT_TYPE *crit) {}
-PEGASUS_THREAD_TYPE pegasus_thread_self(void) {}
+PEGASUS_THREAD_TYPE pegasus_thread_self() {}
 // l10n start
 inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
 {
@@ -77,25 +77,25 @@ inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
 // l10n end
 void exit_thread(PEGASUS_THREAD_RETURN rc) {}
 void sleep(int ms) {}
-inline void pegasus_yield(void) {}
+inline void pegasus_yield() {}
 static int pegasus_gettimeofday(struct timeval *tv) { return 0; }
 
 Mutex::Mutex() {}
 
 Mutex::Mutex(int type) {}
 Mutex::~Mutex() {}
-void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed) {}
-void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked,
-   {}
+void Mutex::lock(PEGASUS_THREAD_TYPE caller) {}
+void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
+{}
 void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
-  throw(Deadlock, TimeOut, WaitFailed) {}
-void Mutex::unlock() throw(Permission) {}
+{}
+void Mutex::unlock() {}
 
 Semaphore::Semaphore(Uint32 initial) {}
 Semaphore::~Semaphore() {}
-void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted) {}
-void Semaphore::try_wait(void) throw(WaitFailed) {}
-void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut) {}
+void Semaphore::wait(Boolean ignoreInterrupt) {}
+void Semaphore::try_wait() {}
+void Semaphore::time_wait( Uint32 milliseconds ) {}
 void Semaphore::signal() {}
 
  PEGASUS_NAMESPACE_END

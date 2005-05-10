@@ -61,10 +61,12 @@ prestarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests -f Makefile test_setup
 
-poststarttests:
+poststarttestsclean:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
+
+poststarttests: poststarttestsclean
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
@@ -141,63 +143,72 @@ run_SSL_TS1:
 
 ##############################################################################
 ##
-## TestBinReposiory rule is used to run the poststarttests suite on
-## the Binary Reposiory.
+## TestBinRepository rule is used to run the poststarttests suite on
+## the Binary Reposiory built using cimmofl
 ##
-## Running the poststarttests as part of the nightly's I have three choices.
-## 1. a)remove repository, 
-##    b)build bin repository as repository, 
-##    c)run test, 
-##    d)remove repository, 
-##    e)build xml repository.
-##
-## 2. a)build bin repository as repository_bin, 
-##    b)run test on repository_bin
-##
-## Currently scenaerio 1 works but it is slow.
-## Scenaerio 2 is close to working. There may be a few test remaining that
-## don't honor the REPOSITORY_NAME build config variable.
+## TestBinRepositoryServer rule is used to run the poststarttests suite on
+## the Binary Reposiory built using cimmof
 ##
 
-
-
-TestBinRepository: TestBinRepository2
+############################
+##
+## TestBinRepository
+##
+TestBinRepository: TestBinClean TestBinBuildRepo  TestBinRepo
 	$(ECHO) TestBinRepository +++++ passed all test
+
+############################
 ##
-## 1. a)remove repository, 
-##    b)build bin repository as repository, 
-##    c)run test, 
-##    d)remove repository, 
-##    e)build xml repository.
+## TestBinRepositoryServer
 ##
-TestBinRepository1:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_MODE=BIN
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_MODE=BIN
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true"
-	$(SLEEP) 5
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_MODE=BIN
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository 
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+TestBinRepositoryServer: TestBinClean  TestBinBuildRepoServ TestBinRepo
+	$(ECHO) TestBinRepositoryServer +++++ passed all test
+
+###########################
 ##
-## 2. a)build bin repository as repository_bin, 
-##    b)run test on repository_bin
+## TestBinClean
 ##
-TestBinRepository2:
+TestBinClean:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean REPOSITORY_NAME=repository_bin
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+
+
+###########################
+##
+## TestBinStartServer
+##
+TestBinStartServer:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	- $(MKDIRHIER) $(PEGASUS_HOME)/repository_bin
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true repositoryDir=$(PEGASUS_HOME)/repository_bin"
 	$(SLEEP) 5
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 
+###########################
+##
+## TestBinBuildRepo
+##
+TestBinBuildRepo:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+
+
+###########################
+##
+## TestBinBuildRepoServ
+##
+TestBinBuildRepoServ: TestBinStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+
+
+###########################
+##
+## TestBinRepo
+##
+TestBinRepo: poststarttestsclean TestBinStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
 
 
 

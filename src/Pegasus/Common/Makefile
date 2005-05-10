@@ -173,10 +173,17 @@ ifeq ($(PEGASUS_PLATFORM),SOLARIS_SPARC_CC)
   endif
 endif
 
+# Note that PEGASUS_WINDOWS_SDK_HOME only needs to be specified if using VC6.
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   SYS_LIBS = ws2_32.lib advapi32.lib netapi32.lib
   ifdef PEGASUS_HAS_SSL
     SYS_LIBS += /libpath:$(OPENSSL_HOME)/lib libeay32.lib ssleay32.lib
+  endif
+  ifdef PEGASUS_WINDOWS_SDK_HOME
+    FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
+    SYS_LIBS += /libpath:$(PEGASUS_WINDOWS_SDK_HOME)/lib secur32.lib
+  else
+    SYS_LIBS += secur32.lib
   endif
 endif
 

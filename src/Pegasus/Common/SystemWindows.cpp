@@ -60,9 +60,8 @@
 #include <process.h>
 #include <lm.h>
 
-//Bug 3076 - define these for GetUserNameEx function
-//#define SECURITY_WIN32
-//#include <security.h>
+#define SECURITY_WIN32
+#include <security.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -328,8 +327,9 @@ String System::getPassword(const char* prompt)
 
 String System::getEffectiveUserName()
 {
-    //ATTN: Proposed function for Bug 3076 - hns
-/*
+#if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
+
+	//Bug 3076 fix
 	char fullUserName[UNLEN+1];
 	DWORD userNameSize = sizeof(fullUserName);
 	char computerName[MAX_COMPUTERNAME_LENGTH+1];
@@ -342,9 +342,6 @@ String System::getEffectiveUserName()
 	{
 		return String();
 	}
-
-	OutputDebugString("My full name");
-	OutputDebugString(fullUserName);
 
 	char* index = strchr(fullUserName, '\\');
 	*index = '\0';
@@ -368,7 +365,9 @@ String System::getEffectiveUserName()
 	}
 
 	return userId;
-*/
+
+#else //original getEffectiveUserName function
+    
     int retcode = 0;
 
     // UNLEN (256) is the limit, not including null
@@ -383,6 +382,7 @@ String System::getEffectiveUserName()
     }
 
     return String(pUserName);
+#endif
 }
 
 String System::encryptPassword(const char* password, const char* salt)

@@ -344,8 +344,6 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 //
 
 #define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"
-#define PEGASUS_SSLCLIENT_PUBLIC_KEY      "client_cert.pem"
-#define PEGASUS_SSLCLIENT_PRIVATE_KEY     "client_file.pem"
 #define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
 #define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
 #define PEGASUS_LOCAL_AUTH_DIR            "/tmp"

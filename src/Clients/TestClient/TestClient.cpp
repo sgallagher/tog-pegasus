@@ -1309,19 +1309,13 @@ void connectClient(
                 String trustpath = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
 
-                String certpath = FileSystem::getAbsolutePath(
-                                pegasusHome, PEGASUS_SSLCLIENT_PUBLIC_KEY);
-
-                String keypath = FileSystem::getAbsolutePath(
-                                pegasusHome, PEGASUS_SSLCLIENT_PRIVATE_KEY);
-
                 String randFile = String::EMPTY;
 #ifdef PEGASUS_SSL_RANDOMFILE
                 randFile = FileSystem::getAbsolutePath(
                                 pegasusHome, PEGASUS_SSLCLIENT_RANDOMFILE);
 #endif
                 SSLContext sslcontext(
-                    trustpath, certpath, keypath, verifyCertificate, randFile);
+                    trustpath, verifyCertificate, randFile);
 
                 cout << "connecting to " << host << ":" << portNumber << " using SSL" << endl;
 

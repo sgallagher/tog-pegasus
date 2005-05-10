@@ -183,7 +183,9 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
     FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
     SYS_LIBS += /libpath:$(PEGASUS_WINDOWS_SDK_HOME)/lib secur32.lib
   else
+     ifneq ($(CL_MAJOR_VERSION), 12)
     SYS_LIBS += secur32.lib
+     endif  
   endif
 endif
 

@@ -36,11 +36,13 @@
 
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/CommonUTF.h>
 
 #include "IndicationFormatter.h"
 
 
 PEGASUS_NAMESPACE_BEGIN
+PEGASUS_USING_STD;
 
 void IndicationFormatter::validateTextFormat (
     const String & textStr,
@@ -1632,6 +1634,11 @@ Boolean IndicationFormatter::_canLocalize(
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,
 	"IndicationFormatter::_canLocalize");
+
+    if (!InitializeICU::initICUSuccessful())
+    {
+	return (false);
+    }
 
     Array<ContentLanguageElement> elements;
     contentLangs.getAllLanguageElements(elements);

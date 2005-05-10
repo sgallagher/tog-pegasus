@@ -29,6 +29,7 @@
 //
 // Author: Dave Rosckes   (rosckes@us.ibm.com)
 //
+// Modified By: Yi Zhou Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/IPC.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
@@ -108,6 +110,38 @@ PEGASUS_COMMON_LINKAGE String escapeStringEncoder(const String& Str);
             as input.
 */
 PEGASUS_COMMON_LINKAGE String escapeStringDecoder(const String& Str);
+
+/**
+    The InitializeICU class loads and initializes data items that are required 
+    internally by various ICU functions. It makes sure that ICU function u_init 
+    is only called once by a process. A module which is using ICU APIs needs 
+    to call InitializeICU::initICUSuccessful first before it calls other ICU 
+    APIs. If InitializeICU::initICUSuccessful is failed, the module should not 
+    call other ICU APIs. 
+*/
+
+#ifdef PEGASUS_HAS_ICU
+class PEGASUS_COMMON_LINKAGE InitializeICU
+{
+public:
+
+    /**
+	Determines if ICU initialization is successful.
+
+	@return  true, if u_init is called and success
+	         false otherwise
+    */
+
+    static Boolean initICUSuccessful();
+
+private:
+    static Boolean _initAttempted;
+    static Boolean _initSuccessful;
+
+    static Mutex _initMutex;
+};
+
+#endif
 
 
 PEGASUS_NAMESPACE_END

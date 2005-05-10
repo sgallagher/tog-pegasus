@@ -31,15 +31,21 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/Logger.h>
 #include "CommonUTF.h"
 #include <cstdio>
 #include <cstring>
 #include <cctype>
+
+#ifdef PEGASUS_HAS_ICU
+#include <unicode/uclean.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -405,5 +411,47 @@ String escapeStringDecoder(const String& Str)
         return String();
     }
 }
+
+#ifdef PEGASUS_HAS_ICU
+
+Boolean InitializeICU::_initAttempted = false;
+Boolean InitializeICU::_initSuccessful = false;
+Mutex InitializeICU::_initMutex;
+
+Boolean InitializeICU::initICUSuccessful()
+{
+    if (!_initAttempted)
+    {
+	{
+            AutoMutex lock(_initMutex);
+
+	    if (!_initAttempted)
+	    {
+                UErrorCode _status = U_ZERO_ERROR;
+
+		// Initialize ICU
+                u_init(&_status);
+
+                if (U_FAILURE(_status))
+                {
+                    _initSuccessful = false;
+                    Logger::put (Logger::STANDARD_LOG , System::CIMSERVER,
+				 Logger::WARNING,
+                                 "ICU initialization failed with error: $0.", 
+				 _status);
+                }
+                else
+                {
+                    _initSuccessful = true;
+                }
+                _initAttempted = true;
+	    }
+	}
+    }
+
+    return _initSuccessful;
+}
+
+#endif
 
 PEGASUS_NAMESPACE_END

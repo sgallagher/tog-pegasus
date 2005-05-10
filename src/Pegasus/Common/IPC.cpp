@@ -34,6 +34,8 @@
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //              Robert Kieninger, IBM (kieningr@de.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -105,15 +107,15 @@ void extricate_read_write(void *parm)
       rws->_rwlock._wlock.unlock();
    else
       if(rws->_readers > 0)
-	 rws->_rwlock._rlock.signal();
+         rws->_rwlock._rlock.signal();
    if (rws->_rwlock._internal_lock.get_owner() == myself)
       rws->_rwlock._internal_lock.unlock();
 }
 
 
-ReadWriteSem::ReadWriteSem(void) : _readers(0), _writers(0), _rwlock() { }
+ReadWriteSem::ReadWriteSem() : _readers(0), _writers(0), _rwlock() { }
 
-ReadWriteSem::~ReadWriteSem(void)
+ReadWriteSem::~ReadWriteSem()
 {
    // lock everyone out of this object
    try
@@ -145,7 +147,6 @@ ReadWriteSem::~ReadWriteSem(void)
 // if milliseconds == 0, fast wait
 //-----------------------------------------------------------------
 void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders)
 {
 
 //-----------------------------------------------------------------
@@ -376,13 +377,13 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
    } // cleanup stack frame
 
    if (caught.get_owner() != 0)
-      throw(caught);
+      throw caught;
    if (caughtWaitFailed.get_owner() != 0)
-      throw(caughtWaitFailed);
+      throw caughtWaitFailed;
    if (caughtTimeOut.get_owner() != 0)
-      throw(caughtTimeOut);
+      throw caughtTimeOut;
    if (caughtTooManyReaders.get_owner() != 0)
-      throw(caughtTooManyReaders);
+      throw caughtTooManyReaders;
    return;
 }
 
@@ -392,21 +393,17 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 
 //---------------------------------------------------------------------
 void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
 {
-
    timed_wait(mode, caller, -1);
 }
 
 void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
 {
    timed_wait(mode, caller, 0);
 }
 
 
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
-   throw(Permission)
 {
    if(mode == PEG_SEM_WRITE && _writers.value() != 0 )
    {
@@ -420,13 +417,13 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
    }
 }
 
-int ReadWriteSem::read_count()
+int ReadWriteSem::read_count() const
 
 {
    return( _readers.value() );
 }
 
-int ReadWriteSem::write_count()
+int ReadWriteSem::write_count() const
 {
    return( _writers.value() );
 }
@@ -479,7 +476,7 @@ AtomicInt& AtomicInt::operator=(Uint32 val)
     return *this;
 }
 
-Uint32 AtomicInt::value(void) const
+Uint32 AtomicInt::value() const
 {
     AutoMutex autoMut(_rep._mutex);
     Uint32 retval = _rep._value;
@@ -487,7 +484,7 @@ Uint32 AtomicInt::value(void) const
     return retval;
 }
 
-void AtomicInt::operator++(void)
+void AtomicInt::operator++()
 {
     AutoMutex autoMut(_rep._mutex);
     _rep._value++;
@@ -501,7 +498,7 @@ void AtomicInt::operator++(int)
 
 }
 
-void AtomicInt::operator--(void)
+void AtomicInt::operator--()
 {
     AutoMutex autoMut(_rep._mutex);
     _rep._value--;
@@ -627,7 +624,7 @@ void extricate_condition(void *parm)
       c->_cond_mutex->lock(pegasus_thread_self());
 }
 
-Condition::Condition(void) : _disallow(0), _condition()
+Condition::Condition() : _disallow(0), _condition()
 {
    _cond_mutex.reset(new Mutex());
    _destroy_mut = true;
@@ -640,7 +637,7 @@ Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
 }
 
 
-Condition::~Condition(void)
+Condition::~Condition()
 {
    cond_waiter *lingerers;
    // don't allow any new waiters
@@ -665,7 +662,6 @@ Condition::~Condition(void)
 }
 
 void Condition::signal(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    _cond_mutex->lock(caller);
 
@@ -678,11 +674,10 @@ void Condition::signal(PEGASUS_THREAD_TYPE caller)
       _cond_mutex->unlock();
       throw;
    }
-      _cond_mutex->unlock();
+    _cond_mutex->unlock();
 }
 
 void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
       // enforce that the caller owns the conditional lock
    if(_cond_mutex->_mutex.owner != caller)
@@ -695,15 +690,14 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
       cond_waiter *waiters = static_cast<cond_waiter *>(_condition._waiters.next(0));
       while( waiters != 0)
       {
-	 waiters->signalled.signal();
-	 waiters = static_cast<cond_waiter *>(_condition._waiters.next(waiters));
+         waiters->signalled.signal();
+         waiters = static_cast<cond_waiter *>(_condition._waiters.next(waiters));
       }
    }
    _condition._spin.unlock();
 }
 
 void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    if(_disallow.value() > 0)
       throw ListClosed();
@@ -711,7 +705,6 @@ void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 }
 
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    if(_disallow.value() > 0 )
       throw ListClosed();
@@ -719,26 +712,23 @@ void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 }
 
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(IPCException)
 {
    if(_disallow.value() > 0)
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
 }
 
-void Condition::unlock_object(void)
+void Condition::unlock_object()
 {
    _cond_mutex->unlock();
 }
 
 void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    unlocked_timed_wait(-1, caller);
 }
 
 void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    if(_disallow.value() > 0)
    {
@@ -758,13 +748,13 @@ void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller
       _cond_mutex->unlock();
       _condition._spin.unlock();
       if(milliseconds == -1)
-	 waiter->signalled.wait();
+         waiter->signalled.wait();
       else
 	 try
 	 {
 	    waiter->signalled.time_wait(milliseconds);
 	 }
-	 catch(TimeOut &)
+	 catch(const TimeOut &)
 	 {
 	    _cond_mutex->lock(caller);
 	    throw;

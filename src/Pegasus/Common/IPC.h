@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,11 +30,13 @@
 // Author: Mike Day (mdday@us.ibm.com)
 //
 // Modified By: Markus Mueller
-//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//         David Eger (dteger@us.ibm.com)
-//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//              David Eger (dteger@us.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,16 +84,16 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-int timeval_subtract (struct timeval *result, 
-		      struct timeval *x, 
-		      struct timeval *y);
+int timeval_subtract (struct timeval *result,
+                      struct timeval *x,
+                      struct timeval *y);
 
 //%///////////////// ----- IPC related functions ------- //////////////////////
 // ----- NOTE - these functions are PRIMITIVES that MUST be implemented
 //               by the platform. e.g., see IPCUnix.cpp
 
-void PEGASUS_COMMON_LINKAGE disable_cancel(void);
-void PEGASUS_COMMON_LINKAGE enable_cancel(void);
+void PEGASUS_COMMON_LINKAGE disable_cancel();
+void PEGASUS_COMMON_LINKAGE enable_cancel();
 //void PEGASUS_COMMON_LINKAGE native_cleanup_push( void (*)(void *), void * );
 void PEGASUS_COMMON_LINKAGE native_cleanup_pop(Boolean execute);
 
@@ -103,8 +105,8 @@ void PEGASUS_COMMON_LINKAGE destroy_crit(PEGASUS_CRIT_TYPE *crit);
 void PEGASUS_COMMON_LINKAGE exit_crit(PEGASUS_CRIT_TYPE *crit);
 #endif
 
-PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void);
-void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc); 
+PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self();
+void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc);
 void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms);
 void PEGASUS_COMMON_LINKAGE destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc);
 
@@ -114,156 +116,161 @@ void PEGASUS_COMMON_LINKAGE destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREA
 
 class PEGASUS_COMMON_LINKAGE IPCException
 {
-   public:
-      IPCException(PEGASUS_THREAD_TYPE owner): _owner(owner) { }
-      inline PEGASUS_THREAD_TYPE get_owner(void) { return(_owner); }
-   private:
-      IPCException(void);
-      PEGASUS_THREAD_TYPE _owner;  
-
+public:
+    IPCException(PEGASUS_THREAD_TYPE owner): _owner(owner) { }
+    inline PEGASUS_THREAD_TYPE get_owner() { return(_owner); }
+private:
+    PEGASUS_THREAD_TYPE _owner;
 };
 
 class PEGASUS_COMMON_LINKAGE Deadlock: public IPCException
 {
-   public:
-      Deadlock(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
-   private:
-      Deadlock(void);
+public:
+    Deadlock(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+private:
+    Deadlock();
 };
 
 class PEGASUS_COMMON_LINKAGE AlreadyLocked: public IPCException
 {
-   public: 
-      AlreadyLocked(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
-   private:
-      AlreadyLocked(void);
+public:
+    AlreadyLocked(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+private:
+    AlreadyLocked();
 };
 
 class PEGASUS_COMMON_LINKAGE TimeOut: public IPCException
 {
-   public: 
-      TimeOut(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
-   private:
-      TimeOut(void);
+public:
+    TimeOut(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+private:
+    TimeOut();
 };
 
 class PEGASUS_COMMON_LINKAGE Permission: public IPCException
 {
-   public: 
-      Permission(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
-   private:
-      Permission(void);
-} ;
+public:
+    Permission(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+private:
+    Permission();
+};
 
 class PEGASUS_COMMON_LINKAGE WaitFailed: public IPCException
 {
-   public: 
-      WaitFailed(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
-   private:
-      WaitFailed(void);
-} ;
+public:
+    WaitFailed(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+private:
+    WaitFailed();
+};
 
 class PEGASUS_COMMON_LINKAGE WaitInterrupted: public IPCException
 {
-   public: 
-      WaitInterrupted(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
-   private:
-      WaitInterrupted(void);
-} ;
+public:
+    WaitInterrupted(PEGASUS_THREAD_TYPE owner) : IPCException(owner) {}
+private:
+    WaitInterrupted();
+};
 
 class PEGASUS_COMMON_LINKAGE TooManyReaders: public IPCException
 {
-   public:
-      TooManyReaders(PEGASUS_THREAD_TYPE owner) : IPCException(owner) { }
-   private:
-      TooManyReaders();
+public:
+    TooManyReaders(PEGASUS_THREAD_TYPE owner) : IPCException(owner) { }
+private:
+    TooManyReaders();
 };
 
 
 class PEGASUS_COMMON_LINKAGE ListFull: public IPCException
 {
-   public:
-      ListFull(Uint32 count) : IPCException(pegasus_thread_self())
-      {
-	 _capacity = count;
-      }
-      Uint32 get_capacity(void) 
-      {
-	 return _capacity;
-      }
-   private:
-      ListFull(void );
-      Uint32 _capacity;
+public:
+    ListFull(Uint32 count) : IPCException(pegasus_thread_self())
+    {
+        _capacity = count;
+    }
+
+    Uint32 get_capacity() const throw()
+    {
+        return _capacity;
+    }
+
+private:
+    ListFull();
+    Uint32 _capacity;
 };
 
 class PEGASUS_COMMON_LINKAGE ListClosed: public IPCException
 {
-   public:
-      ListClosed(void) : IPCException(pegasus_thread_self()) 
-      {
-      }
+public:
+    ListClosed() : IPCException(pegasus_thread_self())
+    {
+    }
 };
-      
+
 class PEGASUS_COMMON_LINKAGE ModuleClosed: public IPCException
 {
-   public:
-      ModuleClosed(void) : IPCException(pegasus_thread_self())
-      {
-      }
-      
+public:
+    ModuleClosed() : IPCException(pegasus_thread_self())
+    {
+    }
 };
 
 
 //%////////////////////////////////////////////////////////////////////////////
 class PEGASUS_COMMON_LINKAGE Mutex
 {
+public:
 
-   public:
+    Mutex();
+    Mutex(int type);
 
-      Mutex(void) ;
-      Mutex(int type);
+    ~Mutex();
 
-      ~Mutex(void);
+    // block until gaining the lock - throw a deadlock
+    // exception if process already holds the lock
+    // @exception Deadlock
+    // @exception WaitFailed
+    void lock(PEGASUS_THREAD_TYPE caller);
 
-      // block until gaining the lock - throw a deadlock 
-      // exception if process already holds the lock 
-      void lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed);
-  
-      // try to gain the lock - lock succeeds immediately if the 
-      // mutex is not already locked. throws an exception and returns
-      // immediately if the mutex is currently locked. 
-      void try_lock(PEGASUS_THREAD_TYPE caller) 
-	 throw(Deadlock, AlreadyLocked, WaitFailed);
+    // try to gain the lock - lock succeeds immediately if the
+    // mutex is not already locked. throws an exception and returns
+    // immediately if the mutex is currently locked.
+    // @exception Deadlock
+    // @exception AlreadyLocked
+    // @exception WaitFailed
+    void try_lock(PEGASUS_THREAD_TYPE caller);
 
-      // wait for milliseconds and throw an exception then return if the wait
-      // expires without gaining the lock. Otherwise return without throwing an
-      // exception. 
-      void timed_lock( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller) 
-	 throw(Deadlock, TimeOut, WaitFailed);
+    // wait for milliseconds and throw an exception then return if the wait
+    // expires without gaining the lock. Otherwise return without throwing an
+    // exception.
+    // @exception Deadlock
+    // @exception TimeOut
+    // @exception WaitFailed
+    void timed_lock( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller);
 
-      // unlock the semaphore
-      void unlock(void) throw(Permission);
+    // unlock the semaphore
+    // @exception Permission
+    void unlock();
 
-      inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
+    inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
 
-   private:
-      inline void _set_owner(PEGASUS_THREAD_TYPE owner) { _mutex.owner = owner; }
-      PEGASUS_MUTEX_HANDLE _mutex;
-      PEGASUS_MUTEX_HANDLE & _get_handle(void) 
-      {
-	 return _mutex;
-      }
+private:
+    inline void _set_owner(PEGASUS_THREAD_TYPE owner) { _mutex.owner = owner; }
+    PEGASUS_MUTEX_HANDLE _mutex;
+    PEGASUS_MUTEX_HANDLE & _get_handle()
+    {
+        return _mutex;
+    }
 
-      // Hide the assignment operator to avoid implicit use of the default
-      // assignment operator.  Do not use this method.
-      Mutex& operator=(const Mutex& original) {return *this;}
+    // Hide the assignment operator to avoid implicit use of the default
+    // assignment operator.  Do not use this method.
+    Mutex& operator=(const Mutex& original) {return *this;}
 
-      // Hide the copy constructor to avoid implicit use of the default
-      // copy constructor.  Do not use this method.
-      Mutex(const Mutex& _mutex);
-      
-      friend class Condition;
-} ;
+    // Hide the copy constructor to avoid implicit use of the default
+    // copy constructor.  Do not use this method.
+    Mutex(const Mutex& _mutex);
+
+    friend class Condition;
+};
 
 
 //%//////////////////////////////////////////////////////////////
@@ -272,77 +279,78 @@ class PEGASUS_COMMON_LINKAGE Mutex
 
 class PEGASUS_COMMON_LINKAGE AutoMutex
 {
-   public:
-      AutoMutex(Mutex & mutex)
-	 : _mutex(mutex)
-      {
-         _mutex.lock(pegasus_thread_self());
-      }
+public:
+    AutoMutex(Mutex & mutex)
+        : _mutex(mutex)
+    {
+       _mutex.lock(pegasus_thread_self());
+    }
 
-      ~AutoMutex(void)
-      {
-         try
-         {
-            _mutex.unlock();
-         }
-         catch (...)
-         {
-             // Do not propagate exception from destructor
-         }
-      }
+    ~AutoMutex()
+    {
+       try
+       {
+          _mutex.unlock();
+       }
+       catch (...)
+       {
+           // Do not propagate exception from destructor
+       }
+    }
 
-   private:
-      AutoMutex(void);    // Unimplemented
-      AutoMutex(const AutoMutex& x);    // Unimplemented
-      AutoMutex& operator=(const AutoMutex& x);    // Unimplemented
+private:
+    AutoMutex(const AutoMutex& x);    // Unimplemented
+    AutoMutex& operator=(const AutoMutex& x);    // Unimplemented
 
-      Mutex & _mutex;
+    Mutex & _mutex;
 };
 
 
 //%////////////////////////////////////////////////////////////////////////////
- 
+
 class PEGASUS_COMMON_LINKAGE Semaphore
 {
-  
-   public:
-    
-      // create the semaphore and set its initial value to the <initial>
-      Semaphore(Uint32 initial = 1 ) ;
-      Semaphore(const Semaphore & sem);
-      
-      ~Semaphore( );
+public:
 
-      // block until this semaphore is in a signalled state, or
-      // throw an exception if the wait failed.
-      void wait(Boolean ignoreInterrupt = true) throw(WaitFailed, WaitInterrupted);
+    // create the semaphore and set its initial value to the <initial>
+    Semaphore(Uint32 initial = 1 );
+    Semaphore(const Semaphore & sem);
 
-      // wait succeeds immediately if semaphore has a non-zero count, 
-      // return immediately and throw and exception if the 
-      // count is zero. 
-      void try_wait(void) throw(WaitFailed);
+    ~Semaphore();
 
-      // wait for milliseconds and throw an exception
-      // if wait times out without gaining the semaphore
-      void time_wait( Uint32 milliseconds ) throw(TimeOut);
+    // block until this semaphore is in a signalled state, or
+    // throw an exception if the wait failed.
+    // @exception WaitFailed
+    // @exception WaitInterrupted
+    void wait(Boolean ignoreInterrupt = true);
 
+    // wait succeeds immediately if semaphore has a non-zero count,
+    // return immediately and throw and exception if the
+    // count is zero.
+    // @exception WaitFailed
+    void try_wait();
 
-      // increment the count of the semaphore 
-      void signal(void);
+    // wait for milliseconds and throw an exception
+    // if wait times out without gaining the semaphore
+    // @exception TimeOut
+    void time_wait(Uint32 milliseconds);
 
-      // return the count of the semaphore
-      int count(void); 
+    // increment the count of the semaphore
+    void signal();
 
-   private:
+    // return the count of the semaphore
+    int count() const;
 
-      PEGASUS_SEM_HANDLE  _semaphore;
+private:
+    mutable PEGASUS_SEM_HANDLE  _semaphore;
 
-      // may not need to use the _count member on
-      // platforms that allow you to ask the semaphore for 
-      // its count 
-      int _count; 
-//      void _extricate(void);
-      friend class Condition;
+    // may not need to use the _count member on
+    // platforms that allow you to ask the semaphore for
+    // its count
+    mutable int _count;
+
+    //      void _extricate();
+    friend class Condition;
 };
 
 
@@ -353,8 +361,8 @@ class PEGASUS_COMMON_LINKAGE Semaphore
 
 #undef PEGASUS_ATOMIC_TYPE
 typedef struct {
-      Uint32 _value;
-      PEGASUS_MUTABLE Mutex  _mutex;
+    Uint32 _value;
+    PEGASUS_MUTABLE Mutex  _mutex;
 } PEGASUS_ATOMIC_TYPE;
 
 #endif
@@ -366,58 +374,56 @@ typedef struct {
 
 class PEGASUS_COMMON_LINKAGE AtomicInt
 {
-   public:
+public:
+    AtomicInt();
+    AtomicInt(Uint32 initial);
+   ~AtomicInt();
 
-      AtomicInt();
+    AtomicInt(const AtomicInt& original); // copy
 
-      AtomicInt(Uint32 initial);
+    AtomicInt& operator=(const AtomicInt& original); // assignment
 
-      ~AtomicInt() ;
+    //const AtomicInt& operator=(Uint32 val);
+    AtomicInt& operator=(Uint32 val);
 
-      AtomicInt(const AtomicInt& original ) ; // copy 
+    Uint32 value() const;
 
-      AtomicInt& operator=(const AtomicInt& original ); // assignment
-      //const AtomicInt& operator=(Uint32 val);
-      AtomicInt& operator=(Uint32 val);
+    void operator++(); // prefix
+    void operator++(int); // postfix
 
-      Uint32 value(void) const;
+    void operator--(); // prefix
+    void operator--(int) ; // postfix
 
-      void operator++(void); // prefix
-      void operator++(int); // postfix
+    Uint32 operator+(const AtomicInt& val);
+    Uint32 operator+(Uint32 val);
 
-      void operator--(void); // prefix
-      void operator--(int) ; // postfix
+    Uint32 operator-(const AtomicInt& val);
+    Uint32 operator-(Uint32 val);
 
-      Uint32 operator+(const AtomicInt& val);
-      Uint32 operator+(Uint32 val);
+    AtomicInt& operator+=(const AtomicInt& val);
+    AtomicInt& operator+=(Uint32 val);
+    AtomicInt& operator-=(const AtomicInt& val);
+    AtomicInt& operator-=(Uint32 val);
 
-      Uint32 operator-(const AtomicInt& val);
-      Uint32 operator-(Uint32 val);
+    inline Boolean operator>(Uint32 cmp) const {return (this->value() > cmp);}
+    inline Boolean operator>=(Uint32 cmp) const {return (this->value() >= cmp);}
+    inline Boolean operator<(Uint32 cmp)const {return (this->value() < cmp);}
+    inline Boolean operator<=(Uint32 cmp) const {return (this->value() <= cmp);}
+    inline Boolean operator==(Uint32 cmp) const {return (this->value() == cmp);}
 
-      AtomicInt& operator+=(const AtomicInt& val);
-      AtomicInt& operator+=(Uint32 val);
-      AtomicInt& operator-=(const AtomicInt& val);
-      AtomicInt& operator-=(Uint32 val);
+    // This method should ease reference counting
+    Boolean DecAndTestIfZero();
 
-      inline Boolean operator>(Uint32 cmp) {return (this->value() > cmp);}
-      inline Boolean operator>=(Uint32 cmp) {return (this->value() >= cmp);}
-      inline Boolean operator<(Uint32 cmp) {return (this->value() < cmp);}
-      inline Boolean operator<=(Uint32 cmp) {return (this->value() <= cmp);}
-      inline Boolean operator==(Uint32 cmp) {return (this->value() == cmp);}
+    // Mutex * getMutex(); keep this hidden - it will only exist on platforms
+    // without native atomic types
 
-      // This method should ease reference counting
-      Boolean DecAndTestIfZero();
-
-      // Mutex * getMutex(); keep this hidden - it will only exist on platforms
-      // without native atomic types 
-
-   private:
-      PEGASUS_ATOMIC_TYPE _rep;
+private:
+    PEGASUS_ATOMIC_TYPE _rep;
 #ifdef PEGASUS_NEED_CRITICAL_TYPE
-      mutable PEGASUS_CRIT_TYPE _crit;
+    mutable PEGASUS_CRIT_TYPE _crit;
 #endif /* PEGASUS_NEED_CRITICAL_TYPE */
 };
-    
+
 
 //-----------------------------------------------------------------
 /// Generic definition of read/write semaphore
@@ -426,89 +432,120 @@ class PEGASUS_COMMON_LINKAGE AtomicInt
 #ifndef PEGASUS_READWRITE_NATIVE
 
 typedef struct pegasus_rwlock {
-      Semaphore _rlock;
-      Mutex _wlock;
-      Mutex _internal_lock;
-      PEGASUS_THREAD_TYPE _owner;
-      pegasus_rwlock() : _rlock(10), _wlock(), _internal_lock(), _owner(pegasus_thread_self()) 
-      {
-      }
+    Semaphore _rlock;
+    Mutex _wlock;
+    Mutex _internal_lock;
+    PEGASUS_THREAD_TYPE _owner;
+    pegasus_rwlock() : _rlock(10), _wlock(), _internal_lock(), _owner(pegasus_thread_self())
+    {
+    }
 } PEGASUS_RWLOCK_HANDLE;
 
 #endif
 
 class PEGASUS_COMMON_LINKAGE ReadWriteSem
 {
- 
-   public:
-      ReadWriteSem(void);
-      ~ReadWriteSem();
+public:
+    ReadWriteSem();
+    ~ReadWriteSem();
 
-      inline void wait_read(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, WaitFailed) 
-      {
-	 try { wait(PEG_SEM_READ, caller ); }
-	 catch (...) { throw; }
-      }
-      inline void wait_write(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, WaitFailed)
-      {
-	 try { wait(PEG_SEM_WRITE, caller); }
-	 catch(...) { throw; }
-      }
+    // @exception Deadlock
+    // @exception Permission
+    // @exception WaitFailed
+    inline void wait_read(PEGASUS_THREAD_TYPE caller)
+    {
+        wait(PEG_SEM_READ, caller );
+    }
 
-      inline void try_wait_read(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, AlreadyLocked, WaitFailed)
-      {
-	 try { try_wait(PEG_SEM_READ, caller); }
-	 catch(...) { throw; }
-      }
+    // @exception Deadlock
+    // @exception Permission
+    // @exception WaitFailed
+    inline void wait_write(PEGASUS_THREAD_TYPE caller)
+    {
+        wait(PEG_SEM_WRITE, caller);
+    }
 
-      inline void try_wait_write(PEGASUS_THREAD_TYPE caller) throw(Deadlock, Permission, AlreadyLocked, WaitFailed)
-      {
-	 try { try_wait(PEG_SEM_WRITE, caller); }
-	 catch(...) { throw; }
-      }
+    // @exception Deadlock
+    // @exception Permission
+    // @exception AlreadyLocked
+    // @exception WaitFailed
+    inline void try_wait_read(PEGASUS_THREAD_TYPE caller)
+    {
+        try_wait(PEG_SEM_READ, caller);
+    }
 
-      inline void timed_wait_read(PEGASUS_THREAD_TYPE caller, int milliseconds) throw(Deadlock, Permission, TimeOut, WaitFailed)
-      {
-	 try { timed_wait(PEG_SEM_READ, caller, milliseconds); }
-	 catch(...) { throw; }
-      }
+    // @exception Deadlock
+    // @exception Permission
+    // @exception AlreadyLocked
+    // @exception WaitFailed
+    inline void try_wait_write(PEGASUS_THREAD_TYPE caller)
+    {
+        try_wait(PEG_SEM_WRITE, caller);
+    }
 
-      inline void timed_wait_write(PEGASUS_THREAD_TYPE caller, int milliseconds) throw(Deadlock, Permission, TimeOut, WaitFailed)
-      {
-	 try {timed_wait(PEG_SEM_WRITE, caller, milliseconds); }
-	 catch(...) { throw; }
-      }
+    // @exception Deadlock
+    // @exception Permission
+    // @exception TimeOut
+    // @exception WaitFailed
+    inline void timed_wait_read(PEGASUS_THREAD_TYPE caller, int milliseconds)
+    {
+        timed_wait(PEG_SEM_READ, caller, milliseconds);
+    }
 
-      inline void unlock_read(PEGASUS_THREAD_TYPE caller) throw(Permission)
-      {
-	 try { unlock(PEG_SEM_READ, caller); }
-	 catch(...) { throw; }
-      }
+    // @exception Deadlock
+    // @exception Permission
+    // @exception TimeOut
+    // @exception WaitFailed
+    inline void timed_wait_write(PEGASUS_THREAD_TYPE caller, int milliseconds)
+    {
+        timed_wait(PEG_SEM_WRITE, caller, milliseconds);
+    }
 
-      inline void unlock_write(PEGASUS_THREAD_TYPE caller) throw(Permission)
-      {
-	 try { unlock(PEG_SEM_WRITE, caller); }
-	 catch(...) { throw; }
-      }
-      int read_count(void);
-      int write_count(void);
-      void wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
-	 throw(Deadlock, Permission, WaitFailed, TooManyReaders);
-      void try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller) 
-	 throw(Deadlock, Permission, WaitFailed, TooManyReaders);
-      void timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds) 
-	 throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders);
-      void unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
-      	 throw(Permission);
+    // @exception Permission
+    inline void unlock_read(PEGASUS_THREAD_TYPE caller)
+    {
+        unlock(PEG_SEM_READ, caller);
+    }
 
-   private: 
-      void _extricate(void);
-      AtomicInt _readers; 
-      AtomicInt _writers;
-      PEGASUS_RWLOCK_HANDLE _rwlock;
-      // friend template class DQueue;
-      friend void extricate_read_write(void *);
-   } ;
+    // @exception Permission
+    inline void unlock_write(PEGASUS_THREAD_TYPE caller)
+    {
+        unlock(PEG_SEM_WRITE, caller);
+    }
+
+    int read_count() const;
+    int write_count() const;
+
+    // @exception Deadlock
+    // @exception Permission
+    // @exception WaitFailed
+    // @exception TooManyReaders
+    void wait(Uint32 mode, PEGASUS_THREAD_TYPE caller);
+
+    // @exception Deadlock
+    // @exception Permission
+    // @exception WaitFailed
+    // @exception TooManyReaders
+    void try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller);
+
+    // @exception Timeout
+    // @exception Deadlock
+    // @exception Permission
+    // @exception WaitFailed
+    // @exception TooManyReaders
+    void timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds);
+
+    // @exception Permission
+    void unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller);
+
+private:
+    void _extricate();
+    AtomicInt _readers;
+    AtomicInt _writers;
+    PEGASUS_RWLOCK_HANDLE _rwlock;
+    // friend template class DQueue;
+    friend void extricate_read_write(void *);
+};
 
 
 // Classes used for safe locking of ReadWriteSem
@@ -521,7 +558,7 @@ public:
         _rwsem.wait_read(pegasus_thread_self());
     }
 
-    ~ReadLock(void)
+    ~ReadLock()
     {
         _rwsem.unlock_read(pegasus_thread_self());
     }
@@ -538,7 +575,7 @@ public:
         _rwsem.wait_write(pegasus_thread_self());
     }
 
-    ~WriteLock(void)
+    ~WriteLock()
     {
         _rwsem.unlock_write(pegasus_thread_self());
     }
@@ -558,24 +595,28 @@ private:
 // typedef PEGASUS_SEMAPHORE_TYPE PEGASUS_COND_TYPE;
 
 class PEGASUS_COMMON_LINKAGE cond_waiter {
-   public:
-      cond_waiter( PEGASUS_THREAD_TYPE caller, Sint32 time = -1) : 
-	 waiter(caller), signalled(0) { }
-      ~cond_waiter() 
-      {
-	 signalled.signal();
+public:
+    cond_waiter( PEGASUS_THREAD_TYPE caller, Sint32 time = -1)
+        : waiter(caller), signalled(0) { }
+
+    ~cond_waiter()
+    {
+       signalled.signal();
+    }
+
+    inline Boolean operator==(const void *key) const
+    {
+        if((PEGASUS_THREAD_TYPE)key == waiter)
+            return true;
+        return false;
       }
-      inline Boolean operator==(const void *key) const
-      {
-	 if((PEGASUS_THREAD_TYPE)key == waiter)
-	    return true;
-	 return false;
-      }
-      inline Boolean operator ==(const cond_waiter & b ) const 
-      { 
-	 return (operator ==(b.waiter)) ; 
-      }
-   private:
+      
+    inline Boolean operator ==(const cond_waiter & b ) const
+    {
+        return (operator ==(b.waiter)) ;
+    }
+
+private:
       cond_waiter();
       PEGASUS_THREAD_TYPE waiter;
       Semaphore signalled;
@@ -583,78 +624,83 @@ class PEGASUS_COMMON_LINKAGE cond_waiter {
 };
 
 typedef struct peg_condition{
-      internal_dq  _waiters;
-      Mutex _spin;
-      peg_condition() : _waiters(true), _spin()  { }
+    internal_dq  _waiters;
+    Mutex _spin;
+    peg_condition() : _waiters(true), _spin()  { }
 } PEGASUS_COND_TYPE;
 
-#endif 
+#endif
 
 class PEGASUS_COMMON_LINKAGE Condition
-{ 
-   public:
-      // create the condition variable
-      Condition(void)  ;
-      ~Condition(void);
-      Condition(const Mutex& mutex);
+{
+public:
+    // create the condition variable
+    Condition();
+    ~Condition();
+    Condition(const Mutex& mutex);
 
-      // signal the condition variable
-      void signal(PEGASUS_THREAD_TYPE caller) 
-	 throw(IPCException);
-      void lock_object(PEGASUS_THREAD_TYPE caller) 
-	 throw(IPCException);
-      void try_lock_object(PEGASUS_THREAD_TYPE caller)
-	 throw(IPCException);
-      void wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-	 throw(IPCException);
-      void unlock_object(void);
+    // signal the condition variable
+    // @exception IPCException
+    void signal(PEGASUS_THREAD_TYPE caller);
 
-      // without pthread_mutex_lock/unlock
-      void unlocked_wait(PEGASUS_THREAD_TYPE caller) 
-	 throw(IPCException);
-      void unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller) 
-	 throw(IPCException);
-      void unlocked_signal(PEGASUS_THREAD_TYPE caller)
-	 throw(IPCException);
+    // @exception IPCException
+    void lock_object(PEGASUS_THREAD_TYPE caller);
 
-      void set_owner(PEGASUS_THREAD_TYPE caller) 
-      {
-	 _cond_mutex->_set_owner(caller);
-      }
-      
-      void disallow(void)
-      {
-	 _disallow++;
-      }
-      
-      void reallow(void)
-      {
-	 if(_disallow.value() > 0)
-	    _disallow--;
-      }
+    // @exception IPCException
+    void try_lock_object(PEGASUS_THREAD_TYPE caller);
 
-      Boolean is_shutdown(void)
-      {
-	 if(_disallow.value() > 0)
-	    return true;
-	 return false;
-      }
-      
-      
-   private:
-      AtomicInt _disallow; // don't allow any further waiters
-      Boolean _destroy_mut;
-      PEGASUS_COND_TYPE _condition; // special type to control execution flow
-      AutoPtr<Mutex> _cond_mutex; // the conditional mutex //PEP101
-      friend void extricate_condition(void *);
-      
-      // Hide the assignment operator to avoid implicit use of the default
-      // assignment operator.  Do not use this method.
-      Condition& operator=(const Condition& original) {return *this;}
+    // @exception IPCException
+    void wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds);
 
-      // Hide the copy constructor to avoid implicit use of the default
-      // copy constructor.  Do not use this method.
-      Condition(const Condition& original) {}
+    void unlock_object();
+
+    // without pthread_mutex_lock/unlock
+    // @exception IPCException
+    void unlocked_wait(PEGASUS_THREAD_TYPE caller);
+
+    // @exception IPCException
+    void unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller);
+
+    // @exception IPCException
+    void unlocked_signal(PEGASUS_THREAD_TYPE caller);
+
+    void set_owner(PEGASUS_THREAD_TYPE caller)
+    {
+        _cond_mutex->_set_owner(caller);
+    }
+
+    void disallow()
+    {
+        _disallow++;
+    }
+
+    void reallow()
+    {
+        if(_disallow.value() > 0)
+            _disallow--;
+    }
+
+    Boolean is_shutdown() const
+    {
+        if(_disallow.value() > 0)
+            return true;
+        return false;
+    }
+
+private:
+    AtomicInt _disallow; // don't allow any further waiters
+    Boolean _destroy_mut;
+    PEGASUS_COND_TYPE _condition; // special type to control execution flow
+    AutoPtr<Mutex> _cond_mutex; // the conditional mutex //PEP101
+    friend void extricate_condition(void *);
+
+    // Hide the assignment operator to avoid implicit use of the default
+    // assignment operator.  Do not use this method.
+    Condition& operator=(const Condition& original) {return *this;}
+
+    // Hide the copy constructor to avoid implicit use of the default
+    // copy constructor.  Do not use this method.
+    Condition(const Condition& original) {}
 };
 
 

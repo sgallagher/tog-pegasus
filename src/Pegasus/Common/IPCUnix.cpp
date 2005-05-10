@@ -31,10 +31,12 @@
 //
 // Modified By: Mike Day (mdday@us.ibm.com) -- added native implementation
 // of AtomicInt class, exceptions
-//         Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
-//         David Eger (dteger@us.ibm.com)
-//         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
-//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp0.com)
+//          Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//          David Eger (dteger@us.ibm.com)
+//          Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//          Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//          David Dillard, VERITAS Software Corp.
+//              (david.dillardd@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -105,7 +107,7 @@ Mutex::~Mutex()
 
 // block until gaining the lock - throw a deadlock
 // exception if process already holds the lock
- void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
+ void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 {
    int errorcode;
    if( 0 == (errorcode = pthread_mutex_lock(&(_mutex.mut))))
@@ -122,7 +124,7 @@ Mutex::~Mutex()
 // try to gain the lock - lock succeeds immediately if the
 // mutex is not already locked. throws an exception and returns
 // immediately if the mutex is currently locked.
- void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed)
+ void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 {
    int errorcode ;
    if(0 == (errorcode = pthread_mutex_trylock(&_mutex.mut)))
@@ -156,7 +158,6 @@ Mutex::~Mutex()
 // mdday Sun Aug  5 14:12:22 2001
 
  void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, TimeOut, WaitFailed)
 {
 
    struct timeval now, finish, remaining;
@@ -175,7 +176,7 @@ Mutex::~Mutex()
    {
       errorcode = pthread_mutex_trylock(&_mutex.mut);
       if (errorcode == 0 )
-	 break;
+         break;
 
       if(errorcode == EBUSY)
       {
@@ -194,7 +195,7 @@ Mutex::~Mutex()
 }
 
 // unlock the mutex
- void Mutex::unlock() throw(Permission)
+ void Mutex::unlock()
 {
    PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
    _mutex.owner = 0;
@@ -212,13 +213,13 @@ Mutex::~Mutex()
 //-----------------------------------------------------------------
 
 
-ReadWriteSem::ReadWriteSem(void) :  _readers(0), _writers(0)
+ReadWriteSem::ReadWriteSem() :  _readers(0), _writers(0)
 {
    pthread_rwlock_init(&_rwlock.rwlock, NULL);
    _rwlock.owner = 0;
 }
 
-ReadWriteSem::~ReadWriteSem(void)
+ReadWriteSem::~ReadWriteSem()
 {
 
    while( EBUSY == pthread_rwlock_destroy(&_rwlock.rwlock))
@@ -229,8 +230,6 @@ ReadWriteSem::~ReadWriteSem(void)
 
 
 void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
-
 {
    int errorcode;
    if (mode == PEG_SEM_READ)
@@ -260,7 +259,6 @@ void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 }
 
 void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
-   throw(Deadlock, Permission, WaitFailed, TooManyReaders)
 {
    int errorcode = 0;
    if (mode == PEG_SEM_READ)
@@ -295,7 +293,6 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 // timedrdlock and timedwrlock are not supported on HPUX
 // mdday Sun Aug  5 14:21:00 2001
 void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(TimeOut, Deadlock, Permission, WaitFailed, TooManyReaders)
 {
    int errorcode = 0, timeout ;
    struct timeval now, finish, remaining;
@@ -350,7 +347,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
       throw(WaitFailed(pegasus_thread_self()));
 }
 
-void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller) throw(Permission)
+void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 {
    PEGASUS_THREAD_TYPE owner;
 
@@ -469,7 +466,6 @@ Condition::~Condition()
 }
 
 void Condition::signal(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    _cond_mutex->lock(caller);
    pthread_cond_broadcast(&_condition);
@@ -478,7 +474,6 @@ void Condition::signal(PEGASUS_THREAD_TYPE caller)
 
 
 void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    if (_cond_mutex->get_owner() != caller)
    {
@@ -490,7 +485,6 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 
 
 void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
 
    if(_disallow.value() > 0)
@@ -499,7 +493,6 @@ void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 }
 
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    if(_disallow.value() > 0)
       throw ListClosed();
@@ -507,7 +500,6 @@ void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 }
 
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-   throw(IPCException)
 {
    if(_disallow.value() > 0)
       throw ListClosed();
@@ -519,7 +511,7 @@ void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
    }
 }
 
-void Condition::unlock_object(void)
+void Condition::unlock_object()
 {
    _cond_mutex->unlock();
 }
@@ -527,7 +519,6 @@ void Condition::unlock_object(void)
 
 // block until this semaphore is in a signalled state
 void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
    // The caller must own the Mutex in order to wait on the Condition
    if (_cond_mutex->get_owner() != caller)
@@ -553,7 +544,7 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 // block until this semaphore is in a signalled state
 void Condition::unlocked_timed_wait(
    int milliseconds,
-   PEGASUS_THREAD_TYPE caller) throw(IPCException)
+   PEGASUS_THREAD_TYPE caller)
 {
    // The caller must own the Mutex in order to wait on the Condition
    if (_cond_mutex->get_owner() != caller)
@@ -634,7 +625,7 @@ Semaphore::~Semaphore()
 
 // block until this semaphore is in a signalled state, or
 // throw an exception if the wait fails
-void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
+void Semaphore::wait(Boolean ignoreInterrupt)
 {
 	do
 	{
@@ -658,7 +649,7 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
 // wait succeeds immediately if semaphore has a non-zero count,
 // return immediately and throw and exception if the
 // count is zero.
-void Semaphore::try_wait(void) throw(WaitFailed)
+void Semaphore::try_wait()
 {
    if (sem_trywait(&_semaphore.sem))
       throw(WaitFailed(_semaphore.owner));
@@ -674,7 +665,7 @@ void Semaphore::try_wait(void) throw(WaitFailed)
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
-void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+void Semaphore::time_wait(Uint32 milliseconds)
 {
    int retcode, i = 0;
 
@@ -714,7 +705,7 @@ void Semaphore::signal()
 }
 
 // return the count of the semaphore
-int Semaphore::count()
+int Semaphore::count() const
 {
    sem_getvalue(&_semaphore.sem,&_count);
    return _count;
@@ -749,7 +740,7 @@ Semaphore::~Semaphore()
 
 // block until this semaphore is in a signalled state, or
 // throw an exception if the wait fails
-void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
+void Semaphore::wait(Boolean ignoreInterrupt)
 {
    _semaphore.waiters++;
    if (sem_wait(_semaphore.sem))
@@ -760,7 +751,7 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
 // wait succeeds immediately if semaphore has a non-zero count,
 // return immediately and throw and exception if the
 // count is zero.
-void Semaphore::try_wait(void) throw(WaitFailed)
+void Semaphore::try_wait()
 {
    if (sem_trywait(_semaphore.sem))
       throw(WaitFailed(_semaphore.owner));
@@ -768,7 +759,7 @@ void Semaphore::try_wait(void) throw(WaitFailed)
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
-void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+void Semaphore::time_wait(Uint32 milliseconds)
 {
    int retcode, i = 0;
 
@@ -891,7 +882,7 @@ static void semaphore_cleanup(void *arg)
 
 // block until this semaphore is in a signalled state or
 // throw an exception if the wait fails
-void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
+void Semaphore::wait(Boolean ignoreInterrupt)
 {
    // Acquire mutex to enter critical section.
    pthread_mutex_lock (&_semaphore.mutex);
@@ -927,13 +918,13 @@ void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
    pthread_mutex_unlock (&_semaphore.mutex);
 }
 
-void Semaphore::try_wait(void) throw(WaitFailed)
+void Semaphore::try_wait()
 {
 // not implemented
       throw(WaitFailed(_semaphore.owner));
 }
 
-void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+void Semaphore::time_wait(Uint32 milliseconds)
 {
    // Acquire mutex to enter critical section.
    pthread_mutex_lock (&_semaphore.mutex);
@@ -1043,7 +1034,7 @@ AtomicInt& AtomicInt::operator=(const AtomicInt& original)
    return *this;
 }
 
-Uint32 AtomicInt::value(void) const
+Uint32 AtomicInt::value() const
 {
    int i;
 
@@ -1056,14 +1047,14 @@ Uint32 AtomicInt::value(void) const
    return i;
 }
 
-void AtomicInt::operator++(void)
+void AtomicInt::operator++()
 {
     pthread_spin_lock(&_crit);
     _rep++;
     pthread_spin_unlock(&_crit);
 }
 
-void AtomicInt::operator--(void)
+void AtomicInt::operator--()
 {
     pthread_spin_lock(&_crit);
     _rep--;

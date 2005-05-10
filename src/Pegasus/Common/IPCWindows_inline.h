@@ -46,7 +46,7 @@
 
 // block until gaining the lock - throw a deadlock
 // exception if process already holds the lock
-inline void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
+inline void Mutex::lock(PEGASUS_THREAD_TYPE caller)
 {
     if(_mutex.owner == caller)
         throw( Deadlock( _mutex.owner ) );
@@ -60,7 +60,7 @@ inline void Mutex::lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, WaitFailed)
 // try to gain the lock - lock succeeds immediately if the
 // mutex is not already locked. throws an exception and returns
 // immediately if the mutex is currently locked.
-inline void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyLocked, WaitFailed)
+inline void Mutex::try_lock(PEGASUS_THREAD_TYPE caller)
 {
     if(_mutex.owner == caller)
         throw( Deadlock( _mutex.owner ) );
@@ -78,7 +78,6 @@ inline void Mutex::try_lock(PEGASUS_THREAD_TYPE caller) throw(Deadlock, AlreadyL
 // exception.
 
 inline void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
-    throw(Deadlock, TimeOut, WaitFailed)
 {
     if(_mutex.owner == caller)
         throw( Deadlock( _mutex.owner ) );
@@ -92,7 +91,7 @@ inline void Mutex::timed_lock( Uint32 milliseconds , PEGASUS_THREAD_TYPE caller)
 }
 
 // unlock the mutex
-inline void Mutex::unlock() throw(Permission)
+inline void Mutex::unlock()
 {
     PEGASUS_THREAD_TYPE m_owner = _mutex.owner;
     _mutex.owner = 0;
@@ -106,7 +105,7 @@ inline void Mutex::unlock() throw(Permission)
 
 // block until this semaphore is in a signalled state
 // note that windows does not support interrupt
-inline void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInterrupted)
+inline void Semaphore::wait(Boolean ignoreInterrupt)
 {
     DWORD errorcode = WaitForSingleObject(_semaphore.sem, INFINITE);
     if(errorcode != WAIT_FAILED)
@@ -118,7 +117,7 @@ inline void Semaphore::wait(Boolean ignoreInterrupt) throw(WaitFailed, WaitInter
 // wait succeeds immediately if semaphore has a non-zero count,
 // return immediately and throw and exception if the
 // count is zero.
-inline void Semaphore::try_wait(void) throw(WaitFailed)
+inline void Semaphore::try_wait()
 {
     DWORD errorcode = WaitForSingleObject(_semaphore.sem, 0);
     if(errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
@@ -129,7 +128,7 @@ inline void Semaphore::try_wait(void) throw(WaitFailed)
 
 // wait for milliseconds and throw an exception
 // if wait times out without gaining the semaphore
-inline void Semaphore::time_wait( Uint32 milliseconds ) throw(TimeOut)
+inline void Semaphore::time_wait(Uint32 milliseconds)
 {
     DWORD errorcode = WaitForSingleObject(_semaphore.sem, milliseconds);
     if (errorcode == WAIT_TIMEOUT || errorcode == WAIT_FAILED)
@@ -145,7 +144,7 @@ inline void Semaphore::signal()
 }
 
 // return the count of the semaphore
-inline int Semaphore::count()
+inline int Semaphore::count() const
 {
     return(_count);
 }
@@ -258,7 +257,6 @@ inline Boolean AtomicInt::DecAndTestIfZero()
 #ifdef PEGASUS_CONDITIONAL_NATIVE
 
 inline void Condition::signal(PEGASUS_THREAD_TYPE caller)
-   throw(IPCException)
 {
     _cond_mutex->lock(caller);
     try
@@ -274,7 +272,6 @@ inline void Condition::signal(PEGASUS_THREAD_TYPE caller)
 }
 
 inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
-    throw(IPCException)
 {
     if(_cond_mutex->_mutex.owner != caller)
         throw Permission((PEGASUS_THREAD_TYPE)caller);
@@ -286,7 +283,6 @@ inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 }
 
 inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
-    throw(IPCException)
 {
     if(_disallow.value() > 0 )
         throw ListClosed();
@@ -294,7 +290,6 @@ inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 }
 
 inline void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
-    throw(IPCException)
 {
     if(_disallow.value() > 0 )
         throw ListClosed();
@@ -302,7 +297,6 @@ inline void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 }
 
 inline void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
-    throw(IPCException)
 {
     if(_disallow.value() > 0)
         throw ListClosed();

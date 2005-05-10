@@ -42,7 +42,6 @@
 
 
 PEGASUS_NAMESPACE_BEGIN
-PEGASUS_USING_STD;
 
 void IndicationFormatter::validateTextFormat (
     const String & textStr,

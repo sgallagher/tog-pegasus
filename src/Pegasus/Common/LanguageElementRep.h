@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3544
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +104,7 @@ public:
 	/**
 	 * Destructor
 	 */
-	~LanguageElementRep();
+	virtual ~LanguageElementRep();
 
 	/**
 	 * Assignment operator, deep copy

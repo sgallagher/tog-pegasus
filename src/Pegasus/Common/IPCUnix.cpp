@@ -716,14 +716,6 @@ Semaphore::Semaphore(Uint32 initial)
 
 }
 
-Semaphore::Semaphore(const Semaphore & sem)
-{
-   _semaphore.sem = sem._semaphore.sem;
-   _semaphore.owner = 0;
-    _semaphore.waiters = 0;
-}
-
-
 Semaphore::~Semaphore()
 {
     if ( _semaphore.waiters == 0 )
@@ -791,7 +783,7 @@ void Semaphore::signal()
 }
 
 // return the count of the semaphore
- int Semaphore::count()
+ int Semaphore::count() const
 {
    sem_getvalue(_semaphore.sem,&_count);
    return _count;
@@ -805,19 +797,6 @@ Semaphore::Semaphore(Uint32 initial)
 {
     pthread_mutex_init (&_semaphore.mutex,NULL);
     pthread_cond_init (&_semaphore.cond,NULL);
-    if (initial > SEM_VALUE_MAX)
-         _count = SEM_VALUE_MAX - 1;
-    else
-         _count = initial;
-    _semaphore.owner = pegasus_thread_self();
-    _semaphore.waiters = 0;
-}
-
-Semaphore::Semaphore(const Semaphore & sem)
-{
-    pthread_mutex_init (&_semaphore.mutex,NULL);
-    pthread_cond_init (&_semaphore.cond,NULL);
-    Uint32 initial =  sem._count; //sem.count();
     if (initial > SEM_VALUE_MAX)
          _count = SEM_VALUE_MAX - 1;
     else
@@ -979,7 +958,7 @@ void Semaphore::signal()
 }
 
 // return the count of the semaphore
-int Semaphore::count()
+int Semaphore::count() const
 {
    return _count;
 }

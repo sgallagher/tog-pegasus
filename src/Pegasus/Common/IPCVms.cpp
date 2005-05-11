@@ -615,7 +615,7 @@ void Semaphore::signal()
 
 // return the count of the semaphore
 
-int Semaphore::count()
+int Semaphore::count() const
 {
    return _count;
 }

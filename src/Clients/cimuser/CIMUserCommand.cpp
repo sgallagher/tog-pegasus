@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,11 +31,13 @@
 //
 // Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP-101
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amita@in.ibm.com) - Bug#2311,#2333,#2351
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -366,7 +368,6 @@ public:
     void setCommand (
         Uint32 argc,
         char* argv[])
-        throw (CommandFormatException)
     {
         // Empty function
     }
@@ -1082,7 +1083,7 @@ Uint32 CIMUserCommand::execute (
         //
         _client->connectLocal();
     }
-    catch(Exception& e)
+    catch(const Exception&)
     {
         //l10n
         //outPrintWriter << CIMOM_NOT_RUNNING << endl;

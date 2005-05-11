@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,8 @@
 // Author: Mike Day (mdday@us.ibm.com) << Tue Mar 19 13:19:24 2002 mdd >>
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for PEP101 and Bug#1090
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,13 +41,10 @@
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
- 
+
 ModuleController::callback_handle * ModuleController::callback_handle::_head;
 const int ModuleController::callback_handle::BLOCK_SIZE = 20;
 Mutex ModuleController::callback_handle::_alloc_mut;
-
-
-
 
 
 void * ModuleController::callback_handle::operator new(size_t size)
@@ -58,7 +57,7 @@ void * ModuleController::callback_handle::operator new(size_t size)
       _head = reinterpret_cast<callback_handle *>(node->_parm);
    else
    {
-      callback_handle *block = 
+      callback_handle *block =
 	 reinterpret_cast<callback_handle *>(::operator new(BLOCK_SIZE * sizeof(callback_handle)));
       int i;
       for(i = 1; i < BLOCK_SIZE - 1; ++i)
@@ -87,17 +86,17 @@ void ModuleController::callback_handle::operator delete(void *dead, size_t size)
 }
 
 
-pegasus_module::module_rep::module_rep(ModuleController *controller, 
+pegasus_module::module_rep::module_rep(ModuleController *controller,
 				       const String & name,
-				       void *module_address, 
+				       void *module_address,
 				       Message * (*receive_message)(Message *, void *),
 				       void (*async_callback)(Uint32, Message *, void *),
 				       void (*shutdown_notify)(Uint32 code, void *))
    : Base ( pegasus_internal_identity(peg_credential_types::MODULE) ),
      _thread_safety(),
-     _controller(controller),  
-     _name(name), 
-     _reference_count(1), 
+     _controller(controller),
+     _name(name),
+     _reference_count(1),
      _shutting_down(0),
      _module_address(module_address)
 
@@ -117,7 +116,7 @@ pegasus_module::module_rep::module_rep(ModuleController *controller,
 }
 
 
-pegasus_module::module_rep::~module_rep(void)
+pegasus_module::module_rep::~module_rep()
 {
    _send_shutdown_notify();
 }
@@ -136,8 +135,8 @@ void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message
    AutoMutex autoMut(_thread_safety);
    _async_callback(msg_handle, msg, parm);
 }
- 
-void pegasus_module::module_rep::_send_shutdown_notify(void)
+
+void pegasus_module::module_rep::_send_shutdown_notify()
 {
    AutoMutex autoMut(_thread_safety);
    if(_reference_count.value() == 0 )
@@ -169,8 +168,8 @@ Boolean pegasus_module::module_rep::authorized(Uint32 index, Uint32 operation)
 }
 
 
-pegasus_module::pegasus_module(ModuleController *controller, 
-			       const String &id, 
+pegasus_module::pegasus_module(ModuleController *controller,
+			       const String &id,
  			       void *module_address,
 			       Message * (*receive_message)(Message *, void *),
 			       void (*async_callback)(Uint32, Message *, void *),
@@ -180,15 +179,15 @@ pegasus_module::pegasus_module(ModuleController *controller,
 {
       _allowed_operations = ModuleController::GET_CLIENT_HANDLE |
                          ModuleController::REGISTER_MODULE |
-                         ModuleController::DEREGISTER_MODULE | 
+                         ModuleController::DEREGISTER_MODULE |
                          ModuleController::FIND_SERVICE |
-                         ModuleController::FIND_MODULE_IN_SERVICE | 
-                         ModuleController::GET_MODULE_REFERENCE | 
-                         ModuleController::MODULE_SEND_WAIT | 
-                         ModuleController::MODULE_SEND_WAIT_MODULE | 
-                         ModuleController::MODULE_SEND_ASYNC | 
-                         ModuleController::MODULE_SEND_ASYNC_MODULE | 
-                         ModuleController::BLOCKING_THREAD_EXEC | 
+                         ModuleController::FIND_MODULE_IN_SERVICE |
+                         ModuleController::GET_MODULE_REFERENCE |
+                         ModuleController::MODULE_SEND_WAIT |
+                         ModuleController::MODULE_SEND_WAIT_MODULE |
+                         ModuleController::MODULE_SEND_ASYNC |
+                         ModuleController::MODULE_SEND_ASYNC_MODULE |
+                         ModuleController::BLOCKING_THREAD_EXEC |
                          ModuleController::ASYNC_THREAD_EXEC;
 }
 
@@ -198,7 +197,7 @@ pegasus_module::pegasus_module(const pegasus_module & mod)
    _rep.reset(mod._rep.get());
 }
 
-pegasus_module::~pegasus_module(void)
+pegasus_module::~pegasus_module()
 {
    _rep->dereference();
    _send_shutdown_notify();
@@ -218,7 +217,7 @@ Boolean pegasus_module::authorized()
 
 
 pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
-{   
+{
    if( this != &mod)
    {
       if ( _rep->reference_count() == 0 )
@@ -228,18 +227,18 @@ pegasus_module & pegasus_module::operator= (const pegasus_module & mod)
    return *this;
 }
 
-Boolean pegasus_module::operator== (const pegasus_module & mod) const 
+Boolean pegasus_module::operator== (const pegasus_module & mod) const
 {
-   if( mod._rep.get() == _rep.get() ) 
+   if( mod._rep.get() == _rep.get() )
       return true;
    return false;
-   
+
 }
-      
+
 Boolean pegasus_module::operator == (const String &  mod) const
 {
    if(_rep->get_name() == mod)
-      return true; 
+      return true;
    return false;
 }
 
@@ -251,14 +250,14 @@ Boolean pegasus_module::operator == (const void *mod) const
    return false;
 }
 
-const String & pegasus_module::get_name(void) const
+const String & pegasus_module::get_name() const
 {
    return _rep->get_name();
 }
 
 
-Boolean pegasus_module::query_interface(const String & class_id,  
-					void **object_ptr) const 
+Boolean pegasus_module::query_interface(const String & class_id,
+					void **object_ptr) const
 {
    PEGASUS_ASSERT(object_ptr != NULL);
    if( class_id == _rep->get_name())
@@ -275,21 +274,21 @@ Message * pegasus_module::_receive_message(Message *msg)
    return _rep->module_receive_message(msg);
 }
 
-void pegasus_module::_send_async_callback(Uint32 msg_handle, Message *msg, void *parm) 
+void pegasus_module::_send_async_callback(Uint32 msg_handle, Message *msg, void *parm)
 {
    _rep->_send_async_callback(msg_handle, msg, parm);
 }
 
-void pegasus_module::_send_shutdown_notify(void)
+void pegasus_module::_send_shutdown_notify()
 {
    _rep->_send_shutdown_notify();
 }
 
-Boolean pegasus_module::_shutdown(void) 
+Boolean pegasus_module::_shutdown()
 {
-   _send_shutdown_notify(); 
-   return true; 
-} 
+   _send_shutdown_notify();
+   return true;
+}
 
 
 
@@ -326,29 +325,29 @@ Boolean ModuleController::client_handle::authorized(Uint32 operation)
 {
    return true;
 }
- 
+
 
 Boolean ModuleController::client_handle::authorized(Uint32 index, Uint32 operation)
 {
    return true;
 }
- 
+
 
 // NOTE: "destroy" is defined in <memory> on HP-UX and must not be redefined
 static struct timeval createTime = {0, 50000};
 static struct timeval destroyTime = {15, 0};
 
 ModuleController::ModuleController(const char *name )
-   :Base(name, MessageQueue::getNextQueueId(), 
+   :Base(name, MessageQueue::getNextQueueId(),
 	 module_capabilities::module_controller |
 	 module_capabilities::async),
     _modules(true)
-{ 
+{
 
 }
 
 // ModuleController::ModuleController(const char *name ,
-// 				   Sint16 min_threads, 
+// 				   Sint16 min_threads,
 // 				   Sint16 max_threads,
 // 				   struct timeval & create_thread,
 // 				   struct timeval & destroy_thread)
@@ -356,12 +355,12 @@ ModuleController::ModuleController(const char *name )
 // 	 module_capabilities::module_controller |
 // 	 module_capabilities::async),
 //    _modules(true),
-//     _thread_pool(min_threads + 1,  
-// 		 name, min_threads, 
-// 		 max_threads, 
-// 		 create_thread, 
+//     _thread_pool(min_threads + 1,
+// 		 name, min_threads,
+// 		 max_threads,
+// 		 create_thread,
 // 		 destroy_thread)
-// { 
+// {
 
 // }
 
@@ -370,7 +369,7 @@ ModuleController::~ModuleController()
 
    pegasus_module *module;
 
-   try 
+   try
    {
       module = _modules.remove_first();
       while(module)
@@ -385,25 +384,24 @@ ModuleController::~ModuleController()
    }
 }
 
-// called by a module to register itself, returns a handle to the controller 
+// called by a module to register itself, returns a handle to the controller
 ModuleController & ModuleController::register_module(const String & controller_name,
-						     const String & module_name, 
-						     void *module_address, 
+						     const String & module_name,
+						     void *module_address,
 						     Message * (*receive_message)(Message *, void *),
 						     void (*async_callback)(Uint32, Message *, void *),
 						     void (*shutdown_notify)(Uint32, void *),
-						     pegasus_module **instance) 
-   throw(AlreadyExistsException, IncompatibleTypesException)
+						     pegasus_module **instance)
 {
 
    pegasus_module *module ;
    ModuleController *controller;
-   
+
 
    Array<Uint32> services;
-   
+
    MessageQueue *message_queue = MessageQueue::lookup(controller_name.getCString());
-   
+
    if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
    {
       throw IncompatibleTypesException();
@@ -416,13 +414,12 @@ ModuleController & ModuleController::register_module(const String & controller_n
    }
 
    controller = static_cast<ModuleController *>(service);
-   
-   
+
    {
-      
+
    // see if the module already exists in this controller.
    _module_lock lock(&(controller->_modules));
-   
+
    module = controller->_modules.next(0);
    while(module != NULL )
    {
@@ -437,24 +434,24 @@ ModuleController & ModuleController::register_module(const String & controller_n
       }
       module = controller->_modules.next(module);
    }
-   
+
    }
-   
+
    // now reserve this module name with the meta dispatcher
 
    Uint32 result = 0 ;
    AutoPtr<RegisteredModule> request(new RegisteredModule(controller->get_next_xid(),
-			   0, 
-			   true, 
+			   0,
+			   true,
 			   controller->getQueueId(),
 			   module_name));
 
    request->dest = CIMOM_Q_ID;
-   
+
    AutoPtr<AsyncReply> response(controller->SendWait(request.get()));
-   if( response.get() != NULL) 
+   if( response.get() != NULL)
       result  = response->result;
-   
+
    request.reset();
    response.reset();
    if ( result == async_results::MODULE_ALREADY_REGISTERED){
@@ -464,29 +461,27 @@ ModuleController & ModuleController::register_module(const String & controller_n
 	 						  "module \"$0\"",
 	 						  module_name);
 	 throw AlreadyExistsException(parms);
-      
+
    }
-   
-   // the module does not exist, go ahead and create it. 
-   module = new pegasus_module(controller, 
-			       module_name, 
-			       module_address, 
-			       receive_message, 
-			       async_callback, 
+
+   // the module does not exist, go ahead and create it.
+   module = new pegasus_module(controller,
+			       module_name,
+			       module_address,
+			       receive_message,
+			       async_callback,
 			       shutdown_notify);
-   
+
    controller->_modules.insert_last(module);
-   
+
    if(instance != NULL)
       *instance = module;
-   
+
    return *controller;
 }
 
 
 Boolean ModuleController::deregister_module(const String & module_name)
-   throw (Permission)
-
 {
    AutoPtr<DeRegisteredModule> request(new DeRegisteredModule(get_next_xid(),
 			     0,
@@ -494,12 +489,12 @@ Boolean ModuleController::deregister_module(const String & module_name)
 			     getQueueId(),
 			     module_name));
    request->dest = _meta_dispatcher->getQueueId();
-   
+
    AutoPtr<AsyncReply> response(SendWait(request.get()));
 
    request.reset();
    response.reset();
-   
+
    pegasus_module *module;
 
    _module_lock lock(&_modules);
@@ -519,14 +514,14 @@ Boolean ModuleController::deregister_module(const String & module_name)
 Boolean ModuleController::verify_handle(pegasus_module *handle)
 {
    pegasus_module *module;
-   
+
    // ATTN change to use authorization and the pegasus_id class
    // << Fri Apr  5 12:43:19 2002 mdd >>
    if( handle->_rep->_module_address == (void *)this)
       return true;
-   
+
    _module_lock lock(&_modules);
-   
+
    module = _modules.next(0);
    while(module != NULL)
    {
@@ -540,8 +535,8 @@ Boolean ModuleController::verify_handle(pegasus_module *handle)
 }
 
 // given a name, find a service's queue id
-Uint32 ModuleController::find_service(const pegasus_module & handle, 
-				      const String & name) throw(Permission)
+Uint32 ModuleController::find_service(const pegasus_module & handle,
+				      const String & name)
 {
 
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)) )
@@ -552,24 +547,22 @@ Uint32 ModuleController::find_service(const pegasus_module & handle,
 }
 
 
-// returns the queue ID of the service hosting the named module, 
+// returns the queue ID of the service hosting the named module,
 // zero otherwise
 
-Uint32 ModuleController::find_module_in_service(const pegasus_module & handle, 
+Uint32 ModuleController::find_module_in_service(const pegasus_module & handle,
 						const String & name)
-   throw(Permission, IPCException)
 {
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
-   
+
    Uint32 result = 0 ;
-   
 
    AutoPtr<FindModuleInService> request(new FindModuleInService(get_next_xid(),
-			      0, 
-			      true, 
+			      0,
+			      true,
 			      _meta_dispatcher->getQueueId(),
-			      name)); 
+			      name));
    request->dest = _meta_dispatcher->getQueueId();
    AutoPtr<FindModuleInServiceResponse>
        response(static_cast<FindModuleInServiceResponse *>(SendWait(request.get())));
@@ -580,9 +573,8 @@ Uint32 ModuleController::find_module_in_service(const pegasus_module & handle,
 }
 
 
-pegasus_module * ModuleController::get_module_reference(const pegasus_module & my_handle, 
+pegasus_module * ModuleController::get_module_reference(const pegasus_module & my_handle,
 							const String & module_name)
-   throw(Permission)
 {
    if ( false == verify_handle(const_cast<pegasus_module *>(&my_handle)))
       throw(Permission(pegasus_thread_self()));
@@ -603,7 +595,7 @@ pegasus_module * ModuleController::get_module_reference(const pegasus_module & m
 }
 
 
-AsyncReply *ModuleController::_send_wait(Uint32 destination_q, 
+AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 					 AsyncRequest *request)
 {
    request->dest = destination_q;
@@ -613,10 +605,9 @@ AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 
 
 // sendwait to another service
-AsyncReply * ModuleController::ModuleSendWait(const pegasus_module & handle, 
+AsyncReply * ModuleController::ModuleSendWait(const pegasus_module & handle,
 					      Uint32 destination_q,
 					      AsyncRequest *request)
-   throw(Permission, IPCException)
 {
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
@@ -624,24 +615,24 @@ AsyncReply * ModuleController::ModuleSendWait(const pegasus_module & handle,
    return _send_wait(destination_q, request);
 }
 
-AsyncReply *ModuleController::_send_wait(Uint32 destination_q, 
-					 const String & destination_module, 
+AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
+					 const String & destination_module,
 					 AsyncRequest *message)
 {
    AutoPtr<AsyncModuleOperationStart> request(new AsyncModuleOperationStart(get_next_xid(),
-				    0, 
+				    0,
 				    destination_q,
 				    getQueueId(),
-				    true, 
+				    true,
 				    destination_module,
 				    message));
-   
+
    request->dest = destination_q;
-   AutoPtr<AsyncModuleOperationResult> 
+   AutoPtr<AsyncModuleOperationResult>
       response(static_cast<AsyncModuleOperationResult *>(SendWait(request.get())));
 
    AsyncReply *ret = 0;
-   
+
    if (response.get() != NULL && response->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
    {
       ret = static_cast<AsyncReply *>(response->get_result());
@@ -652,25 +643,24 @@ AsyncReply *ModuleController::_send_wait(Uint32 destination_q,
 }
 
 
-// sendwait to another module controlled by another service. 
+// sendwait to another module controlled by another service.
 // throws Deadlock() if destination_q is this->queue_id
-AsyncReply * ModuleController::ModuleSendWait(const pegasus_module & handle, 
-					      Uint32 destination_q, 
+AsyncReply * ModuleController::ModuleSendWait(const pegasus_module & handle,
+					      Uint32 destination_q,
 					      const String & destination_module,
 					      AsyncRequest *message)
-   throw(Permission, Deadlock, IPCException)
 {
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
-   
+
    return _send_wait(destination_q, destination_module, message);
 }
 
-void ModuleController::_async_handleEnqueue(AsyncOpNode *op, 
-					    MessageQueue *q, 
+void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
+					    MessageQueue *q,
 					    void *parm)
 {
-   
+
    ModuleController *myself = static_cast<ModuleController *>(q);
    Message *request = op->get_request();
    Message *response = op->get_response();
@@ -680,13 +670,13 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
 
    if( response && (! (response->getMask() & message_mask::ha_async) ))
       throw TypeMismatchException();
-   
+
    op->release();
    myself->return_op(op);
-   
+
    Uint32 routing=0;
-   
-   // get rid of the module wrapper 
+
+   // get rid of the module wrapper
    if( request && request->getType() == async_messages::ASYNC_MODULE_OP_START )
    {
       (static_cast<AsyncMessage *>(request))->op = NULL;
@@ -695,8 +685,8 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
       request->setRouting(routing = rq->getRouting());
       delete rq;
    }
-   
-   // get rid of the module wrapper 
+
+   // get rid of the module wrapper
    if(response && response->getType() == async_messages::ASYNC_MODULE_OP_RESULT )
    {
       (static_cast<AsyncMessage *>(response))->op = NULL;
@@ -705,26 +695,25 @@ void ModuleController::_async_handleEnqueue(AsyncOpNode *op,
       response->setRouting(routing = rp->getRouting());
       delete rp;
    }
-   
+
    callback_handle *cb = reinterpret_cast<callback_handle *>(parm);
-   
-   cb->_module->_send_async_callback(routing, response, cb->_parm); 
+
+   cb->_module->_send_async_callback(routing, response, cb->_parm);
    delete cb;
-   
+
    return;
 }
 
 
 // send an async message to a service asynchronously
 Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
-					  Uint32 msg_handle, 
-					  Uint32 destination_q, 
-					  AsyncRequest *message, 
-					  void *callback_parm) 
-   throw(Permission, IPCException)
+					  Uint32 msg_handle,
+					  Uint32 destination_q,
+					  AsyncRequest *message,
+					  void *callback_parm)
 {
    //printf("verifying handle %p, controller at %p \n", &handle, this);
-   
+
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
@@ -735,45 +724,44 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
    }
 
 
-   callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), 
+   callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle),
 					     callback_parm);
-   
+
    message->setRouting(msg_handle);
    message->resp = getQueueId();
    message->block = false;
    message->dest = destination_q;
-   return SendAsync(message->op, 
+   return SendAsync(message->op,
 		    destination_q,
 		    _async_handleEnqueue,
 		    this,
 		    cb);
 }
 
-// send a message to a module within another service asynchronously 
+// send a message to a module within another service asynchronously
 Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
-					  Uint32 msg_handle, 
-					  Uint32 destination_q, 
+					  Uint32 msg_handle,
+					  Uint32 destination_q,
 					  const String & destination_module,
-					  AsyncRequest *message, 
-					  void *callback_parm) 
-   throw(Permission, IPCException)
+					  AsyncRequest *message,
+					  void *callback_parm)
 {
-   
+
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
 
    AsyncOpNode *op = get_op();
-   AsyncModuleOperationStart *request = 
+   AsyncModuleOperationStart *request =
       new AsyncModuleOperationStart(msg_handle,
 				    op,
 				    destination_q,
 				    getQueueId(),
-				    true, 
+				    true,
 				    destination_module,
 				    message);
    request->dest = destination_q;
-   callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), callback_parm); 
-   return SendAsync(op, 
+   callback_handle *cb = new callback_handle(const_cast<pegasus_module *>(&handle), callback_parm);
+   return SendAsync(op,
 		    destination_q,
 		    _async_handleEnqueue,
 		    this,
@@ -782,25 +770,23 @@ Boolean ModuleController::ModuleSendAsync(const pegasus_module & handle,
 
 
 Boolean ModuleController::_send_forget(Uint32 destination_q, AsyncRequest *message)
-   throw(IPCException)
 {
    message->dest = destination_q;
    return SendForget(message);
 }
 
-Boolean ModuleController::_send_forget(Uint32 destination_q, 
-				       const String & destination_module, 
+Boolean ModuleController::_send_forget(Uint32 destination_q,
+				       const String & destination_module,
 				       AsyncRequest *message)
-   throw(IPCException)
 {
    AsyncOpNode *op = get_op();
    message->dest = destination_q;
-   AsyncModuleOperationStart *request = 
+   AsyncModuleOperationStart *request =
       new AsyncModuleOperationStart(0,
 				    op,
 				    destination_q,
 				    getQueueId(),
-				    true, 
+				    true,
 				    destination_module,
 				    message);
    return SendForget(request);
@@ -808,35 +794,33 @@ Boolean ModuleController::_send_forget(Uint32 destination_q,
 
 
 
-Boolean ModuleController::ModuleSendForget(const pegasus_module & handle, 
-					   Uint32 destination_q, 
+Boolean ModuleController::ModuleSendForget(const pegasus_module & handle,
+					   Uint32 destination_q,
 					   AsyncRequest *message)
-   throw(Permission, IPCException)
 {
    if(false == verify_handle(const_cast<pegasus_module *>( &handle)))
       throw(Permission(pegasus_thread_self()));
-   
+
    return _send_forget(destination_q, message);
 }
-      
-Boolean ModuleController::ModuleSendForget(const pegasus_module & handle, 
-					   Uint32 destination_q, 
-					   const String & destination_module, 
+
+Boolean ModuleController::ModuleSendForget(const pegasus_module & handle,
+					   Uint32 destination_q,
+					   const String & destination_module,
 					   AsyncRequest *message)
-   throw(Permission, IPCException)
 {
    if(false == verify_handle(const_cast<pegasus_module *>( &handle)))
       throw(Permission(pegasus_thread_self()));
-   return _send_forget(destination_q, 
-		       destination_module, 
+   return _send_forget(destination_q,
+		       destination_module,
 		       message);
 }
 
 
 
 void ModuleController::_blocking_thread_exec(
-   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
-   void *parm) 
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
+   void *parm)
 {
    AutoPtr<Semaphore> blocking_sem(new Semaphore(0));
    while (!_thread_pool->allocate_and_awaken(parm, thread_func, blocking_sem.get()))
@@ -848,20 +832,20 @@ void ModuleController::_blocking_thread_exec(
 
 
 void ModuleController::blocking_thread_exec(
-   const pegasus_module & handle, 
-   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
-   void *parm) throw(Permission, Deadlock, IPCException)
+   const pegasus_module & handle,
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
+   void *parm)
 {
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
    _blocking_thread_exec(thread_func, parm);
-   
+
 }
 
 
 void ModuleController::_async_thread_exec(
-   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
-   void *parm) 
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
+   void *parm)
 {
    while (!_thread_pool->allocate_and_awaken(parm, thread_func))
    {
@@ -871,9 +855,9 @@ void ModuleController::_async_thread_exec(
 
 
 
-void ModuleController::async_thread_exec(const pegasus_module & handle, 
-					 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
-					 void *parm) throw(Permission, Deadlock, IPCException)
+void ModuleController::async_thread_exec(const pegasus_module & handle,
+					 PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
+					 void *parm)
 {
    if ( false == verify_handle(const_cast<pegasus_module *>(&handle)))
       throw(Permission(pegasus_thread_self()));
@@ -898,7 +882,7 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
 	    {
 	       break;
 	    }
-	    
+
 	    target = _modules.next(target);
 	 }
       }
@@ -913,10 +897,10 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
           module_result = target->_receive_message(
               static_cast<AsyncModuleOperationStart *>(rq)->_act);
       }
-      
+
       if(module_result == NULL)
       {
-	 module_result = new AsyncReply(async_messages::REPLY, 
+	 module_result = new AsyncReply(async_messages::REPLY,
 					static_cast<AsyncModuleOperationStart *>(rq)->_act->getKey(),
 					static_cast<AsyncModuleOperationStart *>(rq)->_act->getRouting(),
 					message_mask::ha_async | message_mask::ha_reply,
@@ -925,14 +909,14 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
 					rq->resp,
 					false);
       }
-      
-      AsyncModuleOperationResult *result = 
+
+      AsyncModuleOperationResult *result =
 	 new AsyncModuleOperationResult(rq->getKey(),
 					rq->getRouting(),
 					rq->op,
 					async_results::OK,
 					static_cast<AsyncModuleOperationStart *>(rq)->resp,
-					false, 
+					false,
 					static_cast<AsyncModuleOperationStart *>(rq)->_target_module,
 					module_result);
       _complete_op_node(rq->op, 0, 0, 0);
@@ -944,15 +928,14 @@ void ModuleController::_handle_async_request(AsyncRequest *rq)
 void ModuleController::_handle_async_callback(AsyncOpNode *op)
 {
    Base::_handle_async_callback(op);
-   
+
 }
 
 ModuleController & ModuleController::get_client_handle(const pegasus_identity & id,
 						       client_handle **handle)
-   throw(IncompatibleTypesException)
 {
    return get_client_handle(PEGASUS_QUEUENAME_CONTROLSERVICE,
-			    id, 
+			    id,
 			    handle);
 }
 
@@ -960,17 +943,16 @@ ModuleController & ModuleController::get_client_handle(const pegasus_identity & 
 // called by a non-module client to get the interface and authorization to use the controller
 
 ModuleController & ModuleController::get_client_handle(const char *controller,
-						       const pegasus_identity & id, 
-						       client_handle **handle) 
-   throw(IncompatibleTypesException)
+						       const pegasus_identity & id,
+						       client_handle **handle)
 {
-   
+
    if(handle == NULL)
       throw NullPointer();
-      
+
    Array<Uint32> services;
    MessageQueue *message_queue = MessageQueue::lookup(controller);
-   
+
    if ((message_queue == NULL) || ( false == message_queue->isAsync() ))
    {
       throw IncompatibleTypesException();
@@ -987,7 +969,7 @@ ModuleController & ModuleController::get_client_handle(const char *controller,
       *handle = new client_handle(id);
    else
       *handle = NULL;
-   
+
    return *_controller;
 }
 
@@ -1001,11 +983,10 @@ void ModuleController::return_client_handle(client_handle *handle)
 
 // send a message to another service
 AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
-					     Uint32 destination_q, 
-					     AsyncRequest *request) 
-   throw(Permission, IPCException)
+					     Uint32 destination_q,
+					     AsyncRequest *request)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT))
       throw Permission(pegasus_thread_self());
    return _send_wait(destination_q, request);
 }
@@ -1015,10 +996,9 @@ AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
 AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
 					     Uint32 destination_q,
 					     String & destination_module,
-					     AsyncRequest *request) 
-   throw(Permission, Deadlock, IPCException)
+					     AsyncRequest *request)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT_MODULE)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_WAIT_MODULE))
       throw Permission(pegasus_thread_self());
    return _send_wait(destination_q, destination_module, request);
 }
@@ -1026,52 +1006,50 @@ AsyncReply *ModuleController::ClientSendWait(const client_handle & handle,
 
 // send an async message to another service
 Boolean ModuleController::ClientSendAsync(const client_handle & handle,
-					  Uint32 msg_handle, 
-					  Uint32 destination_q, 
+					  Uint32 msg_handle,
+					  Uint32 destination_q,
 					  AsyncRequest *message,
 					  void (*async_callback)(Uint32, Message *, void *) ,
 					  void *callback_parm)
-   throw(Permission, IPCException)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC))
       throw Permission(pegasus_thread_self());
-   
-   pegasus_module *temp = new pegasus_module(this, 
+
+   pegasus_module *temp = new pegasus_module(this,
 					     String(PEGASUS_MODULENAME_TEMP),
-					     this, 
-					     0, 
-					     async_callback, 
+					     this,
+					     0,
+					     async_callback,
 					     0);
-   return ModuleSendAsync( *temp, 
-			   msg_handle, 
-			   destination_q, 
-			   message, 
+   return ModuleSendAsync( *temp,
+			   msg_handle,
+			   destination_q,
+			   message,
 			   callback_parm);
 }
 
 
 // send an async message to another module via another service
 Boolean ModuleController::ClientSendAsync(const client_handle & handle,
-					  Uint32 msg_handle, 
-					  Uint32 destination_q, 
+					  Uint32 msg_handle,
+					  Uint32 destination_q,
 					  const String & destination_module,
-					  AsyncRequest *message, 
+					  AsyncRequest *message,
 					  void (*async_callback)(Uint32, Message *, void *),
 					  void *callback_parm)
-   throw(Permission, IPCException)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC_MODULE)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_ASYNC_MODULE))
       throw Permission(pegasus_thread_self());
-   
-   pegasus_module *temp = new pegasus_module(this, 
+
+   pegasus_module *temp = new pegasus_module(this,
 					     String(PEGASUS_MODULENAME_TEMP),
-					     this, 
-					     0, 
-					     async_callback, 
+					     this,
+					     0,
+					     async_callback,
 					     0);
-   return ModuleSendAsync(*temp, 
-			  msg_handle, 
-			  destination_q, 
+   return ModuleSendAsync(*temp,
+			  msg_handle,
+			  destination_q,
 			  destination_module,
 			  message,
 			  callback_parm);
@@ -1079,48 +1057,46 @@ Boolean ModuleController::ClientSendAsync(const client_handle & handle,
 
 
 
-Boolean ModuleController::ClientSendForget(const client_handle & handle, 
-					   Uint32 destination_q, 
+Boolean ModuleController::ClientSendForget(const client_handle & handle,
+					   Uint32 destination_q,
 					   AsyncRequest *message)
-   throw(Permission, IPCException)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_FORGET)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_FORGET))
       throw Permission(pegasus_thread_self());
 
    return _send_forget(destination_q, message);
 }
 
 
-Boolean ModuleController::ClientSendForget(const client_handle & handle, 
-					   Uint32 destination_q, 
-					   const String & destination_module, 
+Boolean ModuleController::ClientSendForget(const client_handle & handle,
+					   Uint32 destination_q,
+					   const String & destination_module,
 					   AsyncRequest *message)
-   throw(Permission, IPCException)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_FORGET_MODULE)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_SEND_FORGET_MODULE))
       throw Permission(pegasus_thread_self());
 
    return _send_forget(destination_q, destination_module, message);
 }
 
-void ModuleController::client_blocking_thread_exec( 
+void ModuleController::client_blocking_thread_exec(
    const client_handle & handle,
-   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
-   void *parm) throw(Permission, Deadlock, IPCException)
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
+   void *parm)
 {
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_BLOCKING_THREAD_EXEC)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_BLOCKING_THREAD_EXEC))
       throw Permission(pegasus_thread_self());
    _blocking_thread_exec(thread_func, parm);
-   
+
 }
 
 void ModuleController::client_async_thread_exec(
-   const client_handle & handle, 
-   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *), 
-   void *parm)    throw(Permission, Deadlock, IPCException)
+   const client_handle & handle,
+   PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
+   void *parm)
 {
 
-   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_ASYNC_THREAD_EXEC)) 
+   if( false == const_cast<client_handle &>(handle).authorized(CLIENT_ASYNC_THREAD_EXEC))
       throw Permission(pegasus_thread_self());
    _async_thread_exec(thread_func, parm);
 }

@@ -58,7 +58,7 @@ public:
     /**
         Constructs an AnonymousPipe instance.
 
-        @throw   Exception (Failed to create pipe)
+        @exception   Exception (Failed to create pipe)
     */
     AnonymousPipe ();
 
@@ -78,7 +78,7 @@ public:
         @param   writeHandle      char [] representation of the write handle to
                                     the pipe
 
-        @throw   Exception (Failed to create pipe)
+        @exception   Exception (Failed to create pipe)
     */
     AnonymousPipe (
         const char * readHandle,

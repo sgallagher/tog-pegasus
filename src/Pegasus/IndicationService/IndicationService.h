@@ -179,9 +179,9 @@ private:
         @param   instance              instance to be created
         @param   nameSpace             namespace for instance to be created
 
-        @throw   CIM_ERR_INVALID_PARAMETER  if instance is invalid
-        @throw   CIM_ERR_NOT_SUPPORTED      if the specified class is not 
-                                            supported
+        @exception   CIM_ERR_INVALID_PARAMETER  if instance is invalid
+        @exception   CIM_ERR_NOT_SUPPORTED      if the specified class is not 
+                                                supported
 
         @return  True, if the instance can be created;
                  Otherwise throws an exception
@@ -209,8 +209,8 @@ private:
 	@param   isArray               indicates whether the validated
 				       property is array
 
-        @throw   CIM_ERR_INVALID_PARAMETER  if required property is missing or 
-                                            null
+        @exception   CIM_ERR_INVALID_PARAMETER  if required property is missing
+                                                or null
      */
     void _checkRequiredProperty (
         CIMInstance & instance,
@@ -248,8 +248,8 @@ private:
         @param   validValues           set of valid values for property
         @param   supportedValues       set of supported values for property
 
-        @throw   CIM_ERR_INVALID_PARAMETER  if value of property or Other___ 
-                                            property is invalid
+        @exception   CIM_ERR_INVALID_PARAMETER  if value of property or Other___
+                                                property is invalid
      */
     void _checkPropertyWithOther (
         CIMInstance & instance,
@@ -346,8 +346,9 @@ private:
         @param   propertyName          name of property to be validated
         @param   expectedType          expected CIMType for property
 
-        @throw   CIM_ERR_INVALID_PARAMETER  if property exists and is not null
-                                            but is not of the correct type
+        @exception   CIM_ERR_INVALID_PARAMETER  if property exists and is not
+                                                null but is not of the correct
+                                                type
      */
     void _checkProperty (
         CIMInstance & instance,
@@ -364,11 +365,12 @@ private:
         @param   instance              instance to be modified
         @param   modifiedInstance      modified instance
 
-        @throw   CIM_ERR_NOT_SUPPORTED      if the specified modification is 
-                                            not supported
-        @throw   CIM_ERR_ACCESS_DENIED      if the user is not authorized to
-                                            modify the instance
-        @throw   CIM_ERR_INVALID_PARAMETER  if the modifiedInstance is invalid
+        @exception   CIM_ERR_NOT_SUPPORTED      if the specified modification is
+                                                not supported
+        @exception   CIM_ERR_ACCESS_DENIED      if the user is not authorized to
+                                                modify the instance
+        @exception   CIM_ERR_INVALID_PARAMETER  if the modifiedInstance is
+                                                invalid
 
         @return  True, if the instance can be modified;
                  Otherwise throws an exception
@@ -391,10 +393,10 @@ private:
         @param   nameSpace             namespace for instance to be deleted
         @param   currentUser           current user
 
-        @throw   CIM_ERR_ACCESS_DENIED      if the user is not authorized to
-                                            delete the instance
-        @throw   CIM_ERR_FAILED             if the instance to be deleted is 
-                                            referenced by a subscription
+        @exception   CIM_ERR_ACCESS_DENIED      if the user is not authorized to
+                                                delete the instance
+        @exception   CIM_ERR_FAILED             if the instance to be deleted is
+                                                referenced by a subscription
 
         @return  True, if the instance can be deleted;
                  Otherwise throws an exception

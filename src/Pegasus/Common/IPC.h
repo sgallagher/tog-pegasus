@@ -37,6 +37,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -655,7 +656,7 @@ public:
     // create the condition variable
     Condition();
     ~Condition();
-    Condition(const Mutex& mutex);
+    Condition(Mutex& mutex);
 
     // signal the condition variable
     // @exception IPCException

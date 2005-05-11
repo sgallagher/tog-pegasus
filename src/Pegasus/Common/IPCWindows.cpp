@@ -31,6 +31,7 @@
 //
 // Modified By: 
 //         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//         Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -128,9 +129,9 @@ Condition::Condition(void) : _disallow(0)
 
 } 
 
-Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
+Condition::Condition(Mutex& mutex) : _disallow(0), _condition()
 {
-   _cond_mutex.reset(const_cast<Mutex *>(&mutex));
+   _cond_mutex.reset(&mutex);
    _destroy_mut = false;
 
     // Change from PulseEvent to SetEvent, this is part of 

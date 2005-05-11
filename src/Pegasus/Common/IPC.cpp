@@ -36,6 +36,7 @@
 //              Robert Kieninger, IBM (kieningr@de.ibm.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -630,9 +631,9 @@ Condition::Condition() : _disallow(0), _condition()
    _destroy_mut = true;
 }
 
-Condition::Condition(const Mutex & mutex) : _disallow(0), _condition()
+Condition::Condition(Mutex & mutex) : _disallow(0), _condition()
 {
-   _cond_mutex.reset(const_cast<Mutex *>(&mutex));
+   _cond_mutex.reset(&mutex);
    _destroy_mut = false;
 }
 

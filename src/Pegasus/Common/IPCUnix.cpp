@@ -37,6 +37,7 @@
 //          Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //          David Dillard, VERITAS Software Corp.
 //              (david.dillardd@veritas.com)
+//          Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -436,9 +437,9 @@ Condition::Condition() : _disallow(0)
 }
 
 //#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-Condition::Condition(const Mutex& mutex)  : _disallow(0)
+Condition::Condition(Mutex& mutex)  : _disallow(0)
 {
-   _cond_mutex.reset(const_cast<Mutex *>(&mutex));
+   _cond_mutex.reset(&mutex);
    _destroy_mut = false;
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 }

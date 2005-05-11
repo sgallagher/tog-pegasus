@@ -1,8 +1,8 @@
 include $(ROOT)/mak/config-unix.mak
 
-OS = darwin 
+OS = darwin
 
-ARCHITECTURE = ppc 
+ARCHITECTURE = ppc
 
 COMPILER = gnu
 
@@ -18,7 +18,7 @@ else
 FLAGS = -O2 -W -Wall -Wno-unused -fPIC
 endif
 
-SYS_LIBS = -lpthread -ldl 
+SYS_LIBS = -lpthread -ldl
 
 CXX = g++
 

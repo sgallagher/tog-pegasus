@@ -223,6 +223,38 @@ ifeq ($(OS),aix)
     CHGRP =
 endif
 
+ifeq ($(OS),darwin)
+    STRIPCRS =
+    DIFF = diff
+    SORT = sort
+    REDIRECTERROR = 2>&1
+    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
+    CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s 
+    SLEEP = sleep
+    REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
+    MUEXE = mu
+    RM = rm -f
+    MKDIRHIER = mkdir -p
+    RMDIRHIER = rm -rf
+    ECHO = echo
+    ECHO-E = mu echo-e
+    COPY = cp
+    TOUCH = touch
+    CAT = cat 	
+    
+    CHMOD = chmod
+    CHOWN = chown
+    CHGRP = chgrp
+
+    CHMODDIRHIER = chmod -R 	
+    CHOWNDIRHIER = chown -R
+    CHGRPDIRHIER = chgrp -R
+
+    SYMBOLIC_LINK_CMD = ln -f -s
+
+    CURRENT_USER=`whoami`		
+endif
+
 ifndef TMP_DIR
     ifdef PEGASUS_TMP
         TMP_DIR = $(subst \,/,$(PEGASUS_TMP))

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -102,15 +102,15 @@ const char   SSLTrustMgr::_OPTION_LIST         = 'l';
 */
 const char   SSLTrustMgr::_OPTION_REVOKE       = 'R';
 
-/** 
-    The option character used to display help info. 
-*/ 
-const char   SSLTrustMgr::_OPTION_HELP         = 'h'; 
+/**
+    The option character used to display help info.
+*/
+const char   SSLTrustMgr::_OPTION_HELP         = 'h';
 
-/** 
-    The option character used to display version info. 
-*/ 
-const char   SSLTrustMgr::_OPTION_VERSION      = 'v'; 
+/**
+    The option character used to display version info.
+*/
+const char   SSLTrustMgr::_OPTION_VERSION      = 'v';
 
 /**
     The option character used to specify the trust store name.
@@ -118,7 +118,7 @@ const char   SSLTrustMgr::_OPTION_VERSION      = 'v';
 const char   SSLTrustMgr::_OPTION_TRUSTSTORE   = 't';
 
 /**
-    The option character used to specify the certificate file path 
+    The option character used to specify the certificate file path
     or a CRL file path.
  */
 const char   SSLTrustMgr::_OPTION_CERTFILE     = 'f';
@@ -202,7 +202,7 @@ const Uint32 SSLTrustMgr::_MAX_PW_RETRIES      = 3;
 
 
 /**
-    This constant signifies that an operation option has not 
+    This constant signifies that an operation option has not
     been recorded
 */
 const Uint32 SSLTrustMgr::_OPERATION_TYPE_UNINITIALIZED = 0;
@@ -242,72 +242,72 @@ const Uint32 SSLTrustMgr::_OPERATION_TYPE_VERSION = 6;
     The name of the Method that implements add certificate to the
     trust store.
 */
-static const CIMName ADD_CERTIFICATE_METHOD = CIMName ("addCertificate"); 
+static const CIMName ADD_CERTIFICATE_METHOD = CIMName ("addCertificate");
 
 /**
-    This constant represents the name of the Issuer name 
+    This constant represents the name of the Issuer name
     property in the schema
 */
 static const CIMName PROPERTY_NAME_ISSUERNAME = CIMName ("IssuerName");
 
 /**
-    This constant represents the name of the Serial number 
+    This constant represents the name of the Serial number
     property in the schema
 */
 static const CIMName PROPERTY_NAME_SERIALNUMBER = CIMName ("SerialNumber");
 
 /**
-    This constant represents the name of the trust store type 
+    This constant represents the name of the trust store type
     property in the schema
 */
 static const CIMName PROPERTY_NAME_TRUSTTYPE    = CIMName ("TruststoreType");
 
 /**
-    This constant represents the name of the Subject name type 
+    This constant represents the name of the Subject name type
     property in the schema
 */
 static const CIMName PROPERTY_NAME_SUBJECTNAME  = CIMName ("SubjectName");
 
 /**
-    This constant represents the name of the notBefore type 
+    This constant represents the name of the notBefore type
     property in the schema
 */
 static const CIMName PROPERTY_NAME_NOTBEFORE    = CIMName ("NotBefore");
 
 /**
-    This constant represents the name of the notAfter type 
+    This constant represents the name of the notAfter type
     property in the schema
 */
 static const CIMName PROPERTY_NAME_NOTAFTER     = CIMName ("NotAfter");
 
 /**
-    This constant represents the name of the lastUpdate type 
+    This constant represents the name of the lastUpdate type
     property in the schema
 */
 static const CIMName PROPERTY_NAME_LASTUPDATE   = CIMName ("LastUpdate");
 
 /**
-    This constant represents the name of the nextUpdate type 
+    This constant represents the name of the nextUpdate type
     property in the schema
 */
 static const CIMName PROPERTY_NAME_NEXTUPDATE   = CIMName ("NextUpdate");
 
 /**
-    This constant represents the name of the revokedSerialNumbers type 
+    This constant represents the name of the revokedSerialNumbers type
     property in the schema
 */
-static const CIMName PROPERTY_NAME_REVOKED_SERIAL_NUMBERS = 
+static const CIMName PROPERTY_NAME_REVOKED_SERIAL_NUMBERS =
                                       CIMName ("RevokedSerialNumbers");
 
 /**
-    This constant represents the name of the revocationDates type 
+    This constant represents the name of the revocationDates type
     property in the schema
 */
-static const CIMName PROPERTY_NAME_REVOCATION_DATES = 
+static const CIMName PROPERTY_NAME_REVOCATION_DATES =
                                       CIMName ("RevocationDates");
 
 /**
-    This constant represents the name of the Truststore path type 
+    This constant represents the name of the Truststore path type
     property in the schema
 */
 static const CIMName PROPERTY_NAME_TRUSTPATH = CIMName ("TruststorePath");
@@ -316,7 +316,7 @@ static const CIMName PROPERTY_NAME_TRUSTPATH = CIMName ("TruststorePath");
     The name of the Method that implements add revoked certificate to
     the CRL store.
 */
-static const CIMName ADD_CRL_METHOD = CIMName ("addCertificateRevocationList"); 
+static const CIMName ADD_CRL_METHOD = CIMName ("addCertificateRevocationList");
 
 /**
     The input parameter name for certificate content.
@@ -382,7 +382,7 @@ static const char   LONG_VERSION []  = "version";
 static const char PASSWORD_PROMPT []  =
                 "Please enter your password: ";
 
-static const char PASSWORD_BLANK []  = 
+static const char PASSWORD_BLANK []  =
                 "Password cannot be blank. Please re-enter your password.";
 
 static const char REQUIRED_ARGS_MISSING [] =
@@ -400,13 +400,13 @@ static const char CIMOM_NOT_RUNNING_KEY [] =
 static const char ADD_CERT_FAILURE []    =
                 "Failed to add certificate.";
 
-static const char ADD_CERT_FAILURE_KEY []    = 
+static const char ADD_CERT_FAILURE_KEY []    =
                 "Clients.ssltrustmgr.SSLTrustMgr.ADD_CERT_FAILURE";
 
 static const char ADD_CRL_FAILURE []    =
                 "Failed to add CRL.";
 
-static const char ADD_CRL_FAILURE_KEY []    = 
+static const char ADD_CRL_FAILURE_KEY []    =
                 "Clients.ssltrustmgr.SSLTrustMgr.ADD_CRL_FAILURE";
 
 static const char ADD_CERTIFICATE_SUCCESS [] =
@@ -436,7 +436,7 @@ static const char REMOVE_CRL_SUCCESS_KEY [] =
 static const char CERT_ALREADY_EXISTS []        =
                 "Specified certificate already exist.";
 
-static const char CERT_ALREADY_EXISTS_KEY []        = 
+static const char CERT_ALREADY_EXISTS_KEY []        =
                 "Clients.ssltrustmgr.SSLTrustMgr.CERT_ALREADY_EXISTS";
 
 static const char CERT_NOT_FOUND [] =
@@ -454,7 +454,7 @@ static const char CRL_NOT_FOUND_KEY [] =
 static const char CERT_SCHEMA_NOT_LOADED []  =
                 "Please restore the internal repository on the CIM Server.";
 
-static const char CERT_SCHEMA_NOT_LOADED_KEY []  = 
+static const char CERT_SCHEMA_NOT_LOADED_KEY []  =
                 "Clients.ssltrustmgr.SSLTrustMgr.CERT_SCHEMA_NOT_LOADED";
 
 static const char REMOVE_CERT_FAILURE [] =
@@ -500,7 +500,7 @@ static const char PG_SSLTRUST_MGR_PROV_CLASS []    = "PG_SSLTrustManager";
 
 
 
-#ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION 
+#ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
 static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 {
     //
@@ -519,9 +519,9 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 #endif /* #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION */
 
 /**
-  
+
     Constructs a SSLTrustMgr and initializes instance variables.
-  
+
  */
 SSLTrustMgr::SSLTrustMgr ()
 {
@@ -538,7 +538,7 @@ SSLTrustMgr::SSLTrustMgr ()
     _serialNumberSet     = false;;
     _crlSet              = false;;
 
-#ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION 
+#ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
     _hostNameSet         = false;
     _portNumber          = WBEM_DEFAULT_HTTP_PORT;
     _portNumberSet       = false;
@@ -879,8 +879,7 @@ String SSLTrustMgr::_promptForPassword( ostream& outPrintWriter )
                                the connection
  */
 void SSLTrustMgr::_connectToServer( CIMClient& client,
-                                    ostream& outPrintWriter ) 
-    throw (Exception)
+                                    ostream& outPrintWriter )
 {
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
     String                 host;
@@ -956,8 +955,8 @@ void SSLTrustMgr::_connectToServer( CIMClient& client,
         {
             client.connect(host, portNumber, _userName, _password );
         }
-        //NOTE: User try block around connect() and prompt for password 
-        //      on HTTP exception 401 (HTTP Authentication challenge from 
+        //NOTE: User try block around connect() and prompt for password
+        //      on HTTP exception 401 (HTTP Authentication challenge from
         //      the CIMServer).
     }
 #else
@@ -996,46 +995,46 @@ String SSLTrustMgr::_formatCIMDateTime(const String& cimDateTimeStr)
 
    switch (month)
    {
-      case 1 : 
-          sprintf(monthString, "Jan"); 
-          break; 
-      case 2 : 
-          sprintf(monthString, "Feb"); 
+      case 1 :
+          sprintf(monthString, "Jan");
           break;
-      case 3 : 
-          sprintf(monthString, "Mar"); 
+      case 2 :
+          sprintf(monthString, "Feb");
           break;
-      case 4 : 
-          sprintf(monthString, "Apr"); 
+      case 3 :
+          sprintf(monthString, "Mar");
           break;
-      case 5 : 
-          sprintf(monthString, "May"); 
+      case 4 :
+          sprintf(monthString, "Apr");
           break;
-      case 6 : 
-          sprintf(monthString, "Jun"); 
+      case 5 :
+          sprintf(monthString, "May");
           break;
-      case 7 : 
-          sprintf(monthString, "Jul"); 
+      case 6 :
+          sprintf(monthString, "Jun");
           break;
-      case 8 : 
-          sprintf(monthString, "Aug"); 
+      case 7 :
+          sprintf(monthString, "Jul");
           break;
-      case 9 : 
-          sprintf(monthString, "Sep"); 
+      case 8 :
+          sprintf(monthString, "Aug");
           break;
-      case 10 : 
-          sprintf(monthString, "Oct"); 
+      case 9 :
+          sprintf(monthString, "Sep");
           break;
-      case 11 : 
-          sprintf(monthString, "Nov"); 
+      case 10 :
+          sprintf(monthString, "Oct");
           break;
-      case 12 : 
-          sprintf(monthString, "Dec"); 
+      case 11 :
+          sprintf(monthString, "Nov");
+          break;
+      case 12 :
+          sprintf(monthString, "Dec");
           break;
 
       // covered all known cases, if get to default, just
       // return the input string as received.
-      default : 
+      default :
           return (cimDateTimeStr);
    }
 
@@ -1061,7 +1060,6 @@ String SSLTrustMgr::_formatCIMDateTime(const String& cimDateTimeStr)
                              in reading the certificate file
  */
 Array<char> SSLTrustMgr::_readCertificateContent(const String &certFilePath)
-    throw (Exception)
 {
     Array<char> content;
 
@@ -1110,7 +1108,7 @@ Array<char> SSLTrustMgr::_readCertificateContent(const String &certFilePath)
 
    @exception  Exception    if failed to add certificate
  */
-void SSLTrustMgr::_addCertificate ( 
+void SSLTrustMgr::_addCertificate (
     CIMClient&   client,
     ostream&     outPrintWriter)
 {
@@ -1130,29 +1128,29 @@ void SSLTrustMgr::_addCertificate (
         // Build the input params
         //
         inParams.append ( CIMParamValue ( CERT_CONTENTS,
-                                          CIMValue (contentStr))); 
+                                          CIMValue (contentStr)));
         inParams.append ( CIMParamValue ( CERT_USERNAME,
-                                          CIMValue (_certUser))); 
+                                          CIMValue (_certUser)));
 
         if (_trustPathSet )
         {
             inParams.append ( CIMParamValue ( CERT_TRUSTTYPE,
-                                              CIMValue (CLIENT_TRUST))); 
+                                              CIMValue (CLIENT_TRUST)));
         }
-        else if (_trustStoreSet && 
+        else if (_trustStoreSet &&
                  String::equal(_trustStore, INDICATION_TRUST_NAME))
         {
             inParams.append ( CIMParamValue ( CERT_TRUSTTYPE,
-                                              CIMValue (INDICATION_TRUST))); 
+                                              CIMValue (INDICATION_TRUST)));
         }
-        else 
+        else
         {
             inParams.append ( CIMParamValue ( CERT_TRUSTTYPE,
-                                              CIMValue (CIMSERVER_TRUST))); 
+                                              CIMValue (CIMSERVER_TRUST)));
         }
 
         inParams.append ( CIMParamValue ( CERT_TRUSTPATH,
-                                          CIMValue (_trustPath))); 
+                                          CIMValue (_trustPath)));
 
         CIMObjectPath reference(
             _hostName, PEGASUS_NAMESPACENAME_CERTIFICATE,
@@ -1222,7 +1220,7 @@ void SSLTrustMgr::_removeCertificate (
         {
             trustType = CLIENT_TRUST;
         }
-        else if (_trustStoreSet && 
+        else if (_trustStoreSet &&
             String::equal(_trustStore, INDICATION_TRUST_NAME))
         {
             trustType = INDICATION_TRUST;
@@ -1409,17 +1407,17 @@ void SSLTrustMgr::_listCertificates (
             //
             // Check if trust store type match
             //
-            Uint32 pos = 
+            Uint32 pos =
                 certificateInstance.findProperty(PROPERTY_NAME_TRUSTTYPE);
             CIMProperty prop = (CIMProperty)certificateInstance.getProperty(pos);
             prop.getValue().get(trustType);
 
-            if ( (String::equal(_trustStore, CIMSERVER_TRUST_NAME) && 
+            if ( (String::equal(_trustStore, CIMSERVER_TRUST_NAME) &&
                      trustType != CIMSERVER_TRUST) ||
-                 (String::equal(_trustStore, INDICATION_TRUST_NAME) && 
+                 (String::equal(_trustStore, INDICATION_TRUST_NAME) &&
                      trustType != INDICATION_TRUST) ||
-                 (String::equal(_trustStore, CLIENT_TRUST_NAME) && 
-                     trustType != CLIENT_TRUST) 
+                 (String::equal(_trustStore, CLIENT_TRUST_NAME) &&
+                     trustType != CLIENT_TRUST)
                )
             {
                 continue;
@@ -1440,7 +1438,7 @@ void SSLTrustMgr::_listCertificates (
             }
 
             //
-            // Check if issuer name and serial number are specified 
+            // Check if issuer name and serial number are specified
             // and they match
             //
             pos = certificateInstance.findProperty(PROPERTY_NAME_ISSUERNAME);
@@ -1455,7 +1453,7 @@ void SSLTrustMgr::_listCertificates (
             {
                 if (String::equal(_issuerName, issuerName))
                 {
-                    if (_serialNumberSet && 
+                    if (_serialNumberSet &&
                         !String::equal(_serialNumber, serialNumber))
                     {
                         continue;
@@ -1495,7 +1493,7 @@ void SSLTrustMgr::_listCertificates (
             outPrintWriter << "Validity:" << endl;
             outPrintWriter << "    NotBefore: " << notBeforeStr << endl;
             outPrintWriter << "    NotAfter : " << notAfterStr << endl ;
-            outPrintWriter << 
+            outPrintWriter <<
                 "---------------------------------------------"<< endl;
         }
     }
@@ -1588,23 +1586,23 @@ void SSLTrustMgr::_listCRL (
             prop = (CIMProperty)crlInstance.getProperty(pos);
             prop.getValue().get(revocationDates);
 
-            outPrintWriter << "Revoked Certificates:" << endl; 
+            outPrintWriter << "Revoked Certificates:" << endl;
 
             for (Uint32 i = 0; i < revokedSerialNumbers.size(); i++)
             {
-                String revocationDateStr = 
+                String revocationDateStr =
                     _formatCIMDateTime(revocationDates[i].toString());
 
                 //
                 // Display the revoked serial numbers and the revocation dates
                 //
-                outPrintWriter << 
+                outPrintWriter <<
                     "    Serial Number: " << revokedSerialNumbers[i] << endl;
-                outPrintWriter << 
+                outPrintWriter <<
                     "        Revocation Date: " << revocationDateStr << endl;
                 outPrintWriter << endl;
             }
-            outPrintWriter << 
+            outPrintWriter <<
                 "---------------------------------------------"<< endl;
         }
     }
@@ -1618,16 +1616,15 @@ void SSLTrustMgr::_listCRL (
 /**
     Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
-  
+
     @param   argc  the number of command line arguments
 
     @param   argv  the string vector of command line arguments
-  
+
     @exception  CommandFormatException  if an error is encountered in parsing
                                         the command line
  */
-void SSLTrustMgr::setCommand (Uint32 argc, char* argv []) 
-    throw (CommandFormatException)
+void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
 {
     Uint32         i               = 0;
     Uint32         c               = 0;
@@ -1732,7 +1729,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
         throw e;
     }
     _operationType = _OPERATION_TYPE_UNINITIALIZED;
-    
+
     //
     //  Get options and arguments from the command line
     //
@@ -1768,20 +1765,20 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
 
                _operationType = _OPERATION_TYPE_VERSION;
             }
-        } 
+        }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
             //
             //  The ssltrustmgr command has no non-option argument options
             //
-            UnexpectedArgumentException e (getOpts [i].Value ()); 
+            UnexpectedArgumentException e (getOpts [i].Value ());
             throw e;
         }
         else /* getOpts [i].getType () == FLAG */
         {
             c = getOpts [i].getopt () [0];
-    
-            switch (c) 
+
+            switch (c)
             {
                 case _OPTION_ADD:
                 {
@@ -1967,34 +1964,34 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
                 }
 
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
-                case _OPTION_HOSTNAME: 
+                case _OPTION_HOSTNAME:
                 {
                     if (getOpts.isSet (_OPTION_HOSTNAME) > 1)
                     {
                         //
                         // More than one hostname option was found
                         //
-                        DuplicateOptionException e (_OPTION_HOSTNAME); 
+                        DuplicateOptionException e (_OPTION_HOSTNAME);
                         throw e;
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PORTNUMBER: 
+
+                case _OPTION_PORTNUMBER:
                 {
                     if (getOpts.isSet (_OPTION_PORTNUMBER) > 1)
                     {
                         //
                         // More than one portNumber option was found
                         //
-                        DuplicateOptionException e (_OPTION_PORTNUMBER); 
+                        DuplicateOptionException e (_OPTION_PORTNUMBER);
                         throw e;
                     }
-    
+
                     _portNumberStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_portNumber);
@@ -2008,8 +2005,8 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
 		    _portNumberSet = true;
                     break;
                 }
-    
-                case _OPTION_SSL: 
+
+                case _OPTION_SSL:
                 {
                     //
                     // Use port 5989 as the default port for SSL
@@ -2019,20 +2016,20 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
                        _portNumber = 5989;
                     break;
                 }
-      
-                case _OPTION_TIMEOUT: 
+
+                case _OPTION_TIMEOUT:
                 {
                     if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
                     {
                         //
                         // More than one timeout option was found
                         //
-                        DuplicateOptionException e (_OPTION_TIMEOUT); 
+                        DuplicateOptionException e (_OPTION_TIMEOUT);
                         throw e;
                     }
-    
+
                     timeoutStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_timeout);
@@ -2045,30 +2042,30 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
                     }
                     break;
                 }
-    
-                case _OPTION_USERNAME: 
+
+                case _OPTION_USERNAME:
                 {
                     if (getOpts.isSet (_OPTION_USERNAME) > 1)
                     {
                         //
                         // More than one username option was found
                         //
-                        DuplicateOptionException e (_OPTION_USERNAME); 
+                        DuplicateOptionException e (_OPTION_USERNAME);
                         throw e;
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PASSWORD: 
+
+                case _OPTION_PASSWORD:
                 {
                     if (getOpts.isSet (_OPTION_PASSWORD) > 1)
                     {
                         //
                         // More than one password option was found
                         //
-                        DuplicateOptionException e (_OPTION_PASSWORD); 
+                        DuplicateOptionException e (_OPTION_PASSWORD);
                         throw e;
                     }
                     _password = getOpts [i].Value ();
@@ -2087,7 +2084,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
                         UnexpectedOptionException e (_OPTION_HELP);
                         throw e;
                     }
-    
+
                     if (getOpts.isSet (_OPTION_HELP) > 1)
                     {
                         //
@@ -2293,7 +2290,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
             }
 
             //
-            // For -r option, if -R is not set, then the next required 
+            // For -r option, if -R is not set, then the next required
             // option is -n. make sure it is set.
             //
             if ( ( _trustPathSet || !_crlSet ) && !_serialNumberSet )
@@ -2316,13 +2313,13 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
             //
             if ( _serialNumberSet && !_issuerNameSet )
             {
-                InvalidOptionArgumentException e (_serialNumber, 
+                InvalidOptionArgumentException e (_serialNumber,
                                                   _OPTION_SERIALNUMBER);
                 throw e;
             }
 
             //
-            // If trust path is set, then use client_trust as the 
+            // If trust path is set, then use client_trust as the
             // trust store type.
             //
             if ( _trustPathSet )
@@ -2358,7 +2355,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
                 UnexpectedOptionException e (option);
                 throw e;
             }
-        }       
+        }
         else if ( _trustStoreSet )
         {
             //
@@ -2411,7 +2408,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
          _operationType == _OPERATION_TYPE_REMOVE ||
          _operationType == _OPERATION_TYPE_LIST )
     {
-        if ( _trustStoreSet && 
+        if ( _trustStoreSet &&
              (!String::equal(_trustStore, CIMSERVER_TRUST_NAME) &&
              !String::equal(_trustStore, INDICATION_TRUST_NAME))
            )
@@ -2419,7 +2416,7 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
             //
             //  Invalid or no trust store name specified
             //
-            InvalidOptionArgumentException e (_trustStore, 
+            InvalidOptionArgumentException e (_trustStore,
                                               _OPTION_TRUSTSTORE);
             throw e;
         }
@@ -2447,8 +2444,8 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
         //  Default to WBEM_DEFAULT_PORT
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
         if (_portNumber > _MAX_PORTNUMBER)
         {
@@ -2468,10 +2465,10 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
         //  Default to WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
-        if (_timeout <= 0) 
+        if (_timeout <= 0)
         {
             //
             //  Timeout out of valid range
@@ -2487,21 +2484,21 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
 
 
 /**
-  
+
     Executes the command and writes the results to the PrintWriters.
-  
+
     @param   outPrintWriter     the ostream to which output should be
                                 written
     @param   errPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
 Uint32 SSLTrustMgr::execute (
-    ostream& outPrintWriter, 
-    ostream& errPrintWriter) 
+    ostream& outPrintWriter,
+    ostream& errPrintWriter)
 {
     if ( _operationType == _OPERATION_TYPE_UNINITIALIZED )
     {
@@ -2541,7 +2538,7 @@ Uint32 SSLTrustMgr::execute (
 
     try
     {
-        _connectToServer( client, outPrintWriter);    
+        _connectToServer( client, outPrintWriter);
     }
     catch(Exception& )
     {
@@ -2595,7 +2592,7 @@ Uint32 SSLTrustMgr::execute (
                             ADD_CERT_FAILURE_KEY, ADD_CERT_FAILURE) << endl;
 
                         outPrintWriter << localizeMessage(MSG_PATH,
-                            CERT_ALREADY_EXISTS_KEY, 
+                            CERT_ALREADY_EXISTS_KEY,
                             CERT_ALREADY_EXISTS) << endl;
                     }
                     errPrintWriter << e.getMessage()  << endl;
@@ -2613,7 +2610,7 @@ Uint32 SSLTrustMgr::execute (
                             ADD_CRL_FAILURE_KEY, ADD_CRL_FAILURE) << endl;
                     }
                     outPrintWriter << localizeMessage(MSG_PATH,
-                       CERT_SCHEMA_NOT_LOADED_KEY, 
+                       CERT_SCHEMA_NOT_LOADED_KEY,
                        CERT_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
@@ -2662,13 +2659,13 @@ Uint32 SSLTrustMgr::execute (
                     if ( !_crlSet )
                     {
                         outPrintWriter << localizeMessage(MSG_PATH,
-                            REMOVE_CERT_FAILURE_KEY, 
+                            REMOVE_CERT_FAILURE_KEY,
                             REMOVE_CERT_FAILURE) << endl;
                     }
                     else
                     {
                         outPrintWriter << localizeMessage(MSG_PATH,
-                            REMOVE_CRL_FAILURE_KEY, 
+                            REMOVE_CRL_FAILURE_KEY,
                             REMOVE_CRL_FAILURE) << endl;
                     }
                     errPrintWriter << e.getMessage() << endl;
@@ -2678,7 +2675,7 @@ Uint32 SSLTrustMgr::execute (
                     if ( !_crlSet )
                     {
                         outPrintWriter << localizeMessage(MSG_PATH,
-                            REMOVE_CERT_FAILURE_KEY, 
+                            REMOVE_CERT_FAILURE_KEY,
                             REMOVE_CERT_FAILURE) << endl;
 
                         outPrintWriter << localizeMessage(MSG_PATH,
@@ -2687,7 +2684,7 @@ Uint32 SSLTrustMgr::execute (
                     else
                     {
                         outPrintWriter << localizeMessage(MSG_PATH,
-                            REMOVE_CRL_FAILURE_KEY, 
+                            REMOVE_CRL_FAILURE_KEY,
                             REMOVE_CRL_FAILURE) << endl;
 
                         outPrintWriter << localizeMessage(MSG_PATH,
@@ -2700,17 +2697,17 @@ Uint32 SSLTrustMgr::execute (
                     if ( !_crlSet )
                     {
                         outPrintWriter << localizeMessage(MSG_PATH,
-                            REMOVE_CERT_FAILURE_KEY, 
+                            REMOVE_CERT_FAILURE_KEY,
                             REMOVE_CERT_FAILURE) << endl;
                     }
                     else
                     {
                         outPrintWriter << localizeMessage(MSG_PATH,
-                            REMOVE_CRL_FAILURE_KEY, 
+                            REMOVE_CRL_FAILURE_KEY,
                             REMOVE_CRL_FAILURE) << endl;
                     }
                     outPrintWriter << localizeMessage(MSG_PATH,
-                        CERT_SCHEMA_NOT_LOADED_KEY, 
+                        CERT_SCHEMA_NOT_LOADED_KEY,
                             CERT_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
@@ -2725,7 +2722,7 @@ Uint32 SSLTrustMgr::execute (
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
                         REMOVE_CERT_FAILURE_KEY,
-                        REMOVE_CERT_FAILURE) << endl 
+                        REMOVE_CERT_FAILURE) << endl
                         << e.getMessage() << endl;
                 }
                 else
@@ -2781,7 +2778,7 @@ Uint32 SSLTrustMgr::execute (
                             LIST_CRL_FAILURE_KEY, LIST_CRL_FAILURE) << endl;
                     }
                     outPrintWriter << localizeMessage(MSG_PATH,
-                        CERT_SCHEMA_NOT_LOADED_KEY, 
+                        CERT_SCHEMA_NOT_LOADED_KEY,
                         CERT_SCHEMA_NOT_LOADED) << endl;
                 }
                 else
@@ -2796,13 +2793,13 @@ Uint32 SSLTrustMgr::execute (
                 if ( !_crlSet )
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
-                        LIST_CERT_FAILURE_KEY, 
+                        LIST_CERT_FAILURE_KEY,
                         LIST_CERT_FAILURE) << endl << e.getMessage() << endl;
                 }
                 else
                 {
                     outPrintWriter << localizeMessage(MSG_PATH,
-                        LIST_CRL_FAILURE_KEY, 
+                        LIST_CRL_FAILURE_KEY,
                         LIST_CRL_FAILURE) << endl << e.getMessage() << endl;
                 }
                 return ( RC_ERROR );
@@ -2830,25 +2827,25 @@ PEGASUS_USING_STD;
 
 ///////////////////////////////////////////////////////////////////////////
 /**
-    
+
     Parses the command line, and executes the command.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
 ///////////////////////////////////////////////////////////////////////////
 
-int main (int argc, char* argv []) 
+int main (int argc, char* argv [])
 {
     SSLTrustMgr    command = SSLTrustMgr();
     int            retCode;
 
     //l10n set message loading to process locale
-    MessageLoader::_useProcessLocale = true; 
+    MessageLoader::_useProcessLocale = true;
 
 #ifdef PEGASUS_OS_OS400
 
@@ -2880,13 +2877,13 @@ int main (int argc, char* argv [])
     }
 #endif
 
-    try 
+    try
     {
         command.setCommand (argc, argv);
-    } 
-    catch (CommandFormatException& cfe) 
+    }
+    catch (CommandFormatException& cfe)
     {
-        cerr << SSLTrustMgr::COMMAND_NAME << ": " << cfe.getMessage () 
+        cerr << SSLTrustMgr::COMMAND_NAME << ": " << cfe.getMessage ()
              << endl;
         cerr << "Use '-h' or '--help' to obtain command syntax." << endl;
         exit (Command::RC_ERROR);

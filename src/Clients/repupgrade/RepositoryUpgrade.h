@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Sushma Fernandes, Hewlett-Packard Company 
+// Author: Sushma Fernandes, Hewlett-Packard Company
 //         (sushma_fernandes@hp.com)
 //
 // Modified By:
@@ -57,34 +57,34 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
 
-     The RepositoryUpgrade utility enables upgrade of a repository 
+     The RepositoryUpgrade utility enables upgrade of a repository
      to a newer version of CIM schema.
-  
+
      The utility will migrate schema extensions from an
      older repository to a new repository that is already installed with a
-     new version of the CIM schema. 
+     new version of the CIM schema.
 
      The new and old repository paths are accepted as command line
      arguments. The new Repository path specifes the location of the repository
      initialized with a newer version of the CIM Schema. The old Repository path
-     specifies the location of the Repository that contains the user defined 
+     specifies the location of the Repository that contains the user defined
      elements to be migrated.
-   
+
      Class extensions, qualifier extensions, instances that have been
-     added to the pre-existing namespaces and new namespaces 
+     added to the pre-existing namespaces and new namespaces
      (includes qualifiers, classes and instances) that were
-     added  to the old repository will be created in the 
-     new Repository.  
+     added  to the old repository will be created in the
+     new Repository.
 
      During the process of upgrade if an error occurs, an error message is
      displayed and the upgrade is aborted. If an Exception occurs during
      the creation of a Schema element, the CIM/XML request for creating the
-     Schema element is logged to a file, an error message is displayed 
-     and the upgrade process is aborted. 
-   
+     Schema element is logged to a file, an error message is displayed
+     and the upgrade process is aborted.
+
 */
 
-// 
+//
 // In order to create CIM/XML request messages inherit from MessageQueue class.
 //
 class RepositoryUpgrade : public MessageQueue, public Command
@@ -93,9 +93,9 @@ class RepositoryUpgrade : public MessageQueue, public Command
 public:
 
     /**
-      
+
         Constructs a RepositoryUpgrade and initializes instance variables.
-      
+
     */
     RepositoryUpgrade();
 
@@ -114,8 +114,7 @@ public:
         @exception  CommandFormatException  if an error is encountered in
                                             parsing the command line
     */
-    void setCommand (Uint32 argc, char* argv [])
-        throw (CommandFormatException);
+    void setCommand (Uint32 argc, char* argv []);
 
     /**
         Executes the command and writes the results to the PrintWriters.
@@ -138,29 +137,29 @@ public:
     static const char   COMMAND_NAME [];
 
     /**
-       
-        Updates the new repository by importing class extensions, qualifiers, 
-        instances and namespace additions that have been made to the 
-        old repository.  
+
+        Updates the new repository by importing class extensions, qualifiers,
+        instances and namespace additions that have been made to the
+        old repository.
 
     */
     void upgradeRepository();
 
     //
-    // Derived from the MessageQueue base class. 
+    // Derived from the MessageQueue base class.
     //
     virtual void handleEnqueue() {};
 
 private:
 
-    // 
+    //
     // The type of operation specified on the command line.
     //
     Uint32 _optionType;
 
     //
     // The usage string.
-    // 
+    //
     String _usage;
 
     //
@@ -194,13 +193,13 @@ private:
     static const Uint32 _OPTION_TYPE_UNINITIALIZED;
 
     //
-    // This constant signifies that the old repository path option has 
+    // This constant signifies that the old repository path option has
     // been recorded
     //
     static const Uint32 _OPTION_TYPE_OLD_REPOSITORY_PATH;
 
     //
-    // This constant signifies that the new repository path option has 
+    // This constant signifies that the new repository path option has
     // been recorded
     //
     static const Uint32 _OPTION_TYPE_NEW_REPOSITORY_PATH;
@@ -224,7 +223,7 @@ private:
     // Contains the new repository path.
     //
     String _newRepositoryPath;
-    
+
     //
     // Indicates that the old repository path is set.
     //
@@ -270,7 +269,7 @@ private:
     static const String 	_VERSION_QUALIFIER_NAME;
 
     //
-    // Defines the file extension for a CIM/XML request file. 
+    // Defines the file extension for a CIM/XML request file.
     //
     static const String 	_FILE_EXTENSION;
 
@@ -324,7 +323,7 @@ private:
     //
     //  Special Processing Module entry point.
     //
-    typedef SchemaSpecialProcessModule  
+    typedef SchemaSpecialProcessModule
              * (*CREATE_SSPMODULE_FUNCTION)();
 
     //
@@ -340,7 +339,7 @@ private:
     String _pegasusHome;
 
     //
-    // Compares the namespaces passed and returns namespaces that are present 
+    // Compares the namespaces passed and returns namespaces that are present
     // in the old but not in the new repository.
     //
     // @param oldNamespaces	a list of namespaces in old repository
@@ -349,7 +348,7 @@ private:
     // @return                  a list of missing namespaces
     //
     Array<CIMNamespaceName> _compareNamespaces(
-                              const Array<CIMNamespaceName>& oldNamespaces , 
+                              const Array<CIMNamespaceName>& oldNamespaces ,
                               const Array<CIMNamespaceName>& newNamespaces);
 
     //
@@ -359,12 +358,12 @@ private:
     // method.
     //
     // @param namespaces 	a list of namespaces to be added.
-    // 
+    //
     void _addNamespaces(const Array<CIMNamespaceName>& namespaces);
 
-    // 
+    //
     // Identifies the missing classes and existing classes and
-    // passes them to the _processNewClasses and _processExistingClasses 
+    // passes them to the _processNewClasses and _processExistingClasses
     // methods.
     //
     // @param namespaceName	namespace that is getting compared.
@@ -372,35 +371,35 @@ private:
     // @param oldClasses	classes in the old repository.
     //
     // @param newClasses	classes in the new repository.
-    // 
+    //
     void _processClasses( const CIMNamespaceName& 	namespaceName,
-                          const Array<CIMName>&	        oldClasses, 
-                          Array<CIMName>&		newClasses); 
+                          const Array<CIMName>&	        oldClasses,
+                          Array<CIMName>&		newClasses);
 
-    // 
+    //
     // Processes the new classes in the hierarchical order and passes them to
     // _addClassToRepository.
     //
     // @param namespaceName	namespace that is getting compared.
     // @param oldClasses	classes in the old repository.
     // @param newClasses	classes in the new repository.
-    // 
+    //
     void _processNewClasses( const CIMNamespaceName& 	namespaceName,
-                             Array<CIMName>&	        oldClasses, 
-                             Array<CIMName>&		newClasses); 
+                             Array<CIMName>&	        oldClasses,
+                             Array<CIMName>&		newClasses);
 
 
     //
-    // Performs a version comparison with the existing classes in the new 
-    // repository. The following lists the behavior: 
+    // Performs a version comparison with the existing classes in the new
+    // repository. The following lists the behavior:
     //
     // 1. The version number existed in the old but not the new class.
     //    A warning message is displayed. The class is not imported to the
     //    new repository.
     // 2. Both classes contain versions and the old version is greater
-    //    than the new version. A warning message is displayed. The class 
+    //    than the new version. A warning message is displayed. The class
     //    is not imported to the new repository.
-    //   
+    //
     //    If the new Repository contains a class with a higher version number
     //    then no messages are displayed.
     //
@@ -432,10 +431,10 @@ private:
                                   const Array<CIMName>    existingClasses);
 
     //
-    // Adds instances from the old repository into the new repository. 
-    // If an instance already exists in the new repository then it 
+    // Adds instances from the old repository into the new repository.
+    // If an instance already exists in the new repository then it
     // is not imported from the old repository.
-    // 
+    //
     void _addInstances ();
 
     //
@@ -443,73 +442,73 @@ private:
     // If a qualifier already exists in the new repository then it
     // is not imported.
     //
-    // @param CIMNamespaceName		contains the Namespace name. 
+    // @param CIMNamespaceName		contains the Namespace name.
     //
     void _addQualifiers (const CIMNamespaceName namespaceName);
 
-    // 
-    // Logs a failed CIM/XML request in to an output file. 
     //
-    // @param outputFile   	output filename.	
+    // Logs a failed CIM/XML request in to an output file.
+    //
+    // @param outputFile   	output filename.
     //
     void _logRequestToFile ( const String& outputFile );
 
-    // 
+    //
     // Logs an error message to indicate an error while adding a class.
     //
-    // @param CIMNamespaceName	contains the Namespace name. 
+    // @param CIMNamespaceName	contains the Namespace name.
     //
     // @param CIMClass          contains the class.
-    // 
-    // @param message           contains the error message if available, 
-    //                          otherwise set to String::EMPTY	
-    // 
-    // @exception               logs the request and propagates the
-    //                          error encountered during create class. 
     //
-    void _logCreateClassError( 
-             const CIMNamespaceName& namespaceName, 
+    // @param message           contains the error message if available,
+    //                          otherwise set to String::EMPTY
+    //
+    // @exception               logs the request and propagates the
+    //                          error encountered during create class.
+    //
+    void _logCreateClassError(
+             const CIMNamespaceName& namespaceName,
              const CIMClass& oldClass,
-             const String& message) throw (RepositoryUpgradeException);
+             const String& message);
 
-    // 
+    //
     // Logs an error message to indicate an error while adding an instance.
     //
-    // @param CIMNamespaceName	contains the Namespace name. 
-    // 
+    // @param CIMNamespaceName	contains the Namespace name.
+    //
     // @param CIMInstance       contains the instance.
-    // 
-    // @param message           contains the error message if available	
-    //                          otherwise set to String::EMPTY	
+    //
+    // @param message           contains the error message if available
+    //                          otherwise set to String::EMPTY
     //
     // @exception               logs the request and propagates the
-    //                          error encountered during create instance. 
+    //                          error encountered during create instance.
     //
-    void _logCreateInstanceError( 
-           const CIMNamespaceName& namespaceName, 
+    void _logCreateInstanceError(
+           const CIMNamespaceName& namespaceName,
            const CIMInstance& instance,
-           const String&           message) throw (RepositoryUpgradeException);
+           const String&           message);
 
-    // 
+    //
     // Logs an error message to indicate an error while adding an qualifier.
     //
-    // @param CIMNamespaceName	contains the Namespace name. 
-    // 
+    // @param CIMNamespaceName	contains the Namespace name.
+    //
     // @param CIMQualifierDecl  contains the qualifier.
-    // 
-    // @param message           contains the error message if available	
-    //                          otherwise set to String::EMPTY	
+    //
+    // @param message           contains the error message if available
+    //                          otherwise set to String::EMPTY
     //
     // @exception               logs the request and propagates the
-    //                          error encountered during set qualifier. 
+    //                          error encountered during set qualifier.
     //
-    void _logSetQualifierError( 
-          const CIMNamespaceName& namespaceName, 
+    void _logSetQualifierError(
+          const CIMNamespaceName& namespaceName,
           const CIMQualifierDecl& qualifier,
-          const String&           message) throw (RepositoryUpgradeException);
+          const String&           message);
 
 #ifdef ENABLE_MODULE_PROCESSING
-    // 
+    //
     // Initializes the Special Processing Modules.
     //
     void _initSSPModule();
@@ -528,47 +527,47 @@ private:
     //  Invokes the Qualifier Special Processing Modules.
     //
     //  @param  oldQualifier    input qualifier to be processed
-    //                              
+    //
     //  @param  newQualifier    processed qualifier to be returned
     //
     //  @return true           if the qualifier must be created
     //          false          if the qualifier must be ignored
     //
-    Boolean _invokeModules( CIMQualifierDecl& oldQualifier, 
+    Boolean _invokeModules( CIMQualifierDecl& oldQualifier,
                             CIMQualifierDecl& newQualifir);
 
     //
     //  Invokes the Class Special Processing Modules.
     //
     //  @param  oldClass    input class to be processed
-    //                              
+    //
     //  @param  newClass    processed class to be returned
     //
     //  @return true           if the class must be created
     //          false          if the class must be ignored
     //
-    Boolean _invokeModules( CIMClass& oldClass, 
+    Boolean _invokeModules( CIMClass& oldClass,
                             CIMClass& newClass);
 
     //
     //  Invokes the Instance Special Processing Modules.
     //
     //  @param  oldInstance    input instance to be processed
-    //                              
+    //
     //  @param  newInstance    processed instance to be returned
     //
     //  @return true           if the instance must be created
     //          false          if the instance must be ignored
     //
-    Boolean _invokeModules( CIMInstance& oldInstance, 
+    Boolean _invokeModules( CIMInstance& oldInstance,
                             CIMInstance& newInstance);
-    
+
     //
     //  Creates a Special Processing Module.
     //
     //  @param  library                      handle to the shared library
-    //                              
-    //  @return SchemaSpecialProcessModule   handle to the Special Processing 
+    //
+    //  @return SchemaSpecialProcessModule   handle to the Special Processing
     //                                       library
     //
     SchemaSpecialProcessModule *  _createSSPModule(DynamicLibrary& library);
@@ -578,12 +577,12 @@ private:
     //  Compares two version strings.
     //
     //  @param  oldVersion     version number of the old class
-    //                              
+    //
     //  @param  newVersion     version number of the new class
     //
     //  @return true           if the old class has a higher version number
     //
-    //          false          if the old class has a lower or the same 
+    //          false          if the old class has a lower or the same
     //                         version number
     //
     Boolean _compareVersion( const String& oldVersion,
@@ -593,12 +592,12 @@ private:
     //  Parses a version string into major, minor and update components.
     //
     //  @param  version    the version string to be parsed
-    //                              
-    //  @param  iMajor     major number to be returned 
-    //                              
-    //  @param  iMinor     minor number to be returned 
-    //                              
-    //  @param  iUpdate    update number to be returned 
+    //
+    //  @param  iMajor     major number to be returned
+    //
+    //  @param  iMinor     minor number to be returned
+    //
+    //  @param  iUpdate    update number to be returned
     //
     //  @return true       if the version number is valid
     //

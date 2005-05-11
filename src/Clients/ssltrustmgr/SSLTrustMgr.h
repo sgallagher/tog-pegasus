@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -46,17 +46,17 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /**
-  
+
     The SSLTrustMgr command provides a command line interface to manage X509
     certificates in a PEM format trust store or a Certificate Revocation
-    List (CRL). The command supports add, remove, revoke and list operations 
-    on the target trust store or a CRL store. The SSLTrustMgr command 
+    List (CRL). The command supports add, remove, revoke and list operations
+    on the target trust store or a CRL store. The SSLTrustMgr command
     requires the CIM Server to be running on the local host.
-  
+
     @author  Hewlett-Packard Company
-  
+
  */
-class SSLTrustMgr : public Command 
+class SSLTrustMgr : public Command
 {
 public:
 
@@ -68,50 +68,49 @@ public:
     SSLTrustMgr ();
 
     /**
-        Parses the command line, validates the options, and sets instance 
+        Parses the command line, validates the options, and sets instance
         variables based on the option arguments.
-      
+
         @param  argc   the number of command line arguments
         @param  argv   the string vector of command line arguments
-      
-        @exception  CommandFormatException  if an error is encountered in 
+
+        @exception  CommandFormatException  if an error is encountered in
                                             parsing the command line
      */
-    void setCommand (Uint32 argc, char* argv []) 
-        throw (CommandFormatException);
+    void setCommand (Uint32 argc, char* argv []);
 
     /**
         Executes the command and writes the results to the PrintWriters.
-      
+
         @param  outPrintWriter    the ostream to which output should be
                                   written
         @param  errPrintWriter    the ostream to which error output should be
                                   written
-      
+
         @return  0                if the command is successful
                  1                if an error occurs in executing the command
      */
     Uint32 execute (
-        PEGASUS_STD(ostream)& outPrintWriter, 
+        PEGASUS_STD(ostream)& outPrintWriter,
         PEGASUS_STD(ostream)& errPrintWriter);
 
     /**
         The command name.
      */
     static const char   COMMAND_NAME [];
-    
+
 private:
 
 //
 // Setting this flag will compile in the code that will enable the
 // SSLTrustMgr command to connect to a remote host. This compile time
-// flag is expected to be removed once the Certificate Management Provider 
+// flag is expected to be removed once the Certificate Management Provider
 // MOF is moved from PG_Internal to PH_InterOp.
 //
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
     /**
         Prompt for password.
-  
+
         @param  outPrintWriter  the ostream to which output should be written
 
         @return  String value of the user entered password
@@ -121,18 +120,18 @@ private:
 
     /**
         Connect to cimserver.
-      
+
         @param  client          the handle to CIMClient object
-      
+
         @param  outPrintWriter  the ostream to which output should be
                                 written
-      
+
         @exception  Exception   if an error is encountered in creating
-                                the connection 
+                                the connection
      */
-    void _connectToServer( 
-        CIMClient& client, 
-        PEGASUS_STD(ostream)& outPrintWriter ) throw (Exception);
+    void _connectToServer(
+        CIMClient& client,
+        PEGASUS_STD(ostream)& outPrintWriter );
 
     /**
         Convert CIMDateTime to user-readable string of the format
@@ -147,93 +146,92 @@ private:
 
     /**
         Read certificate content.
-      
+
         @param  certFilePath    the certificate file path
 
         @return  Array<char> containing the certificate content
-      
-        @exception  Exception   if an error is encountered 
+
+        @exception  Exception   if an error is encountered
                                 in reading the certificate file
      */
-    Array<char> _readCertificateContent(const String &certFilePath)
-        throw (Exception);
+    Array<char> _readCertificateContent(const String &certFilePath);
 
     /**
        Add a new certificate to the trust store
-      
+
        @param  client           the handle to CIMClient object
 
        @param  outPrintWriter   the ostream to which output should be written
-      
+
        @exception  Exception    if failed to add certificate
-     */ 
+     */
     void _addCertificate (
-        CIMClient&               client, 
+        CIMClient&               client,
         PEGASUS_STD(ostream)&    outPrintWriter);
 
     /**
        Remove an existing certificate from the trust store
-      
+
        @param  client           the handle to CIMClient object
 
        @param  outPrintWriter   the ostream to which output should be written
-      
+
        @exception  Exception    if failed to remove certificate
-     */ 
+     */
     void _removeCertificate (
-        CIMClient&               client, 
+        CIMClient&               client,
         PEGASUS_STD(ostream)&    outPrintWriter);
 
     /**
        List certificates in the trust store
-      
+
        @param  client           the handle to CIMClient object
 
        @param  outPrintWriter   the ostream to which output should be written
-      
+
        @exception  Exception    if failed to list certificates
      */
     void _listCertificates (
-        CIMClient&               client, 
+        CIMClient&               client,
         PEGASUS_STD(ostream)&    outPrintWriter);
 
     /**
        Add a CRL to the CRL store
-      
+
        @param  client           the handle to CIMClient object
 
        @param  outPrintWriter   the ostream to which output should be written
-      
+
        @exception  Exception    if failed to add a CRL
-     */ 
+     */
     void _addCRL (
-        CIMClient&               client, 
+        CIMClient&               client,
         PEGASUS_STD(ostream)&    outPrintWriter);
 
     /**
        Remove an existing CRL from the CRL store
-      
+
        @param  client           the handle to CIMClient object
 
        @param  outPrintWriter   the ostream to which output should be written
-      
+
        @exception  Exception    if failed to remove a CRL
-     */ 
+     */
     void _removeCRL (
-        CIMClient&               client, 
+        CIMClient&               client,
         PEGASUS_STD(ostream)&    outPrintWriter);
 
     /**
        List CRL's in the CRL store
-      
+
        @param  client           the handle to CIMClient object
 
        @param  outPrintWriter   the ostream to which output should be written
-      
+
        @exception  Exception    if failed to list CRL's
      */
     void _listCRL (
-        CIMClient&               client, 
+        CIMClient&               client,
         PEGASUS_STD(ostream)&    outPrintWriter);
 
     /**
@@ -267,7 +265,7 @@ private:
     Boolean _certFileSet;
 
     /**
-        The user name to be mapped with the certificate being added 
+        The user name to be mapped with the certificate being added
         to the trust store.
      */
     String _certUser;
@@ -313,7 +311,7 @@ private:
 
 #ifdef PEGASUS_SSLTRUSTMGR_REMOTE_CONNECTION
     /**
-        A Boolean indicating whether a hostname was specified on the command 
+        A Boolean indicating whether a hostname was specified on the command
         line.  The default host is the local host.
      */
     Boolean _hostNameSet;
@@ -366,7 +364,7 @@ private:
     Boolean _passwordSet;
 
     /**
-        A Boolean indicating whether an SSL connection was specified on the 
+        A Boolean indicating whether an SSL connection was specified on the
         command line.
      */
     Boolean _useSSL;
@@ -502,7 +500,7 @@ private:
         Label for the usage string for this command.
      */
     static const char   _USAGE [];
-    
+
     /**
         This constant signifies that an operation option has not been recorded
      */

@@ -448,7 +448,6 @@ RepositoryUpgrade::~RepositoryUpgrade ()
                                         the command line
  */
 void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
-    throw (CommandFormatException)
 {
     Uint32         i               = 0;
     Uint32         c               = 0;
@@ -1915,9 +1914,9 @@ void RepositoryUpgrade::_logRequestToFile(
 void RepositoryUpgrade::_logCreateClassError(
                const CIMNamespaceName& namespaceName,
                const CIMClass& oldClass,
-               const String&   message) throw (RepositoryUpgradeException)
+               const String&   message)
 {
-    CIMRequestMessage* 			request;
+    CIMRequestMessage* request;
 
     // Create a CreateClass message.
     request = new CIMCreateClassRequestMessage(
@@ -1962,9 +1961,9 @@ void RepositoryUpgrade::_logCreateClassError(
 void RepositoryUpgrade::_logCreateInstanceError(
              const CIMNamespaceName& namespaceName,
              const CIMInstance& instance,
-             const String&      message) throw (RepositoryUpgradeException)
+             const String&      message)
 {
-    CIMRequestMessage* 			request;
+    CIMRequestMessage* request;
 
     instanceCount++;
 
@@ -2009,9 +2008,9 @@ void RepositoryUpgrade::_logCreateInstanceError(
 void RepositoryUpgrade::_logSetQualifierError(
           const CIMNamespaceName& namespaceName,
           const CIMQualifierDecl& qualifier,
-          const String&           message) throw (RepositoryUpgradeException)
+          const String&           message)
 {
-    CIMRequestMessage* 			request;
+    CIMRequestMessage* request;
 
     qualifierCount++;
 

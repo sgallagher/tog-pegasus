@@ -35,6 +35,7 @@
 //         Sushma Fernandes, Hewlett-Packard Company
 //             (sushma_fernandes@hp.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Aruran, IBM (ashanmug@in.ibm.com) for BUG# 2574
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -108,8 +109,8 @@ public:
         @exception  Exception           internal error 
       
      */
-    static Array<char> encapsulate (XmlParser parser, 
-                                      String hostName,
+    static Array<char> encapsulate (XmlParser& parser, 
+                                      const String& hostName,
                                       Boolean useMPost,
                                       Boolean useHTTP11,
                                       Array<char>& content,

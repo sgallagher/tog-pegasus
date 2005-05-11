@@ -37,6 +37,7 @@
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         David Dillard, VERITAS Software Corp.
 //             (david.dillard@veritas.com)
+//         Aruran, IBM (ashanmug@in.ibm.com) for BUG# 2574
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -89,8 +90,8 @@ PEGASUS_NAMESPACE_BEGIN
                                     M-POST or POST method request
   
  */
-Array<char> XMLProcess::encapsulate( XmlParser parser,
-                                       String hostName,
+Array<char> XMLProcess::encapsulate( XmlParser& parser,
+                                       const String& hostName,
                                        Boolean useMPost,
                                        Boolean useHTTP11,
                                        Array<char>& content,

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,7 +28,10 @@
 //==============================================================================
 //
 // Author : Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
+//              (sushma_fernandes@hp.com)
+//
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +106,7 @@ const Uint32 MTTestClient::_MAX_PORTNUMBER      = 65535;
 static const char PASSWORD_PROMPT []  =
                      "Please enter your password: ";
 
-static const char PASSWORD_BLANK []  = 
+static const char PASSWORD_BLANK []  =
                      "Password cannot be blank. Please re-enter your password.";
 
 static const Uint32 MAX_PW_RETRIES = 3;
@@ -141,9 +144,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm)
     //  Construct host address
     //
 
-    try 
+    try
     {
-        if ((!MTTestClient::_hostNameSet) && (!MTTestClient::_portNumberSet) && 
+        if ((!MTTestClient::_hostNameSet) && (!MTTestClient::_portNumberSet) &&
             (!MTTestClient::_userNameSet) && (!MTTestClient::_passwordSet))
         {
             connectToLocal = true;
@@ -158,18 +161,18 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm)
             {
                if( MTTestClient::_useSSL )
                {
-                   MTTestClient::_portNumber = System::lookupPort( 
+                   MTTestClient::_portNumber = System::lookupPort(
                                           WBEM_HTTPS_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTPS_PORT );
                }
                else
                {
-                   MTTestClient::_portNumber = System::lookupPort( 
+                   MTTestClient::_portNumber = System::lookupPort(
                                           WBEM_HTTP_SERVICE_NAME,
                                           WBEM_DEFAULT_HTTP_PORT );
                }
                char buffer[32];
-               sprintf( buffer, "%lu", 
+               sprintf( buffer, "%lu",
                         (unsigned long) MTTestClient::_portNumber );
                MTTestClient::_portNumberStr = buffer;
             }
@@ -204,23 +207,23 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm)
 
             if (!MTTestClient::_passwordSet)
             {
-                MTTestClient::_password = 
+                MTTestClient::_password =
                     MTTestClient::_promptForPassword( cout );
             }
-            client.connect(host, portNumber, sslcontext,  
+            client.connect(host, portNumber, sslcontext,
                     MTTestClient::_userName, MTTestClient::_password );
        }
        else
        {
            if (!MTTestClient::_passwordSet)
            {
-               MTTestClient::_password = 
+               MTTestClient::_password =
                     MTTestClient::_promptForPassword( cout );
            }
-           client.connect(host, portNumber, 
+           client.connect(host, portNumber,
                    MTTestClient::_userName, MTTestClient::_password );
         }
-   
+
         // Enumerate Instances.
         Array<CIMObjectPath> instanceNames = client.enumerateInstanceNames(
                                              NAMESPACE,
@@ -229,28 +232,28 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm)
 #ifdef DEBUG
         if ( instanceNames.size() == 0 )
         {
-             PEGASUS_STD(cout) << 
+             PEGASUS_STD(cout) <<
                 "<<<<<<<<<<<<< No Instances Found >>>>>>>>>>>" << endl;
-        } 
+        }
         else
         {
-             PEGASUS_STD(cout) << 
+             PEGASUS_STD(cout) <<
                 "<<<<<<<<<<<<< Instances Found : " <<
                 instanceNames.size() << ">>>>>>>>>>>" << endl;
         }
-        PEGASUS_STD(cout) << endl << 
+        PEGASUS_STD(cout) << endl <<
             "++++++++ Completed Operation +++++++++ " << endl;
 #endif
         client.disconnect();
 #ifdef DEBUG
-         PEGASUS_STD(cout) << endl << 
+         PEGASUS_STD(cout) << endl <<
              "++++++++ Completed Disconnect +++++++++ " << endl;
 #endif
         myHandle->exit_self((PEGASUS_THREAD_RETURN)1);
         return(0);
     }
-    catch(Exception& e)
-    {  
+    catch(const Exception& e)
+    {
         myHandle->exit_self((PEGASUS_THREAD_RETURN)1);
         PEGASUS_STD(cout) << "Error: " << e.getMessage() << endl;
         return(0);
@@ -258,9 +261,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_client(void *parm)
 }
 
 /**
-  
+
     Constructs a MTTestClient and initializes instance variables.
-  
+
  */
 MTTestClient::MTTestClient ()
 {
@@ -301,7 +304,7 @@ MTTestClient::MTTestClient ()
     setUsage (usage);
 }
 
-String MTTestClient::_promptForPassword( ostream& outPrintWriter ) 
+String MTTestClient::_promptForPassword( ostream& outPrintWriter )
 {
   //
   // Password is not set, prompt for non-blank password
@@ -333,19 +336,18 @@ String MTTestClient::_promptForPassword( ostream& outPrintWriter )
 }
 
 /**
-  
+
     Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @exception  CommandFormatException  if an error is encountered in parsing
                                         the command line
-  
+
  */
-void MTTestClient::setCommand (Uint32 argc, char* argv []) 
-    throw (CommandFormatException)
+void MTTestClient::setCommand (Uint32 argc, char* argv [])
 {
     Uint32         i              = 0;
     Uint32         c              = 0;
@@ -382,7 +384,7 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
         CommandFormatException e (getOpts.getErrorStrings () [0]);
         throw e;
     }
-    
+
     //
     //  Get options and arguments from the command line
     //
@@ -393,90 +395,90 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
             UnexpectedArgumentException e (
                          getOpts [i].Value ());
             throw e;
-        } 
+        }
         else if (getOpts [i].getType () == Optarg::REGULAR)
         {
             UnexpectedArgumentException e (
                          getOpts [i].Value ());
             throw e;
-        } 
+        }
         else /* getOpts [i].getType () == FLAG */
         {
             c = getOpts [i].getopt () [0];
-    
-            switch (c) 
+
+            switch (c)
             {
-                case _OPTION_HOSTNAME: 
+                case _OPTION_HOSTNAME:
                 {
                     if (getOpts.isSet (_OPTION_HOSTNAME) > 1)
                     {
                         //
                         // More than one hostname option was found
                         //
-                        DuplicateOptionException e (_OPTION_HOSTNAME); 
+                        DuplicateOptionException e (_OPTION_HOSTNAME);
                         throw e;
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PORTNUMBER: 
+
+                case _OPTION_PORTNUMBER:
                 {
                     if (getOpts.isSet (_OPTION_PORTNUMBER) > 1)
                     {
                         //
                         // More than one portNumber option was found
                         //
-                        DuplicateOptionException e (_OPTION_PORTNUMBER); 
+                        DuplicateOptionException e (_OPTION_PORTNUMBER);
                         throw e;
                     }
-    
+
                     _portNumberStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
                         throw e;
                     }
-		    _portNumberSet = true;
+                    _portNumberSet = true;
                     break;
                 }
-    
-                case _OPTION_SSL: 
+
+                case _OPTION_SSL:
                 {
                     //
                     // Use port 5989 as the default port for SSL
                     //
-		    _useSSL = true;
+                    _useSSL = true;
                     if (!_portNumberSet)
                        _portNumber = 5989;
                     break;
                 }
-      
-                case _OPTION_TIMEOUT: 
+
+                case _OPTION_TIMEOUT:
                 {
                     if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
                     {
                         //
                         // More than one timeout option was found
                         //
-                        DuplicateOptionException e (_OPTION_TIMEOUT); 
+                        DuplicateOptionException e (_OPTION_TIMEOUT);
                         throw e;
                     }
-    
+
                     timeoutStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
@@ -484,37 +486,37 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
                     }
                     break;
                 }
-    
-                case _OPTION_USERNAME: 
+
+                case _OPTION_USERNAME:
                 {
                     if (getOpts.isSet (_OPTION_USERNAME) > 1)
                     {
                         //
                         // More than one username option was found
                         //
-                        DuplicateOptionException e (_OPTION_USERNAME); 
+                        DuplicateOptionException e (_OPTION_USERNAME);
                         throw e;
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PASSWORD: 
+
+                case _OPTION_PASSWORD:
                 {
                     if (getOpts.isSet (_OPTION_PASSWORD) > 1)
                     {
                         //
                         // More than one password option was found
                         //
-                        DuplicateOptionException e (_OPTION_PASSWORD); 
+                        DuplicateOptionException e (_OPTION_PASSWORD);
                         throw e;
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
                     break;
                 }
-    
+
                 default:
                     //
                     //  This path should not be hit
@@ -531,8 +533,8 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
         //  Default to WBEM_DEFAULT_PORT
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
         if (_portNumber > _MAX_PORTNUMBER)
         {
@@ -552,10 +554,10 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
         //  Default to DEFAULT_TIMEOUT_MILLISECONDS
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
-        if (_timeout <= 0) 
+        if (_timeout <= 0)
         {
             //
             //  Timeout out of valid range
@@ -569,7 +571,6 @@ void MTTestClient::setCommand (Uint32 argc, char* argv [])
 
 void MTTestClient::getMTTestClient(ostream& outPrintWriter,
                               ostream& errPrintWriter)
-     throw (Exception)
 {
     const Uint32 THREAD_COUNT = 3;
     Thread *test_clients[THREAD_COUNT];
@@ -589,50 +590,50 @@ void MTTestClient::getMTTestClient(ostream& outPrintWriter,
 
 
 /**
-  
+
     Executes the command and writes the results to the PrintWriters.
-  
+
     @param   outPrintWriter     the ostream to which output should be
                                 written
     @param   errPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
-Uint32 MTTestClient::execute (ostream& outPrintWriter, 
-                                 ostream& errPrintWriter) 
+Uint32 MTTestClient::execute (ostream& outPrintWriter,
+                                 ostream& errPrintWriter)
 {
     try
     {
         getMTTestClient( outPrintWriter, errPrintWriter );
     }
-    catch (Exception& e)
+    catch (const Exception& e)
     {
-        errPrintWriter << MTTestClient::COMMAND_NAME << ": " << 
-	e.getMessage () << endl;
+        errPrintWriter << MTTestClient::COMMAND_NAME << ": " <<
+            e.getMessage () << endl;
         return (RC_ERROR);
     }
     catch (...)
     {
-        errPrintWriter << MTTestClient::COMMAND_NAME << ": " << 
-	"Unknown error" << endl;
+        errPrintWriter << MTTestClient::COMMAND_NAME << ": " <<
+            "Unknown error" << endl;
         return (RC_ERROR);
     }
     return (RC_SUCCESS);
 }
 
 /**
-    
+
     Parses the command line, and executes the command.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
 PEGASUS_NAMESPACE_END
 
@@ -640,25 +641,25 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main (int argc, char* argv []) 
+int main (int argc, char* argv [])
 {
     MTTestClient    command = MTTestClient ();
     int                rc;
 
-    try 
+    try
     {
         command.setCommand (argc, argv);
-    } 
-    catch (CommandFormatException& cfe) 
+    }
+    catch (const CommandFormatException& cfe)
     {
-        cerr << MTTestClient::COMMAND_NAME << ": " << cfe.getMessage () 
+        cerr << MTTestClient::COMMAND_NAME << ": " << cfe.getMessage ()
              << endl;
         cerr << command.getUsage () << endl;
         exit (Command::RC_ERROR);
     }
-    catch (Exception& e)
-    {   
-        cerr << MTTestClient::COMMAND_NAME << ": " << e.getMessage () 
+    catch (const Exception& e)
+    {
+        cerr << MTTestClient::COMMAND_NAME << ": " << e.getMessage ()
              << endl;
     }
 

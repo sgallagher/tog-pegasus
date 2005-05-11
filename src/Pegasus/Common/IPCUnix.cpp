@@ -180,16 +180,16 @@ Mutex::~Mutex()
 
       if(errorcode == EBUSY)
       {
-	 gettimeofday(&now, NULL);
-	 if ( timeval_subtract( &remaining, &finish, &now ))
-	 {
-	    throw TimeOut(pegasus_thread_self());
-	 }
-	 pegasus_yield();
-	 continue;
+         gettimeofday(&now, NULL);
+         if ( timeval_subtract( &remaining, &finish, &now ))
+         {
+            throw TimeOut(pegasus_thread_self());
+         }
+         pegasus_yield();
+         continue;
       }
       if( errorcode == EDEADLK )
-	 throw Deadlock(pegasus_thread_self());
+         throw Deadlock(pegasus_thread_self());
       throw WaitFailed(pegasus_thread_self());
    }
 }
@@ -236,17 +236,17 @@ void ReadWriteSem::wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
    {
       if(0 == (errorcode = pthread_rwlock_rdlock(&_rwlock.rwlock)))
       {
-	 _readers++;
-	 return;
+         _readers++;
+         return;
       }
    }
    else if (mode == PEG_SEM_WRITE)
    {
       if( 0 == (errorcode = pthread_rwlock_wrlock(&_rwlock.rwlock)))
       {
-	 _rwlock.owner = caller;
-	 _writers++;
-	 return;
+         _rwlock.owner = caller;
+         _writers++;
+         return;
       }
    }
    else
@@ -265,17 +265,17 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
    {
       if( 0 == (errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock)))
       {
-	 _readers++;
-	 return;
+         _readers++;
+         return;
       }
    }
    else if (mode == PEG_SEM_WRITE)
    {
       if(0 == (errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock)))
       {
-	 _writers++;
-	 _rwlock.owner = caller;
-	 return;
+         _writers++;
+         _rwlock.owner = caller;
+         return;
       }
    }
    else
@@ -309,32 +309,32 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
    {
       do
       {
-	 errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock);
-	 gettimeofday(&now, NULL);
+         errorcode = pthread_rwlock_tryrdlock(&_rwlock.rwlock);
+         gettimeofday(&now, NULL);
       }
       while (errorcode == EBUSY &&
-	     ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
+             ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
       if(0 == errorcode)
       {
-	 _readers++;
-	 return;
+         _readers++;
+         return;
       }
    }
    else if (mode == PEG_SEM_WRITE)
    {
       do
       {
-	 errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
-	 gettimeofday(&now, NULL);
+         errorcode = pthread_rwlock_trywrlock(&_rwlock.rwlock);
+         gettimeofday(&now, NULL);
       }
       while (errorcode == EBUSY &&
-	     ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
+             ( 0 == (timeout = timeval_subtract(&remaining, &finish, &now ))));
 
       if(0 == errorcode)
       {
-	 _writers++;
-	 _rwlock.owner = caller;
-	 return;
+         _writers++;
+         _rwlock.owner = caller;
+         return;
       }
    }
    else
@@ -367,7 +367,7 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       _writers--;
 }
 
-int ReadWriteSem::read_count()
+int ReadWriteSem::read_count() const
 
 {
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
@@ -376,7 +376,7 @@ int ReadWriteSem::read_count()
    return( _readers.value() );
 }
 
-int ReadWriteSem::write_count()
+int ReadWriteSem::write_count() const
 {
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
    if(_rwlock.rwlock.__rw_writer != NULL)
@@ -605,19 +605,11 @@ Semaphore::Semaphore(Uint32 initial)
       initial = SEM_VALUE_MAX - 1;
    sem_init(&_semaphore.sem,0,initial);
    _semaphore.owner = pegasus_thread_self();
-
 }
-
-Semaphore::Semaphore(const Semaphore & sem)
-{
-   _semaphore.sem = sem._semaphore.sem;
-   _semaphore.owner = 0;
-}
-
 
 Semaphore::~Semaphore()
 {
-   while( EBUSY == sem_destroy(&_semaphore.sem))
+   while (EBUSY == sem_destroy(&_semaphore.sem))
    {
       pegasus_yield();
    }
@@ -627,22 +619,22 @@ Semaphore::~Semaphore()
 // throw an exception if the wait fails
 void Semaphore::wait(Boolean ignoreInterrupt)
 {
-	do
-	{
-		int rc = sem_wait(&_semaphore.sem);
-		if (rc == 0)
-			break;
+    do
+    {
+        int rc = sem_wait(&_semaphore.sem);
+        if (rc == 0)
+            break;
 
-		int e = errno;
-		if (e == EINTR)
-		{
-			if (ignoreInterrupt == false)
-				throw(WaitInterrupted(_semaphore.owner));
-		}
-		else throw(WaitFailed(_semaphore.owner));
+        int e = errno;
+        if (e == EINTR)
+        {
+            if (ignoreInterrupt == false)
+                throw(WaitInterrupted(_semaphore.owner));
+        }
+        else throw(WaitFailed(_semaphore.owner));
 
-		// keep going if above conditions fail
-	} while (true);
+        // keep going if above conditions fail
+    } while (true);
 
 }
 
@@ -683,17 +675,17 @@ void Semaphore::time_wait(Uint32 milliseconds)
    {
       do
       {
-	 retcode = sem_trywait(&_semaphore.sem);
+         retcode = sem_trywait(&_semaphore.sem);
       } while (retcode == -1 && errno == EINTR);
 
       if ( retcode == 0 )
-	 return ;
+         return ;
 
       if( retcode == -1 && errno != EAGAIN )
-	 throw IPCException(pegasus_thread_self());
+         throw IPCException(pegasus_thread_self());
       gettimeofday(&now, NULL);
       if (  timeval_subtract( &remaining, &finish, &now ) )
-	 throw TimeOut(pegasus_thread_self());
+         throw TimeOut(pegasus_thread_self());
       pegasus_yield();
    }
 }
@@ -734,8 +726,8 @@ Semaphore::Semaphore(const Semaphore & sem)
 
 Semaphore::~Semaphore()
 {
-	if ( _semaphore.waiters == 0 )
-		sem_close(_semaphore.sem);
+    if ( _semaphore.waiters == 0 )
+        sem_close(_semaphore.sem);
 }
 
 // block until this semaphore is in a signalled state, or
@@ -955,7 +947,7 @@ void Semaphore::time_wait(Uint32 milliseconds)
    retcode = pthread_cond_timedwait(&_semaphore.cond, &_semaphore.mutex, &waittime) ;
 
    if (_count != old_count)
-		_count=old_count;
+        _count=old_count;
 
    // Decrement the waiters count.
    _semaphore.waiters--;

@@ -338,13 +338,12 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
       _writers--;
 }
 
-int ReadWriteSem::read_count()
-
+int ReadWriteSem::read_count() const
 {
    return( _readers.value() );
 }
 
-int ReadWriteSem::write_count()
+int ReadWriteSem::write_count() const
 {
    return( _writers.value() );
 }
@@ -518,19 +517,6 @@ Semaphore::Semaphore(Uint32 initial)
 {
     pthread_mutex_init (&_semaphore.mutex,NULL);
     pthread_cond_init (&_semaphore.cond,NULL);
-    if (initial > SEM_VALUE_MAX)
-         _count = SEM_VALUE_MAX - 1;
-    else
-         _count = initial;
-    _semaphore.owner = pegasus_thread_self();
-    _semaphore.waiters = 0;
-}
-
-Semaphore::Semaphore(const Semaphore & sem)
-{
-    pthread_mutex_init (&_semaphore.mutex,NULL);
-    pthread_cond_init (&_semaphore.cond,NULL);
-    Uint32 initial =  sem._count; //sem.count();
     if (initial > SEM_VALUE_MAX)
          _count = SEM_VALUE_MAX - 1;
     else

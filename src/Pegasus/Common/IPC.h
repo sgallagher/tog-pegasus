@@ -312,44 +312,64 @@ class PEGASUS_COMMON_LINKAGE Semaphore
 {
 public:
 
-    // create the semaphore and set its initial value to the <initial>
-    Semaphore(Uint32 initial = 1 );
-    Semaphore(const Semaphore & sem);
+    /**
+        Creates a semaphore and sets its initial value as specified.
+        @param initial The initial value for the Semaphore (defaults to 1).
+    */
+    Semaphore(Uint32 initial = 1);
 
     ~Semaphore();
 
-    // block until this semaphore is in a signalled state, or
-    // throw an exception if the wait failed.
-    // @exception WaitFailed
-    // @exception WaitInterrupted
+    /**
+        Blocks until this Semaphore is in a signalled state.
+        @param ignoreInterrupt Indicates whether the wait operation should
+        continue (true) or an exception should be thrown (false) when an
+        interrupt is received.
+        @exception WaitFailed If unable to block on the semaphore.
+        @exception WaitInterrupted If the operation is interrupted.
+    */
     void wait(Boolean ignoreInterrupt = true);
 
-    // wait succeeds immediately if semaphore has a non-zero count,
-    // return immediately and throw and exception if the
-    // count is zero.
-    // @exception WaitFailed
+    /**
+        Checks whether the Semaphore is signalled without waiting.  This method
+        returns normally if the Semaphore has a non-zero count.
+        @exception WaitFailed If the wait operation does not immediately
+        succeed.
+    */
     void try_wait();
 
-    // wait for milliseconds and throw an exception
-    // if wait times out without gaining the semaphore
-    // @exception TimeOut
+    /**
+        Waits for the Semaphore to be signalled for a specified time interval.
+        This method returns normally if the Semaphore has a non-zero count or
+        it is signalled during the specified time interval.
+        @param milliseconds The time interval to wait (in milliseconds).
+        @exception TimeOut If the wait operation does not succeed within
+        the specified time interval.
+    */
     void time_wait(Uint32 milliseconds);
 
-    // increment the count of the semaphore
+    /**
+        Increments the count of the semaphore.
+    */
     void signal();
 
-    // return the count of the semaphore
+    /**
+        Return the count of the semaphore.
+    */
     int count() const;
 
 private:
-    mutable PEGASUS_SEM_HANDLE  _semaphore;
+
+    Semaphore(const Semaphore& x);    // Unimplemented
+    Semaphore& operator=(const Semaphore& x);    // Unimplemented
+
+    mutable PEGASUS_SEM_HANDLE _semaphore;
 
     // may not need to use the _count member on
     // platforms that allow you to ask the semaphore for
     // its count
     mutable int _count;
 
-    //      void _extricate();
     friend class Condition;
 };
 
@@ -539,11 +559,9 @@ public:
     void unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller);
 
 private:
-    void _extricate();
     AtomicInt _readers;
     AtomicInt _writers;
     PEGASUS_RWLOCK_HANDLE _rwlock;
-    // friend template class DQueue;
     friend void extricate_read_write(void *);
 };
 

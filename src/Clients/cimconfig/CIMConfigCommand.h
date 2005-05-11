@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,10 +30,12 @@
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -58,18 +60,18 @@ access the CIM Server configuration file.
 @author Nag Boranna, Hewlett-Packard Company
 */
 
-class CIMConfigCommand : public Command 
+class CIMConfigCommand : public Command
 {
 
 public:
 
-    /**    
+    /**
         Constructs a CIMConfigCommand and initializes instance variables.
     */
     CIMConfigCommand ();
 
     /**
-    Parses the command line, validates the options, and sets instance 
+    Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
 
     @param   args  the string array containing the command line arguments
@@ -78,8 +80,7 @@ public:
     @throws  CommandFormatException  if an error is encountered in parsing
                                      the command line
     */
-    void setCommand (Uint32 argc, char* argv [])
-        throw (CommandFormatException);
+    void setCommand (Uint32 argc, char* argv []);
 
     /**
     Executes the command and writes the results to the output streams.
@@ -107,15 +108,15 @@ private:
     */
     void _getPropertiesFromCIMServer
         (
-        PEGASUS_STD(ostream)&    outPrintWriter, 
+        PEGASUS_STD(ostream)&    outPrintWriter,
         PEGASUS_STD(ostream)&    errPrintWriter,
         const CIMName&           propertyName,
         Array <String>&          propertyValues
-        ); //throw (CIMException);
+        );
 
     /**
     Send an updated property value to the CIM Server.
-    
+
     @param ostream          The stream to which command output is written.
     @param ostream          The stream to which command errors are written.
     @param propertyName   The name of the property to update.
@@ -127,12 +128,12 @@ private:
     */
     void _updatePropertyInCIMServer
         (
-        PEGASUS_STD(ostream)&    outPrintWriter, 
+        PEGASUS_STD(ostream)&    outPrintWriter,
         PEGASUS_STD(ostream)&    errPrintWriter,
         const CIMName&           propertyName,
         const String&            propertyValue,
         Boolean                  isUnsetOperation
-        ); //throw (CIMException);
+        );
 
     /**
     Get a list of all property names and value from the CIM Server.
@@ -159,44 +160,44 @@ private:
     AutoPtr<CIMClient> _client;
 
     /**
-    The host name. 
+    The host name.
     */
     String        _hostName;
 
     /**
-    The name of a config property. 
+    The name of a config property.
     */
     CIMName       _propertyName;
 
     /**
-    The value of a config property. 
+    The value of a config property.
     */
     String        _propertyValue;
 
     /**
-    The flag to indicate whether the default value is set or not. 
+    The flag to indicate whether the default value is set or not.
     */
     Boolean       _defaultValueSet;
 
     /**
-    The flag to indicate whether the current value is set or not. 
+    The flag to indicate whether the current value is set or not.
     */
     Boolean       _currentValueSet;
 
     /**
-    The flag to indicate whether the planned value is set or not. 
+    The flag to indicate whether the planned value is set or not.
     */
     Boolean       _plannedValueSet;
 
 #ifdef PEGASUS_OS_OS400
     /**
-    The flag to indicate whether to disable any output. 
+    The flag to indicate whether to disable any output.
     */
     Boolean	  _defaultQuietSet;
 #endif
 
     /**
-    The type of operation specified on the command line. 
+    The type of operation specified on the command line.
     */
     Uint32        _operationType;
 

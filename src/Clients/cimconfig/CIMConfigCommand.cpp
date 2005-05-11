@@ -588,8 +588,7 @@ CIMConfigCommand::CIMConfigCommand ()
     Parses the command line, validates the options, and sets instance 
     variables based on the option arguments.
 */
-void CIMConfigCommand::setCommand (Uint32 argc, char* argv []) 
-    throw (CommandFormatException)
+void CIMConfigCommand::setCommand (Uint32 argc, char* argv [])
 {
     unsigned int      i                = 0;
     Uint32            c                = 0;

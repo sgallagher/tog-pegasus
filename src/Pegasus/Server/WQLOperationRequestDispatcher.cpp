@@ -32,6 +32,8 @@
 // Modified By:
 //     Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //	   Seema Gupta (gseema@in.ibm.com) for PEP135
+//     Carol Ann Krug Graves, Hewlett-Packard Company 
+//         (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,8 +55,13 @@ void WQLOperationRequestDispatcher::applyQueryToEnumeration(
    for (int i=enr->cimNamedInstances.size()-1; i>=0; i--) {
       WQLInstancePropertySource ips(enr->cimNamedInstances[i]);
       try {
-         if (qs->evaluateWhereClause(&ips)) {
-	    qs->applyProjection(enr->cimNamedInstances[i], false);
+         if (qs->evaluateWhereClause(&ips))
+         {
+             //
+             //  Specify that missing requested project properties are allowed
+             //  to be consistent with clarification from DMTF
+             //
+             qs->applyProjection(enr->cimNamedInstances[i], true);
          }
          else enr->cimNamedInstances.remove(i);
       }

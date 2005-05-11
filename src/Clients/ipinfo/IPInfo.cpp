@@ -233,9 +233,8 @@ String IPInfoCommand::_promptForPassword( ostream& outPrintWriter )
                                the connection
   
  */
- void IPInfoCommand::_connectToServer( CIMClient& client,
-				         ostream& outPrintWriter ) 
-    throw (Exception)
+void IPInfoCommand::_connectToServer( CIMClient& client,
+				         ostream& outPrintWriter )
 {
     String                 host                  = String ();
     Uint32                 portNumber            = 0;
@@ -328,8 +327,7 @@ String IPInfoCommand::_promptForPassword( ostream& outPrintWriter )
                                         the command line
   
  */
-void IPInfoCommand::setCommand (Uint32 argc, char* argv []) 
-    throw (CommandFormatException)
+void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
 {
     Uint32         i              = 0;
     Uint32         c              = 0;
@@ -425,13 +423,13 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
                         throw e;
                     }
-		    _portNumberSet = true;
+                    _portNumberSet = true;
                     break;
                 }
     
@@ -469,7 +467,7 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
@@ -564,8 +562,7 @@ void IPInfoCommand::setCommand (Uint32 argc, char* argv [])
     @param   errPrintWriter     The ostream to which error output should be
                                 written
     @param   message            Text for error message
-    @return - None, Terminates the program
-    @exception - This function terminates the program
+    @return None, Terminates the program
 */
 void IPInfoCommand::errorExit( ostream& errPrintWriter,
                                const String& message)
@@ -576,7 +573,6 @@ void IPInfoCommand::errorExit( ostream& errPrintWriter,
 
 void IPInfoCommand::getIPInfo(ostream& outPrintWriter,
                               ostream& errPrintWriter)
-     throw (IPInfoException)
 {
 
     CIMClient client;
@@ -591,7 +587,7 @@ void IPInfoCommand::getIPInfo(ostream& outPrintWriter,
 
     }  // end try
 
-    catch(Exception& e)
+    catch(const Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -619,10 +615,10 @@ Uint32 IPInfoCommand::execute (ostream& outPrintWriter,
     {
         IPInfoCommand::getIPInfo( outPrintWriter, errPrintWriter );
     }
-    catch (IPInfoException& e)
+    catch (const IPInfoException& e)
     {
       errPrintWriter << IPInfoCommand::COMMAND_NAME << ": " << 
-	e.getMessage () << endl;
+        e.getMessage () << endl;
         return (RC_ERROR);
     }
     return (RC_SUCCESS);
@@ -654,7 +650,7 @@ int main (int argc, char* argv [])
     {
         command.setCommand (argc, argv);
     } 
-    catch (CommandFormatException& cfe) 
+    catch (const CommandFormatException& cfe) 
     {
         cerr << IPInfoCommand::COMMAND_NAME << ": " << cfe.getMessage () 
              << endl;

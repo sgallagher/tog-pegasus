@@ -82,7 +82,7 @@ public:
                                             parsing the command line
       
      */
-    void setCommand (Uint32 argc, char* argv []) throw (CommandFormatException);
+    void setCommand (Uint32 argc, char* argv []);
 
     /**
         
@@ -118,8 +118,7 @@ private:
       
      */
     void _connectToServer( CIMClient& client,
-			   ostream& outPrintWriter ) 
-        throw (Exception);
+               ostream& outPrintWriter );
 
 /**
   
@@ -132,8 +131,7 @@ private:
  */
     String _promptForPassword( ostream&  eStream );
 
-    void getIPInfo (ostream& outPrintWriter, ostream& errPrintWriter)
-        throw (IPInfoException);
+    void getIPInfo (ostream& outPrintWriter, ostream& errPrintWriter);
 
     void errorExit(ostream& eStream, const String &message);
 

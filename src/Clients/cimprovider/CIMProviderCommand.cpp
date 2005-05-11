@@ -423,7 +423,6 @@ public:
     void setCommand (
         Uint32                   argc,
         char*                    argv [])
-        throw (CommandFormatException)
     {
         // Empty function
     }
@@ -1160,7 +1159,7 @@ Uint32 CIMProviderCommand::execute (
         _client->connectLocal();
 
     }
-    catch(Exception& e)
+    catch(const Exception&)
     {
         //l10n
         //outPrintWriter << CIMOM_NOT_RUNNING << endl;
@@ -1724,7 +1723,7 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
         PEGASUS_NAMESPACENAME_PROVIDERREG, moduleRef);
         return (instance);
     }
-    catch (CIMException& exception)
+    catch (const CIMException&)
     {
         // Provider module was not registered yet
         //l10n
@@ -1734,7 +1733,7 @@ CIMInstance CIMProviderCommand::_getModuleInstance()
             ERR_MODULE_NOT_REGISTERED) << endl;
         exit(-1);
     }
-    catch (Exception& exception)
+    catch (const Exception&)
     {
         // Provider module was not registered yet
         //l10n
@@ -1773,7 +1772,7 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
             PEGASUS_NAMESPACENAME_PROVIDERREG, providerRef);
         return (instance);
     }
-    catch (CIMException& exception)
+    catch (const CIMException&)
     {
         // Provider was not registered yet
         //l10n
@@ -1783,7 +1782,7 @@ CIMInstance CIMProviderCommand::_getProviderInstance()
             ERR_PROVIDER_NOT_REGISTERED) << endl;
         exit(-1);
     }
-    catch (Exception& exception)
+    catch (const Exception&)
     {
         // Provider was not registered yet
         //l10n

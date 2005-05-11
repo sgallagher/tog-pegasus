@@ -939,79 +939,88 @@ static void TestMethodOperations( CIMClient* client, Boolean
    Tests the invoke method request via the sample method provider.
 */
 
-static void TestInvokeMethod( CIMClient * client,
-                  Boolean activeTest,
-                  Boolean verboseTest, String uniqueID )
+static void TestInvokeMethod(
+    CIMClient * client,
+    Boolean activeTest,
+    Boolean verboseTest,
+    const String& uniqueID)
 {
-  const CIMNamespaceName NAMESPACE  = CIMNamespaceName ("root/SampleProvider");
-  const CIMName classname  = CIMName ("Sample_MethodProviderClass");
-  const CIMName methodName = CIMName ("SayHello");
-  const String OUTSTRING = "Yoda";
-  const String GOODREPLY = "Hello, " + OUTSTRING + "!";
-  const String GOODPARAM = "From Neverland";
-  const CIMObjectPath instanceName = CIMObjectPath
-                            ("Sample_MethodProviderClass.Identifier=1");
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName("root/SampleProvider");
+    const CIMName classname = CIMName("Sample_MethodProviderClass");
+    const CIMName methodName = CIMName("SayHello");
+    const CIMObjectPath instanceName = CIMObjectPath(
+        "Sample_MethodProviderClass.Identifier=1");
 
-  try
-  {
-      Array<CIMParamValue> inParams;
-      Array<CIMParamValue> outParams;
+    try
+    {
+        for (Uint32 testCases = 0; testCases < 3; testCases++)
+        {
+            Array<CIMParamValue> inParams;
+            Array<CIMParamValue> outParams;
+            CIMParamValue inParam;
 
-      Uint32 testRepeat = 10;
-      inParams.append( CIMParamValue(  "Name", CIMValue( OUTSTRING ) ) );
+            String goodReply;
+            String goodOutParam;
 
-      for (Uint32 i = 0; i < testRepeat; i++)        // repeat the test x time
-      {
-          CIMValue retValue = client->invokeMethod(
-                              NAMESPACE,
-                              instanceName,
-                              methodName,
-                              inParams,
-                              outParams);
-          if( retValue.toString() != GOODREPLY )
+            if (testCases == 0)
             {
-                PEGASUS_STD(cerr) << "Error: bad reply \""
-                  << retValue.toString() << "\"" << PEGASUS_STD(endl);
-                return;
+                // Test case for a parameter with a non-empty value
+                inParams.append(
+                    CIMParamValue("Name", CIMValue(String("Yoda"))));
+                goodReply = "Hello, Yoda!";
+                goodOutParam = "From Neverland";
             }
-          else
-          {
-                if ( outParams.size() > 0 )
+            else if (testCases == 1)
+            {
+                // Test case for a parameter with an empty value
+                inParams.append(CIMParamValue("Name", CIMValue(String(""))));
+                goodReply = "Hello";
+                goodOutParam = "From Neverland";
+            }
+            else
+            {
+                // Test case for a parameter with a null value
+                inParams.append(
+                    CIMParamValue("Name", CIMValue(CIMTYPE_STRING, false, 0)));
+                goodReply = "Hello";
+                goodOutParam = "From Neverland";
+            }
+
+            Uint32 testRepeat = 10;
+            for (Uint32 i = 0; i < testRepeat; i++)   // repeat the test x time
+            {
+                CIMValue retValue = client->invokeMethod(
+                    NAMESPACE,
+                    instanceName,
+                    methodName,
+                    inParams,
+                    outParams);
+
+                if (verboseTest)
                 {
-                    String outReply = String::EMPTY;
-                    CIMValue paramVal = outParams[0].getValue();
-                    paramVal.get( outReply );
-                    if ( outReply != GOODPARAM )
+                    cout << "Output: " << retValue.toString() << endl;
+                    for (Uint32 i = 0; i < outParams.size(); i++)
                     {
-                        PEGASUS_STD(cerr) << "Error: bad output parameter: \"" <<
-                        outReply << "\"" << PEGASUS_STD(endl);
-                        return;
+                        cout << outParams[i].getParameterName() << ": " <<
+                            outParams[i].getValue().toString() << endl;
                     }
                 }
-                else
-                {
-                    PEGASUS_STD(cerr) << "Error: output parameter missing. Reply: \"" <<
-                    retValue.toString() << "\"" << PEGASUS_STD(endl);
-                    return;
-                }
+
+                assert(retValue.toString() == goodReply);
+                assert(outParams.size() == 1);
+
+                String outParam = String::EMPTY;
+                outParams[0].getValue().get(outParam);
+                assert(outParam == goodOutParam);
             }
-            if (verboseTest)
-            {
-                cout << "Output : " << retValue.toString() << endl;
-                for (Uint8 i = 0; i < outParams.size(); i++)
-                    cout << outParams[i].getParameterName()
-                    << " : "
-                    << outParams[i].getValue().toString()
-                    << endl;
-            }
-      }
-  cout << "Executed " << testRepeat << " methods" << endl;
-  }
-  catch(Exception& e)
-  {
+            cout << "Executed " << testRepeat << " methods" << endl;
+        }
+    }
+    catch(Exception& e)
+    {
         PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
-        return;
-  }
+        exit(1);
+    }
 }
 
 /*

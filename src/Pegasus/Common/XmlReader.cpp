@@ -4928,7 +4928,11 @@ Boolean XmlReader::getParamValueElement(
     Boolean gotType = getCimTypeAttribute(parser.getLine(), entry, type,
                                           "PARAMVALUE", "PARAMTYPE", false);
 
-    if (!empty)
+    if (empty)
+    {
+        gotType = false; // Can't distinguish array and non-array types
+    }
+    else
     {
         // Parse VALUE.REFERENCE and VALUE.REFARRAY type
         if ( (type == CIMTYPE_REFERENCE) || !gotType )
@@ -4993,7 +4997,8 @@ Boolean XmlReader::getParamValueElement(
             if ( !XmlReader::getValueArrayElement(parser, effectiveType, value) &&
                  !XmlReader::getValueElement(parser, effectiveType, value) )
             {
-                value.clear();    // Isn't necessary; should already be cleared
+                gotType = false; // Can't distinguish array and non-array types
+                value.clear();   // Isn't necessary; should already be cleared
             }
 
         }

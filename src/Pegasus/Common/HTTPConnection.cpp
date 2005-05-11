@@ -213,10 +213,10 @@ void * sigabrt_generator(void * parm)
 
 HTTPConnection::HTTPConnection(
     Monitor* monitor,
-		AutoPtr<MP_Socket>& socket,
+    AutoPtr<MP_Socket>& socket,
     MessageQueue* ownerMessageQueue,
     MessageQueue* outputMessageQueue,
-		Boolean exportConnection)
+    Boolean exportConnection)
     :
    Base(PEGASUS_QUEUENAME_HTTPCONNECTION),
    _monitor(monitor),
@@ -248,8 +248,8 @@ HTTPConnection::HTTPConnection(
        if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified())
        {
                _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
-			   _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
-			   _authInfo->setClientCertificate(_socket->getPeerCertificate());
+               _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
+               _authInfo->setClientCertificate(_socket->getPeerCertificate());
        }
     }
 
@@ -282,11 +282,11 @@ void HTTPConnection::handleEnqueue(Message *message)
 
    Boolean LockAcquired = false;
 
-	 if (pegasus_thread_self() != _connection_mut.get_owner())
-	 {
-     _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
-     LockAcquired = true;
-	 }
+     if (pegasus_thread_self() != _connection_mut.get_owner())
+     {
+         _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
+         LockAcquired = true;
+     }
 
    switch (message->getType())
    {
@@ -1242,7 +1242,7 @@ Boolean HTTPConnection::_isClient()
  * client application.
  */
 
-void HTTPConnection::_handleReadEventTransferEncoding() throw (Exception)
+void HTTPConnection::_handleReadEventTransferEncoding()
 {
   static const char func[] = "HTTPConnection::_handleReadEventTransferEncoding";
   PEG_METHOD_ENTER(TRC_HTTP, func);

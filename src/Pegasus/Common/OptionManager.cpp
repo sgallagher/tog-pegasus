@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,6 +33,8 @@
 //                 June 2001 - Extend help and print to include help description
 //                 Feb 2002 - ad IsTrue
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -90,8 +92,7 @@ OptionManager::~OptionManager()
 	delete _options[i];
 }
 
-void OptionManager::registerOption(Option* option) 
-        //throw(NullPointer, OMDuplicateOption)
+void OptionManager::registerOption(Option* option)
 {
     if (!option)
 	throw NullPointer();
@@ -104,7 +105,6 @@ void OptionManager::registerOption(Option* option)
 
 
 void OptionManager::registerOptions(OptionRow* optionRow, Uint32 numOptions)
-    throw (NullPointer)
 {
     for (Uint32 i = 0; i < numOptions; i++)
     {
@@ -189,7 +189,7 @@ void OptionManager::mergeCommandLine(int& argc, char**& argv, Boolean abortOnErr
 	    {
 		if (abortOnErr)
                 {
-                    throw OMMBadCmdLineOption(arg);    
+                    throw OMMBadCmdLineOption(arg);
                 }
                 else
                 {
@@ -319,10 +319,10 @@ void OptionManager::mergeFile(const String& fileName)
 
 		switch (*p)
 		{
-		    case 'n': 
-			value.append('\n'); 
+		    case 'n':
+			value.append('\n');
 			break;
-		    
+
 		    case 'r':
 			value.append('\r');
 			break;
@@ -429,7 +429,7 @@ Boolean OptionManager::lookupIntegerValue(const String& name, Uint32& value) con
 
 }
 
-Boolean OptionManager::valueEquals(const String& name, const String& value) 
+Boolean OptionManager::valueEquals(const String& name, const String& value)
     const
 {
     String optionString;
@@ -439,12 +439,12 @@ Boolean OptionManager::valueEquals(const String& name, const String& value)
 
 Boolean OptionManager::isTrue(const String& name) const
 {
-    //ATTN: KS 7 May 2002 P3 Add test to confirm boolean type 
+    //ATTN: KS 7 May 2002 P3 Add test to confirm boolean type
     return valueEquals(name, "true") ? true: false;
 }
 /*  ATTN: P3 MB 2001 Buried this one for the moment to think about it.
-Uint32 OptionManager::isStringInOptionMask(const String& option, 
-					   const String& entry) 
+Uint32 OptionManager::isStringInOptionMask(const String& option,
+					   const String& entry)
 {
     String optionString;
 
@@ -530,7 +530,7 @@ Option::Option(
 	throw OMInvalidOptionValue(_optionName, _value);
 }
 
-Option::Option(const Option& x) 
+Option::Option(const Option& x)
     :
     _optionName(x._optionName),
     _defaultValue(x._defaultValue),
@@ -611,7 +611,7 @@ Boolean Option::isValid(const String& value) const
 
 	    switch (_type)
 	    {
-		case INTEGER: 
+		case INTEGER:
 		    return true;
 
 		case NATURAL_NUMBER:

@@ -74,7 +74,7 @@ class CloseConnectionMessage : public Message
    public:
 
       CloseConnectionMessage(Sint32 socket_)
-	 : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
+         : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
 
       Sint32 socket;
 };
@@ -90,18 +90,18 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       /** Constructor. */
       HTTPConnection(
-	 Monitor* monitor,
-   AutoPtr<MP_Socket>& socket,
-	 MessageQueue * ownerMessageQueue,
-	 MessageQueue * outputMessageQueue,
-         Boolean exportConnection);
+        Monitor* monitor,
+        AutoPtr<MP_Socket>& socket,
+        MessageQueue * ownerMessageQueue,
+        MessageQueue * outputMessageQueue,
+        Boolean exportConnection);
 
 
       /** Destructor. */
       ~HTTPConnection();
 
       /** This method is called whenever a SocketMessage is enqueued
-	  on the input queue of the HTTPConnection object.
+          on the input queue of the HTTPConnection object.
       */
       virtual void handleEnqueue(Message *);
 
@@ -113,7 +113,7 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       MP_Socket& getMPSocket() { return *_socket;}
 
       /** Return the number of outstanding requests for all HTTPConnection
-	  instances.
+          instances.
       */
       Uint32 getRequestCount();
 
@@ -123,25 +123,25 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
       {
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::lock_connection - LOCK REQUESTED");
-	 _connection_mut.lock(pegasus_thread_self());
+             _connection_mut.lock(pegasus_thread_self());
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::lock_connection - LOCK ACQUIRED");
       }
 
       void unlock_connection(void)
       {
-	 _connection_mut.unlock();
+         _connection_mut.unlock();
          Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
             "HTTPConnection::unlock_connection - LOCK RELEASED");
       }
 
       MessageQueue & get_owner(void)
       {
-	 return *_ownerMessageQueue;
+          return *_ownerMessageQueue;
       }
 
-			// was the request for chunking ?
-			Boolean isChunkRequested();
+      // was the request for chunking ?
+      Boolean isChunkRequested();
 
       // ATTN-RK-P1-20020521: This is a major hack, required to get the CIM
       // server and tests to run successfully.  The problem is that the
@@ -158,8 +158,8 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       CIMException cimException;
 
-			// list of content languages
-			ContentLanguages contentLanguages;
+      // list of content languages
+      ContentLanguages contentLanguages;
 
    private:
 
@@ -174,12 +174,12 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       void _handleReadEvent();
 
-			Boolean _handleWriteEvent(Message &message);
+      Boolean _handleWriteEvent(Message &message);
 
       void _handleReadEventFailure(String &httpStatusWithDetail,
                                    String cimError = String());
-      void _handleReadEventTransferEncoding() throw (Exception);
-			Boolean _isClient();
+      void _handleReadEventTransferEncoding();
+      Boolean _isClient();
 
       Monitor* _monitor;
 
@@ -219,20 +219,20 @@ class PEGASUS_COMMON_LINKAGE HTTPConnection : public MessageQueue
 
       int _entry_index;
 
-			// When used by the client, it is an offset (from start of http message)
-			// representing last NON completely parsed chunk of a transfer encoding.
-			// When used by the server, it is the message index that comes down
-			// from the providers/repository representing each message chunk
+      // When used by the client, it is an offset (from start of http message)
+      // representing last NON completely parsed chunk of a transfer encoding.
+      // When used by the server, it is the message index that comes down
+      // from the providers/repository representing each message chunk
       Uint32 _transferEncodingChunkOffset;
 
-			// list of transfer encoding values from sender
+      // list of transfer encoding values from sender
       Array<String> _transferEncodingValues;
 
-			// list of TE values from client
+      // list of TE values from client
       Array<String> _transferEncodingTEValues;
 
-			// 2 digit prefix on http header if mpost was used
-			String _mpostPrefix;
+      // 2 digit prefix on http header if mpost was used
+      String _mpostPrefix;
 
       friend class Monitor;
       friend class HTTPAcceptor;

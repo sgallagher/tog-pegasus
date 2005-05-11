@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,17 +29,19 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:	Karl Schopmyer(k.schopmeyer@opengroup.org)
+// Modified By: Karl Schopmyer(k.schopmeyer@opengroup.org)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
-// 
-// This file defines the classes necessary to manage commandline and 
-// configuration file options for Pegasus.  It defines 
+//
+// This file defines the classes necessary to manage commandline and
+// configuration file options for Pegasus.  It defines
 //   The OptionManager Class
 //   The Option Class - Used to define information about an option
-//   The Option Row structure - Used to define option declarations in a 
+//   The Option Row structure - Used to define option declarations in a
 //	program
 //   The optionexcptions Class
 //
@@ -146,10 +148,10 @@ typedef Option* OptionPtr;
 	String value;
 	om.lookupValue("port", value);
     </pre>
-    
+
     Boolean Options can easily be tested as follows:
     <pre>
-    
+
     </pre>
 
     <h4>Command Line Options</h4>
@@ -197,35 +199,35 @@ typedef Option* OptionPtr;
     merged from the various sources by calling the merge functions. Finally,
     checkRequiredOptions() is called to see if any required option values were
     not provided.
-    
+
     <h4>Option Types</h4>
-    
+
     The option manager allows for several types of options including:
     <UL>
-	<LI> (BOOLEAN)Simple keyword parameters (ex. -t or -h on the command 
-	line). These are Boolean parameters and there are no additional parameters 
+	<LI> (BOOLEAN)Simple keyword parameters (ex. -t or -h on the command
+	line). These are Boolean parameters and there are no additional parameters
 	after the keyword.
-	
-	<LI> (INTEGER) Numeric parameters - (ex -port 5988). These are 
+
+	<LI> (INTEGER) Numeric parameters - (ex -port 5988). These are
 	parameters where a numeric variable follows the parameter defintion.
- 
+
 	<LI>(WHOLE_NUMBER) Numeric parameters  ATTN: Finish.
-	
+
 	<LI> (NATURAL_NUMBER Numieric parameters - (ex ). ATTN:	finish
-	 
-	<LI>(STRING) String Parameters - (ex. -file abd.log) These are 
-	parameters that are represented by strings following the option 
+
+	<LI>(STRING) String Parameters - (ex. -file abd.log) These are
+	parameters that are represented by strings following the option
 	keyword. No limitations are placed on the string except that it must
 	be resolvable to a single string.
 
-	<LI> (STRING) Domain Parameters - These are parameters where there is 
-	a choice of keywords from a domain of keywords.	The input parameter may be any 
-	one of these keywords. Thus, the domain (red blue green) for the 
-	parameter "color" (-c) could be entered as -c red. The difference 
-	between String interpretation and domain interpretation is the use of the 
+	<LI> (STRING) Domain Parameters - These are parameters where there is
+	a choice of keywords from a domain of keywords.	The input parameter may be any
+	one of these keywords. Thus, the domain (red blue green) for the
+	parameter "color" (-c) could be entered as -c red. The difference
+	between String interpretation and domain interpretation is the use of the
 	domain fields in the option definition.
-	
-	<LI> Mask parameters - These are parameters that define an internal 
+
+	<LI> Mask parameters - These are parameters that define an internal
 	bit mask from a set of keywords input.
 	ATTN: Finish this definition.
     </UL>
@@ -248,16 +250,14 @@ public:
 	@exception NullPointer exception if option argument is null.
 	@exception OMDuplicateOption if option already defined.
     */
-    void registerOption(Option* option); 
-    //        throw(NullPointer, OMDuplicateOption);
+    void registerOption(Option* option);
 
     /** Provides a simple way to register several options at once using
 	a declartive style table. This may also be done programmitically
 	by repeatedly calling registerOption above. See documentation for
 	OptionRow for details on how to use them.
     */
-    void registerOptions(OptionRow* options, Uint32 numOptions)
-	throw (NullPointer);
+    void registerOptions(OptionRow* options, Uint32 numOptions);
 
     /** Merge option values from the command line. Searches the command
 	line for registered options whose names are given by the
@@ -326,7 +326,7 @@ public:
     /**	isStringInOptionMask - Looks for a String value in an option.
 	This function is used to detect particular options listed in strings of
 	entries forming a STRING option.  Thus, for example if the option string
-	were "abc,def,ijk" in option toy isStringInOption ("toy", "def") returns 
+	were "abc,def,ijk" in option toy isStringInOption ("toy", "def") returns
 	true.
 	@param option  name of the option in the option table
 	@param entry  Entry to compare
@@ -337,7 +337,7 @@ public:
     /** optionValueEquals - Test the string value of an option.
 	@param name provides the name of the option (ex. "port")
 	@param value String value for comparison.
-	@return true if the option exists and the value of the option 
+	@return true if the option exists and the value of the option
 	equals the input parameter value.
     */
     Boolean valueEquals(const String& name, const String& value) const;
@@ -419,7 +419,7 @@ public:
 
 	@param commandLineOptionName name of the corresponding command line
 	    option (which may be different from the option name).
-	    
+
 	@param optionHelpMessage Text message that defines option. To be used
 	    in Usage messages.
     */
@@ -476,7 +476,7 @@ public:
         _value = value;
 	_resolved = true;
     }
-    
+
     /** Accessor */
     Boolean getRequired() const
     {
@@ -594,10 +594,10 @@ private:
 	    { "color", "red", false, Option::STRING, colors, NUM_COLORS }
 	};
     </pre>
-    When a domain is defined, any of the keywords in that domain are legal 
-    option keywords.  For example.  With the domain defined above,  a command 
-    line or config file entry that includes -c blue sets the option "color" to 
-    blue. Note that this requires a space between -c and blue. 
+    When a domain is defined, any of the keywords in that domain are legal
+    option keywords.  For example.  With the domain defined above,  a command
+    line or config file entry that includes -c blue sets the option "color" to
+    blue. Note that this requires a space between -c and blue.
  */
 struct OptionRow
 {
@@ -610,11 +610,11 @@ struct OptionRow
     const char* commandLineOptionName;
     const char* optionHelpMessage;
 };
-/* NOTE: The "required" object must be an int rather than a Boolean because 
-    bool on some platforms is not defined so that we cannot use a Boolean here 
-    with a static object.  
+/* NOTE: The "required" object must be an int rather than a Boolean because
+    bool on some platforms is not defined so that we cannot use a Boolean here
+    with a static object.
 */
- 
+
 /** Exception class */
 class OMMissingCommandLineOptionArgument : public Exception
 {

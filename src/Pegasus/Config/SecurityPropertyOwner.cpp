@@ -123,7 +123,7 @@ static struct ConfigPropertyRow properties[] =
 # endif
 #else
 # ifdef PEGASUS_OS_OS400
-    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 0, 0, IS_HIDDEN},
+    {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 # else
     {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_HIDDEN},
 # endif

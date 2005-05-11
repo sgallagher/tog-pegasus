@@ -1182,7 +1182,7 @@ Uint32 CIMConfigCommand::execute (
                         errPrintWriter << localizeMessage(MSG_PATH, 
                         						OPTION_INVALID_CIM_RUNNING_KEY, 
                         						OPTION_INVALID_CIM_RUNNING, 
-                        						OPTION_DEFAULT_VALUE) << endl;  
+                        						String(&OPTION_DEFAULT_VALUE,1)) << endl;  
                         return ( RC_ERROR );
                     }
                     else 

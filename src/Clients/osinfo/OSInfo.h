@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,13 +27,15 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
 //
 // Modified By:
-//         Warren Otsuka (warren_otsuka@hp.com)
-//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//          Warren Otsuka (warren_otsuka@hp.com)
+//          Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//          David Dillard, VERITAS Software Corp.
+//              (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,51 +53,51 @@ PEGASUS_NAMESPACE_BEGIN
 /**
    The osinfo command displays information regarding the operating
    system, gathered via WBEM using the PG_OperatingSystem class supported
-   by the OperatingSystem Provider.  osinfo requires CIM Server to be 
+   by the OperatingSystem Provider.  osinfo requires CIM Server to be
    installed and running on the target host.
-  
+
     @author  Hewlett-Packard Company
-  
+
  */
-class OSInfoCommand : public Command 
+class OSInfoCommand : public Command
 {
 public:
 
     enum { DEFAULT_TIMEOUT_MILLISECONDS = 200000 };
 
     /**
-      
+
         Constructs an OSInfoCommand and initializes instance variables.
-      
+
      */
     OSInfoCommand ();
 
     /**
-        
-        Parses the command line, validates the options, and sets instance 
+
+        Parses the command line, validates the options, and sets instance
         variables based on the option arguments.
-      
+
         @param   argc  the number of command line arguments
         @param   argv  the string vector of command line arguments
-      
-        @exception  CommandFormatException  if an error is encountered in 
+
+        @exception  CommandFormatException  if an error is encountered in
                                             parsing the command line
-      
+
      */
-    void setCommand (Uint32 argc, char* argv []) throw (CommandFormatException);
+    void setCommand (Uint32 argc, char* argv []);
 
     /**
-        
+
         Executes the command and writes the results to the PrintWriters.
-      
+
         @param   outPrintWriter     the ostream to which output should be
                                     written
         @param   errPrintWriter     the ostream to which error output should be
                                     written
-      
+
         @return  0                  if the command is successful
                  1                  if an error occurs in executing the command
-      
+
      */
     Uint32 execute (ostream& outPrintWriter, ostream& errPrintWriter);
 
@@ -103,28 +105,27 @@ public:
         The command name.
      */
     static const char   COMMAND_NAME [];
-    
+
 private:
 
     /**
-        
+
         Connect to cimserver.
-      
+
         @param   outPrintWriter     the ostream to which error output should be
                                     written
-      
+
         @exception Exception        if an error is encountered in creating
-                                    the connection 
-      
+                                    the connection
+
      */
     void _connectToServer( CIMClient& client,
-			   ostream& outPrintWriter ) 
-        throw (Exception);
+               ostream& outPrintWriter );
 
 /**
-  
+
     Prompt for password.
-  
+
     @param   estream             the ostream to which errors should be written
 
     @return  String value of the user entered password
@@ -132,8 +133,7 @@ private:
  */
     String _promptForPassword( ostream&  eStream );
 
-    void getOSInfo (ostream& outPrintWriter, ostream& errPrintWriter)
-        throw (OSInfoException);
+    void getOSInfo (ostream& outPrintWriter, ostream& errPrintWriter);
 
     void errorExit(ostream& eStream, const String &message);
 
@@ -149,25 +149,25 @@ private:
     String _hostName;
 
     /**
-        A Boolean indicating whether a hostname was specified on the command 
+        A Boolean indicating whether a hostname was specified on the command
         line.  The default host is the local host.
      */
     Boolean _hostNameSet;
 
     /**
 
-        The port to be used when the command is executed. The 
-        port number must be the port number on which the 
+        The port to be used when the command is executed. The
+        port number must be the port number on which the
         target CIM Server is running.
 
         If no port is specified, osinfo will attempt to locate the port
-        associated with the service "wbem-http" for non-SSL connections 
-        and "wbem-https" for SSL connections. If not found, the DMTF 
+        associated with the service "wbem-http" for non-SSL connections
+        and "wbem-https" for SSL connections. If not found, the DMTF
         recommended default port number will be used.
 
         _portNumberStr and _portNumber are not used with
         connectLocal().
-        
+
         The default port for non-SSL 5988 and 5989 for SSL.
 
      */
@@ -187,7 +187,7 @@ private:
     Uint32 _timeout;
 
     /**
-        The username to be used for authentication and 
+        The username to be used for authentication and
         authorization of the operation.
      */
     String _userName;
@@ -208,7 +208,7 @@ private:
     Boolean _passwordSet;
 
     /**
-        A Boolean indicating whether an SSL connection was specified on the 
+        A Boolean indicating whether an SSL connection was specified on the
         command line.
      */
     Boolean _useSSL;
@@ -259,7 +259,7 @@ private:
         Label for the usage string for this command.
      */
     static const char   _USAGE [];
-    
+
     /**
         The minimum valid portnumber.
      */
@@ -271,13 +271,13 @@ private:
     static const Uint32 _MAX_PORTNUMBER;
 
     /**
-        The debug option argument value used to specify that the HTTP 
+        The debug option argument value used to specify that the HTTP
         encapsulation of the original XML request be included in the output.
      */
     static const char   _DEBUG_OPTION1;
 
     /**
-        The debug option argument value used to specify that the HTTP 
+        The debug option argument value used to specify that the HTTP
         encapsulation of the XML response be included in the output.
      */
     static const char   _DEBUG_OPTION2;
@@ -296,8 +296,8 @@ private:
      String osNumberOfUsers;
 
      String usage;
-     
-     // The type of operation specified on the command line. 
+
+     // The type of operation specified on the command line.
      Uint32        _operationType;
 };
 

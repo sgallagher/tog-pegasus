@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,18 +32,20 @@
 //         (carolann_graves@hp.com)
 //
 // Modified By:
-//         Warren Otsuka (warren_otsuka@hp.com)
-//         Sushma Fernandes, Hewlett-Packard Company
-//         (sushma_fernandes@hp.com)
-//         Mike Day (mdday@us.ibm.com)
-//         Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
-//         Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
-//         Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
-//         Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
-//         Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
+//          Warren Otsuka (warren_otsuka@hp.com)
+//          Sushma Fernandes, Hewlett-Packard Company
+//              (sushma_fernandes@hp.com)
+//          Mike Day (mdday@us.ibm.com)
+//          Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
+//          Bapu Patil, Hewlett-Packard Company ( bapu_patil@hp.com )
+//          Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
+//          Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//          Susan Campbell, Hewlett-Packard Company (scampbell@hp.com)
+//          Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
+//          Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
+//          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
+//          David Dillard, VERITAS Software Corp.
+//              (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -306,7 +308,6 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
  */
  void OSInfoCommand::_connectToServer( CIMClient& client,
                                        ostream& outPrintWriter )
-    throw (Exception)
 {
     String                 host                  = String ();
     Uint32                 portNumber            = 0;
@@ -399,7 +400,6 @@ String OSInfoCommand::_promptForPassword( ostream& outPrintWriter )
 
  */
 void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
-    throw (CommandFormatException)
 {
     Uint32         i              = 0;
     Uint32         c              = 0;
@@ -525,7 +525,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
@@ -572,7 +572,7 @@ void OSInfoCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
@@ -986,7 +986,6 @@ void OSInfoCommand::displayProperties(ostream& outPrintWriter)
 
 void OSInfoCommand::getOSInfo(ostream& outPrintWriter,
                               ostream& errPrintWriter)
-     throw (OSInfoException)
 {
 
     CIMClient client;
@@ -1030,7 +1029,7 @@ void OSInfoCommand::getOSInfo(ostream& outPrintWriter,
 
     }  // end try
 
-    catch(Exception& e)
+    catch(const Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1068,7 +1067,7 @@ Uint32 OSInfoCommand::execute (ostream& outPrintWriter,
     {
         OSInfoCommand::getOSInfo( outPrintWriter, errPrintWriter );
     }
-    catch (OSInfoException& e)
+    catch (const OSInfoException& e)
     {
         errPrintWriter << OSInfoCommand::COMMAND_NAME << ": " <<
             e.getMessage () << endl;
@@ -1103,7 +1102,7 @@ int main (int argc, char* argv [])
     {
         command.setCommand (argc, argv);
     }
-    catch (CommandFormatException& cfe)
+    catch (const CommandFormatException& cfe)
     {
         String msg(cfe.getMessage());
 

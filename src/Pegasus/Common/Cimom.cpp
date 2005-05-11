@@ -55,10 +55,10 @@ Uint32 module_capabilities::module_controller = 0x00000020;
 
 
 
-const String & message_module::get_name(void) const { return _name ; }
-Uint32 message_module::get_capabilities(void) const { return _capabilities ; }
-Uint32 message_module::get_mask(void) const { return _mask ; }
-Uint32 message_module::get_queue(void) const { return _q_id ; }
+const String & message_module::get_name() const { return _name ; }
+Uint32 message_module::get_capabilities() const { return _capabilities ; }
+Uint32 message_module::get_mask() const { return _mask ; }
+Uint32 message_module::get_queue() const { return _q_id ; }
 void message_module::put_name(String & name) { _name.clear(); _name = name; }
 void message_module::put_capabilities(Uint32 capabilities) {  _capabilities = capabilities; }
 void message_module::put_mask(Uint32 mask) { _mask = mask; }
@@ -125,7 +125,7 @@ Boolean cimom::route_async(AsyncOpNode *op)
 
 }
 
-void cimom::_shutdown_routed_queue(void)
+void cimom::_shutdown_routed_queue()
 {
 
    if (_routed_queue_shutdown.value() > 0 )
@@ -269,7 +269,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
 
 
-cimom::cimom(void)
+cimom::cimom()
    : MessageQueue(PEGASUS_QUEUENAME_METADISPATCHER, true, CIMOM_Q_ID ),
      _modules(true),
      _recycle(true),
@@ -293,13 +293,13 @@ cimom::cimom(void)
 }
 
 
-Uint32 cimom::get_xid(void)
+Uint32 cimom::get_xid()
 {
    _xid++;
    return _xid.value();
 }
 
-cimom::~cimom(void)
+cimom::~cimom()
 {
 
 // send STOP messages to all modules
@@ -483,7 +483,7 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
 }
 
 
-void cimom::handleEnqueue(void)
+void cimom::handleEnqueue()
 {
 
    Message* msg = dequeue();
@@ -885,12 +885,12 @@ Boolean cimom::moduleChange(struct timeval last)
 }
 
 
-Uint32 cimom::getModuleCount(void)
+Uint32 cimom::getModuleCount()
 {
    return _modules.count();
 }
 
-Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
+Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count)
 {
 
    if(ids == 0)
@@ -918,7 +918,7 @@ Uint32 cimom::getModuleIDs(Uint32 *ids, Uint32 count) throw(IPCException)
    return _modules.count();
 }
 
-AsyncOpNode *cimom::get_cached_op(void) throw(IPCException)
+AsyncOpNode *cimom::get_cached_op()
 {
 
    AutoPtr<AsyncOpNode> op(new AsyncOpNode());
@@ -929,7 +929,7 @@ AsyncOpNode *cimom::get_cached_op(void) throw(IPCException)
    return op.release();
 }
 
-void cimom::cache_op(AsyncOpNode *op) throw(IPCException)
+void cimom::cache_op(AsyncOpNode *op)
 {
    PEGASUS_ASSERT(op->read_state() & ASYNC_OPSTATE_RELEASED );
    delete op;

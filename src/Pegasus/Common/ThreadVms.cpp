@@ -29,20 +29,19 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By: Sean Keenan (sean.keenan@hp.com)
+// Modified By: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 static sigset_t *block_signal_mask(sigset_t *sig)
 {
     sigemptyset(sig);
     // should not be used for main()
     sigaddset(sig, SIGHUP);
-    sigaddset(sig, SIGINT); 
+    sigaddset(sig, SIGINT);
     // maybe useless, since KILL can't be blocked according to POSIX
     sigaddset(sig, SIGKILL);
 
@@ -50,47 +49,46 @@ static sigset_t *block_signal_mask(sigset_t *sig)
     sigaddset(sig, SIGALRM);
     sigaddset(sig, SIGPIPE);
 
+
     sigprocmask(SIG_BLOCK, sig, NULL);
     return sig;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////
 
-Thread::Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
-		void *parameter, 
-		Boolean detached ) : _is_detached(detached), 
-				     _cancel_enabled(true), 
-				   _cancelled(false),
-				     _suspend_count(), 
-				     _start(start), 
-				     _cleanup(true),
-				     _tsd(true),
-				     _thread_parm(parameter), 
-				     _exit_code(0)
+Thread::Thread(
+    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start)(void *),
+    void *parameter,
+    Boolean detached)
+    : _is_detached(detached),
+      _cancel_enabled(true),
+      _cancelled(false),
+      _suspend_count(),
+      _start(start),
+      _cleanup(true),
+      _tsd(true),
+      _thread_parm(parameter),
+      _exit_code(0)
 {
-
     pthread_attr_init(&_handle.thatt);
+
     _handle.thid = 0;
 }
 
 Thread::~Thread()
 {
-   try 
-   {
-      
-      empty_tsd();
-      if( (! _is_detached) && (_handle.thid != 0) && (_cancelled == false))
-      {
-            pthread_join(*(pthread_t *)&_handle.thid,NULL);
-      }
-      pthread_attr_destroy(&_handle.thatt);
-   }
-   catch(...)
-   {
-   }
-   
+    try
+    {
+        join();
+        pthread_attr_destroy(&_handle.thatt);
+
+        empty_tsd();
+    }
+    catch (...)
+    {
+        // Do not allow the destructor to throw an exception
+    }
 }
-
-
 
 PEGASUS_NAMESPACE_END

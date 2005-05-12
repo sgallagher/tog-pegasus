@@ -388,9 +388,9 @@ Condition::Condition() : _disallow(0)
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 }
 
-Condition::Condition(const Mutex& mutex)  : _disallow(0)
+Condition::Condition(Mutex& mutex)  : _disallow(0)
 {
-   _cond_mutex.reset(const_cast<Mutex *>(&mutex));
+   _cond_mutex.reset(&mutex);
    _destroy_mut = false;
    pthread_cond_init((PEGASUS_COND_TYPE *)&_condition, 0);
 }

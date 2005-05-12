@@ -206,8 +206,7 @@ table { background-color: #d5dee3;
       hub. Services communicate with each other <i>via</i> the Meta
       Dispatcher.
 	<div class="exampleOuter"><div class="exampleInner">
-      <pre>
-      Service A--Message----1----> (block on semaphore)
+      <pre>      Service A--Message----1----> (block on semaphore)
                                   |
                                   |
                                   Meta Dispatcher| 
@@ -271,8 +270,7 @@ table { background-color: #d5dee3;
 
 	<ol>
 	<li><b>Define the Service Class</b></li>
-<pre>
-// Define our service class 
+<pre>// Define our service class 
 
 class MessageQueueClient : public MessageQueueService
 {
@@ -317,15 +315,13 @@ class MessageQueueClient : public MessageQueueService
 
 </pre>
       <li><b>Construct the Service</b></li>
-<pre>
-// Create our Service
+<pre>// Create our Service
    MessageQueueClient *q_client = 
           new MessageQueueClient("test client");
 
 </pre>
       <li><b>Register the Service</b></li>
-<pre>
-// Register our service with the Meta Dispatcher
+<pre>// Register our service with the Meta Dispatcher
    q_client-&gt;register_service("test client", 
                                q_client-&gt;_client_capabilities, 
                                q_client-&gt;_client_mask);
@@ -349,7 +345,6 @@ class MessageQueueClient : public MessageQueueService
 	program:
 
 <pre>
-
    Array&lt;Uint32&gt;; services; 
 
    while( services.size() == 0 )
@@ -380,7 +375,6 @@ class MessageQueueClient : public MessageQueueService
 <ol>
 <li><b>Define the Request and Response Message Pair by Inheriting from AsyncMessage.</b></li>
 <pre>
-
 class test_request : public AsyncRequest
 {
   
@@ -455,15 +449,13 @@ class test_response : public AsyncReply
       process the reply. 
 
 <pre>
-
 void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
 {
 
 </pre>
 <li><b>Construct the Request</b></li>
 
-<pre>
-   test_request *req = 
+<pre>   test_request *req = 
       new test_request(Base::get_next_xid(),
 		       0,
 		       qid,        // destination queue ID
@@ -474,14 +466,12 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
 
 <li><b>Send the message using <code>MessageQueueService::SendWait</code></b></li>
 
-<pre>
-   AsyncMessage *response = SendWait(req);
+<pre>   AsyncMessage *response = SendWait(req);
 
 </pre>
 
 <li><b>Process the Response.</b></i>
-<pre>
-   if( response != 0  )
+<pre>   if( response != 0  )
    {
       msg_count++; 
       delete response; 
@@ -517,7 +507,6 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
 	before inserting the request on the Service's queue. 
 
 <pre>
-
 Boolean MessageQueueServer::messageOK(const Message *msg)
 {
    if(msg->getMask() & message_mask::ha_async)
@@ -550,7 +539,6 @@ This method is called by the Service's background thread. Here is an
 	the message.
 
 <pre>
-
 void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *op)
 {
    if ( operation != 0 )
@@ -576,8 +564,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *op)
 	this method. <b>If the Service does not handle the Request it
 	  must pass the Request to the Base class by calling <code>Base::_handle_async_request(req)</code></b>
 
-<pre>
-void MessageQueueServer::_handle_async_request(AsyncRequest *req)
+<pre>void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 {
    if (req->getType() == 0x04100000 )
    {
@@ -602,8 +589,7 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 	  Request/Response pair. Here is an example from the test
 	  program. 
 
-<pre>
- 
+<pre> 
    if( msg-&gt;getType() == 0x04100000 )
    {
 
@@ -611,7 +597,6 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 	  <ol>
 	    <li><b>Construct the Reply</b></li>
 <pre>
-
       test_response *resp = 
 	 new test_response(msg-&gt;getKey(),
 			   msg-&gt;getRouting(),
@@ -625,8 +610,7 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 	    <li><b>Complete the Reply</b> by calling the following
 	    helper routine in the Base class</li>
 
-<pre>
-      _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
+<pre>      _completeAsyncResponse(msg, resp, ASYNC_OPSTATE_COMPLETE, 0);
 
    }
 </pre>
@@ -663,7 +647,6 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 	  </p>
 
 <pre>
-
    cout &lt;&lt; " sending LEGACY to test server" &lt;&lt; endl;
    
    Message *legacy = new Message(0x11100011, 
@@ -697,7 +680,6 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 	  </p>
 
 <pre>
-
 void MessageQueueService::handle_AsyncLegacyOperationStart(
                                                AsyncLegacyOperationStart *req)
 {
@@ -738,7 +720,6 @@ void MessageQueueService::handle_AsyncLegacyOperationStart(
 
 <li><b>Implement the virtual <code>_handle_async_request</code> method.</b></li>
 <pre>
-
 void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 {
    if (req->getType() == 0x04100000 )
@@ -753,8 +734,7 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
    }
 </pre>
 <li><b>Implement a dispatcher for <code>ASYNC_LEGACY_OP_START</code></b></li>
-<pre>
-   else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
+<pre>   else if ( req->getType() == async_messages::ASYNC_LEGACY_OP_START )
    {
       req->op->processing();
       handle_LegacyOpStart(static_cast<AsyncLegacyOperationStart *>(req));
@@ -767,7 +747,6 @@ void MessageQueueServer::_handle_async_request(AsyncRequest *req)
 </pre>
 <li><b>Implement a dispatcher for <code>ASYNC_LEGACY_OP_START</code></b></li>
 <pre>
-
 void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
 {
 
@@ -812,8 +791,7 @@ void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
 	      </p>
 <br>
 	      <div class="exampleOuter"><div class="exampleInner">
-      <pre>
-      Service A--Message----1----> 
+      <pre>      Service A--Message----1----> 
                                |
         . <-----------(return)-+----->-(loop)--->-+
         .                      |  Meta Dispatcher | 
@@ -849,7 +827,6 @@ void MessageQueueServer::handle_LegacyOpStart(AsyncLegacyOperationStart *req)
 
 	      <div class="exampleOuter"><div class="exampleInner">
 <pre>
-
 Boolean <b><font color=#000000>SendAsync</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> 
  		  Uint32 destination<font color=#990000>,</font>
  		  <font color=#009900>void</font> <font color=#990000>(</font><font color=#990000>*</font>callback<font color=#990000>)</font><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font><font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>,</font>
@@ -953,8 +930,7 @@ Boolean <b><font color=#000000>SendAsync</font></b><font color=#990000>(</font>A
 		callback function.
 	      </p>
 	      <div class="exampleOuter"><div class="exampleInner">
-		  <pre>
-<b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_handle_async_request</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
+		  <pre><b><font color=#0000FF>virtual</font></b> <font color=#009900>void</font> <b><font color=#000000>_handle_async_request</font></b><font color=#990000>(</font>AsyncRequest <font color=#990000>*</font>req<font color=#990000>)</font><font color=#990000>;</font>
 		  </pre>
 		  <div class="note">
 		    <var>AsyncRequest *req (In)</var> is the incoming
@@ -1002,7 +978,6 @@ if(req->op->read_flags() & ASYNC_OPFLAGS_CALLBACK )
 <div class="exampleOuter"><div class = "exampleInner">
 
 		  <pre>
-
 <b><font color=#0000FF>static</font></b> <font color=#009900>void</font> <b><font color=#000000>async_callback_function</font></b><font color=#990000>(</font>AsyncOpNode <font color=#990000>*</font>op<font color=#990000>,</font> MessageQueue <font color=#990000>*</font><font color=#990000>,</font> <font color=#009900>void</font> <font color=#990000>*</font><font color=#990000>)</font><font color=#990000>;</font>
 
 		  </pre>
@@ -1029,7 +1004,6 @@ if(req->op->read_flags() & ASYNC_OPFLAGS_CALLBACK )
 		    message to the <var>op</var> and set the
 		    <code>ASYNC_OPSTATE_COMPLETE</code> bit. <br><br>
 		    <pre>
-
 void my_class::async_callback_function(AsyncOpNode *op,
                                        MessageQueue *q,
                                        void *parm)
@@ -1053,18 +1027,14 @@ void my_class::async_callback_function(AsyncOpNode *op,
 
 	      <h3>Strategies for Handling Non-Blocking Responses</h3>
 	      <p>
-		All of the legacy message handling code in Pegasus is
-		syncrhonous, meaning that a service can send a request
+		All of the legacy message handling code in Pegasus is syncrhonous, meaning that a service can send a request
 		and receive the response in two adjacent lines of
 		code. Non-blocking messages are different because the
 		timing and existence of a response message is
-		undetermined. 
-	      </p>
+		undetermined. </p>
 	      <p>
 		There are couple of possible strategies for handing
-		non-blocking response messages. 
-		
-		<ol>
+		non-blocking response messages. <ol>
 		  <li>Seperate the request creation and sending code
 		  from the response handling code into distinct methods.</li>
 		<li>Handle request creation and sending and response
@@ -1078,7 +1048,6 @@ void my_class::async_callback_function(AsyncOpNode *op,
 		  <ol>
 		    <li>Write the request generation method.
 		  <pre>
-
  void my_class::generate_request(Uint32 destination)
 {
    AsyncOpNode *op = get_op();
@@ -1092,7 +1061,6 @@ void my_class::async_callback_function(AsyncOpNode *op,
 		      </li>
 		    <li> Write the request handling method.
 		      <pre>
-
 void my_class::handle_response(AsyncOpNode *op)
 {
    my_response *res = op-&gt;get_response();
@@ -1109,7 +1077,6 @@ void my_class::handle_response(AsyncOpNode *op)
 		    <li> Have your callback method call your response
 		      method.
 		      <pre>
-
 void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm) 
 {
    my_class *myself = static_cast&lt;queue&gt;
@@ -1128,21 +1095,18 @@ void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm)
 	      <p>
 		This strategy requires two separate code blocks within
 		the request/response method, and conditional execution
-		depending on the status of the operation. 
-	      </p>
+		depending on the status of the operation. </p>
 	      <p>
 		I think the advantage of this strategy is that it
 		matches more closely the current<br>
 		<code>handleEnqueue(Message *msg)</code> code
-		convention that is in Pegasus.
-	      </p>
+		convention that is in Pegasus. </p>
 
 	      <div class="exampleOuter">
 		<div class="exampleInner">
 		  <ol>
 		    <li>Write the request generation block.
 		  <pre>
-
  void my_class::handle_operation(AsyncOpNode *op)
 {
    if(op == NULL)
@@ -1164,7 +1128,6 @@ void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm)
 		      </li>
 		    <li> Write the request handling block.
 		      <pre>
-
  void my_class::handle_operation(AsyncOpNode *op)
 {
    if(op == NULL)
@@ -1194,7 +1157,6 @@ void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm)
 		    <li> Have your callback method call your handler
 		      method.
 		      <pre>
-
 void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm) 
 {
    my_class *myself = static_cast&lt;queue&gt;
@@ -1214,8 +1176,7 @@ void my_class:my_callback(AsyncOpNode *op, MessageQueue *queue, void *parm)
 
 <h3>cimom (Meta Dispatcher)</h3>
 
-<pre>
-<tt>
+<pre><tt>
 <i><font color=#9A1900>//%///-*-c++-*-/////////////////////////////////////////////////////////////////</font></i>
 <i><font color=#9A1900>//</font></i>
 <i><font color=#9A1900>// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,</font></i>
@@ -1395,8 +1356,7 @@ PEGASUS_NAMESPACE_END
 
 <h3>MessageQueueService</h3>
 
-<pre>
-<tt>
+<pre><tt>
 <i><font color=#9A1900>//%////-*-c++-*-////////////////////////////////////////////////////////////////</font></i>
 <i><font color=#9A1900>//</font></i>
 <i><font color=#9A1900>// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM</font></i>
@@ -1550,31 +1510,36 @@ PEGASUS_NAMESPACE_END
 
 <h3>Asynchronous Messages</h3>
 
-<pre>
-<tt>
-<i><font color=#9A1900>//%///-*-c++-*-/////////////////////////////////////////////////////////////////</font></i>
-<i><font color=#9A1900>//</font></i>
-<i><font color=#9A1900>// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,</font></i>
-<i><font color=#9A1900>// The Open Group, Tivoli Systems</font></i>
-<i><font color=#9A1900>//</font></i>
-<i><font color=#9A1900>// Permission is hereby granted, free of charge, to any person obtaining a copy</font></i>
-<i><font color=#9A1900>// of this software and associated documentation files (the "Software"), to</font></i>
-<i><font color=#9A1900>// deal in the Software without restriction, including without limitation the</font></i>
-<i><font color=#9A1900>// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or</font></i>
-<i><font color=#9A1900>// sell copies of the Software, and to permit persons to whom the Software is</font></i>
-<i><font color=#9A1900>// furnished to do so, subject to the following conditions:</font></i>
-<i><font color=#9A1900>//</font></i>
-<i><font color=#9A1900>// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN</font></i>
-<i><font color=#9A1900>// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED</font></i>
-<i><font color=#9A1900>// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT</font></i>
-<i><font color=#9A1900>// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR</font></i>
-<i><font color=#9A1900>// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT</font></i>
-<i><font color=#9A1900>// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN</font></i>
-<i><font color=#9A1900>// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION</font></i>
-<i><font color=#9A1900>// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</font></i>
-<i><font color=#9A1900>//</font></i>
-<i><font color=#9A1900>//==============================================================================</font></i>
-<i><font color=#9A1900>//</font></i>
+<pre><tt>
+<font color="#9A1900">//%2005////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the &quot;Software&quot;), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+</font><i><font color=#9A1900>//</font></i>
 <i><font color=#9A1900>// Author: Mike Day (mdday@us.ibm.com)</font></i>
 <i><font color=#9A1900>//</font></i>
 <i><font color=#9A1900>// Modified By:</font></i>
@@ -2082,8 +2047,7 @@ PEGASUS_NAMESPACE_END
 
 <h3>AsyncOpNode</h3>
 
-<pre>
-<tt>
+<pre><tt>
 <i><font color=#9A1900>//%///////////-*-c++-*-//////////////////////////////////////////////////////</font></i>
 <i><font color=#9A1900>//</font></i>
 <i><font color=#9A1900>// Copyright (c) 2000, 2001 The Open group, BMC Software, Tivoli Systems, IBM</font></i>
@@ -2598,7 +2562,4 @@ PEGASUS_NAMESPACE_END
 <!-- hhmts start -->
 Last modified: Wed Mar 13 12:26:56 EST 2002
 <!-- hhmts end -->
-  </body>
-</html>
-
-
+  </body></html>

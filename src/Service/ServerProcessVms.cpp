@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001, 2002 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -9,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -93,14 +99,14 @@ Boolean ServerProcess::isCIMServerRunning(void)
   return false;
 }
 
-int ServerProcess::cimserver_kill(int id) 
-{ 
+int ServerProcess::cimserver_kill(int id)
+{
   FILE *pid_file;
   pid_t pid = 0;
-  
+
   // open the file containing the CIMServer process ID
   pid_file = fopen(getPIDFileName(), "r");
-  if (!pid_file) 
+  if (!pid_file)
   {
       return (-1);
   }
@@ -121,7 +127,7 @@ int ServerProcess::cimserver_kill(int id)
   //
   // remove the file
   System::removeFile(getPIDFileName());
-  
+
   return(0);
 }
 // notify parent process to terminate so user knows that cimserver
@@ -132,7 +138,7 @@ void ServerProcess::notify_parent(int id)
   if (id)
    kill(ppid, SIGTERM);
   else
-   kill(ppid, PEGASUS_SIGUSR1); 
+   kill(ppid, PEGASUS_SIGUSR1);
 }
 
 // Platform specific run

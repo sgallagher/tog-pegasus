@@ -68,31 +68,31 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 //PG_SSLCertificate property names
-static const CIMName ISSUER_NAME_PROPERTY           = CIMName("IssuerName");
-static const CIMName SERIAL_NUMBER_PROPERTY         = CIMName("SerialNumber");
-static const CIMName SUBJECT_NAME_PROPERTY          = CIMName("SubjectName");
-static const CIMName USER_NAME_PROPERTY             = CIMName("RegisteredUserName");
-static const CIMName TRUSTSTORE_TYPE_PROPERTY       = CIMName("TruststoreType");
-static const CIMName FILE_NAME_PROPERTY             = CIMName("TruststorePath");
-static const CIMName NOT_BEFORE_PROPERTY            = CIMName("NotBefore");
-static const CIMName NOT_AFTER_PROPERTY             = CIMName("NotAfter");
+static const CIMName ISSUER_NAME_PROPERTY           = "IssuerName";
+static const CIMName SERIAL_NUMBER_PROPERTY         = "SerialNumber";
+static const CIMName SUBJECT_NAME_PROPERTY          = "SubjectName";
+static const CIMName USER_NAME_PROPERTY             = "RegisteredUserName";
+static const CIMName TRUSTSTORE_TYPE_PROPERTY       = "TruststoreType";
+static const CIMName FILE_NAME_PROPERTY             = "TruststorePath";
+static const CIMName NOT_BEFORE_PROPERTY            = "NotBefore";
+static const CIMName NOT_AFTER_PROPERTY             = "NotAfter";
 
 //PG_SSLCertificateRevocationList property names
 //also has IssuerName
-static const CIMName LAST_UPDATE_PROPERTY           = CIMName("LastUpdate");
-static const CIMName NEXT_UPDATE_PROPERTY           = CIMName("NextUpdate");
-static const CIMName REVOKED_SERIAL_NUMBERS_PROPERTY    = CIMName("RevokedSerialNumbers");
-static const CIMName REVOCATION_DATES_PROPERTY      = CIMName("RevocationDates");
+static const CIMName LAST_UPDATE_PROPERTY           = "LastUpdate";
+static const CIMName NEXT_UPDATE_PROPERTY           = "NextUpdate";
+static const CIMName REVOKED_SERIAL_NUMBERS_PROPERTY    = "RevokedSerialNumbers";
+static const CIMName REVOCATION_DATES_PROPERTY      = "RevocationDates";
 
 //method names for PG_SSLCertificate
-static const CIMName METHOD_ADD_CERTIFICATE         = CIMName("addCertificate");
-static const CIMName PARAMETER_CERT_CONTENTS        = CIMName("certificateContents");
-static const CIMName PARAMETER_USERNAME             = CIMName("userName");
-static const CIMName PARAMETER_TRUSTSTORE_TYPE      = CIMName("truststoreType");
+static const CIMName METHOD_ADD_CERTIFICATE         = "addCertificate";
+static const CIMName PARAMETER_CERT_CONTENTS        = "certificateContents";
+static const CIMName PARAMETER_USERNAME             = "userName";
+static const CIMName PARAMETER_TRUSTSTORE_TYPE      = "truststoreType";
 
 //method names for PG_SSLCertificateRevocationList
-static const CIMName METHOD_ADD_CRL                 = CIMName("addCertificateRevocationList");
-static const CIMName PARAMETER_CRL_CONTENTS         = CIMName("CRLContents");
+static const CIMName METHOD_ADD_CRL                 = "addCertificateRevocationList";
+static const CIMName PARAMETER_CRL_CONTENTS         = "CRLContents";
 
 //truststore and crlstore directory mutexes
 static Mutex _trustStoreMutex;
@@ -191,63 +191,49 @@ inline CIMDateTime getDateTime(const ASN1_UTCTIME *utcTime)
     return (dateTime);
 }
 
-/*
- * ATTN: Legal issues?????? This is being tracked.
- * Should probably rewrite parsing in our own words
- * Modified from the OpenSSL method do_subject in ca.cpp
- * subject is expected to be in the format /type0=value0/type1=value1/type2=...
+/**
+ * The issuer name should be in the format /type0=value0/type1=value1/type2=...
  * where characters may be escaped by \
  */
 inline X509_NAME *getIssuerName(char *issuer, long chtype)
 {
-    size_t buflen = strlen(issuer)+1; /* to copy the types and values into. due to escaping, the copy can only become shorter */
+	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "CertificateProvider::getIssuerName");
+
+	//allocate buffers for type-value pairs
+    size_t buflen = strlen(issuer)+1; 
     char *buf = (char*) malloc(buflen);
-    size_t max_ne = buflen / 2 + 1; /* maximum number of name elements */
-    char **ne_types = (char**) malloc(max_ne * sizeof (char *));
-    char **ne_values = (char**) malloc(max_ne * sizeof (char *));
+    size_t maxPairs = buflen / 2 + 1; 
+    char **types = (char**) malloc(maxPairs * sizeof (char *));  //types
+    char **values = (char**) malloc(maxPairs * sizeof (char *)); //values
+
+    if (!buf || !types || !values)
+    {
+        return NULL;
+    }
 
     char *sp = issuer, *bp = buf;
-    int i, ne_num = 0;
-
-    X509_NAME *n = NULL;
-    int nid;
-
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName");
-
-    BIO* bio_err = BIO_new(BIO_s_mem());
-
-    if (!buf || !ne_types || !ne_values)
-    {
-        BIO_printf(bio_err, "malloc error\n");
-        goto error;
-    }
-
-    if (*issuer != '/')
-    {
-        BIO_printf(bio_err, "Issuer does not start with '/'.\n");
-        goto error;
-    }
-    sp++; /* skip leading / */
+	int count = 0;
 
     while (*sp)
     {
         PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName WHILE");
 
-        /* collect type */
-        ne_types[ne_num] = bp;
+		if (*sp != '/') 
+		{
+			break;
+		}
+		sp++;
+
+        types[count] = bp;
         while (*sp)
         {
-            if (*sp == '\\') /* is there anything to escape in the type...? */
+            if (*sp == '\\')
             {
                 if (*++sp)
                 {
                     *bp++ = *sp++;
                 }
-                else
-                {
-                    BIO_printf(bio_err, "escape character at end of string\n");
-                    goto error;
-                }
+
             } else if (*sp == '=')
             {
                 sp++;
@@ -258,12 +244,8 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
                 *bp++ = *sp++;
             }
         }
-        if (!*sp)
-        {
-            BIO_printf(bio_err, "end of string encountered while processing type of subject name element #%d\n", ne_num);
-            goto error;
-        }
-        ne_values[ne_num] = bp;
+
+        values[count] = bp;
         while (*sp)
         {
             if (*sp == '\\')
@@ -272,15 +254,9 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
                 {
                     *bp++ = *sp++;
                 }
-                else
-                {
-                    BIO_printf(bio_err, "escape character at end of string\n");
-                    goto error;
-                }
             }
             else if (*sp == '/')
             {
-                sp++;
                 break;
             }
             else
@@ -289,49 +265,42 @@ inline X509_NAME *getIssuerName(char *issuer, long chtype)
             }
         }
         *bp++ = '\0';
-        ne_num++;
+        count++;
     }
+
 
     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName  WHILE EXIT");
 
-    if (!(n = X509_NAME_new()))
-        goto error;
+	//create the issuername object and add each type/value pair
+	X509_NAME* issuerNameNew = X509_NAME_new();
+	int nid;
 
-    for (i = 0; i < ne_num; i++)
+    for (int i = 0; i < count; i++)
     {
-        if ((nid=OBJ_txt2nid(ne_types[i])) == NID_undef)
-        {
-            BIO_printf(bio_err, "Subject Attribute %s has no known NID, skipped\n", ne_types[i]);
+		nid = OBJ_txt2nid(types[i]);
+
+		//if we don't recognize the name element or there is no corresponding value, continue to the next one
+		if (nid == NID_undef || !*values[i]) 
+		{
             continue;
         }
 
-        if (!*ne_values[i])
-        {
-            BIO_printf(bio_err, "No value provided for Subject Attribute %s, skipped\n", ne_types[i]);
-            continue;
-        }
-
-        if (!X509_NAME_add_entry_by_NID(n, nid, chtype, (unsigned char*)ne_values[i], -1,-1,0))
-            goto error;
+        if (!X509_NAME_add_entry_by_NID(issuerNameNew, nid, chtype, (unsigned char*)values[i], -1, -1, 0))
+		{
+			X509_NAME_free(issuerNameNew);
+			issuerNameNew = NULL;
+			break;
+		}
     }
 
-    free(ne_values);
-    free(ne_types);
+    free(types);
+    free(values);
     free(buf);
 
-    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "CertificateProvider::getIssuerName RETURN");
+    PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Got issuerName successfully");
+	PEG_METHOD_EXIT();
 
-    return n;
-
-error:
-    X509_NAME_free(n);
-    if (ne_values)
-        free(ne_values);
-    if (ne_types)
-        free(ne_types);
-    if (buf)
-        free(buf);
-    return NULL;
+    return issuerNameNew;
 }
 
 /** Determines whether the user has sufficient access to perform a certificate operation.
@@ -616,7 +585,6 @@ void CertificateProvider::enumerateInstances(
                     //ATTN: Is this a two-way hash?  If so, I don't need to read in the CRL just to determine the issuer name
                     BIO* inFile = BIO_new(BIO_s_file());
                     X509_CRL* xCrl = NULL;
-                    char issuerName[1024];
                     char fullPathName[1024];
 
                     sprintf(fullPathName, "%s/%s", (const char*)_crlStore.getCString(), (const char*)filename.getCString());
@@ -1201,7 +1169,7 @@ void CertificateProvider::invokeMethod(
             }
     
             //check for a valid truststore
-            if (truststoreType != SERVER_TRUSTSTORE && truststoreType != EXPORT_TRUSTSTORE && truststoreType != CLIENT_TRUSTSTORE)
+            if (truststoreType != SERVER_TRUSTSTORE && truststoreType != EXPORT_TRUSTSTORE)
             {
                 throw CIMException(CIM_ERR_INVALID_PARAMETER, "The truststore specified by truststoreType is invalid.");
             }
@@ -1295,7 +1263,6 @@ void CertificateProvider::invokeMethod(
             case EXPORT_TRUSTSTORE : storePath = _exportSSLTrustStore; 
                                      storeId = "export";
                                      break;
-            case CLIENT_TRUSTSTORE : break; //ATTN: Fill this in
             default: break;
             }
     

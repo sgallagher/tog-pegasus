@@ -3293,7 +3293,7 @@ const char* XmlWriter::keyBindingTypeToString (CIMKeyBinding::Type type)
             PEGASUS_ASSERT(false);
     }
 
-    PEGASUS_UNREACHABLE(return "unknown";)
+    return "unknown";
 }
 
 PEGASUS_NAMESPACE_END

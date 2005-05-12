@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -60,7 +66,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 /**
- *  
+ *
  *  <h2>CIMOMResponse:</h2>
  *  <p>
  *  CIMOMResponse reads the CIM-XML response from CIMOM and provides
@@ -88,7 +94,7 @@ public class CIMOMResponse
     private int sbIndex = 0;
 
 
-    private static final String GENERIC_IO_ERROR = 
+    private static final String GENERIC_IO_ERROR =
 	"An I/O error occurred during " +
 	"the processing of the CIM request.";
 
@@ -125,10 +131,10 @@ public class CIMOMResponse
     private static final String CIMVALIDATION      = "CIMValidation";
 
     private static final String AUTHORIZATION = "Authorization";
-    private static final String CIMFUNCTIONLGROUPS = 
+    private static final String CIMFUNCTIONLGROUPS =
 	"CIMSupportedFunctionalGroups";
 
-    private static final String CONTENTTYPE   = 
+    private static final String CONTENTTYPE   =
 	"application/xml; charset=\"utf-8\"";
 
     private static final String UTF8          = "\"utf-8\"";
@@ -140,7 +146,7 @@ public class CIMOMResponse
     /**
      * Constructor reads entire HTTP response from CIMOM
      *
-     * @param responseIS 
+     * @param responseIS
      *   HTTP CIMOM Response input stream
      * @param responseLog
      *   Used to log messages
@@ -171,20 +177,20 @@ public class CIMOMResponse
 	trace.traceStr("getCIMResponse: sb.length-> " + String.valueOf(sbLen) );
 	trace.traceStr("getCIMResponse: sb-> \n" + sb.toString() );
 	trace.traceStr("getCIMResponse: EXIT \n" );
-    } 
+    }
 
 
     //*********************************************************************
     /**
     * Parses the HTTP Response headers and sets the appropriate
     * HttpServletResponse fields.
-    * @param 
+    * @param
     *   httpRequest - HTTP Request that was sent by the client
-    * @param 
+    * @param
     *   httpResponse - HTTP Response that is sent back to the client
     */
     //*********************************************************************
-  public void setResponse( HttpServletRequest  request, 
+  public void setResponse( HttpServletRequest  request,
 			    HttpServletResponse response )
   {
 
@@ -192,18 +198,18 @@ public class CIMOMResponse
     StringBuffer b = null;
     int sbLen = 0;
     int sbIndex = 0;
-    
+
     int httpVersion = HTTP_VER_BAD;
     String line     = null;
     StringTokenizer strToken = null;
     String  nextToken        = null;
     boolean endOfStream      = false;
     int contentLength        = 0;
- 
+
     //
     // Send CIM response back to the caller
     //
-        
+
     // Set the HTTP headers
     trace.traceStr("setResponse(): ENTRY \n" );
     try
@@ -215,13 +221,13 @@ public class CIMOMResponse
 
             strToken  = new StringTokenizer( inputString, " " );
             nextToken = strToken.nextToken();  // HTTP Version
- 
+
             // Check for HTTP Version
-            if ( nextToken.equalsIgnoreCase(HTTP10)) 
+            if ( nextToken.equalsIgnoreCase(HTTP10))
               {
                 httpVersion = HTTP_VER_10;
-              } 
-            else if ( nextToken.equalsIgnoreCase(HTTP11) ) 
+              }
+            else if ( nextToken.equalsIgnoreCase(HTTP11) )
               {
                 httpVersion = HTTP_VER_11;
               }
@@ -242,7 +248,7 @@ public class CIMOMResponse
             return;
           }
 
-       
+
         // Parse response headers
 
         for (;;)
@@ -263,7 +269,7 @@ public class CIMOMResponse
                 break;
               }
 
-            strToken = 
+            strToken =
               new StringTokenizer( inputString, HTTP_TAGDELIMETER );
             nextToken = strToken.nextToken();      // Tag
 	    trace.traceStr("setResponse(): Tag=" + nextToken + "\n");
@@ -358,7 +364,7 @@ public class CIMOMResponse
         if  ( !(requestMethod.equalsIgnoreCase(OPTIONS)) &&
               ( endOfStream == false ) )
           {
-  
+
             // Copy XML payload to response
 
             // get Servlet outputstream
@@ -366,7 +372,7 @@ public class CIMOMResponse
             OutputStream out = response.getOutputStream();
 	    trace.traceStr("setResponse(): after getting outputstream \n" );
 
-            // Get the byte Array outputstream 
+            // Get the byte Array outputstream
             byte[] outByteArray = getResByteArray();
 
 
@@ -398,9 +404,9 @@ public class CIMOMResponse
     /**
     * Constructs a String from all data on a DataInputStream
     *
-    * @param 
+    * @param
     *   is - DataInputStream instance
-    * @return 
+    * @return
     *   String Object
     */
     //*********************************************************************
@@ -423,15 +429,15 @@ public class CIMOMResponse
        int contentLength = 0;
        int contentOffset = 0;
        int numBytesToRead   = MAX_READ_LEN;
-     
+
        byte[] buf = new byte[MAX_READ_LEN];
        while( true )
          {
-           try 
+           try
              {
 		 trace.traceStr("stream2String: Reading... \n" );
 		 bytesRead = is.read( buf, 0, MAX_READ_LEN );
-		 if( bytesRead < 0 ) 
+		 if( bytesRead < 0 )
                  {
                    throw new EOFException();
                  }
@@ -445,32 +451,32 @@ public class CIMOMResponse
 		       if( firstRead == true )
 			   {
 			       trace.traceStr("First read. \n" );
-			       
+
 			       // Look in first read and get the content length
-			       int contentIndex = 
+			       int contentIndex =
 				   inputString.indexOf( HTTP_CONTENTLENGTH );
-			       int endOfLine = 
+			       int endOfLine =
 				   inputString.indexOf( EOL, contentIndex );
 			       String clString = inputString.substring(
 					             contentIndex, endOfLine );
-			       StringTokenizer commandTok = 
+			       StringTokenizer commandTok =
 				   new StringTokenizer( clString,
 							HTTP_TAGDELIMETER );
 			       String nextToken = commandTok.nextToken(); // Tag
 			       nextToken = commandTok.nextToken();       // Value
 			       String valString = nextToken.trim();
-			       trace.traceStr("valString=" + 
+			       trace.traceStr("valString=" +
 					      valString + "\n" );
 			       contentLength = Integer.parseInt( valString );
 			       contentOffset = inputString.indexOf( EOH,
 								   endOfLine );
 			       numBytesToRead = contentLength + contentOffset -
 				                bytesRead;
-			       trace.traceStr("contentLength =" + 
+			       trace.traceStr("contentLength =" +
 					      contentLength + "\n" );
-			       trace.traceStr("contentOffset =" + 
+			       trace.traceStr("contentOffset =" +
 					      contentOffset + "\n" );
-			       trace.traceStr("numBytesToRead = " + 
+			       trace.traceStr("numBytesToRead = " +
 					      numBytesToRead + "\n" );
 			       firstRead = false;
 			   }
@@ -527,7 +533,7 @@ public class CIMOMResponse
   /**
    *  Reads the next HTTP header line from the CIMOM response
    *
-   * @return 
+   * @return
    *   The next line of the HTTP header without the "\r\n"
    */
   //*********************************************************************
@@ -568,13 +574,13 @@ public class CIMOMResponse
     catch( StringIndexOutOfBoundsException sioob )
       {
         // TODO: Handle internal error
-        log.logStr("Exception: String index out of bounds " + 
+        log.logStr("Exception: String index out of bounds " +
                                                  sioob.getMessage() + "\n" );
       }
     catch( IndexOutOfBoundsException ioob )
       {
         // TODO: Handle internal error
-        log.logStr("Exception: Index out of bounds " + 
+        log.logStr("Exception: Index out of bounds " +
                                                  ioob.getMessage() + "\n" );
       }
     trace.traceStr("getNextLine(): returnString: \n"  + returnString );
@@ -587,7 +593,7 @@ public class CIMOMResponse
   /**
    *  Gets the CIM-XML payload.
     *
-    * @return 
+    * @return
     *   A byte array of the CIM-XML payload.
     */
     //*********************************************************************
@@ -596,7 +602,7 @@ public class CIMOMResponse
     trace.traceStr("getResByteArray(): ENTRY \n" );
     trace.traceStr("getResByteArray(): sbIndex-> " + sbIndex);
     trace.traceStr("getResByteArray(): sbLen-> "   + sbLen);
-    
+
     int lineLen = 0;
     String payloadString = null;
 
@@ -613,7 +619,7 @@ public class CIMOMResponse
     catch( StringIndexOutOfBoundsException sioob )
       {
         // TODO: Handle internal error
-        log.logStr("getResByteArray(): String index out of bounds " + 
+        log.logStr("getResByteArray(): String index out of bounds " +
                                                  sioob.getMessage() + "\n" );
       }
     trace.traceStr("getResByteArray(): EXIT \n" );

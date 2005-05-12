@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -20,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-//
+/
 // Author: Warren Otsuka, Hewlett-Packard Company
 //         (warren_otsuka@hp.com)
 //
@@ -40,7 +46,7 @@ import java.util.Date;
 
 
 /**
- *  
+ *
  *  <h2>Log:</h2>
  *  <p>
  *  Trace logs trace messages to a trace file
@@ -56,15 +62,15 @@ public class Trace
     private boolean     isTracing = false;
     private PrintWriter tracePW   = null;
 
-  
+
     // ************************************************************************
     /**
-     *   The default constructor. 
-     **/    
+     *   The default constructor.
+     **/
     // ************************************************************************
-    
+
     public Trace()
-    {    
+    {
     }
 
     // ************************************************************************
@@ -75,12 +81,12 @@ public class Trace
      *   Directory path to the trace file
      * @param traceFileName
      *   File name of the trace file
-     **/    
+     **/
     // ************************************************************************
-    
+
     public Trace( String logDir,
 		String traceFileName )
-    {    
+    {
 	try
 	    {
 		tracePW = new PrintWriter( new FileOutputStream(
@@ -100,7 +106,7 @@ public class Trace
     /**
     * Get trace file PrintWriter
     *
-    * @return 
+    * @return
     *    Trace PrintWriter
     */
     //*********************************************************************

@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: 
+// Author:
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
 //
@@ -92,13 +98,13 @@ public final class  ConnectionPool
     public ConnectionPool(String xmlCimPort,
                           Log    servletLog,
                           Trace  servletTrace,
-                          boolean authEnabled ) 
+                          boolean authEnabled )
     {
 
         xmlCIMPort =  xmlCimPort;
         log   = servletLog;
         trace = servletTrace;
-        isAuthEnabled = authEnabled;  
+        isAuthEnabled = authEnabled;
 
         trace.traceStr( "ConnectionPool(): ENTRY \n" );
 
@@ -107,15 +113,15 @@ public final class  ConnectionPool
         socketsPool =new Object[maxConnections];
         available = 0;
         openConnections = 0;
-        
+
         trace.traceStr( "ConnectionPool(): EXIT\n" );
-        
+
     }
 
     //*********************************************************************
     /**
     * Default Constructor
-    * 
+    *
      * @param xmlCimPort
      *   Cim Server socket port
      * @param servletLog
@@ -130,13 +136,13 @@ public final class  ConnectionPool
                           Log    servletLog,
                           Trace  servletTrace,
                           boolean authEnabled,
-                          int maxConn ) 
+                          int maxConn )
     {
 
         xmlCIMPort =  xmlCimPort;
         log   = servletLog;
         trace = servletTrace;
-        isAuthEnabled = authEnabled;  
+        isAuthEnabled = authEnabled;
         this.maxConnections = maxConn;
 
         trace.traceStr( "ConnectionPool(): ENTRY \n" );
@@ -146,7 +152,7 @@ public final class  ConnectionPool
         openConnections = 0;
 
         trace.traceStr( "ConnectionPool(): EXIT\n" );
- 
+
     }
 
 
@@ -154,19 +160,19 @@ public final class  ConnectionPool
     /**
     * Add the object to the pool, silent nothing if the pool is full
     *
-    * @param  thisSockObj   
-    *   CIMServer Object to add to pool 
+    * @param  thisSockObj
+    *   CIMServer Object to add to pool
     */
     //*********************************************************************
-    private void addToPool(CIMServerSocket thisSockObj) 
+    private void addToPool(CIMServerSocket thisSockObj)
     {
         trace.traceStr( "addToPool(): ENTRY \n" );
 
-        //synchronized( lock ) 
-        //synchronized( socketsPool ) 
-        synchronized( syncAvail ) 
+        //synchronized( lock )
+        //synchronized( socketsPool )
+        synchronized( syncAvail )
         {
-            if( available <  maxConnections ) 
+            if( available <  maxConnections )
             {
                 socketsPool[available] = (Object)thisSockObj;
                 available = available + 1;
@@ -185,11 +191,11 @@ public final class  ConnectionPool
     /**
     * Return the size of the pool
     *
-    * @return 
-    *    max connections 
+    * @return
+    *    max connections
     */
     //*********************************************************************
-    private int getMaxConnections() 
+    private int getMaxConnections()
     {
         trace.traceStr( "getMaxConnections(): ENTRY \n" );
 
@@ -199,10 +205,10 @@ public final class  ConnectionPool
 
     //*********************************************************************
     /**
-    * Get a socket object from the pool if available else throw 
+    * Get a socket object from the pool if available else throw
     * SocketUnavailableException
     *
-    * @return 
+    * @return
     *     CIMServerSocket  return a socket connection
     *
     * @throws
@@ -210,22 +216,22 @@ public final class  ConnectionPool
     *     AuthenticationFailedException for failure to authenticate
     */
     //*********************************************************************
-    public  CIMServerSocket borrowConnection() 
+    public  CIMServerSocket borrowConnection()
                    throws SocketUnavailableException,
-                          AuthenticationFailedException 
+                          AuthenticationFailedException
     {
         CIMServerSocket returnSock = null;
 
         trace.traceStr( "borrowConnection(): ENTRY \n" );
         trace.traceStr( "Available is " + available + "\n" );
 
-        //synchronized( lock ) 
-        //synchronized( socketsPool ) 
-        synchronized( syncAvail ) 
+        //synchronized( lock )
+        //synchronized( socketsPool )
+        synchronized( syncAvail )
         {
 
             // If there are sockets available
-            if( available > 0 ) 
+            if( available > 0 )
             {
                 trace.traceStr( "Available is " + available + "\n" );
 
@@ -234,32 +240,32 @@ public final class  ConnectionPool
 
                 returnSock = (CIMServerSocket) socketsPool[available];
                 socketsPool[available] = null;
-            
-                // We will just return 
+
+                // We will just return
                 return returnSock;
             }
          }  // end syncAvail
 
          //else if ( openConnections < maxConnections )
-        synchronized( syncLock ) 
+        synchronized( syncLock )
         {
             if ( openConnections < maxConnections )
             {
                 // Check whether we have any open connections in use
                 // If not available, can we create one
                 trace.traceStr( "OpenConnections is " + openConnections + " - will get one \n" );
-                try 
+                try
                 {
                         returnSock = getConnectionToCimServer();
                         openConnections = openConnections + 1;
                 }
-                catch ( AuthenticationFailedException afe) 
+                catch ( AuthenticationFailedException afe)
                 {
                        trace.traceStr( "AuthenticationFailedException" + afe.getMessage() + " \n" );
                        throw new AuthenticationFailedException("Authentication Failed");
                 }
 
-                // We will just return 
+                // We will just return
                 return returnSock;
              }
              else
@@ -279,10 +285,10 @@ public final class  ConnectionPool
 
                     // Why is this so complicated...
 
-                    // 
+                    //
                     // OK There is a socket available
                     //
-                    if( available > 0 ) 
+                    if( available > 0 )
                     {
                         trace.traceStr( "Available is " + available + "\n" );
 
@@ -291,8 +297,8 @@ public final class  ConnectionPool
 
                         returnSock = (CIMServerSocket) socketsPool[available];
                         socketsPool[available] = null;
-            
-                        // We will just return 
+
+                        // We will just return
                         return returnSock;
                     }
                 }
@@ -312,13 +318,13 @@ public final class  ConnectionPool
     */
     //*********************************************************************
     public void returnConnection(CIMServerSocket takeBackObject,
-                                 boolean isCloseSocket) 
+                                 boolean isCloseSocket)
     {
       trace.traceStr("returnConnection(): ENTRY \n" );
 
       //
       // close the socket in case of failure else addToPool
-      // isClose is decided by CIMServlet while trying to talk to 
+      // isClose is decided by CIMServlet while trying to talk to
       // CIMServer
       //
       if ( isCloseSocket )
@@ -344,11 +350,11 @@ public final class  ConnectionPool
     //*********************************************************************
     /**
     *   Connects to CIMOM using a Socket interface.
-    *   It assumes that initCimConfiguration is called before. 
-    *  
+    *   It assumes that initCimConfiguration is called before.
+    *
     *   sets xmlCIMSocket else sets to null if an error.
     *
-    * @return 
+    * @return
     *   CIMServerSocket - socket connection to CIM Server
     */
     //*********************************************************************
@@ -366,7 +372,7 @@ public final class  ConnectionPool
 
       trace.traceStr("getConnectionToCimServer(): ENTRY \n" );
 
-      try 
+      try
       {
         InetAddress ia  = InetAddress.getLocalHost();
         xmlCIMHost      = ia.getHostName();
@@ -431,10 +437,10 @@ public final class  ConnectionPool
       {
             //process authentication
             LocalAuthHandler  authHandler = new LocalAuthHandler();
-          
-            try 
+
+            try
             {
-                  authHandler.processAuthentication(xmlCIMServerInStream,  
+                  authHandler.processAuthentication(xmlCIMServerInStream,
                                                     xmlCIMServerOut);
             }
             catch ( AuthenticationFailedException afe)
@@ -443,8 +449,8 @@ public final class  ConnectionPool
                   trace.traceStr("getConnectionToCimServer(): EXIT \n" );
                   throw afe;
             }
-          
-       } 
+
+       }
 
        trace.traceStr("getConnectionToCimServer(): EXIT \n" );
        return( cimServerSocket );

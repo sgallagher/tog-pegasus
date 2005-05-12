@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -40,7 +46,7 @@ import java.util.Date;
 
 
 /**
- *  
+ *
  *  <h2>Log:</h2>
  *  <p>
  *  Log logs messages to a logfile
@@ -56,15 +62,15 @@ public class Log
     private boolean     isLogging = false;
     private PrintWriter logPW     = null;
 
-  
+
     // ************************************************************************
     /**
-     *   The default constructor. 
-     **/    
+     *   The default constructor.
+     **/
     // ************************************************************************
-    
+
     public Log()
-    {    
+    {
     }
 
     // ************************************************************************
@@ -74,12 +80,12 @@ public class Log
      *   Directory path to the trace file
      * @param traceFileName
      *   File name of the trace file
-     **/    
+     **/
     // ************************************************************************
-    
+
     public Log( String logDir,
 		String logFileName )
-    {    
+    {
 	//
 	// CIMservlet will have its own logging file
 	//

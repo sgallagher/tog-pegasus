@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,7 +27,7 @@
 //
 //==============================================================================
 //
-// Authors: 
+// Authors:
 //        Warren Otsuka, Hewlett-Packard Company (warren_otsuka@hp.com)
 //        Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
@@ -41,7 +47,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- *  
+ *
  *  <h2>CIMServerSocket</h2>
  *  <p>
  *  CIMServerSocket contains the socket to the CIMServer and the
@@ -64,13 +70,13 @@ public class CIMServerSocket
 
     // ************************************************************************
     /**
-     *   The constructor 
-     *   
+     *   The constructor
+     *
      * @param servletLog
      *   Used to log messages
      * @param servletTrace
      *   Used to log trace messages
-     **/    
+     **/
     // ************************************************************************
     public CIMServerSocket( Log    servletLog,
 			    Trace  servletTrace )
@@ -94,7 +100,7 @@ public class CIMServerSocket
      *   Used to log messages
      * @param servletTrace
      *   Used to log trace messages
-     **/    
+     **/
     // ************************************************************************
     public CIMServerSocket( String xmlCIMPort,
 			    Log    servletLog,
@@ -103,7 +109,7 @@ public class CIMServerSocket
                UnknownHostException,
                SocketException,
                IOException
-    {    
+    {
 
 	log   = servletLog;
 	trace = servletTrace;
@@ -119,12 +125,12 @@ public class CIMServerSocket
         int sndBufSize = serverSocket.getSendBufferSize();
         serverSocket.setSoTimeout( DEFAULT_SOCKET_TIMEOUT );
         serverSocket.setReceiveBufferSize( CIMServlet.MAX_READ_LEN );
-        log.logStr( "CIM Servlet Connected to CIM Server on port " + 
+        log.logStr( "CIM Servlet Connected to CIM Server on port " +
 		    xmlCIMPort);
-	
+
 	// OutputStream for CIM Server request
 	socketOS = serverSocket.getOutputStream();
-	
+
 	// InputStream for CIM Server request
 	socketIS = serverSocket.getInputStream();
 	trace.traceStr( "CIMServerSocket(): EXIT \n" );
@@ -147,7 +153,7 @@ public class CIMServerSocket
     /**
     * Returns the socket.
     *
-    * @return 
+    * @return
     *   Socket - socket connection to CIM Server
     */
     //*********************************************************************
@@ -173,7 +179,7 @@ public class CIMServerSocket
     /**
     * Returns the socket input stream.
     *
-    * @return 
+    * @return
     *   Socket input stream;
     */
     //*********************************************************************
@@ -199,7 +205,7 @@ public class CIMServerSocket
     /**
     * Returns the socket output stream.
     *
-    * @return 
+    * @return
     *   Socket output stream;
     */
     //*********************************************************************

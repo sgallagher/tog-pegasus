@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -21,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: 
+// Author:
 //         Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -61,7 +67,7 @@ public class LocalAuthHandler
     private static final int MAX_READ_LEN  = 8192;
     private static final int MAX_WRITE_LEN = 8192;
 
-    
+
     public LocalAuthHandler() { }
     //*********************************************************************
     /**
@@ -102,13 +108,13 @@ public class LocalAuthHandler
              return(-1);
           }
         return(ret);
-    } 
+    }
     //*********************************************************************
     /**
     * Read a line to HTTP socket
     *
     * @param inStream
-    *        
+    *
     */
     //*********************************************************************
     private String readFromSocket(InputStream socketIn)
@@ -148,7 +154,7 @@ public class LocalAuthHandler
     * Read the file and send data back to caller
     *
     * @param   fileName  Name of file to read
-    *        
+    *
     * @return  fileData  data read from file
     */
     //*********************************************************************
@@ -161,18 +167,18 @@ public class LocalAuthHandler
        if ( fileName == null )
         return(null);
 
-       try 
+       try
        {
            //InputStream fileIn = new InputStream(new FileInputStream(fileName));
            //InputStream fileIn = (InputStream) new FileInputStream(fileName);
            BufferedReader fileIn = new BufferedReader(new FileReader(fileName));
-          
+
            sbuf = new StringBuffer();
            String oneLine;
-         
+
            while ( ( oneLine = fileIn.readLine()) != null)
                 sbuf.append(oneLine);
-       }       
+       }
        catch ( IOException ioe)
        {
              System.out.println("Exception: " + ioe.getMessage());
@@ -207,7 +213,7 @@ public class LocalAuthHandler
 
          // Write user Name
          ret = writeToSocket(socketOut, ROOTUSER);
-         if ( ret == -1) 
+         if ( ret == -1)
          {
             throw new AuthenticationFailedException(
                       "socket write failed for root");
@@ -215,9 +221,9 @@ public class LocalAuthHandler
 
          // Read Socket data : name of the File
          String filePath = readFromSocket(socketIn);
-         if ( filePath == null ) 
+         if ( filePath == null )
          {
-         
+
             // Server not responded
             throw new AuthenticationFailedException(
                       "unable to read data from socket");
@@ -231,16 +237,16 @@ public class LocalAuthHandler
             throw new AuthenticationFailedException(
                       "failed to read from file");
          }
-         
-            
+
+
          // Write file Content back to Server
          ret = writeToSocket(socketOut, fileData);
-         if ( ret == -1) 
+         if ( ret == -1)
          {
             throw new AuthenticationFailedException(
                       "failed to write to socket");
          }
-        
+
          try {
             // make sure we flush all before new
             // data

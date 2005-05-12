@@ -1,7 +1,13 @@
-//%/////////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Copyright (c) 2000, 2001 BMC Software, Hewlett-Packard Company, IBM,
-// The Open Group, Tivoli Systems
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -32,7 +38,7 @@ package org.opengroup.pegasus.servlet;
  * Exception for Authentication Failure.
  */
 
-public class AuthenticationFailedException extends Exception 
+public class AuthenticationFailedException extends Exception
 {
 
   /**
@@ -40,8 +46,8 @@ public class AuthenticationFailedException extends Exception
    * @param msg The associated error message
    */
   private static final String failedMsg = "AuthenticationFailed: ";
- 
-  public AuthenticationFailedException(String msg) 
+
+  public AuthenticationFailedException(String msg)
   {
         super( failedMsg + msg) ;
   }

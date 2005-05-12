@@ -1,4 +1,4 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,6 +6,8 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -13,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -48,7 +50,7 @@
 #include <Pegasus/Client/CIMClient.h>
 
 #include <iostream>
-      
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -136,13 +138,13 @@ void _deleteInstance(CIMClient & client)
                        << PEGASUS_STD (endl);
 }
 
-void _createHandlerInstance 
-    (CIMClient & client, 
+void _createHandlerInstance
+    (CIMClient & client,
      const String & name,
      const String & destination)
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-    handlerInstance.addProperty (CIMProperty (CIMName 
+    handlerInstance.addProperty (CIMProperty (CIMName
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     handlerInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -155,14 +157,14 @@ void _createHandlerInstance
     CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, handlerInstance);
 }
 
-void _createFilterInstance 
-    (CIMClient & client, 
+void _createFilterInstance
+    (CIMClient & client,
      const String & name,
      const String & query,
      const String & qlang)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
-    filterInstance.addProperty (CIMProperty (CIMName 
+    filterInstance.addProperty (CIMProperty (CIMName
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     filterInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -178,7 +180,7 @@ void _createFilterInstance
     CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, filterInstance);
 }
 
-void _createSubscriptionInstance 
+void _createSubscriptionInstance
     (CIMClient & client,
      const CIMObjectPath & filterPath,
      const CIMObjectPath & handlerPath)
@@ -191,12 +193,12 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, 
+    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE,
         subscriptionInstance);
 }
 
-void _deleteSubscriptionInstance 
-    (CIMClient & client, 
+void _deleteSubscriptionInstance
+    (CIMClient & client,
      const String & filterName,
      const String & handlerName)
 {
@@ -235,8 +237,8 @@ void _deleteSubscriptionInstance
     client.deleteInstance (INTEROP_NAMESPACE, subscriptionPath);
 }
 
-void _deleteHandlerInstance 
-    (CIMClient & client, 
+void _deleteHandlerInstance
+    (CIMClient & client,
      const String & name)
 {
     Array<CIMKeyBinding> keyBindings;
@@ -254,8 +256,8 @@ void _deleteHandlerInstance
     client.deleteInstance (INTEROP_NAMESPACE, path);
 }
 
-void _deleteFilterInstance 
-    (CIMClient & client, 
+void _deleteFilterInstance
+    (CIMClient & client,
      const String & name)
 {
     Array<CIMKeyBinding> keyBindings;
@@ -265,7 +267,7 @@ void _deleteFilterInstance
         System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name, 
+    keyBindings.append (CIMKeyBinding ("Name", name,
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
@@ -274,8 +276,8 @@ void _deleteFilterInstance
 
 void _usage ()
 {
-    PEGASUS_STD (cerr) 
-        << "Usage:" << PEGASUS_STD (endl) 
+    PEGASUS_STD (cerr)
+        << "Usage:" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication setup [ wql | cim:cql ]" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication createInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication deleteInstance" << PEGASUS_STD (endl)
@@ -290,8 +292,8 @@ void _setup (CIMClient & client, String& qlang)
         // InstCreation_for_Sample_LifecycleIndicationProviderClass, which is a subclass
         // of CIM_InstCreation. This filter also selects the properties:
         //    IndicationIdentifier, IndicationTime, SourceInstance
-        _createFilterInstance (client, 
-                               String ("LIFilter01"), 
+        _createFilterInstance (client,
+                               String ("LIFilter01"),
                                String ("SELECT IndicationIdentifier, IndicationTime, SourceInstance FROM InstCreation_for_Sample_LifecycleIndicationProviderClass"),
                                qlang);
     }
@@ -306,7 +308,7 @@ void _setup (CIMClient & client, String& qlang)
         // InstDeletion_for_Sample_LifecycleIndicationProviderClass, which is a subclass
         // of CIM_InstDeletion. This filter also selects the properties:
         //    IndicationIdentifier, SourceInstance
-        _createFilterInstance (client, 
+        _createFilterInstance (client,
                                String ("LIFilter02"),
                                String ("SELECT IndicationIdentifier, SourceInstance FROM InstDeletion_for_Sample_LifecycleIndicationProviderClass"),
                                qlang);
@@ -318,8 +320,8 @@ void _setup (CIMClient & client, String& qlang)
 
     try
     {
-        _createHandlerInstance (client, 
-                                String ("LIHandler01"), 
+        _createHandlerInstance (client,
+                                String ("LIHandler01"),
                                 String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
     }
     catch (Exception & e)
@@ -385,7 +387,7 @@ void _cleanup (CIMClient & client)
     {
         PEGASUS_STD (cerr) << "cleanup 1 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
-    
+
     try
     {
         _deleteSubscriptionInstance (client, String ("LIFilter02"),
@@ -395,7 +397,7 @@ void _cleanup (CIMClient & client)
     {
         PEGASUS_STD (cerr) << "cleanup 2 failed: " << e.getMessage () << PEGASUS_STD (endl);
     }
-    
+
     try
     {
         _deleteHandlerInstance (client, String ("LIHandler01"));
@@ -430,7 +432,7 @@ int _test(CIMClient& client, const char* opt, const char* optLang)
 {
     if (String::equalNoCase (opt, "setup"))
     {
-        if (optLang == NULL) 
+        if (optLang == NULL)
         {
             cerr << "Error, query language not specified, must be 'wql' or 'cim:cql'" << endl;
             _usage ();
@@ -441,7 +443,7 @@ int _test(CIMClient& client, const char* opt, const char* optLang)
         _setup (client, qlang);
     }
     else if (String::equalNoCase (opt, "createInstance"))
-    { 
+    {
         _createInstance (client);
     }
     else if (String::equalNoCase (opt, "deleteInstance"))

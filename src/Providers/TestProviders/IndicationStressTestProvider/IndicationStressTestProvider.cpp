@@ -1,4 +1,4 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,6 +6,8 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -13,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,7 +29,7 @@
 //
 // Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
-// Modified By: 
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +46,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_USING_PEGASUS;
 
-static IndicationResponseHandler * _indication_handler = 0; 
+static IndicationResponseHandler * _indication_handler = 0;
 static Boolean _enabled = false;
 static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
@@ -135,13 +137,13 @@ void IndicationStressTestProvider::invokeMethod(
             path.setNameSpace("test/TestProvider");
             path.setClassName("IndicationStressTestClass");
             indicationInstance.setPath(path);
-            
+
             char buffer[32];
             sprintf(buffer, "%d", _nextUID++);
             indicationInstance.addProperty
                 (CIMProperty ("IndicationIdentifier",String(buffer)));
 
-            Array <String> correlatedIndications; 
+            Array <String> correlatedIndications;
             indicationInstance.addProperty
                     (CIMProperty ("CorrelatedIndications", correlatedIndications));
 
@@ -152,7 +154,7 @@ void IndicationStressTestProvider::invokeMethod(
             handler.deliver( CIMValue( 0 ) );
         }
         handler.complete();
-        
+
         if (indicationSendCount > 0)
             for (Uint32 i = 0; i < indicationSendCount; i++)
             {

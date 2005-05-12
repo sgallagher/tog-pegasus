@@ -1,4 +1,4 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,6 +6,8 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -13,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -114,13 +116,13 @@ void MyIndicationConsumer::consumeIndication(
 
 ///////////////////////////////////////////////////////////////////////////
 
-void _createHandlerInstance 
-    (CIMClient & client, 
+void _createHandlerInstance
+    (CIMClient & client,
      const String & name,
      const String & destination)
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-    handlerInstance.addProperty (CIMProperty (CIMName 
+    handlerInstance.addProperty (CIMProperty (CIMName
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     handlerInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -133,14 +135,14 @@ void _createHandlerInstance
     CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, handlerInstance);
 }
 
-void _createFilterInstance 
-    (CIMClient & client, 
+void _createFilterInstance
+    (CIMClient & client,
      const String & name,
      const String & query,
      const String & qlang)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
-    filterInstance.addProperty (CIMProperty (CIMName 
+    filterInstance.addProperty (CIMProperty (CIMName
         ("SystemCreationClassName"), System::getSystemCreationClassName ()));
     filterInstance.addProperty (CIMProperty (CIMName ("SystemName"),
         System::getFullyQualifiedHostName ()));
@@ -156,7 +158,7 @@ void _createFilterInstance
     CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, filterInstance);
 }
 
-void _createSubscriptionInstance 
+void _createSubscriptionInstance
     (CIMClient & client,
      const CIMObjectPath & filterPath,
      const CIMObjectPath & handlerPath)
@@ -169,7 +171,7 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, 
+    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE,
         subscriptionInstance);
 }
 
@@ -186,10 +188,10 @@ void _sendTestIndication(CIMClient* client, const CIMName & methodName, Uint32 i
     CIMValue sendCountValue(indicationSendCount);
     inParams.append(CIMParamValue(String("indicationSendCount"), CIMValue(indicationSendCount)));
 
-    CIMObjectPath className (String::EMPTY, CIMNamespaceName (), 
+    CIMObjectPath className (String::EMPTY, CIMNamespaceName (),
         CIMName ("IndicationStressTestClass"), keyBindings);
 
-    CIMValue retValue = client->invokeMethod 
+    CIMValue retValue = client->invokeMethod
         (SOURCE_NAMESPACE,
         className,
         methodName,
@@ -209,8 +211,8 @@ void _sendTestIndicationNormal(CIMClient* client, Uint32 indicationSendCount)
     _sendTestIndication (client, CIMName ("SendTestIndicationNormal"), indicationSendCount);
 }
 
-void _deleteSubscriptionInstance 
-    (CIMClient & client, 
+void _deleteSubscriptionInstance
+    (CIMClient & client,
      const String & filterName,
      const String & handlerName)
 {
@@ -249,8 +251,8 @@ void _deleteSubscriptionInstance
     client.deleteInstance (INTEROP_NAMESPACE, subscriptionPath);
 }
 
-void _deleteHandlerInstance 
-    (CIMClient & client, 
+void _deleteHandlerInstance
+    (CIMClient & client,
      const String & name)
 {
     Array<CIMKeyBinding> keyBindings;
@@ -268,8 +270,8 @@ void _deleteHandlerInstance
     client.deleteInstance (INTEROP_NAMESPACE, path);
 }
 
-void _deleteFilterInstance 
-    (CIMClient & client, 
+void _deleteFilterInstance
+    (CIMClient & client,
      const String & name)
 {
     Array<CIMKeyBinding> keyBindings;
@@ -279,7 +281,7 @@ void _deleteFilterInstance
         System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
     keyBindings.append (CIMKeyBinding ("CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name, 
+    keyBindings.append (CIMKeyBinding ("Name", name,
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
@@ -289,7 +291,7 @@ void _deleteFilterInstance
 void _usage ()
 {
    cerr << endl
-        << "Usage:" << endl 
+        << "Usage:" << endl
         << "\tTestIndicationStressTest setup [ wql | cim:cql ]" << endl
         << "\tTestIndicationStressTest run <indicationSendCount> [<threads>]" << endl
         << "\tTestIndicationStressTest cleanup" << endl
@@ -316,7 +318,7 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         // Create the handler for the internal consumer
-        _createHandlerInstance (client, String ("IPHandler01"), 
+        _createHandlerInstance (client, String ("IPHandler01"),
             String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
     }
     catch (Exception & e)
@@ -348,7 +350,7 @@ void _setup (CIMClient & client, String& qlang)
     handlerPathString01.append ("\",SystemName=\"");
     handlerPathString01.append (System::getFullyQualifiedHostName ());
     handlerPathString01.append ("\"");
-    
+
     String handlerPathString02;
     handlerPathString02.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"IPHandler02\",SystemCreationClassName=\"");
     handlerPathString02.append (System::getSystemCreationClassName ());
@@ -403,7 +405,7 @@ void _cleanup (CIMClient & client)
     {
         cerr << "----- cleanup 1 failed: " << e.getMessage () << endl;
     }
-    
+
     try
     {
         _deleteSubscriptionInstance (client, String ("IPFilter01"),
@@ -413,7 +415,7 @@ void _cleanup (CIMClient & client)
     {
         cerr << "----- cleanup 2 failed: " << e.getMessage () << endl;
     }
-    
+
     try
     {
         _deleteFilterInstance (client, String ("IPFilter01"));
@@ -422,7 +424,7 @@ void _cleanup (CIMClient & client)
     {
         cerr << "----- cleanup 3 failed: " << e.getMessage () << endl;
     }
-    
+
     try
     {
         _deleteHandlerInstance (client, String ("IPHandler01"));
@@ -431,7 +433,7 @@ void _cleanup (CIMClient & client)
     {
         cerr << "----- cleanup 4 failed: " << e.getMessage () << endl;
     }
-    
+
     try
     {
         _deleteHandlerInstance (client, String ("IPHandler02"));
@@ -506,11 +508,11 @@ Thread * _runTestThreads(CIMClient *client, Uint32 indicationSendCount, int uniq
 int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const char* optThree)
 {
     if (String::equalNoCase(opt, "setup"))
-    { 
+    {
         if ((optTwo == NULL) ||
             (!(String::equalNoCase(optTwo, "wql") ||
             String::equalNoCase(optTwo, "cim:cql"))))
-        { 
+        {
             cerr << "Invalid query language: '" << optTwo << "'" << endl;
             _usage();
             return -1;
@@ -521,7 +523,7 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
     }
     else if (String::equalNoCase(opt, "run"))
     {
-        if (optTwo == NULL) 
+        if (optTwo == NULL)
         {
             cerr << "Invalid indicationSendCount." << endl;
             _usage ();
@@ -570,7 +572,7 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         // Finish starting the CIMListener
         try
         {
-            cout << "+++++ Starting the CIMListener at destination" 
+            cout << "+++++ Starting the CIMListener at destination"
                  << " http://localhost:2005/TestIndicationStressTest" << endl;
 
             // Start the listener
@@ -623,12 +625,12 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         // clean up
         for(Uint32 i=0; i< clientConnections.size(); i++)
         {
-            if(clientConnections[i]) 
+            if(clientConnections[i])
                 delete clientConnections[i];
         }
         for(Uint32 i=0; i < clientThreads.size(); i++)
         {
-            if(clientThreads[i]) 
+            if(clientThreads[i])
                 delete clientThreads[i];
         }
 
@@ -684,7 +686,7 @@ int main (int argc, char** argv)
         cerr << e.getMessage () << endl;
         return -1;
     }
-    
+
     if (argc <= 1)
     {
         cerr << "Invalid argument count: " << argc << endl;
@@ -709,7 +711,7 @@ int main (int argc, char** argv)
             optTwo = NULL;
             optThree = NULL;
         }
-        
+
         int rc = _beginTest(workClient, opt, optTwo, optThree);
 
 	return rc;

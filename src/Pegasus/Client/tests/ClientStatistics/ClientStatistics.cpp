@@ -1,4 +1,4 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,6 +6,8 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -13,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -56,7 +58,7 @@ public:
             if (item.roundTripTime == 0){
                cerr << "roundTripTime is incorrect in ClientOpPerformanceData " << endl;
                cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
-               exit(1);   
+               exit(1);
             }
 
             if (item.requestSize == 0){
@@ -77,7 +79,7 @@ public:
                    cerr << "error in Pegasus/Client/test/ClientStatistics" << endl;
                    exit(1);
                 }
-            }  
+            }
    }
 };
 
@@ -93,7 +95,7 @@ int main(int argc, char** argv)
 	   CIMClient client;
 	   client.connect("localhost", 5988, String::EMPTY, String::EMPTY);
 
-// the value CIM_ObjectManager::GatherStatisticalData must be set to true. 
+// the value CIM_ObjectManager::GatherStatisticalData must be set to true.
 // the following code does this
    String className = "CIM_ObjectManager";
    CIMName cN = CIMName(className);
@@ -105,7 +107,7 @@ int main(int argc, char** argv)
    /* EnumerateInstances and
    */
    try
-   {  
+   {
       instances = client.enumerateInstanceNames(nameSpace, cN);
    }
    catch (Exception& e)
@@ -134,13 +136,13 @@ int main(int argc, char** argv)
       cerr << "Exception : " << e.getMessage() << endl;
       exit(1);
    }
-                                                                                                                         
+
 //registering class that has the callback method
  CliStat stat = CliStat();
          client.registerClientOpPerformanceDataHandler(stat);
          String classN = "PG_ComputerSystem";
          Array<CIMObjectPath> inst = client.enumerateInstanceNames(nameSpace,
-                                                                        classN); 
+                                                                        classN);
     }
 
     catch(Exception& e){

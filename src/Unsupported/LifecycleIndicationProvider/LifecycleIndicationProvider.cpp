@@ -1,4 +1,4 @@
-//%2004////////////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,6 +6,8 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -13,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,7 +33,7 @@
 //
 // This sample provider is both an Instance and Lifecycle Indication provider.
 //
-// BE SURE YOU CAREFULLY READ THE FILE README.LIFECYCLEINDICATIONS.HTM IN THIS 
+// BE SURE YOU CAREFULLY READ THE FILE README.LIFECYCLEINDICATIONS.HTM IN THIS
 // DIRECTORY TO MAKE SURE YOU UNDERSTAND THE CURRENT USE OF LIFECYCLE INDICATIONS!!
 //
 // Note that if this provider were expanded to also be a MethodProvider, then you
@@ -62,7 +64,7 @@ LifecycleIndicationProvider::~LifecycleIndicationProvider(void)
 void LifecycleIndicationProvider::initialize(CIMOMHandle & cimom)
 {
 //  PEGASUS_STD(cout) << "LifecycleIndicationProvider::initialize()" << PEGASUS_STD(endl);
-	
+
     // save cimom handle
 	_cimom = cimom;
     _indication_handler = 0;
@@ -100,7 +102,7 @@ void LifecycleIndicationProvider::getInstance(
         }
     }
     // It's not shown here, but your implementation of getInstance() might want to
-    // generate a lifecycle indication for 
+    // generate a lifecycle indication for
     // InstRead_for_Sample_LifecycleIndicationProviderClass, for the instance
     // that is returned. See LifecycleIndicationProviderR.mof.
 
@@ -167,7 +169,7 @@ void LifecycleIndicationProvider::modifyInstance(
     // InstModification_for_Sample_LifecycleIndicationProviderClass for the
     // instance that is modified. Remember that this indication has *two* embedded
     // objects, both "before" (PreviousInstance) and "after" (SourceInstance)
-    // snapshots of the instance that is modified. 
+    // snapshots of the instance that is modified.
     // See LifecycleIndicationProviderR.mof.
 }
 
@@ -275,7 +277,7 @@ void LifecycleIndicationProvider::deleteInstance(
             CIMNamespaceName(),
             instanceReference.getClassName(),
             instanceReference.getKeyBindings());
-	
+
 	// begin processing the request
 	handler.processing();
 
@@ -291,7 +293,7 @@ void LifecycleIndicationProvider::deleteInstance(
             break;
 		}
 	}
-	
+
 	// complete processing the request
 	handler.complete();
 
@@ -338,7 +340,7 @@ void LifecycleIndicationProvider::enableIndications (
     IndicationResponseHandler & handler)
 {
     ////////////////////////////////////////////////////////////////////////////////////
-    // This method is called when the first subscription is received for one of 
+    // This method is called when the first subscription is received for one of
     // the lifecycle indications that is supported by this provider. Note that is
     // the reason we subclass the CIM Lifecycle Indications (eg. CIM_InstCreation),
     // so that this provider is only enabled for the specific indications associated

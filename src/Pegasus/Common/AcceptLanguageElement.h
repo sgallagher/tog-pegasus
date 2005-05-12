@@ -78,15 +78,15 @@ public:
 	 * @param variant String - variant ex: rab-oof
 	 * @param quality Real32 - quality associated with the language, defaults to 1.0
 	 */
-	AcceptLanguageElement(String language, 
-				     String country,
-				     String variant,
+	AcceptLanguageElement(const String& language, 
+				     const String& country,
+				     const String& variant,
 				     Real32 quality = 1.0);
 	/** Constructor
 	 * @param language_tag String IANA language value
 	 * @param q Real32 quality value for language, 0 < q < 1, defaults to 1
 	 */
-	AcceptLanguageElement(String language_tag, 
+	AcceptLanguageElement(const String& language_tag, 
 						  Real32 quality = 1.0);
 
 	AcceptLanguageElement(const LanguageElement &le);

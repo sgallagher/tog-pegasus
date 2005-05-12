@@ -30,7 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By:	Sean Keenan (sean.keenan@hp.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3512
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3512, 3513
 //
 //%/////////////////////////////////////////////////////////////////////////////
  
@@ -60,11 +60,11 @@ AcceptLanguageElement AcceptLanguageElement::EMPTY_REF = AcceptLanguageElement()
 AcceptLanguageElement::AcceptLanguageElement():LanguageElement(){
 }
 
-AcceptLanguageElement::AcceptLanguageElement(String language, String country, String variant, Real32 quality):
+AcceptLanguageElement::AcceptLanguageElement(const String& language, const String& country, const String& variant, Real32 quality):
 	LanguageElement(language, country, variant, quality){
 }
 
-AcceptLanguageElement::AcceptLanguageElement(String language_tag, Real32 quality):LanguageElement(language_tag, quality){
+AcceptLanguageElement::AcceptLanguageElement(const String& language_tag, Real32 quality):LanguageElement(language_tag, quality){
 }
 
 AcceptLanguageElement::AcceptLanguageElement(const LanguageElement &le):LanguageElement(le){}

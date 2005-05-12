@@ -1,6 +1,6 @@
 ROOT = ../../../../..
 
-DIR = src/Providers/TestProviders/CMPI/TestMethod
+DIR = Providers/TestProviders/CMPI/TestMethod
 
 LOCAL_DEFINES = -DPEGASUS_USE_EXPERIMENTAL 
 

@@ -744,6 +744,7 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext
                            functionTypeToString());
   throw CQLRuntimeException(mload);
 
+  PEGASUS_UNREACHABLE(
   int parmSize = _parms.size();
   if(parmSize != 0 && parmSize != 1)
   {
@@ -756,6 +757,7 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext
                              String("0"), String("1"));
     throw CQLRuntimeException(mload);
   }
+  ) // End PEGASUS_UNREACHABLE
 
     PEG_METHOD_EXIT();
   return CQLValue(Uint64(0));

@@ -72,7 +72,7 @@ inline static Boolean _Compare(const T& x, const T& y, WQLOperation op)
 	    PEGASUS_ASSERT(0);
     }
 
-    return false;
+    PEGASUS_UNREACHABLE(return false;)
 }
 
 static Boolean _Evaluate(

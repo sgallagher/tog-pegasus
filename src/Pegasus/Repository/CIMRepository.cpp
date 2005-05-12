@@ -2699,8 +2699,8 @@ Array<CIMInstance> CIMRepository::execQuery(
     PEG_METHOD_EXIT();
     throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, "execQuery()");
 
-    PEG_METHOD_EXIT();
-    return Array<CIMInstance>();
+    PEGASUS_UNREACHABLE(PEG_METHOD_EXIT();
+    return Array<CIMInstance>();)
 }
 
 Array<CIMObject> CIMRepository::associators(

@@ -288,7 +288,7 @@ CIMClass BinaryStreamer::extractClass(const Array<char>& in, Uint32 & pos, const
       throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integraty failure: "+
          be.message+" - Accessing class: "+path);
    }
-   return CIMClass();
+   PEGASUS_UNREACHABLE(return CIMClass();)
 }
 
 

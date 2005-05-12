@@ -117,27 +117,27 @@ public:
 	 * Comparison based on the quality values ONLY, that is, the language tags of the elements are NOT 
 	 * taken into account.
 	 */
-	Boolean operator>(const AcceptLanguageElement &rhs);
+	Boolean operator>(const AcceptLanguageElement &rhs) const;
 	
 	/**
 	 * Comparison based on the quality values ONLY, that is, the language tags of the elements are NOT 
 	 * taken into account.
 	 */
-	Boolean operator<(const AcceptLanguageElement &rhs);
+	Boolean operator<(const AcceptLanguageElement &rhs) const;
 	
 	/**
 	 * True if the langauge tag portion equals that of rhs (case INSENSITIVE) AND
 	 * if the quality values are equal 
 	 * @param rhs AcceptLanguageElement
 	 */
-	Boolean operator==(const AcceptLanguageElement &rhs);
+	Boolean operator==(const AcceptLanguageElement &rhs) const;
 	
 	/**
 	 * True if the langauge tag portion does NOT equal that of rhs (case INSENSITIVE) OR
 	 * if the quality values are NOT equal
 	 * @param rhs AcceptLanguageElement 
 	 */
-	Boolean operator!=(const AcceptLanguageElement &rhs);
+	Boolean operator!=(const AcceptLanguageElement &rhs) const;
 
 	/**
 	 * Writes the string representation of this object to the stream

@@ -30,6 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By:	Sean Keenan (sean.keenan@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3512
 //
 //%/////////////////////////////////////////////////////////////////////////////
  
@@ -90,22 +91,22 @@ String AcceptLanguageElement::toString() const{
         return s;
 }
 
-Boolean AcceptLanguageElement::operator>(const AcceptLanguageElement &rhs){
+Boolean AcceptLanguageElement::operator>(const AcceptLanguageElement &rhs) const{
 	return (_rep->getQuality() > rhs.getQuality());
 }
 
-Boolean AcceptLanguageElement::operator<(const AcceptLanguageElement &rhs){
+Boolean AcceptLanguageElement::operator<(const AcceptLanguageElement &rhs) const{
 	return (_rep->getQuality() < rhs.getQuality());
 }
 
-Boolean AcceptLanguageElement::operator==(const AcceptLanguageElement &rhs){
+Boolean AcceptLanguageElement::operator==(const AcceptLanguageElement &rhs) const{
 	if(*_rep == *rhs._rep)
 		if(_rep->getQuality() == rhs._rep->getQuality())
 			return true;
 	return false;
 }
 
-Boolean AcceptLanguageElement::operator!=(const AcceptLanguageElement &rhs){
+Boolean AcceptLanguageElement::operator!=(const AcceptLanguageElement &rhs) const{
 	if(*_rep == *rhs._rep)
                 if(_rep->getQuality() == rhs._rep->getQuality())
                         return false;

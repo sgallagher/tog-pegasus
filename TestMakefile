@@ -98,7 +98,7 @@ poststarttests: poststarttestsclean
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
 
@@ -172,25 +172,80 @@ run_SSL_TS1:
 ##############################################################################
 ##
 ## TestBinRepository rule is used to run the poststarttests suite on
-## the Binary Reposiory built using cimmofl
+## the Binary Repository built using cimmofl
 ##
 ## TestBinRepositoryServer rule is used to run the poststarttests suite on
-## the Binary Reposiory built using cimmof
+## the Binary Repository built using cimmof
+##
+## TestBinCmpRepository rule is used to run the poststarttest suite on 
+## the Binry Compressed Repository built using cimmofl
 ##
 
 ############################
 ##
 ## TestBinRepository
 ##
+### bug 3011 disabled Binary Repository testing on LINUX_IA64 to allow
+### the nightly tests to run
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
+TestBinRepository:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+	@ $(ECHO) TestBinRepository +++++ NOT RUN on this platform - bug 3011
+else
 TestBinRepository: TestBinClean TestBinBuildRepo  TestBinRepo
-	$(ECHO) TestBinRepository +++++ passed all test
+	@ $(ECHO) TestBinRepository +++++ passed all test
+endif
 
 ############################
 ##
 ## TestBinRepositoryServer
 ##
 TestBinRepositoryServer: TestBinClean  TestBinBuildRepoServ TestBinRepo
-	$(ECHO) TestBinRepositoryServer +++++ passed all test
+	@ $(ECHO) TestBinRepositoryServer +++++ passed all test
+
+############################
+##
+## TestBinCmpRepository -  run poststarttest on Compressed BIN Repository
+##
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+TestBinCmpRepository: 
+	@ $(ECHO) TestBinCmpRepository +++++ Repository compressed by default - nothing more to test.
+	@ $(ECHO) TestBinCmpRepository +++++ passed all test
+else
+
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST
+
+TestBinCmpRepository: TestBinClean  TestBinCmpBuild TestBinBuildRepo TestBinRepo TestBinRegBuild
+	@ $(ECHO) TestBinCmpRepository +++++ passed all test
+else
+TestBinCmpRepository: 
+	@ $(ECHO) TestBinCmpRepository +++++ Not tested 
+	@ $(ECHO) TestBinCmpRepository +++++ refer to readme.compressed_repository
+	@ $(ECHO) TestBinCmpRepository +++++ to enable: set PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST=true 
+endif
+endif
+
+
+############################
+##
+## TestBinCmpBuild - used to compile the repository for compression
+##
+TestBinCmpBuild:
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+
+
+############################
+##
+## TestBinRegBuild - used to compile the repository for no compression
+##
+TestBinRegBuild:
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend 
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository 
+
 
 ###########################
 ##

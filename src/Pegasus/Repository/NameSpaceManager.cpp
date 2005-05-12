@@ -808,7 +808,7 @@ NameSpaceManager::NameSpaceManager(const String& repositoryRoot)
     delete nameSpaceNames;
     if (specialNames) {
        for (int i=0,m=specialNames->size(); i<m; i++)
-          if ((*specialNames)[i]) delete (*specialNames)[i];
+          delete (*specialNames)[i];
        delete specialNames;
     }
     nameSpaceNames=NULL;

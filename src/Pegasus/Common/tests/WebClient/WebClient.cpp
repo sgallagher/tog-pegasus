@@ -75,8 +75,10 @@ void WebClientQueue::handleEnqueue()
 
     if (message->getType() == HTTP_MESSAGE)
     {
-	HTTPMessage* httpMessage = (HTTPMessage*)message;
-	httpMessage->printAll(cout);
+     #ifdef PEGASUS_DEBUG
+       HTTPMessage* httpMessage = (HTTPMessage*)message;
+       httpMessage->printAll(cout);
+     #endif
 	exit(0);
     }
 }

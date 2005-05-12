@@ -91,6 +91,7 @@ public:
 
     CIMMessage(Uint32 type, const String& messageId_);
 
+#ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
 	if (printHeader)
@@ -108,10 +109,12 @@ public:
 	    os << "}";
 	}
     }
+#endif
 
     String messageId;
 	OperationContext operationContext;
 };
+
 
 class CIMResponseMessage;
 
@@ -123,6 +126,7 @@ public:
 
     virtual CIMResponseMessage* buildResponse() = 0;
 
+#ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
 	if (printHeader)
@@ -140,10 +144,12 @@ public:
 	    os << "}";
 	}
     }
+#endif
 
     QueueIdStack queueIds;
     Boolean requestIsOOP;
 };
+
 
 class PEGASUS_COMMON_LINKAGE CIMResponseMessage : public CIMMessage
 {
@@ -595,6 +601,7 @@ public:
     {
     }
 
+#ifdef PEGASUS_DEBUG
     virtual void print(PEGASUS_STD(ostream)& os, Boolean printHeader) const
     {
 	if (printHeader)
@@ -615,12 +622,14 @@ public:
 	    os << "}";
 	}
     }
+#endif
 
     virtual CIMResponseMessage* buildResponse();
 
     String authType;
     String userName;
 };
+
 
 class PEGASUS_COMMON_LINKAGE CIMExecQueryRequestMessage
     : public CIMOperationRequestMessage

@@ -209,6 +209,8 @@ void HTTPMessage::parse(
     }
 }
 
+
+#ifdef PEGASUS_DEBUG
 void HTTPMessage::printAll(ostream& os) const
 {
     Message::print(os);
@@ -265,6 +267,7 @@ void HTTPMessage::printAll(ostream& os) const
 
     os << endl;
 }
+#endif
 
 /*
  * Find the header prefix (i.e 2-digit number in front of cim keyword) if any.

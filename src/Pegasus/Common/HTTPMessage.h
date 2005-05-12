@@ -84,7 +84,9 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
 	 Array<HTTPHeader>& headers,
 	 Uint32& contentLength) const;
 
-      void printAll(PEGASUS_STD(ostream)& os) const;
+      #ifdef PEGASUS_DEBUG
+       void printAll(PEGASUS_STD(ostream)& os) const;
+      #endif
 
 		  static void lookupHeaderPrefix(
     Array<HTTPHeader>& headers,

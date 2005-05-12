@@ -194,13 +194,14 @@ public:
         return _capabilities;
     }
 
-
+    #ifdef PEGASUS_DEBUG
     /** Prints the contents of this queue by calling the print() method
     of each message.
     @param os stream onto which the output is placed.
     @exception IPCException Thrown if an IPC error occurs.
     */
     void print(PEGASUS_STD(ostream)& os) const;
+    #endif 
 
     /** Lock this queue.
     @exception IPCException Thrown if an IPC error occurs.

@@ -299,6 +299,7 @@ Message* MessageQueue::findByKey(Uint32 key)
     return 0;
 }
 
+#ifdef PEGASUS_DEBUG
 void MessageQueue::print(ostream& os) const
 {
     AutoMutex autoMut(const_cast<MessageQueue *>(this)->_mut);
@@ -306,6 +307,7 @@ void MessageQueue::print(ostream& os) const
     for (const Message* m = front(); m; m = m->getNext())
         m->print(os);
 }
+#endif
 
 Message* MessageQueue::find(Uint32 type, Uint32 key)
 {

@@ -224,7 +224,7 @@ Uint32 DynamicListenerRep::getIdleTimeout()
     return _consumerManager->getIdleTimeout();
 }
 
-void DynamicListenerRep::setIdleTimeout(const Uint32 idleTimeout)
+void DynamicListenerRep::setIdleTimeout(Uint32 idleTimeout)
 {
 //do nothing for now
 }
@@ -358,7 +358,7 @@ Uint32 DynamicListener::getIdleTimeout()
     return static_cast<DynamicListenerRep*>(_rep)->getIdleTimeout();
 }
 
-void DynamicListener::setIdleTimeout(const Uint32 idleTimeout)
+void DynamicListener::setIdleTimeout(Uint32 idleTimeout)
 {
     static_cast<DynamicListenerRep*>(_rep)->setIdleTimeout(idleTimeout);
 }

@@ -1293,7 +1293,7 @@ void CertificateProvider::invokeMethod(
     keys.append(key);
 
     key.setName(SERIAL_NUMBER_PROPERTY.getString());
-    key.setType(CIMKeyBinding::NUMERIC);
+			key.setType(CIMKeyBinding::STRING);
     key.setValue(String(serialNumber));
     keys.append(key);
 

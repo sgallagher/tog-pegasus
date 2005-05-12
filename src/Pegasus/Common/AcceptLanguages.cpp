@@ -108,7 +108,7 @@ AcceptLanguages AcceptLanguages::operator=(const AcceptLanguages &rhs){
 	return *this;	
 }
 
-AcceptLanguageElement AcceptLanguages::getLanguageElement(int index) const{
+AcceptLanguageElement AcceptLanguages::getLanguageElement(Uint32 index) const{
 	return AcceptLanguageElement(_rep->getLanguageElement(index));
 }
 

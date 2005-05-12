@@ -115,7 +115,7 @@ public:
 	 * @return AcceptLanguageElement - valid element 
 	 * @throw IndexOutOfBounds Exception 
 	 */
-	AcceptLanguageElement getLanguageElement(int index) const;
+	AcceptLanguageElement getLanguageElement(Uint32 index) const;
 	
 	/**
 	 * Fills in the array with all the language elements in the container

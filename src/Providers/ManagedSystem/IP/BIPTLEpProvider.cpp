@@ -553,8 +553,9 @@ PARAMETERS        : className, Process
 ================================================================================
 */
 Array<CIMKeyBinding> BIPTLEpProvider::_constructReference(
-					CIMName className, String sysName,
-					String instName)
+					const CIMName& className, 
+					const String& sysName,
+					const String& instName)
 {
 #ifdef DEBUG
   cout << "BIPTLEpProvider::_constructReference()" << endl;

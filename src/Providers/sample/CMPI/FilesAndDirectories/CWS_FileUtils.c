@@ -1,33 +1,37 @@
-/* %2003
-
- Copyright (c) 2000, 2001, 2002  BMC Software, Hewlett-Packard Development
- Company, L. P., IBM Corp., The Open Group, Tivoli Systems.
- Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L. P.;
- IBM Corp.; EMC Corporation, The Open Group.
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to
- deal in the Software without restriction, including without limitation the
- rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
- ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
- "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
- LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
- PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-==============================================================================
-
- Author:       Viktor Mihajlovski <mihajlov@de.ibm.com>
-
- Modified By:
-
-*/
+//%2005////////////////////////////////////////////////////////////////////////
+//
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+//==============================================================================
+//
+// Author: Viktor Mihajlovski <mihajlov@de.ibm.com>
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
 #include "CWS_FileUtils.h"
 #include "cwsutil.h"
@@ -117,7 +121,7 @@ CMPIInstance   *makeInstance( CMPIBroker *broker, const char * classname,
 				       (char*)Namespace,
 				       (char*)classname,
 				       NULL);  CMSetHostname(op,CSName());
-  
+
   if (!CMIsNullObject(op)) {
     in = CMNewInstance(broker,op,NULL);
     if (!CMIsNullObject(in)) {
@@ -126,7 +130,7 @@ CMPIInstance   *makeInstance( CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"FSCreationClassName",FSCreationClassName(),CMPI_chars);
       CMSetProperty(in,"FSName",FSName(),CMPI_chars);
       CMSetProperty(in,"CreationClassName",classname,CMPI_chars);
-      CMSetProperty(in,"Name",cwsf->cws_name,CMPI_chars); 
+      CMSetProperty(in,"Name",cwsf->cws_name,CMPI_chars);
       CMSetProperty(in,"FileSize",(CMPIValue*)&cwsf->cws_size,CMPI_uint64);
 #ifndef SIMULATED
 /* We don't want this code in the simulated env - time is dynamic (diff timezones)
@@ -139,7 +143,7 @@ CMPIInstance   *makeInstance( CMPIBroker *broker, const char * classname,
       CMSetProperty(in,"LastModified",&val,CMPI_dateTime);
       val.uint64 = cwsf->cws_atime;
       val.dateTime = CMNewDateTimeFromBinary(broker,val.uint64*1000000,0,NULL);
-      CMSetProperty(in,"LastAccessed",&val,CMPI_dateTime); 
+      CMSetProperty(in,"LastAccessed",&val,CMPI_dateTime);
 #endif
       val.uint64=0L;
       val.boolean=(cwsf->cws_mode & 0400) != 0;
@@ -159,16 +163,16 @@ int makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf)
 int makeFileBuf( CMPIInstance *instance, CWS_FILE *cwsf)
 #endif
 {
-  CMPIData dt; 
+  CMPIData dt;
   if (instance && cwsf) {
     dt=CMGetProperty(instance,"Name",NULL);
     strcpy(cwsf->cws_name,CMGetCharPtr(dt.value.string));
     dt=CMGetProperty(instance,"FileSize",NULL);
     cwsf->cws_size=dt.value.uint64;
 #ifndef SIMULATED
-     dt=CMGetProperty(instance,"CreationDate",NULL); 
-    cwsf->cws_ctime=CMGetBinaryFormat(dt.value.dateTime,NULL); 
-    dt=CMGetProperty(instance,"LastModified",NULL); 
+     dt=CMGetProperty(instance,"CreationDate",NULL);
+    cwsf->cws_ctime=CMGetBinaryFormat(dt.value.dateTime,NULL);
+    dt=CMGetProperty(instance,"LastModified",NULL);
     cwsf->cws_mtime=CMGetBinaryFormat(dt.value.dateTime,NULL);
     dt=CMGetProperty(instance,"LastAccessed",NULL);
     cwsf->cws_atime=CMGetBinaryFormat(dt.value.dateTime,NULL);

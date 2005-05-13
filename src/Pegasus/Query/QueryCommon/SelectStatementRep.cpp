@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,7 +32,8 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +54,7 @@ SelectStatementRep::SelectStatementRep(const SelectStatementRep& ssr)
   _ctx = NULL;
   if (ssr._ctx != NULL)
   {
-    _ctx = ssr._ctx->clone();  
+    _ctx = ssr._ctx->clone();
   }
 }
 
@@ -73,8 +74,7 @@ SelectStatementRep::SelectStatementRep(String& inQlang, String& inQuery)
 
 SelectStatementRep::~SelectStatementRep()
 {
-  if (_ctx != NULL)
-    delete _ctx;
+  delete _ctx;
 }
 
 SelectStatementRep& SelectStatementRep::operator=(const SelectStatementRep& rhs)
@@ -85,10 +85,7 @@ SelectStatementRep& SelectStatementRep::operator=(const SelectStatementRep& rhs)
   _qlang = rhs._qlang;
   _query = rhs._query;
 
-  if (_ctx != NULL)
-  {
-    delete _ctx;
-  }
+  delete _ctx;
 
   if (rhs._ctx != NULL)
   {
@@ -117,7 +114,7 @@ void SelectStatementRep::setQueryContext(QueryContext& inCtx)
   if (_ctx == NULL)
   {
     _ctx = inCtx.clone();
-  } 
+  }
   else
   {
     throw QueryException(MessageLoaderParms("QueryCommon.SelectStatementRep.QUERY_CTX_ALREADY_SET",

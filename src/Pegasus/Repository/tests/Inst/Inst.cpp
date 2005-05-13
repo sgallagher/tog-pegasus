@@ -38,11 +38,13 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Repository/InstanceIndexFile.h>
+#include <Pegasus/Repository/InstanceDataFile.h>
+
 #include <iostream>
 #include <cstring>
 #include <cassert>
-#include <Pegasus/Repository/InstanceIndexFile.h>
-#include <Pegasus/Repository/InstanceDataFile.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //         (carolann_graves@hp.com)
 //
 // Modified By:
@@ -40,7 +40,7 @@
 //         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
 //         David Dillard, VERITAS Software Corp.
 //             (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, #3424
+//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, #3424
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -151,7 +151,7 @@ const char   WbemExecCommand::_DEBUG_OPTION2       = '2';
 static const char PASSWORD_PROMPT []  =
                      "Please enter your password: ";
 
-static const char PASSWORD_BLANK []  = 
+static const char PASSWORD_BLANK []  =
                      "Password cannot be blank. Please re-enter your password.";
 
 static const char   LONG_HELP []  = "help";
@@ -206,9 +206,9 @@ static Boolean verifyCertificate(SSLCertificateInfo &certInfo)
 }
 
 /**
-  
+
     Constructs a WbemExecCommand and initializes instance variables.
-  
+
  */
 WbemExecCommand::WbemExecCommand ()
 {
@@ -222,8 +222,8 @@ WbemExecCommand::WbemExecCommand ()
     sprintf(buffer, "%lu", (unsigned long) _portNumber);
     _portNumberStr       = buffer;
 
-    _useHTTP11           = true;   
-    _useMPost            = true;   
+    _useHTTP11           = true;
+    _useMPost            = true;
     _timeout             = WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS;
     _debugOutput1        = false;
     _debugOutput2        = false;
@@ -281,21 +281,20 @@ WbemExecCommand::WbemExecCommand ()
 }
 
 /**
-  
+
     Connects to cimserver.
-  
+
     @param   outPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @return  the Channel created
-  
+
     @exception       Exception  if an error is encountered in creating
                                the connection
-  
+
  */
  void WbemExecCommand::_connectToServer( WbemExecClient& client,
-                         ostream& outPrintWriter ) 
-    throw (Exception)
+                         ostream& outPrintWriter )
 {
     String                 host                  = String ();
     Uint32                 portNumber            = 0;
@@ -330,10 +329,10 @@ WbemExecCommand::WbemExecCommand ()
         // Get environment variables:
         //
         const char* pegasusHome = getenv("PEGASUS_HOME");
-    
+
         String certpath = FileSystem::getAbsolutePath(
                 pegasusHome, PEGASUS_SSLCLIENT_CERTIFICATEFILE);
-    
+
         String randFile = String::EMPTY;
 
 #ifdef PEGASUS_SSL_RANDOMFILE
@@ -345,7 +344,7 @@ WbemExecCommand::WbemExecCommand ()
     }
       }
     else
-      { 
+      {
     if( connectToLocal )
       {
         client.connectLocal();
@@ -382,9 +381,9 @@ void WbemExecCommand::_printContent(
 }
 
 /**
-  
+
     Process HTTP response message from cimserver
-  
+
     @param   httpResponse        Array<char> reply from cimserver
 
     @param   ostream             the ostream to which output should be written
@@ -393,7 +392,7 @@ void WbemExecCommand::_printContent(
 
     @return  true  = wait for data from challenge response
     @return  false = client response has been received
-  
+
  */
 void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
                                           ostream&           oStream,
@@ -440,7 +439,7 @@ void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
       }
     exit( 1 );
       }
-    
+
     //
     // Received a valid HTTP response from the server.
     //
@@ -456,24 +455,24 @@ void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
 }
 
 /**
-  
+
     Executes the command using HTTP.  A CIM request encoded in XML is read
     from the input, and encapsulated in an HTTP request message.  A channel
     is obtained for an HTTP connection, and the message is written to the
     channel.  The response is written to the specified outPrintWriter, and
     consists of the CIM response encoded in XML.
-  
+
     @param   outPrintWriter     the ostream to which output should be
                                 written
     @param   errPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @exception  WbemExecException  if an error is encountered in executing
                                    the command
-  
+
  */
-void WbemExecCommand::_executeHttp (ostream& outPrintWriter, 
-                                    ostream& errPrintWriter) 
+void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
+                                    ostream& errPrintWriter)
 {
     Uint32                       size;
     Array<char>                    content;
@@ -495,7 +494,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     }
 
     //
-    //  If no hostName specified 
+    //  If no hostName specified
     //  Default to local host
     //
     if (!_hostNameSet)
@@ -531,7 +530,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
 
         {
             throw WbemExecException(WbemExecException::INPUT_FILE_NONEXISTENT);
-        } 
+        }
 
         //
         //  Check that input file is readable
@@ -558,11 +557,11 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
             FileSystem::loadFileToMemory (content, _inputFilePath);
             content.append ('\0');
         }
-        catch (CannotOpenFile&)
+        catch (const CannotOpenFile&)
         {
             throw WbemExecException(WbemExecException::INPUT_FILE_CANNOT_OPEN);
         }
-    } 
+    }
     else
     {
         //
@@ -610,7 +609,7 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
             hostName = _hostName + String(":") + _portNumberStr;
         }
 
-        message = XMLProcess::encapsulate( parser, hostName, 
+        message = XMLProcess::encapsulate( parser, hostName,
                                            _useMPost, _useHTTP11,
                                            content, httpHeaders );
 
@@ -619,16 +618,16 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
             outPrintWriter << message.getData () << endl;
         }
     }
-    catch (XmlException& xe)
+    catch (const XmlException& xe)
     {
         throw WbemExecException(
             WbemExecException::INVALID_XML, xe.getMessage());
     }
-    catch (WbemExecException& e)
+    catch (const WbemExecException&)
     {
         throw;
     }
-    catch (Exception& ex)
+    catch (const Exception& ex)
     {
         throw WbemExecException(
             WbemExecException::CONNECT_FAIL, ex.getMessage());
@@ -638,16 +637,16 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
     {
         httpResponse = client.issueRequest( message );
     }
-    catch (ConnectionTimeoutException& ex)
+    catch (const ConnectionTimeoutException&)
     {
         throw WbemExecException(WbemExecException::TIMED_OUT);
     }
-    catch (UnauthorizedAccess& ex)
+    catch (const UnauthorizedAccess& ex)
     {
         throw WbemExecException(
             WbemExecException::CONNECT_FAIL, ex.getMessage());
     }
-    catch (Exception& ex)
+    catch (const Exception& ex)
     {
         throw WbemExecException(
             WbemExecException::CONNECT_FAIL, ex.getMessage());
@@ -660,19 +659,18 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
 }
 
 /**
-  
+
     Parses the command line, validates the options, and sets instance
     variables based on the option arguments.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @exception  CommandFormatException  if an error is encountered in parsing
                                         the command line
-  
+
  */
-void WbemExecCommand::setCommand (Uint32 argc, char* argv []) 
-    throw (CommandFormatException)
+void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
 {
     Uint32         i              = 0;
     Uint32         c              = 0;
@@ -721,7 +719,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     {
         throw CommandFormatException(getOpts.getErrorStrings()[0]);
     }
-    
+
     //
     //  Get options and arguments from the command line
     //
@@ -766,48 +764,48 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                 //
                 // more than one _inputFilePath argument was found
                 //
-                throw UnexpectedArgumentException(getOpts[i].Value()); 
+                throw UnexpectedArgumentException(getOpts[i].Value());
             }
             _inputFilePath = getOpts [i].Value ();
             _inputFilePathSet = true;
-        } 
+        }
         else /* getOpts [i].getType () == FLAG */
         {
             c = getOpts [i].getopt () [0];
-    
-            switch (c) 
+
+            switch (c)
             {
-                case _OPTION_HOSTNAME: 
+                case _OPTION_HOSTNAME:
                 {
                     if (getOpts.isSet (_OPTION_HOSTNAME) > 1)
                     {
                         //
                         // More than one hostname option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HOSTNAME); 
+                        throw DuplicateOptionException(_OPTION_HOSTNAME);
                     }
                     _hostName = getOpts [i].Value ();
                     _hostNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PORTNUMBER: 
+
+                case _OPTION_PORTNUMBER:
                 {
                     if (getOpts.isSet (_OPTION_PORTNUMBER) > 1)
                     {
                         //
                         // More than one portNumber option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PORTNUMBER); 
+                        throw DuplicateOptionException(_OPTION_PORTNUMBER);
                     }
-    
+
                     _portNumberStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         throw InvalidOptionArgumentException(_portNumberStr,
                             _OPTION_PORTNUMBER);
@@ -815,92 +813,92 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
             _portNumberSet = true;
                     break;
                 }
-    
-                case _OPTION_HTTPVERSION: 
+
+                case _OPTION_HTTPVERSION:
                 {
                     if (getOpts.isSet (_OPTION_HTTPVERSION) > 1)
                     {
                         //
                         // More than one httpVersion option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HTTPVERSION); 
+                        throw DuplicateOptionException(_OPTION_HTTPVERSION);
                     }
                     httpVersion = getOpts [i].Value ();
                     break;
                 }
-    
-                case _OPTION_SSL: 
+
+                case _OPTION_SSL:
                 {
             _useSSL = true;
                     break;
                 }
-      
-                case _OPTION_HTTPMETHOD: 
+
+                case _OPTION_HTTPMETHOD:
                 {
                     if (getOpts.isSet (_OPTION_HTTPMETHOD) > 1)
                     {
                         //
                         // More than one httpMethod option was found
                         //
-                        throw DuplicateOptionException(_OPTION_HTTPMETHOD); 
+                        throw DuplicateOptionException(_OPTION_HTTPMETHOD);
                     }
                     httpMethod = getOpts [i].Value ();
                     break;
                 }
-  
-                case _OPTION_TIMEOUT: 
+
+                case _OPTION_TIMEOUT:
                 {
                     if (getOpts.isSet (_OPTION_TIMEOUT) > 1)
                     {
                         //
                         // More than one timeout option was found
                         //
-                        throw DuplicateOptionException(_OPTION_TIMEOUT); 
+                        throw DuplicateOptionException(_OPTION_TIMEOUT);
                     }
-    
+
                     timeoutStr = getOpts [i].Value ();
-    
+
                     try
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (TypeMismatchException& it)
+                    catch (const TypeMismatchException&)
                     {
                         throw InvalidOptionArgumentException(
                             timeoutStr, _OPTION_TIMEOUT);
                     }
                     break;
                 }
-    
-                case _OPTION_USERNAME: 
+
+                case _OPTION_USERNAME:
                 {
                     if (getOpts.isSet (_OPTION_USERNAME) > 1)
                     {
                         //
                         // More than one username option was found
                         //
-                        throw DuplicateOptionException(_OPTION_USERNAME); 
+                        throw DuplicateOptionException(_OPTION_USERNAME);
                     }
                     _userName = getOpts [i].Value ();
                     _userNameSet = true;
                     break;
                 }
-    
-                case _OPTION_PASSWORD: 
+
+                case _OPTION_PASSWORD:
                 {
                     if (getOpts.isSet (_OPTION_PASSWORD) > 1)
                     {
                         //
                         // More than one password option was found
                         //
-                        throw DuplicateOptionException(_OPTION_PASSWORD); 
+                        throw DuplicateOptionException(_OPTION_PASSWORD);
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
                     break;
                 }
-    
-                case _OPTION_DEBUG: 
+
+                case _OPTION_DEBUG:
                 {
                     //
                     //
@@ -935,7 +933,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     break;
                 }
-    
+
                 default:
                     //
                     //  This path should not be hit
@@ -946,14 +944,14 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
     }
 
 /*
-    // 
+    //
     // Some more validations
     //
     if ( _operationType == OPERATION_TYPE_UNINITIALIZED )
     {
         //
-        // No operation type was specified 
-        // Show the usage 
+        // No operation type was specified
+        // Show the usage
         //
         //l10n
         //CommandFormatException e (REQUIRED_ARGS_MISSING);
@@ -969,8 +967,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to WBEM_DEFAULT_PORT
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
         if (_portNumber > _MAX_PORTNUMBER)
         {
@@ -989,8 +987,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         //  Default is to use HTTP/1.1
         //
         _useHTTP11 = true;
-    } 
-    else 
+    }
+    else
     {
         if (httpVersion == HTTP_VERSION_10)
         {
@@ -1006,7 +1004,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         }
 
         //
-        //  Invalid (unsupported) HTTP version specified 
+        //  Invalid (unsupported) HTTP version specified
         //
         else
         {
@@ -1022,8 +1020,8 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         //  Default is to use POST
         //
         _useMPost = false;
-    } 
-    else 
+    }
+    else
     {
         //
         //  Use HTTP POST method
@@ -1041,7 +1039,7 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         }
 
         //
-        //  Invalid HTTP method specified 
+        //  Invalid HTTP method specified
         //
         else
         {
@@ -1057,10 +1055,10 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
         //  Default to WbemExecClient::DEFAULT_TIMEOUT_MILLISECONDS
         //  Already done in constructor
         //
-    } 
-    else 
+    }
+    else
     {
-        if (_timeout <= 0) 
+        if (_timeout <= 0)
         {
             //
             //  Timeout out of valid range
@@ -1072,20 +1070,20 @@ void WbemExecCommand::setCommand (Uint32 argc, char* argv [])
 
 
 /**
-  
+
     Executes the command and writes the results to the PrintWriters.
-  
+
     @param   outPrintWriter     the ostream to which output should be
                                 written
     @param   errPrintWriter     the ostream to which error output should be
                                 written
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
-Uint32 WbemExecCommand::execute (ostream& outPrintWriter, 
-                                 ostream& errPrintWriter) 
+Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
+                                 ostream& errPrintWriter)
 {
     if ( _operationType == OPERATION_TYPE_HELP )
     {
@@ -1101,45 +1099,45 @@ Uint32 WbemExecCommand::execute (ostream& outPrintWriter,
     {
         _executeHttp (outPrintWriter, errPrintWriter);
     }
-    catch (WbemExecException& e)
+    catch (const WbemExecException& e)
     {
-        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-       e.getMessage () << endl;
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " <<
+            e.getMessage () << endl;
         return (RC_ERROR);
     }
-    catch (Exception& e)
+    catch (const Exception& e)
     {
-        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-       e.getMessage() << endl;
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " <<
+            e.getMessage() << endl;
         return (RC_ERROR);
     }
 #if !defined(PEGASUS_OS_LSB)
-    catch (exception& e)
+    catch (const exception& e)
     {
-        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-       e.what() << endl;
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " <<
+            e.what() << endl;
         return (RC_ERROR);
     }
 #endif
     catch (...)
     {
-        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " << 
-      "Unknown error thrown" << endl;
+        errPrintWriter << WbemExecCommand::COMMAND_NAME << ": " <<
+            "Unknown error thrown" << endl;
         return (RC_ERROR);
     }
     return (RC_SUCCESS);
 }
 
 /**
-    
+
     Parses the command line, and executes the command.
-  
+
     @param   argc  the number of command line arguments
     @param   argv  the string vector of command line arguments
-  
+
     @return  0                  if the command is successful
              1                  if an error occurs in executing the command
-  
+
  */
 PEGASUS_NAMESPACE_END
 
@@ -1147,16 +1145,16 @@ PEGASUS_NAMESPACE_END
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main (int argc, char* argv []) 
+int main (int argc, char* argv [])
 {
     WbemExecCommand    command = WbemExecCommand ();
     int                rc;
 
-    try 
+    try
     {
         command.setCommand (argc, argv);
-    } 
-    catch (CommandFormatException& cfe) 
+    }
+    catch (const CommandFormatException& cfe)
     {
         String msg(cfe.getMessage());
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,8 @@
 //                  (carolann_graves@hp.com)
 //              Dan Gorey, IBM (djgorey@us.ibm.com)
 //              Amit Arora, IBM (amita@in.ibm.com) for Bug#1170, PEP-101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +69,7 @@ PEGASUS_NAMESPACE_BEGIN
 static const char PASSWORD_PROMPT []  =
                      "Please enter your password: ";
 
-static const char PASSWORD_BLANK []  = 
+static const char PASSWORD_BLANK []  =
                      "Password cannot be blank. Please re-enter your password.";
 
 static const Uint32 MAX_PW_RETRIES =  3;
@@ -90,7 +92,7 @@ static Boolean verifyServerCertificate(SSLCertificateInfo &certInfo)
 }
 
 WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
-    : 
+    :
     MessageQueue(PEGASUS_QUEUENAME_WBEMEXECCLIENT),
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
@@ -127,8 +129,8 @@ void WbemExecClient::_connect(
     //try
     //{
     _httpConnection.reset(_httpConnector->connect(host,
-                                                  portNumber, 
-                                                  sslContext.get(), 
+                                                  portNumber,
+                                                  sslContext.get(),
                                                   this));
     sslContext.release();
 
@@ -321,7 +323,7 @@ String WbemExecClient::_promptForPassword()
 
 Array<char> WbemExecClient::issueRequest(
     const Array<char>& request
-) throw(NotConnectedException, ConnectionTimeoutException, UnauthorizedAccess)
+)
 {
     if (!_connected)
     {
@@ -367,14 +369,13 @@ Array<char> WbemExecClient::issueRequest(
 
     AutoPtr<HTTPMessage> origRequest((HTTPMessage*)_authenticator.getRequestMessage());
     _authenticator.setRequestMessage(0);
-    
+
     AutoPtr<HTTPMessage> destroyer(httpResponse);
 
     return(httpResponse->message);
 }
 
 Message* WbemExecClient::_doRequest(HTTPMessage * request)
-    throw(ConnectionTimeoutException)
 {
     // ATTN-RK-P2-20020416: We should probably clear out the queue first.
     PEGASUS_ASSERT(getCount() == 0);  // Shouldn't be any messages in our queue

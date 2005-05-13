@@ -29,10 +29,11 @@
 //
 // Author: Markus Mueller (sedgewick_de@yahoo.de)
 //
-// Modified By:
-//         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//         Heather Sterling, IBM (hsterl@us.ibm.com)
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Heather Sterling, IBM (hsterl@us.ibm.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,8 +72,7 @@ class PEGASUS_COMMON_LINKAGE SSLSocket
 public:
 
     SSLSocket(Sint32 socket, SSLContext * sslcontext,
-        Boolean exportConnection = false)
-        throw(SSLException);
+        Boolean exportConnection = false);
 
     ~SSLSocket();
 
@@ -132,8 +132,7 @@ public:
     MP_Socket(Uint32 socket);                          // "normal" socket
 
     MP_Socket(Uint32 socket, SSLContext * sslcontext,
-        Boolean exportConnection = false)
-        throw(SSLException);                          // secure socket
+        Boolean exportConnection = false);             // secure socket
 
     ~MP_Socket();
 

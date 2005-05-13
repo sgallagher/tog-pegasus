@@ -84,7 +84,7 @@ public:
                                             parsing the command line
       
      */
-    void setCommand (Uint32 argc, char* argv []) throw (CommandFormatException);
+    void setCommand (Uint32 argc, char* argv []);
 
     /**
         

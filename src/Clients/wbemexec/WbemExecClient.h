@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -97,7 +97,7 @@ public:
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
-        @param host - String defining the server to which the client should 
+        @param host - String defining the server to which the client should
         connect
         @param portNumber - Uint32 defining the port number for the server
         to which the client should connect
@@ -132,7 +132,7 @@ public:
 
     /** connect - Creates an HTTP connection with the server
         defined by the URL in address.
-        @param host - String defining the server to which the client should 
+        @param host - String defining the server to which the client should
         connect
         @param portNumber - Uint32 defining the port number for the server
         to which the client should connect
@@ -200,7 +200,7 @@ private:
       throw(CannotCreateSocketException, CannotConnectException,
             InvalidLocatorException);
 
-    Message* _doRequest(HTTPMessage * request) throw(ConnectionTimeoutException);
+    Message* _doRequest(HTTPMessage * request);
 
     void _addAuthHeader(HTTPMessage*& httpMessage);
 
@@ -212,7 +212,7 @@ private:
     AutoPtr<Monitor> _monitor;//PEP101
     AutoPtr<HTTPConnector> _httpConnector;//PEP101
     AutoPtr<HTTPConnection> _httpConnection;//PEP101
-    
+
     Uint32 _timeoutMilliseconds;
     Boolean _connected;
     ClientAuthenticator _authenticator;

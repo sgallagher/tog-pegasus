@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -37,6 +37,9 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 #ifndef Pegasus_CIMManagedClient_h
 #define Pegasus_CIMManagedClient_h
@@ -57,10 +60,10 @@ public:
 	CIMManagedClient();
 
 	CIMManagedClient(CIMClientConnectionManager* cccm);
-	
+
 	void setConnectionManager(CIMClientConnectionManager* cccm);
 	CIMClientConnectionManager* getConnectionManager(void);
-	
+
 	// virtual class destructor has to be implemented by specific implementation
 	~CIMManagedClient();
 
@@ -72,7 +75,7 @@ public:
 		@param host - input parameter, string containing hostname of CIMOM
 		@param port - input parameter, string containing port of CIMOM
         @param langs - REVIEWERS: Complete this
-    */	
+    */
 	void setRequestAcceptLanguages(const String& host, const String& port, AcceptLanguages& langs);
 
     /** Gets the accept languages that will be used on the next request.
@@ -82,14 +85,14 @@ public:
 		@param port - input parameter, string containing port of CIMOM
     */
 	AcceptLanguages getRequestAcceptLanguages(const String& host, const String& port) const;
-	
+
     /** Sets the content languages that will be used on the next request.
         These content languages are the languages of the CIM objects that will
         sent on the next request.
 		@param host - input parameter, string containing hostname of CIMOM
 		@param port - input parameter, string containing port of CIMOM
         @param langs REVIEWERS: Complete this
-    */  	
+    */
 	void setRequestContentLanguages(const String& host, const String& port, ContentLanguages& langs);
 
     /** Gets the content languages that will be used on the next request.
@@ -97,38 +100,38 @@ public:
       * sent on the next request.
 		@param host - input parameter, string containing hostname of CIMOM
 		@param port - input parameter, string containing port of CIMOM
-    */    
+    */
 	ContentLanguages getRequestContentLanguages(const String& host, const String& port) const;
-	
+
     /** Gets the content languages of the last response.
-      * These content languages are the languages of the CIM objects, or 
+      * These content languages are the languages of the CIM objects, or
       * CIM exceptions, that were returned on the last response..
 		@param host - input parameter, string containing hostname of CIMOM
 		@param port - input parameter, string containing port of CIMOM
-    */    	
+    */
 	ContentLanguages getResponseContentLanguages(const String& host, const String& port) const;
-	
+
 	/** REVIEWERS: COmplete this
-	 * 
+	 *
 		@param host - input parameter, string containing hostname of CIMOM
 		@param port - input parameter, string containing port of CIMOM
 	*/
 	void setRequestDefaultLanguages(const String& host, const String& port);
 // l10n end
-#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES	
+#endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 
     /** The <TT>enumerateInstanceNames</TT> operation enumerates the
     names (model paths) of the instances of a CIM Class in the target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
     namespace. See defintion of
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
-    
+
 	@param className The <TT>className</TT> input parameter defines the Class
     that is the basis for the enumeration.
 
@@ -161,9 +164,9 @@ public:
 
     /** The <TT>enumerateInstances</TT> method enumerates instances of a CIM
     Class in the target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
@@ -276,9 +279,9 @@ public:
 
     /** The <TT>enumerateClasses</TT> method is used to enumerate subclasses of
     a CIM Class in the target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
@@ -352,9 +355,9 @@ public:
     );
     /** The <TT>enumerateClassNames</TT> operation is used to enumerate the
     names of subclasses of a CIM Class in the target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
@@ -398,64 +401,64 @@ public:
     );
 
     /** The <TT>getClass</TT> method executes a CIM operation that returns
-        a single CIM Class from the target Namespace where the ClassName input 
-        parameter defines the name of the class to be retrieved.  
-	
+        a single CIM Class from the target Namespace where the ClassName input
+        parameter defines the name of the class to be retrieved.
+
 		@param host - input parameter, string containing hostname of CIMOM
-	
+
 		@param port - input parameter, string containing port of CIMOM
-    
-        @param nameSpace (Required) The <TT>nameSpace</TT> parameter is a CIMName 
-        object that defines the target Namespace.  See definition of 
-        \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.  
-    
-        @param className (Required)The <TT>className</TT> input parameter is a CIMName 
-        object that defines the name of the Class to be retrieved.  
-    
-        @param localOnly (Boolean, Optional, default = true, Input)  If the <TT>localOnly</TT> input 
-        parameter is true, this specifies that only CIM Elements (properties, 
-        methods and qualifiers) overridden within the definition of the Class are 
-        returned.  If false, all elements are returned.  This parameter therefore 
-        effects a CIM Server-side mechanism to filter certain elements of the 
-        returned object based on whether or not they have been propagated from the 
-        parent Class (as defined by the PROPAGATED attribute).  
-    
-        @param includeQualifiers (Boolean, Optional, default = true, Input) If the 
-        <TT>includeQualifiers</TT> input parameter is true, this specifies that 
-        all Qualifiers for that Class (including Qualifiers on the Class and on 
-        any returned Properties, Methods or CIMMethod Parameters) MUST be included 
-        as elements in the response.  If false no QUALIFIER elements are present 
-        in the returned Class object.  
-    
-        @param includeClassOrigin (Boolean,Optional, default = false, Input) If 
-        the <TT>includeClassOrigin</TT> input parameter is true, this specifies 
-        that the CLASSORIGIN attribute MUST be present on all appropriate elements 
-        in the returned Class.  If false, no CLASSORIGIN attributes are present in 
-        the returned Class.  
-    
-        @param propertyList (optional, Input) If the <TT>propertyList</TT> 
-        CIMPropertyList input parameter is not NULL, the members of the array 
-        define one or more CIMProperty names.  The returned Class WILL NOT include 
-        elements for any Properties missing from this list.  Note that if 
-        LocalOnly is specified as true this acts as an additional filter on the 
-        set of Properties returned (for example, if CIMProperty A is included in 
-        the PropertyList but LocalOnly is set to true and A is not local to the 
-        requested Class, then it will not be included in the response).  If the 
-        PropertyList input parameter is an empty array this signifies that no 
-        Properties are included in the response.  If the PropertyList input 
-        parameter is NULL this specifies that all Properties (subject to the 
-        conditions expressed by the other parameters) are included in the 
-        response.  
+
+        @param nameSpace (Required) The <TT>nameSpace</TT> parameter is a CIMName
+        object that defines the target Namespace.  See definition of
+        \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
+
+        @param className (Required)The <TT>className</TT> input parameter is a CIMName
+        object that defines the name of the Class to be retrieved.
+
+        @param localOnly (Boolean, Optional, default = true, Input)  If the <TT>localOnly</TT> input
+        parameter is true, this specifies that only CIM Elements (properties,
+        methods and qualifiers) overridden within the definition of the Class are
+        returned.  If false, all elements are returned.  This parameter therefore
+        effects a CIM Server-side mechanism to filter certain elements of the
+        returned object based on whether or not they have been propagated from the
+        parent Class (as defined by the PROPAGATED attribute).
+
+        @param includeQualifiers (Boolean, Optional, default = true, Input) If the
+        <TT>includeQualifiers</TT> input parameter is true, this specifies that
+        all Qualifiers for that Class (including Qualifiers on the Class and on
+        any returned Properties, Methods or CIMMethod Parameters) MUST be included
+        as elements in the response.  If false no QUALIFIER elements are present
+        in the returned Class object.
+
+        @param includeClassOrigin (Boolean,Optional, default = false, Input) If
+        the <TT>includeClassOrigin</TT> input parameter is true, this specifies
+        that the CLASSORIGIN attribute MUST be present on all appropriate elements
+        in the returned Class.  If false, no CLASSORIGIN attributes are present in
+        the returned Class.
+
+        @param propertyList (optional, Input) If the <TT>propertyList</TT>
+        CIMPropertyList input parameter is not NULL, the members of the array
+        define one or more CIMProperty names.  The returned Class WILL NOT include
+        elements for any Properties missing from this list.  Note that if
+        LocalOnly is specified as true this acts as an additional filter on the
+        set of Properties returned (for example, if CIMProperty A is included in
+        the PropertyList but LocalOnly is set to true and A is not local to the
+        requested Class, then it will not be included in the response).  If the
+        PropertyList input parameter is an empty array this signifies that no
+        Properties are included in the response.  If the PropertyList input
+        parameter is NULL this specifies that all Properties (subject to the
+        conditions expressed by the other parameters) are included in the
+        response.
         @see CIMPropertyList
-    
+
     	If the <TT>propertyList</TT> contains duplicate elements, the Server
     	MUST ignore the duplicates but otherwise process the request normally.
     	If the PropertyList contains elements which are invalid CIMProperty
     	names for the target Class, the Server MUST ignore such entries but
     	otherwise process the request normally.
-    
+
     	@return If successful, the return value is a single CIMClass objcet.
-    
+
     	If unsuccessful, an exception is executed. If the error is local, this may
         be any local exception.
         If the error is in the host normally a CIMException is returned with one of the
@@ -482,7 +485,7 @@ public:
             CIMPropertyList propertyList;      // empty property list
             try
             CIMException checkClassException;
-            { 
+            {
             CIMClass cimClass = client.getClass(nameSpace,
                                         className,
                                         localOnly,
@@ -500,11 +503,11 @@ public:
             {
             }
             ...
-        
+
             // An alternate call with the default parameters would be:
             // This uses the defaults localOnly = includeQualifiers = true
             // includeClassOrigin = false. propertyList = Null;
-            
+
             CIMClass cimClass = client.getClass(nameSpace, className);
         </pre>
         @exception REVIEWERS: Complete this
@@ -565,9 +568,9 @@ public:
         <QUALIFIER> element, and the value of the CIMQualifier).
 	</LI>
     </UL>
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
@@ -605,9 +608,9 @@ public:
 
     /** The <TT>DeleteClass</TT> method deletes a single CIM Class from the
 	target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
 	@param nameSpace The nameSpace parameter is a CIMName that defines
@@ -649,9 +652,9 @@ public:
     );
     /** The <TT>deleteQualifier</TT> operation deletes a single CIMQualifier
     declaration from the target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a CIMName that defines the target
@@ -659,18 +662,18 @@ public:
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
 
     @param qualifierName CIMName <TT>qualifierName</TT> input parameter identifies
-    the CIMQualifier whose declaration to be deleted. 
-        
+    the CIMQualifier whose declaration to be deleted.
+
     @return If successful, the specified CIMQualifier declaration MUST have been deleted
     from the Namespace with a normal return from the call.
 
-    If there is any error one of the CIMException errors is returned.  The 
-    errors are based on the CIM error codes defined below:  
+    If there is any error one of the CIMException errors is returned.  The
+    errors are based on the CIM error codes defined below:
 	<UL>
       <LI>CIM_ERR_ACCESS_DENIED
       <LI>CIM_ERR_NOT_SUPPORTED
       <LI>CIM_ERR_INVALID_NAMESPACE
-      <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or 
+      <LI>CIM_ERR_INVALID_PARAMETER (including missing, duplicate, unrecognized or
            otherwise incorrect parameters)
       <LI>CIM_ERR_FAILED (some other unspecified error occurred)</LI>
       </UL>
@@ -693,16 +696,16 @@ public:
 
     /** The <TT>getQualifier</TT> operation retrieves a single CIMQualifier
     declaration from the target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
-    @param nameSpace The nameSpace parameter is a CIMNameSpace object that defines 
+    @param nameSpace The nameSpace parameter is a CIMNameSpace object that defines
     the target namespace. See defintion of
     \URL[Namespace]{DefinitionofTerms.html#NAMESPACE}.
 
-    @param qualifierName The <TT>qualifierName</TT> input parameter  is a CIMName object 
+    @param qualifierName The <TT>qualifierName</TT> input parameter  is a CIMName object
     that identifies the CIMQualifier whose declaration to be retrieved.
 
     @return If successful, the method returns the CIMQualifier declaration for
@@ -805,9 +808,9 @@ public:
         attribute value of  <TT>false</TT> MUST NOT be propagated to the
         Subclass.</LI> </UL>
        </LI></UL>
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
@@ -860,9 +863,9 @@ public:
     /** The <TT>setQualifier</TT> creates or update a single CIMQualifier
     declaration in the target Namespace.  If the CIMQualifier declaration
     already exists it is overwritten.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a CIMName that defines the target
@@ -902,7 +905,7 @@ public:
         ... Connect with CIMClient object client;
         CIMNamespaceName nameSpace("root/cimv2");
         CIMQualifierDecl qual1(
-            CIMName ("CIMTYPE"), 
+            CIMName ("CIMTYPE"),
             String(),
             CIMScope::PROPERTY,
             CIMFlavor::TOINSTANCE);
@@ -924,9 +927,9 @@ public:
     );
     /** The <TT>enumerateQualifiers</TT> operation is used to enumerate
     CIMQualifier declarations from the target Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
@@ -983,7 +986,7 @@ public:
     /**
     The <TT>getProperty</TT>operation is used to retrieve a single property
     value from a CIM Instance in the target Namespace.
-	
+
     @param instanceName The <TT>instanceName</TT> input parameter specifies the
     name of the Instance (model path) from which the CIMProperty value is
     requested. \\Ref{INSTANCENAME}
@@ -1166,30 +1169,30 @@ public:
     );
 
 	    /** Gets the CIM instance for the specified CIM object path.
-        
-    	@param instanceName CIMobjectpath that identifies this CIM instance. 
-    	This must include all of the keys. 
+
+    	@param instanceName CIMobjectpath that identifies this CIM instance.
+    	This must include all of the keys.
 		It is a full specified object path, thus it consists also of target namespace,
 		hostname and port
-    	
-        @param localOnly If true, only properties and qualifiers overridden 
-    	or defined in the returned Instance are included in the response. 
-    	If false, all elements of the returned Instance are returned. 
-    	
-        @param includeQualifiers If true, all Qualifiers for each Object 
-    	(including Qualifiers on the Object and on any returned Properties) 
-    	MUST be included. If false no Qualifiers are present in the returned Object. 
-    	
-        @param includeClassOrigin If true, CLASSORIGIN attribute MUST be 
-    	present on all appropriate elements in each returned Object. If false, 
+
+        @param localOnly If true, only properties and qualifiers overridden
+    	or defined in the returned Instance are included in the response.
+    	If false, all elements of the returned Instance are returned.
+
+        @param includeQualifiers If true, all Qualifiers for each Object
+    	(including Qualifiers on the Object and on any returned Properties)
+    	MUST be included. If false no Qualifiers are present in the returned Object.
+
+        @param includeClassOrigin If true, CLASSORIGIN attribute MUST be
+    	present on all appropriate elements in each returned Object. If false,
     	no CLASSORIGIN attributes are present in each returned Object. The CLASSORIGIN
         attribute is defined in the DMTF's Specification for the Representation of CIM
         in XML. CLASSORIGIN is an XML tag identifying the following text as a class name.
         It is attached to a property or method (when specified in XML), to indicate the
         class where that property or method is first defined. Where the same property
         name is locally defined in another superclass or subclass, the Server will
-        return the value for the property in the lowest subclass. 
-    	
+        return the value for the property in the lowest subclass.
+
         @param propertyList If the PropertyList input parameter is not NULL, the
         members of the array define one or more Property names. Each returned Object
         MUST NOT include elements for any Properties missing from this list.
@@ -1205,13 +1208,13 @@ public:
         Server ignores the duplicates but otherwise process the request normally.
         If the PropertyList contains elements which are invalid Property names for
         any target Object, the Server ignores such entries but otherwise process
-        the request normally. 
-    	
-        @return If successful, the CIM instance identified by the CIMObjectPath. If 
+        the request normally.
+
+        @return If successful, the CIM instance identified by the CIMObjectPath. If
         unsuccessful, an exception is executed.
         REVIEWERS: COmplete this.
 	*/
-	
+
     CIMInstance getInstance(
 	const CIMObjectPath& instanceName,
 	Boolean localOnly = true,
@@ -1667,9 +1670,9 @@ public:
 
     /** The <TT>execQuery</TT> is used to execute a query against the target
     Namespace.
-	
+
 	@param host - input parameter, string containing hostname of CIMOM
-	
+
 	@param port - input parameter, string containing port of CIMOM
 
     @param nameSpace The nameSpace parameter is a string that defines the target
@@ -1714,9 +1717,14 @@ public:
 
 
 private:
-	void hasHostandNameSpace(const String& _host, const CIMNamespaceName& nameSpace) throw(TypeMismatchException);
-	void hasHostandNameSpace(const CIMObjectPath& inObjectPath) throw(TypeMismatchException);
-	void hasHostandNameSpace(const CIMInstance& inInstance) throw(TypeMismatchException);
+    // @exception TypeMismatchException
+	void hasHostandNameSpace(const String& _host, const CIMNamespaceName& nameSpace);
+
+    // @exception TypeMismatchException
+    void hasHostandNameSpace(const CIMObjectPath& inObjectPath);
+
+    // @exception TypeMismatchException
+	void hasHostandNameSpace(const CIMInstance& inInstance);
 
 	CIMClientRep* getTargetCIMOM(const String& _host,const String& _port, const CIMNamespaceName& _nameSpace) const;
 	CIMClientRep* getTargetCIMOM(const CIMObjectPath& inObjectPath) const;

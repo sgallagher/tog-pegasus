@@ -36,6 +36,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Jair Santos, Hewlett-Packard Company (jair.santos@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -707,7 +709,7 @@ Array<CIMObjectPath> CIMManagedClient::referenceNames(
 
 
 
-void CIMManagedClient::hasHostandNameSpace(const String& _host, const CIMNamespaceName& _nameSpace) throw(TypeMismatchException)
+void CIMManagedClient::hasHostandNameSpace(const String& _host, const CIMNamespaceName& _nameSpace)
 {
 	MessageLoaderParms typeMismatchMessage;
 	if (_host == String::EMPTY)
@@ -729,13 +731,13 @@ void CIMManagedClient::hasHostandNameSpace(const String& _host, const CIMNamespa
 	CDEBUG("No exception thrown, seems the host and namespace are there.");
 }
 
-void CIMManagedClient::hasHostandNameSpace(const CIMObjectPath& inObjectPath) throw(TypeMismatchException)
+void CIMManagedClient::hasHostandNameSpace(const CIMObjectPath& inObjectPath)
 {
 	CDEBUG("hasHostandNameSpace(inObjectPath.getHost(), inObjectPath.getNameSpace())=" << inObjectPath.getHost() << "," << inObjectPath.getNameSpace());
 	hasHostandNameSpace(inObjectPath.getHost(), inObjectPath.getNameSpace());
 }
 
-void CIMManagedClient::hasHostandNameSpace(const CIMInstance& inInstance) throw(TypeMismatchException)
+void CIMManagedClient::hasHostandNameSpace(const CIMInstance& inInstance)
 {
 	hasHostandNameSpace(inInstance.getPath());
 }

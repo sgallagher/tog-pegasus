@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 
 SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConnection)
-   throw(SSLException) :
+   :
    _SSLConnection(0),
    _socket(socket),
    _SSLContext(sslcontext),
@@ -427,7 +427,6 @@ MP_Socket::MP_Socket(Uint32 socket)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext, Boolean exportConnection)
-   throw(SSLException)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
@@ -575,7 +574,6 @@ MP_Socket::MP_Socket(Uint32 socket)
 
 MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext,
    Boolean exportConnection)
-   throw(SSLException)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::~MP_Socket() {}

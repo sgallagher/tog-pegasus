@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +85,7 @@ QueryExpression::QueryExpression(String queryLang, String query, QueryContext& c
      throw QueryLanguageInvalidException(
 				MessageLoaderParms(String("Query.QueryExpression.INVALID_QUERY_LANGUAGE"),
 						   String("The query language specified is invalid: $0."),
-						   queryLang));  
+						   queryLang));
    }
 }
 
@@ -126,7 +127,7 @@ QueryExpression::QueryExpression(const QueryExpression& expr):
   _queryLang(expr._queryLang)
 {
   if (expr._ss == NULL)
-  { 
+  {
     _ss = NULL;
   }
   else
@@ -165,7 +166,7 @@ QueryExpression QueryExpression::operator=(const QueryExpression& rhs)
   if (_ss != NULL)
     delete _ss;
   _ss = NULL;
- 
+
   if (rhs._ss != NULL)
   {
     String cql("CIM:CQL");
@@ -256,7 +257,7 @@ CIMPropertyList QueryExpression::getPropertyList(const CIMObjectPath& objectPath
   }
 }
 
-CIMPropertyList QueryExpression::getSelectPropertyList 
+CIMPropertyList QueryExpression::getSelectPropertyList
     (const CIMObjectPath& objectPath) const
 {
     if (_ss == NULL)
@@ -276,7 +277,7 @@ CIMPropertyList QueryExpression::getSelectPropertyList
     }
     catch (Exception& e)
     {
-        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (), 
+        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (),
             e.getMessage ());
     }
 }
@@ -301,7 +302,7 @@ CIMPropertyList QueryExpression::getWherePropertyList
     }
     catch (Exception& e)
     {
-        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (), 
+        throw PEGASUS_QUERY_EXCEPTION (e.getContentLanguages (),
             e.getMessage ());
     }
 }
@@ -349,7 +350,7 @@ void QueryExpression::validate(){
     throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
   }
 }
- 
+
 Array<CIMObjectPath> QueryExpression::getClassPathList() const{
   if(_ss == NULL){
     MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
@@ -368,14 +369,14 @@ Array<CIMObjectPath> QueryExpression::getClassPathList() const{
   catch (Exception& e)
   {
     throw PEGASUS_QUERY_EXCEPTION(e.getContentLanguages(), e.getMessage());
-  }   
+  }
 }
 
 SelectStatement* QueryExpression::getSelectStatement(){
    return _ss;
 }
 
-void QueryExpression::setQueryContext(QueryContext& inCtx) throw (Exception)
+void QueryExpression::setQueryContext(QueryContext& inCtx)
 {
   if(_ss == NULL){
     MessageLoaderParms parms("Query.QueryExpression.SS_IS_NULL",
@@ -390,7 +391,7 @@ void QueryExpression::setQueryContext(QueryContext& inCtx) throw (Exception)
 
   if(String::compareNoCase(_queryLang, cql) == 0)
   {
-    // Now that we have a QueryContext, we can finish compiling 
+    // Now that we have a QueryContext, we can finish compiling
     // the CQL statement.
     CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(_ss);
     if (tempSS != NULL)

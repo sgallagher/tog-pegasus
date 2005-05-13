@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,8 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +70,7 @@ class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
     @param language contains the query language type, "WQL" is supported.
     @param query contains a WQL style select statement
   */
-    
+
     QueryExpression(String queryLang, String query, QueryContext& ctx);
 
     QueryExpression(String queryLang, String query);
@@ -130,7 +131,7 @@ class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getSelectPropertyList 
+    CIMPropertyList getSelectPropertyList
         (const CIMObjectPath& objectPath = CIMObjectPath ()) const;
 
     /**
@@ -145,10 +146,10 @@ class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getWherePropertyList 
+    CIMPropertyList getWherePropertyList
         (const CIMObjectPath& objectPath = CIMObjectPath ()) const;
 
-    void applyProjection(CIMInstance instance, 
+    void applyProjection(CIMInstance instance,
         Boolean allowMissing);
 
     void validate();
@@ -157,7 +158,7 @@ class PEGASUS_QUERYEXPRESSION_LINKAGE QueryExpression {
 
     SelectStatement* getSelectStatement();
 
-    void setQueryContext(QueryContext& inCtx) throw (Exception);
+    void setQueryContext(QueryContext& inCtx);
 
   private:
     SelectStatement *_ss;

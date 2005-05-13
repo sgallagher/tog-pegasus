@@ -35,12 +35,14 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//		        Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//      		Adrian Schuur (schuur@de.ibm.com)
-//				Seema Gupta (gseema@in.ibm.com for PEP135)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Adrian Schuur (schuur@de.ibm.com)
+//              Seema Gupta (gseema@in.ibm.com for PEP135)
 //              Chip Vincent (cvincent@us.ibm.com)
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -361,7 +363,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 	*/
     Array<CIMName> _getSubClassNames(
         const CIMNamespaceName& nameSpace,
-        const CIMName& className) throw(CIMException);
+        const CIMName& className);
 
     Boolean _lookupInternalProvider(
         const CIMNamespaceName& nameSpace,
@@ -392,12 +394,13 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 /*   Array<ProviderInfo> _lookupAllQueryProviders(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Uint32& providerCount)  throw(CIMException); */
+        Uint32& providerCount); */
 
+    // @exception CIMException
     Array<ProviderInfo> _lookupAllInstanceProviders(
         const CIMNamespaceName& nameSpace,
         const CIMName& className,
-        Uint32& providerCount)  throw(CIMException);
+        Uint32& providerCount);
 
     Array<ProviderInfo> _lookupAllAssociationProviders(
         const CIMNamespaceName& nameSpace,

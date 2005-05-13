@@ -857,7 +857,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 */
 Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
     const CIMNamespaceName& nameSpace,
-    const CIMName& className) throw(CIMException)
+    const CIMName& className)
 {
     PEG_METHOD_ENTER(TRC_DISPATCHER,
         "CIMOperationRequestDispatcher::_getSubClassNames");
@@ -943,14 +943,14 @@ static String _showPropertyList(const CIMPropertyList& pl)
    Each ProviderInfo instance defines whether a provider exists and the
    information on the provider so that the operation can be forwarded to the
    provider.
-   @exception - returns one exception if the className is in error.  Note that
+   @exception - Throws one exception if the className is in error.  Note that
    this should NEVER occur since the className should have already been
    validated in the operation code.
 */
 Array<ProviderInfo> CIMOperationRequestDispatcher::_lookupAllInstanceProviders(
     const CIMNamespaceName & nameSpace,
     const CIMName & className,
-    Uint32 & providerCount)  throw(CIMException)
+    Uint32 & providerCount)
 {
     PEG_METHOD_ENTER(
         TRC_DISPATCHER,
@@ -1486,12 +1486,12 @@ Boolean CIMOperationRequestDispatcher::_lookupNewAssociationProvider(
        {
            tmp = _lookupAssociationProvider(nameSpace, assocClass,providerIdContainer);
        }
-       catch(CIMException&)
+       catch(const CIMException&)
        {
           PEG_METHOD_EXIT();
           throw;
        }
-       catch(Exception& exception)
+       catch(const Exception& exception)
        {
           cimException =
              PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -1554,11 +1554,11 @@ Array<String> CIMOperationRequestDispatcher::_lookupAssociationProvider(
         returnValue = _providerRegistrationManager->lookupAssociationProvider(
                 nameSpace, assocClass, pInstances, pmInstances);
     }
-    catch(CIMException& exception)
+    catch(const CIMException& exception)
     {
        cimException = exception;
     }
-    catch(Exception& exception)
+    catch(const Exception& exception)
     {
        cimException =
           PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2239,11 +2239,11 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
                   request->nameSpace.getString(),
                   request->className.getString());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2375,11 +2375,11 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
                    request->includeClassOrigin,
                    request->propertyList);
        }
-       catch(CIMException& exception)
+       catch(const CIMException& exception)
        {
           cimException = exception;
        }
-       catch(Exception& exception)
+       catch(const Exception& exception)
        {
           cimException =
              PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2448,11 +2448,11 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
    }
 
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2572,11 +2572,11 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
               request->nameSpace.getString(),
               request->instanceName.toString());
       }
-      catch(CIMException& exception)
+      catch(const CIMException& exception)
       {
          cimException = exception;
       }
-      catch(Exception& exception)
+      catch(const Exception& exception)
       {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2642,11 +2642,11 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
                   request->nameSpace.getString(),
                   request->newClass.getClassName().getString());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2771,11 +2771,11 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
                request->nameSpace.getString(),
                request->newInstance.getClassName().getString());
        }
-       catch(CIMException& exception)
+       catch(const CIMException& exception)
        {
           cimException = exception;
        }
-       catch(Exception& exception)
+       catch(const Exception& exception)
        {
           cimException =
              PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2840,11 +2840,11 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
          ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
             getLanguages());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -2970,11 +2970,11 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
               request->nameSpace.getString(),
               request->modifiedInstance.getClassName().getString());
       }
-      catch(CIMException& exception)
+      catch(const CIMException& exception)
       {
          cimException = exception;
       }
-      catch(Exception& exception)
+      catch(const Exception& exception)
       {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -3046,11 +3046,11 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
          request->className.getString());
    }
 
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -3104,11 +3104,11 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
          request->nameSpace.getString(),
          request->className.getString());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -3234,7 +3234,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                 className,
                 providerCount);
     }
-    catch(CIMException& exception)
+    catch(const CIMException& exception)
     {
         // Return exception response if exception from getSubClasses
         cimException = exception;
@@ -3386,11 +3386,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
                         false,
                         request->propertyList);
             }
-            catch(CIMException& exception)
+            catch(const CIMException& exception)
             {
                 cimException = exception;
             }
-            catch(Exception& exception)
+            catch(const Exception& exception)
             {
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                     exception.getMessage());
@@ -3606,7 +3606,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             request->className,
             providerCount);
     }
-    catch(CIMException& exception)
+    catch(const CIMException& exception)
     {
         // Return exception response if exception from getSubClasses
         cimException = exception;
@@ -3747,11 +3747,11 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
                         providerInfo.className,
                         false);
             }
-            catch(CIMException& exception)
+            catch(const CIMException& exception)
             {
                 cimException = exception;
             }
-            catch(Exception& exception)
+            catch(const Exception& exception)
             {
                 cimException =
                     PEGASUS_CIM_EXCEPTION(
@@ -3977,11 +3977,11 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 request->includeClassOrigin,
                 request->propertyList);
         }
-        catch(CIMException& exception)
+        catch(const CIMException& exception)
         {
             cimException = exception;
         }
-        catch(Exception& exception)
+        catch(const Exception& exception)
         {
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  exception.getMessage());
@@ -4026,7 +4026,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 String::EMPTY,
                 providerCount);
         }
-        catch(CIMException& cimException)
+        catch(const CIMException& cimException)
         {
             CIMAssociatorsResponseMessage* response =
                 new CIMAssociatorsResponseMessage(
@@ -4069,11 +4069,11 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                     request->includeClassOrigin,
                     request->propertyList);
             }
-            catch(CIMException& exception)
+            catch(const CIMException& exception)
             {
                 cimException = exception;
             }
-            catch(Exception& exception)
+            catch(const Exception& exception)
             {
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      exception.getMessage());
@@ -4248,11 +4248,11 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 request->role,
                 request->resultRole);
         }
-        catch(CIMException& exception)
+        catch(const CIMException& exception)
         {
             cimException = exception;
         }
-        catch(Exception& exception)
+        catch(const Exception& exception)
         {
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  exception.getMessage());
@@ -4297,7 +4297,7 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 String::EMPTY,
                 providerCount);
         }
-        catch(CIMException& cimException)
+        catch(const CIMException& cimException)
         {
             CIMAssociatorNamesResponseMessage* response =
                 new CIMAssociatorNamesResponseMessage(
@@ -4337,11 +4337,11 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                     request->role,
                     request->resultRole);
             }
-            catch(CIMException& exception)
+            catch(const CIMException& exception)
             {
                 cimException = exception;
             }
-            catch(Exception& exception)
+            catch(const Exception& exception)
             {
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      exception.getMessage());
@@ -4517,11 +4517,11 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 request->includeClassOrigin,
                 request->propertyList);
         }
-        catch(CIMException& exception)
+        catch(const CIMException& exception)
         {
             cimException = exception;
         }
-        catch(Exception& exception)
+        catch(const Exception& exception)
         {
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  exception.getMessage());
@@ -4566,7 +4566,7 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 String::EMPTY,
                 providerCount);
         }
-        catch(CIMException& cimException)
+        catch(const CIMException& cimException)
         {
             CIMReferencesResponseMessage* response =
                 new CIMReferencesResponseMessage(
@@ -4607,11 +4607,11 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                     request->includeClassOrigin,
                     request->propertyList);
             }
-            catch(CIMException& exception)
+            catch(const CIMException& exception)
             {
                 cimException = exception;
             }
-            catch(Exception& exception)
+            catch(const Exception& exception)
             {
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      exception.getMessage());
@@ -4785,11 +4785,11 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 request->resultClass,
                 request->role);
         }
-        catch(CIMException& exception)
+        catch(const CIMException& exception)
         {
             cimException = exception;
         }
-        catch(Exception& exception)
+        catch(const Exception& exception)
         {
             cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                  exception.getMessage());
@@ -4834,7 +4834,7 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 String::EMPTY,
                 providerCount);
         }
-        catch(CIMException& cimException)
+        catch(const CIMException& cimException)
         {
             CIMReferenceNamesResponseMessage* response =
                 new CIMReferenceNamesResponseMessage(
@@ -4872,11 +4872,11 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                     request->resultClass,
                     request->role);
             }
-            catch(CIMException& exception)
+            catch(const CIMException& exception)
             {
                 cimException = exception;
             }
-            catch(Exception& exception)
+            catch(const Exception& exception)
             {
                 cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
                                                      exception.getMessage());
@@ -5021,11 +5021,11 @@ void CIMOperationRequestDispatcher::handleGetPropertyRequest(
             request->instanceName,
             request->propertyName);
       }
-      catch(CIMException& exception)
+      catch(const CIMException& exception)
       {
          cimException = exception;
       }
-      catch(Exception& exception)
+      catch(const Exception& exception)
       {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5085,7 +5085,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
       {
          cimException = exception;
       }
-      catch(Exception& exception)
+      catch(const Exception& exception)
       {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5168,11 +5168,11 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             request->propertyName.getString(),
             request->newValue.toString());
       }
-      catch(CIMException& exception)
+      catch(const CIMException& exception)
       {
          cimException = exception;
       }
-      catch(Exception& exception)
+      catch(const Exception& exception)
       {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5236,11 +5236,11 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
          request->nameSpace.getString(),
          request->qualifierName.getString());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5292,11 +5292,11 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
          request->nameSpace.getString(),
          request->qualifierDeclaration.getName().getString());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5348,11 +5348,11 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
          request->qualifierName.getString());
    }
 
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5403,11 +5403,11 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
          request->nameSpace.getString());
    }
 
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       cimException = exception;
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -5512,7 +5512,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
       {
          cimException = exception;
       }
-      catch(Exception& exception)
+      catch(const Exception& exception)
       {
          cimException =
             PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -6348,7 +6348,7 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
          nameSpace.getString(),
          className.getString());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       // map CIM_ERR_NOT_FOUND to CIM_ERR_INVALID_CLASS
       if (exception.getCode() == CIM_ERR_NOT_FOUND)
@@ -6361,7 +6361,7 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
          cimException = exception;
       }
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());
@@ -6403,7 +6403,7 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
          nameSpace.getString(),
          className.getString());
    }
-   catch(CIMException& exception)
+   catch(const CIMException& exception)
    {
       // map CIM_ERR_NOT_FOUND to CIM_ERR_INVALID_CLASS
       if (exception.getCode() == CIM_ERR_NOT_FOUND)
@@ -6416,7 +6416,7 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
          cimException = exception;
       }
    }
-   catch(Exception& exception)
+   catch(const Exception& exception)
    {
       cimException =
          PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, exception.getMessage());

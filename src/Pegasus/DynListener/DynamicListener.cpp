@@ -101,7 +101,7 @@ public:
 
     Boolean getEnableConsumerUnload();
 
-    void setIdleTimeout(const Uint32 idleTimeout);
+    void setIdleTimeout(Uint32 idleTimeout);
 
     Uint32 getIdleTimeout(); 
 

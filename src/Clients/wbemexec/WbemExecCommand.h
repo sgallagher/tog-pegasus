@@ -121,9 +121,9 @@ private:
                                     the connection 
       
      */
-    void _connectToServer( WbemExecClient& client,
-			   ostream& outPrintWriter ) 
-        throw (Exception);
+    void _connectToServer(
+        WbemExecClient& client,
+        ostream& outPrintWriter);
 
     void _printContent(
         ostream& oStream,

@@ -185,11 +185,11 @@ public:
 
 
     /** ATTN TBD
+        @exception NotConnectedException
+        @exception ConnectionTimeoutException
+        @exception UnauthorizedAccess
     */
-    Array<char> issueRequest(
-	const Array<char>& request
-    ) throw(NotConnectedException, ConnectionTimeoutException,
-            UnauthorizedAccess);
+    Array<char> issueRequest(const Array<char>& request);
 
 private:
 

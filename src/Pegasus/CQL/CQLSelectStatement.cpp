@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,13 +32,15 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLSelectStatement.h"
 #include "CQLSelectStatementRep.h"
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/CQL/CQLPredicate.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -46,7 +48,7 @@ CQLSelectStatement::CQLSelectStatement()
   :SelectStatement()
 {
   _rep = new CQLSelectStatementRep();
-  
+
   // Set the _rep into the base class also
   SelectStatement::_rep = _rep;
 }
@@ -90,7 +92,7 @@ CQLSelectStatement& CQLSelectStatement::operator=(const CQLSelectStatement& rhs)
 {
   if(&rhs != this)
   {
-    if(_rep) delete _rep;	
+    if(_rep) delete _rep;
     _rep = new CQLSelectStatementRep(*rhs._rep);
 
     // Set the _rep into the base class also
@@ -108,14 +110,14 @@ Boolean CQLSelectStatement::evaluate(const CIMInstance& inCI)
 }
 
 void CQLSelectStatement::applyProjection(CIMInstance& inCI,
-    Boolean allowMissing) throw(Exception)
+    Boolean allowMissing)
 {
   PEGASUS_ASSERT(_rep != NULL);
 
    _rep->applyProjection(inCI, allowMissing);
 }
 
-void CQLSelectStatement::validate() throw(Exception)
+void CQLSelectStatement::validate()
 {
   PEGASUS_ASSERT(_rep != NULL);
 

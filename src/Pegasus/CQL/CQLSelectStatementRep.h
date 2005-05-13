@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,23 +32,20 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLSelectStatementRep_h
 #define Pegasus_CQLSelectStatementRep_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Query/QueryCommon/SelectStatementRep.h>
-#include <Pegasus/Query/QueryCommon/QueryContext.h>
 #include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 #include <Pegasus/CQL/Linkage.h>
-
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -60,8 +57,8 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
     CQLSelectStatementRep();
 
-    CQLSelectStatementRep(String& inQlang, 
-                          String& inQuery, 
+    CQLSelectStatementRep(String& inQlang,
+                          String& inQuery,
                           QueryContext& inCtx);
 
     CQLSelectStatementRep(String& inQlang,
@@ -76,9 +73,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     Boolean evaluate(const CIMInstance& inCI);
 
     void applyProjection(CIMInstance& inCI,
-        Boolean allowMissing) throw(Exception);
+        Boolean allowMissing);
 
-    void validate() throw(Exception);
+    void validate();
 
     Array<CIMObjectPath> getClassPathList();
 
@@ -94,11 +91,11 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
     void appendClassPath(const CQLIdentifier& inIdentifier);
 
-    void setPredicate( const CQLPredicate& inPredicate);
+    void setPredicate(const CQLPredicate& inPredicate);
 
     CQLPredicate getPredicate() const;
 
-    void insertClassPathAlias(const CQLIdentifier& inIdentifier, 
+    void insertClassPathAlias(const CQLIdentifier& inIdentifier,
                               String inAlias);
 
     void appendSelectIdentifier(const CQLChainedIdentifier& x);
@@ -145,7 +142,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
     Boolean isFilterable(const CIMInstance& inst,
                          PropertyNode* node);
 
-    void filterInstance(CIMInstance& inst, 
+    void filterInstance(CIMInstance& inst,
                         Boolean& allPropsRequired,
                         const CIMName& allPropsClass,
                         Array<CIMName>& requiredProps,
@@ -167,4 +164,4 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatementRep : public SelectStatementRep
 
 PEGASUS_NAMESPACE_END
 
-#endif 
+#endif

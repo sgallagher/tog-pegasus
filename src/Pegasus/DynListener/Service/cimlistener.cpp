@@ -209,6 +209,7 @@ public:
 };
 
 AutoPtr<CIMListenerProcess> _cimListenerProcess(new CIMListenerProcess());
+AutoPtr<DynamicListenerConfig> configManager(DynamicListenerConfig::getInstance());
 static DynamicListener* _cimListener = 0;
 
 
@@ -247,27 +248,6 @@ static const String PROPERTY_TIMEOUT = "shutdownTimeout";
 
 static const String DEFAULT_CONFIG_FILE = "cimlistener.conf";
 
-
-DynamicListenerConfig*    configManager = 0;
-
-
-/** GetOptions function - This function defines the Options Table
-    and sets up the options from that table using the config manager.
-*/
-void GetOptions(
-    DynamicListenerConfig* cm,
-    String configFile)
-{
-    try
-    {
-        cm->initOptions(configFile);
-    }
-    catch (Exception&)
-    {
-        throw;
-    }
-    //ATTN: Catch OptionMgr exceptions
-}
 
 /* PrintHelp - This is temporary until we expand the options manager to allow
    options help to be defined with the OptionRow entries and presented from
@@ -406,8 +386,12 @@ setlocale(LC_ALL, "");
 #else
 
   // windows only
-  //setHome(pegasusHome);
-  pegasusHome = _cimListenerProcess->getHome();
+	char exeDir[MAX_PATH];
+	HMODULE hExe = GetModuleHandle(NULL);
+	GetModuleFileName(hExe, exeDir, sizeof(exeDir));
+	*strrchr(exeDir, '\\') = '\0';
+	pegasusHome = String(exeDir);
+		
 #endif
 
         // Get help, version, and shutdown options
@@ -558,11 +542,12 @@ void CIMListenerProcess::cimserver_stop()
 int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOption )
 {
     String logsDirectory = String::EMPTY;
+	String homeDir = configManager->getListenerHome();
 
     //
     // Get an instance of the Config Manager.
     //
-    configManager = DynamicListenerConfig::getInstance();
+    //configManager = DynamicListenerConfig::getInstance();
 
     //
     // Check to see if we should Pegasus as a daemon
@@ -607,7 +592,9 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
 #ifdef PEGASUS_OS_OS400
     if (os400StartupOption == false)
 #endif
-        GetOptions(configManager, DEFAULT_CONFIG_FILE);
+		String configFilePath = homeDir + "/" + DEFAULT_CONFIG_FILE;
+		FileSystem::translateSlashes(configFilePath);
+        configManager->initOptions(configFilePath);
     }
     catch (Exception& e)
     {
@@ -626,15 +613,13 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
         return(1);
     }
 
-
 // l10n
     // Set the home directory, msg sub-dir, into the MessageLoader.
     // This will be the default directory where the resource bundles
     // are found.
-/*  MessageLoader::setPegasusMsgHome(ConfigManager::getHomedPath(
-        ConfigManager::getInstance()->getCurrentValue("messageDir")));
-*/
-
+	String msgHome = homeDir + "/msg";
+	FileSystem::translateSlashes(msgHome);
+	MessageLoader::setPegasusMsgHome(msgHome);
 
     //
     // Check to see if we need to shutdown CIMOM
@@ -685,9 +670,7 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
 #endif
     }
 
-    //
-    //Get options from the config
-    //
+	//get config options.  note that the paths will be converted to homedPaths in the lookup calls.
     Uint32 listenerPort;
     Boolean httpsConnection;
     String sslKeyFilePath;
@@ -720,6 +703,8 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
     } else
     {
 #endif
+	try
+    {
     configManager->lookupIntegerValue("listenerPort", listenerPort);
     httpsConnection = configManager->isTrue("enableHttpsListenerConnection");
     configManager->lookupValue("sslKeyFilePath", sslKeyFilePath);
@@ -728,12 +713,20 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
     configManager->lookupValue("consumerConfigDir", consumerConfigDir);
     enableConsumerUnload = configManager->isTrue("enableConsumerUnload");
     configManager->lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout);
-    configManager->lookupValue("traceFilePath", traceFile);
     configManager->lookupIntegerValue("consumerIdleTimeout", consumerIdleTimeout);
     configManager->lookupIntegerValue("shutdownTimeout", shutdownTimeout);
     configManager->lookupValue("traceFilePath", traceFile);
     configManager->lookupIntegerValue("traceLevel", traceLevel);
     configManager->lookupValue("traceComponents", traceComponents);
+
+	} catch (Exception& ex)
+	{
+		MessageLoaderParms parms("src.Server.cimserver.INVALID_CONFIG_OPTION",
+								 "Invalid configuration option: $0",
+								 ex.getMessage());
+		cout << MessageLoader::getMessage(parms) << endl;
+		exit(0);
+	}
 #ifdef PEGASUS_OS_OS400
     }
 #endif
@@ -752,7 +745,7 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
     //Configure trace options
     if (traceLevel > 0)
     {
-        Uint32 traceLevelArg;
+        Uint32 traceLevelArg = 0;
 
         switch (traceLevel)
         {
@@ -760,8 +753,7 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
         case 2: traceLevelArg = Tracer::LEVEL2; break;
         case 3: traceLevelArg = Tracer::LEVEL3; break;
         case 4: traceLevelArg = Tracer::LEVEL4; break;
-        default: printf("Invalid trace level\n");
-            return 0;
+        default: break;
         }
 
         Tracer::setTraceFile((const char*)traceFile.getCString());
@@ -900,7 +892,6 @@ MessageLoader::_useProcessLocale = false;
 
 
 #if defined(PEGASUS_DEBUG)
-        //ATTN: Use MessageLoaderParms
         //Log startup options
         printf("Starting CIMListener with the following options\n");
         printf("\tlistenerPort %d\n", listenerPort);
@@ -915,6 +906,7 @@ MessageLoader::_useProcessLocale = false;
         printf("\ttraceFilePath %s\n", (const char*)traceFile.getCString());
         printf("\ttraceLevel %d\n", traceLevel);
         printf("\ttraceComponents %s\n", (const char*)traceComponents.getCString());
+		printf("\tMessage home is %s\n", (const char*)msgHome.getCString());
 #endif
 
     // notify parent process (if there is a parent process) to terminate
@@ -958,7 +950,9 @@ MessageLoader::_useProcessLocale = false;
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
 
+#if defined(PEGASUS_DEBUG)
         printf("Blocking until shutdown signal\n");
+#endif
         while (true)
         {
             if (FileSystem::exists(LISTENER_STOP_FILE))
@@ -969,7 +963,9 @@ MessageLoader::_useProcessLocale = false;
             pegasus_sleep(500);
         }
 
+#if defined(PEGASUS_DEBUG)
         printf("Received signal to shutdown\n");
+#endif
         FileSystem::removeFile(LISTENER_STOP_FILE);
         _cimListener->stop();
 
@@ -1000,7 +996,9 @@ MessageLoader::_useProcessLocale = false;
         }
 #endif
 
+#if defined(PEGASUS_DEBUG)
     PEGASUS_STD(cout) << "Stopped\n";
+#endif
 
         //
         // normal termination
@@ -1061,7 +1059,9 @@ MessageLoader::_useProcessLocale = false;
         _cimListener = 0;
     }
 
+#if defined(PEGASUS_DEBUG)
     printf("Exiting child process\n");
+#endif
 
     return 0;
 }

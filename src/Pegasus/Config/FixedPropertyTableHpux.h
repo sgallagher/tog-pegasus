@@ -61,7 +61,6 @@
 #ifndef PEGASUS_USE_SYSLOGS
     {"logdir",              "/var/opt/wbem/logs"},
 #endif
-    {"tempLocalAuthDir",    "/var/opt/wbem/localauth"},
     {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
     {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},

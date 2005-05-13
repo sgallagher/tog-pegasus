@@ -105,7 +105,6 @@ static struct OwnerEntry _properties[] =
     {"home",                (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"daemon",              (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"slp",                 (ConfigPropertyOwner* )ConfigManager::defaultOwner},
-    {"tempLocalAuthDir",    (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableAssociationTraversal", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     {"enableIndicationService", (ConfigPropertyOwner* )ConfigManager::defaultOwner},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", (ConfigPropertyOwner* )ConfigManager::defaultOwner},

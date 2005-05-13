@@ -55,7 +55,6 @@
     {"enableSubscriptionsForNonprivilegedUsers", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
@@ -77,7 +76,6 @@
     {"enableSubscriptionsForNonprivilegedUsers", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}

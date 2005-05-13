@@ -123,7 +123,7 @@ LocalAuthFile::LocalAuthFile(const String& userName)
     //
     ConfigManager* configManager = ConfigManager::getInstance();
 
-    _authFilePath = configManager->getCurrentValue("tempLocalAuthDir");
+    _authFilePath = ConfigManager::getHomedPath(PEGASUS_LOCAL_AUTH_DIR);
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     System::makeDirectory((const char *)_authFilePath.getCString());

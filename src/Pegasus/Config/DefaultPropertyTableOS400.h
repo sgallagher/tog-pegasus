@@ -45,7 +45,6 @@
     {"slp", "false", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
-    {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "optional", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpAuthType","Basic",IS_STATIC, 0, 0, IS_VISIBLE},
     {"messageDir","/QIBM/ProdData/OS400/CIM/msg",IS_STATIC, 0, 0, IS_VISIBLE},

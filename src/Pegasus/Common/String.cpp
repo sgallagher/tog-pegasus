@@ -371,7 +371,28 @@ void String::reserveCapacity(Uint32 capacity)
 
 Uint32 String::size() const
 {
+#if defined (PEGASUS_OS_VMS)
+  //
+  // This prevents returning a minus number.
+  //
+  // Seems as though the first time through
+  //  the XML parser something doesn't get
+  //  initialized and there is no check for
+  //  a negative number in the parser!
+  //
+  Uint32 foo;
+  foo = _rep->c16a.size();
+  if (foo <= 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return (foo -1);
+  }
+#else
     return _rep->c16a.size() - 1;
+#endif
 }
 
 const Char16* String::getChar16Data() const

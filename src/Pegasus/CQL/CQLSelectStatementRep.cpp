@@ -38,7 +38,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLSelectStatement.h"
-
 #include "CQLSelectStatementRep.h"
 
 #include <iostream>
@@ -207,7 +206,7 @@ Boolean CQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 }
 
 void CQLSelectStatementRep::applyProjection(CIMInstance& inCI,
-    Boolean allowMissing) throw(Exception)
+    Boolean allowMissing)
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::applyProjection(inCI)");
 
@@ -769,7 +768,7 @@ void CQLSelectStatementRep::filterInstance(CIMInstance& inst,
 // Validates that all the chained identifiers in the statement meet
 // the rules in the CQL spec vs.the class definitions in the repository
 //
-void CQLSelectStatementRep::validate() throw(Exception)
+void CQLSelectStatementRep::validate()
 {
   PEG_METHOD_ENTER (TRC_CQL, "CQLSelectStatementRep::validate");
 

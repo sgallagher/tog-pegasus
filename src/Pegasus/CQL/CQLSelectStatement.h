@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,7 +32,8 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,18 +55,18 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLSelectStatementRep;
 
-/**  
-This class is derived from the SelectStatement base class.  
+/**
+This class is derived from the SelectStatement base class.
 The purpose of this class is to perform the select statement operations for
-CIM Query Language (CQL). 
+CIM Query Language (CQL).
 */
 class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 {
   public:
 
-    /** 
+    /**
       Constructs a CQLSelectStatement default object.
-      
+
       @param  - None.
       @return - None.
       @throw  - None.
@@ -74,9 +75,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     CQLSelectStatement();
 
-    /** 
+    /**
       Constructs a CQLSelectStatement object.
-      
+
       @param  inQlang - String containing the language of the query.
       @param  inQuery - String containing the query.
       @param  inCtx - Context in which the select statement is running.
@@ -85,13 +86,13 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    CQLSelectStatement(String& inQlang, 
-                       String& inQuery, 
+    CQLSelectStatement(String& inQlang,
+                       String& inQuery,
                        QueryContext& inCtx);
 
-    /** 
+    /**
       Constructs a CQLSelectStatement object.
-      
+
       @param  inQlang - String containing the language of the query.
       @param  inQuery - String containing the query.
       @return - None.
@@ -101,9 +102,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     CQLSelectStatement(String& inQLang, String& inQuery);
 
-    /** 
+    /**
       Copy constructs a CQLSelectStatement object.
-      
+
       @param  statement - CQLSelectStatement to be copied.
       @return - None.
       @throw  - None.
@@ -112,9 +113,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     CQLSelectStatement(const CQLSelectStatement& statement);
 
-    /** 
+    /**
       Destructs a CQLSelectStatement object.
-      
+
       @param  - None.
       @return - None.
       @throw  - None.
@@ -123,9 +124,9 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     ~CQLSelectStatement();
 
-    /** 
+    /**
       Assigns a CQLSelectStatement to this object.
-      
+
       @param rhs - CQLSelectStatement to be assigned to this object.
       @return - Updated this object.
       @throw  - None.
@@ -135,21 +136,21 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     CQLSelectStatement& operator=(const CQLSelectStatement& rhs);
 
     /**
-      Applies the class contexts from the FROM list to the 
+      Applies the class contexts from the FROM list to the
       chained identifiers in the statement. This will transform
       each chained identifier into a normalized form.  The FROM
       classname is prepended if needed, and all class aliases are resolved.
 
       Note: there are cases where the FROM classname is not prepended.
-      This can occur for the classname on the right side of ISA, 
+      This can occur for the classname on the right side of ISA,
       or the classname at the beginning of a symbolic constant chained
       identifier.  Neither of these classnames need to be the FROM class.
-   
+
       This function also validates that each chained identifier
-      is well-formed.  It is possible for a chained identifier 
+      is well-formed.  It is possible for a chained identifier
       to be syntactically correct in the CQL language, but
-      cannot be processed by the CQL engine.      
-      
+      cannot be processed by the CQL engine.
+
       Pre-condition: QueryContext has been set into this object.
       Post-condition: Chained identifiers have been normalized.
 
@@ -163,14 +164,14 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
      */
     void applyContext();
 
-    /** 
+    /**
       Evaluates the WHERE clause of the select statement using
       a CIM instance as the source of properties.
 
       Pre-condition: QueryContext has been set into this object.
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
-    
+
       @param inCI - The instance to be evaluated.
       @return True, if the WHERE clause evaluates to true based on
               the type of the instance and its properties.
@@ -185,15 +186,15 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /**
       Projects the properties in the SELECT list of the select
       statement onto the instance.  This involves checking that
-      all required properties exist on the instance passed in, 
+      all required properties exist on the instance passed in,
       and removing any unneeded properties from that instance.
 
       Pre-condition: QueryContext has been set into this object.
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
       @param inCI - The instance to be projected.
-      @param allowMissing indicates whether missing project properties are 
+      @param allowMissing indicates whether missing project properties are
                           allowed
       @return None
       @throw  CQLRuntimeException if the instance cannot be projected
@@ -202,47 +203,46 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    void applyProjection(CIMInstance& inCI,
-        Boolean allowMissing) throw(Exception);
+    void applyProjection(CIMInstance& inCI, Boolean allowMissing);
 
-    /**  
+    /**
       Validates the classes and properties used in the select statement
       against the class schema.  The existence of classes and properties
       are checked, along with class relationships defined in the CQL
       specification.
 
       Pre-condition: QueryContext has been set into this object.
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param None 
+      @param None
       @return None
-      @throw CQLValidationException for applyContext error, the select 
+      @throw CQLValidationException for applyContext error, the select
       statement is invalid against the schema, or the QueryContext has
       not been set.
       @throw CQLSyntaxErrorException for applyContext error.
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    void validate() throw(Exception);
+    void validate();
 
     /**
-      Normalizes the predicates in the WHERE clause to a 
+      Normalizes the predicates in the WHERE clause to a
       disjunction of conjunctions.
 
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
-      @param None 
+      @param None
       @return None
-      @throw None 
+      @throw None
 
       <I><B>Experimental Interface</B></I><BR>
      */
     void normalizeToDOC();
 
-    /** 
-      Returns an array of CIMObjectPath objects that are the 
+    /**
+      Returns an array of CIMObjectPath objects that are the
       class paths in the FROM list of the select statement.
 
       Note:  Currently CQL only supports one class path in the
@@ -251,7 +251,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       Pre-condition: QueryContext has been set into this object.
 
-      @param None 
+      @param None
       @return Array of FROM list class paths.
       @throw CQLRuntimeException if the QueryContext had not been set.
 
@@ -259,16 +259,16 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
      */
     Array<CIMObjectPath> getClassPathList();
 
-    /** 
+    /**
       Returns the required properties from the combined SELECT and WHERE
       clauses for the classname passed in.  The classname parameter is
       needed in case scoping operators are used in the select statement.
       This function does not return properties for the classname if they
       are required on embedded objects.  This function does not return
       required array indices.
-      
+
       Pre-condition: QueryContext has been set into this object.
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
       @param inClassName - class to determine the required properties.  Defaults
@@ -284,15 +284,15 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
 
-    /** 
+    /**
       Returns the required properties from the SELECT clause for the
       classname passed in.  The classname parameter is needed in case
       scoping operators are used in the select statement.  This function
       does not return properties for the classname if they are required
       on embedded objects. This function does not return required array indices.
-      
+
       Pre-condition: QueryContext has been set into this object.
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
       @param inClassName - class to determine the required properties.  Defaults
@@ -308,15 +308,15 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     CIMPropertyList getSelectPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
 
-    /** 
+    /**
       Returns the required properties from the WHERE clause for the
       classname passed in.  The classname parameter is needed in case
       scoping operators are used in the select statement.  This function
       does not return properties for the classname if they are required
       on embedded objects.  This function does not return required array indices.
-      
+
       Pre-condition: QueryContext has been set into this object.
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
       @param inClassName - class to determine the required properties.  Defaults
@@ -337,7 +337,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       identifiers contain the fully qualified property names, including embedded
       objects, array indices, scoping operators, and symbolic constants.
 
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
       @param None
@@ -355,20 +355,20 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
       objects, array indices, scoping operators, and symbolic constants.
 
       Pre-condition: QueryContext has been set into this object.
-      Post-condition: Chained identifiers have been normalized 
+      Post-condition: Chained identifiers have been normalized
       ie.applyContext has been called.  See the applyContext function.
 
       @param None
       @return Array of chained identifiers.
       @throw CQLRuntimeException if the QueryContext had not been set.
-      @throw CQLValidationException for applyContext error.   
+      @throw CQLValidationException for applyContext error.
       @throw CQLSyntaxErrorException for applyContext error.
 
       <I><B>Experimental Interface</B></I><BR>
      */
     Array<CQLChainedIdentifier> getWhereChainedIdentifiers();
 
-    /** 
+    /**
       Gets the top-level CQLPredicate of this object.
       This is the predicate that contains the top-level
       of any nested boolean operations in the WHERE clause.
@@ -381,7 +381,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     CQLPredicate getPredicate() const;
 
-    /** 
+    /**
       Determines whether the select statement has a WHERE clause.
 
       @param None
@@ -392,7 +392,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     Boolean hasWhereClause();
 
-    /** 
+    /**
       Returns the select statement in string form.
       Note that this can be different than the original
       statement after it has been parsed, and applyContext
@@ -402,18 +402,18 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       @param None
       @return String containing the select statement.
-      @throw 
+      @throw
 
       <I><B>Experimental Interface</B></I><BR>
     */
     String toString();
 
-    /* 
+    /*
        ATTN - the following methods should only be set by CQLParser.
        These should be made private, and CQLParser made a friend.
     */
 
-    /** 
+    /**
       Appends a CQLIdentifier/alias combination into the FROM list of the
       statement. This method should only be called by the CQL parser.
 
@@ -424,10 +424,10 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       <I><B>Experimental Interface</B></I><BR>
     */
-    void insertClassPathAlias(const CQLIdentifier& inIdentifier, 
+    void insertClassPathAlias(const CQLIdentifier& inIdentifier,
                               String inAlias);
 
-    /** 
+    /**
       Appends a CQLIdentifier into the FROM list of the statement.
       This method should only be called by the CQL parser.
 
@@ -439,7 +439,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     void appendClassPath(const CQLIdentifier& inIdentifier);
 
-    /** 
+    /**
       Appends a CQLChainedIdentifier to the select list.
       This method should only be called by the CQL parser.
 
@@ -454,7 +454,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     /** Sets a predicate into this object. This method should only
             be called by Bison.
         */
-    /** 
+    /**
       Sets the top-level CQLPredicate into this object.
       This method should only be called by the CQL parser.
 
@@ -466,7 +466,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     void setPredicate(const CQLPredicate& inPredicate);
 
-    /** 
+    /**
       Sets the select statement to have a WHERE clause.
       This method should only be called by the CQL parser.
 
@@ -478,7 +478,7 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
     */
     void setHasWhereClause();
 
-    /** 
+    /**
       Clears the internal data structures.
       This method should only be called by the CQL parser.
 
@@ -486,17 +486,17 @@ class PEGASUS_CQL_LINKAGE CQLSelectStatement : public SelectStatement
 
       @param None
       @return None.
-      @throw CQLRuntimeException if the QueryContext had not been set.  
+      @throw CQLRuntimeException if the QueryContext had not been set.
 
       <I><B>Experimental Interface</B></I><BR>
     */
     void clear();
 
   private:
-	CQLSelectStatementRep* _rep;
+    CQLSelectStatementRep* _rep;
 
 };
 
 PEGASUS_NAMESPACE_END
 #endif
-#endif 
+#endif

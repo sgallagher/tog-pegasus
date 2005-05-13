@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,11 +32,12 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_SelectStatement_h 
+#ifndef Pegasus_SelectStatement_h
 #define Pegasus_SelectStatement_h
 
 #include <Pegasus/Common/Config.h>
@@ -52,10 +53,10 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep;
 
 /** This class is an abstract base class for the query language (e,g. WQL or
-CQL) select statement. 
+CQL) select statement.
 
       A example of a simple query language SELECT statement may take the
-following form although 
+following form although
      CQL architecture includes much more extensive forms of the SELECT
 statement:
 
@@ -74,11 +75,11 @@ language
 */
 class PEGASUS_QUERYCOMMON_LINKAGE SelectStatement
 {
-  public:
+public:
 
     virtual ~SelectStatement();
 
-    /** 
+    /**
        Returns the query language (WQL or CQL).
      */
     String getQueryLanguage() const;
@@ -90,7 +91,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatement
     virtual void setQueryContext(QueryContext& inCtx);
 
     /** This method operates on a single CIMInstance.
-    
+
          Returns a boolean value indicating the evaluation result:
             TRUE means the CIMInstance passed conforms to the
                        criteria on the WHERE clause
@@ -98,61 +99,63 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatement
                        conform to the criteria on the WHERE clause
      */
     virtual Boolean evaluate(
+
         /**  The CIM instance that will be evaluated.
                The CIMInstance object is not modified by this method.
            */
         const CIMInstance& inCI) = 0;
 
     /** applyProjection() method operates on a single CIMInstance to
-    determine what properties to include.
-         On that CIMInstance it will remove all properties that are not
-         included in the projection.
+        determine what properties to include.
+        On that CIMInstance it will remove all properties that are not
+        included in the projection.
 
-        @param  allowMissing  Boolean specifying whether missing project 
+        @param  allowMissing  Boolean specifying whether missing project
                               properties are allowed
-    
+
         TODO:  document the exceptions!
      */
     virtual void applyProjection(
-    /**  Input the CIMInstance object in which to apply the
-              projection.
 
-        @param  allowMissing  Boolean specifying whether missing project 
+    /**  Input the CIMInstance object in which to apply the
+         projection.
+
+        @param  allowMissing  Boolean specifying whether missing project
                               properties are allowed
      */
         CIMInstance& inCI,
-        Boolean allowMissing) throw(Exception) = 0;
+        Boolean allowMissing) = 0;
 
     /** Validates that all the property name identifiers actually exist on a
-    class from the FROM list of the query string.  It checks the class
-         in the default namespace (passed on the CTOR) in the repository.
-    
-          An exception is thrown if a property is not valid.
-          TODO: document the exceptions.
-             repository errors, namespace not found, etc.
-     */
-    virtual void validate() throw(Exception) = 0;
+        class from the FROM list of the query string.  It checks the class
+        in the default namespace (passed on the CTOR) in the repository.
 
-    /** Returns an array of CIMObjectPath objects that are the 
-          class paths from the select statement in the FROM list.
+        An exception is thrown if a property is not valid.
+        TODO: document the exceptions.
+              repository errors, namespace not found, etc.
+     */
+    virtual void validate() = 0;
+
+    /** Returns an array of CIMObjectPath objects that are the
+        class paths from the select statement in the FROM list.
      */
     virtual Array<CIMObjectPath> getClassPathList() = 0;
 
     /** Returns the required properties from the combined SELECT and WHERE
-         clauses for the classname passed in.
-         This is a pure virtual function that must be implemented in one or more
-         subclasses.
-    
-         If all the properties for the input classname are required, a null
-         CIMPropertyList is returned.
-       */
-    virtual CIMPropertyList getPropertyList(
-        /**  The input parameter className is one of the
-              classes from the FROM list.
-           */
-        const CIMObjectPath& inClassName) = 0;
+        clauses for the classname passed in.
+        This is a pure virtual function that must be implemented in one or more
+        subclasses.
 
-    /** 
+        If all the properties for the input classname are required, a null
+        CIMPropertyList is returned.
+    */
+    virtual CIMPropertyList getPropertyList(
+
+    /**  The input parameter className is one of the classes from the FROM list.
+    */
+    const CIMObjectPath& inClassName) = 0;
+
+    /**
         Returns the required properties from the SELECT clause for the specified
         class.
 
@@ -161,47 +164,44 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatement
 
         @param  inClassName  name of the class; must be one of the classes from
                              the FROM clause
-    
-        @return  CIMPropertyList containing the required properties from the 
-                 SELECT clause for the specified class; 
-                 or a null CIMPropertyList if all properties of the specified 
+
+        @return  CIMPropertyList containing the required properties from the
+                 SELECT clause for the specified class;
+                 or a null CIMPropertyList if all properties of the specified
                  class are required
-     */
+    */
     virtual CIMPropertyList getSelectPropertyList
         (const CIMObjectPath& inClassName) = 0;
 
-    /** 
+    /**
         Returns the required properties from the WHERE clause for the specified
         class.
 
         This is a pure virtual function that must be implemented in one or more
         subclasses.
-    
+
         @param  inClassName  name of the class; must be one of the classes from
                              the FROM clause
-    
-        @return  CIMPropertyList containing the required properties from the 
-                 WHERE clause for the specified class; 
-                 or a null CIMPropertyList if all properties of the specified 
+
+        @return  CIMPropertyList containing the required properties from the
+                 WHERE clause for the specified class;
+                 or a null CIMPropertyList if all properties of the specified
                  class are required
      */
     virtual CIMPropertyList getWherePropertyList
         (const CIMObjectPath& inClassName) = 0;
 
-  protected:
-
+protected:
     SelectStatement();
 
     SelectStatement(const SelectStatement& ss);
 
     SelectStatementRep* _rep;
 
-  private:
-
+private:
     SelectStatement& operator=(const SelectStatement& rhs);
-
 };
 
 PEGASUS_NAMESPACE_END
 #endif
-#endif 
+#endif

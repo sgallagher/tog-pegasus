@@ -1506,7 +1506,7 @@ void NameSpaceManager::getSubClassNames(
     const CIMName& className,
     Boolean deepInheritance,
     Array<CIMName>& subClassNames,
-    Boolean enm) const throw(CIMException)
+    Boolean enm) const
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "NameSpaceManager::getSubClassNames()");
 

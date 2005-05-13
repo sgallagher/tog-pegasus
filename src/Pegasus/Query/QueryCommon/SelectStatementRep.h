@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,11 +32,12 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_SelectStatementRep_h 
+#ifndef Pegasus_SelectStatementRep_h
 #define Pegasus_SelectStatementRep_h
 
 #include <Pegasus/Common/Config.h>
@@ -50,7 +51,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 /*
       A example of a simple query language SELECT statement may take the
-following form although 
+following form although
      CQL architecture includes much more extensive forms of the SELECT
 statement:
 
@@ -69,11 +70,11 @@ language
 */
 class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
 {
-  public:
+public:
 
     virtual ~SelectStatementRep();
 
-    /** 
+    /**
        Returns the query language (WQL or CQL).
      */
     String getQueryLanguage() const;
@@ -85,7 +86,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
     virtual void setQueryContext(QueryContext& inCtx);
 
     /** This method operates on a single CIMInstance.
-    
+
          Returns a boolean value indicating the evaluation result:
             TRUE means the CIMInstance passed conforms to the
                        criteria on the WHERE clause
@@ -102,7 +103,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
     determine what properties to include.
          On that CIMInstance it will remove all propoerties that are not
          included in the projection.
-    
+
         TODO:  document the exceptions!
      */
     virtual void applyProjection(
@@ -110,19 +111,19 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
               projection.
            */
         CIMInstance& inCI,
-        Boolean allowMissing) throw(Exception) = 0;
+        Boolean allowMissing) = 0;
 
     /** Validates that all the property name identifiers actually exist on a
     class from the FROM list of the query string.  It checks the class
          in the default namespace (passed on the CTOR) in the repository.
-    
+
           An exception is thrown if a property is not valid.
           TODO: document the exceptions.
              repository errors, namespace not found, etc.
      */
-    virtual void validate() throw(Exception) = 0;
+    virtual void validate() = 0;
 
-    /** Returns an array of CIMObjectPath objects that are the 
+    /** Returns an array of CIMObjectPath objects that are the
           class paths from the select statement in the FROM list.
      */
     virtual Array<CIMObjectPath> getClassPathList() = 0;
@@ -131,7 +132,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
          clauses for the classname passed in.
          This is a pure virtual function that must be implemented in one or more
          subclasses.
-    
+
          If all the properties for the input classname are required, a null
          CIMPropertyList is returned.
        */
@@ -141,7 +142,7 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
            */
         const CIMObjectPath& inClassName) = 0;
 
-  protected:
+protected:
 
     SelectStatementRep();
 
@@ -153,13 +154,13 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
 
     SelectStatementRep& operator=(const SelectStatementRep& rhs);
 
-    /**   The query language to be used for processing this query
-           (e.g. WQL or CQL).
-       */
+    /**  The query language to be used for processing this query
+         (e.g. WQL or CQL).
+    */
     String _qlang;
 
     /**  The query string to be processed.
-       */
+    */
     String _query;
 
     QueryContext* _ctx;
@@ -167,4 +168,4 @@ class PEGASUS_QUERYCOMMON_LINKAGE SelectStatementRep
 
 PEGASUS_NAMESPACE_END
 
-#endif 
+#endif

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,9 +30,11 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +114,7 @@ public:
 
     Boolean getNameSpaceAttributes(const CIMNamespaceName& nameSpace, NameSpaceAttributes &attributes);
 
-    /** Get path to the class file for the given class. 
+    /** Get path to the class file for the given class.
 	@param nameSpaceName name of the namespace.
 	@param className name of class.
 	@exception CIMException(CIM_ERR_INVALID_NAMESPACE)
@@ -128,7 +130,7 @@ public:
 	const CIMName& className,
         NameSpaceIntendedOp op) const;
 
-    /** Get path to the qualifier file for the given class. 
+    /** Get path to the qualifier file for the given class.
 	@param nameSpaceName name of the namespace.
 	@param qualifierName name of qualifier.
 	@exception CIMException(CIM_ERR_INVALID_NAMESPACE)
@@ -220,7 +222,7 @@ public:
 	const CIMName& className,
 	Boolean deepInheritance,
 	Array<CIMName>& subClassNames,
-	Boolean enm=false) const throw(CIMException);
+	Boolean enm=false) const;
 
     /** Get the names of all superclasses (direct and indirect) of this
 	class.
@@ -257,15 +259,15 @@ private:
 class NonEmptyNameSpace : public Exception
 {
 public:
-	//l10n 
+	//l10n
     //NonEmptyNameSpace(const String& nameSpaceName) : Exception(
 	//"Attempt to delete a non-empty namespace: " + nameSpaceName) { }
-	NonEmptyNameSpace(const String& nameSpaceName) : 
+	NonEmptyNameSpace(const String& nameSpaceName) :
 								Exception(MessageLoaderParms(
 								"Repository.NameSpaceManager.ATTEMPT_DELETE_NONEMPTY_NAMESPACE",
 								"Attempt to delete a non-empty namespace: $0", nameSpaceName)) { }
-	
-	
+
+
 	//l10n end
 };
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,8 +29,10 @@
 //
 // Author: Bob Blair (bblair@bmc.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company 
-//              (carolann_graves@hp.com)
+// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +51,7 @@
 //
 // The details of these classes are discussed in the comments above each
 // class.
-// 
+//
 
 #ifndef _GETOOPT_H_
 #define _GETOOPT_H_
@@ -68,7 +70,7 @@ PEGASUS_USING_PEGASUS;
 //
 // This structure describes a program-defined command line option.
 // The syntax of these options are the same as those understood by
-// the standard C language routines getopt() and getopt_long() 
+// the standard C language routines getopt() and getopt_long()
 //
 // Command line options are named, and the name is prefaced by
 // either a hyphen or by two hyphens.  Names prefixed by one
@@ -82,7 +84,7 @@ PEGASUS_USING_PEGASUS;
 // Type 2 is valid only with long-named options
 //
 // The islong flag tells whether the option is long-named.
-// 
+//
 // The isactive flag tells whether the option should be considered
 // during parsing.  It is on unless explicitly turned off by the program.
 struct flagspec {
@@ -134,10 +136,12 @@ class PEGASUS_GETOOPT_LINKAGE Optarg {
   const String &Value() const;  // return the value as a String
   const String &optarg() const; // ditto, in getopt() terminology
   void Value(String &v) const ; // Fill in a String with the Value
-  void Value(int &v) const throw (TypeMismatchException);  // Fill in an int with
-                                                       // the value
-  void Value(unsigned int &v) const throw (TypeMismatchException);  // ditto an 
-                                                                // unsigned int
+  // @exception TypeMismatchException
+  void Value(int &v) const;  // Fill in an int with
+                             // the value
+  // @exception TypeMismatchException
+  void Value(unsigned int &v) const;  // ditto an
+                                      // unsigned int
   void Value(long &v) const ;   // ditto a long
   void Value(unsigned long &v) const;  // ditto an unsigned long
   void Value(double &d) const;  // ditto a double
@@ -181,7 +185,7 @@ class PEGASUS_GETOOPT_LINKAGE Optarg {
 //           isSet(flagName);
 //       and
 //           value(flagName);
-//           
+//
 class PEGASUS_GETOOPT_LINKAGE getoopt {
  public:
   typedef Array<flagspec> Flagspec_List;
@@ -208,7 +212,7 @@ class PEGASUS_GETOOPT_LINKAGE getoopt {
   // an optstring to specify command line flags.
   getoopt(const char *optstring = 0);
   ~getoopt();
-  
+
   // Routines for specifying the command line options
   //   add short-named flags, either en masse as an optstring
   Boolean addFlagspec(const String &opt);

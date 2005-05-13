@@ -104,7 +104,6 @@ ListenerService::~ListenerService()
 
 ListenerService::ListenerService(const ListenerService& x)
 {
-    PEGASUS_STD(cout) << "Listener copy constructor\n";
 }
 
 Boolean ListenerService::initializeListener(Uint32 portNumber, Boolean useSSL, SSLContext* sslContext)
@@ -207,8 +206,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_listener_routine");
 
-    PEGASUS_STD(cout) << String("ListenerService:: Starting _listener_routine") << endl << endl;
-
     Thread *myself = reinterpret_cast<Thread *>(param);
     ListenerService* listenerService = reinterpret_cast<ListenerService*>(myself->get_parm());
 
@@ -236,13 +233,12 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
     }
           } else
           {
-              PEGASUS_STD(cout) << "Got shutdown signal\n";
+				PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Got shutdown signal.");
               break;
           }
     }
 
-
-    PEGASUS_STD(cout) << String("ListenerService::Stopping _listener_routine") << endl << endl;
+    PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "ListenerService::Stopping _listener_routine");
 
     PEG_METHOD_EXIT();
 
@@ -253,8 +249,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_listener_routine(vo
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_polling_routine(void *param)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ListenerService::_polling_routine");
-
-    PEGASUS_STD(cout) << String("ListenerService:: Starting _polling_routine") << endl << endl;
 
     Thread *myself = reinterpret_cast<Thread *>(param);
     ListenerService* listenerService = reinterpret_cast<ListenerService*>(myself->get_parm());
@@ -275,13 +269,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_polling_routine(voi
         } catch (TimeOut& te)
         {
             //time to check for idle consumers
-            PEGASUS_STD(cout) << "Unloading idle consumers" << endl;
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL3, "Unloading idle consumers");
             listenerService->_consumerManager->unloadIdleConsumers();
         }
     }
-
-    PEGASUS_STD(cout) << String("ListenerService:: Stopping _polling_routine") << endl << endl;
 
     PEG_METHOD_EXIT();
     return 0; //success
@@ -384,7 +375,10 @@ Boolean ListenerService::shutdownListener()
     _running = false;
     _dieNow = false;
 
-    cout << "Shutdown gracefully? " << gracefulShutdown << "\n";
+	if (gracefulShutdown)
+	{
+		PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Listener shutdown gracefully");
+	} 
 
     PEG_METHOD_EXIT();
     return(gracefulShutdown);

@@ -97,12 +97,8 @@ DynamicListenerConfig* DynamicListenerConfig::getInstance()
 {
     if (!_instance)
     {
-        PEGASUS_STD(cout) << "\nCreating new config\n";
         _instance = new DynamicListenerConfig();
-    } else
-    {
-        PEGASUS_STD(cout) << "\nConfig already exists\n";
-    }
+    } 
 
     return _instance;
 }
@@ -130,13 +126,6 @@ Boolean DynamicListenerConfig::lookupValue(const String& name, String& value) co
 
     if (String::equal(name, "consumerDir") || String::equal(name, "consumerConfigDir"))
     {
-        //a blank value is acceptable and is the default
-        if (String::equal(temp, ""))
-        {
-            value = _listenerHome;
-            return true;
-        }
-
         value = DynamicListenerConfig::getHomedPath(temp);
 
         if (!FileSystem::exists(value) || !FileSystem::isDirectory(value) || !FileSystem::canRead(value))
@@ -152,24 +141,22 @@ Boolean DynamicListenerConfig::lookupValue(const String& name, String& value) co
 
     } else if (String::equal(name, "traceFilePath"))
     {
-        //a blank value is acceptable
+        //a blank value is acceptable and indicates that no tracing will be done
         if (String::equal(temp, ""))
         {
             value = String::EMPTY;
             return true;
         }
 
-        String path = FileSystem::extractFilePath(DynamicListenerConfig::getHomedPath(temp));
+		value = DynamicListenerConfig::getHomedPath(temp);
 
-        PEGASUS_STD(cout) << "Path!" << path << "!";
-       
-        if (!FileSystem::exists(path) || !FileSystem::isDirectory(path) || !FileSystem::canWrite(path))
+		//check to make sure we can create trace file
+		String path = FileSystem::extractFilePath(value);
+
+        if (!FileSystem::exists(path) || !FileSystem::canWrite(path))
         {
-            throw OMInvalidOptionValue(name, path);
+            throw OMInvalidOptionValue(name, value);
         }
-
-        value = path + temp;
-
     } 
 #ifdef PEGASUS_HAS_SSL
     else if (String::equal(name, "sslKeyFilePath") || String::equal(name, "sslCertificateFilePath"))
@@ -213,7 +200,7 @@ Boolean DynamicListenerConfig::lookupIntegerValue(const String& name, Uint32& va
     {
     } else if (String::equal(name, "traceLevel"))
     {
-        if (value > 4)
+        if (value > 4 || value < 0)
         {
             throw OMInvalidOptionValue(name, "");
         }
@@ -243,6 +230,8 @@ String DynamicListenerConfig::getListenerHome()
 //We do it once here so we do not have to keep doing file operations later on
 void DynamicListenerConfig::setListenerHome(const String& home)
 {
+	PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerConfig::setListenerHome");
+
     if (System::is_absolute_path((const char *)home.getCString()))
     {
         _listenerHome = home;
@@ -253,79 +242,30 @@ void DynamicListenerConfig::setListenerHome(const String& home)
         FileSystem::getCurrentDirectory(currentDir);
         _listenerHome = FileSystem::getAbsolutePath((const char*)currentDir.getCString(), home);
     }
+
+	PEG_METHOD_EXIT();
 }
 
 String DynamicListenerConfig::getHomedPath(const String& value)
 {
-    PEG_METHOD_ENTER(TRC_LISTENER, "getHomedPath()");
-    PEGASUS_STD(cout) << "getHomedPath " << value;
+    PEG_METHOD_ENTER(TRC_LISTENER, "DynamicListenerConfig::getHomedPath()");
+
     String homedPath = String::EMPTY;
 
     if (String::equal(value, String::EMPTY))
     {
         homedPath = _listenerHome;
 
-    } else if (System::is_absolute_path((const char *)value.getCString()))
-    {
-        homedPath = value;
     } else
     {
-        homedPath = _listenerHome + "/" + value;
-    }
-
+		homedPath = FileSystem::getAbsolutePath((const char*)_listenerHome.getCString(), value);
+	}
     FileSystem::translateSlashes(homedPath);
-
-    PEGASUS_STD(cout) << "\nHomed path:" << homedPath << "\n";
 
     PEG_METHOD_EXIT();
     return homedPath;
 }
 
-
-/*if ( value != String::EMPTY )
-{
-    if ( System::is_absolute_path((const char *)value.getCString()) )
-    {
-        return value; 
-    }
-
-    String temp = value;
-    Uint32 pos = 0; 
-    Uint32 token= 0;
-    do
-    {
-        if (( pos = temp.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND)
-        {
-            pos = temp.size();
-            token = 0;
-
-        } else
-        {
-            token = 1;
-        }
-        if (System::is_absolute_path((const char *)temp.subString(0,pos).getCString()))
-        {
-            homedPath.append(temp.subString(0,pos));
-
-        } else
-        {
-            homedPath.append( _listenerHome + "/" + temp.subString(0, pos));
-        }
-
-        if (token == 1)
-        {
-            homedPath.append(FileSystem::getPathDelimiter());
-        }
-
-        temp.remove(0,pos+token); 
-
-    }
-    while ( temp.size() > 0 );  
-
-} else //homed path is current directory
-{
-    _homedPath = _listenerHome;
-}*/
 
 
 

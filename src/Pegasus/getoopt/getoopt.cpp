@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//              (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -100,7 +102,7 @@ const String &
 Optarg::getopt()  const { return _name; }
 
 //  Get the _type member
-Optarg::opttype 
+Optarg::opttype
 Optarg::getType() const { return _opttype; }
 
 //-------------------------------------------------------------------
@@ -120,7 +122,7 @@ void
 Optarg::Value(String &s) const { s = _value; }
 
 //  Fill in a caller-provided int with the integer conversion of the value.
-void Optarg::Value (int &i) const  throw (TypeMismatchException)
+void Optarg::Value (int &i) const
 {
     CString cs = _value.getCString();
     const char* s = cs;
@@ -128,7 +130,7 @@ void Optarg::Value (int &i) const  throw (TypeMismatchException)
     Uint32 j;
     for (j = 0; j < strlen (s); j++)
     {
-        if ((!isdigit (s [j])) && (!isspace (s [j])) && (s [j] != '+') && 
+        if ((!isdigit (s [j])) && (!isspace (s [j])) && (s [j] != '+') &&
             (s [j] != '-'))
         {
             valid = false;
@@ -153,7 +155,7 @@ void Optarg::Value (int &i) const  throw (TypeMismatchException)
 }
 
 //  Fill in a caller-provided unsigned int
-void Optarg::Value (unsigned int &i) const throw (TypeMismatchException)
+void Optarg::Value (unsigned int &i) const
 {
     CString cs = _value.getCString();
     const char* s = cs;
@@ -240,7 +242,7 @@ Optarg::print(ostream &os) const {
 // Constructors and destructor
 
 // Default constructor.  The optional String is in the format of
-// a getopt() optstring 
+// a getopt() optstring
 getoopt::getoopt(const char *optstring)
 {
   if (optstring) {
@@ -266,15 +268,15 @@ getoopt::addFlagspec(const String &opt) {
   if (size == 0)
     return false;
   for (unsigned int i = 0; i < size; i++) {
-    char c = opt[i];
+    char c = static_cast<char>(opt[i]);
     if ( ((i + 1) < size) && (opt[i+1] == ':') ) {
       if (!(addFlagspec(c, true))) {
-	  return false;
+        return false;
       }
       ++i;
     } else {
       if (!(addFlagspec(c, false)))
-	return false;
+        return false;
     }
   }
   return true;
@@ -314,7 +316,7 @@ getoopt::addLongFlagspec(const String &name, argtype type) {
   // which occurs when compiling with debug option on WIN32:
 
   fs.name = name;
-  
+
   fs.argtype = type;
   fs.islong = true;
   fs.active = true;
@@ -366,7 +368,7 @@ partsFromLongOpt (const String &s, String &name, String &value) {
 // Create an Optarg instance from a long flag String like
 //          --longflag=value
 // (The =value is optional).
-static void 
+static void
 optargFromLongOpt(Optarg &o, const String &arg) {
   String name;
   String value;
@@ -443,7 +445,7 @@ getoopt::parse(int argc, char **argv) {
   enum states {START, ARGEXPECTED};
   states state = START;
   for (unsigned int i = 1; i < (unsigned int)argc; i++) {
-    unsigned int endsize = strlen(argv[i]);
+    unsigned int endsize = static_cast<unsigned int>(strlen(argv[i]));
       switch (state) {
       case START:
         cat = catagorize(argv[i]);
@@ -487,7 +489,7 @@ getoopt::parse(int argc, char **argv) {
 	  } // end subcase 1
 	  break;
 	case 2:  // long (--xyz) flag
-	  { 
+	  {
 	    String arg = &(argv[i][2]);
 	    optargFromLongOpt(o, arg);
 	    fs = getFlagspec(o.getName());
@@ -503,7 +505,7 @@ getoopt::parse(int argc, char **argv) {
 	      //l10n end
 	    } else {
 	        // this is a long flag we know about
-	      if (o.optarg() != ""  || fs->argtype != MUSTHAVEARG) { 
+	      if (o.optarg() != ""  || fs->argtype != MUSTHAVEARG) {
 		addarg(_args, o);
 		state = START;  // we have a completed long flag
 	      } else {   // no value yet, and we expect one
@@ -560,7 +562,7 @@ getoopt::parse(int argc, char **argv) {
 const Optarg &
 getoopt::operator[](unsigned int n) {
   unsigned int lim = _args.size();
-  if (n < lim) 
+  if (n < lim)
     return _args[n];
   else
     return _emptyopt;
@@ -653,7 +655,7 @@ getoopt::flagcnt() const {
   unsigned int cnt = 0;
   for (Uint32 i = 0; i < _args.size(); i++) {
     if (_args[i].getType() != Optarg::REGULAR)
-      cnt++; 
+      cnt++;
   }
   return cnt;
 }

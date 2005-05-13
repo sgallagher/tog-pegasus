@@ -382,7 +382,7 @@ Uint32 String::size() const
   //
   Uint32 foo;
   foo = _rep->c16a.size();
-  if (foo <= 0)
+  if (foo == 0)
   {
     return 0;
   }

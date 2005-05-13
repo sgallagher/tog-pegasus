@@ -174,7 +174,7 @@ inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
 // *****----- native cleanup routines -----***** //
 #if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #define PEGASUS_THREAD_CLEANUP_NATIVE 
-inline void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
+inline void Thread::cleanup_push( void (*routine)(void *), void *parm)
 {
    cleanup_handler *cu = new cleanup_handler(routine, parm);
    try { _cleanup.insert_first(cu); } 
@@ -184,7 +184,7 @@ inline void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPC
 }
 
 
-inline void Thread::cleanup_pop(Boolean execute) throw(IPCException)
+inline void Thread::cleanup_pop(Boolean execute)
 {
    cleanup_handler *cu = 0;
    try { cu = static_cast<cleanup_handler *>(_cleanup.remove_first()) ;}

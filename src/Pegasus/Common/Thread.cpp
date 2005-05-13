@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +89,7 @@ Boolean Thread::_key_error = false;
 
 // for non-native implementations
 #ifndef PEGASUS_THREAD_CLEANUP_NATIVE
-void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
+void Thread::cleanup_push( void (*routine)(void *), void *parm)
 {
     AutoPtr<cleanup_handler> cu(new cleanup_handler(routine, parm));
     _cleanup.insert_first(cu.get());
@@ -95,9 +97,9 @@ void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCExcepti
     return;
 }
 
-void Thread::cleanup_pop(Boolean execute) throw(IPCException)
+void Thread::cleanup_pop(Boolean execute)
 {
-    AutoPtr<cleanup_handler> cu ;
+    AutoPtr<cleanup_handler> cu;
     try
     {
         cu.reset(_cleanup.remove_first());
@@ -113,7 +115,7 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
 #endif
 
 
-//thread_data *Thread::put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
+//thread_data *Thread::put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value)
 
 
 #ifndef PEGASUS_THREAD_EXIT_NATIVE

@@ -31,7 +31,8 @@
 //         Significant portions of the code in this application were copied
 //         from the wbemexec application.
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 //
@@ -243,7 +244,6 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
  */
  void benchmarkTestCommand::_connectToServer( CIMClient& client,
                          ostream& outPrintWriter )
-    throw (Exception)
 {
     String                 host                  = String ();
     Uint32                 portNumber            = 0;
@@ -337,7 +337,6 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
 
  */
 void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
-    throw (CommandFormatException)
 {
     Uint32         i              = 0;
     Uint32         c              = 0;
@@ -438,7 +437,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_portNumber);
                     }
-                    catch (TypeMismatchException&)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_portNumberStr,
                             _OPTION_PORTNUMBER);
@@ -482,7 +481,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_timeout);
                     }
-                    catch (TypeMismatchException&)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (timeoutStr,
                             _OPTION_TIMEOUT);
@@ -538,7 +537,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_iterations);
                     }
-                    catch (TypeMismatchException&)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_iterationsStr,
                             _OPTION_ITERATIONS);
@@ -565,7 +564,7 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     {
                         getOpts [i].Value (_testID);
                     }
-                    catch (TypeMismatchException&)
+                    catch (const TypeMismatchException&)
                     {
                         InvalidOptionArgumentException e (_testIDStr,
                             _OPTION_TESTID);
@@ -874,14 +873,14 @@ void benchmarkTestCommand::_getTestConfiguration(
 
     }  // end try
 
-    catch (Exception& e)
+    catch (const Exception&)
     {
         if (isConnected)
            client.disconnect();
         throw;
     }
 
-    catch (exception& e)
+    catch (const exception&)
     {
         if (isConnected)
            client.disconnect();
@@ -947,7 +946,7 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
         client.disconnect();
     }
 
-    catch (Exception& e)
+    catch (const Exception&)
     {
         if (isConnected)
            client.disconnect();
@@ -991,7 +990,7 @@ void benchmarkTestCommand::dobenchmarkTest1(
                        << ")" << endl << endl;
     }  // end try
 
-    catch(Exception& e)
+    catch(const Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1063,7 +1062,7 @@ void benchmarkTestCommand::dobenchmarkTest2(
 
     }  // end try
 
-    catch(Exception& e)
+    catch(const Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1140,7 +1139,7 @@ void benchmarkTestCommand::dobenchmarkTest3(
 
     }  // end try
 
-    catch(Exception& e)
+    catch(const Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1219,7 +1218,7 @@ void benchmarkTestCommand::dobenchmarkTest4(
         client.disconnect();
     }  // end try
 
-    catch(Exception& e)
+    catch(const Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1314,7 +1313,7 @@ void benchmarkTestCommand::dobenchmarkTest5(
         client.disconnect();
     }  // end try
 
-    catch(Exception& e)
+    catch(const Exception& e)
     {
       errorExit(errPrintWriter, e.getMessage());
     }
@@ -1397,25 +1396,25 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
         }
 
     }
-    catch (benchmarkTestException& e)
+    catch (const benchmarkTestException& e)
     {
       errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
-    e.getMessage () << endl;
-        return (RC_ERROR);
+            e.getMessage () << endl;
+      return (RC_ERROR);
     }
 
-    catch (Exception& e)
+    catch (const Exception& e)
     {
       errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
-    e.getMessage () << endl;
-        return (RC_ERROR);
+            e.getMessage () << endl;
+      return (RC_ERROR);
     }
 
-    catch (exception& e)
+    catch (const exception& e)
     {
       errPrintWriter << benchmarkTestCommand::COMMAND_NAME << ": " <<
-    e.what () << endl;
-        return (RC_ERROR);
+            e.what () << endl;
+      return (RC_ERROR);
      }
 
     return (RC_SUCCESS);
@@ -1447,7 +1446,7 @@ int main (int argc, char* argv [])
     {
         command.setCommand (argc, argv);
     }
-    catch (CommandFormatException& cfe)
+    catch (const CommandFormatException& cfe)
     {
         cerr << benchmarkTestCommand::COMMAND_NAME << ": " << cfe.getMessage ()
              << endl;

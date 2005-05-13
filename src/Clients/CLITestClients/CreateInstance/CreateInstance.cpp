@@ -30,8 +30,10 @@
 // Author: Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -369,7 +371,7 @@ int main(int argc, char** argv)
         virtual CIMObjectPath createInstance(
         const String& nameSpace,
         const CIMInstance& newInstance
-        ) throw(Exception);
+        );
 
     ****/
         XmlWriter::printValueReferenceElement(cimObjectPath, cout);

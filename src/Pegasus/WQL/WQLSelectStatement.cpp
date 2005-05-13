@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,6 +31,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "WQLSelectStatement.h"
@@ -49,23 +51,23 @@ WQLSelectStatement::WQLSelectStatement(String& queryLang, String& query)
 {
 	_rep = new WQLSelectStatementRep(queryLang,query);
 	// Set the _rep into the base class also
-  	SelectStatement::_rep = _rep;
+	SelectStatement::_rep = _rep;
 }
 
 WQLSelectStatement::WQLSelectStatement(String& queryLang, String& query, QueryContext& inCtx)
    :SelectStatement()
 {
-  _rep = new WQLSelectStatementRep(queryLang,query,inCtx);
+	_rep = new WQLSelectStatementRep(queryLang,query,inCtx);
 	// Set the _rep into the base class also
-  	SelectStatement::_rep = _rep;
+	SelectStatement::_rep = _rep;
 }
 
 WQLSelectStatement::WQLSelectStatement()
    :SelectStatement()
 {
-  _rep = new WQLSelectStatementRep();
+	_rep = new WQLSelectStatementRep();
 	// Set the _rep into the base class also
-  	SelectStatement::_rep = _rep;
+	SelectStatement::_rep = _rep;
 }
 
 WQLSelectStatement::WQLSelectStatement(const WQLSelectStatement& statement)
@@ -81,7 +83,7 @@ WQLSelectStatement& WQLSelectStatement::operator=(const WQLSelectStatement& rhs)
 {
   if(&rhs != this)
   {
-    if(_rep) delete _rep;	
+    if(_rep) delete _rep;
     _rep = new WQLSelectStatementRep(*rhs._rep);
 
     // Set the _rep into the base class also
@@ -94,8 +96,7 @@ WQLSelectStatement& WQLSelectStatement::operator=(const WQLSelectStatement& rhs)
 
 WQLSelectStatement::~WQLSelectStatement()
 {
-	if(_rep)
-		delete _rep;
+	delete _rep;
 }
 
 void WQLSelectStatement::clear()
@@ -137,13 +138,13 @@ Boolean WQLSelectStatement::evaluateWhereClause(
 }
 
 void WQLSelectStatement::applyProjection(CIMInstance& ci,
-    Boolean allowMissing) throw (Exception)
+    Boolean allowMissing)
 {
 	_rep->applyProjection(ci, allowMissing);
 }
 
 void WQLSelectStatement::applyProjection(CIMObject& ci,
-    Boolean allowMissing) 
+    Boolean allowMissing)
 {
 	_rep->applyProjection(ci, allowMissing);
 }
@@ -157,12 +158,12 @@ Boolean WQLSelectStatement::evaluate(const CIMInstance& inCI)
 {
 	return _rep->evaluate(inCI);
 }
-           
-void WQLSelectStatement::validate() throw (Exception)
+
+void WQLSelectStatement::validate()
 {
 	_rep->validate();
 }
-              
+
 CIMPropertyList WQLSelectStatement::getPropertyList(const CIMObjectPath& inClassName)
 {
 	return _rep->getPropertyList(inClassName);
@@ -177,7 +178,7 @@ Uint32 WQLSelectStatement::getSelectPropertyNameCount() const
 {
         return _rep->getSelectPropertyNameCount();
 }
-                                              
+
     /** Gets the i-th selected property name in the list.
         This function should only be used if getAllProperties() returns false.
     */
@@ -190,7 +191,7 @@ const CIMName& WQLSelectStatement::getClassName() const
     {
         return _rep->getClassName();
     }
-                                                
+
     /** Modifier. This method should not be called by the user (only by the
         parser).
     */
@@ -203,14 +204,14 @@ void WQLSelectStatement::appendSelectPropertyName(const CIMName& x)
     {
         _rep->appendSelectPropertyName(x);
     }
-                                                
+
     /** Returns the number of unique property names from the where clause.
     */
     Uint32 WQLSelectStatement::getWherePropertyNameCount() const
     {
         return _rep->getWherePropertyNameCount();
     }
-                                               
+
     /** Gets the i-th unique property appearing in the where clause.
     */
     const CIMName& WQLSelectStatement::getWherePropertyName(Uint32 i) const
@@ -222,7 +223,7 @@ void WQLSelectStatement::appendOperation(WQLOperation x)
     {
         _rep->appendOperation(x);
     }
-                                               
+
     /** Appends an operand to the operation array. This method should only
         be called by the parser itself.
     */
@@ -230,7 +231,7 @@ void WQLSelectStatement::appendOperation(WQLOperation x)
     {
         _rep->appendOperand(x);
     }
-                                                
+
     /** Returns true if this class has a where clause.
     */
     Boolean WQLSelectStatement::hasWhereClause() const

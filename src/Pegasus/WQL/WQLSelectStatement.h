@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +57,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_WQL_LINKAGE WQLSelectStatementRep;
 
-/** This class represents a compiled WQL1 select statement. 
+/** This class represents a compiled WQL1 select statement.
 
     An instance of WQLSelectStatement is passed to WQLParser::parse() which
     parses the WQL1 SELECT statement and initializes the WQLSelectStatement
@@ -69,7 +71,7 @@ class PEGASUS_WQL_LINKAGE WQLSelectStatementRep;
 
     There are methods for obtaining the various elements of the select
     statement.
-    
+
     The components of the where clause are stored in two arrays: one for
     operands and one for operators (these are placed in proper order by the
     YACC parser). Evaluation is performed using a Boolean stack. See the
@@ -78,13 +80,13 @@ class PEGASUS_WQL_LINKAGE WQLSelectStatementRep;
 class PEGASUS_WQL_LINKAGE WQLSelectStatement: public SelectStatement
 {
 public:
-	
+
 
     WQLSelectStatement(String& queryLang, String& query);
 
     WQLSelectStatement(String& queryLang, String& query, QueryContext& inCtx);
 
-    /** Default constructor. 
+    /** Default constructor.
     */
     WQLSelectStatement();
 
@@ -109,12 +111,12 @@ public:
     */
     void setClassName(const CIMName& className);
 
-    /** 
+    /**
         Returns true if the query selects all properties ("*")
     */
     Boolean getAllProperties() const;
 
-    /** 
+    /**
         Used by the parser to indicate the query selects all properties ("*")
         This method should not be called by the user (only by the parser).
     */
@@ -131,7 +133,7 @@ public:
     */
     const CIMName& getSelectPropertyName(Uint32 i) const;
 
-    /** 
+    /**
         Returns the required properties from the SELECT clause for the specified
         class.
 
@@ -143,7 +145,7 @@ public:
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getSelectPropertyList 
+    CIMPropertyList getSelectPropertyList
         (const CIMObjectPath& inClassName = CIMObjectPath ());
 
     /** Appends a property name to the property name list. The user should
@@ -159,7 +161,7 @@ public:
     */
     const CIMName& getWherePropertyName(Uint32 i) const;
 
-    /** 
+    /**
         Returns the required properties from the WHERE clause for the specified
         class.
 
@@ -171,10 +173,10 @@ public:
                  or a null CIMPropertyList if all properties of the specified
                  class are required
     */
-    CIMPropertyList getWherePropertyList 
+    CIMPropertyList getWherePropertyList
         (const CIMObjectPath& inClassName = CIMObjectPath ());
 
-    /** Appends a property name to the where property name list. The user 
+    /** Appends a property name to the where property name list. The user
 	should not call this method; it should only be called by the parser.
 
 	@param x name of the property.
@@ -204,12 +206,13 @@ public:
 
         @param  allowMissing  Boolean specifying whether missing project
                               properties are allowed
+        @exception Exception
     */
     void applyProjection(CIMInstance& inst,
-        Boolean allowMissing) throw (Exception);
+        Boolean allowMissing);
     void applyProjection(CIMObject& inst,
         Boolean allowMissing);
-    
+
     /** Prints out the members of this class.
     */
     void print() const;
@@ -218,7 +221,7 @@ public:
 
     Boolean evaluate(const CIMInstance& inCI);
 
-    void validate() throw (Exception);
+    void validate();
 
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName = CIMObjectPath());
 
@@ -229,7 +232,7 @@ private:
     WQLSelectStatementRep* _rep;
 
     //void f() const { }
-    
+
     friend class CMPI_Wql2Dnf;
 };
 

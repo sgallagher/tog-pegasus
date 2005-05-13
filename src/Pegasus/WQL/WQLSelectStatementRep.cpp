@@ -199,7 +199,7 @@ void WQLSelectStatementRep::setAllProperties(const Boolean allProperties)
     _allProperties = allProperties;
 }
 
-const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList 
+const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList
     (const CIMObjectPath& inClassName) const
 {
     //
@@ -217,7 +217,7 @@ const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList
     if (className.isNull())
     {
         //
-        //  If the caller passed in an empty className, then the FROM class is 
+        //  If the caller passed in an empty className, then the FROM class is
         //  to be used
         //
         className = _className;
@@ -236,7 +236,7 @@ const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList
             MessageLoaderParms parms
                 ("WQL.WQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                 "Trying to process a query with a NULL Query Context.");
-            throw QueryRuntimeException(parms);        
+            throw QueryRuntimeException(parms);
         }
 
         //
@@ -254,20 +254,20 @@ const CIMPropertyList WQLSelectStatementRep::getSelectPropertyList
     }
 
     //
-    //  Return CIMPropertyList for properties referenced in the projection 
+    //  Return CIMPropertyList for properties referenced in the projection
     //  list (SELECT clause)
     //
     return CIMPropertyList (_selectPropertyNames);
 }
 
-const CIMPropertyList WQLSelectStatementRep::getWherePropertyList 
+const CIMPropertyList WQLSelectStatementRep::getWherePropertyList
     (const CIMObjectPath& inClassName) const
 {
     CIMName className = inClassName.getClassName();
     if (className.isNull())
     {
         //
-        //  If the caller passed in an empty className, then the FROM class is 
+        //  If the caller passed in an empty className, then the FROM class is
         //  to be used
         //
         className = _className;
@@ -286,7 +286,7 @@ const CIMPropertyList WQLSelectStatementRep::getWherePropertyList
             MessageLoaderParms parms
                 ("WQL.WQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
                 "Trying to process a query with a NULL Query Context.");
-            throw QueryRuntimeException(parms);        
+            throw QueryRuntimeException(parms);
         }
 
         //
@@ -495,7 +495,7 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
 }
 
 void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
-    Boolean allowMissing) throw (Exception)
+    Boolean allowMissing)
 {
    if (_allProperties) return;
 
@@ -543,7 +543,7 @@ void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
 }
 
 void WQLSelectStatementRep::applyProjection(CIMObject& ci,
-    Boolean allowMissing) 
+    Boolean allowMissing)
 {
    if (_allProperties) return;
 
@@ -630,7 +630,7 @@ Boolean WQLSelectStatementRep::evaluate(const CIMInstance& inCI)
 	return evaluateWhereClause(&source);
 }
 
-void WQLSelectStatementRep::validate() throw (Exception)
+void WQLSelectStatementRep::validate()
 {
 	if(_ctx == NULL){
 		MessageLoaderParms parms("WQL.WQLSelectStatementRep.QUERY_CONTEXT_IS_NULL",
@@ -641,11 +641,11 @@ void WQLSelectStatementRep::validate() throw (Exception)
 	try
    {
      fromClass = _ctx->getClass(_className);
-		
+
     CIMObjectPath className (String::EMPTY, _ctx->getNamespace (), _className);
-     Array<CIMName> whereProps = 
+     Array<CIMName> whereProps =
         getWherePropertyList(className).getPropertyNameArray();
-     Array<CIMName> selectProps = 
+     Array<CIMName> selectProps =
         getSelectPropertyList(className).getPropertyNameArray();
 
      // make sure all properties match properties on the from class
@@ -732,11 +732,11 @@ CIMPropertyList WQLSelectStatementRep::getPropertyList(const CIMObjectPath& inCl
 		}
 	}
 
-	Array<CIMName> names = 
+	Array<CIMName> names =
             getWherePropertyList(inClassName).getPropertyNameArray();
-	Array<CIMName> selectList = 
+	Array<CIMName> selectList =
             getSelectPropertyList(inClassName).getPropertyNameArray();
-	
+
 	// check for duplicates and remove them
 	for(Uint32 i = 0; i < names.size(); i++){
 		for(Uint32 j = 0; j < selectList.size(); j++){

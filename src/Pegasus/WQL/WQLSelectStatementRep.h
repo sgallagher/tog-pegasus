@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,7 +30,9 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,13 +57,13 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_WQL_LINKAGE WQLSelectStatementRep: public SelectStatementRep
 {
 public:
-	
+
 
     WQLSelectStatementRep(String& queryLang, String& query);
 
      WQLSelectStatementRep(String& queryLang, String& query, QueryContext& inCtx);
 
-    /** Default constructor. 
+    /** Default constructor.
     */
     WQLSelectStatementRep();
 
@@ -90,12 +92,12 @@ public:
 	_className = className;
     }
 
-    /** 
+    /**
         Returns true if the query selects all properties ("*")
     */
     Boolean getAllProperties() const;
 
-    /** 
+    /**
         Used by the parser to indicate the query selects all properties ("*")
         This method should not be called by the user (only by the parser).
     */
@@ -118,7 +120,7 @@ public:
 	return _selectPropertyNames[i];
     }
 
-    /** 
+    /**
         Returns a CIMPropertyList containing the selected properties.
         The list is NULL if the query selects all properties (SELECT * FROM...).
     */
@@ -147,14 +149,14 @@ public:
 	return _wherePropertyNames[i];
     }
 
-    /** 
-        Returns a CIMPropertyList containing the unique properties used in the 
+    /**
+        Returns a CIMPropertyList containing the unique properties used in the
         WHERE clause
     */
     const CIMPropertyList getWherePropertyList
         (const CIMObjectPath& inClassName) const;
 
-    /** Appends a property name to the where property name list. The user 
+    /** Appends a property name to the where property name list. The user
 	should not call this method; it should only be called by the parser.
 
 	@param x name of the property.
@@ -192,10 +194,10 @@ public:
     /** Inspect an instance and remove properties not listed in Select projection.
     */
     void applyProjection(CIMInstance& inst,
-        Boolean allowMissing) throw (Exception);
+        Boolean allowMissing);
     void applyProjection(CIMObject& inst,
         Boolean allowMissing);
-    
+
     /** Prints out the members of this class.
     */
     void print() const;
@@ -204,7 +206,7 @@ public:
 
     Boolean evaluate(const CIMInstance& inCI);
 
-    void validate() throw (Exception);
+    void validate();
 
     CIMPropertyList getPropertyList(const CIMObjectPath& inClassName);
 
@@ -215,7 +217,7 @@ private:
     //
     // The name of the target class. For example:
     //
-    //     SELECT * 
+    //     SELECT *
     //     FROM TargetClass
     //     WHERE ...
     //
@@ -231,15 +233,15 @@ private:
     // The list of property names being selected. For example, see "firstName",
     // and "lastName" below.
     //
-    //     SELECT firstName, lastName 
+    //     SELECT firstName, lastName
     //     FROM TargetClass
     //     WHERE ...
     //
-    // NOTE: if the query selects all properties, this list is empty, and 
+    // NOTE: if the query selects all properties, this list is empty, and
     // _allProperties is true
     //
-    // NOTE: duplicate property names are not removed from the select list 
-    // (e.g. SELECT firstName, firstName FROM...) results in a list of 
+    // NOTE: duplicate property names are not removed from the select list
+    // (e.g. SELECT firstName, firstName FROM...) results in a list of
     // two properties
     //
 
@@ -272,7 +274,7 @@ private:
 
     Array<WQLOperation> _operations;
 
-    // 
+    //
     // The list of operands encountered while parsing the WHERE clause. The
     // query just above would generate the following stream of operands:
     //
@@ -282,7 +284,7 @@ private:
     Array<WQLOperand> _operands;
 
     void f() const { }
-    
+
     friend class CMPI_Wql2Dnf;
 };
 

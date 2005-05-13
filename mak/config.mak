@@ -388,6 +388,13 @@ endif
 # compile in the experimental APIs
 DEFINES += -DPEGASUS_USE_EXPERIMENTAL_INTERFACES
 
+# Ensure that the deprecated interfaces are defined in the Pegasus libraries.
+# One may wish to disable these interfaces if binary compatibility with
+# previous Pegasus releases is not required.
+ifndef PEGASUS_DISABLE_DEPRECATED_INTERFACES
+    DEFINES += -DPEGASUS_USE_DEPRECATED_INTERFACES
+endif
+
 # Set compile flag to control compilation of CIMOM statistics
 ifdef PEGASUS_DISABLE_PERFINST
     FLAGS += -DPEGASUS_DISABLE_PERFINST

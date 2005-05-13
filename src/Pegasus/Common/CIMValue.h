@@ -357,7 +357,7 @@ public:
     void get(Array<Boolean>& x) const;
     ///
     void get(Array<Uint8>& x) const;
-    //////
+    ///
     void get(Array<Sint8>& x) const;
     ///
     void get(Array<Uint16>& x) const;
@@ -402,26 +402,50 @@ public:
             CIMValue value(Boolean(true));
             test = value.toString();  // puts "TRUE" into test
         </PRE>
-        */
+    */
     String toString() const;
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-    /// Constructor.
+    /**
+        <I><B>Deprecated Interface</B></I><BR>
+        Constructor.  (Note: This constructor exists solely to support binary
+        compatibility with a previous definition of the Sint8 type.)
+    */
     CIMValue(char x);
 
-    /// Constructor.
+    /**
+        <I><B>Deprecated Interface</B></I><BR>
+        Constructor.  (Note: This constructor exists solely to support binary
+        compatibility with a previous definition of the Sint8 type.)
+    */
     CIMValue(const Array<char>& x);
 
-    ///
+    /**
+        <I><B>Deprecated Interface</B></I><BR>
+        Sets an Sint8 value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
+    */
     void set(char x);
 
-    ///
+    /**
+        <I><B>Deprecated Interface</B></I><BR>
+        Sets an Sint8 array value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
+    */
     void set(const Array<char>& x);
 
-    ///
+    /**
+        <I><B>Deprecated Interface</B></I><BR>
+        Gets an Sint8 value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
+    */
     void get(char& x) const;
 
-    ///
+    /**
+        <I><B>Deprecated Interface</B></I><BR>
+        Gets an Sint8 array value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
+    */
     void get(Array<char>& x) const;
 #endif
 

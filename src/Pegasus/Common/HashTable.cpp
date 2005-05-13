@@ -251,6 +251,16 @@ const _BucketBase* _HashTableRep::lookup(
     Uint32 hashCode, 
     const void* key) const
 {
+#ifdef PEGASUS_OS_VMS
+//
+// This is to prevent a crash when the hash
+//  code hasn't been initialized!
+//
+    if (_numChains == 0)
+    {
+      return 0;
+    }
+#endif
     Uint32 i = hashCode % _numChains;
 
     for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)

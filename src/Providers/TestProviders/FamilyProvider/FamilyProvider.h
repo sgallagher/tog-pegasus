@@ -138,6 +138,8 @@ public:
 protected:
     CIMOMHandle _cimomHandle;
 
+    // Note: These objects are set up during initializaiton
+    // and never modified afterwards.
 	// save the class objects that we use
     CIMClass _personDynamicClass;
     CIMClass _assocClass;
@@ -167,15 +169,6 @@ protected:
 
 private:
 
-String _hostname;
-
-void _setCompleteObjectPath(
-         CIMObjectPath & path);
-
-
-void _setCompleteObjectPath(
-         CIMInstance & instance);
-
 /** clone the input instance and filter it in accordance with
     the input variables.
     @return cloned and filtered instance.
@@ -190,7 +183,7 @@ CIMInstance _filter(
 void _getInstance(
     const Array<CIMInstance> & instanceArray,    
 	const OperationContext & context,
-	const CIMObjectPath & localReference,
+	const CIMObjectPath & instanceReference,
 	const Boolean includeQualifiers,
 	const Boolean includeClassOrigin,
 	const CIMPropertyList & propertyList,
@@ -240,7 +233,7 @@ void _associators(
     Array<CIMInstance> & instanceArray,
     Array<CIMInstance> & resultInstanceArray,
 	const OperationContext & context,
-	const CIMObjectPath & localObjectName,
+	const CIMObjectPath & objectName,
 	const CIMName & associationClass,
 	const CIMName & resultClass,
 	const String & role,

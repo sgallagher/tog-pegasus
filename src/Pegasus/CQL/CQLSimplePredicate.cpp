@@ -37,91 +37,102 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "CQLSimplePredicate.h"
-#include "CQLSimplePredicateRep.h"
+#include <Pegasus/CQL/CQLSimplePredicate.h>
+#include <Pegasus/CQL/CQLSimplePredicateRep.h>
 #include <Pegasus/CQL/CQLExpression.h>
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-CQLSimplePredicate::CQLSimplePredicate(){
-	_rep = new CQLSimplePredicateRep();
+CQLSimplePredicate::CQLSimplePredicate()
+{
+    _rep = new CQLSimplePredicateRep();
 }
 
 CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression)
 {
-	_rep = new CQLSimplePredicateRep(inExpression);
+    _rep = new CQLSimplePredicateRep(inExpression);
 }
 
 CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& inExpression, 
-				       ExpressionOpType inOperator)
+                       ExpressionOpType inOperator)
 {
-	_rep = new CQLSimplePredicateRep(inExpression,inOperator);
+    _rep = new CQLSimplePredicateRep(inExpression, inOperator);
 }
 
 CQLSimplePredicate::CQLSimplePredicate(const CQLExpression& leftSideExpression,
-				       const CQLExpression& rightSideExpression,
-				       ExpressionOpType inOperator)
+                       const CQLExpression& rightSideExpression,
+                       ExpressionOpType inOperator)
 {
-	_rep = new CQLSimplePredicateRep(leftSideExpression,rightSideExpression,inOperator);
+    _rep = new CQLSimplePredicateRep(leftSideExpression,rightSideExpression, inOperator);
 }
 
-CQLSimplePredicate::CQLSimplePredicate(const CQLSimplePredicate& inSimplePredicate){
-        _rep = new CQLSimplePredicateRep(inSimplePredicate._rep);
+CQLSimplePredicate::CQLSimplePredicate(const CQLSimplePredicate& inSimplePredicate)
+{
+    _rep = new CQLSimplePredicateRep(inSimplePredicate._rep);
 }
 
-CQLSimplePredicate::~CQLSimplePredicate(){
-	if(_rep)
-		delete _rep;
+CQLSimplePredicate::~CQLSimplePredicate()
+{
+    delete _rep;
 }
 
 Boolean CQLSimplePredicate::evaluate(CIMInstance CI, QueryContext& QueryCtx)
 {
-	return _rep->evaluate(CI,QueryCtx);
+    return _rep->evaluate(CI,QueryCtx);
 }
 
-CQLExpression CQLSimplePredicate::getLeftExpression()const
+CQLExpression CQLSimplePredicate::getLeftExpression() const
 {
-	return _rep->getLeftExpression();
+    return _rep->getLeftExpression();
 }
 
-CQLExpression CQLSimplePredicate::getRightExpression()const
+CQLExpression CQLSimplePredicate::getRightExpression() const
 {
-        return _rep->getRightExpression();
+    return _rep->getRightExpression();
 }
 
-enum ExpressionOpType CQLSimplePredicate::getOperation()const
+enum ExpressionOpType CQLSimplePredicate::getOperation() const
 {
-	return _rep->getOperation();
+    return _rep->getOperation();
 }
 
 void CQLSimplePredicate::applyContext(QueryContext& queryContext)
 {
-  _rep->applyContext(queryContext);
+    _rep->applyContext(queryContext);
 }
 
-String CQLSimplePredicate::toString()const
+String CQLSimplePredicate::toString() const
 {
-	return _rep->toString();
+    return _rep->toString();
 }
-Boolean CQLSimplePredicate::isSimple()const{
-        return _rep->isSimple();
+
+Boolean CQLSimplePredicate::isSimple() const
+{
+    return _rep->isSimple();
 }
-Boolean CQLSimplePredicate::isSimpleValue()const{
-	return _rep->isSimpleValue();
+
+Boolean CQLSimplePredicate::isSimpleValue() const
+{
+    return _rep->isSimpleValue();
 }
  
-CQLSimplePredicate& CQLSimplePredicate::operator=(const CQLSimplePredicate& rhs){
-	if(&rhs != this){
-		if(_rep) delete _rep;
-		_rep = new CQLSimplePredicateRep(rhs._rep);
-	}
-	return *this;
+CQLSimplePredicate& CQLSimplePredicate::operator=(const CQLSimplePredicate& rhs)
+{
+    if(&rhs != this)
+    {
+        delete _rep;
+        _rep = 0;
+        _rep = new CQLSimplePredicateRep(rhs._rep);
+    }
+
+    return *this;
 }
 
-void CQLSimplePredicate::setOperation(ExpressionOpType op){
-	_rep->setOperation(op);
+void CQLSimplePredicate::setOperation(ExpressionOpType op)
+{
+    _rep->setOperation(op);
 }
 
 PEGASUS_NAMESPACE_END

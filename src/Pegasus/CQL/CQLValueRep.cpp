@@ -32,10 +32,6 @@
 // Modified By: Dan Gorey (djgorey@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-#include <cstdlib>
-#include <iostream>
-
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/CQLValueRep.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
@@ -321,7 +317,7 @@ void CQLValueRep::resolve(const CIMInstance& CI, const  QueryContext& inQueryCtx
 	      return;
 	    }
 	}
-      catch(CIMException &e)
+      catch(const CIMException &)
 	{
 	  // The chain is not inline with scope.
 	  _valueType = CQLValue::Null_type;

@@ -37,6 +37,12 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CQLFactory.h"
+#include "CQLValueRep.h"
+#include "CQLFactorRep.h"
+#include "CQLSimplePredicateRep.h"
+#include "CQLPredicateRep.h"
+#include "CQLExpressionRep.h"
+#include "CQLTermRep.h"
 #include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN

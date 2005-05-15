@@ -43,6 +43,10 @@ ifeq ($(OS),HPUX)
     EXTRA_LIBRARIES += -lsec 
 endif
 
+ifeq ($(PEGASUS_PLATFORM),AIX_RS_IBMCXX)
+    SYS_LIBS += -lpam
+endif
+
 PROGRAM = cimservera
 
 SOURCES = \

@@ -379,6 +379,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  define PEGASUS_SSLSERVER_RANDOMFILE      "/opt/freeware/cimom/pegasus/etc/cimserver.rnd"
 #  undef PEGASUS_LOCAL_DOMAIN_SOCKET_PATH
 #  define PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  "/opt/freeware/cimom/pegasus/etc/cimxml.socket"
+#  undef PEGASUS_PAM_STANDALONE_PROC_NAME
+#  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/freeware/cimom/pegasus/bin/cimservera"
 # elif defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_LSB)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/tog-pegasus/client.pem"

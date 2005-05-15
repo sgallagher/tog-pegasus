@@ -39,7 +39,6 @@
 #include "CQLChainedIdentifier.h"
 #include "CQLChainedIdentifierRep.h"
 #include <Pegasus/CQL/CQLFactory.h>
-#include <iostream>
 PEGASUS_NAMESPACE_BEGIN
 
 /*

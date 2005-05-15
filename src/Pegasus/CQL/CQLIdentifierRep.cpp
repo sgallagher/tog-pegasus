@@ -36,14 +36,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
 //#include "CQLIdentifier.h"
 #include "CQLIdentifierRep.h"
 #include <Pegasus/Query/QueryCommon/QueryIdentifierRep.h>
 #include <Pegasus/Query/QueryCommon/QueryException.h>
 #include <Pegasus/Common/Tracer.h>
-#include <ctype.h>
-#include <cstdlib>
 PEGASUS_NAMESPACE_BEGIN
 
 

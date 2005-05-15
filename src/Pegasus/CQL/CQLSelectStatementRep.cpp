@@ -40,8 +40,6 @@
 #include "CQLSelectStatement.h"
 #include "CQLSelectStatementRep.h"
 
-#include <iostream>
-
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMProperty.h>

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,25 +32,25 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLChainedIdentifierRep_h
 #define Pegasus_CQLChainedIdentifierRep_h
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifierRep.h>
 
-PEGASUS_NAMESPACE_BEGIN 
+PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;
-/**  
+/**
 CQLChainedIdentifier class is used for parsing (not resolving)
-the identifier portion of a CQL select statement.  
+the identifier portion of a CQL select statement.
 A couple examples of a CQLIdentifier:
 
   Class.EmbeddedObject.Property[3]
@@ -72,14 +72,14 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep : public QueryChainedIdentifie
   public:
 
     CQLChainedIdentifierRep();
-    /**  constructor 
+    /**  constructor
           Parses the string into the various components of a CQL identifier.
           Throws parsing errors.
       */
     CQLChainedIdentifierRep(String inString);
 
     CQLChainedIdentifierRep(const CQLIdentifier &id);
- 
+
     CQLChainedIdentifierRep(const CQLChainedIdentifierRep* rep);
 
     ~CQLChainedIdentifierRep();
@@ -91,7 +91,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep : public QueryChainedIdentifie
     Array<CQLIdentifier> getSubIdentifiers()const;
 
     CQLIdentifier getLastIdentifier()const;
-	
+
     friend class CQLFactory;
 
   private:

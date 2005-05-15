@@ -32,20 +32,19 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLFunction_h
 #define Pegasus_CQLFunction_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/CQLValue.h>
-#include <Pegasus/CQL/Linkage.h>
-//#include <Pegasus/CQL/CQLExpression.h>
-#include <Pegasus/CQL/CQLPredicate.h>
-
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+#include <Pegasus/CQL/Linkage.h>
+#include <Pegasus/CQL/CQLValue.h>
+#include <Pegasus/CQL/CQLPredicate.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

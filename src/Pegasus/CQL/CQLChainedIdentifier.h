@@ -40,11 +40,9 @@
 #ifndef Pegasus_CQLChainedIdentifier_h
 #define Pegasus_CQLChainedIdentifier_h
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
 //#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 

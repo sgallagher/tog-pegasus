@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,14 +29,14 @@
 //
 // Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLFactorRep_h
 #define Pegasus_CQLFactorRep_h
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/CQL/CQLExpression.h>
@@ -52,54 +52,54 @@ class PEGASUS_CQL_LINKAGE CQLFactorRep
  public:
 
   CQLFactorRep();
-  
+
   CQLFactorRep(const CQLValue& inCQLVal);
-  
+
   CQLFactorRep(const CQLExpression& inCQLExp);
-  
+
   CQLFactorRep(const CQLFunction& inCQLFunc);
 
   CQLFactorRep(const CQLFactorRep* rep);
-  
+
   ~CQLFactorRep(){}
-  
+
   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
-  
+
   Boolean isSimple()const;
-  
+
   Boolean isSimpleValue()const;
-  
+
   CQLValue getValue()const;
-  
+
   CQLFunction getCQLFunction()const;
-  
+
   CQLExpression getCQLExpression()const;
-  
+
   String toString()const;
-  
+
   void applyContext(QueryContext& inContext,
-		    CQLChainedIdentifier& inCid);
-/*  
+            CQLChainedIdentifier& inCid);
+/*
   Boolean operator==(const CQLFactorRep& rep)const;
-  
+
   Boolean operator!=(const CQLFactorRep& rep)const;
   */
   friend class CQLFactory;
-  
+
  private:
-  
+
   enum ContainedObjectType {EXPRESSION, FUNCTION, VALUE};
-  
+
   CQLExpression _CQLExp;
-  
+
   CQLValue _CQLVal;
-  
+
   CQLFunction _CQLFunct;
-  
+
   Boolean _invert;
-  
+
   Boolean _simpleValue;
-  
+
   ContainedObjectType _containedType;
 };
 

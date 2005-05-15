@@ -40,7 +40,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,42 +29,35 @@
 //
 // Author: Dan Gorey (djgorey@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
-
 #ifndef Pegasus_CQLRegularExpression_h
 #define Pegasus_CQLRegularExpression_h
 
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/Linkage.h>
-#include <Pegasus/Common/String.h>
-#include <iostream>
-
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-             
+
+#include <Pegasus/CQL/Linkage.h>
+
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_CQL_LINKAGE CQLRegularExpression {
+class String;
 
+class PEGASUS_CQL_LINKAGE CQLRegularExpression
+{
 public:
-
     CQLRegularExpression();
-
     ~CQLRegularExpression();
 
     Boolean match(const String& string, const String& pattern);
 
-
 private:
-   
+
 };
 
-
 PEGASUS_NAMESPACE_END
-#endif
-#endif 
 
+#endif
+#endif

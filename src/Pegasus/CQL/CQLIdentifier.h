@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,35 +32,32 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLIdentifier_h
 #define Pegasus_CQLIdentifier_h
 
-#include <Pegasus/Common/Config.h>
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
 #include <Pegasus/CQL/Linkage.h>
-#include <Pegasus/Common/String.h>
 //#include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/ArrayInternal.h>
-#include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
-#include <Pegasus/Query/QueryCommon/SubRange.h>
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 
 class PEGASUS_CQL_LINKAGE CQLIdentifierRep;
 
-/** 
+/**
   The CQLIdentifier class encapsulates
   the different formats of the CQL property portion
-  of a CQLChainedIdentifier. 
+  of a CQLChainedIdentifier.
 
   For example, a CQLChainedIdentifier can have these parts:
- 
+
     Class.EmbeddedObject.Property
     Class.Property
 
@@ -79,32 +76,32 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
   public:
     /**
         Default constructor
-                                                                                                                                                             
+
         @param  -  None.
         @return - None.
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
     */
     CQLIdentifier();
-    
+
     /**  The constructor for a CQLIdentifier object
           takes a string as input.  The string should contain the
           property portion of a CQLChainedIdentifier.
-                                                                                                                                                             
+
          The constructor parses the input string into the components of
          the property identifier.
-                                                                                                                                                             
+
          @param - identifier.  The raw string to be parsed into a CQLIdentifier
-	 @return - None.
-	 @throws - CQLIdentifierParseException
+        @return - None.
+         @throws - CQLIdentifierParseException
          <I><B>Experimental Interface</B></I><BR>
       */
     CQLIdentifier(String identifier);
 
     /**
-	Copy constructor
+        Copy constructor
 
-    	@param - id.  The CQLIdentifier to copy construct from
+        @param - id.  The CQLIdentifier to copy construct from
         @return - None.
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
@@ -113,7 +110,7 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
 
     /**
         Constructs a CQLIdentifier from its base class
-                                                                                                                                                             
+
         @param - identifier.  The raw string to be parsed into a CQLIdentifier
         @return - None.
         @throws - None.
@@ -123,7 +120,7 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
 
     /**
         Destructor
-                                                                                                                                                             
+
         @param  - None.
         @return - None.
         @throws - None.
@@ -132,8 +129,8 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
     ~CQLIdentifier();
 
     /**
-        Assignement operator
-                                                                                                                                                             
+        Assignment operator
+
         @param  - rhs.  The right hand side of the assignment operator
         @return - None.
         @throws - None.

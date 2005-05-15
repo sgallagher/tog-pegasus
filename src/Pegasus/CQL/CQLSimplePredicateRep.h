@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,16 +30,16 @@
 // Authors: David Rosckes (rosckes@us.ibm.com)
 //          Bert Rivero (hurivero@us.ibm.com)
 //          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
+//          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CQLSimplePredicateRep_h 
+#ifndef Pegasus_CQLSimplePredicateRep_h
 #define Pegasus_CQLSimplePredicateRep_h
 
-#include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/CQL/CQLExpression.h>
 
@@ -62,42 +62,38 @@ class CQLSimplePredicateRep
     CQLSimplePredicateRep(const CQLExpression& inExpression, ExpressionOpType inOperator);
 
     CQLSimplePredicateRep(const CQLExpression& leftSideExpression,
-			  const CQLExpression& rightSideExpression,
-			  ExpressionOpType inOperator);
+                          const CQLExpression& rightSideExpression,
+                          ExpressionOpType inOperator);
 
     CQLSimplePredicateRep(const CQLSimplePredicateRep* rep);
 
     ~CQLSimplePredicateRep(){}
 
-    /**  
-      CQLExpressions: 
-          For an expression, CQLExpression::getValue is called and will return a
-    CQLValue.
-          The appropriate operator is then invoked on CQLValue and that operator
-    function will
-          enforce the type restrictions as documented in the DMTF CQL
-    Specification.
+    /**
+      CQLExpressions:
+          For an expression, CQLExpression::getValue is called and will
+          return a CQLValue.
+          The appropriate operator is then invoked on CQLValue and that
+          operator function will enforce the type restrictions as documented
+          in the DMTF CQL Specification.
           That operator then determines whether the predicate is TRUE / FALSE.
-    
-    
-       CQLPredicates: 
+
+
+       CQLPredicates:
           The CQLPredicate is non-terminal if it contains only CQLPredicate
-    objects.
+          objects.
           A non-terminal CQLPredicate is evaluated by in turn evaluating the
-    contained CQLPredicates and
-          boolean operator.
-         Valid operators are:
+          contained CQLPredicates and boolean operator.
+          Valid operators are:
                   AND, OR
-    
-         For the evaluate method on each CQLPredicate. the CQLPredicate is
-    evaluated to TRUE/FALSE and 
-         the result of the evaluation is then applied to the appropriate boolean
-    operator. 
-    
-        The result of the evaluation is and then inverted if the _invert member
-    variable is set to TRUE
-        and then returned to the caller.
-    
+
+          For the evaluate method on each CQLPredicate. the CQLPredicate is
+          evaluated to TRUE/FALSE and the result of the evaluation is then
+          applied to the appropriate boolean operator.
+
+          The result of the evaluation is and then inverted if the _invert
+          member variable is set to TRUE and then returned to the caller.
+
       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
 
@@ -105,7 +101,7 @@ class CQLSimplePredicateRep
 
     CQLExpression getRightExpression()const;
 
-    enum ExpressionOpType getOperation()const;
+    ExpressionOpType getOperation()const;
 
     void applyContext(QueryContext& queryContext);
 
@@ -118,7 +114,8 @@ class CQLSimplePredicateRep
     void setOperation(ExpressionOpType op);
 
     friend class CQLFactory;
-  private:
+
+private:
     CQLExpression _leftSide;
 
     CQLExpression _rightSide;
@@ -128,4 +125,4 @@ class CQLSimplePredicateRep
 };
 PEGASUS_NAMESPACE_END
 
-#endif 
+#endif

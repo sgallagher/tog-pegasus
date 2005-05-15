@@ -33,15 +33,12 @@
 //                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-#include <cstdlib>
-#include <iostream>
-
 #include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
 #include <Pegasus/CQL/CQLValue.h>
+#include <Pegasus/CQL/CQLValueRep.h>
 #include <Pegasus/CQL/CQLFactory.h>
 
 

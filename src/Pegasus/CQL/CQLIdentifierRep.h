@@ -41,10 +41,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/CQL/Linkage.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/CIMName.h>
-#include <Pegasus/Query/QueryCommon/SubRange.h>
 #include <Pegasus/Query/QueryCommon/QueryIdentifierRep.h>
 
 PEGASUS_NAMESPACE_BEGIN

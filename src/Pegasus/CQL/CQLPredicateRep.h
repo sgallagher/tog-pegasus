@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,18 +30,18 @@
 // Authors: David Rosckes (rosckes@us.ibm.com)
 //          Bert Rivero (hurivero@us.ibm.com)
 //          Chuck Carmack (carmack@us.ibm.com)
-//          Brian Lucier (lucier@us.ibm.com) 
+//          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CQLPredicateRep_h
 #define Pegasus_CQLPredicateRep_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/CQLSimplePredicate.h>
 #include <Pegasus/CQL/Linkage.h>
+#include <Pegasus/CQL/CQLSimplePredicate.h>
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -49,12 +49,12 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_QUERYCOMMON_LINKAGE QueryContext;
 class PEGASUS_CQL_LINKAGE CQLFactory;
 
-/** 
+/**
    This object is populated by Bison.
 
    Valid operations for each type of CQLValue are in accordance with the DMTF
 CQL Specification.
-   
+
    The CQLPredicate is considered "terminal" if it does not contain any
 CQLPredicate objects.
     A 'terminal' predicate can be evaluated to TRUE/FALSE by examining the
@@ -62,7 +62,7 @@ CQLExpressions and operator.
     Valid operators are:
             <, >, =, <=, >=, <>, IS NULL, IS NOT NULL, ISA, LIKE
 
-   CQLExpressions: 
+   CQLExpressions:
       For an expression, CQLExpression::getValue is called and will return a
 CQLValue.
       The appropriate operator is then invoked on CQLValue and that operator
@@ -72,7 +72,7 @@ Specification.
       That operator then determines whether the predicate is TRUE / FALSE.
 
 
-   CQLPredicates: 
+   CQLPredicates:
       The CQLPredicate is non-terminal if it contains only CQLPredicate
 objects.
       A non-terminal CQLPredicate is evaluated by in turn evaluating the
@@ -82,9 +82,9 @@ contained CQLPredicates and
               AND, OR
 
     For the evaluate method on each CQLPredicate. the CQLPredicate is evaluated
-to TRUE/FALSE and 
+to TRUE/FALSE and
      the result of the evaluation is then applied to the appropriate boolean
-operator. 
+operator.
 
     The result of the evaluation is and then inverted if the _invert member
 variable is set to TRUE
@@ -95,7 +95,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 {
   public:
     CQLPredicateRep();
-    
+
     CQLPredicateRep(const CQLSimplePredicate & inSimplePredicate, Boolean inVerted = false);
 
     CQLPredicateRep(const CQLPredicate & inPredicate, Boolean inVerted = false);
@@ -103,8 +103,8 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
     CQLPredicateRep(const CQLPredicateRep* rep);
 
    ~CQLPredicateRep(){}
-    /**  
-      CQLExpressions: 
+    /**
+      CQLExpressions:
           For an expression, CQLExpression::getValue is called and will return a
     CQLValue.
           The appropriate operator is then invoked on CQLValue and that operator
@@ -112,9 +112,9 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
           enforce the type restrictions as documented in the DMTF CQL
     Specification.
           That operator then determines whether the predicate is TRUE / FALSE.
-    
-    
-       CQLPredicates: 
+
+
+       CQLPredicates:
           The CQLPredicate is non-terminal if it contains only CQLPredicate
     objects.
           A non-terminal CQLPredicate is evaluated by in turn evaluating the
@@ -122,16 +122,16 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
           boolean operator.
          Valid operators are:
                   AND, OR
-    
+
          For the evaluate method on each CQLPredicate. the CQLPredicate is
-    evaluated to TRUE/FALSE and 
+    evaluated to TRUE/FALSE and
          the result of the evaluation is then applied to the appropriate boolean
-    operator. 
-    
+    operator.
+
         The result of the evaluation is and then inverted if the _invert member
     variable is set to TRUE
         and then returned to the caller.
-    
+
       */
     Boolean evaluate(CIMInstance CI, QueryContext& QueryCtx);
 
@@ -147,7 +147,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
     void appendPredicate(const CQLPredicate& inPredicate, BooleanOpType inBooleanOperator);
 
     Array<CQLPredicate> getPredicates()const;
-  
+
     CQLSimplePredicate getSimplePredicate()const;
 
     Array<BooleanOpType> getOperators()const;
@@ -161,7 +161,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     friend class CQLFactory;
   private:
-    
+
    Array<CQLPredicate> _predicates;
    CQLSimplePredicate _simplePredicate;
    Array<BooleanOpType> _operators;
@@ -172,4 +172,4 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
 PEGASUS_NAMESPACE_END
 
-#endif 
+#endif

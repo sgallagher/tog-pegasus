@@ -41,10 +41,8 @@
 #define Pegasus_CQLSelectStatementRep_h
 
 #include <Pegasus/Query/QueryCommon/SelectStatementRep.h>
-#include <Pegasus/Query/QueryCommon/QueryIdentifier.h>
 #include <Pegasus/Query/QueryCommon/QueryChainedIdentifier.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
-#include <Pegasus/CQL/CQLIdentifier.h>
 #include <Pegasus/CQL/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN

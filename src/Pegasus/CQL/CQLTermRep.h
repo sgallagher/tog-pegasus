@@ -39,9 +39,8 @@
 #ifndef Pegasus_CQLTermRep_h
 #define Pegasus_CQLTermRep_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/Linkage.h>
+#include <Pegasus/CQL/CQLValue.h>
 #include <Pegasus/CQL/CQLFactor.h>
 
 PEGASUS_NAMESPACE_BEGIN

@@ -42,6 +42,7 @@
 #include <Pegasus/CQL/CQLFactory.h>
 #include <Pegasus/CQL/CQLUtilities.h>
 #include <Pegasus/CQL/CQLValue.h>
+#include <Pegasus/CQL/CQLValueRep.h>
 
 // Common Query includes
 #include <Pegasus/Query/QueryCommon/QueryContext.h>

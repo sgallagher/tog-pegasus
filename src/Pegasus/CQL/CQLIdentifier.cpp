@@ -38,9 +38,6 @@
 
 #include "CQLIdentifier.h"
 #include "CQLIdentifierRep.h"
-#include <iostream>
-#include <ctype.h>
-#include <cstdlib>
 PEGASUS_NAMESPACE_BEGIN
 
 /*

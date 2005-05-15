@@ -40,13 +40,12 @@
 #ifndef Pegasus_CQLSelectStatement_h
 #define Pegasus_CQLSelectStatement_h
 
-#include <Pegasus/Common/Config.h>
+#include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Query/QueryCommon/SelectStatement.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/CQL/CQLPredicate.h>
 #include <Pegasus/CQL/CQLIdentifier.h>
-#include <Pegasus/CQL/Linkage.h>
 
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES

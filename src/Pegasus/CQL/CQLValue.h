@@ -37,19 +37,15 @@
 #ifndef PEGASUS_CQLVALUE_H
 #define PEGASUS_CQLVALUE_H
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-#include <Pegasus/Common/Config.h>
-
+#include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Query/QueryCommon/QueryContext.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
-
-#include <Pegasus/CQL/Linkage.h>
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_CQL_LINKAGE CQLFactory;

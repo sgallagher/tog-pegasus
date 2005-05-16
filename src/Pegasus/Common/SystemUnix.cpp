@@ -1189,8 +1189,7 @@ Boolean System::verifyFileOwnership(const char* path)
 void System::openlog(const String &ident)
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    char * ident_name = strdup(ident.getCString());
-    ::openlog(ident_name, LOG_PID, LOG_DAEMON);
+    ::openlog(ident.getCString(), LOG_PID, LOG_DAEMON);
 
 #endif
 

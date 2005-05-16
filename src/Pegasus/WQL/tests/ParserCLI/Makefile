@@ -45,9 +45,9 @@ include $(ROOT)/mak/program.mak
 # values in ParserCLI. the values of w,x,y,z are preset and the
 # end result must be true.   Thus, for example w is always TRUE
 
-tests: test1 test2 test2a test3 test4 test5 test5a test6 test7
+tests: test1 test2 test2a test3 test4 test5 test6 test7
 
-ifdef PEGASUS_SNIA_INTEROP_TEST
+ifdef PEGASUS_SNIA_EXTENSIONS
 tests += test8
 endif
 
@@ -69,13 +69,13 @@ test4:
 test5:
 	@ $(PROGRAM) "SELECT * FROM ClassName WHERE NOT NOT NOT x < 5"
 
-test5a:
+test6:
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w <> FALSE"
 
-test6:
-	@ $(PROGRAM) "SELECT * FROM ClassName WHERE v IS NULL"
-
 test7:
+	@ $(PROGRAM) "SELECT * FROM ClassName WHERE v IS NULL
+	
+test8:
 	@ $(PROGRAM) "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"
 
 poststarttests:

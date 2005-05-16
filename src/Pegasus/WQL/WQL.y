@@ -291,9 +291,10 @@ comparisonPredicate
     }
     | propertyName TOK_ISA className
     {
-
-    	WQL_TRACE(("YACC: TOK_ISA\n"));
-        // ADD statement phrase.
+    WQL_TRACE(("YACC: TOK_ISA\n"));
+    #ifndef PEGASUS_SNIA_EXTENSIONS
+        yyerror("ISA Token Not Supported");
+    #endif
     }
 
 nullPredicate

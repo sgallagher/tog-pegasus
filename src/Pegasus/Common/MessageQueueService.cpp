@@ -926,8 +926,10 @@ Boolean MessageQueueService::SendAsync(
       op->_request.insert_first(msg);
       (static_cast<AsyncMessage *>(msg))->op = op;
    }
-
-   _callback.insert_last(op);
+   // This callback mechanism - a queue of callback is not used anymore.
+   // Instead async responses when completed fire off an AsyncRequest for
+   // callback which gets handled.
+   //_callback.insert_last(op);
    return _meta_dispatcher->route_async(op);
 }
 

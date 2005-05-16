@@ -324,7 +324,6 @@ void cimom::_make_response(Message *req, Uint32 code)
    if ( ! (req->getMask() & message_mask::ha_async) )
    {
       // legacy message, just delete
-
       delete req;
       return;
    }
@@ -339,7 +338,6 @@ void cimom::_make_response(Message *req, Uint32 code)
    AutoPtr<AsyncReply> reply ;
    if ( ! ((static_cast<AsyncRequest *>(req))->op->_flags & ASYNC_OPFLAGS_SIMPLE_STATUS) )
    {
- 
       reply.reset(new AsyncReply(async_messages::REPLY,
 			     req->getKey(),
 			     req->getRouting(),
@@ -476,6 +474,8 @@ void cimom::_complete_op_node(AsyncOpNode *op, Uint32 state, Uint32 flag, Uint32
    }
    if((flags & ASYNC_OPFLAGS_SAFE_CALLBACK ) && (! (flags & ASYNC_OPFLAGS_PSEUDO_CALLBACK)))
    {
+      op->_op_dest = op->_callback_response_q; 
+      _global_this->route_async(op);
       return;
    }
    op->_client_sem.signal();

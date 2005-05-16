@@ -40,6 +40,7 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
   
  
+static char *verbose;
 
 async_start::async_start(AsyncOpNode *op,
 			 Uint32 start_q, 
@@ -115,8 +116,7 @@ Boolean test_async_queue::messageOK(const Message * msg)
 
 void test_async_queue::_handle_async_request(AsyncRequest *rq)
 {
-
-   if( rq->getType() == async_messages::ASYNC_OP_START)
+   if( rq->getType() == async_messages::ASYNC_OP_START | rq->getType() == async_messages::ASYNC_LEGACY_OP_START)
    {
       PEGASUS_ASSERT(_role == SERVER);
       Message *response_data = new Message(CIM_GET_INSTANCE_RESPONSE_MESSAGE);
@@ -124,7 +124,7 @@ void test_async_queue::_handle_async_request(AsyncRequest *rq)
 	 new async_complete(static_cast<async_start &>(*rq),
 			    async_results::OK,
 			    response_data);
-      _complete_op_node(rq->op, 0, 0, 0);
+      _complete_op_node(rq->op, 0, 0, async_results::ASYNC_COMPLETE);
    }
    else if( rq->getType() == async_messages::CIMSERVICE_STOP )
    {
@@ -155,7 +155,6 @@ void test_async_queue::async_handleEnqueue(AsyncOpNode *op,
    
    async_start *rq = static_cast<async_start *>(op->get_request());
    async_complete *rp = static_cast<async_complete *>(op->get_response());
-   
    if ( (rq->getType() == async_messages::ASYNC_OP_START ) &&
 	(rp->getType() == async_messages::ASYNC_OP_RESULT) )
    {
@@ -204,6 +203,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm);
 
 int main(int argc, char **argv)
 {
+   verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+
+   try {
    Thread client(client_func,(void *)0, false); 
    
    Thread server(server_func, (void *)0, false); 
@@ -214,8 +217,13 @@ int main(int argc, char **argv)
    
    client.join();
    server.join();
-   cout << "+++++ passed all tests " << endl;
-   
+   } catch (const Exception &e)
+   {
+	cout << "Exception: " << e.getMessage() << endl;
+
+   }
+   cout << argv[0] << " +++++ passed all tests" << endl;
+
    return(0);
 }
 
@@ -235,7 +243,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    }
    
    AtomicInt rq_count;
-   cout << "testing low-level async send " << endl;
+   if (verbose)
+   	cout << "testing low-level async send " << endl;
    do 
    {
       
@@ -255,12 +264,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
 			(void *)0);
       rq_count++; 
       pegasus_yield();  
-
-   } while( test_async_queue::msg_count.value() < 10000 );
-    
+      if (verbose)
+      {
+	if (rq_count.value() % 100 == 0)
+		cout << (rq_count.value() / 10) << "%% complete" << endl;
+      }
+   } while( test_async_queue::msg_count.value() < 1000 );
    test_async_queue::msg_count = 0 ;
    rq_count = 0;
-   cout << "testing fast safe async send " << endl;
+   if (verbose)
+   	cout << "testing fast safe async send " << endl;
    do   
    {
       Message *cim_rq = new Message(CIM_GET_INSTANCE_REQUEST_MESSAGE);
@@ -278,17 +291,25 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
 			(void *)NULL);
       rq_count++;
       pegasus_yield();
+      if (verbose)
+      {
+	if (rq_count.value() % 100 == 0)
+		cout << (rq_count.value() / 10) << "%% complete" << endl;
+      }
 
-   } while( test_async_queue::msg_count.value() < 10000 );
+   } while( test_async_queue::msg_count.value() < 1000 );
 
-   cout << "client waiting for lingering callbacks..." << endl;
+   // This callback mechanism is not used anymore..
+   if (verbose)
+   	cout << "client waiting for lingering callbacks..." << endl;
    
    while(client->get_pending_callback_count() > 0 )
    {
       pegasus_sleep(1);
    }
 
-   cout << "sending stop to server " << endl;
+   if (verbose)
+   	cout << "sending stop to server " << endl;
    
    CimServiceStop *stop =   
       new CimServiceStop(client->get_next_xid(),
@@ -309,8 +330,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    }
 
 
-
-   cout << "shutting down client" << endl;
+   if (verbose)
+   	cout << "shutting down client" << endl;
    
    client->deregister_service();
    client->_shutdown_incoming_queue();
@@ -331,7 +352,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
    {
       pegasus_yield();
    }
-   cout << "server shutting down" << endl;
+   if (verbose)
+   	cout << "server shutting down" << endl;
    
    server->deregister_service();
    server->_shutdown_incoming_queue();

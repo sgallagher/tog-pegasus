@@ -421,6 +421,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE
 #  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/wbem/cimserver.rnd"
+#  undef PEGASUS_LOCAL_AUTH_DIR
+#  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/wbem/localauth"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/var/opt/wbem/bin/cimprovagt"

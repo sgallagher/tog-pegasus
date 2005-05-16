@@ -57,8 +57,13 @@ AutoStreamer::AutoStreamer(ObjectStreamer *primary, Uint8 marker) {
 }
 
 AutoStreamer::~AutoStreamer() {
-    for (Uint32 i=0; i<_readerCount; ++i)
-        delete _readers[i].reader;
+    for (Uint32 i=0; i<=_readerCount; ++i)
+    {
+	if (_defaultReader != _readers[i].reader)
+        	delete _readers[i].reader;
+    }
+    if (_defaultReader)
+    	delete _defaultReader;
 }
 
 void AutoStreamer::addReader(ObjectStreamer *reader, Uint8 marker) {

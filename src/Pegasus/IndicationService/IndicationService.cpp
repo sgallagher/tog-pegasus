@@ -6650,7 +6650,7 @@ void IndicationService::_sendSubscriptionInitComplete ()
             request,
             _queueId);
 
-    AutoPtr<AsyncReply>  (SendWait (asyncRequest));
+    AutoPtr<AsyncReply>  asyncReply (SendWait (asyncRequest));
     op->release();
     delete op;
     //

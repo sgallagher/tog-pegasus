@@ -34,6 +34,7 @@ DIRS = \
     Array \
     AutoPtr \
     async_callback \
+    AtomicInt \
     Base64 \
     ClassDecl \
     Compare \

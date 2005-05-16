@@ -79,11 +79,6 @@ ProviderRegistrationProvider::ProviderRegistrationProvider(
 
 ProviderRegistrationProvider::~ProviderRegistrationProvider(void)	
 {
-    if (_providerRegistrationManager)
-    {
-	delete _providerRegistrationManager;
-    }
-
     if (_client_handle)
     {
 	delete _client_handle;
@@ -99,6 +94,9 @@ void ProviderRegistrationProvider::initialize(CIMOMHandle & cimom)
 
 void ProviderRegistrationProvider::terminate(void)
 {
+  // delete self. this is necessary because the entry point for this object allocated it, and
+  // the module is responsible for its memory management.
+  delete this;
 }
 
 // get registered provider

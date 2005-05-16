@@ -210,6 +210,9 @@ public:
 
     void terminate(void)
     {
+	// delete self. this is necessary because the entry point for this object allocated it, and
+    	// the module is responsible for its memory management.
+	delete this;
     }
 
 private:

@@ -226,7 +226,10 @@ public:
     void terminate(void)
     {
 	PEG_METHOD_ENTER(TRC_USER_MANAGER,"UserAuthProvider::terminate");
+	// delete self. this is necessary because the entry point for this object allocated it, and
+    	// the module is responsible for its memory management.
 
+	delete this;
 	PEG_METHOD_EXIT();
     }
 

@@ -642,37 +642,37 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						} // if there were any content languages
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-				        // The following is processing to wrap (encrypt) the response from the
-   		                // server when using kerberos authentications.
-		                // If the security association does not exist then kerberos authentication
+                        // The following is processing to wrap (encrypt) the response from the
+                        // server when using kerberos authentications.
+                        // If the security association does not exist then kerberos authentication
                         // is not being used.
-						CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+                        CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
 
-						if (sa)
-						{
+                        if (sa)
+                        {
                             // The message needs to be parsed in order to distinguish between the
-           		            // headers and content. When parsing, the code breaks out
+                            // headers and content. When parsing, the code breaks out
                             // of the loop as soon as it finds the double separator that terminates
                             // the headers so the headers and content can be easily separated.
 
-						    Boolean authrecExists = false;
-						    String authorization = String::EMPTY;
-						    if (HTTPMessage::lookupHeader(headers, "WWW-Authenticate", 
+                            Boolean authrecExists = false;
+                            String authorization = String::EMPTY;
+                            if (HTTPMessage::lookupHeader(headers, "WWW-Authenticate", 
                                                           authorization, false))
-						    {
-							authrecExists = true;
+                            {
+                                authrecExists = true;
 						    }
 			
-			                // The following is processing to wrap (encrypt) the response from the
-                  			// server when using kerberos authentications.
-						    sa->wrapResponseMessage(buffer, contentLength, authrecExists);
-						    messageLength = buffer.size();
+                            // The following is processing to wrap (encrypt) the response from the
+                            // server when using kerberos authentications.
+                            sa->wrapResponseMessage(buffer, contentLength, authrecExists);
+                            messageLength = buffer.size();
 
-						    // null terminate
-						    messageStart = (char *) buffer.getData();
-						    messageStart[messageLength] = 0;
-						    bytesRemaining = messageLength;
-						}  // endif kerberos security assoc exists
+                            // null terminate
+                            messageStart = (char *) buffer.getData();
+                            messageStart[messageLength] = 0;
+                            bytesRemaining = messageLength;
+                        }  // endif kerberos security assoc exists
 #endif
 					} // if this is the last chunk
 					else bytesRemaining = 0;

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -48,104 +48,116 @@ PEGASUS_NAMESPACE_BEGIN
 // class constructor
 CIMManagedClient::CIMManagedClient()
 {
-	// *shrugs*
-	// using this constructor doesn't seem to clever
-	// remind, if you use it, don't forget to set the ConnectionManager via setConnectionManager()
-	setPegasusDefaultPort();
-	_cccm = 0;
+    // *shrugs*
+    // using this constructor doesn't seem to clever
+    // remind, if you use it, don't forget to set the ConnectionManager
+    // via setConnectionManager()
+    setPegasusDefaultPort();
+    _cccm = 0;
 }
 
 CIMManagedClient::CIMManagedClient(CIMClientConnectionManager* cccm)
 {
-	CDEBUG("Using given CIMClientConnectionManager*");
-	setPegasusDefaultPort();
-	_cccm = cccm;
+    CDEBUG("Using given CIMClientConnectionManager*");
+    setPegasusDefaultPort();
+    _cccm = cccm;
 }
-	
+
 void CIMManagedClient::setConnectionManager(CIMClientConnectionManager* cccm)
 {
-	// if (_cccm != 0) delete _cccm;											   
-	_cccm = cccm;
+    // if (_cccm != 0) delete _cccm;
+    _cccm = cccm;
 }
 
 CIMClientConnectionManager* CIMManagedClient::getConnectionManager(void)
 {
-	return _cccm;
+    return _cccm;
 }
 
 CIMManagedClient::~CIMManagedClient()
 {
-	// ubs, we shouldn't delete the ClientConnectionManager, 
-	// as we don't know what it is anyway
-	// if (_cccm != 0) delete _cccm;
+    // ubs, we shouldn't delete the ClientConnectionManager,
+    // as we don't know what it is anyway
+    // if (_cccm != 0) delete _cccm;
 }
 
 // l10n start
-void CIMManagedClient::setRequestAcceptLanguages(const String& host, const String& port, AcceptLanguages& langs)
+void CIMManagedClient::setRequestAcceptLanguages(
+    const String& host,
+    const String& port,
+    const AcceptLanguages& langs
+)
 {
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, CIMNamespaceName());
+    CIMClientRep * _rep;
+    _rep = getTargetCIMOM(host, port, CIMNamespaceName());
     _rep->setRequestAcceptLanguages(langs);
 }
 
-AcceptLanguages CIMManagedClient::getRequestAcceptLanguages(const String& host, const String& port) const
+AcceptLanguages CIMManagedClient::getRequestAcceptLanguages(
+    const String& host,
+    const String& port
+) const
 {
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, CIMNamespaceName());
+    CIMClientRep * _rep;
+    _rep = getTargetCIMOM(host, port, CIMNamespaceName());
     return _rep->getRequestAcceptLanguages();
 }
 
-void CIMManagedClient::setRequestContentLanguages(const String& host, const String& port, ContentLanguages& langs)
+void CIMManagedClient::setRequestContentLanguages(
+    const String& host,
+    const String& port,
+    const ContentLanguages& langs
+)
 {
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, CIMNamespaceName());
+    CIMClientRep * _rep;
+    _rep = getTargetCIMOM(host, port, CIMNamespaceName());
     _rep->setRequestContentLanguages(langs);
 }
 
 ContentLanguages CIMManagedClient::getRequestContentLanguages(const String& host, const String& port) const
 {
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, CIMNamespaceName());
+    CIMClientRep * _rep;
+    _rep = getTargetCIMOM(host, port, CIMNamespaceName());
     return _rep->getRequestContentLanguages();
 }
 
 ContentLanguages CIMManagedClient::getResponseContentLanguages(const String& host, const String& port) const
 {
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, CIMNamespaceName());
+    CIMClientRep * _rep;
+    _rep = getTargetCIMOM(host, port, CIMNamespaceName());
     return _rep->getResponseContentLanguages();
 }
 
 void CIMManagedClient::setRequestDefaultLanguages(const String& host, const String& port)
 {
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, CIMNamespaceName());
+    CIMClientRep * _rep;
+    _rep = getTargetCIMOM(host, port, CIMNamespaceName());
     _rep->setRequestDefaultLanguages();
 }
 // l10n end
 
 Array<CIMObjectPath> CIMManagedClient::enumerateInstanceNames(
-	const String& host,
-	const String& port,
+    const String& host,
+    const String& port,
     const CIMNamespaceName& nameSpace,
     const CIMName& className)
 {
-	// test if host and namespace are provided
-	hasHostandNameSpace(host, nameSpace);
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, nameSpace);	
-	Array<CIMObjectPath> returnedInstanceNames = _rep->enumerateInstanceNames(nameSpace, className);
-	for (Uint32 i = 0; i < returnedInstanceNames.size(); i++)
-	{
-		returnedInstanceNames[i].setHost(_getHostwithPort(host, port));
-		returnedInstanceNames[i].setNameSpace(nameSpace);
-	}
-	return returnedInstanceNames;
+    // test if host and namespace are provided
+    hasHostandNameSpace(host, nameSpace);
+    CIMClientRep *   _rep;
+    _rep = getTargetCIMOM(host, port, nameSpace);
+    Array<CIMObjectPath> returnedInstanceNames = _rep->enumerateInstanceNames(nameSpace, className);
+    for (Uint32 i = 0; i < returnedInstanceNames.size(); i++)
+    {
+        returnedInstanceNames[i].setHost(_getHostwithPort(host, port));
+        returnedInstanceNames[i].setNameSpace(nameSpace);
+    }
+    return returnedInstanceNames;
 }
 
 Array<CIMInstance> CIMManagedClient::enumerateInstances(
-	const String& host,
-	const String& port,
+    const String& host,
+    const String& port,
     const CIMNamespaceName& nameSpace,
     const CIMName& className,
     Boolean deepInheritance,
@@ -155,12 +167,12 @@ Array<CIMInstance> CIMManagedClient::enumerateInstances(
     const CIMPropertyList& propertyList
 )
 {
-	// test if host and namespace are provided
-	hasHostandNameSpace(host, nameSpace);
-	CIMClientRep *   _rep;
-	_rep = getTargetCIMOM(host, port, nameSpace);
+    // test if host and namespace are provided
+    hasHostandNameSpace(host, nameSpace);
+    CIMClientRep *   _rep;
+    _rep = getTargetCIMOM(host, port, nameSpace);
 
-	Array<CIMInstance> returnedNamedInstances = _rep->enumerateInstances(
+    Array<CIMInstance> returnedNamedInstances = _rep->enumerateInstances(
         nameSpace,
         className,
         deepInheritance,
@@ -174,7 +186,7 @@ Array<CIMInstance> CIMManagedClient::enumerateInstances(
 	for (Uint32 i = 0; i < returnedNamedInstances.size(); i++)
 	{
 		CIMObjectPath chgObjectPath = CIMObjectPath(returnedNamedInstances[i].getPath());
-			
+
 		chgObjectPath.setHost(_getHostwithPort(host, port));
 		chgObjectPath.setNameSpace(nameSpace);
 
@@ -213,7 +225,7 @@ Array<CIMObject> CIMManagedClient::execQuery(
 		if (chgObjectPath.getHost() == String::EMPTY)
 		{
 			chgObjectPath.setHost(_getHostwithPort(host, port));
-		}																				  
+		}
 		// test for empty namespace
 		if (chgObjectPath.getNameSpace().isNull())
 		{
@@ -254,7 +266,7 @@ Array<CIMClass> CIMManagedClient::enumerateClasses(
 	for (Uint32 i = 0; i < returnedCimClasses.size(); i++)
 	{
 		CIMObjectPath chgObjectPath = CIMObjectPath(returnedCimClasses[i].getPath());
-			
+
 		chgObjectPath.setHost(_getHostwithPort(host,port));
 		chgObjectPath.setNameSpace(nameSpace);
 
@@ -305,7 +317,7 @@ CIMClass CIMManagedClient::getClass(
         propertyList);
 
 	CIMObjectPath chgObjectPath = CIMObjectPath(returnedCimClass.getPath());
-			
+
 	chgObjectPath.setHost(_getHostwithPort(host, port));
 	chgObjectPath.setNameSpace(nameSpace);
 
@@ -618,7 +630,7 @@ Array<CIMObject> CIMManagedClient::associators(
 	for (Uint32 i = 0; i < retAssoc.size(); i++)
 	{
 		// check if all object paths are fully qualified
-		try 
+		try
 		{
 			hasHostandNameSpace(retAssoc[i].getPath());
 		}
@@ -658,7 +670,7 @@ Array<CIMObject> CIMManagedClient::references(
 	for (Uint32 i = 0; i < retRefer.size(); i++)
 	{
 		// check if all object paths are fully qualified
-		try 
+		try
 		{
 			hasHostandNameSpace(retRefer[i].getPath());
 		}
@@ -718,7 +730,7 @@ void CIMManagedClient::hasHostandNameSpace(const String& _host, const CIMNamespa
 		// TODO: prepare exception for this
 		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
 										 "Failed validation of CIM object path: no host name specified");
-		throw TypeMismatchException(typeMismatchMessage);		
+		throw TypeMismatchException(typeMismatchMessage);
 	}
 	if (_nameSpace.isNull())
 	{
@@ -726,7 +738,7 @@ void CIMManagedClient::hasHostandNameSpace(const String& _host, const CIMNamespa
 		// TODO: prepare exception for this
 		typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
 										 "Failed validation of CIM object path: no namespace specified");
-		throw TypeMismatchException(typeMismatchMessage);		
+		throw TypeMismatchException(typeMismatchMessage);
 	}
 	CDEBUG("No exception thrown, seems the host and namespace are there.");
 }
@@ -746,7 +758,7 @@ CIMClientRep* CIMManagedClient::getTargetCIMOM(const String& _host,const String&
 {
 	CIMClientRep *   targetCIMOM;
 	if (strtoul((const char*) _port.getCString(), NULL, 0) == 0)
-	{	
+	{
 		CDEBUG("no port given explicitly, thus we use the default port:" << _pegasusDefaultPort);
 		// no port given explicitly, thus we use the default port of 5988
 		// lets determine if there is a connection for this object path available
@@ -763,8 +775,8 @@ CIMClientRep* CIMManagedClient::getTargetCIMOM(const String& _host,const String&
 		// TODO: invent exception
 		MessageLoaderParms typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
 										 "No valid CIMOM connection configured for: ($0:$1) ",
-										_host, _port);       
-		throw TypeMismatchException(typeMismatchMessage);		
+										_host, _port);
+		throw TypeMismatchException(typeMismatchMessage);
 	}
 	CDEBUG("targetCIMOM=" << targetCIMOM);
 	return targetCIMOM;

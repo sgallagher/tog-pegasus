@@ -29,7 +29,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+// Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101, Bug#3531
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -725,6 +725,7 @@ DynamicRoutingTable::operator =(const DynamicRoutingTable & table)
 {
    if(this != &table)
    {
+      Dec(_rep);
       Inc(_rep = table._rep);
    }
    return *this;

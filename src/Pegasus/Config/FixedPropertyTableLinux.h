@@ -56,7 +56,7 @@
     {"exportSSLTrustStore", "/etc/opt/tog-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/tog-pegasus/crl"},
     {"repositoryDir",       "/var/opt/tog-pegasus/repository"},
-    {"providerDir",         "/opt/tog-pegasus/providers/lib"},
+    {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/lib/cmpi"},
     {"messageDir",         "/opt/tog-pegasus/share/locale/ICU_Messages"},
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
@@ -71,7 +71,7 @@
     {"exportSSLTrustStore", "/etc/opt/lsb-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/lsb-pegasus/crl"},
     {"repositoryDir",       "/var/opt/lsb-pegasus/repository"},
-    {"providerDir",         "/opt/lsb-pegasus/providers"},
+    {"providerDir",         "/opt/lsb-pegasus/providers:/usr/lib/cmpi"},
 #endif
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"} // Remove this line if others are added

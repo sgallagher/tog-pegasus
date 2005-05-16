@@ -73,7 +73,7 @@ test6:
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w <> FALSE"
 
 test7:
-	@ $(PROGRAM) "SELECT * FROM ClassName WHERE v IS NULL
+	@ $(PROGRAM) "SELECT * FROM ClassName WHERE v IS NULL"
 	
 test8:
 	@ $(PROGRAM) "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"

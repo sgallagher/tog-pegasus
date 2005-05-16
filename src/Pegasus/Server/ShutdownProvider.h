@@ -88,6 +88,7 @@ public:
     void terminate(void)
     {
         PEG_METHOD_ENTER(TRC_SHUTDOWN,"ShutdownProvider::terminate");
+	delete this;
         PEG_METHOD_EXIT();
     }
 

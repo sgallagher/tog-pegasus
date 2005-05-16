@@ -61,7 +61,10 @@ ProviderMessageFacade::ProviderMessageFacade(CIMProvider* provider)
 }
 
 ProviderMessageFacade::~ProviderMessageFacade(void)
-{
+{  
+   // Terminate the control provider. The 'terminate' calls the control
+   // provider 'terminiate' function which should delete the object.
+  terminate();
 }
 
 

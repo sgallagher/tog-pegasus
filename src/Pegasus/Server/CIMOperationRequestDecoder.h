@@ -315,7 +315,8 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
    private:
 
-      AutoPtr<MessageQueueService> _outputQueue; //PEP101
+	//  Do not make _outputQueue an AutoPtr.
+      MessageQueueService* _outputQueue; 
 
       // Queue where responses should be enqueued.
       Uint32 _returnQueueId;

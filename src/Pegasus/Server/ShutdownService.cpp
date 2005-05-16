@@ -161,14 +161,13 @@ void ShutdownService::shutdown(
         // (take into account that one of the request is the shutdown request).
         //
         Uint32 requestCount = _cimserver->getOutstandingRequestCount();
-
         if (requestCount > (requestPending ? 1 : 0))
         {
 
 	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 			"ShutdownService::shutdown - Waiting for outstanding CIM operations to complete.  Request count: $0",
 			requestCount);
-            noMoreRequests = _waitUntilNoMoreRequests(requestPending);
+            noMoreRequests = waitUntilNoMoreRequests(requestPending);
         }
         else
         {
@@ -208,18 +207,6 @@ void ShutdownService::shutdown(
 }
 
 /**********************************************************/
-/*  callback                                              */
-/**********************************************************/
-void ShutdownService::async_callback(Uint32 user_data,
-    Message *reply,
-    void *parm)
-{
-   callback_data *cb_data = reinterpret_cast<callback_data *>(parm);
-   cb_data->reply.reset(reply);
-   cb_data->client_sem.signal();
-}
-
-/**********************************************************/
 /*  private methods                                       */
 /**********************************************************/
 
@@ -237,26 +224,21 @@ void ShutdownService::_shutdownCIMServer()
 		"ShutdownService::_shutdownCIMServer - CIM server provider shutdown complete");
 
     //
-    // Shutdown the Cimom services
+    // Send a shutdown signal to the CIMServer. CIMServer itself will take care of
+    // shutting down the CimomServices and deleting them. In other words,
+    // _DO_ _NOT_ call 'shutdownCimomServices' from a provider.
     //
-    _shutdownCimomServices();
+    _cimserver->shutdown();
 
     Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 		"ShutdownService::_shutdownCIMServer - Cimom services shutdown complete");
 
-    //
-    // Tell CIMServer to shutdown completely.
-    //
-    _cimserver->shutdown();
-    
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		"ShutdownService::_shutdownCIMServer - CIM Server shutdown complete");
 
     PEG_METHOD_EXIT();
     return;
 }
 
-void ShutdownService::_shutdownCimomServices()
+void ShutdownService::shutdownCimomServices()
 {
     PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownCimomServices");
 
@@ -268,6 +250,11 @@ void ShutdownService::_shutdownCimomServices()
     // Shutdown the Indication Handler Service
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_INDHANDLERMANAGER);
 
+    // PEGASUS_QUEUENAME_OPRESPENCODER
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPRESPENCODER);
+
+    // PEGASUS_QUEUENAME_EXPORTRESPENCODER
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_EXPORTRESPENCODER);
     //
     // shutdown  Authenticator Delegator Service
     //
@@ -276,6 +263,7 @@ void ShutdownService::_shutdownCimomServices()
     //
     // shutdown  CIM Operation Request Authorizer Service
     //
+
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQAUTHORIZER);
 
     //
@@ -305,6 +293,12 @@ void ShutdownService::_shutdownCimomServices()
     //
     _sendShutdownRequestToService(PEGASUS_QUEUENAME_OPREQDISPATCHER);
 
+    // shutdown CIM Provider Manager
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
+
+    // shutdown ModuleController also called ControlService.
+
+    _sendShutdownRequestToService(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
     PEG_METHOD_EXIT();
     return;
@@ -317,9 +311,8 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
    
    Array<Uint32> _services;
    Uint32 _queueId;
-   
+	 
    _mqs->find_services(String(serviceName), 0, 0, &_services);
-   
    
    if (_services.size() == 0 )
    {
@@ -327,29 +320,34 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
       return;
    }
    _queueId = _services[0];
-   
-    // send a stop, start, and CLOSE << Wed Oct 15 08:51:57 2003 mdd >>
-    CimServiceStop* stop_message = new CimServiceStop(_mqs->get_next_xid(),
+
+    // send a Stop (this is a legacy message that in some of the MQS does termination
+    // of its internal stuff. Then follow it with a Stop (to open up its incoming queue),
+    // and then with a AsyncIoctl::IO_CLOSE which closes the incoming queue.
+
+    // All of these messages MUST be sequential. Do not use SendForget or SendAsync as those
+    // are asynchronous and their receival is guaranteed to be undeterministic and possibly
+    // out of sequence (which is something we do not want).
+
+    CimServiceStop stop_message (_mqs->get_next_xid(),
 						      NULL, 
 						      _queueId, 
 						      _controller->getQueueId(),
-						      false);
+						      true);
+    
+     AutoPtr <AsyncReply> StopAsyncReply 
+	(_controller->ClientSendWait ( *_client_handle,  _queueId, &stop_message));
 
-    _controller->ClientSendForget(*_client_handle, _queueId, stop_message);
-
-    CimServiceStart* start_message = new CimServiceStart(_mqs->get_next_xid(),
+    CimServiceStart start_message (_mqs->get_next_xid(),
 							 NULL, 
 							 _queueId, 
 							 _controller->getQueueId(),
-							 false);
+							 true);
 
-    _controller->ClientSendForget(*_client_handle, _queueId, start_message);
+     AutoPtr <AsyncReply> StartAsyncReply 
+	(_controller->ClientSendWait ( *_client_handle,  _queueId, &start_message));
 
-
-
-    // create a CLOSE request and send it to the service 
-
-    AsyncIoctl* close_request = new AsyncIoctl(_mqs->get_next_xid(),
+    AsyncIoctl close_request (_mqs->get_next_xid(),
 					       NULL,
 					       _queueId,
 					       _controller->getQueueId(),
@@ -357,10 +355,9 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
 					       AsyncIoctl::IO_CLOSE,
 					       0, 
 					       0);
-    _controller->ClientSendForget(*_client_handle, _queueId, close_request);
-    
-				
 
+     AutoPtr <AsyncReply> CloseAsyncReply 
+	(_controller->ClientSendWait ( *_client_handle,  _queueId, &close_request));
 
     return;
 }
@@ -403,7 +400,9 @@ void ShutdownService::_shutdownProviders()
             stopRequest,
             _queueId);
 
-// ATTN-JY-P2-05162002: call ClientSendWait, until asyn_callback is fixed
+   // Use SendWait, which is serialiazed and waits. Do not use asynchronous callback
+   // as the response might be received _after_ the provider or this service has 
+   // been deleted. 
 
     AsyncReply * asyncReply = _controller->ClientSendWait(*_client_handle,
 							  _queueId,
@@ -442,7 +441,7 @@ void ShutdownService::_shutdownProviders()
     return;
 }
 
-Boolean ShutdownService::_waitUntilNoMoreRequests(Boolean requestPending)
+Boolean ShutdownService::waitUntilNoMoreRequests(Boolean requestPending)
 {
 
     Uint32 maxWaitTime = _shutdownTimeout;  // maximum wait time in seconds

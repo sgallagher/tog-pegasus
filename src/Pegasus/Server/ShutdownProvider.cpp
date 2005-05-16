@@ -158,6 +158,7 @@ void ShutdownProvider::invokeMethod(
     try
     {
 
+
         _shutdownService->shutdown(force, timeoutValue, true);
 	
     }
@@ -174,7 +175,6 @@ void ShutdownProvider::invokeMethod(
 
     handler.deliver(CIMValue(0));
     handler.complete();
-
     PEG_METHOD_EXIT();
     return;
 }

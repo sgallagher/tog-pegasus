@@ -272,7 +272,6 @@ class PEGASUS_SERVER_LINKAGE BinaryMessageHandler : public MessageQueueService
       MessageQueueService* _outputQueue;
 
       // Flag to indicate whether or not the CIMServer is shutting down.
-      Boolean _serverTerminating;
       AsyncDQueue<AsyncOpNode> _msg_q;
       
 };

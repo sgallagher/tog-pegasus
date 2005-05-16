@@ -152,7 +152,8 @@ _HashTableRep::_HashTableRep(const _HashTableRep& x)
 _HashTableRep::~_HashTableRep()
 {
     clear();
-    delete [] _chains;
+    if (_chains)
+       delete [] _chains;
 }
 
 _HashTableRep& _HashTableRep::operator=(const _HashTableRep& x)

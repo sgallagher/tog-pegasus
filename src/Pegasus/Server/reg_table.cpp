@@ -725,6 +725,7 @@ DynamicRoutingTable::operator =(const DynamicRoutingTable & table)
 {
    if(this != &table)
    {
+     // De-allocate the _rep we have internally
       Dec(_rep);
       Inc(_rep = table._rep);
    }

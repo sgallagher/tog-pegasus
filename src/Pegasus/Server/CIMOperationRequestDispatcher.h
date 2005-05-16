@@ -468,7 +468,6 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueue
 
       ProviderRegistrationManager* _providerRegistrationManager;
 
-      AtomicInt _dying;
 
       Boolean _enableAssociationTraversal;
       Boolean _enableIndicationService;

@@ -113,8 +113,6 @@ public:
             callback_data(void);
     };
 
-    static void async_callback(Uint32 user_data, Message *reply, void *parm);
-
     /**
     Construct the singleton instance of the ShutdownService and return a
     pointer to that instance.
@@ -127,6 +125,9 @@ public:
            initiated through a synchronous CIM request (true) or not (false).
     */
     void shutdown(Boolean force, Uint32 timeout, Boolean requestPending);
+
+    void shutdownCimomServices();
+    Boolean waitUntilNoMoreRequests(Boolean requestPending);
 
 protected:
 
@@ -155,15 +156,12 @@ private:
 
     void _resumeCIMServer();
 
-    void _shutdownCimomServices();
 
     void _sendShutdownRequestToService(const char * serviceName);
 
     void _shutdownProviders();
 
     void _initTimeoutValues(Uint32 timeoutParmValue);
-
-    Boolean _waitUntilNoMoreRequests(Boolean requestPending);
 
 };
 

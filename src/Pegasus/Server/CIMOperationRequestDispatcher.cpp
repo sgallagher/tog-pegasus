@@ -358,7 +358,6 @@ CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher(void)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::~CIMOperationRequestDispatcher");
-   _dying = 1;
    PEG_METHOD_EXIT();
 }
 

@@ -43,7 +43,6 @@ PEGASUS_NAMESPACE_BEGIN
 BinaryMessageHandler::BinaryMessageHandler(MessageQueueService *output_q)
    : Base(PEGASUS_QUEUENAME_BINARY_HANDLER),
      _outputQueue(output_q),
-     _serverTerminating(false),
      _msg_q(true, 0)
 {
 
@@ -137,7 +136,6 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest * request)
    {
       PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
 		       "Handling CIMServer Stop Message");
-      _serverTerminating = true;
       Base::_handle_async_request(request);
    }
    else

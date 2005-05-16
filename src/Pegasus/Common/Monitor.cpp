@@ -718,7 +718,6 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
                 _entries.remove(index);
 	index--;
     }
-
     PEG_METHOD_EXIT();
 }
 

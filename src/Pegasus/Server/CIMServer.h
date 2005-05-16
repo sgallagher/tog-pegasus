@@ -49,7 +49,7 @@
 #include <Pegasus/Common/SSLContext.h>
 
 #include "HTTPAuthenticatorDelegator.h"
-
+#include "ProviderMessageFacade.h"
 PEGASUS_NAMESPACE_BEGIN
 
 struct ServerRep;
@@ -158,7 +158,6 @@ public:
     void startSLPProvider();
 
 private:
-
     Boolean _dieNow;
 
 #ifdef PEGASUS_ENABLE_SLP
@@ -178,6 +177,7 @@ private:
     HTTPAuthenticatorDelegator* _httpAuthenticatorDelegator;
 
     Array<HTTPAcceptor*> _acceptors;
+    Array<ProviderMessageFacade*> _controlProviders;
     AutoPtr<CIMServerState> _serverState; //PEP101
 
     ModuleController* _controlService;

@@ -260,9 +260,13 @@ void CIMServer::_init(void)
     // Create the control service
     _controlService = new ModuleController(PEGASUS_QUEUENAME_CONTROLSERVICE);
 
+	// Jump this number up when there are more control providers.
+	_controlProviders.reserveCapacity(16);
     // Create the Configuration control provider
     ProviderMessageFacade * configProvider =
         new ProviderMessageFacade(new ConfigSettingProvider());
+
+	_controlProviders.append(configProvider);
     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_CONFIGPROVIDER,
                                       configProvider,
@@ -272,6 +276,7 @@ void CIMServer::_init(void)
     // Create the User/Authorization control provider
     ProviderMessageFacade * userAuthProvider =
         new ProviderMessageFacade(new UserAuthProvider(_repository));
+	_controlProviders.append(userAuthProvider);
     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_USERAUTHPROVIDER,
                                       userAuthProvider,
@@ -281,6 +286,8 @@ void CIMServer::_init(void)
     // Create the Provider Registration control provider
     ProviderMessageFacade * provRegProvider = new ProviderMessageFacade(
         new ProviderRegistrationProvider(_providerRegistrationManager));
+	// Warning. The deconstructor for this object deletes _providerRegistrationManager
+	_controlProviders.append(provRegProvider);
     ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                       PEGASUS_MODULENAME_PROVREGPROVIDER,
                                       provRegProvider,
@@ -290,6 +297,7 @@ void CIMServer::_init(void)
      // Create the Shutdown control provider
      ProviderMessageFacade * shutdownProvider =
          new ProviderMessageFacade(new ShutdownProvider(this));
+	_controlProviders.append(shutdownProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
                                        shutdownProvider,
@@ -299,6 +307,7 @@ void CIMServer::_init(void)
      // Create the namespace control provider
      ProviderMessageFacade * namespaceProvider =
          new ProviderMessageFacade(new NamespaceProvider(_repository));
+	_controlProviders.append(namespaceProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_NAMESPACEPROVIDER,
                                        namespaceProvider,
@@ -318,6 +327,7 @@ void CIMServer::_init(void)
         ProviderMessageFacade * certificateProvider =
             new ProviderMessageFacade(new CertificateProvider(_repository, 
                                                               _sslContextMgr));
+		_controlProviders.append(certificateProvider);
         ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                           PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
                                           certificateProvider,
@@ -329,6 +339,7 @@ void CIMServer::_init(void)
    // Create the Statistical Data control provider
      ProviderMessageFacade * cimomstatdataProvider =
          new ProviderMessageFacade(new CIMOMStatDataProvider());
+     _controlProviders.append(cimomstatdataProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,                                       cimomstatdataProvider,
                                        controlProviderReceiveMessageCallback,
@@ -340,6 +351,7 @@ void CIMServer::_init(void)
    // Create the Query Capabilities control provider
      ProviderMessageFacade * cimquerycapprovider =
          new ProviderMessageFacade(new CIMQueryCapabilitiesProvider());
+	 _controlProviders.append(cimquerycapprovider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_CIMQUERYCAPPROVIDER,
                                        cimquerycapprovider,
@@ -353,6 +365,7 @@ void CIMServer::_init(void)
 // Create the interop control provider
      ProviderMessageFacade * interopProvider =
          new ProviderMessageFacade(new InteropProvider(_repository));
+	 _controlProviders.append(interopProvider);
      ModuleController::register_module(PEGASUS_QUEUENAME_CONTROLSERVICE,
                                        PEGASUS_MODULENAME_INTEROPPROVIDER,
                                        interopProvider,
@@ -463,21 +476,148 @@ void CIMServer::_init(void)
 }
 
 
-
-
-CIMServer::~CIMServer()
+CIMServer::~CIMServer ()
 {
-    PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::~CIMServer()");
+  PEG_METHOD_ENTER (TRC_SERVER, "CIMServer::~CIMServer()");
+  // The HTTPAcceptor depends on HTTPAuthenticationDelegator
 
-    // Note: do not delete the acceptor because it belongs to the Monitor
-    // which takes care of disposing of it.
+  // Wait until the Shutdown provider request has cleared through the
+  // system. 
+  ShutdownService::getInstance (this)->waitUntilNoMoreRequests (false);
 
-    if (_providerRegistrationManager)
+  // Ok, shutdown all the MQSs. This shuts their communication channel.
+  ShutdownService::getInstance (this)->shutdownCimomServices ();
+
+  // Start deleting the objects.
+  for (Uint32 i = 0, n = _acceptors.size (); i < n; i++)
     {
-        delete _providerRegistrationManager;
+      HTTPAcceptor *p = _acceptors[i];
+      delete p;
+    }
+  // The order is very important.
+
+  // 13
+  if (_indicationService)
+    {
+      delete _indicationService;
     }
 
-    PEG_METHOD_EXIT();
+  // 12
+  // HTTPAuthenticationDelegaor depends on 
+  // CIMRepository, CIMOperationRequestDecode and
+  // CIMExportRequestDecoder
+  if (_httpAuthenticatorDelegator)
+    {
+      delete _httpAuthenticatorDelegator;
+    }
+  // 11
+  if (_cimExportRequestDecoder)
+    {
+      delete _cimExportRequestDecoder;
+    }
+  // 10
+  if (_cimExportResponseEncoder)
+    {
+      delete _cimExportResponseEncoder;
+    }
+  // 9
+  if (_cimExportRequestDispatcher)
+    {
+      delete _cimExportRequestDispatcher;
+    }
+  // 8
+  // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer
+  // and CIMOperationResponseEncoder
+  if (_cimOperationRequestDecoder)
+    {
+      delete _cimOperationRequestDecoder;
+    }
+  // 7
+  if (_cimOperationResponseEncoder)
+    {
+      delete _cimOperationResponseEncoder;
+    }
+  // BinaryMessageHandler depends on CIMOperationRequestDispatcher
+  if (_binaryMessageHandler)    //6
+    {
+      delete _binaryMessageHandler;
+    }
+  // CIMOperationRequestAuthorizer depends on
+  // CIMOperationRequestDispatcher
+  if (_cimOperationRequestAuthorizer)
+    {
+      delete _cimOperationRequestAuthorizer;
+    }
+  // IndicationHandlerService , 3. It uses CIMOperationRequestDispatcher
+  if (_handlerService)
+    {
+      delete _handlerService;
+    }
+  // CIMOperationRequestDispatcher depends on 
+  // CIMRepository and ProviderRegistrationManager
+  if (_cimOperationRequestDispatcher)
+    {
+      // Keeps an internal list of control providers. Must 
+      // delete this before ModuleController.
+      delete _cimOperationRequestDispatcher;
+    }
+  // ProviderManager depends on ProcviderRegistrationManager
+  // 5
+  if (_providerManager)
+    {
+      delete _providerManager;
+    }
+  // 4
+  if (_controlService)
+    {
+      // ModuleController takes care of deleting all wrappers around
+      // the control providers.
+      delete _controlService;
+    }
+
+  // IndicationHandlerService, and ProviderRegistrationManager, and thus should be 
+  // deleted before the ProviderManagerService, IndicationHandlerService, and 
+  // ProviderRegistrationManager are deleted.
+
+  if (_providerRegistrationManager)
+    {
+      delete _providerRegistrationManager;
+    }
+  // Find all of the control providers (module)
+  // Must delete CIMOperationRequestDispatcher _before_ deleting each
+  // of the control provider. The CIMOperationRequestDispatcher keeps
+  // its own table of the internal providers (pointers).
+  for (Uint32 i = 0, n = _controlProviders.size (); i < n; i++)
+    {
+      ProviderMessageFacade *p = _controlProviders[i];
+      // The ~ProviderMessageFacade calls 'terminate' on the control providers.
+      delete p;
+    }
+  // The SSL control providers used the SSL context manager. 
+  if (_sslContextMgr)
+    {
+      delete _sslContextMgr;
+      _sslContextMgr = 0;
+    }
+  // ConfigManager. Really weird way of doing it.
+  ConfigManager *configManager = ConfigManager::getInstance ();
+  if (configManager)
+    {
+      // Refer to Bug #3537. It will soon have a fix.
+      //delete configManager;
+    }
+  UserManager *userManager = UserManager::getInstance (_repository);
+  if (userManager)
+    {
+      // Bug #3537 will soon fix this  
+      //delete userManager;
+    }
+  // Lastly the repository.
+  if (_repository)
+    {
+      delete _repository;
+    }
+  PEG_METHOD_EXIT ();
 }
 
 void CIMServer::addAcceptor(

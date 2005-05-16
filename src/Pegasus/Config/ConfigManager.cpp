@@ -234,25 +234,23 @@ Boolean ConfigManager::initCurrentValue(
         throw UnrecognizedConfigProperty(propertyName);
     }
 
-    if (propertyOwner->isValid(propertyName, propertyValue))
-    {
-        //
-        // update the value with the property owner
-        //
-        propertyOwner->initCurrentValue(propertyName, propertyValue);
-
-        if (useConfigFiles)
-        {
-            //
-            // update the value in the current config file
-            //
-            return (_configFileHandler->updateCurrentValue(
-                propertyName, propertyValue, false));
-        }
-    }
-    else
+    if (useConfigFiles && !propertyOwner->isValid(propertyName, propertyValue))
     {
         throw InvalidPropertyValue(propertyName, propertyValue);
+    }
+
+    //
+    // update the value with the property owner
+    //
+    propertyOwner->initCurrentValue(propertyName, propertyValue);
+
+    if (useConfigFiles)
+    {
+        //
+        // update the value in the current config file
+        //
+        return (_configFileHandler->updateCurrentValue(
+            propertyName, propertyValue, false));
     }
 
     return true;
@@ -278,57 +276,40 @@ Boolean ConfigManager::updateCurrentValue(
         throw UnrecognizedConfigProperty(name);
     }
 
-    try
-    {
-        //
-        // keep a copy of the existing config value
-        //
-        prevValue = propertyOwner->getCurrentValue(name);
+    //
+    // keep a copy of the existing config value
+    //
+    prevValue = propertyOwner->getCurrentValue(name);
 
-        //
-        // ask owner to update the current value
-        //
-        if (unset)
+    //
+    // ask owner to update the current value
+    //
+    if (unset)
+    {
+        propertyOwner->updateCurrentValue(name,
+            propertyOwner->getDefaultValue(name));
+    }
+    else
+    {
+        if (useConfigFiles && !propertyOwner->isValid(name, value))
         {
-            propertyOwner->updateCurrentValue(name,
-                propertyOwner->getDefaultValue(name));
-        }
-        else
-        {
-            if (propertyOwner->isValid(name, value))
-            {
-                propertyOwner->updateCurrentValue(name, value);
-            }
-            else
-            {
-                throw InvalidPropertyValue(name, value);
-            }
+            throw InvalidPropertyValue(name, value);
         }
 
-        if (useConfigFiles)
+        propertyOwner->updateCurrentValue(name, value);
+    }
+
+    if (useConfigFiles)
+    {
+        //
+        // update the new value in the current config file
+        //
+        if (!_configFileHandler->updateCurrentValue(name, value, unset))
         {
-            //
-            // update the new value in the current config file
-            //
-            if (!_configFileHandler->updateCurrentValue(name, value, unset))
-            {
-                // Failed to update the current value, so roll back.
-                propertyOwner->updateCurrentValue(name, prevValue);
-                return false;
-            }
+            // Failed to update the current value, so roll back.
+            propertyOwner->updateCurrentValue(name, prevValue);
+            return false;
         }
-    }
-    catch (const NonDynamicConfigProperty&)
-    {
-        throw;
-    }
-    catch (const InvalidPropertyValue&)
-    {
-        throw;
-    }
-    catch (const UnrecognizedConfigProperty&)
-    {
-        throw;
     }
 
     return true;
@@ -355,57 +336,40 @@ Boolean ConfigManager::updatePlannedValue(
         throw UnrecognizedConfigProperty(name);
     }
 
-    try
-    {
-        //
-        // keep a copy of the existing config value
-        //
-        prevValue = propertyOwner->getPlannedValue(name);
+    //
+    // keep a copy of the existing config value
+    //
+    prevValue = propertyOwner->getPlannedValue(name);
 
-        //
-        // ask owner to update the planned value to new value
-        //
-        if (unset)
+    //
+    // ask owner to update the planned value to new value
+    //
+    if (unset)
+    {
+        propertyOwner->updatePlannedValue(name,
+            propertyOwner->getDefaultValue(name));
+    }
+    else
+    {
+        if (useConfigFiles && !propertyOwner->isValid(name, value))
         {
-            propertyOwner->updatePlannedValue(name,
-                propertyOwner->getDefaultValue(name));
-        }
-        else
-        {
-            if (propertyOwner->isValid(name, value))
-            {
-                propertyOwner->updatePlannedValue(name, value);
-            }
-            else
-            {
-                throw InvalidPropertyValue(name, value);
-            }
+            throw InvalidPropertyValue(name, value);
         }
 
-        if (useConfigFiles)
+        propertyOwner->updatePlannedValue(name, value);
+    }
+
+    if (useConfigFiles)
+    {
+        //
+        // update the new value in the planned config file
+        //
+        if (!_configFileHandler->updatePlannedValue(name, value, unset))
         {
-            //
-            // update the new value in the planned config file
-            //
-            if (!_configFileHandler->updatePlannedValue(name, value, unset))
-            {
-                // Failed to update the planned value, so roll back.
-                propertyOwner->updatePlannedValue(name, prevValue);
-                return false;
-            }
+            // Failed to update the planned value, so roll back.
+            propertyOwner->updatePlannedValue(name, prevValue);
+            return false;
         }
-    }
-    catch (const NonDynamicConfigProperty&)
-    {
-        throw;
-    }
-    catch (const InvalidPropertyValue&)
-    {
-        throw;
-    }
-    catch (const UnrecognizedConfigProperty&)
-    {
-        throw;
     }
 
     return true;
@@ -584,32 +548,9 @@ void ConfigManager::mergeConfigFiles(
 {
     PEGASUS_ASSERT(useConfigFiles);
 
-    try
-    {
-        _configFileHandler.reset(new ConfigFileHandler(currentFile, plannedFile));
+    _configFileHandler.reset(new ConfigFileHandler(currentFile, plannedFile));
 
-        _loadConfigProperties();
-    }
-    catch (NoSuchFile&)
-    {
-        throw;
-    }
-    catch (FileNotReadable&)
-    {
-        throw;
-    }
-    catch (CannotOpenFile&)
-    {
-        throw;
-    }
-    catch (UnrecognizedConfigProperty&)
-    {
-        throw;
-    }
-    catch (InvalidPropertyValue&)
-    {
-        throw;
-    }
+    _loadConfigProperties();
 }
 
 
@@ -621,32 +562,9 @@ void ConfigManager::mergeConfigFiles()
 {
     PEGASUS_ASSERT(useConfigFiles);
 
-    try
-    {
-        _configFileHandler.reset(new ConfigFileHandler());
+    _configFileHandler.reset(new ConfigFileHandler());
 
-        _loadConfigProperties();
-    }
-    catch (NoSuchFile&)
-    {
-        throw;
-    }
-    catch (FileNotReadable&)
-    {
-        throw;
-    }
-    catch (CannotOpenFile&)
-    {
-        throw;
-    }
-    catch (UnrecognizedConfigProperty&)
-    {
-        throw;
-    }
-    catch (InvalidPropertyValue&)
-    {
-        throw;
-    }
+    _loadConfigProperties();
 }
 
 

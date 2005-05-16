@@ -199,11 +199,13 @@ public:
 
     /**
         Boolean indicating whether configuration data should be read from
-        and persisted to configuration files.  If true, all operations are
-        functional and updates are written to the configuration files.  If
+        and persisted to configuration files.  If true, this ConfigManager
+        instance actively manages the configuration data.  All operations
+        are functional and updates are written to the configuration files.  If
         false, the ConfigManager does not read to or write from configuration
-        files.  In this case, methods that specifically implicate
-        configuration files must not be used.  The default value is false.
+        files.  In addition, property values are not validated.  When this
+        value is false, the behavior of methods that specifically implicate
+        configuration files is not defined.  The default value is false.
      */
     Boolean useConfigFiles;
 
@@ -228,7 +230,6 @@ public:
     Boolean initCurrentValue(
         const String& name,
         const String& value);
-        //throw (InvalidPropertyValue, UnrecognizedConfigProperty);
 
     /**
     Update current value of a property.
@@ -249,8 +250,6 @@ public:
         const String& name,
         const String& value,
         Boolean unset);
-        //throw (NonDynamicConfigProperty, InvalidPropertyValue,
-        //    UnrecognizedConfigProperty);
 
     /**
     Update planned value of a property.
@@ -271,8 +270,6 @@ public:
         const String& name,
         const String& value,
         Boolean unset);
-        //throw (NonDynamicConfigProperty, InvalidPropertyValue,
-        //    UnrecognizedConfigProperty);
 
 
     /**
@@ -285,7 +282,6 @@ public:
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
     Boolean validatePropertyValue(const String& name, const String& value);
-        //throw (UnrecognizedConfigProperty);
 
     /**
     Get default value of the specified property.
@@ -296,7 +292,6 @@ public:
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
     String getDefaultValue(const String& name);
-        //throw (UnrecognizedConfigProperty);
 
 
     /**
@@ -308,7 +303,6 @@ public:
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
     String getCurrentValue(const String& name);
-        //throw (UnrecognizedConfigProperty);
 
 
     /**
@@ -359,10 +353,12 @@ public:
     @exception CannotOpenFile if failed to set permissions on the config file.
     @exception ConfigFileSyntaxError  if there is synatx error
                             while parsing the config files.
+    @exception InvalidPropertyValue if validation fails for a config property
+        in either file.
+    @exception UnrecognizedConfigProperty if a config property specified in
+        either file is not defined.
     */
     void mergeConfigFiles(const String& currentFile, const String& plannedFile);
-        //throw (NoSuchFile, FileNotReadable, CannotRenameFile,
-        //    ConfigFileSyntaxError, CannotOpenFile);
 
     /**
     Merge the config properties from the default planned config file
@@ -374,10 +370,12 @@ public:
     @exception CannotOpenFile if failed to set permissions on the config file.
     @exception ConfigFileSyntaxError  if there are synatx error
                             while parsing the config files.
+    @exception InvalidPropertyValue if validation fails for a config property
+        in either file.
+    @exception UnrecognizedConfigProperty if a config property specified in
+        either file is not defined.
     */
     void mergeConfigFiles();
-        //throw (NoSuchFile, FileNotReadable, CannotRenameFile,
-        //    ConfigFileSyntaxError, CannotOpenFile);
 
 
     /**
@@ -390,7 +388,6 @@ public:
     @exception  UnrecognizedConfigProperty  if property is not defined.
     */
     void mergeCommandLine(int& argc, char**& argv);
-        //throw (UnrecognizedConfigProperty, InvalidPropertyValue);
 
 
     /**

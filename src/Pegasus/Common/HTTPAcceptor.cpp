@@ -224,6 +224,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
    if (! message)
       return;
 
+   PEGASUS_ASSERT(_rep != 0);
    switch (message->getType())
    {
       case SOCKET_MESSAGE:
@@ -327,6 +328,7 @@ void HTTPAcceptor::bind()
 void HTTPAcceptor::_bind()
 {
 
+   PEGASUS_ASSERT(_rep != 0);
    // Create address:
 
    memset(_rep->address, 0, sizeof(*_rep->address));
@@ -579,14 +581,15 @@ void HTTPAcceptor::reopenConnectionSocket()
 Uint32 HTTPAcceptor::getOutstandingRequestCount() const
 {
    Uint32 count = 0;
-
-   AutoMutex autoMut(_rep->_connection_mut);
-   if (_rep->connections.size() > 0)
+   if (_rep)
    {
-      HTTPConnection* connection = _rep->connections[0];
-      count = connection->getRequestCount();
+      AutoMutex autoMut(_rep->_connection_mut);
+      if (_rep->connections.size() > 0)
+      {
+         HTTPConnection* connection = _rep->connections[0];
+         count = connection->getRequestCount();
+      }
    }
-
    return count;
 }
 
@@ -629,27 +632,28 @@ void HTTPAcceptor::unbind()
 void HTTPAcceptor::destroyConnections()
 {
 
-
-   // For each connection created by this object:
-
-   AutoMutex autoMut(_rep->_connection_mut);
-   for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+   if (_rep)
    {
-      HTTPConnection* connection = _rep->connections[i];
-      Sint32 socket = connection->getSocket();
+     // For each connection created by this object:
 
-      // Unsolicit SocketMessages:
+     AutoMutex autoMut(_rep->_connection_mut);
+     for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
+     {
+        HTTPConnection* connection = _rep->connections[i];
+        Sint32 socket = connection->getSocket();
 
-      _monitor->unsolicitSocketMessages(socket);
+        // Unsolicit SocketMessages:
 
-      // Destroy the connection (causing it to close):
+        _monitor->unsolicitSocketMessages(socket);
 
-      while (connection->refcount.value()) { }
-      delete connection;
+        // Destroy the connection (causing it to close):
+
+        while (connection->refcount.value()) { }
+        delete connection;
+     }
+
+     _rep->connections.clear();
    }
-
-   _rep->connections.clear();
-
 }
 
 void HTTPAcceptor::_acceptConnection()

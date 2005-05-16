@@ -33,6 +33,7 @@ DIRS = \
     AnonymousPipe \
     Array \
     AutoPtr \
+    async_callback \
     Base64 \
     ClassDecl \
     Compare \

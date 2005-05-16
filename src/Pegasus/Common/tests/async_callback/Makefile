@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = async_callback
+PROGRAM = TestAsyncCallback
 SOURCES = async_callback.cpp
 
 include $(ROOT)/mak/program.mak

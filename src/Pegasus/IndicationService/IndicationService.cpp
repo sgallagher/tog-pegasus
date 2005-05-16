@@ -6650,14 +6650,9 @@ void IndicationService::_sendSubscriptionInitComplete ()
             request,
             _queueId);
 
-    AsyncReply * asyncReply = SendWait (asyncRequest);
-
-    CIMSubscriptionInitCompleteResponseMessage * response =
-        reinterpret_cast
-        <CIMSubscriptionInitCompleteResponseMessage *>
-        ((static_cast <AsyncLegacyOperationResult *>
-        (asyncReply))->get_result ());
-
+    AutoPtr<AsyncReply>  (SendWait (asyncRequest));
+    op->release();
+    delete op;
     //
     //  Note: the response does not contain interesting data
     //

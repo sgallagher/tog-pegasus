@@ -288,30 +288,30 @@ static void TestUTFRepository( CIMClient& client,
     //
     //  TEST 2 - Create class
     //  Create a class with UTF-16 in the class name,
-        //  property names, and qualifiers.
-        //
-        //  We will use the UTF16 qualifier created above
-        //  in this class.
-        //
+    //  property names, and qualifiers.
+    //
+    //  We will use the UTF16 qualifier created above
+    //  in this class.
+    //
     //  This will test UTF support in the repository.
     //
 
     cout << endl << "REPOSITORY TEST 2: Create Class containing UTF-16 chars" << endl;
 
     // Decide whether to use UTF-16 in the name of the class
-        CIMName className("UTFTestClass");
-        if (!utfRepNames)
-        {
+    CIMName className("UTFTestClass");
+    if (!utfRepNames)
+    {
       cout << "Note: utfrep option was not set. Not using UTF-16 in the class name" << endl;
-        }
-        else
-        {
+    }
+    else
+    {
       if (verboseTest)
         cout << "Using UTF-16 in the class name" << endl;
 
       // This will create a repository file with UTF-8 chars in the name
       className = utf16FileName;
-        }
+    }
 
         //  First, delete the class if it was there from before
         if (verboseTest)
@@ -450,7 +450,7 @@ static void TestUTFRepository( CIMClient& client,
            << endl;
     }
     else
-        {
+    {
       if (verboseTest)
         cout << endl << "Deleting the old namespace in case it was there from before."
          << endl;
@@ -568,7 +568,7 @@ static void TestLocalizedMethods( CIMClient& client,
   {
      // Before we begin, set the language objects to be sent to the provider
      AcceptLanguages AL_DE;
-     AL_DE.add(AcceptLanguageElement("de", float(0.8)));
+     AL_DE.insert(AcceptLanguageElement("de", float(0.8)));
      ContentLanguages CL_DE("de");
      client.setRequestAcceptLanguages(AL_DE);
      client.setRequestContentLanguages(CL_DE);
@@ -818,9 +818,9 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs1.add(AcceptLanguageElement("fr", float(0.5)));
-             acceptLangs1.add(AcceptLanguageElement("de", float(0.8)));
-             acceptLangs1.add(AcceptLanguageElement("es", float(0.4)));
+             acceptLangs1.insert(AcceptLanguageElement("fr", float(0.5)));
+             acceptLangs1.insert(AcceptLanguageElement("de", float(0.8)));
+             acceptLangs1.insert(AcceptLanguageElement("es", float(0.4)));
           }
 
       cout << endl << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguages = "
@@ -853,7 +853,7 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs2.add(AcceptLanguageElement("de", float(0.8)));
+             acceptLangs2.insert(AcceptLanguageElement("de", float(0.8)));
           }
 
           client.setRequestAcceptLanguages(acceptLangs2);
@@ -928,7 +928,7 @@ static void TestLocalizedInstances( CIMClient& client,
 
               //  Enumerate the instances starting at the base class, with deep inheritance.
               AcceptLanguages acceptLangs3;
-              acceptLangs3.add(AcceptLanguageElement("x-homer", float(0.8)));
+              acceptLangs3.insert(AcceptLanguageElement("x-homer", float(0.8)));
 
               client.setRequestAcceptLanguages(acceptLangs3);
 
@@ -957,9 +957,9 @@ static void TestLocalizedInstances( CIMClient& client,
           //
 
           AcceptLanguages acceptLangs4;
-          acceptLangs4.add(AcceptLanguageElement("x-martian",float(0.8)));
-          acceptLangs4.add(AcceptLanguageElement("x-pig-latin", float(0.1)));
-          acceptLangs4.add(AcceptLanguageElement("x-men", float(0.4)));
+          acceptLangs4.insert(AcceptLanguageElement("x-martian",float(0.8)));
+          acceptLangs4.insert(AcceptLanguageElement("x-pig-latin", float(0.1)));
+          acceptLangs4.insert(AcceptLanguageElement("x-men", float(0.4)));
           client.setRequestAcceptLanguages(acceptLangs4);
 
           cout << endl << "INSTANCE TEST 4: Get Instance with AcceptLanguages = "
@@ -1016,9 +1016,9 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs5.add(AcceptLanguageElement("x-martian", float(0.8)));
-             acceptLangs5.add(AcceptLanguageElement("fr", float(0.1)));
-             acceptLangs5.add(AcceptLanguageElement("x-men", float(0.4)));
+             acceptLangs5.insert(AcceptLanguageElement("x-martian", float(0.8)));
+             acceptLangs5.insert(AcceptLanguageElement("fr", float(0.1)));
+             acceptLangs5.insert(AcceptLanguageElement("x-men", float(0.4)));
           }
 
           client.setRequestAcceptLanguages(acceptLangs5);
@@ -1092,9 +1092,9 @@ static void TestLocalizedInstances( CIMClient& client,
               client.createInstance(NAMESPACE, frInstance);
 
               AcceptLanguages acceptLangs6;
-              acceptLangs6.add(AcceptLanguageElement("x-martian", float(0.8)));
-              acceptLangs6.add(AcceptLanguageElement("fr", float(0.1)));
-              acceptLangs6.add(AcceptLanguageElement("x-men", float(0.4)));
+              acceptLangs6.insert(AcceptLanguageElement("x-martian", float(0.8)));
+              acceptLangs6.insert(AcceptLanguageElement("fr", float(0.1)));
+              acceptLangs6.insert(AcceptLanguageElement("x-men", float(0.4)));
               client.setRequestAcceptLanguages(acceptLangs6);
 
               if (verboseTest)
@@ -1185,7 +1185,7 @@ static void TestLocalizedInstances( CIMClient& client,
                                   includeQualifiers);
 
               AcceptLanguages acceptLangs7;
-              acceptLangs7.add(AcceptLanguageElement("x-homer", float(0.8)));
+              acceptLangs7.insert(AcceptLanguageElement("x-homer", float(0.8)));
               client.setRequestAcceptLanguages(acceptLangs7);
 
               if (verboseTest)
@@ -1245,8 +1245,8 @@ static void TestLocalizedInstances( CIMClient& client,
           }
           else
           {
-             acceptLangs8.add(AcceptLanguageElement("es", float(1.0)));
-             acceptLangs8.add(AcceptLanguageElement("fr", float(0.9)));
+             acceptLangs8.insert(AcceptLanguageElement("es", float(1.0)));
+             acceptLangs8.insert(AcceptLanguageElement("fr", float(0.9)));
           }
 
           client.setRequestAcceptLanguages(acceptLangs8);
@@ -1356,9 +1356,9 @@ static void TestServerMessages( CIMClient& client,
         }
         else
         {
-           acceptLangsDE.add(AcceptLanguageElement("de", float(0.1)));
-           acceptLangsDE.add(AcceptLanguageElement("x-a", float(0.2)));
-           acceptLangsDE.add(AcceptLanguageElement("x-b", float(0.3)));
+           acceptLangsDE.insert(AcceptLanguageElement("de", float(0.1)));
+           acceptLangsDE.insert(AcceptLanguageElement("x-a", float(0.2)));
+           acceptLangsDE.insert(AcceptLanguageElement("x-b", float(0.3)));
         }
 
         AcceptLanguages acceptLangsFR;
@@ -1369,9 +1369,9 @@ static void TestServerMessages( CIMClient& client,
         }
         else
         {
-           acceptLangsFR.add(AcceptLanguageElement("fr", float(0.1)));
-           acceptLangsFR.add(AcceptLanguageElement("x-a", float(0.2)));
-           acceptLangsFR.add(AcceptLanguageElement("x-b", float(0.3)));
+           acceptLangsFR.insert(AcceptLanguageElement("fr", float(0.1)));
+           acceptLangsFR.insert(AcceptLanguageElement("x-a", float(0.2)));
+           acceptLangsFR.insert(AcceptLanguageElement("x-b", float(0.3)));
         }
 
         AcceptLanguages acceptLangsES;
@@ -1382,9 +1382,9 @@ static void TestServerMessages( CIMClient& client,
         }
         else
         {
-           acceptLangsES.add(AcceptLanguageElement("es", float(0.1)));
-           acceptLangsES.add(AcceptLanguageElement("x-a", float(0.2)));
-           acceptLangsES.add(AcceptLanguageElement("x-b", float(0.3)));
+           acceptLangsES.insert(AcceptLanguageElement("es", float(0.1)));
+           acceptLangsES.insert(AcceptLanguageElement("x-a", float(0.2)));
+           acceptLangsES.insert(AcceptLanguageElement("x-b", float(0.3)));
         }
 
         // The expected results from the enumerate
@@ -1907,7 +1907,7 @@ static void TestLocalizedIndications( CIMClient& client,
     // Set the language objects to be sent to the provider
     // This is required by the provider
     AcceptLanguages AL_DE;
-    AL_DE.add(AcceptLanguageElement("de", float(0.8)));
+    AL_DE.insert(AcceptLanguageElement("de", float(0.8)));
     ContentLanguages CL_DE("de");
     client.setRequestAcceptLanguages(AL_DE);
     client.setRequestContentLanguages(CL_DE);
@@ -2088,7 +2088,7 @@ Boolean setServerDefaultMessageLoading(CIMClient & client,
   // Set the language objects to be sent to the LocalizedProvider
   // This is required by the provider
   AcceptLanguages AL_DE;
-  AL_DE.add(AcceptLanguageElement("de", float(0.8)));
+  AL_DE.insert(AcceptLanguageElement("de", float(0.8)));
   ContentLanguages CL_DE("de");
   client.setRequestAcceptLanguages(AL_DE);
   client.setRequestContentLanguages(CL_DE);

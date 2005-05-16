@@ -297,7 +297,7 @@ void drive_AcceptLanguages(){
 
 		
 
-		al.add(AcceptLanguageElement("en-XX-xx"));
+		al.insert(AcceptLanguageElement("en-XX-xx"));
 
 		assert( al.size() == 7 );
 
@@ -501,7 +501,7 @@ void drive_MessageLoader(){
 
 	mlp.acceptlanguages.clear();
 
-	mlp.acceptlanguages.add(AcceptLanguageElement("en-US-mn"));
+	mlp.acceptlanguages.insert(AcceptLanguageElement("en-US-mn"));
 
 #ifdef PEGASUS_HAS_ICU
 
@@ -525,9 +525,9 @@ void drive_MessageLoader(){
 
 	mlp1.acceptlanguages.clear();	
 
-	mlp1.acceptlanguages.add(AcceptLanguageElement("fr-FR")); 
+	mlp1.acceptlanguages.insert(AcceptLanguageElement("fr-FR")); 
 
-	mlp1.acceptlanguages.add(AcceptLanguageElement("bl-ow"));
+	mlp1.acceptlanguages.insert(AcceptLanguageElement("bl-ow"));
 
 #ifdef PEGASUS_HAS_ICU
 
@@ -547,7 +547,7 @@ void drive_MessageLoader(){
 
 	mlp.acceptlanguages.clear();
 
-	mlp.acceptlanguages.add(AcceptLanguageElement("en-US"));
+	mlp.acceptlanguages.insert(AcceptLanguageElement("en-US"));
 
 	assert ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
 
@@ -557,7 +557,8 @@ void drive_MessageLoader(){
 
 	MessageLoader::_useDefaultMsg = false;
 
-	MessageLoader::_acceptlanguages.add(AcceptLanguageElement("st_at_ic"));
+	MessageLoader::_acceptlanguages.insert(
+            AcceptLanguageElement("st_at_ic"));
 	MessageLoaderParms mlp_static("CIMStatusCode.CIM_ERR_SUCCESS","Default CIMStatusCode, $0",
                                                                                                                                                              
                                                         "rab oof is foo bar backwards static");

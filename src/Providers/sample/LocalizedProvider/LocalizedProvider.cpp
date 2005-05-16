@@ -404,7 +404,7 @@ void LocalizedProvider::enumerateInstances(
 	  }
 
 	  testAL.clear();
-	  testAL.add(AcceptLanguageElement(testLang, float(1.0)));
+	  testAL.insert(AcceptLanguageElement(testLang, float(1.0)));
 	  testParms.acceptlanguages = testAL;
 	  testMsg = MessageLoader::getMessage(testParms);
 
@@ -784,7 +784,7 @@ void LocalizedProvider::invokeMethod(
     // Compare the AcceptLanguages from the client with the expected lang
     AcceptLanguages acceptLangs = getRequestAcceptLanguages(context);
     AcceptLanguages AL_DE;
-    AL_DE.add(AcceptLanguageElement("de", float(0.8)));
+    AL_DE.insert(AcceptLanguageElement("de", float(0.8)));
     if (acceptLangs != AL_DE)
     {
         throw CIMOperationFailedException(acceptLangs.toString());
@@ -1168,7 +1168,7 @@ ContentLanguages LocalizedProvider::_loadLocalizedProps(
 		// to load ResourceBundleString using the matching
 		// content language.
 		AcceptLanguages tmpLangs;
-		tmpLangs.add(ale);
+		tmpLangs.insert(ale);
 		(void)_addResourceBundleProp(tmpLangs, instance);
 
 		// Send the matching content language back to the client.
@@ -1291,11 +1291,11 @@ void LocalizedProvider::_testCIMOMHandle()
 
   // AcceptLanguages we are sending in the request to CIMOMHandle
   AcceptLanguages requestAL;
-  requestAL.add(AcceptLanguageElement("x-horse", float(1.0)));
-  requestAL.add(AcceptLanguageElement("x-cow", float(0.4)));
-  requestAL.add(AcceptLanguageElement("x-gekko", float(0.2)));
-  requestAL.add(AcceptLanguageElement("mi", float(0.9)));
-  requestAL.add(AcceptLanguageElement("es", float(0.8)));
+  requestAL.insert(AcceptLanguageElement("x-horse", float(1.0)));
+  requestAL.insert(AcceptLanguageElement("x-cow", float(0.4)));
+  requestAL.insert(AcceptLanguageElement("x-gekko", float(0.2)));
+  requestAL.insert(AcceptLanguageElement("mi", float(0.9)));
+  requestAL.insert(AcceptLanguageElement("es", float(0.8)));
 
   //------------------------------------------------------------
   // TEST 1
@@ -1337,11 +1337,11 @@ void LocalizedProvider::_testCIMOMHandle()
   //------------------------------------------------------------
 
   requestAL.clear();
-  requestAL.add(AcceptLanguageElement("x-horse", float(1.0)));
-  requestAL.add(AcceptLanguageElement("x-cow", float(0.4)));
-  requestAL.add(AcceptLanguageElement("x-gekko", float(0.2)));
-  requestAL.add(AcceptLanguageElement("fr", float(0.9)));
-  requestAL.add(AcceptLanguageElement("es", float(0.8)));
+  requestAL.insert(AcceptLanguageElement("x-horse", float(1.0)));
+  requestAL.insert(AcceptLanguageElement("x-cow", float(0.4)));
+  requestAL.insert(AcceptLanguageElement("x-gekko", float(0.2)));
+  requestAL.insert(AcceptLanguageElement("fr", float(0.9)));
+  requestAL.insert(AcceptLanguageElement("es", float(0.8)));
 
   requestCtx.insert(AcceptLanguageListContainer(requestAL));
 

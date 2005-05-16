@@ -714,7 +714,7 @@ void CIMMessageDeserializer::_deserializeAcceptLanguages(
         genericValue.get(genericString);
         XmlReader::getValueElement(parser, CIMTYPE_REAL32, genericValue);
         genericValue.get(genericReal32);
-        acceptLanguages.add(
+        acceptLanguages.insert(
             AcceptLanguageElement(genericString, genericReal32));
     }
     XmlReader::expectEndTag(parser, "PGACCLANGS");

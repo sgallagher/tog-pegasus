@@ -217,6 +217,7 @@ HTTPAcceptor::HTTPAcceptor(Monitor* monitor,
 
 HTTPAcceptor::~HTTPAcceptor()
 {
+   destroyConnections();
    unbind();
    // ATTN: Is this correct in a multi-HTTPAcceptor server?
    Socket::uninitializeInterface();
@@ -634,7 +635,6 @@ void HTTPAcceptor::unbind()
 
 void HTTPAcceptor::destroyConnections()
 {
-
    if (_rep)
    {
      // For each connection created by this object:

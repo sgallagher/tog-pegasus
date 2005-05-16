@@ -59,7 +59,11 @@ Provider::Provider(const String & name,
 
 Provider::~Provider(void)
 {
-
+   if (_status != UNINITIALIZED)
+   {
+	// The 'terminate' function has not been called. Do it now.
+	terminate();
+   }
 }
 
 CIMProvider *Provider::getCIMProvider()
@@ -187,7 +191,7 @@ void Provider::terminate(void)
     }
     
     _status = UNINITIALIZED;
-
+    _provider = 0;
 }
 
 Boolean Provider::operator == (const void *key) const

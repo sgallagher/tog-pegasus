@@ -41,6 +41,7 @@
 //          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2065
 //          David Dillard, VERITAS Software Corp.
 //              (david.dillard@veritas.com)
+//          John Alex, IBM (johnalex@us.ibm.com) for Bug#3312
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -535,6 +536,19 @@ void HTTPAcceptor::closeConnectionSocket()
 
       // close the socket
       Socket::close(_rep->socket);
+      // Unlink Local Domain Socket Bug# 3312
+      if (_localConnection)
+      {
+#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
+          PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "HTTPAcceptor::closeConnectionSocket Unlinking local connection." );
+         ::unlink(
+             reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);
+#else
+         PEGASUS_ASSERT(false);
+#endif
+      }
+
    }
    else
    {

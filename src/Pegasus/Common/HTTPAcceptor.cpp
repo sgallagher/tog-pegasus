@@ -134,7 +134,10 @@ public:
             address_size = sizeof(struct sockaddr_in);
         }
     }
-
+    ~HTTPAcceptorRep()
+    {
+	delete address;
+    }
     struct sockaddr* address;
 
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_VMS)

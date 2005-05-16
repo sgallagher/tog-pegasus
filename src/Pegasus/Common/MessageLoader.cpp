@@ -37,6 +37,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/CommonUTF.h>
 #include <iostream>
 #ifdef PEGASUS_OS_OS400
 #include "OS400ConvertChar.h"
@@ -54,34 +55,32 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 	String MessageLoader::getMessage(MessageLoaderParms &parms){
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
 		try{
-		String msg;
-		parms.contentlanguages.clear();
+		        parms.contentlanguages.clear();
 
-		// if message loading is DISABLED return the default message
-#ifndef PEGASUS_HAS_MESSAGES
+#if defined (PEGASUS_HAS_MESSAGES) && defined (PEGASUS_HAS_ICU)
+		        if (InitializeICU::initICUSuccessful())
+                        {
+                            String msg = loadICUMessage(parms);
+
+                            if (msg.size() > 0)
+                            {
+		 	        PEG_METHOD_EXIT();
+			        return (msg);
+                            }
+                        }
+
+#endif
+			// NOTE: the default message is returned if:
+			// Message loading is DIABLED or
+			// A non-ICU message loading function is called that has
+			// non-ICU process locale discovery code and non-ICU 
+			// message loading or
+			// InitializeICU::initICUSuccessful() is failed or
+			// Did not get a message from ICU
+
 			PEG_METHOD_EXIT();
 			return formatDefaultMessage(parms);
-#else
 
-#ifdef PEGASUS_HAS_ICU
-			//cout << "PEGASUS_HAS_ICU" << endl;
-			msg = loadICUMessage(parms);
-			if(msg.size() == 0){ // we didnt get a message from ICU for some reason, return the default message
-				//cout << "didnt get a message from ICU, using default message" << endl;
-				return formatDefaultMessage(parms);
-			}
-			PEG_METHOD_EXIT();
-			return msg;
-#else
-			// NOTE TO PROGRAMMERS:
-			// call a non-ICU message loading function here that has
-			// non-ICU process locale discovery code and non-ICU message loading
-			// otherwise the default message is always returned
-			//cout << "PEGASUS_HAS_ICU is NOT defined, using default message" << endl;
-			PEG_METHOD_EXIT();
-			return formatDefaultMessage(parms);
-#endif
-#endif
 		}catch(Exception&){
 			PEG_METHOD_EXIT();
 			return String("AN INTERNAL ERROR OCCURED IN MESSAGELOADER: ").append(parms.default_msg);

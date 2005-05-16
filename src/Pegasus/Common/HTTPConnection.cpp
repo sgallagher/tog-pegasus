@@ -345,41 +345,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
 	try
 	{
-
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-
-		// The following is processing to wrap (encrypt) the response from the
-		// server when using kerberos authentications.
-		// If the security association does not exist then kerberos authentication
-		// is not being used.
-		CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
-
-		if (sa)
-		{
-			// The message needs to be parsed in order to distinguish between the
-			// headers and content. When parsing, the code breaks out
-			// of the loop as soon as it finds the double separator that terminates
-			// the headers so the headers and content can be easily separated.
-			// Parse the HTTP message:
-			String startLine;
-			Array<HTTPHeader> headers;
-			Uint32 contentLength = 0;
-			httpMessage.parse(startLine, headers, contentLength);
-			Boolean authrecExists = false;
-			String authorization = String::EMPTY;
-			if (HTTPMessage::lookupHeader(headers, "WWW-Authenticate", authorization, false))
-			{
-				authrecExists = true;
-			}
-
-			// The following is processing to wrap (encrypt) the response from the
-			// server when using kerberos authentications.
-			sa->wrapResponseMessage(buffer, contentLength, authrecExists);
-			messageLength = buffer.size();
-		}
-#endif
-
-		// delivery behavior:
+        // delivery behavior:
 		// 1 handler.processing() : header + optional body?
 		// 2 handler.deliver()    : 1+ fully XML encoded object(s)
 		// 3 handler.complete()   : deliver() + isLast = true
@@ -469,7 +435,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 						messageStart[messageLength] = 0;
 					}
 					cimException = CIMException(cimException.getCode(),
-																			String(messageStart, messageLength));
+												String(messageStart, messageLength));
 				}
 
 				if (isFirst == false)
@@ -674,6 +640,40 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 							messageStart[messageLength] = 0;
 							bytesRemaining = messageLength;
 						} // if there were any content languages
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+				        // The following is processing to wrap (encrypt) the response from the
+   		                // server when using kerberos authentications.
+		                // If the security association does not exist then kerberos authentication
+                        // is not being used.
+						CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+
+						if (sa)
+						{
+                            // The message needs to be parsed in order to distinguish between the
+           		            // headers and content. When parsing, the code breaks out
+                            // of the loop as soon as it finds the double separator that terminates
+                            // the headers so the headers and content can be easily separated.
+
+						    Boolean authrecExists = false;
+						    String authorization = String::EMPTY;
+						    if (HTTPMessage::lookupHeader(headers, "WWW-Authenticate", 
+                                                          authorization, false))
+						    {
+							authrecExists = true;
+						    }
+			
+			                // The following is processing to wrap (encrypt) the response from the
+                  			// server when using kerberos authentications.
+						    sa->wrapResponseMessage(buffer, contentLength, authrecExists);
+						    messageLength = buffer.size();
+
+						    // null terminate
+						    messageStart = (char *) buffer.getData();
+						    messageStart[messageLength] = 0;
+						    bytesRemaining = messageLength;
+						}  // endif kerberos security assoc exists
+#endif
 					} // if this is the last chunk
 					else bytesRemaining = 0;
 				} // if chunk request is false
@@ -1220,6 +1220,16 @@ Boolean HTTPConnection::isChunkRequested()
 			(Contains(_transferEncodingTEValues, String(headerValueTEchunked)) ||
 			 Contains(_transferEncodingTEValues, String(headerValueTEtrailers))))
 		answer = true;
+
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION
+	CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+
+	if (sa)
+	{
+	    answer = false;
+	}
+#endif
+
 	return answer;
 }
 

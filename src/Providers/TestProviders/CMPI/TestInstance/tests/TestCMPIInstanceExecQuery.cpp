@@ -55,12 +55,14 @@ const char *queries[] = {
   "SELECT * FROM TestCMPI_Instance where s=s",  // 3
   "SELECT * FROM TestCMPI_Instance where s=s AND n64=64",       //4
   "SELECT s FROM TestCMPI_Instance where n64=40",       // 5
+#if 0
   "SELECT * FROM TestCMPI_Instance where TestCMPI_Instance ISA TestCMPI_Parent",        // 6
   "SELECT * FROM TestCMPI_Instance where TestCMPI_Instance ISA TestCMPI_Indication",    //7 - wont'get anything back
+#endif
   "SELECT * FROM TestCMPI_Instance  WHERE (s IS NULL) OR (n16=16)",     // 8
 };
 
-#define QUERIES  9
+#define QUERIES  6
 Boolean verbose;
 
 

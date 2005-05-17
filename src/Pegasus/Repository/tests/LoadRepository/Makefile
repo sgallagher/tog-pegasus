@@ -40,5 +40,5 @@ SOURCES = LoadRepository.cpp
 include $(ROOT)/mak/program.mak
 
 tests:
-	$(RMDIRHIER) $(REPOSITORY_ROOT)
-	LoadRepository $(REPOSITORY_ROOT) x.xml
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository	
+	LoadRepository $(TMP_DIR)/repository x.xml

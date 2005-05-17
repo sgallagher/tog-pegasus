@@ -612,10 +612,15 @@ int main(int argc, char** argv)
 	  mode.flag = CIMRepository_Mode::NONE;
 	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
 	}
-      else
+      else if (!strcmp(argv[1],"BIN") )
 	{
 	  mode.flag = CIMRepository_Mode::BIN;
 	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+	}
+      else
+	{
+	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+	  return 0;
 	}
 
 	TestNameSpaces(mode);

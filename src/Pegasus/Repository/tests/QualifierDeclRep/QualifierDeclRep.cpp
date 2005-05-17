@@ -42,21 +42,13 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 static const char* tmpDir;
+static char * verbose;
+String repositoryRoot;
 
-void test()
+void test(CIMRepository_Mode mode)
 {
-    String repositoryRoot;
-    if (tmpDir == NULL)
-    {
-        repositoryRoot = ".";
-    }
-    else
-    {
-        repositoryRoot = tmpDir;
-    }
-    repositoryRoot.append("/repository");
 
-    CIMRepository r (repositoryRoot);
+  CIMRepository r (repositoryRoot, mode);
 
     // Create a namespace:
 
@@ -112,11 +104,38 @@ void test()
 
 int main(int argc, char** argv)
 {
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
     tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        repositoryRoot = ".";
+    }
+    else
+    {
+        repositoryRoot = tmpDir;
+    }
+    repositoryRoot.append("/repository");
 
     try 
     {
-	test();
+      CIMRepository_Mode mode;
+      if (!strcmp(argv[1],"XML") )
+	{
+	  mode.flag = CIMRepository_Mode::NONE;
+	  if (verbose) cout << argv[0]<< ": using XML mode repository" << endl;
+	}
+      else if (!strcmp(argv[1],"BIN") )
+	{
+	  mode.flag = CIMRepository_Mode::BIN;
+	  if (verbose) cout << argv[0]<< ": using BIN mode repository" << endl;
+	}
+      else
+	{
+	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
+	  return 0;
+	}
+
+      test(mode);
     }
     catch (Exception& e)
     {

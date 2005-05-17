@@ -43,19 +43,24 @@ include $(ROOT)/mak/program.mak
 ### the nightly tests to run
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
+ifdef PEGASUS_BUG3011_FIXED
+tests: testxml testbin testbinmix testxmlmix
+else
 tests: testxml 
+	@ $(ECHO) $(PROGRAM) - bug 3011 - testbin, testbinxml, testxmlbin not run on this platform
+endif
 else
 tests: testxml testbin testbinmix testxmlmix
 endif
-	$(RMREPOSITORY) $(TMP_DIR)/repository
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository
 	@ $(ECHO) $(PROGRAM) +++++ passed all tests
 
 testxml:
-	$(RMREPOSITORY) $(TMP_DIR)/repository
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository
 	$(PROGRAM) XML
 
 testbin:
-	$(RMREPOSITORY) $(TMP_DIR)/repository	
+	@ $(RMREPOSITORY) $(TMP_DIR)/repository	
 	$(PROGRAM) BIN
 
 testbinmix:

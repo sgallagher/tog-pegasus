@@ -181,10 +181,10 @@ CLI ec -n root -- Enumerate classes from namespace root. \n \
 CLI ec -o xml   -- Enumerate classes with XML output starting at root\n \
 CLI enumerateclasses CIM_Computersystem -o xml\n    -- Enumerate classes in MOF starting with \
 CIM_Computersystem\n \
-CLI getclass CIM_door -a -u guest =p guest\n    -- Get class with authentication set and \
+CLI getclass CIM_door -a -u guest -p guest\n    -- Get class with authentication set and \
     user = guest, password = guest.\n \
 CLI rn TST_Person.name=@MIKE@ -n root/sampleprovider -rc TST_Lineage. \n \
-CLI ec -o XML -- enumerate classes and output XML rather than MOF. \n \
+CLI ec -o XML -- Enumerate classes and output XML rather than MOF. \n \
 CLI getqualifiers -- Get the qualifiers in mof output format\n";
 
 void _displaySummary(Uint32 count, String& description, String item, Options& opts)

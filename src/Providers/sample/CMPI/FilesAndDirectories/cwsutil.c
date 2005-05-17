@@ -197,7 +197,11 @@ int CWS_Next_Enum(void *handle, CWS_FILE* cwsf)
   CWS_Control *cc = (CWS_Control *)handle;
   int state=0;
   if (cc && cwsf && fgets(result,sizeof(result),cc->fp))
+#if defined CMPI_PLATFORM_WIN32_IX86_MSVC
+    state=0<sscanf(result,"%s %I64d %ld %ld %ld %o",
+#else
     state=0<sscanf(result,"%s %lld %ld %ld %ld %o",
+#endif
 		   cwsf->cws_name,
 		   &cwsf->cws_size,
 		   &cwsf->cws_ctime,

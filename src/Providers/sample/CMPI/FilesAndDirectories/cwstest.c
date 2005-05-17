@@ -52,7 +52,11 @@ int main(int argc, char * argv[])
   enumhdl = CWS_Begin_Enum(argv[1],CWS_TYPE_PLAIN);
   if (enumhdl) {
     while (CWS_Next_Enum(enumhdl,&filebuf))
+#if defined (CMPI_PLATFORM_WIN32_IX86_MSVC)
+      printf("--- File: %s Size: %I64d Mode: %u\n",
+#else
       printf("--- File: %s Size: %lld Mode: %u\n",
+#endif
 	     filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
     CWS_End_Enum(enumhdl);
   }
@@ -61,14 +65,23 @@ int main(int argc, char * argv[])
   enumhdl = CWS_Begin_Enum(argv[1],CWS_TYPE_DIR);
   if (enumhdl) {
     while (CWS_Next_Enum(enumhdl,&filebuf))
+#if defined (CMPI_PLATFORM_WIN32_IX86_MSVC)
+      printf("--- Dir: %s Size: %I64d Mode: %u\n",
+#else
       printf("--- Dir: %s Size: %lld Mode: %u\n",
+#endif
+
 	     filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
     CWS_End_Enum(enumhdl);
   }
 
   printf("=== Direct Access to Directory %s \n",argv[1]);
   if (CWS_Get_File(argv[1],&filebuf))
+#if defined (CMPI_PLATFORM_WIN32_IX86_MSVC)
+    printf("--- Dir: %s Size: %I64d Mode: %u\n",
+#else
     printf("--- Dir: %s Size: %lld Mode: %u\n",
+#endif
 	   filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
   
   return 0;

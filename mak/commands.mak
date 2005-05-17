@@ -378,7 +378,7 @@ mkdirhier_IgnoreError: CMDSFORCE
 
 runTestSuite: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
-	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i));)
+	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
 	$(CIMSERVER_STOP_SERVICE)
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN

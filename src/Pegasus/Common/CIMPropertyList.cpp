@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -61,6 +61,23 @@ CIMPropertyList::CIMPropertyList(const CIMPropertyList& x)
 CIMPropertyList::CIMPropertyList(const Array<CIMName>& propertyNames)
 {
     _rep = new CIMPropertyListRep();
+
+    // ATTN: the following code is inefficient and problematic. besides
+    // adding overhead to check for null property names, it has the
+    // disadvantage of returning an error if only 1 of n properties are null
+    // without informing the caller of which one. this is mainly a problem
+    // with this object's interface. it should be more like CIMQualifierList,
+    // which has a add() method that would validate one at a time.
+
+    // ensure names are not null
+    for(Uint32 i = 0, n = propertyNames.size(); i < n; i++)
+    {
+        if(propertyNames[i].isNull())
+        {
+            throw UninitializedObjectException();
+        }
+    }
+
     _rep->propertyNames = propertyNames;
     _rep->isNull = false;
 }
@@ -72,6 +89,22 @@ CIMPropertyList::~CIMPropertyList()
 
 void CIMPropertyList::set(const Array<CIMName>& propertyNames)
 {
+    // ATTN: the following code is inefficient and problematic. besides
+    // adding overhead to check for null property names, it has the
+    // disadvantage of returning an error if only 1 of n properties are null
+    // without informing the caller of which one. this is mainly a problem
+    // with this object's interface. it should be more like CIMQualifierList,
+    // which has a add() method that would validate one at a time.
+
+    // ensure names are not null
+    for(Uint32 i = 0, n = propertyNames.size(); i < n; i++)
+    {
+        if(propertyNames[i].isNull())
+        {
+            throw UninitializedObjectException();
+        }
+    }
+
     _rep->propertyNames = propertyNames;
     _rep->isNull = false;
 }

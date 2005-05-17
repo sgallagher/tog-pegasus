@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -49,6 +49,27 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+CIMMethodRep::CIMMethodRep()
+{
+}
+
+CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
+    Sharable(),
+    _name(x._name),
+    _type(x._type),
+    _classOrigin(x._classOrigin),
+    _propagated(x._propagated)
+{
+    x._qualifiers.cloneTo(_qualifiers);
+
+    _parameters.reserveCapacity(x._parameters.size());
+
+    for (Uint32 i = 0, n = x._parameters.size(); i < n; i++)
+    {
+        _parameters.append(x._parameters[i].clone());
+    }
+}
+
 CIMMethodRep::CIMMethodRep(
     const CIMName& name,
     CIMType type,
@@ -57,15 +78,25 @@ CIMMethodRep::CIMMethodRep(
     : _name(name), _type(type),
     _classOrigin(classOrigin), _propagated(propagated)
 {
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
 }
 
 CIMMethodRep::~CIMMethodRep()
 {
-
 }
 
 void CIMMethodRep::setName(const CIMName& name)
 {
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
     _name = name;
 }
 
@@ -228,7 +259,7 @@ void CIMMethodRep::toMof(Array<char>& out) const   //ATTNKS:
     out << "\n" << cimTypeToString (_type) << " " << _name << "(";
 
     // output the param list separated by commas.
-    
+
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
     {
         // If not first, output comma separator
@@ -242,26 +273,6 @@ void CIMMethodRep::toMof(Array<char>& out) const   //ATTNKS:
     out << ");";
 }
 
-
-CIMMethodRep::CIMMethodRep()
-{
-
-}
-
-CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
-    Sharable(),
-    _name(x._name),
-    _type(x._type),
-    _classOrigin(x._classOrigin),
-    _propagated(x._propagated)
-{
-    x._qualifiers.cloneTo(_qualifiers);
-
-    _parameters.reserveCapacity(x._parameters.size());
-
-    for (Uint32 i = 0, n = x._parameters.size(); i < n; i++)
-        _parameters.append(x._parameters[i].clone());
-}
 
 Boolean CIMMethodRep::identical(const CIMMethodRep* x) const
 {

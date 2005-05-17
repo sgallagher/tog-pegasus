@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -66,7 +66,13 @@ CIMQualifierDeclRep::CIMQualifierDeclRep(
     _flavor(flavor),
     _arraySize(arraySize)
 {
-	// Set the flavor defaults. Must actively set them in case input flavor
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
+    // Set the flavor defaults. Must actively set them in case input flavor
 	// sets some but not all the defaults.	Also Make sure no conflicts. This covers
 	// the fact that we have separate flags for on and off for the toelement
 	// and override functions. Something must be set on creation and the
@@ -93,6 +99,12 @@ CIMQualifierDeclRep::~CIMQualifierDeclRep()
 
 void CIMQualifierDeclRep::setName(const CIMName& name)
 {
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
     _name = name;
 }
 
@@ -130,7 +142,7 @@ void CIMQualifierDeclRep::toXml(Array<char>& out) const
 }
 
 /** toMof - Generate the MOF output for the Qualifier Declaration object.
-    
+
     The BNF for this output is:
     <pre>
     qualifierDeclaration   = 	QUALIFIER qualifierName qualifierType scope

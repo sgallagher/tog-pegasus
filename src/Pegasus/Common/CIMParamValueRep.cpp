@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -50,6 +50,11 @@ CIMParamValueRep::CIMParamValueRep(
     Boolean isTyped)
     : _parameterName(parameterName), _value(value), _isTyped(isTyped)
 {
+    // ensure parameterName is not null
+    if(parameterName.size() == 0)
+    {
+        throw UninitializedObjectException();
+    }
 }
 
 CIMParamValueRep::~CIMParamValueRep()
@@ -73,7 +78,7 @@ void CIMParamValueRep::toXml(Array<char>& out) const
 
     if (_isTyped)
     {
-        // If the property type is CIMObject, then 
+        // If the property type is CIMObject, then
         //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
         //   (there is not currently a CIM-XML "object" datatype)
         // else
@@ -108,17 +113,23 @@ CIMParamValueRep::CIMParamValueRep(const CIMParamValueRep& x) :
 }
 
 void CIMParamValueRep::setParameterName(String& parameterName)
-{ 
+{
+    // ensure parameterName is not null
+    if(parameterName.size() == 0)
+    {
+        throw UninitializedObjectException();
+    }
+
     _parameterName = parameterName;
 }
 
 void CIMParamValueRep::setValue(CIMValue& value)
-{ 
+{
     _value = value;
 }
 
 void CIMParamValueRep::setIsTyped(Boolean isTyped)
-{ 
+{
     _isTyped = isTyped;
 }
 

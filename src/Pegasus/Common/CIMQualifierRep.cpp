@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -53,43 +53,66 @@ PEGASUS_USING_STD;
 //
 ////////////////////////////////////////////////////////////////////////////////
 
+CIMQualifierRep::CIMQualifierRep()
+{
+}
+
+CIMQualifierRep::CIMQualifierRep(const CIMQualifierRep& x) :
+    Sharable(),
+    _name(x._name),
+    _value(x._value),
+    _flavor(x._flavor),
+    _propagated(x._propagated)
+{
+}
+
 CIMQualifierRep::CIMQualifierRep(
-    const CIMName& name, 
-    const CIMValue& value, 
+    const CIMName& name,
+    const CIMValue& value,
     const CIMFlavor & flavor,
     Boolean propagated)
-    : 
-    _name(name), 
-    _value(value), 
+    :
+    _name(name),
+    _value(value),
     _flavor(flavor),
     _propagated(propagated)
 {
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
 }
 
 CIMQualifierRep::~CIMQualifierRep()
 {
-
 }
 
-void CIMQualifierRep::setName(const CIMName& name) 
+void CIMQualifierRep::setName(const CIMName& name)
 {
-    _name = name; 
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
+    _name = name;
 }
 
 void CIMQualifierRep::resolveFlavor (
-    const CIMFlavor & inheritedFlavor, 
+    const CIMFlavor & inheritedFlavor,
     Boolean inherited)
 {
     // ATTN: KS P3 Needs more tests and expansion so we treate first different
     // from inheritance
 
     // if the turnoff flags set, reset the flavor bits
-    if (inheritedFlavor.hasFlavor (CIMFlavor::RESTRICTED)) 
+    if (inheritedFlavor.hasFlavor (CIMFlavor::RESTRICTED))
     {
         _flavor.removeFlavor (CIMFlavor::TOSUBCLASS);
         _flavor.removeFlavor (CIMFlavor::TOINSTANCE);
     }
-    if (inheritedFlavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE)) 
+    if (inheritedFlavor.hasFlavor (CIMFlavor::DISABLEOVERRIDE))
     {
         _flavor.removeFlavor (CIMFlavor::ENABLEOVERRIDE);
     }
@@ -114,7 +137,7 @@ void CIMQualifierRep::toXml(Array<char>& out) const
     XmlWriter::appendQualifierFlavorEntity(out, _flavor);
 
     out << ">\n";
-    
+
     XmlWriter::appendValueElement(out, _value);
 
     out << "</QUALIFIER>\n";
@@ -150,14 +173,14 @@ void CIMQualifierRep::toMof(Array<char>& out) const
 		    Boolean b;
 			_value.get(b);
 		    if(!b)
-				out << " (false)";	
+				out << " (false)";
 	   }
 	   else
 	   {
 		   out << " (";
 		   hasValueField = true;
 		   MofWriter::appendValueElement(out, _value);
-		   out << ")"; 
+		   out << ")";
 	   }
     }
 
@@ -172,34 +195,19 @@ void CIMQualifierRep::toMof(Array<char>& out) const
 }
 
 
-CIMQualifierRep::CIMQualifierRep()
-{
-
-}
-
-CIMQualifierRep::CIMQualifierRep(const CIMQualifierRep& x) : 
-    Sharable(),
-    _name(x._name),
-    _value(x._value),
-    _flavor(x._flavor),
-    _propagated(x._propagated)
-{
-
-}
-
 Boolean CIMQualifierRep::identical(const CIMQualifierRep* x) const
 {
     return
 	this == x ||
-	_name.equal(x->_name) && 
-	_value == x->_value && 
+	_name.equal(x->_name) &&
+	_value == x->_value &&
 	(_flavor.equal (x->_flavor)) &&
 	_propagated == x->_propagated;
 }
 
-void CIMQualifierRep::setValue(const CIMValue& value) 
+void CIMQualifierRep::setValue(const CIMValue& value)
 {
-    _value = value; 
+    _value = value;
 }
 
 PEGASUS_NAMESPACE_END

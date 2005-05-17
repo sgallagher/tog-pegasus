@@ -64,9 +64,15 @@ CIMObjectRep::CIMObjectRep(const CIMObjectRep& x)
 }
 
 CIMObjectRep::CIMObjectRep(const CIMObjectPath& reference)
-    : _reference(reference),
-    _resolved(false)
+    : _resolved(false)
 {
+    // ensure the class name is not null
+    if(reference.getClassName().isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
+    _reference = reference;
 }
 
 CIMObjectRep::~CIMObjectRep()
@@ -177,8 +183,14 @@ Boolean CIMObjectRep::identical(const CIMObjectRep* x) const
     return(true);
 }
 
-void CIMObjectRep::setPath (const CIMObjectPath& path)
+void CIMObjectRep::setPath(const CIMObjectPath& path)
 {
+    // ensure the class name is not null
+    if(path.getClassName().isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
     // prevent changing the class name (type) in when updating the object path
     if(!_reference.getClassName().equal(path.getClassName()))
     {

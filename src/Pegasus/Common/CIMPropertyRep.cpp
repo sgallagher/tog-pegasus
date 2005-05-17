@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -49,26 +49,56 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+CIMPropertyRep::CIMPropertyRep()
+{
+}
+
+CIMPropertyRep::CIMPropertyRep(
+    const CIMPropertyRep& x,
+    Boolean propagateQualifiers)
+    :
+    Sharable(),
+    _name(x._name),
+    _value(x._value),
+    _arraySize(x._arraySize),
+    _referenceClassName(x._referenceClassName),
+    _classOrigin(x._classOrigin),
+    _propagated(x._propagated)
+{
+    if (propagateQualifiers)
+	x._qualifiers.cloneTo(_qualifiers);
+}
+
 CIMPropertyRep::CIMPropertyRep(
     const CIMName& name,
     const CIMValue& value,
     Uint32 arraySize,
     const CIMName& referenceClassName,
     const CIMName& classOrigin,
-    Boolean propagated) 
+    Boolean propagated)
     :
     _name(name), _value(value), _arraySize(arraySize),
     _referenceClassName(referenceClassName), _classOrigin(classOrigin),
     _propagated(propagated)
 {
-    if (arraySize && (!value.isArray() || value.getArraySize() != arraySize))
-        throw TypeMismatchException();
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
 
-    // If referenceClassName exists, must be CIMType REFERENCE.
+    if((arraySize != 0) && (!value.isArray() || value.getArraySize() != arraySize))
+    {
+        throw TypeMismatchException();
+    }
+
+    // if referenceClassName exists, must be CIMType REFERENCE.
     if (!referenceClassName.isNull())
     {
         if (_value.getType() != CIMTYPE_REFERENCE)
+        {
             throw TypeMismatchException();
+        }
     }
 
     // Can a property be of reference type with a null referenceClassName?
@@ -79,11 +109,16 @@ CIMPropertyRep::CIMPropertyRep(
 
 CIMPropertyRep::~CIMPropertyRep()
 {
-
 }
 
 void CIMPropertyRep::setName(const CIMName& name)
 {
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
     _name = name;
 }
 
@@ -187,7 +222,7 @@ void CIMPropertyRep::resolve(
 	nameSpace,
 	scope,
 	isInstancePart,
-	inheritedProperty._rep->_qualifiers, 
+	inheritedProperty._rep->_qualifiers,
 	propagateQualifiers);
 
     _classOrigin = inheritedProperty.getClassOrigin();
@@ -228,7 +263,7 @@ void CIMPropertyRep::toXml(Array<char>& out) const
 
 	out << " NAME=\"" << _name << "\" ";
 
-    // If the property array type is CIMObject, then 
+    // If the property array type is CIMObject, then
     //   encode the property in CIM-XML as a string array with the EMBEDDEDOBJECT attribute
     //   (there is not currently a CIM-XML "object" datatype)
     // else
@@ -307,7 +342,7 @@ void CIMPropertyRep::toXml(Array<char>& out) const
 	out << ">\n";
 
 	_qualifiers.toXml(out);
-        
+
 	XmlWriter::appendValueElement(out, _value);
 
 	out << "</PROPERTY.REFERENCE>\n";
@@ -323,7 +358,7 @@ void CIMPropertyRep::toXml(Array<char>& out) const
 	if (_propagated != false)
 	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
 
-    // If the property type is CIMObject, then 
+    // If the property type is CIMObject, then
     //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
     //   (there is not currently a CIM-XML "object" datatype)
     // else
@@ -364,7 +399,7 @@ void CIMPropertyRep::toXml(Array<char>& out) const
 	out << ">\n";
 
 	_qualifiers.toXml(out);
-        
+
 	XmlWriter::appendValueElement(out, _value);
 
 	out << "</PROPERTY>\n";
@@ -376,9 +411,9 @@ void CIMPropertyRep::toXml(Array<char>& out) const
     <pre>
     propertyDeclaration     = 	[ qualifierList ] dataType propertyName
 				[ array ] [ defaultValue ] ";"
-   
+
     array 		    = 	"[" [positiveDecimalValue] "]"
-    
+
     defaultValue 	    = 	"=" initializer
     </pre>
     Format with qualifiers on one line and declaration on another. Start
@@ -388,7 +423,7 @@ void CIMPropertyRep::toMof(Array<char>& out) const  //ATTNKS:
 {
     //Output the qualifier list
     if (_qualifiers.getCount())
-	out << "\n"; 
+	out << "\n";
     _qualifiers.toMof(out);
 
     // Output the Type and name on a new line
@@ -410,9 +445,9 @@ void CIMPropertyRep::toMof(Array<char>& out) const  //ATTNKS:
     // If the property value is not Null, add value after "="
     if (!_value.isNull())
     {
-	out << " = "; 
+	out << " = ";
 	if (_value.isArray())
-	{ 
+	{
 	    // Insert any property values
 	    MofWriter::appendValueElement(out, _value);
 	}
@@ -421,7 +456,7 @@ void CIMPropertyRep::toMof(Array<char>& out) const  //ATTNKS:
 	    MofWriter::appendValueElement(out, _value);
 	}
 	else
-	{ 
+	{
 	    MofWriter::appendValueElement(out, _value);
 	}
     }
@@ -451,27 +486,6 @@ Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const
 	return false;
 
     return true;
-}
-
-CIMPropertyRep::CIMPropertyRep()
-{
-
-}
-
-CIMPropertyRep::CIMPropertyRep(
-    const CIMPropertyRep& x, 
-    Boolean propagateQualifiers) 
-    :
-    Sharable(),
-    _name(x._name),
-    _value(x._value),
-    _arraySize(x._arraySize),
-    _referenceClassName(x._referenceClassName),
-    _classOrigin(x._classOrigin),
-    _propagated(x._propagated)
-{
-    if (propagateQualifiers)
-	x._qualifiers.cloneTo(_qualifiers);
 }
 
 void CIMPropertyRep::setValue(const CIMValue& value)

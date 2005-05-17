@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,41 +47,71 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+CIMParameterRep::CIMParameterRep()
+{
+}
+
+CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
+    Sharable(),
+    _name(x._name),
+    _type(x._type),
+    _isArray(x._isArray),
+    _arraySize(x._arraySize),
+    _referenceClassName(x._referenceClassName)
+{
+    x._qualifiers.cloneTo(_qualifiers);
+}
+
 CIMParameterRep::CIMParameterRep(
-    const CIMName& name, 
+    const CIMName& name,
     CIMType type,
     Boolean isArray,
     Uint32 arraySize,
-    const CIMName& referenceClassName) 
-    : _name(name), _type(type), 
-    _isArray(isArray), _arraySize(arraySize), 
+    const CIMName& referenceClassName)
+    : _name(name), _type(type),
+    _isArray(isArray), _arraySize(arraySize),
     _referenceClassName(referenceClassName)
 {
-    if (_arraySize && !_isArray)
-	throw TypeMismatchException();
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
+    if((_arraySize != 0) && !_isArray)
+    {
+        throw TypeMismatchException();
+    }
 
     if (!referenceClassName.isNull())
     {
-	if (_type != CIMTYPE_REFERENCE)
-	{
-	    throw TypeMismatchException();
-	}
+        if (_type != CIMTYPE_REFERENCE)
+        {
+            throw TypeMismatchException();
+        }
     }
     else
     {
-	if (_type == CIMTYPE_REFERENCE)
-	    throw TypeMismatchException();
+        if (_type == CIMTYPE_REFERENCE)
+        {
+            throw TypeMismatchException();
+        }
     }
 }
 
 CIMParameterRep::~CIMParameterRep()
 {
-
 }
 
-void CIMParameterRep::setName(const CIMName& name) 
+void CIMParameterRep::setName(const CIMName& name)
 {
-    _name = name; 
+    // ensure name is not null
+    if(name.isNull())
+    {
+        throw UninitializedObjectException();
+    }
+
+    _name = name;
 }
 
 void CIMParameterRep::removeQualifier(Uint32 index)
@@ -196,9 +226,9 @@ void CIMParameterRep::toXml(Array<char>& out) const
 				[ array ]
 
 	parameterName= 	IDENTIFIER
-	
+
 	array 	     = 	"[" [positiveDecimalValue] "]"
-	
+
     Format on a single line.
     */
 void CIMParameterRep::toMof(Array<char>& out) const
@@ -242,22 +272,6 @@ Boolean CIMParameterRep::identical(const CIMParameterRep* x) const
 	return false;
 
     return true;
-}
-
-CIMParameterRep::CIMParameterRep()
-{
-
-}
-
-CIMParameterRep::CIMParameterRep(const CIMParameterRep& x) :
-    Sharable(),
-    _name(x._name),
-    _type(x._type),
-    _isArray(x._isArray),
-    _arraySize(x._arraySize),
-    _referenceClassName(x._referenceClassName)
-{
-    x._qualifiers.cloneTo(_qualifiers);
 }
 
 PEGASUS_NAMESPACE_END

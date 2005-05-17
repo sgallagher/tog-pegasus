@@ -14,6 +14,12 @@ SELECT Property32 FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = false
 # FROM class is not superclass of QExpr_TestPropertyTypes
 SELECT * FROM Bogus
 
+# FROM class is not a superclass of QExpr_TestPropertyTypes, but exists
+SELECT * FROM CIM_ComputerSystem
+
+# FROM class is a superclass of QExpr_TestPropertyTypes 
+SELECT * FROM QExpr_TestElement
+
 # CQL Select Statements
 CQL:
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
@@ -25,3 +31,9 @@ SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND Property
 SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray[0] = 'hello'
 # Property32 does not exist on the FROM class
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
+
+# FROM class is not a superclass of QExpr_TestPropertyTypes, but exists
+SELECT * FROM CIM_ComputerSystem
+
+# FROM class is a superclass of QExpr_TestPropertyTypes 
+SELECT * FROM QExpr_TestElement

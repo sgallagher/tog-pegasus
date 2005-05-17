@@ -25,6 +25,20 @@ Property List for QExpr_TestPropertyTypes
 -----Required property PropertyUint32
 -----Required property PropertyChar16
 -----Required property PropertyString
+SELECT Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+WHERE Property List for the FROM class
+-----no properties required
+WHERE Property List for QExpr_TestPropertyTypes
+-----no properties required
 
 WQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes 
@@ -64,6 +78,20 @@ Property List for QExpr_TestPropertyTypes
 -----Required property PropertyUint32
 -----Required property PropertyChar16
 -----Required property PropertyString
+SELECT Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+WHERE Property List for the FROM class
+-----Required property PropertyBoolean
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
 
 WQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE OR PropertyBoolean = FALSE
@@ -105,6 +133,26 @@ Property List for QExpr_TestPropertyTypes
 -----Required property PropertyReal32
 -----Required property PropertyString
 -----Required property PropertyChar16
+SELECT Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+WHERE Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
 
 WQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = "Ten"
@@ -135,6 +183,20 @@ Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
 -----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
 
 WQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = "Ten") AND NOT PropertyBoolean = TRUE IS NOT TRUE
@@ -165,6 +227,14 @@ Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
 -----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----Required property PropertyStringArray
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyStringArray
 
 WQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray = "hello"
@@ -193,6 +263,14 @@ Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
 -----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----Required property Property32
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property Property32
 
 WQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
@@ -210,6 +288,8 @@ SELECT Property32 FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = false
 
 Instance of class QExpr_TestPropertyTypes
 -----A property in the Select list is missing from the instance
+Instance of class QExpr_TestPropertyTypes.  Allow missing properties.
+-----No properties left after projection
 
 WQL ========Get Property List Results=======
 SELECT Property32 FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = false
@@ -223,6 +303,14 @@ Property List for the FROM class
 Property List for QExpr_TestPropertyTypes
 -----Required property PropertyBoolean
 -----Required property Property32
+SELECT Property List for the FROM class
+-----Required property Property32
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property Property32
+WHERE Property List for the FROM class
+-----Required property PropertyBoolean
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
 
 WQL ========Validating QueryExpression=======
 SELECT Property32 FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = false
@@ -253,6 +341,14 @@ Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
 -----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----no properties required
+WHERE Property List for QExpr_TestPropertyTypes
+-----Bogus
 
 WQL ========Validating QueryExpression=======
 SELECT * FROM Bogus
@@ -267,6 +363,82 @@ SELECT * FROM Bogus
  = TRUE
 
 
+WQL ========Apply Projection Results========
+SELECT * FROM CIM_ComputerSystem
+
+Instance of class QExpr_TestPropertyTypes
+Instance has 33 properties
+
+WQL ========Get Property List Results=======
+SELECT * FROM CIM_ComputerSystem
+
+
+Get Class Path List
+-----root/SampleProvider:CIM_ComputerSystem
+Property List for the FROM class
+-----all properties required
+Property List for QExpr_TestPropertyTypes
+-----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----no properties required
+WHERE Property List for QExpr_TestPropertyTypes
+-----Class QExpr_TestPropertyTypes does not match the FROM class or any of its subclasses.
+
+WQL ========Validating QueryExpression=======
+SELECT * FROM CIM_ComputerSystem
+
+validate ok
+
+WQL ========Evaluating QueryExpression=======
+SELECT * FROM CIM_ComputerSystem
+
+
+SELECT * FROM CIM_ComputerSystem
+ = TRUE
+
+
+WQL ========Apply Projection Results========
+SELECT * FROM QExpr_TestElement
+
+Instance of class QExpr_TestPropertyTypes
+Instance has 33 properties
+
+WQL ========Get Property List Results=======
+SELECT * FROM QExpr_TestElement
+
+
+Get Class Path List
+-----root/SampleProvider:QExpr_TestElement
+Property List for the FROM class
+-----all properties required
+Property List for QExpr_TestPropertyTypes
+-----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----no properties required
+WHERE Property List for QExpr_TestPropertyTypes
+-----no properties required
+
+WQL ========Validating QueryExpression=======
+SELECT * FROM QExpr_TestElement
+
+validate ok
+
+WQL ========Evaluating QueryExpression=======
+SELECT * FROM QExpr_TestElement
+
+
+SELECT * FROM QExpr_TestElement
+ = TRUE
+
+
 CIM:CQL ========Apply Projection Results========
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
 
@@ -292,6 +464,20 @@ Property List for QExpr_TestPropertyTypes
 -----Required property PropertyUint32
 -----Required property PropertyChar16
 -----Required property PropertyString
+SELECT Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+WHERE Property List for the FROM class
+-----no properties required
+WHERE Property List for QExpr_TestPropertyTypes
+-----no properties required
 
 CIM:CQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes
@@ -331,6 +517,20 @@ Property List for QExpr_TestPropertyTypes
 -----Required property PropertyUint32
 -----Required property PropertyChar16
 -----Required property PropertyString
+SELECT Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+WHERE Property List for the FROM class
+-----Required property PropertyBoolean
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
 
 CIM:CQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE OR PropertyBoolean = FALSE
@@ -372,6 +572,26 @@ Property List for QExpr_TestPropertyTypes
 -----Required property PropertyChar16
 -----Required property PropertyString
 -----Required property PropertyReal32
+SELECT Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyChar16
+-----Required property PropertyString
+WHERE Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
 
 CIM:CQL ========Validating QueryExpression=======
 SELECT PropertyBoolean,PropertyUint32,PropertyChar16,PropertyString FROM QExpr_TestPropertyTypes WHERE PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten'
@@ -402,6 +622,20 @@ Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
 -----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyBoolean
+-----Required property PropertyUint32
+-----Required property PropertyReal32
+-----Required property PropertyString
 
 CIM:CQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE (PropertyBoolean = TRUE AND PropertyUint32 >= 10 AND PropertyReal32 <= 14.0 AND PropertyString = 'Ten') 
@@ -432,6 +666,14 @@ Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
 -----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----Required property PropertyStringArray
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property PropertyStringArray
 
 CIM:CQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE PropertyStringArray[0] = 'hello'
@@ -462,6 +704,14 @@ Property List for the FROM class
 -----all properties required
 Property List for QExpr_TestPropertyTypes
 -----all properties required
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----all properties required
+WHERE Property List for the FROM class
+-----Required property Property32
+WHERE Property List for QExpr_TestPropertyTypes
+-----Required property Property32
 
 CIM:CQL ========Validating QueryExpression=======
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
@@ -474,4 +724,82 @@ SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
 
 SELECT * FROM QExpr_TestPropertyTypes WHERE Property32 < 5
  = FALSE
+
+
+CIM:CQL ========Apply Projection Results========
+SELECT * FROM CIM_ComputerSystem
+
+Instance of class QExpr_TestPropertyTypes
+-----The property Caption is missing on the instance of class QExpr_TestPropertyTypes.
+Instance of class QExpr_TestPropertyTypes.  Allow missing properties.
+-----No properties left after projection
+
+CIM:CQL ========Get Property List Results=======
+SELECT * FROM CIM_ComputerSystem
+
+
+Get Class Path List
+-----root/SampleProvider:CIM_ComputerSystem
+Property List for the FROM class
+-----all properties required
+Property List for QExpr_TestPropertyTypes
+-----Class QExpr_TestPropertyTypes does not match the FROM class or any of its subclasses.
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----Class QExpr_TestPropertyTypes does not match the FROM class or any of its subclasses.
+WHERE Property List for the FROM class
+-----no properties required
+WHERE Property List for QExpr_TestPropertyTypes
+-----Class QExpr_TestPropertyTypes does not match the FROM class or any of its subclasses.
+
+CIM:CQL ========Validating QueryExpression=======
+SELECT * FROM CIM_ComputerSystem
+
+validate ok
+
+CIM:CQL ========Evaluating QueryExpression=======
+SELECT * FROM CIM_ComputerSystem
+
+
+SELECT * FROM CIM_ComputerSystem
+ = FALSE
+
+
+CIM:CQL ========Apply Projection Results========
+SELECT * FROM QExpr_TestElement
+
+Instance of class QExpr_TestPropertyTypes
+-----Prop #0 Name = InstanceId Value = 1
+
+CIM:CQL ========Get Property List Results=======
+SELECT * FROM QExpr_TestElement
+
+
+Get Class Path List
+-----root/SampleProvider:QExpr_TestElement
+Property List for the FROM class
+-----all properties required
+Property List for QExpr_TestPropertyTypes
+-----Required property InstanceId
+SELECT Property List for the FROM class
+-----all properties required
+SELECT Property List for QExpr_TestPropertyTypes
+-----Required property InstanceId
+WHERE Property List for the FROM class
+-----no properties required
+WHERE Property List for QExpr_TestPropertyTypes
+-----no properties required
+
+CIM:CQL ========Validating QueryExpression=======
+SELECT * FROM QExpr_TestElement
+
+validate ok
+
+CIM:CQL ========Evaluating QueryExpression=======
+SELECT * FROM QExpr_TestElement
+
+
+SELECT * FROM QExpr_TestElement
+ = TRUE
 

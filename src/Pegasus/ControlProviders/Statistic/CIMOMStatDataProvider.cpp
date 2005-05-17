@@ -116,6 +116,8 @@ void CIMOMStatDataProvider::enumerateInstances(
     // begin processing the request
 	handler.processing();
 
+    AutoMutex autoMut(_mutex);  
+
 	// instance index corresponds to reference index
 	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
 	{

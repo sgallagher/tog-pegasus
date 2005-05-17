@@ -81,7 +81,29 @@ Boolean _applyProjection(QueryExpression& qe,
         {
           CIMInstance projInst = _instances[j].clone();
 
-          qe.applyProjection(projInst, false);
+          Boolean gotPropExc = false;
+          try 
+          {
+            qe.applyProjection(projInst, false);
+          }
+          catch (QueryRuntimePropertyException & qrpe)
+          {
+            // Got a missing property exception.
+            cout << "-----" << qrpe.getMessage() << endl;
+            gotPropExc = true;
+          }
+
+          if (gotPropExc)
+          {
+            // Got a missing property exception.
+            // Try again, allowing missing properties.
+            // Need to use a cloned instance because the original instance
+            // was partially projected.
+            cout << "Instance of class " << _instances[j].getClassName().getString()
+                 << ".  Allow missing properties." << endl;
+            projInst = _instances[j].clone(); 
+            qe.applyProjection(projInst, true);
+          }
 
           Uint32 cnt = projInst.getPropertyCount(); 
           if (cnt == 0)
@@ -149,11 +171,11 @@ Boolean _getPropertyList(QueryExpression& qe,
 {
   if(testOption == String::EMPTY || testOption == "3")
   {
-    cout << endl << lang << " ========Get Property List Results=======" << endl;
-    cout << qe.getQuery() << endl;
-
       for(Uint32 j = 0; j < _instances.size(); j++)
       {
+        cout << endl << lang << " ========Get Property List Results=======" << endl;
+        cout << qe.getQuery() << endl;
+
         try
         {
           cout << endl << "Get Class Path List" << endl;
@@ -185,6 +207,46 @@ Boolean _getPropertyList(QueryExpression& qe,
         {
           cout << "Property List for " << className.getString() << endl;
            propList = qe.getPropertyList(classPath);
+          _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+
+        try
+        {
+          propList.clear();
+          cout << "SELECT Property List for the FROM class" << endl;
+           propList = qe.getSelectPropertyList();
+          _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+
+        try
+        {
+          propList.clear();
+          cout << "SELECT Property List for " << className.getString() << endl;
+           propList = qe.getSelectPropertyList(classPath);
+          _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+
+        try
+        {
+          propList.clear();
+          cout << "WHERE Property List for the FROM class" << endl;
+           propList = qe.getWherePropertyList();
+          _printPropertyList(propList);
+        }
+        catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}
+        catch(...){ cout << "Unknown Exception" << endl;}
+
+        try
+        {
+          propList.clear();
+          cout << "WHERE Property List for " << className.getString() << endl;
+           propList = qe.getWherePropertyList(classPath);
           _printPropertyList(propList);
         }
         catch(Exception& e){ cout << "-----" << e.getMessage() << endl;}

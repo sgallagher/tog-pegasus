@@ -3700,7 +3700,8 @@ void ProviderRegistrationManager::_getPropertyNames(
         {
             value.get(_supportedProperties);
             // Convert Array<String> to Array<CIMValue>
-            Array<CIMName> supportedPropertyArray(_supportedProperties.size());
+            Array<CIMName> supportedPropertyArray;
+            supportedPropertyArray.reserveCapacity(_supportedProperties.size());
             for (Uint32 i = 0; i < _supportedProperties.size(); i++)
             {
                 supportedPropertyArray.append(_supportedProperties[i]);

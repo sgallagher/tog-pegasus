@@ -32,8 +32,12 @@ Instance of class CQL_TestPropertyTypesMissing
 -----No properties left after projection
 Instance of class CQL_TestPropertyTypes
 -----The property ANonExistentProperty is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----No properties left after projection
 Instance of class CQL_TestPropertyTypes
 -----The property ANonExistentProperty is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----No properties left after projection
 ======================================3
 SELECT AnyProperty FROM CQL_ANonExistentClass 
 Instance of class CQL_TestElement
@@ -78,8 +82,12 @@ Instance of class CQL_TestPropertyTypes
 SELECT PropertyString FROM CQL_TestElement 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----No properties left after projection
 Instance of class CQL_TestPropertyTypesMissing
 -----The property PropertyString is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----No properties left after projection
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyString, Value = BERT RULES
 Instance of class CQL_TestPropertyTypes
@@ -500,8 +508,18 @@ Instance of class CQL_TestPropertyTypesMissing
 -----No properties left after projection
 Instance of class CQL_TestPropertyTypes
 -----The property PropertyNonExistent is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----Prop #0 Name = PropertyStringArray, Value = CQL0 CQL1 CQL2 CQL3 
+-----Prop #1 Name = PropertyUint32, Value = 32
+-----Prop #2 Name = PropertyDatetime, Value = 20040811105625.000000-360
+-----Prop #3 Name = PropertyChar16Array, Value = A a 
 Instance of class CQL_TestPropertyTypes
 -----The property PropertyNonExistent is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----Prop #0 Name = PropertyStringArray, Value = CQL0 CQL1 CQL2 CQL3 
+-----Prop #1 Name = PropertyUint32, Value = 6811
+-----Prop #2 Name = PropertyDatetime, Value = 20040811105625.000000-360
+-----Prop #3 Name = PropertyChar16Array, Value = A a 
 ======================================49
 SELECT PropertyStringArray,PropertyDatetime,PropertySint8,PropertyUint32,PropertyChar16Array FROM CIM_ANonExistentClass 
 Instance of class CQL_TestElement
@@ -516,8 +534,12 @@ Instance of class CQL_TestPropertyTypes
 SELECT PropertyStringArray,PropertyDatetime,PropertySint8,PropertyUint32,PropertyChar16Array FROM CQL_TestElement 
 Instance of class CQL_TestElement
 -----The property PropertyChar16Array is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----No properties left after projection
 Instance of class CQL_TestPropertyTypesMissing
 -----The property PropertyChar16Array is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----No properties left after projection
 Instance of class CQL_TestPropertyTypes
 -----Prop #0 Name = PropertyStringArray, Value = CQL0 CQL1 CQL2 CQL3 
 -----Prop #1 Name = PropertyUint32, Value = 32
@@ -614,8 +636,12 @@ Instance of class CQL_TestPropertyTypes
 SELECT * FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 0
 Instance of class CQL_TestPropertyTypesMissing
 -----The property PropertyString is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 3
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
@@ -624,8 +650,12 @@ Instance of class CQL_TestPropertyTypes
 SELECT CQL_TestPropertyTypes.* FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 0
 Instance of class CQL_TestPropertyTypesMissing
 -----The property PropertyString is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 3
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
@@ -634,8 +664,12 @@ Instance of class CQL_TestPropertyTypes
 SELECT Alias.* FROM CQL_TestPropertyTypes AS alias 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 0
 Instance of class CQL_TestPropertyTypesMissing
 -----The property PropertyString is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 3
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
@@ -644,8 +678,12 @@ Instance of class CQL_TestPropertyTypes
 SELECT PropertyString,* FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 0
 Instance of class CQL_TestPropertyTypesMissing
 -----The property PropertyString is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 3
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes
@@ -674,22 +712,38 @@ Instance of class CQL_TestPropertyTypes
 SELECT * FROM CQL_TestPropertyTypesMissing 
 Instance of class CQL_TestElement
 -----The property MissingProperty is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 0
 Instance of class CQL_TestPropertyTypesMissing
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 3
 Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 2
 ======================================66
 SELECT InstanceID,* FROM CQL_TestPropertyTypesMissing 
 Instance of class CQL_TestElement
 -----The property MissingProperty is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 0
 Instance of class CQL_TestPropertyTypesMissing
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 3
 Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 1
 Instance of class CQL_TestPropertyTypes
 -----The property MissingProperty is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_TestPropertyTypes.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 2
 ======================================67
 SELECT CQL_TestElement::InstanceID FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
@@ -826,8 +880,12 @@ Instance of class CQL_TestPropertyTypes
 SELECT CQL_TestElement::InstanceID,* FROM CQL_TestPropertyTypes 
 Instance of class CQL_TestElement
 -----The property PropertyString is missing on the instance of class CQL_TestElement.
+Instance of class CQL_TestElement.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 0
 Instance of class CQL_TestPropertyTypesMissing
 -----The property PropertyString is missing on the instance of class CQL_TestPropertyTypesMissing.
+Instance of class CQL_TestPropertyTypesMissing.  Allow missing properties.
+-----Prop #0 Name = InstanceId, Value = 3
 Instance of class CQL_TestPropertyTypes
 -----Instance has 58 properties
 Instance of class CQL_TestPropertyTypes

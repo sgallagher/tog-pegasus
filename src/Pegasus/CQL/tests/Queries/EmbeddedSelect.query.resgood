@@ -1047,6 +1047,58 @@ Instance of class CQL_EmbeddedSubClass
 SELECT *,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere,EmbObjBase.CQL_EmbeddedTestElement::CS.CQL_NonExistent::EnabledState FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property NotThere is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
+-----Prop #0 Name = InstanceID, Value = 100
+-----Prop #1 Name = EmbObjBase
+----------Instance of class CQL_EmbeddedTestElement
+----------Prop #0 Name = InstanceID, Value = 1000
+----------Prop #1 Name = TEArray
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 11
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 12
+----------Prop #2 Name = TE
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+----------Prop #3 Name = SomeClass, Value = class of CIM_Process
+----------Prop #4 Name = SomeString, Value = Huh?
+----------Prop #5 Name = CS
+--------------------Instance of class CIM_ComputerSystem
+--------------------Instance has 23 properties
+-----Prop #2 Name = EmbObjSub
+----------Instance of class CQL_EmbeddedTestPropertyTypes
+----------Prop #0 Name = InstanceID, Value = 1001
+----------Prop #1 Name = TEArray
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 11
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 12
+----------Prop #2 Name = TE
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+----------Prop #3 Name = CS
+--------------------Instance of class CIM_ComputerSystem
+--------------------Instance has 23 properties
+----------Prop #4 Name = TPTArray
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Instance has 58 properties
+
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Instance has 58 properties
+----------Prop #5 Name = SomeClass, Value = class of CIM_Process
+----------Prop #6 Name = SomeString, Value = What?
+----------Prop #7 Name = SomeUint8, Value = 3
+----------Prop #8 Name = TPT
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Instance has 58 properties
 ======================================44
 SELECT *,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString,EmbObjBase.CQL_EmbeddedTestElement::CS.CQL_NonExistent::EnabledState,EmbObjBase.*,EmbObjSub.* FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
@@ -1286,14 +1338,87 @@ Instance of class CQL_EmbeddedSubClass
 SELECT EmbObjBase,EmbObjBase.CQL_EmbeddedTestElement::NotThere FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property NotThere is missing on the instance of class CQL_EmbeddedTestElement.
+Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
+-----Prop #0 Name = EmbObjBase
+----------Instance of class CQL_EmbeddedTestElement
+----------Prop #0 Name = InstanceID, Value = 1000
+----------Prop #1 Name = TEArray
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 11
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 12
+----------Prop #2 Name = TE
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+----------Prop #3 Name = CS
+--------------------Instance of class CIM_ComputerSystem
+--------------------Instance has 23 properties
+----------Prop #4 Name = SomeClass, Value = class of CIM_Process
+----------Prop #5 Name = SomeString, Value = Huh?
 ======================================51
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestElement::NotThere,EmbObjBase FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property NotThere is missing on the instance of class CQL_TestElement.
+Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
+-----Prop #0 Name = EmbObjBase
+----------Instance of class CQL_EmbeddedTestElement
+----------Prop #0 Name = InstanceID, Value = 1000
+----------Prop #1 Name = TEArray
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 11
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 12
+----------Prop #2 Name = CS
+--------------------Instance of class CIM_ComputerSystem
+--------------------Instance has 23 properties
+----------Prop #3 Name = SomeClass, Value = class of CIM_Process
+----------Prop #4 Name = SomeString, Value = Huh?
+----------Prop #5 Name = TE
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
 ======================================52
 SELECT EmbObjSub,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property NotThere is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
+-----Prop #0 Name = EmbObjSub
+----------Instance of class CQL_EmbeddedTestPropertyTypes
+----------Prop #0 Name = InstanceID, Value = 1001
+----------Prop #1 Name = TEArray
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 11
+
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 12
+----------Prop #2 Name = TE
+--------------------Instance of class CQL_TestElement
+--------------------Prop #0 Name = InstanceId, Value = 10
+----------Prop #3 Name = CS
+--------------------Instance of class CIM_ComputerSystem
+--------------------Instance has 23 properties
+----------Prop #4 Name = TPTArray
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Instance has 58 properties
+
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Instance has 58 properties
+----------Prop #5 Name = SomeClass, Value = class of CIM_Process
+----------Prop #6 Name = SomeString, Value = What?
+----------Prop #7 Name = SomeUint8, Value = 3
+----------Prop #8 Name = TPT
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Instance has 58 properties
 ======================================53
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId,EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8,EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId,EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState,EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
@@ -1330,63 +1455,101 @@ Instance of class CQL_EmbeddedSubClass
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId,EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8,EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId,EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState,EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property NotThere is missing on the instance of class CQL_TestPropertyTypes.
+Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
+-----Prop #0 Name = EmbObjSub
+----------Instance of class CQL_EmbeddedTestPropertyTypes
+----------Prop #0 Name = SomeUint8, Value = 3
+----------Prop #1 Name = TPT
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Prop #0 Name = InstanceId, Value = 1
+-----Prop #1 Name = EmbObjBase
+----------Instance of class CQL_EmbeddedTestElement
+----------Prop #0 Name = SomeString, Value = Huh?
 ======================================56
+SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId,EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8,EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description,EmbObjSub.CQL_EmbeddedTestPropertyTypes::NotThere.CQL_TestPropertyTypes::InstanceId,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId,EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState,EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass 
+Instance of class CQL_EmbeddedSubClass
+-----The property NotThere is missing on the instance of class CQL_EmbeddedTestPropertyTypes.
+Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
+-----Prop #0 Name = EmbObjSub
+----------Instance of class CQL_EmbeddedTestPropertyTypes
+----------Prop #0 Name = SomeUint8, Value = 3
+----------Prop #1 Name = TPT
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Prop #0 Name = InstanceId, Value = 1
+-----Prop #1 Name = EmbObjBase
+----------Instance of class CQL_EmbeddedTestElement
+----------Prop #0 Name = SomeString, Value = Huh?
+======================================57
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId,EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::propertyString,EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId,EmbObjBase.CQL_EmbeddedTestElement::CS.*,EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property PrimaryOwnerName is missing on the instance of class CIM_ComputerSystem.
-======================================57
+Instance of class CQL_EmbeddedSubClass.  Allow missing properties.
+-----Prop #0 Name = EmbObjSub
+----------Instance of class CQL_EmbeddedTestPropertyTypes
+----------Prop #0 Name = SomeUint8, Value = 3
+----------Prop #1 Name = TPT
+--------------------Instance of class CQL_TestPropertyTypes
+--------------------Prop #0 Name = InstanceId, Value = 1
+--------------------Prop #1 Name = PropertyString, Value = BERT RULES
+-----Prop #1 Name = EmbObjBase
+----------Instance of class CQL_EmbeddedTestElement
+----------Prop #0 Name = SomeString, Value = Huh?
+----------Prop #1 Name = CS
+--------------------Instance of class CIM_ComputerSystem
+--------------------Instance has 23 properties
+======================================58
 SELECT CQL_EmbeddedSubClass FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----A property on the FROM class must be selected.
-======================================58
+======================================59
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray[2-2] FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The identifier CQL_EmbeddedTestElement::TEArray[2-2] of CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::TEArray[2-2] in the SELECT list cannot use an array index.
-======================================59
+======================================60
 SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[2-2] FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The identifier CQL_EmbeddedTestPropertyTypes::TPTArray[2-2] of CQL_EmbeddedSubClass.EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[2-2] in the SELECT list cannot use an array index.
-======================================60
+======================================61
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray[1-1].* FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The identifier CQL_EmbeddedTestElement::TEArray[1-1] of CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::TEArray[1-1].* in the SELECT list cannot use an array index.
-======================================61
+======================================62
 SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[1-1].* FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The identifier CQL_EmbeddedTestPropertyTypes::TPTArray[1-1] of CQL_EmbeddedSubClass.EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[1-1].* in the SELECT list cannot use an array index.
-======================================62
+======================================63
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray[0-0].CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The identifier CQL_EmbeddedTestElement::TEArray[0-0] of CQL_EmbeddedSubClass.EmbObjBase.CQL_EmbeddedTestElement::TEArray[0-0].CQL_TestElement::InstanceId in the SELECT list cannot use an array index.
-======================================63
+======================================64
 SELECT EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[0-0].CQL_TestPropertyTypes::propertyDatetimeArray FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The identifier CQL_EmbeddedTestPropertyTypes::TPTArray[0-0] of CQL_EmbeddedSubClass.EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPTArray[0-0].CQL_TestPropertyTypes::propertyDatetimeArray in the SELECT list cannot use an array index.
-======================================64
+======================================65
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray.* FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----CQL requires that array indexing is used on embedded object property TEArray.
-======================================65
+======================================66
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TEArray.CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----CQL requires that array indexing is used on embedded object property TEArray.
-======================================66
+======================================67
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeClass.CIM_Process::RequestedState FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----CQL does not allow properties to be projected on class SomeClass.
-======================================67
+======================================68
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeClass.* FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----CQL does not allow properties to be projected on class SomeClass.
-======================================68
+======================================69
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeString.CQL_TestElement::InstanceId FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property SomeString must contain an embedded object.
-======================================69
+======================================70
 SELECT EmbObjBase.CQL_EmbeddedTestElement::SomeString.* FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The property SomeString must contain an embedded object.
-======================================70
+======================================71
 SELECT EmbObjBase.SomeString FROM CQL_EmbeddedSubClass 
 Instance of class CQL_EmbeddedSubClass
 -----The identifier SomeString of CQL_EmbeddedSubClass.EmbObjBase.SomeString must use the scope operator.

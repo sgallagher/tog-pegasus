@@ -375,6 +375,22 @@ SELECT EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_ComputerSystem::EnabledState, 
 # EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description          => scope is unrelated, ignore 
 SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestPropertyTypes::NotThere, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState, EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass
 
+# Missing required property.
+# The NotThere property is missing in this case.  Even though the property is not on its scoping
+# class, it is still missing with respect to the instance being projected.  Properties
+# missing with respect to the class definition are checked by validateProperties, not applyProjection.
+# Note that in this case the missing property is in the middle of a chain.
+# 
+# Projected Properties:
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8                       => scope matches, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId => scope is superclass, project
+# EmbObjSub.CQL_EmbeddedTestPropertyTypes::NotThere.CQL_TestPropertyTypes::InstanceId => property is missing 
+# EmbObjBase.CQL_EmbeddedTestElement::SomeString                             => scope matches, project
+# EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId => scope is subclass, ignore  
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState     => scope doesn't exist, ignore
+# EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description          => scope is unrelated, ignore 
+SELECT EmbObjBase.CQL_EmbeddedTestElement::TE.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::SomeUint8, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_Process::Description, EmbObjSub.CQL_EmbeddedTestPropertyTypes::NotThere.CQL_TestPropertyTypes::InstanceId, EmbObjSub.CQL_EmbeddedTestPropertyTypes::TPT.CQL_TestElement::InstanceId, EmbObjBase.CQL_EmbeddedTestElement::CS.CIM_NonExistent::EnabledState, EmbObjBase.CQL_EmbeddedTestElement::SomeString FROM CQL_EmbeddedSubClass
+
 # Missing required property, wildcard case.
 # Note: this assumes that CQLCLI removes the PrimaryOwnerName property from the CS instance
 # 

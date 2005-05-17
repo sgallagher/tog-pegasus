@@ -758,10 +758,10 @@ CQLValue CQLFunctionRep::nameSpaceType(const CIMInstance& CI, const QueryContext
                              String("0"), String("1"));
     throw CQLRuntimeException(mload);
   }
-  ) // End PEGASUS_UNREACHABLE
 
     PEG_METHOD_EXIT();
   return CQLValue(Uint64(0));
+  ) // End PEGASUS_UNREACHABLE
 }
 
 CQLValue CQLFunctionRep::hostPort(const CIMInstance& CI, const QueryContext& queryCtx) const

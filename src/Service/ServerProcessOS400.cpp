@@ -202,7 +202,6 @@ int ServerProcess::cimserver_initialize(void)
    //        (it's a known problem) and we can uncomment this #pragma. 
 //   #pragma cancel_handler (CancelHandler, NULL)
     try {
-   system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
 
 #pragma convert(37)
    //////////////////////////////////////////

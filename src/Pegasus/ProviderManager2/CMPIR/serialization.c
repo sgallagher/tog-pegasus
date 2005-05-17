@@ -1078,9 +1078,11 @@ static ssize_t __serialize_CMPIDateTime ( int fd, CMPIDateTime * dt )
 
 	msecs = CMGetBinaryFormat ( dt, NULL );
 	i = CMIsInterval ( dt, NULL );
-
+#if defined CMPI_PLATFORM_WIN32_IX86_MSVC
+	TRACE_INFO(("msecs: %I64d, interval: %d", msecs, i ));
+#else
 	TRACE_INFO(("msecs: %lld, interval: %d", msecs, i ));
-
+#endif
 	out = __serialize_UINT64 ( fd, msecs );
 	if ( out < 0 ) return -1;
 
@@ -1107,8 +1109,11 @@ static CMPIDateTime * __deserialize_CMPIDateTime ( int fd,
 	msecs = __deserialize_UINT64 ( fd );
 	i     = __deserialize_UINT8 ( fd );
 
+#if defined CMPI_PLATFORM_WIN32_IX86_MSVC
+	TRACE_INFO(("msecs: %I64d, interval: %d", msecs, i ));
+#else
 	TRACE_INFO(("msecs: %lld, interval: %d", msecs, i ));
-
+#endif
 	TRACE_VERBOSE(("leaving function."));
 	return CMNewDateTimeFromBinary ( broker, msecs, i, NULL );
 }

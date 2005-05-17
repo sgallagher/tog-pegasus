@@ -240,7 +240,7 @@ char * value2Chars ( CMPIType type, CMPIValue * value )
 			return strdup(str);
 		case CMPI_uint64:
 #if defined CMPI_PLATFORM_WIN32_IX86_MSVC
-		        sprintf(str,"l64u",value->uint64);
+		        sprintf(str,"I64u",value->uint64);
 #else
 		        sprintf(str,"%llu",value->uint64);
 #endif
@@ -248,7 +248,7 @@ char * value2Chars ( CMPIType type, CMPIValue * value )
 		case CMPI_sint64:
 
 #if defined CMPI_PLATFORM_WIN32_IX86_MSVC
-                        sprintf(str,"%l64d",value->sint64);
+                        sprintf(str,"%I64d",value->sint64);
 #else
                         sprintf(str,"%lld",value->sint64);
 #endif

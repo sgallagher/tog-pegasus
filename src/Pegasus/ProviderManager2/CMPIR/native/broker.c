@@ -117,7 +117,7 @@ static CMPIDateTime * __beft_newDateTimeFromBinary ( CONST CMPIBroker * broker,
 {
 	TRACE_NORMAL(("Creating new native CMPIDateTime."));
 #if defined CMPI_PLATFORM_WIN32_IX86_MSVC
-	TRACE_INFO(("time: %l64\ninterval: %d", time, interval ));
+	TRACE_INFO(("time: %I64\ninterval: %d", time, interval ));
 #else
 	TRACE_INFO(("time: %lld\ninterval: %d", time, interval ));
 #endif

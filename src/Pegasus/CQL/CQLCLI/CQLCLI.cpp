@@ -239,7 +239,30 @@ Boolean _applyProjection(Array<CQLSelectStatement>& _statements,
             projInst.removeProperty(missing);
           }
 
-          _statements[i].applyProjection(projInst, false);
+          CIMInstance cloneInst = projInst.clone();
+          Boolean gotPropExc = false;
+          try 
+          {
+            _statements[i].applyProjection(projInst, false);
+          }
+          catch (QueryRuntimePropertyException & qrpe)
+          {
+            // Got a missing property exception.
+            cout << "-----" << qrpe.getMessage() << endl;
+            gotPropExc = true;
+          }
+
+          if (gotPropExc)
+          {
+            // Got a missing property exception.
+            // Try again, allowing missing properties.
+            // Need to use a cloned instance because the original instance
+            // was partially projected.
+            cout << "Instance of class " << _instances[j].getClassName().getString()
+                 << ".  Allow missing properties." << endl;
+            projInst = cloneInst;
+            _statements[i].applyProjection(projInst, true);
+          }
 
           Uint32 cnt = projInst.getPropertyCount(); 
           if (cnt == 0)

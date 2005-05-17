@@ -176,8 +176,8 @@ static const char * usageDetails = "Using CLI examples:\n \
 CLI enumerateinstancenames pg_computersystem  -- enumerateinstances of class\n \
     or \n \
 CLI ei pg_computersystem    -- Same as above \n\n \
-CLI enumerateclassnames -- Enumerate classnames from root/cimv2.\n \
-CLI ec /n root -- Enumerate classnames from namespace root. \n \
+CLI enumerateclassnames -- Enumerate class names from root/cimv2.\n \
+CLI ec -n root -- Enumerate classes from namespace root. \n \
 CLI ec -o xml   -- Enumerate classes with XML output starting at root\n \
 CLI enumerateclasses CIM_Computersystem -o xml\n    -- Enumerate classes in MOF starting with \
 CIM_Computersystem\n \
@@ -1596,10 +1596,10 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
     {
         instances = client.enumerateInstances((CIMNamespaceName)(opts.nameSpace),opts.className);
     }
-    catch(CIMException& e)
+    catch(CIMException &)
     {
         /*if an exception was caught here then we assume we are not useing
-        the open pegasus CIMOM. There for we should only check the 
+        the open pegasus CIMOM. There for we should only check the
         __namespaces class. (Which may only retrun a subset of all namspaces
         */
         usingPegasus = false;
@@ -1607,7 +1607,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
         opts.nameSpace = "root/PG_InterOp";
     }
 
-    if (usingPegasus) 
+    if (usingPegasus)
     {
         for (Uint32 i = 0 ; i < instances.size(); i++)
         {
@@ -1631,7 +1631,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
 
 
 
-    if (!usingPegasus) 
+    if (!usingPegasus)
     {
         Array<CIMNamespaceName> namespaceNames;
 
@@ -1644,7 +1644,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
         namespaceNames.append(opts.nameSpace);
         Uint32 start = 0;
         Uint32 end = namespaceNames.size();
-   
+
 
         if (opts.time)
         {
@@ -1671,7 +1671,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
                         if (value.getType() == CIMTYPE_STRING)
                         {
                             value.get(namespaceComponent);
-    
+
                                 String ns = namespaceNames[range].getString();
                                 ns.append("/");
                                 ns.append(namespaceComponent);
@@ -1684,15 +1684,15 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
             }
         }
         while (start != end);
-    
-         
+
+
         // Validate that all of the returned entities are really namespaces. It is legal for us to
         // have an name component that is really not a namespace (ex. root/fred/john is a namespace
         // but root/fred is not.
         // There is no clearly defined test for this so we will simply try to get something, in this
         // case a wellknown assoication
           Array<CIMNamespaceName> returnNamespaces;
-    
+
         for (Uint32 i = 0 ; i < namespaceNames.size() ; i++)
         {
             try
@@ -1700,7 +1700,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
                 CIMQualifierDecl cimQualifierDecl;
                 cimQualifierDecl = client.getQualifier(namespaceNames[i],
                                                "Association");
-    
+
                 returnNamespaces.append(namespaceNames[i]);
             }
             catch(CIMException& e)
@@ -1709,14 +1709,14 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
                     returnNamespaces.append(namespaceNames[i]);
             }
         }
-    
+
         if (opts.time)
         {
             opts.elapsedTime.stop();
-    
+
             opts.saveElapsedTime = opts.elapsedTime.getElapsed();
         }
-    
+
         if (opts.summary)
         {
             cout << returnNamespaces.size() << " namespaces " << " returned." << endl;
@@ -1727,7 +1727,7 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
             {
                 cout << returnNamespaces[cnt] << endl;;
             }
-        } 
+        }
     }
 
     return(0);

@@ -60,12 +60,6 @@ CIMMethodRep::CIMMethodRep(const CIMMethodRep& x) :
     _classOrigin(x._classOrigin),
     _propagated(x._propagated)
 {
-    // ensure name is not null
-    if(name.isNull())
-    {
-        throw UninitializedObjectException();
-    }
-
     x._qualifiers.cloneTo(_qualifiers);
 
     _parameters.reserveCapacity(x._parameters.size());

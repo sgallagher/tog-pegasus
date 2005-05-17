@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,18 +35,18 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/test.mak
 
 QueryExpression.query.res: QueryExpression.query
-	@ testQueryExpression QueryExpression.query -className QExpr_TestPropertyTypes > $(TMP_DIR)/QueryExpression.query.res | cd .
+	@ testQueryExpression QueryExpression.query -className QExpr_TestPropertyTypes > $(TMP_DIR)/QueryExpression.query.res || cd .
 	@ $(DIFF) QueryExpression.query.resgood $(TMP_DIR)/QueryExpression.query.res
 	@ $(RM) $(TMP_DIR)/QueryExpression.query.res
 	@ $(ECHO) +++ QueryExpression.query passed successfully +++
 
 tests:
-                                                                                
-poststarttests: QueryExpression.query.res 
+
+poststarttests: QueryExpression.query.res
 
 clean:
 	$(RM) QueryExpression.query.res
-                                                                              
+
 depend:
 
 

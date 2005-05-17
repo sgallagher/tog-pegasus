@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -51,7 +51,7 @@ LIB = lib$(LIBRARY).$(PLATFORM_SUFFIX)
 	$(COMPILE_COMMAND) -c -o $@  $(LIBRARY_COMPILE_OPTIONS) -I $(PEGASUS_INCLUDE_DIR) $(DEFINES) $*.cpp
 
 .xml.rsp:
-	@ wbemexec $*.xml > $*.rsp | cd .
+	@ wbemexec $*.xml > $*.rsp || cd .
 
 $(LIB): $(OBJECTS) Makefile $(ROOT)/mak/library.mak
 	$(LIBRARY_LINK_COMMAND) $(LIBRARY_LINK_OPTIONS) $(DEFINES) $(LINK_OUT)$@ $(OBJECTS) $(SYS_LIBS) $(DYNAMICLIBRARIES)

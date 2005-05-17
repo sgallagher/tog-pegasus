@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -45,7 +45,7 @@ XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PASSWORD)
 
 %.rsp: %.xml
-	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp | cd .
+	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp || cd .
 	@ $(DIFF) $*rspgood.xml $(TMP_DIR)/$*.rsp
 	@ $(RM) $(TMP_DIR)/$*.rsp
 	@ $(ECHO) +++ $* passed successfully +++
@@ -54,7 +54,7 @@ XMLCOVREQUESTS = $(foreach i, $(XMLCOVSCRIPTS), $i.xml)
 XMLCOVRESPONSES = $(XMLCOVREQUESTS:.xml=.cov)
 
 %.cov: %.xml
-	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.cov | cd .
+	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.cov || cd .
 	@ $(RM) $(TMP_DIR)/$*.cov
 	@ $(ECHO) +++ $* code coverage exercise complete +++
 
@@ -121,14 +121,14 @@ XMLSCRIPTS = \
   f07_giDupKeys_IPR \
   f08_giBadSCCN_IPR \
   f09_giBadInst_IPR
-XMLCOVSCRIPTS = 
+XMLCOVSCRIPTS =
 else
-ifeq ($(PEGASUS_PLATFORM), LINUX_IA64_GNU) 
-XMLSCRIPTS = 
-XMLCOVSCRIPTS = 
+ifeq ($(PEGASUS_PLATFORM), LINUX_IA64_GNU)
+XMLSCRIPTS =
+XMLCOVSCRIPTS =
 else
-XMLSCRIPTS = 
-XMLCOVSCRIPTS = 
+XMLSCRIPTS =
+XMLCOVSCRIPTS =
 endif
 endif
 endif
@@ -136,9 +136,9 @@ endif
 clean:
 	$(RM) $(XMLRESPONSES)
 
-tests: 
+tests:
 
-messages: 
+messages:
 
 poststarttests: $(XMLRESPONSES) $(XMLCOVRESPONSES)
 

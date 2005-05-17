@@ -45,7 +45,7 @@
     {"home",                ""},
     {"daemon",              "false"},
     {"slp",                 "false"},
-    {"enableAuthentication", "false"},
+    {"enableAuthentication", "true"},
     {"enableAssociationTraversal", "false"},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},

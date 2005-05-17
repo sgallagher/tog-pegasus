@@ -810,6 +810,13 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
         os400StartupOption = true;
         daemonOption = true;
       }
+
+    if (!os400StartupOption)
+    {
+        // If this is the server job, then set the job
+        // to save the job log.
+        system ("QSYS/CHGJOB JOB(*) LOG(4 00 *SECLVL)");
+    }
 #endif    
 
     //

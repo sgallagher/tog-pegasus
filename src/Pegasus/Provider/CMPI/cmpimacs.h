@@ -1842,7 +1842,7 @@ IBMKR
 #ifndef DOC_ONLY
    // MI factory stubs
 
-  #define CMNoHook 
+  #define CMNoHook ; 
 #endif
 
 /*

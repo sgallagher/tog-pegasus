@@ -300,13 +300,16 @@ ProviderAgentContainer::~ProviderAgentContainer()
     // Ensure the destructor does not throw an exception
     try
     {
-        // Stop the responseProcessor thread by closing its connection
-        _pipeFromAgent->closeReadHandle();
-
-        // Wait for the responseProcessor thread to exit
-        while (isInitialized())
+        if (isInitialized())
         {
-            pegasus_yield();
+            // Stop the responseProcessor thread by closing its connection
+            _pipeFromAgent->closeReadHandle();
+
+            // Wait for the responseProcessor thread to exit
+            while (isInitialized())
+            {
+                pegasus_yield();
+            }
         }
     }
     catch (...)

@@ -38,6 +38,7 @@
 //         Carol Ann Krug Graves, Hewlett-Packard Company
 //               (carolann_graves@hp.com)
 //         Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//         Aruran, IBM (ashanmug@in.ibm.com) for Bug# 2628
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -747,17 +748,35 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
     {
         cout << "ERROR, Reference and reference Name count difference" << endl;
     }
-    for (Uint32 i = 0; i < result.size(); i++)
+    for (Uint32 i = 0; i < resultObjects.size(); i++)
     {
-        if (resultObjects[i].getPath().toString() != result[i].toString())
+      Uint32 matched=0;
+      for (Uint32 j = 0; j < result.size(); j++)
+      {
+        if (resultObjects[i].getPath().toString() == result[j].toString())
         {
-            cout << "ReferencesName response Error: "
-                 << resultObjects[i].getPath().toString()
-                 << " != "
-                 << result[i].toString()
-                 << endl;
+          matched=1;
+          result.remove(j);
+          j--;
+          break;
         }
+      }
+      if(matched)
+      {
+         resultObjects.remove(i);
+         i--;
+      }
     }
+
+    for(Uint32 i=0;i<result.size(); i++)
+    {
+       cout << "ReferencesName response Error: "
+            << resultObjects[i].getPath().toString()
+            << " != "
+            << result[i].toString()
+            << endl;
+    }
+
 
     Array<CIMObjectPath> assocResult = client->associatorNames(
             nameSpace,
@@ -799,16 +818,35 @@ static void testRefandAssoc(CIMClient* client, CIMNamespaceName& nameSpace,
         }
         return;
     }
-    for (Uint32 i = 0; i < assocResult.size(); i++)
+
+
+    for (Uint32 i = 0; i < assocResultObjects.size(); i++)
     {
-        if (assocResultObjects[i].getPath().toString() != assocResult[i].toString())
+      Uint32 matched=0;
+      for (Uint32 j = 0; j < assocResult.size(); j++)
+      {
+        if (assocResultObjects[i].getPath().toString() == assocResult[j].toString())
         {
-            cout << "Association Name response Error"
-                    << assocResultObjects[i].getPath().toString()
-                    << " != "
-                    << assocResult[i].toString()
-                    << endl;
+           matched=1;
+           assocResult.remove(j);
+           j--;
+           break;
         }
+      }
+      if(matched)
+      {
+         assocResultObjects.remove(i);
+         i--;
+      }
+    }
+
+    for (Uint32 i = 0; i <assocResult.size(); i++)
+    {
+       cout << "Association Name response Error"
+            << assocResultObjects[i].getPath().toString()
+            << " != "
+            << assocResult[i].toString()
+            << endl;
     }
 }
 static void TestAssociationOperations(CIMClient* client, Boolean

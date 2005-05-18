@@ -257,10 +257,10 @@ const _BucketBase* _HashTableRep::lookup(
 // This is to prevent a crash when the hash
 //  code hasn't been initialized!
 //
-    if (_numChains == 0)
-    {
-      return 0;
-    }
+//    if (_numChains == 0)
+//    {
+//      return 0;
+//    }
 #endif
     Uint32 i = hashCode % _numChains;
 

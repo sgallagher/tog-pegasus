@@ -142,10 +142,7 @@ MessageQueueService::MessageQueueService(
      _mask(mask),
      _die(0),
      _incoming(true, 0),
-     _callback(true),
-     _incoming_queue_shutdown(0),
-     _callback_ready(0),
-     _callback_thread(_callback_proc, this, false)
+     _incoming_queue_shutdown(0)
 {
    _capabilities = (capabilities | module_capabilities::async);
 
@@ -180,7 +177,6 @@ MessageQueueService::MessageQueueService(
 
    _polling_list.insert_last(this);
 
-//   _callback_thread.run();
 }
 
 
@@ -192,7 +188,6 @@ MessageQueueService::~MessageQueueService()
    {
       _shutdown_incoming_queue();
    }
-   _callback_ready.signal();
 
    {
      AutoMutex autoMut(_meta_dispatcher_mutex);
@@ -263,59 +258,6 @@ void MessageQueueService::enqueue(Message *msg)
 }
 
 
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_callback_proc(
-    void* parm)
-{
-    Thread* myself = reinterpret_cast<Thread*>(parm);
-    PEGASUS_ASSERT(myself != 0);
-
-    MessageQueueService* service =
-        reinterpret_cast<MessageQueueService*>(myself);
-    PEGASUS_ASSERT(service != 0);
-
-    AsyncOpNode* operation = 0;
-
-    try
-    {
-        while (service->_die.value() == 0)
-        {
-            service->_callback_ready.wait();
-
-            service->_callback.lock();
-            operation = service->_callback.next(0);
-            while (operation != NULL)
-            {
-                if (ASYNC_OPSTATE_COMPLETE & operation->read_state())
-                {
-                    operation = service->_callback.remove_no_lock(operation);
-                    PEGASUS_ASSERT(operation != NULL);
-                    operation->_thread_ptr = myself;
-                    operation->_service_ptr = service;
-                    service->_handle_async_callback(operation);
-                    break;
-                }
-                operation = service->_callback.next(operation);
-            }
-            service->_callback.unlock();
-        }
-    }
-    catch (const Exception& e)
-    {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            String("Caught exception: \"") + e.getMessage() +
-                "\".  Exiting _callback_proc.");
-    }
-    catch (...)
-    {
-        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-            "Caught unrecognized exception.  Exiting _callback_proc.");
-    }
-
-    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
-    return(0);
-}
-
-
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     void * parm)
 {
@@ -370,12 +312,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
 
     return(0);
 }
-
-Uint32 MessageQueueService::get_pending_callback_count()
-{
-   return _callback.count();
-}
-
 
 
 void MessageQueueService::_sendwait_callback(
@@ -926,10 +862,6 @@ Boolean MessageQueueService::SendAsync(
       op->_request.insert_first(msg);
       (static_cast<AsyncMessage *>(msg))->op = op;
    }
-   // This callback mechanism - a queue of callback is not used anymore.
-   // Instead async responses when completed fire off an AsyncRequest for
-   // callback which gets handled.
-   //_callback.insert_last(op);
    return _meta_dispatcher->route_async(op);
 }
 

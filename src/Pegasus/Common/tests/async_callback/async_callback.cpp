@@ -299,15 +299,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
 
    } while( test_async_queue::msg_count.value() < 1000 );
 
-   // This callback mechanism is not used anymore..
-   if (verbose)
-   	cout << "client waiting for lingering callbacks..." << endl;
-   
-   while(client->get_pending_callback_count() > 0 )
-   {
-      pegasus_sleep(1);
-   }
-
    if (verbose)
    	cout << "sending stop to server " << endl;
    

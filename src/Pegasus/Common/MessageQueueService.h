@@ -88,8 +88,6 @@ public:
             void *handle,
             void *parameter);
 
-    Uint32 get_pending_callback_count();
-
     Boolean SendForget(Message *msg);
     Boolean ForwardOp(AsyncOpNode *, Uint32 destination);
 
@@ -166,7 +164,6 @@ protected:
 
 private:
     AsyncDQueue<AsyncOpNode> _incoming;
-    DQueue<AsyncOpNode> _callback;
     static Thread* _polling_thread;
     static Semaphore _polling_sem;
     static AtomicInt _stop_polling;
@@ -175,14 +172,10 @@ private:
     static DQueue<MessageQueueService> _polling_list;
 
     static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callback_proc(void *);
 
     static void _sendwait_callback(AsyncOpNode *, MessageQueue *, void *);
 
     AtomicInt _incoming_queue_shutdown;
-    Semaphore _callback_ready;
-
-    Thread _callback_thread;
 
 protected:
     static ThreadPool *_thread_pool;

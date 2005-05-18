@@ -34,9 +34,13 @@ ARCHITECTURE = sparc
 
 COMPILER = CC
 
-CC = CC
+CC = cc
 
-CXX = CC
+#
+# This is a hack because the Pegasus build system doesn't have a way to specify
+# flags just for the C compiler or just for the C++ compiler.
+#
+CXX = CC -pto
 
 SH = sh
 
@@ -79,9 +83,9 @@ DEFINES += -DSUNOS_5_6
 endif
 
 ifdef PEGASUS_DEBUG
-FLAGS = -g -pto -KPIC -mt -xs -xildoff
+FLAGS = -g -KPIC -mt -xs -xildoff
 else
-FLAGS = -O -pto -KPIC -mt -xildoff -s -xipo=1
+FLAGS = -O -KPIC -mt -xildoff -s -xipo=1
 endif
 
 SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet

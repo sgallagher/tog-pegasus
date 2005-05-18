@@ -97,7 +97,7 @@ int main(int argc, char** argv)
         CIMObjectPath 
             ("A.left=\"x.key=\\\"one\\\"\",right=\"y.key=\\\"two\\\"\""));
 
-    cout << argv[0] << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

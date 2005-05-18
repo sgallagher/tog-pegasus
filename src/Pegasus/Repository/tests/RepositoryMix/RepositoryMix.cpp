@@ -481,11 +481,11 @@ int main(int argc, char** argv)
     }
     catch (const Exception& e)
     {
-	cout << e.getMessage() << endl;
+	cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
 	exit(1);
     }
 
-    cout << ProgName << "+++++ passed all tests" << endl;
+    cout << ProgName << " " << argv[1] << " +++++ passed all tests" << endl;
 
     return 0;
 }

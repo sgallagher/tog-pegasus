@@ -275,11 +275,11 @@ int main(int argc, char** argv)
         test02(nsm);
     }
     catch (Exception& e) {
-	cout << e.getMessage() << endl;
+	cout << argv[0] << " " << e.getMessage() << endl;
         exit (1);
     }
 
-    cout << argv[0] << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

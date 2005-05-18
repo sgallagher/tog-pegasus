@@ -162,7 +162,7 @@ int main(int argc, char** argv)
     catch (InvalidInheritanceTree& e)
     {
         if (verbose)
-	    cout << e.getMessage() << endl;
+	    cout << argv[0] << " " << e.getMessage() << endl;
     }
     catch (Exception& e)
     {
@@ -177,7 +177,7 @@ int main(int argc, char** argv)
     it.print(cout);
 #endif
 
-    cout << argv[0] << "+++++ passed all tests" << endl;
+    cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;
 }

@@ -139,11 +139,11 @@ int main(int argc, char** argv)
     }
     catch (Exception& e)
     {
-	cout << e.getMessage() << endl;
+	cout << argv[0] << " " << argv[1] << " " << e.getMessage() << endl;
 	exit(1);
     }
 
-    cout << argv[0] << "+++++ passed all tests" << endl;
+    cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 
     return 0;
 }

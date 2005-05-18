@@ -265,7 +265,7 @@ int main(int argc, char** argv)
 		assert(false);
     }
 
-    cout << argv[0] << "+++++ passed all tests" << endl;
+    cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
 
     return 0;
 }

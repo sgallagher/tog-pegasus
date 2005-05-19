@@ -32,6 +32,7 @@
 //
 // Modified By:  
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3603
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +58,7 @@ SubscriptionTable::~SubscriptionTable ()
 {
 }
 
-Array <CIMInstance> SubscriptionTable::getActiveSubscriptions () 
+Array <CIMInstance> SubscriptionTable::getActiveSubscriptions () const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::getActiveSubscriptions");
@@ -85,7 +86,7 @@ Array <CIMInstance> SubscriptionTable::getActiveSubscriptions ()
 
 Boolean SubscriptionTable::getSubscriptionEntry (
     const CIMObjectPath & subscriptionPath,
-    ActiveSubscriptionsTableEntry & tableValue) 
+    ActiveSubscriptionsTableEntry & tableValue) const 
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::getSubscriptionEntry");
@@ -116,7 +117,7 @@ Array <CIMInstance> SubscriptionTable::getMatchingSubscriptions (
     const CIMName & supportedClass,
     const Array <CIMNamespaceName> nameSpaces,
     const Boolean checkProvider,
-    const CIMInstance & provider)
+    const CIMInstance & provider) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::getMatchingSubscriptions");
@@ -183,7 +184,7 @@ Array <CIMInstance> SubscriptionTable::getMatchingSubscriptions (
 }
 
 Array <CIMInstance> SubscriptionTable::getProviderSubscriptions (
-    const CIMInstance & provider)
+    const CIMInstance & provider) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::getProviderSubscriptions");
@@ -404,7 +405,7 @@ String SubscriptionTable::_generateActiveSubscriptionsKey (
 
 Boolean SubscriptionTable::_lockedLookupActiveSubscriptionsEntry (
     const String & key,
-    ActiveSubscriptionsTableEntry & tableEntry)
+    ActiveSubscriptionsTableEntry & tableEntry) const
 {
     ReadLock lock(_activeSubscriptionsTableLock);
 
@@ -413,7 +414,7 @@ Boolean SubscriptionTable::_lockedLookupActiveSubscriptionsEntry (
 
 void SubscriptionTable::_insertActiveSubscriptionsEntry (
     const CIMInstance & subscription,
-    const Array <ProviderClassList> & providers)
+    const Array <ProviderClassList> & providers) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_insertActiveSubscriptionsEntry");
@@ -452,7 +453,7 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
 }
 
 void SubscriptionTable::_removeActiveSubscriptionsEntry (
-    const String & key)
+    const String & key) const
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_removeActiveSubscriptionsEntry");
@@ -488,7 +489,7 @@ String SubscriptionTable::_generateSubscriptionClassesKey (
 
 Boolean SubscriptionTable::_lockedLookupSubscriptionClassesEntry (
     const String & key,
-    SubscriptionClassesTableEntry & tableEntry)
+    SubscriptionClassesTableEntry & tableEntry) const
 {
     ReadLock lock(_subscriptionClassesTableLock);
 

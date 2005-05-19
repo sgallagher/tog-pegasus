@@ -30,7 +30,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By:  
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3603
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -231,7 +231,7 @@ public:
 
         @return   list of CIMInstance subscriptions
      */
-    Array <CIMInstance> getActiveSubscriptions ();
+    Array <CIMInstance> getActiveSubscriptions () const;
 
     /**
         Retrieves the Active Subscriptions table entry for the specified 
@@ -246,7 +246,7 @@ public:
      */
     Boolean getSubscriptionEntry (
         const CIMObjectPath & subscriptionPath,
-        ActiveSubscriptionsTableEntry & tableValue);
+        ActiveSubscriptionsTableEntry & tableValue) const;
 
     /**
         Retrieves list of enabled subscription instances in the specified
@@ -268,7 +268,7 @@ public:
         const CIMName & supportedClass,
         const Array <CIMNamespaceName> nameSpaces,
         const Boolean checkProvider = false,
-        const CIMInstance & provider = CIMInstance ());
+        const CIMInstance & provider = CIMInstance ()) const;
 
     /**
         Retrieves list of enabled subscription instances in all namespaces,
@@ -282,7 +282,7 @@ public:
         @return   list of CIMInstance subscriptions
      */
     Array <CIMInstance> getProviderSubscriptions (
-        const CIMInstance & provider);
+        const CIMInstance & provider) const;
 
     /**
         Determines if the specified provider is in the list of providers 
@@ -363,7 +363,7 @@ private:
      */
     Boolean _lockedLookupActiveSubscriptionsEntry (
         const String & key,
-        ActiveSubscriptionsTableEntry & tableEntry);
+        ActiveSubscriptionsTableEntry & tableEntry) const;
 
     /**
         Inserts an entry into the Active Subscriptions table.  The caller
@@ -374,7 +374,7 @@ private:
      */
     void _insertActiveSubscriptionsEntry (
         const CIMInstance & subscription,
-        const Array <ProviderClassList> & providers);
+        const Array <ProviderClassList> & providers) const;
 
     /**
         Removes an entry from the Active Subscriptions table.  The caller
@@ -383,7 +383,7 @@ private:
         @param   key                   the key of the entry to remove
      */
     void _removeActiveSubscriptionsEntry (
-        const String & key);
+        const String & key) const;
 
     /**
         Generates a unique String key for the Subscription Classes table from
@@ -409,7 +409,7 @@ private:
      */
     Boolean _lockedLookupSubscriptionClassesEntry (
         const String & key,
-        SubscriptionClassesTableEntry & tableEntry);
+        SubscriptionClassesTableEntry & tableEntry) const;
 
     /**
         Locks the _subscriptionClassesTableLock for write access and inserts
@@ -437,7 +437,7 @@ private:
         Active Subscriptions information table.  Access to this table is
         controlled by the _activeSubscriptionsTableLock.
      */
-    ActiveSubscriptionsTable _activeSubscriptionsTable;
+    mutable ActiveSubscriptionsTable _activeSubscriptionsTable;
 
     /**
         A lock to control access to the _activeSubscriptionsTable.  Before
@@ -445,7 +445,7 @@ private:
         read access.  Before updating the _activeSubscriptionsTable, one must
         first lock this for write access.
      */
-    ReadWriteSem _activeSubscriptionsTableLock;
+    mutable ReadWriteSem _activeSubscriptionsTableLock;
 
     /**
         Subscription Classes information table.  Access to this table is
@@ -459,7 +459,7 @@ private:
         read access.  Before updating the _subscriptionClassesTable, one must
         first lock this for write access.
      */
-    ReadWriteSem _subscriptionClassesTableLock;
+    mutable ReadWriteSem _subscriptionClassesTableLock;
 
     SubscriptionRepository * _subscriptionRepository;
 };

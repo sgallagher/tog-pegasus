@@ -36,7 +36,7 @@ include $(ROOT)/test/config.mak
 ##
 ## If ordering defects, use DIFFSORT rules
 ##
-ifdef PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED
+ifeq ($(PEGASUS_ENABLE_SORTED_DIFF),true)
 XMLSCRIPTS_DS = EnumerateClasses42003 EnumerateClasses42005 
 
 XMLSCRIPTS = EnumerateClasses42000 EnumerateClasses42002  EnumerateClasses42004

@@ -36,8 +36,6 @@ USER = -u guest
 PASSWORD = -w guest
 SSL =
 
-PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED=on
-
 XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)
 XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
 

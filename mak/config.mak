@@ -209,6 +209,23 @@ endif
 
 LEX = flex
 
+## ======================================================================
+##
+## PEGASUS_ENABLE_SORTED_DIFF 
+## This controls if the DIFFSORT function is used rather than a simple DIFF of
+##  of the test results files to the static results file.
+##
+##   Set to "true" enables the sorted diffs of results to static results files.
+##   otherwise results in regular diffs of results to static results files.
+##   see bug 2283 for background information concerning this config variable. 
+##
+##  Defaults to true.
+##
+##
+ifndef PEGASUS_ENABLE_SORTED_DIFF
+PEGASUS_ENABLE_SORTED_DIFF=true
+endif
+
 ## ========================================================================
 ## DIFFSORT function definition 
 ## Here is an example using the DIFFSORT function:

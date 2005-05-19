@@ -26,6 +26,7 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
+
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     REDIRECTERROR = 2>&1
@@ -34,7 +35,6 @@ else
     REDIRECTERROR = 2>&1
 endif
 
-PEGASUS_XML_ORDERING_DEFECT_ENCOUNTERED=on
 
 ifdef DIFF
     COMPARERESULTS = @$(DIFF) $(MASTERRESULTFILE) $(RESULTFILE)

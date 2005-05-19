@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3604
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +104,7 @@ public:
      * @return true if the listener is active;
      *              false otherwise.
      */
-    Boolean isAlive();
+    Boolean isAlive() const;
 
     /**
      * Adds a CIMIndicationConsumer to the listener

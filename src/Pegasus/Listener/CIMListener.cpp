@@ -35,6 +35,7 @@
 //                David Dillard, VERITAS Software Corp.
 //                    (david.dillard@veritas.com)
 //                Vijay Eli, IBM (vijay.eli@in.ibm.com) for bug#3425
+//                Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3604
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -560,7 +561,7 @@ void CIMListener::stop()
 	static_cast<CIMListenerRep*>(_rep)->stop();
 }
 
-Boolean CIMListener::isAlive()
+Boolean CIMListener::isAlive() const
 {
 	return static_cast<CIMListenerRep*>(_rep)->isAlive();
 }

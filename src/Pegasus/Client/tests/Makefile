@@ -30,7 +30,7 @@ ROOT = ../../../../
 
 include $(ROOT)/mak/config.mak
 
-DIRS = AssociationClient Client GetInstance EnumInstNames InvokeMethod InvokeMethod2 EnumInstances DeleteNamespace ClientStatistics
+DIRS = AssociationClient Client InvokeMethod2 EnumInstances DeleteNamespace ClientStatistics
 
 DIRS_SLP = \
     slp

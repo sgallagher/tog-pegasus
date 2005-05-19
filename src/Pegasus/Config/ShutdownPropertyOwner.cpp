@@ -31,6 +31,7 @@
 //
 // Modified By:  Sushma Fernandes, Hewlett-Packard Company
 //                   (sushma_fernandes@hp.com)
+//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +151,7 @@ void ShutdownPropertyOwner::getPropertyInfo(
 /** 
 Get default value of the specified property.
 */
-const String ShutdownPropertyOwner::getDefaultValue(const String& name)
+String ShutdownPropertyOwner::getDefaultValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
@@ -159,7 +160,7 @@ const String ShutdownPropertyOwner::getDefaultValue(const String& name)
 /** 
 Get current value of the specified property.
 */
-const String ShutdownPropertyOwner::getCurrentValue(const String& name)
+String ShutdownPropertyOwner::getCurrentValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
@@ -168,7 +169,7 @@ const String ShutdownPropertyOwner::getCurrentValue(const String& name)
 /** 
 Get planned value of the specified property.
 */
-const String ShutdownPropertyOwner::getPlannedValue(const String& name)
+String ShutdownPropertyOwner::getPlannedValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;

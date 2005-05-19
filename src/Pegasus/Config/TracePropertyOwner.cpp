@@ -31,6 +31,7 @@
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -252,7 +253,7 @@ void TracePropertyOwner::getPropertyInfo(
 /** 
 Get default value of the specified property.
 */
-const String TracePropertyOwner::getDefaultValue(const String& name)
+String TracePropertyOwner::getDefaultValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
@@ -261,7 +262,7 @@ const String TracePropertyOwner::getDefaultValue(const String& name)
 /** 
 Get current value of the specified property.
 */
-const String TracePropertyOwner::getCurrentValue(const String& name)
+String TracePropertyOwner::getCurrentValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
@@ -270,7 +271,7 @@ const String TracePropertyOwner::getCurrentValue(const String& name)
 /** 
 Get planned value of the specified property.
 */
-const String TracePropertyOwner::getPlannedValue(const String& name)
+String TracePropertyOwner::getPlannedValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;

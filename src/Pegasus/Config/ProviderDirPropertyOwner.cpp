@@ -29,6 +29,7 @@
 //
 // Author: Konrad Rzeszutek <konradr@us.ibm.com>
 //
+// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -203,7 +204,7 @@ void ProviderDirPropertyOwner::getPropertyInfo(
 /**
 Get default value of the specified property.
 */
-const String ProviderDirPropertyOwner::getDefaultValue(const String& name)
+String ProviderDirPropertyOwner::getDefaultValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
@@ -212,7 +213,7 @@ const String ProviderDirPropertyOwner::getDefaultValue(const String& name)
 /** 
 Get current value of the specified property.
 */
-const String ProviderDirPropertyOwner::getCurrentValue(const String& name)
+String ProviderDirPropertyOwner::getCurrentValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
@@ -221,7 +222,7 @@ const String ProviderDirPropertyOwner::getCurrentValue(const String& name)
 /** 
 Get planned value of the specified property.
 */
-const String ProviderDirPropertyOwner::getPlannedValue(const String& name)
+String ProviderDirPropertyOwner::getPlannedValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;

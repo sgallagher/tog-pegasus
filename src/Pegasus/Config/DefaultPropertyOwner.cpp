@@ -33,6 +33,7 @@
 //              Warren Otsuka (warren.otsuka@hp.com)
 //              Sushma Fernandes, Hewlett-Packard Company
 //                     (sushma_fernandes@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +140,7 @@ void DefaultPropertyOwner::getPropertyInfo(
 /**
 Get default value of the specified property
 */
-const String DefaultPropertyOwner::getDefaultValue(const String& name)
+String DefaultPropertyOwner::getDefaultValue(const String& name)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -158,7 +159,7 @@ const String DefaultPropertyOwner::getDefaultValue(const String& name)
 /**
 Get current value of the specified property
 */
-const String DefaultPropertyOwner::getCurrentValue(const String& name)
+String DefaultPropertyOwner::getCurrentValue(const String& name)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -177,7 +178,7 @@ const String DefaultPropertyOwner::getCurrentValue(const String& name)
 /**
 Get planned value of the specified property
 */
-const String DefaultPropertyOwner::getPlannedValue(const String& name)
+String DefaultPropertyOwner::getPlannedValue(const String& name)
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {

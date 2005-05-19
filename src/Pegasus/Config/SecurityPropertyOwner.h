@@ -34,6 +34,7 @@
 //              Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +96,7 @@ public:
     @return string containing the default value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    const String getDefaultValue(const String& name);
+    String getDefaultValue(const String& name);
         //throw (UnrecognizedConfigProperty);
 
 
@@ -106,7 +107,7 @@ public:
     @return string containing the currnet value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    const String getCurrentValue(const String& name);
+    String getCurrentValue(const String& name);
         //throw (UnrecognizedConfigProperty);
 
 
@@ -117,7 +118,7 @@ public:
     @return string containing the planned value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    const String getPlannedValue(const String& name);
+    String getPlannedValue(const String& name);
         //throw (UnrecognizedConfigProperty);
 
 

@@ -30,8 +30,8 @@
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By: Yi Zhou (yi_zhou@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -178,7 +178,7 @@ void LogPropertyOwner::getPropertyInfo(
 /**
 Get default value of the specified property.
 */
-const String LogPropertyOwner::getDefaultValue(const String& name)
+String LogPropertyOwner::getDefaultValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
@@ -187,7 +187,7 @@ const String LogPropertyOwner::getDefaultValue(const String& name)
 /**
 Get current value of the specified property.
 */
-const String LogPropertyOwner::getCurrentValue(const String& name)
+String LogPropertyOwner::getCurrentValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
@@ -196,7 +196,7 @@ const String LogPropertyOwner::getCurrentValue(const String& name)
 /**
 Get planned value of the specified property.
 */
-const String LogPropertyOwner::getPlannedValue(const String& name)
+String LogPropertyOwner::getPlannedValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;

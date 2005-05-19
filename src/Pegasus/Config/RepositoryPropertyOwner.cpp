@@ -32,7 +32,7 @@
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                sushma_fernandes@hp.com
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com), for PEP 164
-//
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -178,7 +178,7 @@ void RepositoryPropertyOwner::getPropertyInfo(
 /** 
 Get default value of the specified property.
 */
-const String RepositoryPropertyOwner::getDefaultValue(const String& name)
+String RepositoryPropertyOwner::getDefaultValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
@@ -187,7 +187,7 @@ const String RepositoryPropertyOwner::getDefaultValue(const String& name)
 /** 
 Get current value of the specified property.
 */
-const String RepositoryPropertyOwner::getCurrentValue(const String& name)
+String RepositoryPropertyOwner::getCurrentValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
@@ -196,7 +196,7 @@ const String RepositoryPropertyOwner::getCurrentValue(const String& name)
 /** 
 Get planned value of the specified property.
 */
-const String RepositoryPropertyOwner::getPlannedValue(const String& name)
+String RepositoryPropertyOwner::getPlannedValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;

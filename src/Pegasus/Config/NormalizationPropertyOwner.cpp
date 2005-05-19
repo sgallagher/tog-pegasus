@@ -29,7 +29,7 @@
 //
 // Author:  Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -114,21 +114,21 @@ void NormalizationPropertyOwner::getPropertyInfo(const String & name, Array<Stri
     }
 }
 
-const String NormalizationPropertyOwner::getDefaultValue(const String & name)
+String NormalizationPropertyOwner::getDefaultValue(const String & name)
 {
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return(configProperty->defaultValue);
 }
 
-const String NormalizationPropertyOwner::getCurrentValue(const String & name)
+String NormalizationPropertyOwner::getCurrentValue(const String & name)
 {
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return(configProperty->currentValue);
 }
 
-const String NormalizationPropertyOwner::getPlannedValue(const String & name)
+String NormalizationPropertyOwner::getPlannedValue(const String & name)
 {
     struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 

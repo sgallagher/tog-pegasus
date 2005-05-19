@@ -29,6 +29,7 @@
 //
 // Author: Sushma Fernandes (sushma_fernandes@hp.com)
 //
+// Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -179,7 +180,7 @@ void FileSystemPropertyOwner::getPropertyInfo(
 /**
 Get default value of the specified property.
 */
-const String FileSystemPropertyOwner::getDefaultValue(const String& name)
+String FileSystemPropertyOwner::getDefaultValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
@@ -188,7 +189,7 @@ const String FileSystemPropertyOwner::getDefaultValue(const String& name)
 /** 
 Get current value of the specified property.
 */
-const String FileSystemPropertyOwner::getCurrentValue(const String& name)
+String FileSystemPropertyOwner::getCurrentValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
@@ -197,7 +198,7 @@ const String FileSystemPropertyOwner::getCurrentValue(const String& name)
 /** 
 Get planned value of the specified property.
 */
-const String FileSystemPropertyOwner::getPlannedValue(const String& name)
+String FileSystemPropertyOwner::getPlannedValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;

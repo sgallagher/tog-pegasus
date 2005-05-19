@@ -32,6 +32,7 @@
 // Modified By:
 //      Sushma Fernandes, Hewlett-Packard Company, sushma_fernandes@hp.com
 //      Chip Vincent (cvincent@us.ibm.com)
+//      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +102,7 @@ public:
     @return string containing the default value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual const String getDefaultValue(const String& name) = 0;
+    virtual String getDefaultValue(const String& name) = 0;
         //throw (UnrecognizedConfigProperty) = 0;
 
 
@@ -112,7 +113,7 @@ public:
     @return string containing the currnet value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual const String getCurrentValue(const String& name) = 0;
+    virtual String getCurrentValue(const String& name) = 0;
         //throw (UnrecognizedConfigProperty) = 0;
 
 
@@ -123,7 +124,7 @@ public:
     @return string containing the planned value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual const String getPlannedValue(const String& name) = 0;
+    virtual String getPlannedValue(const String& name) = 0;
         //throw (UnrecognizedConfigProperty) = 0;
 
 

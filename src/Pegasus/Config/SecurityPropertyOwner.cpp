@@ -34,7 +34,7 @@
 //       Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
 //       Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //       Heather Sterling, IBM (hsterl@us.ibm.com)
-//
+//       Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -503,7 +503,7 @@ void SecurityPropertyOwner::getPropertyInfo(
 /** 
 Get default value of the specified property.
 */
-const String SecurityPropertyOwner::getDefaultValue(const String& name)
+String SecurityPropertyOwner::getDefaultValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
@@ -512,7 +512,7 @@ const String SecurityPropertyOwner::getDefaultValue(const String& name)
 /** 
 Get current value of the specified property.
 */
-const String SecurityPropertyOwner::getCurrentValue(const String& name)
+String SecurityPropertyOwner::getCurrentValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
@@ -521,7 +521,7 @@ const String SecurityPropertyOwner::getCurrentValue(const String& name)
 /** 
 Get planned value of the specified property.
 */
-const String SecurityPropertyOwner::getPlannedValue(const String& name)
+String SecurityPropertyOwner::getPlannedValue(const String& name)
 {
     struct ConfigProperty* configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;

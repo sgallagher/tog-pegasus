@@ -29,7 +29,7 @@
 //
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:
+// Modified By:  Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3606
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +112,7 @@ public:
     @param  passwordTable    hash table containing the user name and password.
     @exception  CannotRenameFile  if failed to create the backup file.
     */
-    void save(PasswordTable& passwordTable);
+    void save(const PasswordTable& passwordTable);
         //throw (CannotRenameFile);
 
 };

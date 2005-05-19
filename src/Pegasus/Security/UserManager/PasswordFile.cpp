@@ -31,7 +31,7 @@
 //
 // Modified By: Amit K Arora, IBM (amita@in.ibm.com) for Bug#1519
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#1791
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#1791, Bug#3606
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -282,7 +282,7 @@ void PasswordFile::load (PasswordTable& passwordTable)
 /** 
     Save the username and password to the password file.
 */
-void PasswordFile::save (PasswordTable& passwordTable)
+void PasswordFile::save (const PasswordTable& passwordTable)
 {
     PEG_METHOD_ENTER(TRC_USER_MANAGER, "PasswordFile::save");
 

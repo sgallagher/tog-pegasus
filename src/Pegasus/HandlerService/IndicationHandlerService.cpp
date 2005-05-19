@@ -383,11 +383,12 @@ void IndicationHandlerService::_loadHandler(
     CIMException & cimException)
 {
     CIMName className = request->handlerInstance.getClassName();
+
     try
     {
-        AutoPtr<CIMHandler> handlerLib(_lookupHandlerForClass(className));
+        CIMHandler * handlerLib = _lookupHandlerForClass(className);
 
-        if (handlerLib.get())
+        if (handlerLib)
         {
 	    ContentLanguages langs = 
                 ((ContentLanguageListContainer)request->operationContext.
@@ -409,7 +410,6 @@ void IndicationHandlerService::_loadHandler(
                 "Failed to load Handler"));
         }
 
-        handlerLib.release();
     }
     catch (Exception& e)
     {

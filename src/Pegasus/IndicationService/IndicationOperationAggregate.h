@@ -31,6 +31,7 @@
 //             (carolann_graves@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +83,7 @@ public:
         @return  TRUE, if valid
                  FALSE, otherwise
     */
-    Boolean valid();
+    Boolean valid() const;
     
     /**
         Gets the original request, if any,  received by the IndicationService 
@@ -93,7 +94,7 @@ public:
         @return  a pointer to the request, if there is a request
                  0, otherwise
     */
-    CIMRequestMessage* getOrigRequest();
+    CIMRequestMessage* getOrigRequest() const;
 
     /**
         Gets the message type of the original request, if any, received by the 
@@ -102,7 +103,7 @@ public:
         @return  the request type, if there is a request
                  0, otherwise
     */
-    Uint32 getOrigType();
+    Uint32 getOrigType() const;
 
     /**
         Gets the message ID of the original request, if any, received by the 
@@ -111,7 +112,7 @@ public:
         @return  the message ID, if there is a request
                  String::EMPTY, otherwise
     */
-    String getOrigMessageId();
+    String getOrigMessageId() const;
 
     /**
         Gets the destination of the original request, if any, received by the 
@@ -120,7 +121,7 @@ public:
         @return  the destination, if there is a request
                  0, otherwise
     */
-    Uint32 getOrigDest();
+    Uint32 getOrigDest() const;
 
     /**
         Determines if the original request requires a response, based on the 
@@ -130,7 +131,7 @@ public:
         @return  TRUE, if original request requires a response
                  FALSE, otherwise
     */
-    Boolean requiresResponse();
+    Boolean requiresResponse() const;
     
     /**
         Gets the list of indication subclasses for the subscription.
@@ -161,7 +162,7 @@ public:
 
         @return  number of requests to be issued
     */
-    Uint32 getNumberIssued();
+    Uint32 getNumberIssued() const;
 
     /**
         Sets the number of requests to be issued for this aggregation.
@@ -185,7 +186,7 @@ public:
 
         @return  count of responses received
     */
-    Uint32 getNumberResponses();
+    Uint32 getNumberResponses() const;
 
     /**
         Gets the response at the specified position in the list for this 
@@ -193,7 +194,7 @@ public:
 
         @return  a pointer to the response
     */
-    CIMResponseMessage* getResponse(Uint32 pos);
+    CIMResponseMessage* getResponse(Uint32 pos) const;
 
     /**
         Deletes the response at the specified position in the list for this 
@@ -216,7 +217,7 @@ public:
 
         @return  count of requests issued
     */
-    Uint32 getNumberRequests();
+    Uint32 getNumberRequests() const;
 
     /**
         Gets the request at the specified position in the list for this 
@@ -224,7 +225,7 @@ public:
 
         @return  a pointer to the request
     */
-    CIMRequestMessage* getRequest(Uint32 pos);
+    CIMRequestMessage* getRequest(Uint32 pos) const;
 
     /**
         Deletes the request at the specified position in the list for this 
@@ -241,7 +242,7 @@ public:
         @return  a ProviderClassList struct for the provider that sent the 
                      response
     */
-    ProviderClassList findProvider(const String& messageId);
+    ProviderClassList findProvider(const String& messageId) const;
     
 private:
     /** 

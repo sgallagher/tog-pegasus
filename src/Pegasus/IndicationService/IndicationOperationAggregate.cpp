@@ -33,6 +33,7 @@
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -80,17 +81,17 @@ IndicationOperationAggregate::~IndicationOperationAggregate()
     }
 }
 
-Boolean IndicationOperationAggregate::valid()
+Boolean IndicationOperationAggregate::valid() const
 {
     return (_magicNumber == _theMagicNumber) ? true: false;
 }
 
-CIMRequestMessage* IndicationOperationAggregate::getOrigRequest()
+CIMRequestMessage* IndicationOperationAggregate::getOrigRequest() const
 {
     return _origRequest;
 }
 
-Uint32 IndicationOperationAggregate::getOrigType()
+Uint32 IndicationOperationAggregate::getOrigType() const
 {
     if (_origRequest == 0)
     {
@@ -102,7 +103,7 @@ Uint32 IndicationOperationAggregate::getOrigType()
     }
 }
 
-String IndicationOperationAggregate::getOrigMessageId()
+String IndicationOperationAggregate::getOrigMessageId() const
 {
     if (_origRequest == 0)
     {
@@ -114,7 +115,7 @@ String IndicationOperationAggregate::getOrigMessageId()
     }
 }
 
-Uint32 IndicationOperationAggregate::getOrigDest()
+Uint32 IndicationOperationAggregate::getOrigDest() const
 {
     if (_origRequest == 0)
     {
@@ -126,7 +127,7 @@ Uint32 IndicationOperationAggregate::getOrigDest()
     }
 }
 
-Boolean IndicationOperationAggregate::requiresResponse()
+Boolean IndicationOperationAggregate::requiresResponse() const
 {
     if ((getOrigType() == CIM_CREATE_INSTANCE_REQUEST_MESSAGE) ||
         (getOrigType() == CIM_MODIFY_INSTANCE_REQUEST_MESSAGE) ||
@@ -155,7 +156,7 @@ const CIMObjectPath& IndicationOperationAggregate::getPath()
     return _path;
 }
 
-Uint32 IndicationOperationAggregate::getNumberIssued()
+Uint32 IndicationOperationAggregate::getNumberIssued() const
 {
     return _numberIssued;
 }
@@ -175,12 +176,12 @@ Boolean IndicationOperationAggregate::appendResponse(
     return returnValue;
 }
 
-Uint32 IndicationOperationAggregate::getNumberResponses()
+Uint32 IndicationOperationAggregate::getNumberResponses() const
 {
     return _responseList.size();
 }
 
-CIMResponseMessage* IndicationOperationAggregate::getResponse(Uint32 pos)
+CIMResponseMessage* IndicationOperationAggregate::getResponse(Uint32 pos) const
 {
     return _responseList[pos];
 }
@@ -199,12 +200,12 @@ void IndicationOperationAggregate::appendRequest(
     
 }
 
-Uint32 IndicationOperationAggregate::getNumberRequests()
+Uint32 IndicationOperationAggregate::getNumberRequests() const
 {
     return _requestList.size();
 }
 
-CIMRequestMessage* IndicationOperationAggregate::getRequest(Uint32 pos)
+CIMRequestMessage* IndicationOperationAggregate::getRequest(Uint32 pos) const
 {
     return _requestList[pos];
 }
@@ -216,7 +217,7 @@ void IndicationOperationAggregate::deleteRequest(Uint32 pos)
 }
 
 ProviderClassList IndicationOperationAggregate::findProvider(
-    const String& messageId)
+    const String& messageId) const
 {
     //
     //  Look in the list of requests for the request with the message ID 

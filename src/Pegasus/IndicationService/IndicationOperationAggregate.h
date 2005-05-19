@@ -30,7 +30,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company 
 //             (carolann_graves@hp.com)
 //
-// Modified By: 
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,11 +69,11 @@ public:
         @param   indicationSubclasses  the list of indication subclasses for the
                                            subscription
      */
-    IndicationOperationAggregate (
-        CIMRequestMessage * origRequest,
-        const Array <CIMName> & indicationSubclasses);
+    IndicationOperationAggregate(
+        CIMRequestMessage* origRequest,
+        const Array<CIMName>& indicationSubclasses);
 
-    ~IndicationOperationAggregate ();
+    ~IndicationOperationAggregate();
 
     /**
         Determines if the instance is valid, based on the magic number set 
@@ -82,7 +82,7 @@ public:
         @return  TRUE, if valid
                  FALSE, otherwise
     */
-    Boolean valid ();
+    Boolean valid();
     
     /**
         Gets the original request, if any,  received by the IndicationService 
@@ -93,7 +93,7 @@ public:
         @return  a pointer to the request, if there is a request
                  0, otherwise
     */
-    CIMRequestMessage * getOrigRequest ();
+    CIMRequestMessage* getOrigRequest();
 
     /**
         Gets the message type of the original request, if any, received by the 
@@ -102,7 +102,7 @@ public:
         @return  the request type, if there is a request
                  0, otherwise
     */
-    Uint32 getOrigType ();
+    Uint32 getOrigType();
 
     /**
         Gets the message ID of the original request, if any, received by the 
@@ -111,7 +111,7 @@ public:
         @return  the message ID, if there is a request
                  String::EMPTY, otherwise
     */
-    String getOrigMessageId ();
+    String getOrigMessageId();
 
     /**
         Gets the destination of the original request, if any, received by the 
@@ -120,7 +120,7 @@ public:
         @return  the destination, if there is a request
                  0, otherwise
     */
-    Uint32 getOrigDest ();
+    Uint32 getOrigDest();
 
     /**
         Determines if the original request requires a response, based on the 
@@ -130,14 +130,14 @@ public:
         @return  TRUE, if original request requires a response
                  FALSE, otherwise
     */
-    Boolean requiresResponse ();
+    Boolean requiresResponse();
     
     /**
         Gets the list of indication subclasses for the subscription.
 
         @return  the list of indication subclasses
     */
-    Array <CIMName> & getIndicationSubclasses ();
+    Array<CIMName>& getIndicationSubclasses();
 
     /**
         Stores the object path of the created instance in the operation 
@@ -146,7 +146,7 @@ public:
 
         @param   path                  the object path of the created instance
     */
-    void setPath (const CIMObjectPath & path);
+    void setPath(const CIMObjectPath& path);
 
     /**
         Gets the object path of the created instance, if original request was
@@ -154,21 +154,21 @@ public:
 
         @return  CIMObjectPath of the created instance
     */
-    CIMObjectPath & getPath ();
+    const CIMObjectPath& getPath();
 
     /**
         Gets the number of requests to be issued for this aggregation.
 
         @return  number of requests to be issued
     */
-    Uint32 getNumberIssued ();
+    Uint32 getNumberIssued();
 
     /**
         Sets the number of requests to be issued for this aggregation.
 
         @param   i                     the number of requests
     */
-    void setNumberIssued (Uint32 i);
+    void setNumberIssued(Uint32 i);
 
     /**
         Appends a new response to the response list for this aggregation.  
@@ -178,14 +178,14 @@ public:
         @return  TRUE, if all expected responses have now been received
                  FALSE, otherwise
     */
-    Boolean appendResponse (CIMResponseMessage * response);
+    Boolean appendResponse(CIMResponseMessage* response);
 
     /**
         Gets the count of responses received for this aggregation.
 
         @return  count of responses received
     */
-    Uint32 getNumberResponses ();
+    Uint32 getNumberResponses();
 
     /**
         Gets the response at the specified position in the list for this 
@@ -193,7 +193,7 @@ public:
 
         @return  a pointer to the response
     */
-    CIMResponseMessage * getResponse (const Uint32 & pos);
+    CIMResponseMessage* getResponse(Uint32 pos);
 
     /**
         Deletes the response at the specified position in the list for this 
@@ -202,21 +202,21 @@ public:
         @param   pos                   the position in the list of the response
                                            to be deleted
     */
-    void deleteResponse (const Uint32 & pos);
+    void deleteResponse(Uint32 pos);
 
     /**
         Appends a new request to the request list for this aggregation.  
 
         @param   request               the request
     */
-    void appendRequest (CIMRequestMessage * request);
+    void appendRequest(CIMRequestMessage* request);
 
     /**
         Gets the count of requests issued for this aggregation.
 
         @return  count of requests issued
     */
-    Uint32 getNumberRequests ();
+    Uint32 getNumberRequests();
 
     /**
         Gets the request at the specified position in the list for this 
@@ -224,7 +224,7 @@ public:
 
         @return  a pointer to the request
     */
-    CIMRequestMessage * getRequest (const Uint32 & pos);
+    CIMRequestMessage* getRequest(Uint32 pos);
 
     /**
         Deletes the request at the specified position in the list for this 
@@ -233,7 +233,7 @@ public:
         @param   pos                   the position in the list of the request
                                            to be deleted
     */
-    void deleteRequest (const Uint32 & pos);
+    void deleteRequest(Uint32 pos);
 
     /**
         Finds the provider that sent the response with the specified message ID.
@@ -241,21 +241,32 @@ public:
         @return  a ProviderClassList struct for the provider that sent the 
                      response
     */
-    ProviderClassList findProvider (const String & messageId);
+    ProviderClassList findProvider(const String& messageId);
     
 private:
     /** 
+        Hidden (unimplemented) default constructor
+     */
+    IndicationOperationAggregate();
+
+    /** 
         Hidden (unimplemented) copy constructor
      */
-    IndicationOperationAggregate (const IndicationOperationAggregate & x) { }
+    IndicationOperationAggregate(const IndicationOperationAggregate& x);
 
-    CIMRequestMessage * _origRequest;
-    Array <CIMName> _indicationSubclasses;
+    /** 
+        Hidden (unimplemented) assignment operator
+     */
+    IndicationOperationAggregate& operator==(
+        const IndicationOperationAggregate& x);
+
+    CIMRequestMessage* _origRequest;
+    Array<CIMName> _indicationSubclasses;
     CIMObjectPath _path;
     Uint32 _numberIssued;
-    Array <CIMRequestMessage *> _requestList;
+    Array<CIMRequestMessage*> _requestList;
     Mutex _appendRequestMutex;
-    Array <CIMResponseMessage *> _responseList;
+    Array<CIMResponseMessage*> _responseList;
     Mutex _appendResponseMutex;
     Uint32 _magicNumber;
     static const Uint32 _theMagicNumber;

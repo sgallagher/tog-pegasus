@@ -32,6 +32,7 @@
 //
 // Modified By: Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,53 +44,53 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-IndicationOperationAggregate::IndicationOperationAggregate (
-    CIMRequestMessage * origRequest,
-    const Array <CIMName> & indicationSubclasses)
-:   _origRequest (origRequest),
-    _indicationSubclasses (indicationSubclasses),
-    _numberIssued (0),
-    _magicNumber (_theMagicNumber)
+IndicationOperationAggregate::IndicationOperationAggregate(
+    CIMRequestMessage* origRequest,
+    const Array<CIMName>& indicationSubclasses)
+:   _origRequest(origRequest),
+    _indicationSubclasses(indicationSubclasses),
+    _numberIssued(0),
+    _magicNumber(_theMagicNumber)
 {}
 
-IndicationOperationAggregate::~IndicationOperationAggregate ()
+IndicationOperationAggregate::~IndicationOperationAggregate()
 {
     _magicNumber = 0;
     if (_origRequest)
     {
         delete _origRequest;
     }
-    Uint32 numberRequests = getNumberRequests ();
+    Uint32 numberRequests = getNumberRequests();
     for (Uint32 i = 0; i < numberRequests; i++)
     {
         //
         //  Since deleteRequest also removes the element from the array, 
         //  delete first element of the array each time
         //
-        deleteRequest (0);
+        deleteRequest(0);
     }
-    Uint32 numberResponses = getNumberResponses ();
+    Uint32 numberResponses = getNumberResponses();
     for (Uint32 j = 0; j < numberResponses; j++)
     {
         //
         //  Since deleteResponse also removes the element from the array, 
         //  delete first element of the array each time
         //
-        deleteResponse (0);
+        deleteResponse(0);
     }
 }
 
-Boolean IndicationOperationAggregate::valid ()
+Boolean IndicationOperationAggregate::valid()
 {
     return (_magicNumber == _theMagicNumber) ? true: false;
 }
 
-CIMRequestMessage * IndicationOperationAggregate::getOrigRequest ()
+CIMRequestMessage* IndicationOperationAggregate::getOrigRequest()
 {
     return _origRequest;
 }
 
-Uint32 IndicationOperationAggregate::getOrigType ()
+Uint32 IndicationOperationAggregate::getOrigType()
 {
     if (_origRequest == 0)
     {
@@ -97,11 +98,11 @@ Uint32 IndicationOperationAggregate::getOrigType ()
     }
     else
     {
-        return _origRequest->getType ();
+        return _origRequest->getType();
     }
 }
 
-String IndicationOperationAggregate::getOrigMessageId ()
+String IndicationOperationAggregate::getOrigMessageId()
 {
     if (_origRequest == 0)
     {
@@ -113,7 +114,7 @@ String IndicationOperationAggregate::getOrigMessageId ()
     }
 }
 
-Uint32 IndicationOperationAggregate::getOrigDest ()
+Uint32 IndicationOperationAggregate::getOrigDest()
 {
     if (_origRequest == 0)
     {
@@ -121,15 +122,15 @@ Uint32 IndicationOperationAggregate::getOrigDest ()
     }
     else
     {
-        return _origRequest->queueIds.top ();
+        return _origRequest->queueIds.top();
     }
 }
 
-Boolean IndicationOperationAggregate::requiresResponse ()
+Boolean IndicationOperationAggregate::requiresResponse()
 {
-    if ((getOrigType () == CIM_CREATE_INSTANCE_REQUEST_MESSAGE) ||
-        (getOrigType () == CIM_MODIFY_INSTANCE_REQUEST_MESSAGE) ||
-        (getOrigType () == CIM_DELETE_INSTANCE_REQUEST_MESSAGE))
+    if ((getOrigType() == CIM_CREATE_INSTANCE_REQUEST_MESSAGE) ||
+        (getOrigType() == CIM_MODIFY_INSTANCE_REQUEST_MESSAGE) ||
+        (getOrigType() == CIM_DELETE_INSTANCE_REQUEST_MESSAGE))
     {
         return true;
     }
@@ -139,107 +140,103 @@ Boolean IndicationOperationAggregate::requiresResponse ()
     }
 }
 
-Array <CIMName> & IndicationOperationAggregate::getIndicationSubclasses ()
+Array<CIMName>& IndicationOperationAggregate::getIndicationSubclasses()
 {
     return _indicationSubclasses;
 }
 
-void IndicationOperationAggregate::setPath (const CIMObjectPath & path)
+void IndicationOperationAggregate::setPath(const CIMObjectPath& path)
 {
     _path = path;
 }
 
-CIMObjectPath & IndicationOperationAggregate::getPath ()
+const CIMObjectPath& IndicationOperationAggregate::getPath()
 {
     return _path;
 }
 
-Uint32 IndicationOperationAggregate::getNumberIssued ()
+Uint32 IndicationOperationAggregate::getNumberIssued()
 {
     return _numberIssued;
 }
 
-void IndicationOperationAggregate::setNumberIssued (Uint32 i)
+void IndicationOperationAggregate::setNumberIssued(Uint32 i)
 {
     _numberIssued = i;
 }
 
-Boolean IndicationOperationAggregate::appendResponse (
-    CIMResponseMessage * response)
+Boolean IndicationOperationAggregate::appendResponse(
+    CIMResponseMessage* response)
 {
     AutoMutex autoMut(_appendResponseMutex);
-    _responseList.append (response);
-    Boolean returnValue = (getNumberResponses () == getNumberIssued ());
+    _responseList.append(response);
+    Boolean returnValue = (getNumberResponses() == getNumberIssued());
     
     return returnValue;
 }
 
-Uint32 IndicationOperationAggregate::getNumberResponses ()
+Uint32 IndicationOperationAggregate::getNumberResponses()
 {
-    return _responseList.size ();
+    return _responseList.size();
 }
 
-CIMResponseMessage * IndicationOperationAggregate::getResponse (
-    const Uint32 & pos)
+CIMResponseMessage* IndicationOperationAggregate::getResponse(Uint32 pos)
 {
-    return _responseList [pos];
+    return _responseList[pos];
 }
 
-void IndicationOperationAggregate::deleteResponse (
-    const Uint32 & pos)
+void IndicationOperationAggregate::deleteResponse(Uint32 pos)
 {
-    delete _responseList [pos];
-    _responseList.remove (pos);
+    delete _responseList[pos];
+    _responseList.remove(pos);
 }
 
-void IndicationOperationAggregate::appendRequest (
-    CIMRequestMessage * request)
+void IndicationOperationAggregate::appendRequest(
+    CIMRequestMessage* request)
 {
     AutoMutex autoMut(_appendRequestMutex);
-    _requestList.append (request);
+    _requestList.append(request);
     
 }
 
-Uint32 IndicationOperationAggregate::getNumberRequests ()
+Uint32 IndicationOperationAggregate::getNumberRequests()
 {
-    return _requestList.size ();
+    return _requestList.size();
 }
 
-CIMRequestMessage * IndicationOperationAggregate::getRequest (
-    const Uint32 & pos)
+CIMRequestMessage* IndicationOperationAggregate::getRequest(Uint32 pos)
 {
-    return _requestList [pos];
+    return _requestList[pos];
 }
 
-void IndicationOperationAggregate::deleteRequest (
-    const Uint32 & pos)
+void IndicationOperationAggregate::deleteRequest(Uint32 pos)
 {
-    delete _requestList [pos];
-    _requestList.remove (pos);
+    delete _requestList[pos];
+    _requestList.remove(pos);
 }
 
-ProviderClassList IndicationOperationAggregate::findProvider (
-    const String & messageId)
+ProviderClassList IndicationOperationAggregate::findProvider(
+    const String& messageId)
 {
     //
     //  Look in the list of requests for the request with the message ID 
     //  corresponding to the message ID in the response
     //
     ProviderClassList provider;
-    Uint32 numberRequests = getNumberRequests ();
+    Uint32 numberRequests = getNumberRequests();
     for (Uint32 i = 0; i < numberRequests; i++)
     {
-        if (getRequest (i)->messageId == messageId )
+        if (getRequest(i)->messageId == messageId )
         {
             //
             //  Get the provider and provider module from the matching request
             //
-            switch (getRequest (i)->getType ())
+            switch (getRequest(i)->getType())
             {
                 case CIM_CREATE_SUBSCRIPTION_REQUEST_MESSAGE:
                 {
-                    CIMCreateSubscriptionRequestMessage * request =
-                        (CIMCreateSubscriptionRequestMessage *) getRequest (i);
+                    CIMCreateSubscriptionRequestMessage* request =
+                        (CIMCreateSubscriptionRequestMessage *) getRequest(i);
                     ProviderIdContainer pidc = request->operationContext.get
                         (ProviderIdContainer::NAME); 
                     provider.provider = pidc.getProvider();
@@ -250,8 +247,8 @@ ProviderClassList IndicationOperationAggregate::findProvider (
         
                 case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
                 {
-                    CIMDeleteSubscriptionRequestMessage * request =
-                        (CIMDeleteSubscriptionRequestMessage *) getRequest (i);
+                    CIMDeleteSubscriptionRequestMessage* request =
+                        (CIMDeleteSubscriptionRequestMessage *) getRequest(i);
                     ProviderIdContainer pidc = request->operationContext.get
                         (ProviderIdContainer::NAME); 
                     provider.provider = pidc.getProvider();
@@ -262,11 +259,11 @@ ProviderClassList IndicationOperationAggregate::findProvider (
         
                 default:
                 {
-                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL2,
+                    PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL2,
                         "Unexpected request type " + String 
-                        (MessageTypeToString (getRequest (i)->getType ())) +
+                        (MessageTypeToString(getRequest(i)->getType())) +
                         " in findProvider");
-                    PEGASUS_ASSERT (false);
+                    PEGASUS_ASSERT(false);
                 break;
                 }
             }
@@ -278,7 +275,7 @@ ProviderClassList IndicationOperationAggregate::findProvider (
     //
     //  No request found with message ID matching message ID from response
     //
-    PEGASUS_ASSERT (false);
+    PEGASUS_ASSERT(false);
     return provider;
 }
 

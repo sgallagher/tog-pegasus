@@ -187,7 +187,7 @@ Uint32 AcceptLanguages::remove(const AcceptLanguageElement& element)
     return rc;
 }
 
-Sint32 AcceptLanguages::find(const AcceptLanguageElement& element) const
+Uint32 AcceptLanguages::find(const AcceptLanguageElement& element) const
 {
     for (Uint32 i = 0; i < _rep->container.size(); i++)
     {
@@ -203,10 +203,10 @@ Sint32 AcceptLanguages::find(const AcceptLanguageElement& element) const
             }
         }
     }
-    return -1;
+    return PEG_NOT_FOUND;
 }
 
-Sint32 AcceptLanguages::find(String language_tag, Real32 quality) const
+Uint32 AcceptLanguages::find(String language_tag, Real32 quality) const
 {
     return find(AcceptLanguageElement(language_tag,quality));
 }

@@ -163,9 +163,9 @@ public:
     /**
         Finds the element in the container and returns its position.
         @param element AcceptLanguageElement - element to find
-        @return int index of element if found, otherwise -1
+        @return int index of element if found, otherwise PEG_NOT_FOUND
      */
-    Sint32 find(const AcceptLanguageElement& element) const;
+    Uint32 find(const AcceptLanguageElement& element) const;
 
     /**
         Finds the element in the container that matches the language_tag and
@@ -173,9 +173,9 @@ public:
         @param language_tag The language tag string of the element to find
         (based on case-insensitive comparison).
         @param quality Real32 language_tag quality value of the element to find
-        @return int index of element if found, otherwise -1
+        @return int index of element if found, otherwise PEG_NOT_FOUND
      */
-    Sint32 find(String language_tag, Real32 quality) const;
+    Uint32 find(String language_tag, Real32 quality) const;
 
     static AcceptLanguages getDefaultAcceptLanguages();
 

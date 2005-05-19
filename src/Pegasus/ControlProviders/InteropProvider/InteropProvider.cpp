@@ -226,6 +226,49 @@ enum targetClass{
      CIM_COMMMECHANISMFORMANAGERASSOC=2
  };
 
+
+//*************************************************************
+//  Constructor
+//**********************************************************
+InteropProvider::InteropProvider(CIMRepository* repository)
+{
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::InteropProvider");
+     _repository = repository;
+
+    //***********************************************
+    // This is a tempory fix untill there is a method created for the InteropProvider to 
+    // do it's inaliaztion work. This fix sets StatisticalData::CopyGSD, enabling the 
+    //statistical gathering function.
+    Array<CIMInstance> instance = repository->enumerateInstances(CIMNamespaceName("root/cimv2"), CIMName ("CIM_ObjectManager"));
+
+    if(instance.size() > 0)
+    {
+        Boolean output = false;
+        Uint32 pos;
+        if ((pos = instance[0].findProperty(CIMName("GatherStatisticalData"))) != PEG_NOT_FOUND)
+        {
+            CIMConstProperty p1 = instance[0].getProperty(pos);
+            if (p1.getType() == CIMTYPE_BOOLEAN)
+            {
+                CIMValue v1  = p1.getValue();
+                if (!v1.isNull())
+                {
+                    v1.get(output);
+                    if (v1 == true) 
+                    {
+                        StatisticalData* sd = StatisticalData::current();
+                        sd->setCopyGSD(true);
+                    }
+                }
+            }                 
+        }  
+    }
+    //******************************************* end of temporary fix
+    PEG_METHOD_EXIT();
+ }
+
+
+
 //***************************************************************
 // Provider Utility Functions
 //***************************************************************

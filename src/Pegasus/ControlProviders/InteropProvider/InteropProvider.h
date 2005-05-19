@@ -94,13 +94,7 @@ class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
 {
 public:
 
-    InteropProvider(CIMRepository* repository)
-    {
-	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::InteropProvider");
-        _repository = repository;
-	PEG_METHOD_EXIT();
-    }
-
+    InteropProvider(CIMRepository* repository);
     virtual ~InteropProvider()
     {
 	PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,"InteropProvider::~InteropProvider");

@@ -42,6 +42,7 @@
 //      Chip Vincent (cvincent@us.ibm.com)
 //      David Dillard, VERITAS Software Corp.
 //          (david.dillard@veritas.com)
+//      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3612
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -764,7 +765,7 @@ String ConfigManager::getPegasusHome()
 /**
 Set Pegasus Home variable
 */
-void ConfigManager::setPegasusHome(String& home)
+void ConfigManager::setPegasusHome(const String& home)
 {
     if ( home != String::EMPTY )
     {

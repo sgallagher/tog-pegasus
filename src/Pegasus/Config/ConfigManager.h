@@ -32,6 +32,7 @@
 // Modified By: Sushma Fernandes, Hewlett-Packard Company
 //                 (sushma_fernandes@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3612
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -398,7 +399,7 @@ public:
     /**
     Set Pegasus Home
     */
-    static void setPegasusHome(String& home);
+    static void setPegasusHome(const String& home);
 
     /**
     Get Homed Path

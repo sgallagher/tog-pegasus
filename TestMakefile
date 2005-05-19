@@ -39,6 +39,33 @@
 ##      standardtests      - Execute poststartests and a series of
 ##                           posstarttests using multiple options.
 ##
+#####################
+##
+## The following are all standalone tests. That is the can be invoked 
+## without any prerequisite dependencies. They stop and start the server as
+## needed. They clean and rebuild the repository as needed and then run the 
+## poststarttests.
+##
+##	TestXMLRepository  - Executes poststartests on binary repository 
+##				built with cimmofl.
+##
+##	TestXMLRepositoryServer - Executes poststartests on binary repository 
+##				built with cimmof.
+##
+##	TestXMLCmpRepository - Executes poststartests on binary compressed 
+##				repository built with cimmofl.	
+##
+##
+##	TestBinRepository  - Executes poststartests on binary repository 
+##				built with cimmofl.
+##
+##	TestBinRepositoryServer - Executes poststartests on binary repository 
+##				built with cimmof.
+##
+##	TestBinCmpRepository - Executes poststartests on binary compressed 
+##				repository built with cimmofl.	
+##
+##
 ###############################################################################
 
 error:
@@ -51,6 +78,10 @@ include $(PEGASUS_ROOT)/mak/commands.mak
 system = localhost
 
 TESTS = prestarttests poststarttests
+
+.PHONY: FORCE
+
+FORCE:
 
 rebuild: clean all tests
 
@@ -169,6 +200,113 @@ run_SSL_TS1:
             TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
 ###############################################################################
 
+
+
+##############################################################################
+##
+## TestXMLRepository rule is used to run the poststarttests suite on
+## the XML Repository built using cimmofl
+##
+## TestXMLRepositoryServer rule is used to run the poststarttests suite on
+## the XML Repository built using cimmof
+##
+## TestXMLCmpRepository rule is used to run the poststarttest suite on 
+## the XML Compressed Repository built using cimmofl
+##
+
+############################
+##
+## TestXMLRepository
+##
+
+TestXMLRepository: TestXMLClean TestXMLBuildRepo  TestXMLRepo
+	@ $(ECHO) TestXMLRepository +++++ passed all test
+
+############################
+##
+## TestXMLRepositoryServer
+##
+TestXMLRepositoryServer: TestXMLClean  TestXMLBuildRepoServ TestXMLRepo
+	@ $(ECHO) TestXMLRepositoryServer +++++ passed all test
+
+############################
+##
+## TestXMLCmpRepository -  run poststarttest on Compressed BIN Repository
+##
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+TestXMLCmpRepository: FORCE
+	@ $(ECHO) TestXMLCmpRepository +++++ Repository compressed by default - nothing more to test.
+	@ $(ECHO) TestXMLCmpRepository +++++ passed all test
+else
+
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST
+
+TestXMLCmpRepository: TestXMLClean  TestCmpBuild TestXMLBuildRepo TestXMLRepo TestRegBuild
+	@ $(ECHO) TestXMLCmpRepository +++++ passed all test
+else
+TestXMLCmpRepository: FORCE
+	@ $(ECHO) TestXMLCmpRepository +++++ Not tested 
+	@ $(ECHO) TestXMLCmpRepository +++++ refer to readme.compressed_repository
+	@ $(ECHO) TestXMLCmpRepository +++++ to enable: set PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST=true 
+endif
+endif
+
+###########################
+##
+## TestXMLClean
+##
+TestXMLClean: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean REPOSITORY_NAME=repository_xml
+
+
+###########################
+##
+## TestXMLStartServer
+##
+TestXMLStartServer: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	- $(MKDIRHIER) $(PEGASUS_HOME)/repository_xml
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="repositoryDir=$(PEGASUS_HOME)/repository_xml"
+	$(SLEEP) 5
+
+####
+#### The following caused the cimserver to fail on startup
+####
+####	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinRepository=false repositoryDir=$(PEGASUS_HOME)/repository_xml"
+
+###########################
+##
+## TestXMLBuildRepo
+##
+TestXMLBuildRepo: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+
+
+###########################
+##
+## TestXMLBuildRepoServ
+##
+TestXMLBuildRepoServ: TestXMLStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+
+
+###########################
+##
+## TestXMLRepo
+##
+TestXMLRepo: poststarttestsclean TestXMLStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+
+
+
+
+
+
 ##############################################################################
 ##
 ## TestBinRepository rule is used to run the poststarttests suite on
@@ -189,7 +327,7 @@ run_SSL_TS1:
 ### the nightly tests to run
 
 ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-TestBinRepository:
+TestBinRepository: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
 	@ $(ECHO) TestBinRepository +++++ NOT RUN on this platform - bug 3011
 else
@@ -209,17 +347,17 @@ TestBinRepositoryServer: TestBinClean  TestBinBuildRepoServ TestBinRepo
 ## TestBinCmpRepository -  run poststarttest on Compressed BIN Repository
 ##
 ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
-TestBinCmpRepository: 
+TestBinCmpRepository: FORCE
 	@ $(ECHO) TestBinCmpRepository +++++ Repository compressed by default - nothing more to test.
 	@ $(ECHO) TestBinCmpRepository +++++ passed all test
 else
 
 ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST
 
-TestBinCmpRepository: TestBinClean  TestBinCmpBuild TestBinBuildRepo TestBinRepo TestBinRegBuild
+TestBinCmpRepository: TestBinClean  TestCmpBuild TestBinBuildRepo TestBinRepo TestRegBuild
 	@ $(ECHO) TestBinCmpRepository +++++ passed all test
 else
-TestBinCmpRepository: 
+TestBinCmpRepository: FORCE
 	@ $(ECHO) TestBinCmpRepository +++++ Not tested 
 	@ $(ECHO) TestBinCmpRepository +++++ refer to readme.compressed_repository
 	@ $(ECHO) TestBinCmpRepository +++++ to enable: set PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST=true 
@@ -227,31 +365,11 @@ endif
 endif
 
 
-############################
-##
-## TestBinCmpBuild - used to compile the repository for compression
-##
-TestBinCmpBuild:
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
-
-
-############################
-##
-## TestBinRegBuild - used to compile the repository for no compression
-##
-TestBinRegBuild:
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend 
-	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository 
-
-
 ###########################
 ##
 ## TestBinClean
 ##
-TestBinClean:
+TestBinClean: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean REPOSITORY_NAME=repository_bin
 
@@ -260,7 +378,7 @@ TestBinClean:
 ##
 ## TestBinStartServer
 ##
-TestBinStartServer:
+TestBinStartServer: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 	- $(MKDIRHIER) $(PEGASUS_HOME)/repository_bin
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true repositoryDir=$(PEGASUS_HOME)/repository_bin"
@@ -270,7 +388,7 @@ TestBinStartServer:
 ##
 ## TestBinBuildRepo
 ##
-TestBinBuildRepo:
+TestBinBuildRepo: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
 
@@ -293,6 +411,27 @@ TestBinRepo: poststarttestsclean TestBinStartServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
 
+
+
+
+############################
+##
+## TestCmpBuild - used to compile the repository for compression
+##
+TestCmpBuild: FORCE
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+
+
+############################
+##
+## TestRegBuild - used to compile the repository for no compression
+##
+TestRegBuild: FORCE
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend 
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository 
 
 
 ###############################################################################

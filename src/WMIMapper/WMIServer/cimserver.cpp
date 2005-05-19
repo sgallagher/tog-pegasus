@@ -199,6 +199,7 @@ public:
 
 AutoPtr<CIMServerProcess> _cimServerProcess(new CIMServerProcess());
 static CIMServer* _cimServer = 0;
+static Monitor* _monitor = 0;
 
 //
 //  The command name.
@@ -333,6 +334,11 @@ void deleteCIMServer()
         delete _cimServer;
         _cimServer = 0;
     }
+
+	if (_monitor)
+	{
+		delete _monitor;
+	}
 }
 
 // l10n
@@ -1018,7 +1024,8 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
             portNumberHttps = strtol(portString, &end, 10);
             if(!(end != 0 && *end == '\0'))
             {
-                PEGASUS_STD(cerr) << "Bad HTTPS Port Value" << PEGASUS_STD(endl);
+                InvalidPropertyValue e("httpsPort", httpsPort);
+                cerr << e.getMessage() << endl;
                 exit(1);
             }
         }
@@ -1044,7 +1051,8 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
             portNumberHttp = strtol(portString, &end, 10);
             if(!(end != 0 && *end == '\0'))
             {
-                PEGASUS_STD(cerr) << "Bad HTTP Port Value" << PEGASUS_STD(endl);
+                InvalidPropertyValue e("httpPort", httpPort);
+                cerr << e.getMessage() << endl;
                 exit(1);
             }
         }
@@ -1191,11 +1199,11 @@ MessageLoader::_useProcessLocale = false;
     try
     {
 
-    Monitor monitor;
+    _monitor  = new Monitor();
     //PEP#222
     //CIMServer server(&monitor);
     //CimserverHolder cimserverHolder( &server );
-    _cimServer = new CIMServer(&monitor);
+    _cimServer = new CIMServer(_monitor);
 
 
         if (enableHttpConnection)
@@ -1273,8 +1281,22 @@ MessageLoader::_useProcessLocale = false;
 #endif
 
         // bind throws an exception if the bind fails
-        _cimServer->bind();
+        try { 
+           _cimServer->bind();
+	} catch (const BindFailedException &e)
+	{
+#ifdef PEGASUS_DEBUG
+        MessageLoaderParms parms("src.Server.cimserver.BIND_FAILED",
+                 "Could not bind: $0.", e.getMessage());
+        cout << MessageLoader::getMessage(parms) << endl;
+#endif
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            "src.Server.cimserver.BIND.FAILED",
+            "Could not bind:  $0", e.getMessage());
 
+	   deleteCIMServer();
+	   return 1;
+	}
     // notify parent process (if there is a parent process) to terminate 
         // so user knows that there is cimserver ready to serve CIM requests.
     if (daemonOption)

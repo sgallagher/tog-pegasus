@@ -181,7 +181,7 @@ Uint32 BinaryStreamer::extractUint32(const char *ar, Uint32 & pos)
 
 Boolean BinaryStreamer::extractBoolean(const char *ar, Uint32 & pos)
 {
-   return ((*(ar+(pos++)))!=0);
+   return ((*((Boolean *)(ar+(pos++))))!=0);
 }
 
 

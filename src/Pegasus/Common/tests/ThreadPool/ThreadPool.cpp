@@ -225,19 +225,19 @@ void testOverloadPool()
         Boolean threadStarted;
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)1500, funcSleepSpecifiedMilliseconds);
+            (void*)3000, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)1500, funcSleepSpecifiedMilliseconds);
+            (void*)3000, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)1500, funcSleepSpecifiedMilliseconds);
+            (void*)3000, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(
-            (void*)1500, funcSleepSpecifiedMilliseconds);
+            (void*)3000, funcSleepSpecifiedMilliseconds);
         assert(threadStarted);
 
         threadStarted = threadPool.allocate_and_awaken(

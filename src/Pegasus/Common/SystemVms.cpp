@@ -650,19 +650,9 @@ Boolean System::verifyFileOwnership(const char* path)
     return (st.st_uid == geteuid());
 }
 
-void System::openlog(const String &ident)
+void System::syslog(const String& ident, Uint32 severity, const char* message)
 {
-    return;
-}
-
-void System::syslog(Uint32 severity, const char *data)
-{
-    return;
-}
-
-void System::closelog()
-{
-    return;
+    // Not implemented
 }
 
 // System ID constants for Logger::put and Logger::trace

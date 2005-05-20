@@ -29,14 +29,13 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
-//     Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+// Modified By: Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -308,20 +307,21 @@ public:
      */
     static Boolean bindVerbose;
 
-    /** This function is an abstraction for the openlog interface used in the Logger
-        class.  Each platform intending to use system logs should support this interface
-    */
-    static void openlog(const String &);
+    /**
+        Writes a message to the system log.  This method encapsulates the
+        semantics of opening the system log, writing the specified message,
+        and closing the log.
 
-    /** This function is an abstraction for the syslog interface used in the Logger
-        class.  Each platform intending to use system logs should support this interface
+        @param ident An identifier to be prepended to the log messages
+        (typically a program name).
+        @param severity A severity value to be associated with the message.
+        Severity values are defined in Logger.h.
+        @param message A message to be written to the system log.
     */
-    static void syslog(Uint32, const char *);
-
-    /** This function is an abstraction for the closelog interface used in the Logger
-        class.  Each platform intending to use system logs should support this interface
-    */
-    static void closelog();
+    static void syslog(
+        const String& ident,
+        Uint32 severity,
+        const char* message);
 
     // System ID constants for Logger::put and Logger::trace
     static const String CIMSERVER;

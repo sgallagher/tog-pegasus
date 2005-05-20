@@ -33,13 +33,13 @@
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Nag Boranna (nagaraja_boranna@hp.com)
 //              Bapu Patil (bapu_patil@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP101
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Yi Zhou (yi.zhou@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3194
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,12 +48,12 @@
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-#  include <fcntl.h> 
-#  include <qycmutilu2.H>
-#  include <unistd.cleinc>
-#  include "qycmmsgclsMessage.H" // ycmMessage class
-#  include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
-#include "OS400ConvertChar.h"
+# include <fcntl.h>
+# include <qycmutilu2.H>
+# include <unistd.cleinc>
+# include "qycmmsgclsMessage.H" // ycmMessage class
+# include "OS400SystemState.h"  // OS400LoadDynamicLibrary, etc
+# include "OS400ConvertChar.h"
 #else
 # include <dlfcn.h>
 #endif
@@ -64,12 +64,12 @@
 #include <grp.h>
 
 #include <errno.h>
-#if defined(PEGASUS_OS_SOLARIS) 
-#  include <string.h> 
-#endif 
+#if defined(PEGASUS_OS_SOLARIS)
+# include <string.h>
+#endif
 
-#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU) 
-#include <crypt.h> 
+#if !defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && !defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM) && !defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+#include <crypt.h>
 #endif
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
@@ -77,7 +77,7 @@
 #include <__ftp.h>
 #endif
 
-#if defined(PEGASUS_USE_SYSLOGS) 
+#if defined(PEGASUS_USE_SYSLOGS)
 #include <syslog.h>
 #endif
 
@@ -90,6 +90,7 @@
 #include "System.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/IPC.h>
 #ifdef PEGASUS_ZOS_SECURITY
 #include "DynamicLibraryzOS_inline.h"
 #endif
@@ -107,7 +108,7 @@ PEGASUS_NAMESPACE_BEGIN
 typedef struct os400_pnstruct
 {
   Qlg_Path_Name_T qlg_struct;
-  char * pn; 
+  char * pn;
 } OS400_PNSTRUCT;
 #endif
 
@@ -154,7 +155,7 @@ Boolean System::exists(const char* path)
     pathname.qlg_struct.Path_Length = strlen(path);
     pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
     pathname.pn = (char *)path;
- 
+
     return QlgAccess((Qlg_Path_Name_T *)&pathname, F_OK) == 0;
 #else
     return access(path, F_OK) == 0;
@@ -197,7 +198,7 @@ Boolean System::canWrite(const char* path)
     pathname.qlg_struct.Path_Length = strlen(path);
     pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
     pathname.pn = (char *)path;
- 
+
     return QlgAccess((Qlg_Path_Name_T *)&pathname, W_OK) == 0;
 #else
     return access(path, W_OK) == 0;
@@ -218,7 +219,7 @@ Boolean System::getCurrentDirectory(char* path, Uint32 size)
     pathname.qlg_struct.Path_Length = strlen(path);
     pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
     pathname.pn = (char *)path;
- 
+
     return QlgGetcwd((Qlg_Path_Name_T *)&pathname, size) == 0;
 #else
     return getcwd(path, size) != NULL;
@@ -243,7 +244,7 @@ Boolean System::isDirectory(const char* path)
     pathname.pn = (char *)path;
 
     if (QlgStat((Qlg_Path_Name_T *)&pathname, &st) != 0)
-	return false;
+        return false;
 #else
     if (stat(path, &st) != 0)
         return false;
@@ -265,7 +266,7 @@ Boolean System::changeDirectory(const char* path)
     pathname.qlg_struct.Path_Length = strlen(path);
     pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
     pathname.pn = (char *)path;
- 
+
     return QlgChdir((Qlg_Path_Name_T *)&pathname) == 0;
 #else
     return chdir(path) == 0;
@@ -287,7 +288,7 @@ Boolean System::makeDirectory(const char* path)
     pathname.qlg_struct.Path_Length = strlen(path);
     pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
     pathname.pn = (char *)path;
- 
+
     return QlgMkdir((Qlg_Path_Name_T *)&pathname, 0777) == 0;
 #else
     return mkdir(path, 0777) == 0;
@@ -313,7 +314,7 @@ Boolean System::getFileSize(const char* path, Uint32& size)
     pathname.pn = (char *)path;
 
     if (QlgStat((Qlg_Path_Name_T *)&pathname, &st) != 0)
-	return false;
+        return false;
 #else
     if (stat(path, &st) != 0)
         return false;
@@ -337,7 +338,7 @@ Boolean System::removeDirectory(const char* path)
     pathname.qlg_struct.Path_Length = strlen(path);
     pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
     pathname.pn = (char *)path;
- 
+
     return QlgRmdir((Qlg_Path_Name_T *)&pathname) == 0;
 #else
     return rmdir(path) == 0;
@@ -358,7 +359,7 @@ Boolean System::removeFile(const char* path)
     pathname.qlg_struct.Path_Length = strlen(path);
     pathname.qlg_struct.Path_Name_Delimiter[0] = '/';
     pathname.pn = (char *)path;
- 
+
     return QlgUnlink((Qlg_Path_Name_T *)&pathname) == 0;
 #else
     return unlink(path) == 0;
@@ -393,9 +394,9 @@ Boolean System::renameFile(const char* oldPath, const char* newPath)
     newpathname.pn = (char *)newPath;
 
     if (QlgLink((Qlg_Path_Name_T *)&oldpathname,
-		(Qlg_Path_Name_T *)&newpathname) != 0)
+                (Qlg_Path_Name_T *)&newpathname) != 0)
     {
-	return false;
+        return false;
     }
 
     return QlgUnlink((Qlg_Path_Name_T *)&oldpathname) == 0;
@@ -412,22 +413,22 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 {
     PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "System::loadDynamicLibrary()");
 
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                   "Attempting to load library %s", fileName);
 
 #if defined(PEGASUS_OS_HPUX)
     void* handle;
     if (bindVerbose)
     {
-        handle = shl_load(fileName, 
-                     BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
+        handle = shl_load(fileName,
+            BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
     }
-    else 
+    else
     {
         handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
     }
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
-                  "After loading lib %s, error code is %d", fileName, 
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+                  "After loading lib %s, error code is %d", fileName,
                   (handle == (void *)0)?errno:0);
 
     PEG_METHOD_EXIT();
@@ -436,15 +437,15 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
 #elif defined(PEGASUS_OS_ZOS)
-	#if defined(PEGASUS_ZOS_SECURITY)
-		if (!hasProgramControl(fileName))
-		{
-			PEG_METHOD_EXIT();
-			return 0;
-		}
-	#endif
+# if defined(PEGASUS_ZOS_SECURITY)
+    if (!hasProgramControl(fileName))
+    {
+        PEG_METHOD_EXIT();
+        return 0;
+    }
+# endif
     PEG_METHOD_EXIT();
-	return DynamicLibraryHandle(dllload(fileName));
+    return DynamicLibraryHandle(dllload(fileName));
 #elif defined(PEGASUS_OS_OS400)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(OS400_LoadDynamicLibrary(fileName));
@@ -477,7 +478,7 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 #endif
 
 #ifdef PEGASUS_OS_ZOS
-	dllfree(reinterpret_cast<dllhandle *> (libraryHandle));
+    dllfree(reinterpret_cast<dllhandle *> (libraryHandle));
 #endif
 }
 
@@ -544,7 +545,7 @@ String System::getHostName()
     {
         gethostname(hostname, sizeof(hostname));
 #if defined(PEGASUS_OS_OS400)
-	EtoA(hostname);
+        EtoA(hostname);
 #endif
     }
 
@@ -576,26 +577,26 @@ String System::getFullyQualifiedHostName ()
 
     return fqName;
 #elif defined(PEGASUS_OS_ZOS)
-	char hostName [PEGASUS_MAXHOSTNAMELEN];
-	char *domainName;
-	String fqName;
-	// receive short name of the local host
-	if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
-	{
-		return String::EMPTY;
-	}
-	// get domain name of the local host
-	domainName= __ipDomainName();
-	if (domainName == 0)
-	{
-		return String::EMPTY;
-	}
-	// build fully qualified hostname
-	fqName.assign(hostName);
-	fqName.append(".");
-	fqName.append(domainName);
+    char hostName [PEGASUS_MAXHOSTNAMELEN];
+    char *domainName;
+    String fqName;
+    // receive short name of the local host
+    if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+    {
+        return String::EMPTY;
+    }
+    // get domain name of the local host
+    domainName= __ipDomainName();
+    if (domainName == 0)
+    {
+        return String::EMPTY;
+    }
+    // build fully qualified hostname
+    fqName.assign(hostName);
+    fqName.append(".");
+    fqName.append(domainName);
 
-	return fqName;
+    return fqName;
 #else
     //
     //  ATTN: Implement this method to return the fully qualified host name
@@ -615,7 +616,7 @@ String System::getSystemCreationClassName ()
 }
 
 Uint32 System::lookupPort(
-    const char * serviceName, 
+    const char * serviceName,
     Uint32 defaultPort)
 {
     Uint32 localPort;
@@ -627,16 +628,16 @@ Uint32 System::lookupPort(
     //
 
 #ifdef PEGASUS_OS_SOLARIS
-#define SERV_BUFF_SIZE	1024
-    struct servent	serv_result;
-    char		buf[SERV_BUFF_SIZE];
+#define SERV_BUFF_SIZE 1024
+    struct servent serv_result;
+    char buf[SERV_BUFF_SIZE];
 
     if ( (serv = getservbyname_r(serviceName, TCP, &serv_result,
-				buf, SERV_BUFF_SIZE)) != NULL )
+                                 buf, SERV_BUFF_SIZE)) != NULL )
 #elif defined(PEGASUS_OS_OS400)
-    struct servent	serv_result;
+    struct servent serv_result;
     serv = &serv_result;
-    struct servent_data	buf;
+    struct servent_data buf;
     memset(&buf, 0x00, sizeof(struct servent_data));
 
     char srvnameEbcdic[256];
@@ -648,7 +649,7 @@ Uint32 System::lookupPort(
     AtoE(tcpEbcdic);
 
     if ( (getservbyname_r(srvnameEbcdic, tcpEbcdic, &serv_result,
-				&buf)) == 0 )
+                          &buf)) == 0 )
 #else // PEGASUS_OS_SOLARIS
     if ( (serv = getservbyname(serviceName, TCP)) != NULL )
 #endif // PEGASUS_OS_SOLARIS
@@ -664,12 +665,12 @@ Uint32 System::lookupPort(
 }
 #if defined(PEGASUS_OS_LSB)
 /*
-   getpass equivalent. 
+   getpass equivalent.
    Adapted from example implementation described in GLIBC documentation
-   (http://www.dusek.ch/manual/glibc/libc_32.html) and 
+   (http://www.dusek.ch/manual/glibc/libc_32.html) and
    "Advanced Programming in the UNIX Environment" by Richard Stevens,
    pg. 350.
- 
+
 */
 #define MAX_PASS_LEN 1024
 char *getpassword(const char *prompt)
@@ -688,7 +689,7 @@ char *getpassword(const char *prompt)
   new_val.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
   if (tcsetattr (fileno (stdin), TCSAFLUSH, &new_val) != 0)
     return buf;
-     
+
   /* Read the password. */
   fputs (prompt, stdin);
   ptr = buf;
@@ -714,11 +715,11 @@ String System::getPassword(const char* prompt)
 #if !defined(PEGASUS_OS_OS400)
     // Not supported on OS/400, and we don't need it.
     // 'getpass' is DEPRECATED
-  #if !defined(PEGASUS_OS_LSB)
+# if !defined(PEGASUS_OS_LSB)
     password = String(getpass( prompt ));
-  #else
+# else
     password = String(getpassword( prompt ));
-  #endif
+# endif
 
 #endif
 
@@ -1064,7 +1065,7 @@ Boolean System::changeUserContext(const char* userName)
         return false;
     }
 
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4, 
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
         "Changing user context to: uid = %d, gid = %d",
         (int)pwd.pw_uid, (int)pwd.pw_gid);
 
@@ -1096,7 +1097,7 @@ Uint32 System::getPID()
 }
 
 Boolean System::truncateFile(
-    const char* path, 
+    const char* path,
     size_t newSize)
 {
 #if !defined(PEGASUS_OS_OS400)
@@ -1121,7 +1122,7 @@ Boolean System::truncateFile(
        close(fd);
        return (rc == 0);
     }
-    
+
     return false;
 #endif
 }
@@ -1131,10 +1132,10 @@ Boolean System::is_absolute_path(const char *path)
 {
   if (path == NULL)
     return false;
-  
+
   if (path[0] == '/')
     return true;
-  
+
   return false;
 }
 
@@ -1174,7 +1175,7 @@ Boolean System::verifyFileOwnership(const char* path)
 
     if (QlgStat((Qlg_Path_Name_T *)&pathname, &st) != 0)
     {
-	return false;
+        return false;
     }
 #else
     if (stat(path, &st) != 0)
@@ -1186,91 +1187,99 @@ Boolean System::verifyFileOwnership(const char* path)
     return (st.st_uid == geteuid());
 }
 
-void System::openlog(const String &ident)
+void System::syslog(const String& ident, Uint32 severity, const char* message)
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-    ::openlog(ident.getCString(), LOG_PID, LOG_DAEMON);
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 
-#endif
+    // Since the openlog(), syslog(), and closelog() function calls must be
+    // coordinated (see below), we need a thread control.
 
-    return;
-}
+    static Mutex logMutex;
 
-void System::syslog(Uint32 severity, const char *data)
-{
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+    AutoMutex loglock(logMutex);
 
-    // FUTURE-SF-P3-20020517 : Use the Syslog on HP-UX. Eventually only 
-    // certain messages will go to the Syslog and others to the 
-    // Pegasus Logger.
-    Uint32 syslogLevel = LOG_DEBUG;
+    // Get a const char* representation of the identifier string.  Note: The
+    // character string passed to the openlog() function must persist until
+    // closelog() is called.  The syslog() method uses this pointer directly
+    // rather than a copy of the string it refers to.
 
-    // Map the log levels.
-    if (severity & Logger::TRACE) syslogLevel =       LOG_DEBUG;
-    if (severity & Logger::INFORMATION) syslogLevel = LOG_INFO;
-    if (severity & Logger::WARNING) syslogLevel =     LOG_WARNING;
-    if (severity & Logger::SEVERE) syslogLevel =      LOG_ERR;
-    if (severity & Logger::FATAL) syslogLevel =       LOG_CRIT;
+    CString identCString = ident.getCString();
+    openlog(identCString, LOG_PID, LOG_DAEMON);
 
-    ::syslog(syslogLevel, "%s", data);
+    // Map from the Logger log level to the system log level.
+
+    Uint32 syslogLevel;
+    if (severity & Logger::FATAL)
+    {
+        syslogLevel = LOG_CRIT;
+    }
+    else if (severity & Logger::SEVERE)
+    {
+        syslogLevel = LOG_ERR;
+    }
+    else if (severity & Logger::WARNING)
+    {
+        syslogLevel = LOG_WARNING;
+    }
+    else if (severity & Logger::INFORMATION)
+    {
+        syslogLevel = LOG_INFO;
+    }
+    else // if (severity & Logger::TRACE)
+    {
+        syslogLevel = LOG_DEBUG;
+    }
+
+    // Write the message to the system log.
+
+    ::syslog(syslogLevel, "%s", message);
+
+    closelog();
 
 #elif defined(PEGASUS_OS_OS400)
 
-    std::string replacementData = data;
+    std::string replacementData = message;
     // All messages will go to the joblog. In the future
     // some messages may go to other message queues yet
     // to be determined.
     if ((severity & Logger::TRACE) ||
-	(severity & Logger::INFORMATION))
+        (severity & Logger::INFORMATION))
     {
 
-	// turn into ycmMessage so we can put it in the job log
-#pragma convert(37)
-	ycmMessage theMessage("CPIDF80",
-			          data,
-                              strlen(data),
-			          "Logger",
+        // turn into ycmMessage so we can put it in the job log
+# pragma convert(37)
+        ycmMessage theMessage("CPIDF80",
+                              message,
+                              strlen(message),
+                              "Logger",
                               ycmCTLCIMID,
-			          TRUE);
-#pragma convert(0)
+                              TRUE);
+# pragma convert(0)
 
-	// put the message in the joblog
-	theMessage.joblogIt(UnitOfWorkError,
-			    ycmMessage::Informational);
+        // put the message in the joblog
+        theMessage.joblogIt(UnitOfWorkError,
+                            ycmMessage::Informational);
     }
 
     if ((severity & Logger::WARNING) ||
-	(severity & Logger::SEVERE)  ||
-	(severity & Logger::FATAL))
+        (severity & Logger::SEVERE)  ||
+        (severity & Logger::FATAL))
     {
-	// turn into ycmMessage so we can put it in the job log
-#pragma convert(37)
-	ycmMessage theMessage("CPDDF82",
-			          data,
-                              strlen(data),
-			          "Logger",
+        // turn into ycmMessage so we can put it in the job log
+# pragma convert(37)
+        ycmMessage theMessage("CPDDF82",
+                              message,
+                              strlen(message),
+                              "Logger",
                               ycmCTLCIMID,
-			          TRUE);
-#pragma convert(0)
-	// put the message in the joblog
-	theMessage.joblogIt(UnitOfWorkError,
-			    ycmMessage::Diagnostic);
+                              TRUE);
+# pragma convert(0)
+        // put the message in the joblog
+        theMessage.joblogIt(UnitOfWorkError,
+                            ycmMessage::Diagnostic);
     }
 
 #endif
-
-    return;
-}
-
-void System::closelog()
-{
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
- 
-    ::closelog();
-
-#endif
-
-    return;
 }
 
 // System ID constants for Logger::put and Logger::trace
@@ -1279,5 +1288,5 @@ const String System::CIMSERVER = "qycmcimom";  // Server system ID
 #else
 const String System::CIMSERVER = "cimserver";  // Server system ID
 #endif
-    
+
 PEGASUS_NAMESPACE_END

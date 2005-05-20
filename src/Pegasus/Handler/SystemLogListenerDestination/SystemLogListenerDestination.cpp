@@ -46,10 +46,6 @@
 #include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/IndicationFormatter.h>
 
-#if defined(PEGASUS_USE_SYSLOGS)
-#include <syslog.h>
-#endif
-
 #include "SystemLogListenerDestination.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -183,14 +179,8 @@ void SystemLogListenerDestination::_writeToSystemLog(
 	"SystemLogListenerDestination::_writeToSystemLog");
 
 #if defined(PEGASUS_USE_SYSLOGS)
-    
-    // Open the syslog
-    System::openlog(identifier);
 
-    System::syslog(severity, (const char *)formattedText.getCString());
-
-    // Close the syslog
-    System::closelog();
+    System::syslog(identifier, severity, formattedText.getCString());
 
 #else
 

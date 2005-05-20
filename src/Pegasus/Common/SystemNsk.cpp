@@ -169,11 +169,6 @@ Uint32 System::getPID()
     return 0;
 }
 
-void System::openlog(const String &ident)
-{
-    return;
-}
-
 // Changes file permissions on the given file.
 Boolean System::changeFilePermissions(const char* path, mode_t mode)
 {
@@ -188,14 +183,9 @@ Boolean System::verifyFileOwnership(const char* path)
     return true;
 }
 
-void System::syslog(Uint32 severity, const char *data)
+void System::syslog(const String& ident, Uint32 severity, const char* message)
 {
-    return;
-}
-
-void System::closelog()
-{
-    return;
+    // Not implemented
 }
 
 // System ID constants for Logger::put and Logger::trace

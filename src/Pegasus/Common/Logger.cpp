@@ -72,7 +72,7 @@ const Uint32 Logger::_NUM_LOGLEVEL = 5;
 // Set separator
 const char Logger::_SEPARATOR = '@';
 
-Uint32 Logger::_severityMask; 
+Uint32 Logger::_severityMask;
 
 Uint32 Logger::_writeControlMask = 0xF;   // Set all on by default
 
@@ -92,18 +92,18 @@ static CString _allocLogFileName(
     const String& homeDirectory,
     Logger::LogFileType logFileType)
 {
-    static const char* fileNames[] = 
+    static const char* fileNames[] =
     {
-	"PegasusTrace.log",
-	"PegasusStandard.log",
-	"PegasusError.log",
-	"PegasusDebug.log"
+        "PegasusTrace.log",
+        "PegasusStandard.log",
+        "PegasusError.log",
+        "PegasusDebug.log"
     };
 
     int index = int(logFileType);
 
     if (index > Logger::NUM_LOGS)
-	index = Logger::ERROR_LOG;
+        index = Logger::ERROR_LOG;
 
     const char* logFileName = fileNames[index];
 
@@ -121,49 +121,49 @@ public:
 
     LoggerRep(const String& homeDirectory)
     {
-#if !defined(PEGASUS_USE_SYSLOGS)    
-	// Add test for home directory set.
+#if !defined(PEGASUS_USE_SYSLOGS)
+        // Add test for home directory set.
 
-	// If home directory does not exist, create it.
-	CString lgDir = homeDirectory.getCString();
+        // If home directory does not exist, create it.
+        CString lgDir = homeDirectory.getCString();
 
-	if (!System::isDirectory(lgDir))
-	    System::makeDirectory(lgDir);
+        if (!System::isDirectory(lgDir))
+            System::makeDirectory(lgDir);
 
-	// KS: I put the second test in just in case some trys to create
-	// a completly erronous directory.  At least we will get a message
-	if (!System::isDirectory(lgDir)){
-		//l10n
-	   //cerr << "Logging Disabled";
-	   MessageLoaderParms parms("Common.Logger.LOGGING_DISABLED",
-	   							"Logging Disabled");
-	   			
-	   cerr << MessageLoader::getMessage(parms);
-	}
+        // KS: I put the second test in just in case some trys to create
+        // a completly erronous directory.  At least we will get a message
+        if (!System::isDirectory(lgDir)){
+           //l10n
+           //cerr << "Logging Disabled";
+           MessageLoaderParms parms("Common.Logger.LOGGING_DISABLED",
+               "Logging Disabled");
 
-	CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
-	_logs[Logger::TRACE_LOG].open(fileName, ios::app);
+           cerr << MessageLoader::getMessage(parms);
+        }
 
-	fileName = _allocLogFileName(homeDirectory, Logger::STANDARD_LOG);
-	_logs[Logger::STANDARD_LOG].open(fileName, ios::app);
+        CString fileName = _allocLogFileName(homeDirectory, Logger::TRACE_LOG);
+        _logs[Logger::TRACE_LOG].open(fileName, ios::app);
 
-	fileName = _allocLogFileName(homeDirectory, Logger::ERROR_LOG);
-	_logs[Logger::ERROR_LOG].open(fileName, ios::app);
+        fileName = _allocLogFileName(homeDirectory, Logger::STANDARD_LOG);
+        _logs[Logger::STANDARD_LOG].open(fileName, ios::app);
 
-	fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
-	_logs[Logger::DEBUG_LOG].open(fileName, ios::app);
-#endif 
+        fileName = _allocLogFileName(homeDirectory, Logger::ERROR_LOG);
+        _logs[Logger::ERROR_LOG].open(fileName, ios::app);
+
+        fileName = _allocLogFileName(homeDirectory, Logger::DEBUG_LOG);
+        _logs[Logger::DEBUG_LOG].open(fileName, ios::app);
+#endif
 
     }
 
     ostream& logOf(Logger::LogFileType logFileType)
     {
-	int index = int(logFileType);
+        int index = int(logFileType);
 
-	if (index > int(Logger::ERROR_LOG))
-	    index = Logger::ERROR_LOG;
+        if (index > int(Logger::ERROR_LOG))
+            index = Logger::ERROR_LOG;
 
-	return _logs[index];
+        return _logs[index];
     }
 
 private:
@@ -174,7 +174,7 @@ private:
 void Logger::_putInternal(
     LogFileType logFileType,
     const String& systemId,
-    const Uint32 logComponent, // TODO: Support logComponent mask in future release 
+    const Uint32 logComponent, // TODO: Support logComponent mask in future release
     Uint32 logLevel,
     const String& formatString,
     const String& messageId,  // l10n
@@ -191,164 +191,157 @@ void Logger::_putInternal(
 {
     // Test for logLevel against severity mask to determine
     // if we write this log.
-    if ((_severityMask & logLevel) != 0) 
+    if ((_severityMask & logLevel) != 0)
     {
-	if (!_rep)
-	   _rep = new LoggerRep(_homeDirectory);
+        if (!_rep)
+           _rep = new LoggerRep(_homeDirectory);
 
-		// Get the logLevel String
-		// This converts bitmap to string based on highest order
-		// bit set
-		// ATTN: KS Fix this more efficiently.
-		static const char* svNames[] = 
-		{
-	    "TRACE   ",
-	    "INFO    ",
-	    "WARNING ",
-	    "SEVERE  ",
-	    "FATAL   "
-		};
-		// NUM_LEVELS = 5
-		int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
+        // Get the logLevel String
+        // This converts bitmap to string based on highest order
+        // bit set
+        // ATTN: KS Fix this more efficiently.
+        static const char* svNames[] =
+        {
+            "TRACE   ",
+            "INFO    ",
+            "WARNING ",
+            "SEVERE  ",
+            "FATAL   "
+        };
+        // NUM_LEVELS = 5
+        int sizeSvNames = sizeof(svNames) / sizeof(svNames[0]) - 1;
 
 // l10n start
         // The localized message to be sent to the system log.
-		String localizedMsg;
-         
-		// If the caller specified a messageId, then load the localized
-		// message in the locale of the server process.                		
-		if (messageId != String::EMPTY)
-		{
-			// A message ID was specified.  Use the MessageLoader.			
-			MessageLoaderParms msgParms(messageId, formatString);
-			msgParms.useProcessLocale = true;
-			msgParms.arg0 = arg0;
-			msgParms.arg1 = arg1;
-			msgParms.arg2 = arg2;
-			msgParms.arg3 = arg3;
-			msgParms.arg4 = arg4;
-			msgParms.arg5 = arg5;
-			msgParms.arg6 = arg6;
-			msgParms.arg7 = arg7;
-			msgParms.arg8 = arg8;
-			msgParms.arg9 = arg9;
-																		
-			localizedMsg = MessageLoader::getMessage(msgParms);				
-		}
-		else
-		{  // No message ID.  Use the Pegasus formatter  
-		  	localizedMsg = Formatter::format(formatString,
-                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);			
-		}
-// l10n end		
-	
+        String localizedMsg;
+
+        // If the caller specified a messageId, then load the localized
+        // message in the locale of the server process.
+        if (messageId != String::EMPTY)
+        {
+            // A message ID was specified.  Use the MessageLoader.
+            MessageLoaderParms msgParms(messageId, formatString);
+            msgParms.useProcessLocale = true;
+            msgParms.arg0 = arg0;
+            msgParms.arg1 = arg1;
+            msgParms.arg2 = arg2;
+            msgParms.arg3 = arg3;
+            msgParms.arg4 = arg4;
+            msgParms.arg5 = arg5;
+            msgParms.arg6 = arg6;
+            msgParms.arg7 = arg7;
+            msgParms.arg8 = arg8;
+            msgParms.arg9 = arg9;
+
+            localizedMsg = MessageLoader::getMessage(msgParms);
+        }
+        else
+        {  // No message ID.  Use the Pegasus formatter
+              localizedMsg = Formatter::format(formatString,
+                arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+        }
+// l10n end
+
 #if defined(PEGASUS_USE_SYSLOGS)
-           
-            // Open the syslog.
-            // Ignore the systemId and open the log as cimserver
-	    System::openlog(System::CIMSERVER);
 
-            // Log the message
-	    System::syslog(logLevel,(const char*)localizedMsg.getCString());	    
-	    
+        // Log the message
+        System::syslog(System::CIMSERVER, logLevel, localizedMsg.getCString());
 
-            // Close the syslog.
-	    System::closelog();
+#else
 
-       #else
+        // Prepend the systemId to the incoming message
+        String messageString(systemId);
+        messageString.append(": ");
+        messageString.append(localizedMsg);  // l10n
 
-	    // Prepend the systemId to the incoming message
-	    String messageString(systemId);
-	    messageString.append(": ");
-	    messageString.append(localizedMsg);  // l10n 
+        const char* tmp = "";
+        if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
+        if (logLevel & Logger::INFORMATION) tmp = "INFO    ";
+        if (logLevel & Logger::WARNING) tmp =     "WARNING ";
+        if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
+        if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
 
-	    const char* tmp = "";
-	    if (logLevel & Logger::TRACE) tmp =       "TRACE   ";
-	    if (logLevel & Logger::INFORMATION) tmp = "INFO    ";
-            if (logLevel & Logger::WARNING) tmp =     "WARNING ";
-	    if (logLevel & Logger::SEVERE) tmp =      "SEVERE  ";
-	    if (logLevel & Logger::FATAL) tmp =       "FATAL   ";
-                _rep->logOf(logFileType) << System::getCurrentASCIITime()
-               << " " << tmp << (const char *)messageString.getCString() << endl;
+        _rep->logOf(logFileType) << System::getCurrentASCIITime()
+           << " " << tmp << (const char *)messageString.getCString() << endl;
 
-       #endif
+#endif
     }
 }
 
 #if 1
 void Logger::put(
-		 LogFileType logFileType,
-		 const String& systemId,
-		 Uint32 logLevel,
-		 const String& formatString,
-		 const Formatter::Arg& arg0,
-		 const Formatter::Arg& arg1,
-		 const Formatter::Arg& arg2,
-		 const Formatter::Arg& arg3,
-		 const Formatter::Arg& arg4,
-		 const Formatter::Arg& arg5,
-		 const Formatter::Arg& arg6,
-		 const Formatter::Arg& arg7,
-		 const Formatter::Arg& arg8,
-		 const Formatter::Arg& arg9)	
+    LogFileType logFileType,
+    const String& systemId,
+    Uint32 logLevel,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
 {
     Uint32 logComponent = 0;
 
     Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
-	formatString, String::EMPTY, arg0, arg1, arg2, arg3, arg4, arg5, arg6,
-	arg7, arg8, arg9);		
+        formatString, String::EMPTY, arg0, arg1, arg2, arg3, arg4, arg5, arg6,
+        arg7, arg8, arg9);
 }
 #endif
 
 void Logger::put(
-	    LogFileType logFileType,
-	    const String& systemId,
-	    Uint32 logLevel,
-	    const String& formatString)
+    LogFileType logFileType,
+    const String& systemId,
+    Uint32 logLevel,
+    const String& formatString)
 {
     Uint32 logComponent = 0;
 
     Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
-	formatString, String::EMPTY);
+        formatString, String::EMPTY);
 }
 
 void Logger::put(
-	    LogFileType logFileType,
-	    const String& systemId,
-	    Uint32 logLevel,
-	    const String& formatString,
-	    const Formatter::Arg& arg0)
+    LogFileType logFileType,
+    const String& systemId,
+    Uint32 logLevel,
+    const String& formatString,
+    const Formatter::Arg& arg0)
 {
     Uint32 logComponent = 0;
 
     Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
-	formatString, String::EMPTY, arg0);
+        formatString, String::EMPTY, arg0);
 }
 
 // l10n
 #if 1
 void Logger::put_l(
-		 LogFileType logFileType,
-		 const String& systemId,
-		 Uint32 logLevel,
-		 const String& messageId,  // l10n		 
-		 const String& formatString,
-		 const Formatter::Arg& arg0,
-		 const Formatter::Arg& arg1,
-		 const Formatter::Arg& arg2,
-		 const Formatter::Arg& arg3,
-		 const Formatter::Arg& arg4,
-		 const Formatter::Arg& arg5,
-		 const Formatter::Arg& arg6,
-		 const Formatter::Arg& arg7,
-		 const Formatter::Arg& arg8,
-		 const Formatter::Arg& arg9)			
+    LogFileType logFileType,
+    const String& systemId,
+    Uint32 logLevel,
+    const String& messageId,  // l10n
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
 {
     Uint32 logComponent = 0;
 
     Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
-	formatString, messageId, arg0, arg1, arg2, arg3, arg4, arg5,
-	arg6, arg7, arg8, arg9);		
+        formatString, messageId, arg0, arg1, arg2, arg3, arg4, arg5,
+        arg6, arg7, arg8, arg9);
 }
 #endif
 
@@ -362,7 +355,7 @@ void Logger::put_l(
     Uint32 logComponent = 0;
 
     Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
-	formatString, messageId);
+        formatString, messageId);
 }
 
 void Logger::put_l(
@@ -376,84 +369,84 @@ void Logger::put_l(
     Uint32 logComponent = 0;
 
     Logger::_putInternal(logFileType, systemId, logComponent, logLevel,
-	formatString, messageId, arg0);
+        formatString, messageId, arg0);
 }
 
 void Logger::trace(
-		   LogFileType logFileType,
-		   const String& systemId,
-		   const Uint32 logComponent,
-		   const String& formatString,
-		   const Formatter::Arg& arg0,
-		   const Formatter::Arg& arg1,
-		   const Formatter::Arg& arg2,
-		   const Formatter::Arg& arg3,
-		   const Formatter::Arg& arg4,
-		   const Formatter::Arg& arg5,
-		   const Formatter::Arg& arg6,
-		   const Formatter::Arg& arg7,
-		   const Formatter::Arg& arg8,
-		   const Formatter::Arg& arg9)	
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
 {
     Uint32 logLevel = Logger::TRACE;
 
     Logger::_putInternal(
-			logFileType,
-			systemId,
-			logComponent,
-			logLevel,
-			formatString,
+        logFileType,
+        systemId,
+        logComponent,
+        logLevel,
+        formatString,
 // l10n
-			String::EMPTY,
-			arg0,
-			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-			arg6,
-			arg7,
-			arg8,
-			arg9);			
+        String::EMPTY,
+        arg0,
+        arg1,
+        arg2,
+        arg3,
+        arg4,
+        arg5,
+        arg6,
+        arg7,
+        arg8,
+        arg9);
 }
 
 // l10n
 void Logger::trace_l(
-		   LogFileType logFileType,
-		   const String& systemId,
-		   const Uint32 logComponent,
-		   const String& messageId,		   
-		   const String& formatString,
-		   const Formatter::Arg& arg0,
-		   const Formatter::Arg& arg1,
-		   const Formatter::Arg& arg2,
-		   const Formatter::Arg& arg3,
-		   const Formatter::Arg& arg4,
-		   const Formatter::Arg& arg5,
-		   const Formatter::Arg& arg6,
-		   const Formatter::Arg& arg7,
-		   const Formatter::Arg& arg8,
-		   const Formatter::Arg& arg9)	
+    LogFileType logFileType,
+    const String& systemId,
+    const Uint32 logComponent,
+    const String& messageId,
+    const String& formatString,
+    const Formatter::Arg& arg0,
+    const Formatter::Arg& arg1,
+    const Formatter::Arg& arg2,
+    const Formatter::Arg& arg3,
+    const Formatter::Arg& arg4,
+    const Formatter::Arg& arg5,
+    const Formatter::Arg& arg6,
+    const Formatter::Arg& arg7,
+    const Formatter::Arg& arg8,
+    const Formatter::Arg& arg9)
 {
     Uint32 logLevel = Logger::TRACE;
 
     Logger::_putInternal(
-			logFileType,
-			systemId,
-			logComponent,
-			logLevel,
-			formatString,
-			messageId,
-			arg0,
-			arg1,
-			arg2,
-			arg3,
-			arg4,
-			arg5,
-			arg6,
-			arg7,
-			arg8,
-			arg9);			
+        logFileType,
+        systemId,
+        logComponent,
+        logLevel,
+        formatString,
+        messageId,
+        arg0,
+        arg1,
+        arg2,
+        arg3,
+        arg4,
+        arg5,
+        arg6,
+        arg7,
+        arg8,
+        arg9);
 }
 
 void Logger::setHomeDirectory(const String& homeDirectory)
@@ -462,7 +455,7 @@ void Logger::setHomeDirectory(const String& homeDirectory)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Set logLevel. 
+// Set logLevel.
 ////////////////////////////////////////////////////////////////////////////////
 void Logger::setlogLevelMask( const String logLevelList )
 {
@@ -476,51 +469,51 @@ void Logger::setlogLevelMask( const String logLevelList )
         // initialise _severityMask
         _severityMask = 0;
 
- 	// Set logLevelType to indicate the level of logging
+        // Set logLevelType to indicate the level of logging
         // required by the user.
-	if (String::equalNoCase(logLevelName,"TRACE"))
-	{
-	    logLevelType =  Logger::TRACE;
-	}
-	else if (String::equalNoCase(logLevelName,"INFORMATION"))
-	{
-	    logLevelType =  Logger::INFORMATION;
-	}
-	else if (String::equalNoCase(logLevelName,"WARNING"))
-	{
-	    logLevelType = Logger::WARNING;
-	}
-	else if (String::equalNoCase(logLevelName,"SEVERE"))
-	{
-	    logLevelType = Logger::SEVERE;
-	}
-	else if (String::equalNoCase(logLevelName,"FATAL"))
-	{
-	    logLevelType = Logger::FATAL;
-	}
-	// Setting _severityMask.  NOTE:  When adding new logLevels
+        if (String::equalNoCase(logLevelName,"TRACE"))
+        {
+            logLevelType =  Logger::TRACE;
+        }
+        else if (String::equalNoCase(logLevelName,"INFORMATION"))
+        {
+            logLevelType =  Logger::INFORMATION;
+        }
+        else if (String::equalNoCase(logLevelName,"WARNING"))
+        {
+            logLevelType = Logger::WARNING;
+        }
+        else if (String::equalNoCase(logLevelName,"SEVERE"))
+        {
+            logLevelType = Logger::SEVERE;
+        }
+        else if (String::equalNoCase(logLevelName,"FATAL"))
+        {
+            logLevelType = Logger::FATAL;
+        }
+        // Setting _severityMask.  NOTE:  When adding new logLevels
         // it is essential that they are adding in ascending order
         // based on priority.  Once a case statement is true we will
         // continue to set all following log levels with a higher
         // priority.
-	switch(logLevelType)
-	{
-	    case Logger::TRACE:
-		  _severityMask |= Logger::TRACE;
-	    case Logger::INFORMATION:
-		  _severityMask |= Logger::INFORMATION;
-	    case Logger::WARNING:
-		  _severityMask |= Logger::WARNING;
-	    case Logger::SEVERE:
-		  _severityMask |= Logger::SEVERE;
-	    case Logger::FATAL:
-		  _severityMask |= Logger::FATAL;
-	}
+        switch(logLevelType)
+        {
+            case Logger::TRACE:
+                  _severityMask |= Logger::TRACE;
+            case Logger::INFORMATION:
+                  _severityMask |= Logger::INFORMATION;
+            case Logger::WARNING:
+                  _severityMask |= Logger::WARNING;
+            case Logger::SEVERE:
+                  _severityMask |= Logger::SEVERE;
+            case Logger::FATAL:
+                  _severityMask |= Logger::FATAL;
+        }
     }
     else
     {
-	// Property logLevel not specified, set default value.
-	_severityMask = ~Logger::TRACE;
+        // Property logLevel not specified, set default value.
+        _severityMask = ~Logger::TRACE;
     }
     return ;
 }
@@ -541,28 +534,28 @@ Boolean Logger::isValidlogLevel(
 
     if (logLevelName != String::EMPTY)
     {
-	// Lookup the index for logLevel name in _logLevel_LIST
-	index = 0;
-	validlogLevel = false;
+        // Lookup the index for logLevel name in _logLevel_LIST
+        index = 0;
+        validlogLevel = false;
 
-	while (index < _NUM_LOGLEVEL)
-	{
-	    if (String::equalNoCase(logLevelName, LOGLEVEL_LIST[index]))
-	    {
-		// Found logLevel, break from the loop
-		validlogLevel = true;
-		break;
-	    }
-	    else
-	    {
-		index++;
-	    }
-	}
+        while (index < _NUM_LOGLEVEL)
+        {
+            if (String::equalNoCase(logLevelName, LOGLEVEL_LIST[index]))
+            {
+                // Found logLevel, break from the loop
+                validlogLevel = true;
+                break;
+            }
+            else
+            {
+                index++;
+            }
+        }
     }
     else
     {
-	// logLevels is empty, it is a valid value so return true
-	return _SUCCESS;
+        // logLevels is empty, it is a valid value so return true
+        return _SUCCESS;
     }
 
     return validlogLevel;

@@ -298,7 +298,8 @@ TestXMLBuildRepoServ: TestXMLStartServer
 ##
 ## TestXMLRepo
 ##
-TestXMLRepo: poststarttestsclean TestXMLStartServer
+TestXMLRepo: poststarttestsclean
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestXMLStartServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
 
@@ -407,7 +408,8 @@ TestBinBuildRepoServ: TestBinStartServer
 ##
 ## TestBinRepo
 ##
-TestBinRepo: poststarttestsclean TestBinStartServer
+TestBinRepo: poststarttestsclean 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinStartServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
 

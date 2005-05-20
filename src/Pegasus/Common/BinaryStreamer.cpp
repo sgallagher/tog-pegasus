@@ -126,8 +126,7 @@ void BinaryStreamer::append(Array<char>& out, Uint32 ui)
 
 void BinaryStreamer::append(Array<char>& out, Boolean b)
 {
-   char rs=(b==true);
-   out.append(rs);
+  out.append((char*) &b,sizeof(Boolean));
 }
 
 
@@ -1300,7 +1299,7 @@ CIMValue BinaryStreamer::extractValue(const Array<char>& in, Uint32 & pos)
 	       memcpy(&b, ar + pos, sizeof(Boolean));
                //val.set(*(Boolean*)(ar+pos));
 	       val.set(b);
-               pos++;
+	       pos+=sizeof(Boolean);
                break;
             case CIMTYPE_SINT8:
 	      {

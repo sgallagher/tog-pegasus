@@ -33,6 +33,7 @@
 //                (carolann_graves@hp.com)
 //              Warren Otsuka (warren.otsuka@hp.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP101
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3609.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -164,7 +165,7 @@ public:
     @param  value  value of the property (output parameter).
     @return true if the property is found and returned, false otherwise.
     */
-    Boolean getCurrentValue (const CIMName& name, String& value);
+    Boolean getCurrentValue (const CIMName& name, String& value) const;
 
 
     /** 
@@ -174,7 +175,7 @@ public:
     @param  value  value of the property (output parameter).
     @return true if the property is found and returned, false otherwise.
     */
-    Boolean getPlannedValue (const CIMName& name, String& value);
+    Boolean getPlannedValue (const CIMName& name, String& value) const;
 
 
     /** 

@@ -33,6 +33,7 @@
 //            : Sushma Fernandes (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com), bug#3609.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -390,6 +391,7 @@ Boolean ConfigFileHandler::updatePlannedValue (
     Get the current property value for the specified property name. 
 */
 Boolean ConfigFileHandler::getCurrentValue (const CIMName& name, String& value)
+const
 {
     if (_currentFileExist)
     {
@@ -404,6 +406,7 @@ Boolean ConfigFileHandler::getCurrentValue (const CIMName& name, String& value)
     Get the planned property value for the specified property name. 
 */
 Boolean ConfigFileHandler::getPlannedValue (const CIMName& name, String& value)
+const
 {
     if (_plannedFileExist)
     {

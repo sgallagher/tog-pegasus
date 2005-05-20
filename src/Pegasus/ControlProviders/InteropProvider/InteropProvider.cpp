@@ -115,7 +115,7 @@ PEGASUS_NAMESPACE_BEGIN
 #define CDEBUG(X)
 #define LDEBUG()
 //#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
-//#define LDEBUG(X) Logger::put (Logger::DEBUG_LOG, "InteropProvider", Logger::INFORMATION, "$0", X)
+//#define LDEBUG(X) Logger::put (Logger::DEBUG_LOG, "InteropProvider", Logger::TRACE, "$0", X)
 
 //**************************************************************************
 //
@@ -1675,7 +1675,7 @@ void InteropProvider::createInstance(
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                 "Namespace = " + newNamespaceName.getString() +
                     " successfully created.");
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 "Create Namespace: Shareable = $0, Updates allows: $1,  Parent: $2",
                 newNamespaceName.getString(), shareable? "true" : "false", shareable? "true" : "false", parent );
 
@@ -1766,7 +1766,7 @@ void InteropProvider::deleteInstance(
                "Namespace = " + deleteNamespaceName.getString() +
                    " successfully deleted.");
 
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                "Interop Provider Delete Namespace: $0",
                deleteNamespaceName.getString());
         }
@@ -2008,7 +2008,7 @@ void InteropProvider::modifyObjectManagerInstance(const OperationContext & conte
                 PEG_METHOD_EXIT();
                 throw;
             }
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
                 (statisticsFlag? "true" : "false"));
             StatisticalData* sd = StatisticalData::current();

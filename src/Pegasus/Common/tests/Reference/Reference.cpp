@@ -32,6 +32,7 @@
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //               David Dillard, VERITAS Software Corp.
 //                   (david.dillard@veritas.com)
+//               Vijay Eli, IBM (vijayeli@in.ibm.com), bug#2556.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -204,6 +205,11 @@ void test01()
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
      CIMObjectPath h17("//u812/root/cimv25:"
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
+     
+     // Hostname with '_' character support checks, see bug#2556.
+     CIMObjectPath h18("//a_tp:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h19("//atp_:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h20("//a_t_p_-9:9999/_root/_cimv25:_TennisPlayer");
 
      // try IPAddress as hostname which should be good
      CIMObjectPath h_ip0("//192.168.1.80:77/root/cimv25:"
@@ -213,6 +219,17 @@ void test01()
 
      // Now, try some bad object paths.
      Boolean errorDetected = false;
+     try
+     {
+        // first character in hostname is '_' char. 
+        CIMObjectPath h5("//_a_t_p_-9:9999/_root/_cimv25:_TennisPlayer");
+     } catch (const Exception&)
+     {
+        errorDetected = true;
+     }
+     assert(errorDetected);
+
+     errorDetected = false;
      try
      {
         // Octet out of range

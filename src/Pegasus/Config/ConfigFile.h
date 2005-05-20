@@ -29,7 +29,7 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com), bug#3608.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +77,7 @@ public:
 
     @return String    name of the config file.
     */
-    String getFileName();
+    String getFileName() const;
 
 
     /** 

@@ -30,6 +30,7 @@
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By:  Amit K Arora, IBM (amita@in.ibm.com)
+//               Vijay Eli, IBM (vijayeli@in.ibm.com), bug#3608.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -120,7 +121,7 @@ ConfigFile::~ConfigFile ()
 /** 
     Get the name of the configuration file.
 */
-String ConfigFile::getFileName ()
+String ConfigFile::getFileName () const
 {
     return ( _configFile );
 }

@@ -30,6 +30,14 @@
 
 CIMMOFCLI = cimmofl
 
+# The following variables determine the version of the Schema to
+# be loaded into Namespaces.
+# Update the following environment variables to change the version.
+
+PG_INTEROP_SCHEMA_VER=20
+PG_INTEROP_SCHEMA_DIR=VER$(PG_INTEROP_SCHEMA_VER)
+PG_INTEROP_MOF_PATH=$(ROOT)/Schemas/Pegasus/InterOp/$(PG_INTEROP_SCHEMA_DIR)
+
 # The INTEROPNS variable defines the absolute name of the
 # Pegasus InterOp Namespace.
 

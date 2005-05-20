@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com), bug#2556.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -538,11 +539,13 @@ public:
                     return false;
                 }
 
-                while (isalnum(hostname[i]) || (hostname[i] == '-'))
+                while (isalnum(hostname[i]) || (hostname[i] == '-') ||
+                                               (hostname[i] == '_'))
                 {
                     // If a non-digit is encountered, set "all-numeric"
                     // flag to false
-                    if (isalpha(hostname[i]) || (hostname[i] == '-')) {
+                    if (isalpha(hostname[i]) || (hostname[i] == '-') ||
+                                                (hostname[i] == '_')) {
                         hostSegmentIsNumeric = false;
                     }
                     i++;

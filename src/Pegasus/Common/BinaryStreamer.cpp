@@ -180,7 +180,10 @@ Uint32 BinaryStreamer::extractUint32(const char *ar, Uint32 & pos)
 
 Boolean BinaryStreamer::extractBoolean(const char *ar, Uint32 & pos)
 {
-   return ((*((Boolean *)(ar+(pos++))))!=0);
+  Boolean b; //=*(Boolean*)(ar+pos);
+  memcpy ( &b, ar + pos, sizeof(Boolean));
+  pos+=sizeof(Boolean);
+  return b;
 }
 
 

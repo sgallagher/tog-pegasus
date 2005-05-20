@@ -281,29 +281,62 @@ private:
 class PEGASUS_COMMON_LINKAGE AutoMutex
 {
 public:
-    AutoMutex(Mutex & mutex)
-        : _mutex(mutex)
+    AutoMutex(Mutex& mutex, Boolean autoLock = true)
+        : _mutex(mutex),
+          _locked(autoLock)
     {
-       _mutex.lock(pegasus_thread_self());
+        if (autoLock)
+        {
+            _mutex.lock(pegasus_thread_self());
+        }
     }
 
     ~AutoMutex()
     {
-       try
-       {
-          _mutex.unlock();
-       }
-       catch (...)
-       {
-           // Do not propagate exception from destructor
-       }
+        try
+        {
+            unlock();
+        }
+        catch (...)
+        {
+            // Do not propagate exception from destructor
+        }
+    }
+
+    void lock()
+    {
+        if (_locked)
+        {
+            throw AlreadyLocked(pegasus_thread_self());
+        }
+
+        _mutex.lock(pegasus_thread_self());
+        _locked = true;
+    }
+
+    void unlock()
+    {
+        if (!_locked)
+        {
+            throw Permission(pegasus_thread_self());
+        }
+
+        _mutex.unlock();
+        _locked = false;
+    }
+
+    Boolean isLocked() const
+    {
+        return _locked;
     }
 
 private:
+    AutoMutex();    // Unimplemented
     AutoMutex(const AutoMutex& x);    // Unimplemented
     AutoMutex& operator=(const AutoMutex& x);    // Unimplemented
 
-    Mutex & _mutex;
+    Mutex& _mutex;
+    Boolean _locked;
 };
 
 

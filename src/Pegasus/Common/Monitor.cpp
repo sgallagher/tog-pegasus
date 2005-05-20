@@ -369,7 +369,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     fd_set fdread;
     FD_ZERO(&fdread);
 
-    _entry_mut.lock(pegasus_thread_self());
+    AutoMutex autoEntryMutex(_entry_mut);
 
     // Check the stopConnections flag.  If set, clear the Acceptor monitor entries
     if (_stopConnections == 1)
@@ -443,9 +443,9 @@ Boolean Monitor::run(Uint32 milliseconds)
           // unlocked will not result in an ArrayIndexOutOfBounds
           // exception.
 
-          _entry_mut.unlock();
+          autoEntryMutex.unlock();
           o.enqueue(message);
-          _entry_mut.lock(pegasus_thread_self());
+          autoEntryMutex.lock();
        }
     }
 
@@ -476,9 +476,9 @@ Boolean Monitor::run(Uint32 milliseconds)
     */
     maxSocketCurrentPass++;
 
-    _entry_mut.unlock();
+    autoEntryMutex.unlock();
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
-   _entry_mut.lock(pegasus_thread_self());
+    autoEntryMutex.lock();
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     if(events == SOCKET_ERROR)
@@ -533,7 +533,6 @@ Boolean Monitor::run(Uint32 milliseconds)
                       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                           "Monitor::run: Insufficient resources to process request.");
                       _entries[indx]._status = _MonitorEntry::IDLE;
-                      _entry_mut.unlock();
                       return true;
                    }
 */
@@ -594,10 +593,11 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   events |= SocketMessage::READ;
 		   Message *msg = new SocketMessage(_entries[indx].socket, events);
 		   _entries[indx]._status = _MonitorEntry::BUSY;
-		   _entry_mut.unlock();
-
+                   autoEntryMutex.unlock();
 		   q->enqueue(msg);
+                   autoEntryMutex.lock();
 		   _entries[indx]._status = _MonitorEntry::IDLE;
+
 		   return true;
 		}
 	     }
@@ -608,7 +608,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 	  }
        }
     }
-    _entry_mut.unlock();
+
     return(handled_events);
 }
 

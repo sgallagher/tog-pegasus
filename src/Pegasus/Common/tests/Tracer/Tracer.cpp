@@ -82,7 +82,7 @@ Uint32 compare(const char* fileName, const char* compareStr)
     }
     file.seekg((Sint32) -(static_cast<Sint32>(size)+EOF_CHAR),fstream::end);
     memset(readStr.get(), 0, (size+EOF_CHAR+1)*sizeof(char));
-    file.read(readStr.get(),size+EOF_CHAR);
+    file.get(readStr.get(),size+EOF_CHAR);
     (readStr.get())[size]='\0';
     retCode=strcmp(compareStr,readStr.get());
     file.close();

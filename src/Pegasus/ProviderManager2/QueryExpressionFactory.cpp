@@ -29,7 +29,7 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com)
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com), bug#3605.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +44,8 @@
 PEGASUS_NAMESPACE_BEGIN
 
 QueryExpressionRep* QueryExpressionFactory::routeBuildQueryExpressionRep(
-           String queryLanguage,
-	   String query) {
+           const String& queryLanguage,
+	   const String& query) {
    if (queryLanguage=="WQL")
       return new WQLQueryExpressionRep(queryLanguage,query);
    return NULL;

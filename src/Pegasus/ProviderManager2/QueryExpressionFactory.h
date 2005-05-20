@@ -29,7 +29,7 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com)
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com), bug#3605.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -48,8 +48,8 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_PPM_LINKAGE QueryExpressionFactory {
   public:
    static QueryExpressionRep* routeBuildQueryExpressionRep(
-           String queryLanguage,
-	   String query);
+           const String& queryLanguage,
+	   const String& query);
 };
 
 PEGASUS_NAMESPACE_END

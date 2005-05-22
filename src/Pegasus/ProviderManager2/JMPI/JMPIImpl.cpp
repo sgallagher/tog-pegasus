@@ -1256,6 +1256,16 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deliverEvent
    }
 }
 
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1finalize
+   (JNIEnv *jEnv, jobject jThs, jint jCh)
+{
+   CIMOMHandle *ch = DEBUG_ConvertJavaToC (jint, CIMOMHandle*, jCh);
+
+   delete ch;
+
+   DEBUG_ConvertCleanup (jint, jCh);
+}
+
 // -------------------------------------
 // ---
 // -		CIMClass

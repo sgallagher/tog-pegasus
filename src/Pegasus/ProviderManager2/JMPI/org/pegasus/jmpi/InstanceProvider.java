@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
 //
@@ -38,39 +38,40 @@ package org.pegasus.jmpi;
 
 import java.util.Vector;
 
-public interface InstanceProvider extends CIMProvider {
+public interface InstanceProvider extends CIMProvider
+{
+    public CIMInstance getInstance (CIMObjectPath op,
+                                    CIMClass      cc,
+                                    boolean localOnly)
+        throws CIMException;
 
-   public CIMInstance getInstance(CIMObjectPath op,
-                               CIMClass cc,
-                               boolean localOnly)
-                        throws CIMException;
+    public CIMObjectPath createInstance (CIMObjectPath op,
+                                         CIMInstance   ci)
+        throws CIMException;
 
-   public CIMObjectPath createInstance(CIMObjectPath op,
-                               CIMInstance ci)
-                        throws CIMException;
 
-   public abstract void setInstance(CIMObjectPath cop,
-                               CIMInstance cimInstance) 
-                        throws CIMException ;
+    public abstract void setInstance (CIMObjectPath cop,
+                                      CIMInstance   cimInstance)
+        throws CIMException;
 
-   public abstract void deleteInstance(CIMObjectPath cop) 
-                        throws CIMException ;
 
-   public abstract Vector enumInstances(CIMObjectPath cop,
-                               boolean deep,
-                               CIMClass cimClass) 
-                        throws CIMException;
-      
-   public abstract Vector enumInstances(CIMObjectPath cop,
-                               boolean deep,
-                               CIMClass cimClass,
-                               boolean localOnly) 
-                        throws CIMException ;
+    public abstract void deleteInstance (CIMObjectPath cop)
+         throws CIMException;
 
-   public abstract Vector execQuery(CIMObjectPath op,
-                               String queryStatement,
-                               int ql, 
-                               CIMClass cimClass) 
-                        throws CIMException;
+    public abstract Vector enumInstances (CIMObjectPath cop,
+                                          boolean       deep,
+                                          CIMClass      cimClass)
+        throws CIMException;
+
+    public abstract Vector enumInstances (CIMObjectPath cop,
+                                          boolean       deep,
+                                          CIMClass      cimClass,
+                                          boolean       localOnly)
+        throws CIMException;
+
+    public abstract CIMInstance[] execQuery (CIMObjectPath op,
+                                             String        queryStatement,
+                                             String        queryLanguage,
+                                             CIMClass      cimClass)
+        throws CIMException;
 };
-

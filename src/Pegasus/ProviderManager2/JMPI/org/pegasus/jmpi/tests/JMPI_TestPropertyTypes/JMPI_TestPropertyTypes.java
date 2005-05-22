@@ -387,10 +387,10 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
 
 
-   public Vector execQuery(CIMObjectPath op,
-                               String queryStatement,
-                               int ql,
-                               CIMClass cimClass)
+   public CIMInstance[] execQuery (CIMObjectPath cop,
+                                   String        queryStatement,
+                                   String        queryLanguage,
+                                   CIMClass      cimClass)
                         throws CIMException {
       return null;
    }

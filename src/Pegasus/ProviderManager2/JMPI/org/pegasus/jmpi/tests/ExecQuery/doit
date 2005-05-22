@@ -1,0 +1,258 @@
+#!/bin/bash
+#
+# Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+# Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+# Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+# IBM Corp.; EMC Corporation, The Open Group.
+# Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+# IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+# Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+# EMC Corporation; VERITAS Software Corporation; The Open Group.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+# ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+# "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+# LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+#==============================================================================
+#
+# Author:      Mark Hamzy, hamzy@us.ibm.com
+#
+# usage: [run]
+#
+# Will compile all java classes first.  Can optionally be told to run.
+#
+RunCommand ()
+{
+	local CMD=$*
+	local SUCCESS=1
+
+#	echo "\!${CMD}\!"
+
+       	eval echo "${CMD}"
+       	eval ${CMD}
+       	if [ $? -gt 0 ]
+       	then
+       		echo "Failure!"
+       		SUCCESS=0
+       	fi
+
+	return ${SUCCESS}
+}
+
+if ! which true > /dev/null || ! which false > /dev/null
+then
+	echo "Warning: true/false not found.  Adding /bin to PATH"
+	export PATH=${PATH}:/bin
+fi
+if ! which true > /dev/null || ! which false > /dev/null
+then
+	echo "Error: Could not run true/false!"
+	exit 1
+fi
+
+SUCCESS=true
+JMPI_ROOT=../../../../..
+
+TEST_NAMESPACE="test/bob"
+TEST_NAMESPACE_DIR="test#bob"
+TEST_IO_NAMESPACE="test/static"
+TEST_IO_NAMESPACE_DIR="test#static"
+IO_NAMESPACE="root/PG_InterOp"
+IO_NAMESPACE_DIR="root#PG_InterOp"
+
+CLASSNAME=JMPI_RT_ExecQuery1
+
+MAKE=true
+RUN=false
+
+ARGS=""
+
+#
+# Loop through the arguments and search for arguments.
+#
+until [ -z "${1}" ]
+do
+	case "${1}" in
+	run|RUN)
+		RUN=true
+	;;
+	install|INSTALL)
+		if ${SUCCESS}
+		then
+			SCHEMA=${PEGASUS_ROOT}/Schemas/CIM29
+
+			rm -rf ${PEGASUS_ROOT}/repository/${TEST_IO_NAMESPACE_DIR}
+
+			CMD='cimmofl "-R${PEGASUS_ROOT}" "-I${SCHEMA}" "-n${TEST_IO_NAMESPACE}" ${SCHEMA}/CIM_Core.mof'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+
+			CMD='cimmofl "-R${PEGASUS_ROOT}" "-I${SCHEMA}" "-n${TEST_IO_NAMESPACE}" ${SCHEMA}/CIM_Event.mof'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+
+			CMD='cimmofl "-R${PEGASUS_ROOT}" "-n${TEST_IO_NAMESPACE}" ../Load/JMPI_TestExecQuery.mof'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+
+			CMD='cimmofl "-R${PEGASUS_ROOT}" "-n${IO_NAMESPACE}" ../Load/JMPI_TestExecQueryR.mof'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+		fi
+	;;
+	clean|CLEAN)
+		MAKE=false
+
+		if ${SUCCESS}
+		then
+			CMD='rm -f *.class'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+
+			if [ ! -z "${PEGASUS_ROOT}" ]
+			then
+				CMD='rm -rf ${PEGASUS_ROOT}/repository/${TEST_IO_NAMESPACE_DIR}'
+				RunCommand ${CMD}
+				[ $? -eq 0 ] && SUCCESS=false
+
+#				rm ${PEGASUS_ROOT}/repository/${IO_NAMESPACE_DIR}/blah
+			fi
+		fi
+	;;
+	test|TEST)
+		if ${SUCCESS}
+		then
+			CMD='CLI -n ${TEST_IO_NAMESPACE} niall'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+
+			CMD='CLI -n ${TEST_IO_NAMESPACE} ei ${CLASSNAME}'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+		fi
+	;;
+	shutdown|SHUTDOWN)
+		if ${SUCCESS}
+		then
+			CMD='cimserver -s'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+		fi
+	;;
+	ziprepository|ZIPREPOSITORY)
+		if ${SUCCESS}
+		then
+			CURDIR=`pwd`
+			cd ${PEGASUS_ROOT}
+			CMD='zip -r ${CURDIR}/repository.zip repository/'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+			cd ${CURDIR}
+		fi
+	;;
+	cleanrepository|CLEANREPOSITORY)
+		if ${SUCCESS}
+		then
+			CURDIR=`pwd`
+			cd ${PEGASUS_ROOT}
+			CMD='rm -rf repository/'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+			CMD='unzip ${CURDIR}/repository.clean.zip'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+			cd ${CURDIR}
+		fi
+	;;
+	createnamespace|CREATENAMESPACE)
+		if ${SUCCESS}
+		then
+			# Set up the variables that we need
+	                CMD="SystemCreationClassName=`CLI ni -n ${IO_NAMESPACE} CIM_ObjectManager | sed -e 's/,/\n/g' | awk '/^SystemCreationClassName=/ { print $0; }' | sed -e 's/^[^=]*=//'`"
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+	                CMD="SystemName=`CLI ni -n ${IO_NAMESPACE} CIM_ObjectManager | sed -e 's/,/\n/g' | awk '/^SystemName=/ { print $0; }' | sed -e 's/^[^=]*=//'`"
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+			CMD="ObjectManagerCreationClassName=`CLI ni -n ${IO_NAMESPACE} CIM_ObjectManager | sed -e 's/,/\n/g' | awk '/^CIM_ObjectManager\.CreationClassName=/ { print $0; }' | sed -e 's/^[^=]*=//'`"
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+			CMD="ObjectManagerName=`CLI ni -n ${IO_NAMESPACE} CIM_ObjectManager | sed -e 's/,/\n/g' | awk '/^Name=/ { print $0; }' | sed -e 's/^[^=]*=//'`"
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+
+#       		echo "-----"
+#       		echo "SystemCreationClassName=${SystemCreationClassName}"
+#       		echo "SystemName=${SystemName}"
+#       		echo "ObjectManagerCreationClassName=${ObjectManagerCreationClassName}"
+#       		echo "ObjectManagerName=${ObjectManagerName}"
+
+			# Create the namespace ${TEST_NAMESPACE}
+			CMD='CLI -n ${IO_NAMESPACE} ci CIM_Namespace Name=${TEST_NAMESPACE} CreationClassName=CIM_Namespace ObjectManagerCreationClassName=${ObjectManagerCreationClassName} ObjectManagerName=${ObjectManagerName} SystemCreationClassName=${SystemCreationClassName} SystemName=${SystemName}'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+
+			# Create the namespace ${TEST_IO_NAMESPACE}
+			CMD='CLI -n ${IO_NAMESPACE} ci CIM_Namespace Name=${TEST_IO_NAMESPACE} CreationClassName=CIM_Namespace ObjectManagerCreationClassName=${ObjectManagerCreationClassName} ObjectManagerName=${ObjectManagerName} SystemCreationClassName=${SystemCreationClassName} SystemName=${SystemName}'
+			RunCommand ${CMD}
+			[ $? -eq 0 ] && SUCCESS=false
+		fi
+	;;
+	*)
+		ARGS="${ARGS} ${1}"
+	;;
+	esac
+
+	shift
+done
+
+if ${MAKE} && ${SUCCESS}
+then
+	if [ ${CLASSNAME}.java -nt ${CLASSNAME}.class ]
+	then
+		CMD='javac -classpath ${JMPI_ROOT} ${CLASSNAME}.java'
+		RunCommand ${CMD}
+		[ $? -eq 0 ] && SUCCESS=false
+	fi
+
+	if [ ${CLASSNAME}.class -nt ${PEGASUS_ROOT}/lib/${CLASSNAME}.jar ]
+	then
+		CMD='jar -cf ${PEGASUS_ROOT}/lib/${CLASSNAME}.jar -C ${JMPI_ROOT} org/pegasus/jmpi/tests/ExecQuery/${CLASSNAME}.class'
+		RunCommand ${CMD}
+		[ $? -eq 0 ] && SUCCESS=false
+	fi
+
+	if [ JMPI_RT_TestExecQuery1.java -nt JMPI_RT_TestExecQuery1.class ]
+	then
+		CMD='javac -classpath ${JMPI_ROOT} JMPI_RT_TestExecQuery1.java'
+		RunCommand ${CMD}
+		[ $? -eq 0 ] && SUCCESS=false
+	fi
+fi
+
+if ${RUN} && ${SUCCESS}
+then
+	CMD='java -classpath ${CLASSPATH}:. JMPI_RT_TestExecQuery1 ${ARGS}'
+
+	RunCommand ${CMD}
+	[ $? -eq 0 ] && SUCCESS=false
+fi
+
+if ${SUCCESS}
+then
+	exit 0
+else
+	exit 1
+fi

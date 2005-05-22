@@ -111,24 +111,24 @@ protected:
     Message * handleModifyInstanceRequest(const Message * message) throw();
     Message * handleDeleteInstanceRequest(const Message * message) throw();
 
-/*    Message * handleExecuteQueryRequest(const Message * message) throw();
+    Message * handleExecQueryRequest(const Message * message) throw();
 
-*/    Message * handleAssociatorsRequest(const Message * message) throw();
+    Message * handleAssociatorsRequest(const Message * message) throw();
     Message * handleAssociatorNamesRequest(const Message * message) throw();
     Message * handleReferencesRequest(const Message * message) throw();
     Message * handleReferenceNamesRequest(const Message * message) throw();
-/*
-    Message * handleGetPropertyRequest(const Message * message) throw();
-    Message * handleSetPropertyRequest(const Message * message) throw();
-*/
+
+////Message * handleGetPropertyRequest(const Message * message) throw();
+////Message * handleSetPropertyRequest(const Message * message) throw();
+
     Message * handleInvokeMethodRequest(const Message * message) throw();
 
     Message * handleCreateSubscriptionRequest(const Message * message) throw();
-//    Message * handleModifySubscriptionRequest(const Message * message) throw();
+////Message * handleModifySubscriptionRequest(const Message * message) throw();
     Message * handleDeleteSubscriptionRequest(const Message * message) throw();
 
-//  Not supported by CMPI
-//    Message * handleExportIndicationRequest(const Message * message) throw();
+////Not supported by JMPI
+////Message * handleExportIndicationRequest(const Message * message) throw();
 
     Message * handleDisableModuleRequest(const Message * message) throw();
     Message * handleEnableModuleRequest(const Message * message) throw();

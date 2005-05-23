@@ -38,19 +38,7 @@ SOURCES = Repository2.cpp
 
 include $(ROOT)/mak/program.mak
 
-### bug 3011 disabled Binary Repository testing on LINUX_IA64 to allow
-### the nightly tests to run
-
-ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-ifdef PEGASUS_BUG3011_FIXED
 tests: testxml testbin
-else
-tests: testxml 
-	@ $(ECHO) $(PROGRAM) -bug3011 -testbin  not run on this platform
-endif
-else
-tests: testxml testbin
-endif
 	@ $(RMREPOSITORY) $(TMP_DIR)/repository
 	@ $(ECHO) $(PROGRAM) +++++ passed all tests
 

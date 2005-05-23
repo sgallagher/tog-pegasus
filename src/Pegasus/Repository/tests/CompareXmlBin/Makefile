@@ -122,10 +122,10 @@ ifeq ($(OS),HPUX)
 PEGASUS_ENABLE_COMPAREREPOSITORIES=true
 endif
 
-# Test disabled for IA64 Linux platforms.  See Bugzilla 3011.
-#ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU) 
-#PEGASUS_ENABLE_COMPAREREPOSITORIES=true 
-#endif
+# Test enabled  for IA64 Linux platforms.
+ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU) 
+PEGASUS_ENABLE_COMPAREREPOSITORIES=true 
+endif
 
 ifdef PEGASUS_ENABLE_COMPAREREPOSITORIES
 tests:  repo_build run_test clean

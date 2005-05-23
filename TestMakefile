@@ -327,14 +327,9 @@ TestXMLRepo: poststarttestsclean
 ### bug 3011 disabled Binary Repository testing on LINUX_IA64 to allow
 ### the nightly tests to run
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IA64_GNU)
-TestBinRepository: FORCE
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
-	@ $(ECHO) TestBinRepository +++++ NOT RUN on this platform - bug 3011
-else
 TestBinRepository: TestBinClean TestBinBuildRepo  TestBinRepo
 	@ $(ECHO) TestBinRepository +++++ passed all test
-endif
+
 
 ############################
 ##

@@ -717,11 +717,11 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1getClass
 }
 
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1createClass
-  (JNIEnv *jEnv, jobject jThs, jint jCh, jint jCop, int jCl)
+  (JNIEnv *jEnv, jobject jThs, jint jCh, jint jCop, jint jCl)
 {
    CIMOMHandle      *ch  = DEBUG_ConvertJavaToC (jint, CIMOMHandle*, jCh);
    CIMObjectPath    *cop = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jCop);
-   CIMClass         *cl  = DEBUG_ConvertJavaToC (int, CIMClass*, jCl);
+   CIMClass         *cl  = DEBUG_ConvertJavaToC (jint, CIMClass*, jCl);
    OperationContext  ctx;
 
    try {
@@ -847,11 +847,11 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1deleteInstance
 }
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1createInstance
-  (JNIEnv *jEnv, jobject jThs, jint jCh, jint jCop, int jCi)
+  (JNIEnv *jEnv, jobject jThs, jint jCh, jint jCop, jint jCi)
 {
    CIMOMHandle      *ch  = DEBUG_ConvertJavaToC (jint, CIMOMHandle*, jCh);
    CIMObjectPath    *cop = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jCop);
-   CIMInstance      *ci  = DEBUG_ConvertJavaToC (int, CIMInstance*, jCi);
+   CIMInstance      *ci  = DEBUG_ConvertJavaToC (jint, CIMInstance*, jCi);
    OperationContext  ctx;
 
    try {
@@ -1514,7 +1514,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMClass__1filterProperties
       (JNIEnv *jEnv, jobject jThs, jint jInst, jobjectArray jPl, jboolean iq, jboolean ic, jboolean lo)
 {
    CIMClass *cc   = DEBUG_ConvertJavaToC (jint, CIMClass*, jInst);
-   CIMClass *cf;
+   CIMClass *cf   = 0;
    CIMName   clsn = cc->getClassName();
 
    if (lo) {
@@ -1752,7 +1752,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMInstance__1filterProperties
       (JNIEnv *jEnv, jobject jThs, jint jInst, jobjectArray jPl, jboolean iq, jboolean ic, jboolean lo)
 {
    CIMInstance *ci   = DEBUG_ConvertJavaToC (jint, CIMInstance*, jInst);
-   CIMInstance *cf;
+   CIMInstance *cf   = 0;
    CIMName      clsn = ci->getClassName();
 
    if (lo) {
@@ -3416,11 +3416,21 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMNameSpace__1setHost
 JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMNameSpace__1setNameSpace
   (JNIEnv *jEnv, jobject jThs, jint jNs, jstring jN)
 {
-   _nameSpace *cNs = DEBUG_ConvertJavaToC (jint, _nameSpace*, jN);
+   _nameSpace *cNs = DEBUG_ConvertJavaToC (jint, _nameSpace*, jNs);
    const char *str = jEnv->GetStringUTFChars(jN,NULL);
 
    cNs->nameSpace_=str;
    jEnv->ReleaseStringUTFChars(jN,str);
+}
+
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMNameSpace__1finalize
+   (JNIEnv *jEnv, jobject jThs, jint jNs)
+{
+   _nameSpace *cNs = DEBUG_ConvertJavaToC (jint, _nameSpace*, jNs);
+
+   delete cNs;
+
+   DEBUG_ConvertCleanup (jint, jNs);
 }
 
 // -------------------------------------
@@ -3825,7 +3835,7 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1setProperty
 {
    CIMClient     *cCc = DEBUG_ConvertJavaToC (jint, CIMClient*, jCc);
    CIMObjectPath *cop = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jCop);
-   CIMValue      *val = DEBUG_ConvertJavaToC (jint, CIMValue*, jCop);
+   CIMValue      *val = DEBUG_ConvertJavaToC (jint, CIMValue*, jV);
    const char    *str = jEnv->GetStringUTFChars(jPn,NULL);
    CIMName        pName(str);
 

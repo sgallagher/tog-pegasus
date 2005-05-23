@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,11 +34,13 @@
 //              Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/OperationContextInternal.h> 
+#include <Pegasus/Common/OperationContextInternal.h>
 #include "IndicationOperationAggregate.h"
 
 PEGASUS_USING_STD;
@@ -65,7 +67,7 @@ IndicationOperationAggregate::~IndicationOperationAggregate()
     for (Uint32 i = 0; i < numberRequests; i++)
     {
         //
-        //  Since deleteRequest also removes the element from the array, 
+        //  Since deleteRequest also removes the element from the array,
         //  delete first element of the array each time
         //
         deleteRequest(0);
@@ -74,16 +76,16 @@ IndicationOperationAggregate::~IndicationOperationAggregate()
     for (Uint32 j = 0; j < numberResponses; j++)
     {
         //
-        //  Since deleteResponse also removes the element from the array, 
+        //  Since deleteResponse also removes the element from the array,
         //  delete first element of the array each time
         //
         deleteResponse(0);
     }
 }
 
-Boolean IndicationOperationAggregate::valid() const
+Boolean IndicationOperationAggregate::isValid() const
 {
-    return (_magicNumber == _theMagicNumber) ? true: false;
+    return (_magicNumber == _theMagicNumber);
 }
 
 CIMRequestMessage* IndicationOperationAggregate::getOrigRequest() const
@@ -172,7 +174,7 @@ Boolean IndicationOperationAggregate::appendResponse(
     AutoMutex autoMut(_appendResponseMutex);
     _responseList.append(response);
     Boolean returnValue = (getNumberResponses() == getNumberIssued());
-    
+
     return returnValue;
 }
 
@@ -197,7 +199,7 @@ void IndicationOperationAggregate::appendRequest(
 {
     AutoMutex autoMut(_appendRequestMutex);
     _requestList.append(request);
-    
+
 }
 
 Uint32 IndicationOperationAggregate::getNumberRequests() const
@@ -220,7 +222,7 @@ ProviderClassList IndicationOperationAggregate::findProvider(
     const String& messageId) const
 {
     //
-    //  Look in the list of requests for the request with the message ID 
+    //  Look in the list of requests for the request with the message ID
     //  corresponding to the message ID in the response
     //
     ProviderClassList provider;
@@ -239,29 +241,29 @@ ProviderClassList IndicationOperationAggregate::findProvider(
                     CIMCreateSubscriptionRequestMessage* request =
                         (CIMCreateSubscriptionRequestMessage *) getRequest(i);
                     ProviderIdContainer pidc = request->operationContext.get
-                        (ProviderIdContainer::NAME); 
+                        (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
                     break;
                 }
-        
+
                 case CIM_DELETE_SUBSCRIPTION_REQUEST_MESSAGE:
                 {
                     CIMDeleteSubscriptionRequestMessage* request =
                         (CIMDeleteSubscriptionRequestMessage *) getRequest(i);
                     ProviderIdContainer pidc = request->operationContext.get
-                        (ProviderIdContainer::NAME); 
+                        (ProviderIdContainer::NAME);
                     provider.provider = pidc.getProvider();
                     provider.providerModule = pidc.getModule();
                     provider.classList = request->classNames;
                     break;
                 }
-        
+
                 default:
                 {
                     PEG_TRACE_STRING(TRC_INDICATION_SERVICE, Tracer::LEVEL2,
-                        "Unexpected request type " + String 
+                        "Unexpected request type " + String
                         (MessageTypeToString(getRequest(i)->getType())) +
                         " in findProvider");
                     PEGASUS_ASSERT(false);

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,11 +27,13 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3601
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,8 +52,8 @@ PEGASUS_NAMESPACE_BEGIN
 
 /**
 
-    IndicationOperationAggregate is the class that manages the aggregation of 
-    indication provider responses to requests sent by the IndicationService.  
+    IndicationOperationAggregate is the class that manages the aggregation of
+    indication provider responses to requests sent by the IndicationService.
     This class is modeled on the OperationAggregate class used by the
     CIMOperationRequestDispatcher.
 
@@ -77,18 +79,18 @@ public:
     ~IndicationOperationAggregate();
 
     /**
-        Determines if the instance is valid, based on the magic number set 
+        Determines if the instance is valid, based on the magic number set
         in the constructor.
 
         @return  TRUE, if valid
                  FALSE, otherwise
     */
-    Boolean valid() const;
-    
+    Boolean isValid() const;
+
     /**
-        Gets the original request, if any,  received by the IndicationService 
-        for this aggregation.  The original request may be Create Instance, 
-        Modify Instance, or Delete Instance.  In the cases of Deletion of an 
+        Gets the original request, if any,  received by the IndicationService
+        for this aggregation.  The original request may be Create Instance,
+        Modify Instance, or Delete Instance.  In the cases of Deletion of an
         Expired or Referencing Subscription, there is no original request.
 
         @return  a pointer to the request, if there is a request
@@ -97,7 +99,7 @@ public:
     CIMRequestMessage* getOrigRequest() const;
 
     /**
-        Gets the message type of the original request, if any, received by the 
+        Gets the message type of the original request, if any, received by the
         IndicationService.
 
         @return  the request type, if there is a request
@@ -106,7 +108,7 @@ public:
     Uint32 getOrigType() const;
 
     /**
-        Gets the message ID of the original request, if any, received by the 
+        Gets the message ID of the original request, if any, received by the
         IndicationService.
 
         @return  the message ID, if there is a request
@@ -115,7 +117,7 @@ public:
     String getOrigMessageId() const;
 
     /**
-        Gets the destination of the original request, if any, received by the 
+        Gets the destination of the original request, if any, received by the
         IndicationService.
 
         @return  the destination, if there is a request
@@ -124,7 +126,7 @@ public:
     Uint32 getOrigDest() const;
 
     /**
-        Determines if the original request requires a response, based on the 
+        Determines if the original request requires a response, based on the
         type of the original request.  Create Instance, Modify Instance, and
         Delete Instance requests require a response.
 
@@ -132,7 +134,7 @@ public:
                  FALSE, otherwise
     */
     Boolean requiresResponse() const;
-    
+
     /**
         Gets the list of indication subclasses for the subscription.
 
@@ -141,8 +143,8 @@ public:
     Array<CIMName>& getIndicationSubclasses();
 
     /**
-        Stores the object path of the created instance in the operation 
-        aggregate object, if original request was to create a subscription 
+        Stores the object path of the created instance in the operation
+        aggregate object, if original request was to create a subscription
         instance.
 
         @param   path                  the object path of the created instance
@@ -172,7 +174,7 @@ public:
     void setNumberIssued(Uint32 i);
 
     /**
-        Appends a new response to the response list for this aggregation.  
+        Appends a new response to the response list for this aggregation.
 
         @param   response              the response
 
@@ -189,7 +191,7 @@ public:
     Uint32 getNumberResponses() const;
 
     /**
-        Gets the response at the specified position in the list for this 
+        Gets the response at the specified position in the list for this
         aggregation.
 
         @return  a pointer to the response
@@ -197,7 +199,7 @@ public:
     CIMResponseMessage* getResponse(Uint32 pos) const;
 
     /**
-        Deletes the response at the specified position in the list for this 
+        Deletes the response at the specified position in the list for this
         aggregation.
 
         @param   pos                   the position in the list of the response
@@ -206,7 +208,7 @@ public:
     void deleteResponse(Uint32 pos);
 
     /**
-        Appends a new request to the request list for this aggregation.  
+        Appends a new request to the request list for this aggregation.
 
         @param   request               the request
     */
@@ -220,7 +222,7 @@ public:
     Uint32 getNumberRequests() const;
 
     /**
-        Gets the request at the specified position in the list for this 
+        Gets the request at the specified position in the list for this
         aggregation.
 
         @return  a pointer to the request
@@ -228,7 +230,7 @@ public:
     CIMRequestMessage* getRequest(Uint32 pos) const;
 
     /**
-        Deletes the request at the specified position in the list for this 
+        Deletes the request at the specified position in the list for this
         aggregation.
 
         @param   pos                   the position in the list of the request
@@ -239,23 +241,23 @@ public:
     /**
         Finds the provider that sent the response with the specified message ID.
 
-        @return  a ProviderClassList struct for the provider that sent the 
+        @return  a ProviderClassList struct for the provider that sent the
                      response
     */
     ProviderClassList findProvider(const String& messageId) const;
-    
+
 private:
-    /** 
+    /**
         Hidden (unimplemented) default constructor
      */
     IndicationOperationAggregate();
 
-    /** 
+    /**
         Hidden (unimplemented) copy constructor
      */
     IndicationOperationAggregate(const IndicationOperationAggregate& x);
 
-    /** 
+    /**
         Hidden (unimplemented) assignment operator
      */
     IndicationOperationAggregate& operator==(

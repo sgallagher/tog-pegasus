@@ -645,14 +645,29 @@ void ProviderRegistrationProvider::createInstance(
 		"Missing ClassName which is required property in PG_ProviderCapabilities class."));
 	}
 
-	if (instanceObject.findProperty(_PROPERTY_NAMESPACES) == PEG_NOT_FOUND)
+        // Validate the Namespaces property
+
+        Uint32 namespacesIndex =
+            instanceObject.findProperty(_PROPERTY_NAMESPACES);
+        Array<String> namespacesArray;
+        if (namespacesIndex != PEG_NOT_FOUND)
+        {
+            CIMValue namespacesValue =
+                instanceObject.getProperty(namespacesIndex).getValue();
+            if (!namespacesValue.isNull())
+            {
+                namespacesValue.get(namespacesArray);
+            }
+        }
+
+        if (namespacesArray.size() == 0)
 	{
-		//l10n 485
-	    //throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
-		//"Missing Namespaces which is required property in PG_ProviderCapabilities class.");
-		throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,MessageLoaderParms(
-		"ControlProviders.ProviderRegistrationProvider.ProviderRegistrationProvider.MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES",
-		"Missing Namespaces which is required property in PG_ProviderCapabilities class."));
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
+                "ControlProviders.ProviderRegistrationProvider."
+                    "ProviderRegistrationProvider."
+                    "MISSING_NAMESPACES_IN_PG_PROVIDERCAPABILITIES",
+                "Missing Namespaces which is required property in "
+                    "PG_ProviderCapabilities class."));
 	}
 
         // Validate the ProviderType property
@@ -662,12 +677,15 @@ void ProviderRegistrationProvider::createInstance(
         Array<Uint16> providerTypeArray;
         if (providerTypeIndex != PEG_NOT_FOUND)
         {
-            instanceObject.getProperty(providerTypeIndex).getValue().
-                get(providerTypeArray);
+            CIMValue providerTypeValue =
+                instanceObject.getProperty(providerTypeIndex).getValue();
+            if (!providerTypeValue.isNull())
+            {
+                providerTypeValue.get(providerTypeArray);
+            }
         }
 
-        if ((providerTypeIndex == PEG_NOT_FOUND) ||
-            (providerTypeArray.size() == 0))
+        if (providerTypeArray.size() == 0)
         {
             throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
                 MessageLoaderParms(

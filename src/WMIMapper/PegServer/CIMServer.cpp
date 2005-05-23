@@ -337,15 +337,135 @@ CIMServer::~CIMServer()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::~CIMServer()");
 
-    // Note: do not delete the acceptor because it belongs to the Monitor
-    // which takes care of disposing of it.
+    // Start deleting the objects. 
+     for (Uint32 i = 0, n = _acceptors.size (); i < n; i++) 
+       { 
+         HTTPAcceptor *p = _acceptors[i]; 
+         delete p; 
+       } 
+     // The order is very important. 
+    
+     // 13 
+     /*if (_indicationService) 
+       { 
+         delete _indicationService; 
+       } */
+    
+     // 12 
+     // HTTPAuthenticationDelegaor depends on 
+     // CIMRepository, CIMOperationRequestDecode and 
+     // CIMExportRequestDecoder 
+     if (_httpAuthenticatorDelegator) 
+       { 
+         delete _httpAuthenticatorDelegator; 
+       } 
+     // 11 
+     if (_cimExportRequestDecoder) 
+       { 
+         delete _cimExportRequestDecoder; 
+       } 
+     // 10 
+     if (_cimExportResponseEncoder) 
+       { 
+         delete _cimExportResponseEncoder; 
+       } 
+     // 9 
+     if (_cimExportRequestDispatcher) 
+       { 
+         delete _cimExportRequestDispatcher; 
+       } 
+     // 8 
+     // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer 
+     // and CIMOperationResponseEncoder 
+     if (_cimOperationRequestDecoder) 
+       { 
+         delete _cimOperationRequestDecoder; 
+       } 
+     // 7 
+     if (_cimOperationResponseEncoder) 
+       { 
+         delete _cimOperationResponseEncoder; 
+       } 
+     // BinaryMessageHandler depends on CIMOperationRequestDispatcher 
+     /*if (_binaryMessageHandler)    //6 
+       { 
+         delete _binaryMessageHandler; 
+       } */
+     // CIMOperationRequestAuthorizer depends on 
+     // CIMOperationRequestDispatcher 
+     if (_cimOperationRequestAuthorizer) 
+       { 
+         delete _cimOperationRequestAuthorizer; 
+       } 
+     // IndicationHandlerService , 3. It uses CIMOperationRequestDispatcher 
+     /*if (_handlerService) 
+       { 
+         delete _handlerService; 
+       } */
+     // CIMOperationRequestDispatcher depends on 
+     // CIMRepository and ProviderRegistrationManager 
+     if (_cimOperationRequestDispatcher) 
+       { 
+         // Keeps an internal list of control providers. Must 
+         // delete this before ModuleController. 
+         delete _cimOperationRequestDispatcher; 
+       } 
+     // ProviderManager depends on ProcviderRegistrationManager 
+     // 5 
+     /*if (_providerManager) 
+       { 
+         delete _providerManager; 
+       } 
+     // 4 
+     if (_controlService) 
+       { 
+         // ModuleController takes care of deleting all wrappers around 
+         // the control providers. 
+         delete _controlService; 
+       } 
 
-/*
-    if (_providerRegistrationManager)
-    {
-        delete _providerRegistrationManager;
-    }
-*/
+	// IndicationHandlerService, and ProviderRegistrationManager, and thus should be
+	// deleted before the ProviderManagerService, IndicationHandlerService, and 
+	// ProviderRegistrationManager are deleted. 
+	 if (_providerRegistrationManager)
+	 {
+		 delete _providerRegistrationManager;
+	 }
+
+	 // Find all of the control providers (module) 
+     // Must delete CIMOperationRequestDispatcher _before_ deleting each 
+     // of the control provider. The CIMOperationRequestDispatcher keeps 
+     // its own table of the internal providers (pointers). 
+     for (Uint32 i = 0, n = _controlProviders.size (); i < n; i++) 
+       { 
+         ProviderMessageFacade *p = _controlProviders[i]; 
+         // The ~ProviderMessageFacade calls 'terminate' on the control providers. 
+         delete p; 
+       } */
+     // The SSL control providers used the SSL context manager. 
+     if (_sslContextMgr) 
+       { 
+         delete _sslContextMgr; 
+         _sslContextMgr = 0; 
+       } 
+     // ConfigManager. Really weird way of doing it. 
+     ConfigManager *configManager = ConfigManager::getInstance (); 
+     if (configManager) 
+       { 
+         // Refer to Bug #3537. It will soon have a fix. 
+         //delete configManager; 
+       } 
+     UserManager *userManager = UserManager::getInstance (_repository); 
+     if (userManager) 
+       { 
+         // Bug #3537 will soon fix this 
+         //delete userManager; 
+       } 
+     // Lastly the repository. 
+     if (_repository) 
+       { 
+         delete _repository; 
+       } 
 
     PEG_METHOD_EXIT();
 }

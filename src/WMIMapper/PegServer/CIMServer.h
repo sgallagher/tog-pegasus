@@ -68,12 +68,12 @@ class CIMExportRequestDecoder;
 class HTTPAcceptor;
 class CIMRepository;
 
-class ModuleController;
+/*class ModuleController;
 class IndicationHandlerService;
 class IndicationService;
 class ProviderManagerService;
 class ProviderRegistrationManager;
-class BinaryMessageHandler;
+class BinaryMessageHandler;*/
 class SSLContextManager;
 
 
@@ -160,7 +160,7 @@ private:
 
     Monitor* _monitor;
     CIMRepository* _repository;
-    CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
+	CIMOperationRequestDispatcher* _cimOperationRequestDispatcher;
     CIMOperationResponseEncoder* _cimOperationResponseEncoder;
     CIMOperationRequestDecoder* _cimOperationRequestDecoder;
     CIMOperationRequestAuthorizer* _cimOperationRequestAuthorizer;
@@ -173,12 +173,12 @@ private:
     Array<HTTPAcceptor*> _acceptors;
     AutoPtr<CIMServerState> _serverState; //PEP101
 
-    ModuleController* _controlService;
+    /*ModuleController* _controlService;
 	IndicationHandlerService* _handlerService;
     IndicationService* _indicationService;
     ProviderManagerService* _providerManager;
     ProviderRegistrationManager* _providerRegistrationManager;
-    BinaryMessageHandler *_binaryMessageHandler;
+    BinaryMessageHandler *_binaryMessageHandler;*/
     SSLContextManager* _sslContextMgr;
     
     void _init(void);

@@ -34,6 +34,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +77,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep : public QueryChainedIdentifie
           Parses the string into the various components of a CQL identifier.
           Throws parsing errors.
       */
-    CQLChainedIdentifierRep(String inString);
+    CQLChainedIdentifierRep(const String& inString);
 
     CQLChainedIdentifierRep(const CQLIdentifier &id);
 
@@ -96,7 +97,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifierRep : public QueryChainedIdentifie
 
   private:
 
-    void parse(String & string);
+    void parse(const String& string);
 
 };
 

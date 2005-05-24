@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +56,7 @@ CQLChainedIdentifier::CQLChainedIdentifier():
 	_rep = new CQLChainedIdentifierRep();
 }
 
-CQLChainedIdentifier::CQLChainedIdentifier(String inString):
+CQLChainedIdentifier::CQLChainedIdentifier(const String& inString):
 	QueryChainedIdentifier()
 {
 	if(_rep) 

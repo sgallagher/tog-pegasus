@@ -33,7 +33,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +83,7 @@ class PEGASUS_CQL_LINKAGE CQLChainedIdentifier : public QueryChainedIdentifier
         @return - None.
         @throws - None.
     */
-    CQLChainedIdentifier(String inString);
+    CQLChainedIdentifier(const String& inString);
     
     /**  
 	The constructor for a CQLChainedIdentifier object.

@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3588
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ CQLChainedIdentifierRep::CQLChainedIdentifierRep():
 {
 }
 
-CQLChainedIdentifierRep::CQLChainedIdentifierRep(String inString):
+CQLChainedIdentifierRep::CQLChainedIdentifierRep(const String& inString):
   QueryChainedIdentifierRep()
 {
 	parse(inString);
@@ -103,7 +103,7 @@ CQLChainedIdentifierRep& CQLChainedIdentifierRep::operator=(const CQLChainedIden
 	return *this;
 }
 
-void CQLChainedIdentifierRep::parse(String & string){
+void CQLChainedIdentifierRep::parse(const String & string){
 	PEG_METHOD_ENTER(TRC_CQL, "CQLChainedIdentifierRep::parse");	
 	/* 
 	  - parse string on "."

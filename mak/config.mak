@@ -417,6 +417,11 @@ ifdef PEGASUS_DISABLE_PERFINST
     FLAGS += -DPEGASUS_DISABLE_PERFINST
 endif
 
+# Allow remote CMPI functionality to be enabled
+ifdef PEGASUS_ENABLE_REMOTE_CMPI
+    FLAGS += -DPEGASUS_ENABLE_REMOTE_CMPI
+endif
+
 ############################################################
 #
 # Set any vendor-specific compile flags

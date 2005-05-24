@@ -149,7 +149,11 @@ Boolean containsCIMInstance (
 ProviderRegistrationManager::ProviderRegistrationManager(CIMRepository* repository)
     : _repository(repository)
 {
+#ifdef PEGASUS_ENABLE_REMOTE_CMPI
     supportWildCardNamespaceNames=true;
+#else
+    supportWildCardNamespaceNames=false;
+#endif
 
     _registrationTable = new RegistrationTable;
 

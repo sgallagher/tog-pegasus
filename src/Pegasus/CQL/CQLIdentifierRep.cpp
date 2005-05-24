@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3589
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +56,7 @@ CQLIdentifierRep::CQLIdentifierRep():
 
 }
 
-CQLIdentifierRep::CQLIdentifierRep(String identifier): 
+CQLIdentifierRep::CQLIdentifierRep(const String& identifier): 
   QueryIdentifierRep()
 {
   _isWildcard = false;

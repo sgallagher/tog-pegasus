@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3589
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ class PEGASUS_CQL_LINKAGE CQLIdentifierRep: public QueryIdentifierRep
   public:
     CQLIdentifierRep();
     /**  The constructor for a CQLIdentifier object
-          takes a string as input.  The string should contain the
+          takes a const string reference as input.  The string should contain the
           property portion of a CQLChainedIdentifier.
     
          The constructor parses the input string into the components of 
@@ -81,7 +81,7 @@ class PEGASUS_CQL_LINKAGE CQLIdentifierRep: public QueryIdentifierRep
     
          Throws parsing errors.
       */
-    CQLIdentifierRep(String identifier);
+    CQLIdentifierRep(const String& identifier);
 
     CQLIdentifierRep(const CQLIdentifierRep* rep);
 
@@ -90,6 +90,12 @@ class PEGASUS_CQL_LINKAGE CQLIdentifierRep: public QueryIdentifierRep
     CQLIdentifierRep& operator=(const CQLIdentifierRep& rhs);
 
   private:
+
+      /**   This method needs to continue to take a String object, not a reference nor a const
+            reference.  The reason being it changes the value of the parameter and that
+            changed value should not be returned to the caller.
+      */
+
     void parse(String indentifier);
 
     static Char16 STAR;

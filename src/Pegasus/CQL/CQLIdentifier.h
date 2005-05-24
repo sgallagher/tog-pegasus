@@ -34,6 +34,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3589
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +97,7 @@ class PEGASUS_CQL_LINKAGE CQLIdentifier: public QueryIdentifier
          @throws - CQLIdentifierParseException
          <I><B>Experimental Interface</B></I><BR>
       */
-    CQLIdentifier(String identifier);
+    CQLIdentifier(const String& identifier);
 
     /**
         Copy constructor

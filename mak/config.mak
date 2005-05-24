@@ -417,6 +417,11 @@ ifdef PEGASUS_DISABLE_PERFINST
     FLAGS += -DPEGASUS_DISABLE_PERFINST
 endif
 
+# Set compile flag to control compilation of SNIA Extensions
+ifdef PEGASUS_SNIA_EXTENSIONS
+    FLAGS += -DPEGASUS_SNIA_EXTENSIONS
+endif
+
 # Allow remote CMPI functionality to be enabled
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
     FLAGS += -DPEGASUS_ENABLE_REMOTE_CMPI

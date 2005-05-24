@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) bug#3495
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,12 +70,17 @@ extern "C" {
         return NULL;
       }
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
-      CIMInstance* cInst=new CIMInstance(inst->clone());
-      CMPI_Object* obj=new CMPI_Object(cInst);
-      obj->unlink();
-      CMPIInstance* neInst=reinterpret_cast<CMPIInstance*>(obj);
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return neInst;
+      try {
+            AutoPtr<CIMInstance> cInst(new CIMInstance(inst->clone()));
+            AutoPtr<CMPI_Object> obj(new CMPI_Object(cInst.get()));
+            cInst.release();
+            obj->unlink();
+            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            return reinterpret_cast<CMPIInstance *>(obj.release());
+      } catch(const std::bad_alloc&) {
+          if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+          return NULL;
+      }
    }
 
    static CMPIData instGetPropertyAt(const CMPIInstance* eInst, CMPICount pos, CMPIString** name,
@@ -199,26 +205,37 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst, CMPIStatus* rc) {
+   static CMPIObjectPath* instGetObjectPath(const CMPIInstance* eInst,
+                                            CMPIStatus* rc) {
       CIMInstance* inst=(CIMInstance*)eInst->hdl;
       if (!inst)  {
         if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
         return NULL;
       }
       const CIMObjectPath &clsRef=inst->getPath();
-      CMPIObjectPath *cop=NULL;
-      if (clsRef.getKeyBindings().size()==0) {
-         CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
-         const CIMObjectPath &ref=inst->buildPath(
-            *(reinterpret_cast<const CIMConstClass*>(cc)));
-         cop=reinterpret_cast<CMPIObjectPath*>
-            (new CMPI_Object(new CIMObjectPath(ref)));
+      AutoPtr<CIMObjectPath> objPath(NULL);
+      AutoPtr<CMPI_Object> obj(NULL);
+      try {
+            if (clsRef.getKeyBindings().size()==0) {
+              CIMClass *cc=mbGetClass(CMPI_ThreadContext::getBroker(),clsRef);
+              const CIMObjectPath &ref=inst->buildPath(
+                      *(reinterpret_cast<const CIMConstClass*>(cc)));
+              objPath.reset(new CIMObjectPath(ref));
+            }
+            else 
+              objPath.reset(new CIMObjectPath(clsRef));
 
+            obj.reset(new CMPI_Object(objPath.get()));
+            objPath.release();
+            obj->unlink();
+            if (rc) CMSetStatus(rc,CMPI_RC_OK);
+            return reinterpret_cast<CMPIObjectPath*> (obj.release()); 
+      } catch(const std::bad_alloc&) {
+          if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
+          return NULL;
       }
-      else cop=reinterpret_cast<CMPIObjectPath*>(new CMPI_Object(new CIMObjectPath(clsRef)));
-      if (rc) CMSetStatus(rc,CMPI_RC_OK);
-      return cop;
    }
+
    static CMPIStatus instSetObjectPath( CMPIInstance* eInst, const CMPIObjectPath *obj)
    {
     /* IBMLR: Have not yet implemented this */

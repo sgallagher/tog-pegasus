@@ -372,7 +372,7 @@ void String::reserveCapacity(Uint32 capacity)
 
 Uint32 String::size() const
 {
-//#if defined (PEGASUS_OS_VMS)
+#if defined (PEGASUS_OS_VMS)
   //
   // This prevents returning a minus number.
   //
@@ -381,19 +381,19 @@ Uint32 String::size() const
   //  initialized and there is no check for
   //  a negative number in the parser!
   //
-//  Uint32 foo;
-//  foo = _rep->c16a.size();
-//  if (foo == 0)
-//  {
-//    return 0;
-//  }
-//  else
-//  {
-//    return (foo -1);
-//  }
-//#else
+  Uint32 foo;
+  foo = _rep->c16a.size();
+  if (foo == 0)
+  {
+    return 0;
+  }
+  else
+  {
+    return (foo -1);
+  }
+#else
     return _rep->c16a.size() - 1;
-//#endif
+#endif
 }
 
 const Char16* String::getChar16Data() const

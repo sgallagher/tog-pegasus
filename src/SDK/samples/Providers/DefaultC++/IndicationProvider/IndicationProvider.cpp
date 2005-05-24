@@ -129,7 +129,6 @@ void IndicationProvider::modifySubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    _generateIndication(_handler, "modifySubscription");
 }
 
 void IndicationProvider::deleteSubscription (

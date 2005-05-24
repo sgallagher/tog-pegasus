@@ -90,6 +90,9 @@ void CIMOMStatDataProvider::getInstance(
 	// begin processing the request
 	handler.processing();
 
+    //Make mutualy exclusive, only one thread at a time can exicute
+    AutoMutex autoMut(_mutex);
+
 	// instance index corresponds to reference index
 	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
 	{  //cout << "this is what we are looking at " << _references[i].toString() <<endl <<endl;
@@ -179,21 +182,18 @@ throw CIMNotSupportedException("StatisticalData::deleteInstance");
 
 CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef)
 {
-//cout << "we are in getinstance of CIMOMStatData" << endl;
 
    StatisticalData* sd = StatisticalData::current();
    char buffer[32];
    sprintf(buffer, "%u", type);
 
    checkObjectManager();
-//cerr << "this is cimtime for "<< type <<" - "<<sd->cimomTime[type] <<endl;
-//cerr << "this is providertime for " << sd->providerTime[type] << endl;
 
    CIMDateTime cimom_time = CIMDateTime((sd->cimomTime[type]), true);
    CIMDateTime provider_time = CIMDateTime((sd->providerTime[type]), true);
    Uint16 mof_type = getOpType(type);
 
-   //printf("this is returned form getOpType %d\n",mof_type);
+
 
    CIMInstance requestedInstance("CIM_CIMOMStatisticalData");
    requestedInstance.addProperty(CIMProperty("InstanceID",

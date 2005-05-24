@@ -270,8 +270,10 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
         return false;
     }
 
+    // the UTC must not have asterisks in it
     Uint32 spot = uOffSet.find("*");
-    if(spot != PEG_NOT_FOUND){  // the UTC must not have astricks in it
+    if (spot != PEG_NOT_FOUND)
+    {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                       "'*' was found in the UTC offset this is not allowed");
         return false;
@@ -279,26 +281,28 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
 
 
     String uOff_num = uOffSet.subString(1,3);
-    for (int i=0; i < 3; i++) {
-        if (!isdigit(uOff_num[i])) {
+    for (int i=0; i < 3; i++)
+    {
+        if (!isdigit(uOff_num[i]))
+        {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                 "Format is wrong - UTC off set contains non digit charichter.");
+                 "Format is wrong - UTC offset contains non digit character.");
             return false;
         }
     }
 
-    if (ch_one == (char)':' && !String::compare(uOff_num, "OOO")){    // intervals (:) must have 000 utc offset
+    // intervals (:) must have 000 utc offset
+    if ((ch_one == (char)':') && !String::equal(uOff_num, "000"))
+    {
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                       "Trying to incorrectly set a intervals time zone");
         return false;
     }
 
     utcOffSet =  uOffSet;
-     set_data(uOffSet, 21, 4);   // change _rep->data to reflect changes made
+    set_data(uOffSet, 21, 4);   // change _rep->data to reflect changes made
 
     return true;
-
-
 }
 
 
@@ -689,8 +693,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
     // it must be one of ':' (interval), '+' (date), or '-' (date)
     const Uint32 SIGN_OFFSET = 21;
     const Uint32 DOT_OFFSET = 14;
-    const String offS =  dateTimeStr.subString(SIGN_OFFSET,4);
-    Boolean isInterval = String::compare(offS, ":000") == 0;
+    Boolean isInterval = (dateTimeStr[SIGN_OFFSET] == ':');
 
     if (!isInterval && dateTimeStr[SIGN_OFFSET] != '+' && dateTimeStr[SIGN_OFFSET] != '-'){
         Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
@@ -847,7 +850,8 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         // check to make sure UTC for Intervals it '000'
         buffer = dateTimeStr.subString(21,4);
         _rep->utcOffSet = buffer;
-        if ( !String::compare(_rep->utcOffSet, ":OOO")) {
+        if (!String::equal(_rep->utcOffSet, ":000"))
+        {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                    "CIMDateTime - Format of the object is incorrect. Can not set the \
                           the UTC off set of an Interval");
@@ -1233,11 +1237,11 @@ void CIMDateTime::convertToUTC()
     Uint32 offSet = atol((utcOS).getCString());
     Uint64 offSet_hor = (offSet/60) * _ONE_HOUR;
     Uint64 offSet_min = (offSet%60) * _ONE_MINUTE;
-    String mesO = "overflow has occured in nomalization";
+    String mesO = "overflow has occurred in normalization";
     MessageLoaderParms parmsOv("Common.CIMDateTime.UTC_OVERFLOW",
-                               "overflow has occured during conversion to UTC");
+        "overflow has occurred during conversion to UTC");
     MessageLoaderParms parmsUn("Common.CIMDateTime.UTC_UNDERFLOW",
-                               "underflow has occured during conversion to UTC");
+        "underflow has occurred during conversion to UTC");
 
     char 		sign;   // Get the sign and UTC offset.
     sign = _rep->data[21];
@@ -1417,9 +1421,9 @@ void CIMDateTime::setUtcOffSet(Sint32 utc)
     }
 
     MessageLoaderParms parmsOv("Common.CIMDateTime.UTC_OVERFLOW",
-                               "overflow has occured durring convertion to UTC");
+        "overflow has occurred during conversion to UTC");
     MessageLoaderParms parmsUn("Common.CIMDateTime.UTC_UNDERFLOW",
-                               "underflow has occured durring convertion to UTC");
+        "underflow has occurred during conversion to UTC");
 
     // convert CIMDateTime to microseconds.
     Uint64 cdt_MicroSec = this->toMicroSeconds();

@@ -39,15 +39,11 @@
 #define Pegasus_FixedPropertyTableVms_h
 
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
-    {"logLevel",            "INFORMATION"},
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
     {"home",                ""},
     {"daemon",              "false"},
     {"slp",                 "false"},
-    {"enableAuthentication", "true"},
-    {"enableAssociationTraversal", "false"},
-    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", 0, 0, 0},
     {"enableIndicationService", "true"},
     {"sslClientVerificationMode", "disabled"},
     {"httpAuthType",        "Basic"},
@@ -56,13 +52,16 @@
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
     {"traceFilePath",       "/var/opt/wbem/cimserver.trc"},
-    {"logdir",              "/var/opt/wbem/logs"},
     {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
     {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
     {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
+//
     {"sslTrustStore",       "/etc/opt/hp/sslshare/cimserver_trust"},
     {"exportSSLTrustStore", "/etc/opt/hp/sslshare/indication_trust"},
     {"crlStore",            "/etc/opt/hp/sslshare/crl"},
+//
+    {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
+    {"logdir",              "/var/opt/wbem/logs"},
     {"repositoryDir",       "/var/opt/wbem/repository"},
     {"providerDir",         "/var/opt/wbem/providers/lib"},
 #endif

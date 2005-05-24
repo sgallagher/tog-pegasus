@@ -271,6 +271,7 @@ void CIMClassRep::resolve(
                             {
                                 property.setClassOrigin(getClassName());
                             }
+                            property.setPropagated(false);
 			}
 			else
 			{
@@ -465,6 +466,7 @@ void CIMClassRep::resolve(
                     Resolver::resolveProperty (_properties[i], context, 
                         nameSpace, false, true);
                     _properties[i].setClassOrigin(getClassName());
+                    _properties[i].setPropagated(false);
                 }
 	
 		//----------------------------------------------------------------------

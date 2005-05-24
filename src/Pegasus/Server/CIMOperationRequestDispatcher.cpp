@@ -90,6 +90,14 @@ static DynamicRoutingTable _routing_table;
 // Set by object init. Used by aggregator.
 String cimAggregationLocalHost;
 
+
+// A helper function that resets the Propagated and ClassOrigin attributes on
+// properties of CIMInstance and CIMClass objects. This is used during
+// Create/Modify Instance and Create/Modify Class operations, where the
+// Propagated and ClassOrigin attributes must be ignored.
+template <class ObjectClass>
+void removePropagatedAndOriginAttributes(ObjectClass &newObject);
+
 // static counter for aggretation serial numbers.
 // can be used to determine lost aggregations.
 Uint64 CIMOperationRequestDispatcher::cimOperationAggregationSN=0;
@@ -2631,6 +2639,7 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
 
    try
    {
+     removePropagatedAndOriginAttributes(request->newClass);
       _repository->createClass(
          request->nameSpace,
          request->newClass,
@@ -2728,6 +2737,8 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
        CIMCreateInstanceRequestMessage * requestCopy =
            new CIMCreateInstanceRequestMessage(*request);
 
+       removePropagatedAndOriginAttributes(requestCopy->newInstance);
+
        if(providerInfo.providerIdContainer.get() != 0)
        {
            requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
@@ -2755,6 +2766,7 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
        try
        {
+           removePropagatedAndOriginAttributes(request->newInstance);
            instanceName =
                _repository->createInstance(
                    request->nameSpace,
@@ -2833,6 +2845,7 @@ void CIMOperationRequestDispatcher::handleModifyClassRequest(
 
    try
    {
+       removePropagatedAndOriginAttributes(request->modifiedClass);
       _repository->modifyClass(
          request->nameSpace,
          request->modifiedClass,
@@ -2927,7 +2940,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
    {
        CIMModifyInstanceRequestMessage * requestCopy =
            new CIMModifyInstanceRequestMessage(*request);
-
+       removePropagatedAndOriginAttributes(requestCopy->modifiedInstance);
        if(providerInfo.providerIdContainer.get() != 0)
        {
            requestCopy->operationContext.insert(*providerInfo.providerIdContainer.get());
@@ -2955,6 +2968,7 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
       try
       {
+          removePropagatedAndOriginAttributes(request->modifiedInstance);
           _repository->modifyInstance(
               request->nameSpace,
               request->modifiedInstance,
@@ -6426,6 +6440,25 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
    }
 
    return(cimClass);
+}
+
+template <class ObjectClass>
+void removePropagatedAndOriginAttributes(ObjectClass &newObject)
+{
+    Uint32 numProperties = newObject.getPropertyCount();
+    for(Uint32 i = 0; i < numProperties; i++)
+    {
+        CIMProperty currentProperty = newObject.getProperty(i);
+        if(currentProperty.getPropagated() == true ||
+            currentProperty.getClassOrigin().getString().size() > 0)
+        {
+            newObject.removeProperty(i);
+            currentProperty.setPropagated(false);
+            currentProperty.setClassOrigin(CIMName());
+            newObject.addProperty(currentProperty);
+            --i;
+        }
+    }
 }
 
 PEGASUS_NAMESPACE_END

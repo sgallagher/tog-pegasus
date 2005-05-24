@@ -36,6 +36,7 @@
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3194
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3659
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -1095,7 +1096,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesNamespaceInManager()
     {
         CIMInstance instance = _buildInstanceSkeleton(CIM_NAMESPACEINMANAGER_CLASSNAME);
 
-        _setPropertyValue(instance, CIMName("Antecdent"), refObjMgr);
+        _setPropertyValue(instance, CIMName("Antecedent"), refObjMgr);
         //ATTNATTN: this is weak qualifier.
         _setPropertyValue(instance, CIMName("Dependent"), _buildReference(namespaceInstances[i],
                                                             CIM_NAMESPACEINMANAGER_CLASSNAME));
@@ -1124,7 +1125,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesCommMechanismForManager()
 
         CIMInstance instance = _buildInstanceSkeleton(CIM_COMMMECHANISMFORMANAGER_CLASSNAME);
 
-        _setPropertyValue(instance,CIMName("Antecdent"), refObjMgr);
+        _setPropertyValue(instance,CIMName("Antecedent"), refObjMgr);
         //ATTNATTN: this is weak qualifier.
         _setPropertyValue(instance,CIMName("Dependent"), _buildReference(commInstances[i],CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
         assocInstances.append(instance);

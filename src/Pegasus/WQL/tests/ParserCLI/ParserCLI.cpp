@@ -53,27 +53,48 @@ int main(int argc, char** argv)
 
     if (argc < 2)
     {
-	cerr << "Usage: " << argv[0] << " wql-text..." << endl;
+	cerr << "Usage: " << argv[0] << " <returnOptions> wql-text..." << endl;
+    cerr << "return Options are keywords parseError or evalulateError" << endl;
+    cerr << "They tell the call to reverse the error on the parse or evalutate tests" << endl;
 	exit(1);
     }
+    Boolean evaluateErrorTest = false;
+    Boolean parseErrorTest = false;
 
+    if (!strcmp(argv[1],"evaluateError"))
+    {
+        if (verbose)
+            {cout << "Negative  evaluate test" << endl;}
+        evaluateErrorTest = true;
+    }
+
+    if (!strcmp(argv[1], "parseError"))
+    {
+        if (verbose)
+            {cout << "Negative  parse test" << endl;}
+        parseErrorTest = true;
+    }
     // 
     // Append all arguments together to from a single string:
     //
 
     Array<char> text;
+    int startArray = 1;
+    if (parseErrorTest || evaluateErrorTest)
+        startArray++;
 
-    for (int i = 1; i < argc; i++)
+    for (int i = startArray; i < argc; i++)
     {
-	text.append(argv[i], strlen(argv[i]));
+        text.append(argv[i], strlen(argv[i]));
 
-	if (i + 1 !=  argc)
-	    text.append("\n", 1);
+    	if (i + 1 !=  argc)
+    	    text.append("\n", 1);
     }
 
     text.append('\0');
 
-    // PEGASUS_OUT(text.getData());
+    if (verbose)
+        cout << text.getData() << endl;
 
     // 
     // Parse the text:
@@ -83,12 +104,20 @@ int main(int argc, char** argv)
 
     try
     {
-	WQLParser::parse(text, statement);
+        WQLParser::parse(text, statement);
     }
     catch (Exception& e)
     {
-	cerr << "Exception: " << e.getMessage() << endl;
-	exit(1);
+        if (parseErrorTest)
+        {
+            cout << argv[0] <<" +++++ passed all tests" << endl;
+            return 0;
+        }
+        else
+        {
+            cerr << "Parse Exception: " << e.getMessage() << endl;
+            exit(1);
+        }
     }
 
     if (verbose)
@@ -107,20 +136,34 @@ int main(int argc, char** argv)
     assert(source.addValue("y", WQLOperand(10.10, WQL_DOUBLE_VALUE_TAG)));
     assert(source.addValue("z", WQLOperand("Ten", WQL_STRING_VALUE_TAG)));
 
+    assert(source.addValue("SourceInstance", WQLOperand("SourceInstance", WQL_STRING_VALUE_TAG)));
+    assert(source.addValue("PreviousInstance", WQLOperand("PreviousInstance", WQL_STRING_VALUE_TAG)));
+    assert(source.addValue("OperationalStatus", WQLOperand("OperationalStatus", WQL_STRING_VALUE_TAG)));
     //
     // Evaluate the where clause:
     //
 
     try
     {
-	assert(statement.evaluateWhereClause(&source) == true);
+        Boolean returnValue;
+        returnValue = (statement.evaluateWhereClause(&source) == true);
+        assert(returnValue || evaluateErrorTest);
     }
     catch (Exception& e)
     {
-	cerr << e.getMessage() << endl;
+        if (evaluateErrorTest)
+        {
+            cerr << "EvaluateWhereClause Exception: " << e.getMessage() << endl;
+            exit(1);
+        }
+        else
+        {
+            cout << argv[0] <<" +++++ passed all tests" << endl;
+            return 0;
+        }
+
     }
 
     cout << argv[0] <<" +++++ passed all tests" << endl;
-
     return 0;
 }

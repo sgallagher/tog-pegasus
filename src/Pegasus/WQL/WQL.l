@@ -91,6 +91,12 @@ IDENT_CHAR [A-Za-z_]
    return TOK_ISA;
 }
 
+"\." {
+  WQL_TRACE(("LEX: %s [TOK_DOT]\n", yytext));
+  return TOK_DOT;
+}
+
+
 
 [Tt][Rr][Uu][Ee] {
 

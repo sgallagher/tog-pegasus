@@ -27,7 +27,6 @@
 #//
 #//==============================================================================
 ROOT = ../../../../..
-
 DIR = Pegasus/WQL/tests/ParserCLI
 
 LIBRARIES = pegwql pegcommon pegquerycommon
@@ -41,14 +40,16 @@ SOURCES = ParserCLI.cpp
 
 include $(ROOT)/mak/program.mak
 
-# Warning: These tests are based on s specific set of paramaters and their
+# Warning: These tests are based on a specific set of paramaters and their
 # values in ParserCLI. the values of w,x,y,z are preset and the
 # end result must be true.   Thus, for example w is always TRUE
 
-tests: test1 test2 test2a test3 test4 test5 test6 test7
+TESTLIST = test1 test2 test2a test3 test4 test5 test6 test6not test7
 
 ifdef PEGASUS_SNIA_EXTENSIONS
-tests += test8
+    TESTLIST += test8 test9
+else
+    TESTLIST += test8not test9not
 endif
 
 test1:
@@ -58,7 +59,7 @@ test2:
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE OR w = FALSE"
 
 test2a:
-	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"	
+	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"
 
 test3:
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\"" 
@@ -72,11 +73,27 @@ test5:
 test6:
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w <> FALSE"
 
+test6not:
+	@ $(PROGRAM) evaluateError "SELECT w,x,y,z FROM ClassName WHERE w = FALSE"
+
 test7:
 	@ $(PROGRAM) "SELECT * FROM ClassName WHERE v IS NULL"
-	
+
 test8:
 	@ $(PROGRAM) "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"
+
+test8not:
+	@ $(PROGRAM) parseError "SELECT * FROM CIM_InstCreation WHERE SourceInstance ISA CIM_ComputerSystem"
+
+test9:
+	@ $(PROGRAM) "SELECT * FROM CIM_InstCreation WHERE SourceInstance.OperationalStatus <> PreviousInstance.OperationalStatus"
+
+test9not:
+	@ $(PROGRAM) parseError "SELECT * FROM CIM_InstCreation WHERE SourceInstance.OperationalStatus <> PreviousInstance.OperationalStatus"
+
+#SELECT * FROM CIM_InstModification WHERE SourceInstance ISA CIM_EthernetPort AND SourceInstance.OperationalStatus <> PreviousInstance.OperationalStatus
+
+tests: $(TESTLIST)
 
 poststarttests:
 

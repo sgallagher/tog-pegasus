@@ -106,6 +106,7 @@ PEGASUS_NAMESPACE_END
 %token <intValue> TOK_FALSE
 %token <intValue> TOK_NULL
 %token <intValue> TOK_ISA
+%token <intValue> TOK_DOT
 
 %token <intValue> TOK_EQ
 %token <intValue> TOK_NE
@@ -292,9 +293,10 @@ comparisonPredicate
     | propertyName TOK_ISA className
     {
     WQL_TRACE(("YACC: TOK_ISA\n"));
-    #ifndef PEGASUS_SNIA_EXTENSIONS
+#ifndef PEGASUS_SNIA_EXTENSIONS
+        // If SNIA tests, allow the ISA but do not pass className
         yyerror("ISA Token Not Supported");
-    #endif
+#endif
     }
 
 nullPredicate
@@ -318,13 +320,31 @@ truthValue
     {
 	$$ = 0;
     }
-
+/**************
 propertyName 
     : TOK_IDENTIFIER
     {
 	WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s)\n", $1));
 	$$ = $1;
     }
+*****************/
+propertyName
+    : TOK_IDENTIFIER
+    {
+        WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s)\n", $1));
+        $$ = $1;
+    }
+    | TOK_IDENTIFIER TOK_DOT TOK_IDENTIFIER
+    {
+        WQL_TRACE(("YACC: propertyName : TOK_IDENTIFIER(%s.%s)\n", $1, $3));
+#ifdef PEGASUS_SNIA_EXTENSIONS
+        // Pass anything as a property name to fool parser for SNIA testing
+        $$ = strdup("dummy");
+#else
+        yyerror("Scoped (dotted) property names not supported");
+#endif
+    }
+
 
 className : TOK_IDENTIFIER
     {

@@ -357,7 +357,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		UnicodeString msg_formatted;
 		UErrorCode status = U_ZERO_ERROR;
 		const int arg_count = 10;
-		char * locale;
+		const char *locale;
 		if(resbundl == NULL)
 			 locale = ULOC_US;
 		else

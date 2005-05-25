@@ -60,15 +60,15 @@ test2:
 test2a:
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND w != FALSE"	
 
-ifeq ($(OS),VMS)
 test3:
+ifeq ($(OS),VMS)
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = ""Ten""" 
 else
 	@ $(PROGRAM) "SELECT w,x,y,z FROM ClassName WHERE w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\"" 
 endif
 
-ifeq ($(OS),VMS)
 test4:
+ifeq ($(OS),VMS)
 	@ $(PROGRAM) "SELECT * FROM ClassName WHERE (w = TRUE AND x >= 10 AND y <= 13.10 AND z = ""Ten"") AND NOT w = TRUE IS NOT TRUE"
 else
 	@ $(PROGRAM) "SELECT * FROM ClassName WHERE (w = TRUE AND x >= 10 AND y <= 13.10 AND z = \"Ten\") AND NOT w = TRUE IS NOT TRUE"

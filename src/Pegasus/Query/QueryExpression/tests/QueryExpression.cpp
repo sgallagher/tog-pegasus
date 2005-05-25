@@ -40,7 +40,6 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <stdio.h>
 #include <Pegasus/Common/IPC.h>
-#include <iostream>
 #include <fstream>
 #include <string.h>
 #include <Pegasus/Common/String.h>

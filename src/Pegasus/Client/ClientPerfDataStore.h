@@ -39,12 +39,8 @@
 #include <Pegasus/Common/CIMOperationType.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/TimeValue.h>
-#include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Common/Message.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
-#include <iostream>
-#include <fstream>
 
 
 
@@ -76,7 +72,7 @@ public:
     ClientOpPerformanceData createPerfDataStruct();
 
     /**checks the currentMessageID and _operationType data members against
-    @param messageID and @param type if the values equea
+    @param messageID and @param type if the values are equal
     true is returned.
     @param messageID
     @param type CIM message type of current message
@@ -149,7 +145,7 @@ protected:
 
 
 
-    //using the singleton pattern - constructors are made un-usealbe
+    //using the singleton pattern - constructors are made unusable
     ClientPerfDataStore();
     ClientPerfDataStore(const ClientPerfDataStore&);
     ClientPerfDataStore& operator= (const ClientPerfDataStore&);

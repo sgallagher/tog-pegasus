@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,13 +34,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/Config.h>
-#include <fstream>
-#include <iostream>
 #include <cassert>
-#include <Pegasus/Common/XmlReader.h>
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlWriter.h>
+#include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -63,26 +61,26 @@ Boolean ProcessValueObjectElement(CIMRepository& repository, XmlParser& parser)
     XmlEntry entry;
 
     if (!XmlReader::testStartTag(parser, entry, "VALUE.OBJECT"))
-	return false;
+        return false;
 
     CIMClass cimClass;
     CIMQualifierDecl qualifierDecl;
 
     if (XmlReader::getClassElement(parser, cimClass))
     {
-	cout << "Creating: class ";
-	cout << cimClass.getClassName() << endl;
+        cout << "Creating: class ";
+        cout << cimClass.getClassName() << endl;
 
-	repository.createClass(CIMV2_NAMESPACE, cimClass);
-	repository.createClass(ROOT_NAMESPACE, cimClass);
+        repository.createClass(CIMV2_NAMESPACE, cimClass);
+        repository.createClass(ROOT_NAMESPACE, cimClass);
     }
     else if (XmlReader::getQualifierDeclElement(parser, qualifierDecl))
     {
-	cout << "Creating: qualifier ";
-	cout << qualifierDecl.getName() << endl;
+        cout << "Creating: qualifier ";
+        cout << qualifierDecl.getName() << endl;
 
-	repository.setQualifier(CIMV2_NAMESPACE, qualifierDecl);
-	repository.setQualifier(ROOT_NAMESPACE, qualifierDecl);
+        repository.setQualifier(CIMV2_NAMESPACE, qualifierDecl);
+        repository.setQualifier(ROOT_NAMESPACE, qualifierDecl);
     }
 
     XmlReader::expectEndTag(parser, "VALUE.OBJECT");
@@ -105,10 +103,10 @@ Boolean ProcessDeclGroupElement(CIMRepository& repository, XmlParser& parser)
     XmlEntry entry;
 
     if (!XmlReader::testStartTag(parser, entry, "DECLGROUP"))
-	return false;
+        return false;
 
     while (ProcessValueObjectElement(repository, parser))
-	;
+        ;
 
     XmlReader::expectEndTag(parser, "DECLGROUP");
 
@@ -129,10 +127,10 @@ Boolean ProcessDeclarationElement(CIMRepository& repository, XmlParser& parser)
     XmlEntry entry;
 
     if (!XmlReader::testStartTag(parser, entry, "DECLARATION"))
-	return false;
+        return false;
 
     while(ProcessDeclGroupElement(repository, parser))
-	;
+        ;
 
     XmlReader::expectEndTag(parser, "DECLARATION");
 
@@ -157,32 +155,32 @@ Boolean ProcessCimElement(CIMRepository& repository, XmlParser& parser)
 
     if (!parser.next(entry) || entry.type != XmlEntry::XML_DECLARATION)
     {
-	throw(parser.getLine(), "expected XML declaration");
+        throw(parser.getLine(), "expected XML declaration");
     }
 
     if (!XmlReader::testStartTag(parser, entry, "CIM"))
-	return false;
+        return false;
 
     String cimVersion;
 
     if (!entry.getAttributeValue("CIMVERSION", cimVersion))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "missing CIM.CIMVERSION attribute");
+        throw XmlValidationError(parser.getLine(),
+            "missing CIM.CIMVERSION attribute");
     }
 
     String dtdVersion;
 
     if (!entry.getAttributeValue("DTDVERSION", dtdVersion))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "missing CIM.DTDVERSION attribute");
+        throw XmlValidationError(parser.getLine(),
+            "missing CIM.DTDVERSION attribute");
     }
 
     if (!ProcessDeclarationElement(repository, parser))
     {
-	throw XmlValidationError(parser.getLine(), 
-	    "Expected DECLARATION element");
+        throw XmlValidationError(parser.getLine(),
+            "Expected DECLARATION element");
     }
 
     XmlReader::expectEndTag(parser, "CIM");
@@ -214,8 +212,8 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
 
     if (!ProcessCimElement(repository, parser))
     {
-	cerr << "CIM root element missing" << endl;
-	exit(1);
+        cerr << "CIM root element missing" << endl;
+        exit(1);
     }
 }
 
@@ -229,18 +227,18 @@ int main(int argc, char** argv)
 {
     if (argc != 3)
     {
-	cerr << "Usage: " << argv[0] << " repository-root xmlfile" << endl;
-	exit(1);
+        cerr << "Usage: " << argv[0] << " repository-root xmlfile" << endl;
+        exit(1);
     }
 
     try
     {
-	_processFile(argv[1], argv[2]);
+        _processFile(argv[1], argv[2]);
     }
-    catch (Exception& e)
+    catch (const Exception& e)
     {
-	cerr << e.getMessage() << endl;	
-	exit(1);
+        cerr << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << "+++++ passed all tests" << endl;

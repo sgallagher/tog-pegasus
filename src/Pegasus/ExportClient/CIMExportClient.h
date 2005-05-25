@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -32,17 +32,17 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//		Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
+//                  (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Dan Gorey (djgorey@us.ibm.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_ExportClient_h
 #define Pegasus_ExportClient_h
 
-#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMName.h>
@@ -75,9 +75,9 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       /** Constructor for a CIM Export Client object.
       */
       CIMExportClient(
-	 Monitor* monitor,
-	 HTTPConnector* httpConnector,
-	 Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
+         Monitor* monitor,
+         HTTPConnector* httpConnector,
+         Uint32 timeoutMilliseconds = DEFAULT_TIMEOUT_MILLISECONDS);
 
       // Destructor for a CIM Export Client object.
       ~CIMExportClient();
@@ -87,18 +87,18 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       */
       Uint32 getTimeout() const
       {
-	 return _timeoutMilliseconds;
+         return _timeoutMilliseconds;
       }
 
       /** Sets the timeout in milliseconds for the CIMExportClient.
         @param timeoutMilliseconds Defines the number of milliseconds the
-        CIMExportClient will wait for a response to an outstanding request.  
-	If a request times out, the connection gets reset (disconnected and
+        CIMExportClient will wait for a response to an outstanding request.
+        If a request times out, the connection gets reset (disconnected and
         reconnected).  Default is 20 seconds (20000 milliseconds).
       */
       void setTimeout(Uint32 timeoutMilliseconds)
       {
-	 _timeoutMilliseconds = timeoutMilliseconds;
+         _timeoutMilliseconds = timeoutMilliseconds;
       }
 
       /** Creates an HTTP connection with the server
@@ -117,7 +117,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
             If the socket connection fails.
       */
       void connect(
-          const String& host, 
+          const String& host,
           const Uint32 portNumber);
 
       /** Creates an HTTP connection with a Listener defined by
@@ -149,17 +149,17 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
 
 // l10n
       /** Send indication message to the destination where the url input
-	parameter defines the destination.
+        parameter defines the destination.
 
-	@param url String defining the destination of the indication to be sent.
-   	@param instance CIMInstance is the indication instance which needs to 
+        @param url String defining the destination of the indication to be sent.
+        @param instance CIMInstance is the indication instance which needs to
         be sent to the destination.
-    @param contentLanguages The language of the indication    
+        @param contentLanguages The language of the indication
       */
       virtual void exportIndication(
-	 const String& url,
-	 const CIMInstance& instance,
-	 const ContentLanguages& contentLanguages = ContentLanguages::EMPTY);
+         const String& url,
+         const CIMInstance& instance,
+         const ContentLanguages& contentLanguages = ContentLanguages::EMPTY);
 
    private:
 

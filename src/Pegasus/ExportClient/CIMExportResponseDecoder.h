@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,13 +34,14 @@
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMExportResponseDecoder_h
 #define Pegasus_CIMExportResponseDecoder_h
 
-#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
@@ -71,23 +72,23 @@ public:
     Exception* clientException;
 };
 
-/** This class receives HTTP messages and decodes them into CIM Operation 
+/** This class receives HTTP messages and decodes them into CIM Operation
     Responses messages which it places on its output queue.
 */
 class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQueue
 {
-  
+
    public:
-     
+
       /** Constuctor.
-	  @param outputQueue queue to receive decoded HTTP messages.
-	  @param encoderQueue queue to receive CIM Operation Response messages.
-	  @param authenticator client authenticator. 
+          @param outputQueue queue to receive decoded HTTP messages.
+          @param encoderQueue queue to receive CIM Operation Response messages.
+          @param authenticator client authenticator.
       */
       CIMExportResponseDecoder(
-	 MessageQueue* outputQueue,
-	 MessageQueue* encoderQueue,
-	 ClientAuthenticator* authenticator);
+         MessageQueue* outputQueue,
+         MessageQueue* encoderQueue,
+         ClientAuthenticator* authenticator);
 
       /** Destructor. */
       ~CIMExportResponseDecoder();
@@ -100,10 +101,10 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
    private:
 
       void _handleHTTPMessage(
-	 HTTPMessage* message);
+         HTTPMessage* message);
 
       void _handleMethodResponse(
-	 char* content);
+         char* content);
 
       CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
          XmlParser& parser,

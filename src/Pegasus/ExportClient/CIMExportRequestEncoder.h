@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,17 +30,17 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
-//
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Amit K Arora, (amita@in.ibm.com) for PEP101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_CIMExportRequestEncoder_h
 #define Pegasus_CIMExportRequestEncoder_h
 
-#include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMMessage.h>
@@ -53,15 +53,15 @@ PEGASUS_NAMESPACE_BEGIN
 /** This class receives CIM Operation Request messages on its input queue
     and encodes them into HTTP messages which it places on its output queue.
 */
-class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder 
+class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder
    : public MessageQueue
 {
    public:
       /** Constuctor.
-	  @param outputQueue queue to receive encoded HTTP messages.
+          @param outputQueue queue to receive encoded HTTP messages.
           @param hostName Name of the target host for the encoded requests.
                           I.e., the value of the HTTP Host header.
-	  @param authenticator client authenticator. 
+          @param authenticator client authenticator.
       */
       CIMExportRequestEncoder(
          MessageQueue* outputQueue,
@@ -77,7 +77,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportRequestEncoder
    private:
 
       void _encodeExportIndicationRequest(
-	 CIMExportIndicationRequestMessage* message);
+            CIMExportIndicationRequestMessage* message);
 
       MessageQueue* _outputQueue;
       CString _hostName;

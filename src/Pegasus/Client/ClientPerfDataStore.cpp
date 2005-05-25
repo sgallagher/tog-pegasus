@@ -35,7 +35,7 @@
 
 
 #include "ClientPerfDataStore.h"
-#include <Pegasus/Common/CIMOperationType.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_STD;
 

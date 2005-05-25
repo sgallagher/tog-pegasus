@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,13 +30,14 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <fstream>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Exception.h>
@@ -58,14 +59,14 @@ static inline Boolean _MatchNoCase(const String& x, const String& pattern)
     return pattern.size() == 0 || String::equalNoCase(x, pattern);
 }
 
-static inline Boolean _ContainsClass(const Array<CIMName>& classNames, const String& match ) 
+static inline Boolean _ContainsClass(const Array<CIMName>& classNames, const String& match )
 {
     Uint32 n = classNames.size();
 
     for (Uint32 i = 0; i < n; i++)
     {
-	if (_MatchNoCase(classNames[i].getString(), match))
-	    return true;
+        if (_MatchNoCase(classNames[i].getString(), match))
+            return true;
     }
 
     return false;
@@ -183,12 +184,12 @@ static void _PutRecord(ofstream& os, Array<String>& fields)
     {
         // Calling getCString to ensure utf-8 goes to the file
         // Calling write to ensure no data conversion by the stream
-        CString  buffer = _Escape(fields[i]).getCString(); 
+        CString  buffer = _Escape(fields[i]).getCString();
 #ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
         os.write((const char *)buffer, strlen((const char *)buffer));
 #else
         os.write((const char *)buffer, static_cast<streamsize>(strlen((const char *)buffer)));
-#endif   
+#endif
         os << endl;
     }
     os << endl;
@@ -222,7 +223,7 @@ void AssocClassTable::append(
     const CIMName& toPropertyName)
 {
     // Open input file:
-    
+
     ofstream os;
 
     if (!OpenAppend(os, path))

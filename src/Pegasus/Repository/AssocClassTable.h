@@ -30,20 +30,20 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Karl Schopmeyer (k.schopmeyer@opengroup.org)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AssocClassTable_h
 #define Pegasus_AssocClassTable_h
 
-#include <iostream>
 #include <fstream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Repository/Linkage.h>
 
@@ -56,59 +56,59 @@ class PEGASUS_REPOSITORY_LINKAGE AssocClassTable
 public:
 
     /** Appends a row into the association class table. There is no checking
-	for duplicate entries (the caller ensures this). The case of
-	the arguments doesn't matter. They are ignored during comparison.
+        for duplicate entries (the caller ensures this). The case of
+        the arguments doesn't matter. They are ignored during comparison.
     */
     static void append(
-	PEGASUS_STD(ofstream)& os,
-    	const CIMName& assocClassName,
-    	const CIMName& fromClassName,
-    	const CIMName& fromPropertyName,
-    	const CIMName& toClassName,
-    	const CIMName& toPropertyName);
+        PEGASUS_STD(ofstream)& os,
+        const CIMName& assocClassName,
+        const CIMName& fromClassName,
+        const CIMName& fromPropertyName,
+        const CIMName& toClassName,
+        const CIMName& toPropertyName);
 
     /** Appends a row into the association class table. There is no checking
-	for duplicate entries (the caller ensures this). The case of the
-	arguments doesn't matter. Case is ignored during comparison.
+        for duplicate entries (the caller ensures this). The case of the
+        arguments doesn't matter. Case is ignored during comparison.
     */
     static void append(
-    	const String& path,
-    	const CIMName& assocClassName,
-    	const CIMName& fromClassName,
-    	const CIMName& fromPropertyName,
-    	const CIMName& toClassName,
-    	const CIMName& toPropertyName);
+        const String& path,
+        const CIMName& assocClassName,
+        const CIMName& fromClassName,
+        const CIMName& fromPropertyName,
+        const CIMName& toClassName,
+        const CIMName& toPropertyName);
 
     /** Deletes the given association from the table by removing every entry
-	with the given assocClassName.
-	@returns true if such an association was found.
+        with the given assocClassName.
+        @returns true if such an association was found.
     */
     static Boolean deleteAssociation(
-    	const String& path,
-    	const CIMName& assocClassName);
+        const String& path,
+        const CIMName& assocClassName);
 
     /** Finds all associators of the given class. See 
-	CIMOperations::associators() for a full description.
+        CIMOperations::associators() for a full description.
     */
     static Boolean getAssociatorNames(
-    	const String& path,
-    	const Array<CIMName>& classList,
+        const String& path,
+        const Array<CIMName>& classList,
         const Array<CIMName>& assocClassList,
         const Array<CIMName>& resultClassList,
         const String& role,
         const String& resultRole,
-    	Array<String>& associatorNames);
+        Array<String>& associatorNames);
 
     /** Get all references (association class names) in which the
-	given class involved. See CIMOperations::referenceNames() for a 
-	full description.
+        given class involved. See CIMOperations::referenceNames() for a 
+        full description.
     */
     static Boolean getReferenceNames(
-    	const String& path,
-    	const Array<CIMName>& classList,
-     	const Array<CIMName>& resultClassList,
-     	const String& role,
-    	Array<String>& referenceNames);
+        const String& path,
+        const Array<CIMName>& classList,
+        const Array<CIMName>& resultClassList,
+        const String& role,
+        Array<String>& referenceNames);
 
 private:
 

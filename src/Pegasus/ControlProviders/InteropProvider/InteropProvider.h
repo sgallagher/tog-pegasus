@@ -200,23 +200,31 @@ public:
 private:
 
 
-    CIMInstance _buildInstanceSkeleton(const CIMName& className);
+    CIMInstance _buildInstanceSkeleton(
+        const CIMObjectPath & objectPath,
+        const CIMName& className);
 
-    CIMObjectPath _buildReference(const CIMInstance& instance,
-         const CIMName& className);
+    CIMObjectPath _buildReference(
+        const CIMObjectPath& objectPath,
+        const CIMInstance& instance,
+        const CIMName& className);
 
-    CIMObjectPath _buildObjectPath(const CIMNamespaceName& name,
-                              const CIMName& className, 
-                              const CIMInstance& instance);
-    CIMObjectPath _buildInstancePath(const CIMNamespaceName& name,
-                              const CIMName& className, 
-                              const CIMInstance& instance);
+    CIMObjectPath _buildObjectPath(
+        const CIMObjectPath& objectPath,
+        const CIMName& className, 
+        const CIMInstance& instance);
+    CIMObjectPath _buildInstancePath(
+        const CIMObjectPath& objectPath,
+        const CIMName& className, 
+        const CIMInstance& instance);
     
-    CIMClass _getClass(const CIMNamespaceName& nameSpace, const CIMName& className);
+    CIMClass _getClass(const CIMObjectPath& objectPath,
+        const CIMName& className);
 
     Array<CIMNamespaceName> _enumerateNameSpaces();
     
     CIMInstance _buildInstancePGCIMXMLCommunicationMechanism(
+        const CIMObjectPath& objectPath,
         const String& namespaceType,
         const String& IPAddress,
         const Boolean& includeQualifiers,
@@ -224,34 +232,44 @@ private:
         const CIMPropertyList& propertyList);
 
     Array<CIMInstance> _buildInstancesPGCIMXMLCommunicationMechanism(
+        const CIMObjectPath& objectPath,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    CIMInstance _getInstanceCIMObjectManager(const Boolean includeQualifiers,
-                                           const Boolean includeClassOrigin,
-                                           const CIMPropertyList& propertyList);
+    CIMInstance _getInstanceCIMObjectManager(
+        const CIMObjectPath& objectPath,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
-    Array<CIMInstance> _getInstancesCIMNamespace(const Boolean& includeQualifiers,
-                                            const Boolean& includeClassOrigin,
-                                            const CIMPropertyList& propertyList);
+    Array<CIMInstance> _getInstancesCIMNamespace(
+        const CIMObjectPath& objectPath,
+        const Boolean& includeQualifiers,
+        const Boolean& includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
 
-    CIMInstance _getInstanceCIMNamespace(const CIMNamespaceName & nameSpace);
+    CIMInstance _getInstanceCIMNamespace(
+        const CIMObjectPath& objectPath);
     //
-    CIMInstance _buildInstancePGNamespace(const CIMNamespaceName & nameSpace);
+    CIMInstance _buildInstancePGNamespace(
+        const CIMObjectPath& objectPath,
+                CIMNamespaceName& nameSpace);
 
+    Array<CIMInstance> _buildInstancesNamespaceInManager(
+        const CIMObjectPath& objectPath);
 
-    Array<CIMInstance> _buildInstancesNamespaceInManager();
-
-    Array<CIMInstance> _buildInstancesCommMechanismForManager();
+    Array<CIMInstance> _buildInstancesCommMechanismForManager(
+        const CIMObjectPath& objectPath);
 
 
     Boolean _getInstanceFromRepositoryCIMObjectManager(
-                        CIMInstance& rtnInstance,
-                        const Boolean includeQualifiers,
-                        const Boolean includeClassOrigin,
-                        const CIMPropertyList& propertyList);
+        const CIMObjectPath& objectPath,
+        CIMInstance& rtnInstance,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
 
     void modifyObjectManagerInstance(const OperationContext & context,
         const CIMObjectPath & instanceReference,
@@ -263,9 +281,6 @@ private:
     // Repository Instance variable
     //
        CIMRepository*   _repository;
-       CIMClass * _cimNamespaceClass;
-       CIMNamespaceName _operationNamespace;
-       //CIMInstance instanceOfCIMObjectManager;
 };
 
 PEGASUS_NAMESPACE_END

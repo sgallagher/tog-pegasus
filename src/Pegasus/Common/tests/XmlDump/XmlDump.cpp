@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,12 +29,11 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <fstream>
-#include <iostream>
 #include <cstdio>
 #include <cassert>
 #include <Pegasus/Common/XmlParser.h>
@@ -56,7 +55,7 @@ static void _processFile(const char* fileName)
     XmlEntry entry;
 
     while (parser.next(entry))
-	entry.print();
+        entry.print();
 }
 
 int main(int argc, char** argv)
@@ -66,18 +65,18 @@ int main(int argc, char** argv)
 
     if (argc != 2)
     {
-	cerr << "Usage: " << argv[0] << " xml-filename" << endl;
-	exit(1);
+        cerr << "Usage: " << argv[0] << " xml-filename" << endl;
+        exit(1);
     }
 
-    try 
-    { 
-	_processFile(argv[1]); 
-    }
-    catch(Exception& e)
+    try
     {
-	cerr << "Error: " << e.getMessage() << endl;	
-	exit(1);
+        _processFile(argv[1]);
+    }
+    catch(const Exception& e)
+    {
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

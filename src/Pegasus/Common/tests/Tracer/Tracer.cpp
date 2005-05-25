@@ -33,6 +33,8 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +84,7 @@ Uint32 compare(const char* fileName, const char* compareStr)
     }
     file.seekg((Sint32) -(static_cast<Sint32>(size)+EOF_CHAR),fstream::end);
     memset(readStr.get(), 0, (size+EOF_CHAR+1)*sizeof(char));
-    file.get(readStr.get(),size+EOF_CHAR);
+    file.read(readStr.get(),size+EOF_CHAR);
     (readStr.get())[size]='\0';
     retCode=strcmp(compareStr,readStr.get());
     file.close();

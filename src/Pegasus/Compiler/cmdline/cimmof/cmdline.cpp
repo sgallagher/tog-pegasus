@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,8 @@
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333, #2351
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3370
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,16 +62,13 @@ PEGASUS_USING_PEGASUS;
 #include "cmdline.h"
 #include "cmdlineExceptions.h"
 #include <Pegasus/getoopt/getoopt.h>
-#include <fstream>
 #include <Pegasus/Common/String.h>
-//#include <strstream>
-//#include <sstream>
 #ifdef PEGASUS_OS_OS400
-#include <qycmutiltyUtility.H> 
+#include <qycmutiltyUtility.H>
 #include <qycmutilu2.H>
-#endif 
+#endif
 
- 
+
 #define DEFAULT_SERVER_AND_PORT "localhost:5988"
 
 #ifndef DISABLE_CIMMOFL_WARNING
@@ -88,9 +87,9 @@ cimmofl_warning(ostream &os) {
 }
 #endif
 
-ostream & 
+ostream &
 help(ostream &os, int progtype) {
-	
+
 //l10n menu
   //PEP167 change
   String help;
@@ -124,7 +123,7 @@ help(ostream &os, int progtype) {
   }
 
   help.append( " [ mof_file ... ]\n");
-  help.append("Options : \n");  
+  help.append("Options : \n");
   help.append( "    -h, --help      - Display this help message \n");
   help.append( "    --version       - Display CIM Server version\n");
   help.append( "    -w              - Suppress warning messages\n");
@@ -139,7 +138,7 @@ help(ostream &os, int progtype) {
       help.append( "    -N                  - Specify the repository name - defaults to \"repository\"\n");
       help.append( "    -M                  - Repository mode [XML, BIN] - defaults to \"XML\"\n");
   }
-#else 
+#else
   if(progtype == 1)
       help.append("Usage: ").append("cimmofl");
   else
@@ -173,7 +172,7 @@ help(ostream &os, int progtype) {
 #else
   help.append( " [ mof_file... ]\n");
 #endif
-  help.append("Options :\n");  
+  help.append("Options :\n");
   help.append( "    -h, --help          - Display this help message\n");
   help.append( "    --version           - Display CIM Server version\n");
   help.append( "    -E                  - Syntax check only\n");
@@ -212,7 +211,7 @@ help(ostream &os, int progtype) {
 MessageLoaderParms parms ;
 if(progtype == 1)
 {
-   parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.STANDARD",help); 
+   parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.STANDARD",help);
 
    #ifdef PEGASUS_OS_HPUX
       parms = MessageLoaderParms("Compiler.cmdline.cimmofl.cmdline.MENU.PEGASUS_OS_HPUX",help);
@@ -223,7 +222,7 @@ if(progtype == 1)
 }
 else
 {
-   parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.STANDARD",help); 
+   parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.STANDARD",help);
 
    #ifdef PEGASUS_OS_HPUX
       parms = MessageLoaderParms("Compiler.cmdline.cimmof.cmdline.MENU.PEGASUS_OS_HPUX",help);
@@ -249,21 +248,21 @@ process_filelist(const String &filename, mofCompilerOptions &cmdlinedata)
 
   while (ifs != 0) {
     GetLine(ifs, line);
-    if (line.size() > 0) 
+    if (line.size() > 0)
       cmdlinedata.add_filespecs(line);
   }
   return 0;
 }
 
 /* flag value, type, islong?, needsValue? */
-static struct optspec optspecs[] = 
+static struct optspec optspecs[] =
 {
     {(char*)"", FILESPEC, false, getoopt::NOARG},
     {(char*)"h", HELPFLAG, false, getoopt::NOARG},
     {(char*)"help", HELPFLAG, true, getoopt::NOARG},
     {(char*)"version", VERSIONFLAG, true, getoopt::NOARG},
     {(char*)"n", NAMESPACE, false, getoopt::MUSTHAVEARG},
-    {(char*)"namespace", NAMESPACE, true, getoopt::MUSTHAVEARG}, 
+    {(char*)"namespace", NAMESPACE, true, getoopt::MUSTHAVEARG},
     {(char*)"I", INCLUDEPATH, false, getoopt::MUSTHAVEARG},
     //PEP167 - not required
     //{(char*)"Include", INCLUDEPATH, true, getoopt::MUSTHAVEARG},
@@ -274,7 +273,7 @@ static struct optspec optspecs[] =
     //PEP167 - 'f' and 'filelist' options disabled as per PEP
     //{(char*)"f", FILELIST, false, getoopt::MUSTHAVEARG},
     //{(char*)"filelist", FILELIST, true, getoopt::MUSTHAVEARG},
-    {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG}, 
+    {(char*)"E", SYNTAXFLAG, false, getoopt::NOARG},
     {(char*)"trace", TRACEFLAG, true, getoopt::OPTIONALARG},
     {(char*)"xml", XMLFLAG, true, getoopt::NOARG},
 #endif
@@ -298,7 +297,7 @@ setCmdLineOpts(getoopt &cmdline, int progtype) {
     if(progtype == 1 && o.catagory == OPTEND_CIMMOF) continue;
     else if(progtype == 1 && o.catagory == OPTEND_CIMMOFL) break;
     else if(progtype == 0 && o.catagory == OPTEND_CIMMOF) break;
-    
+
     //if (o.flag == "") Bug#2314 - Incorrect comparison
     if ((o.flag != 0) && (o.flag[0] == '\0'))
       continue;
@@ -313,7 +312,7 @@ setCmdLineOpts(getoopt &cmdline, int progtype) {
 //PEP167 change - 2nd argument char* added
 static opttypes
 catagorize(const Optarg &arg, int progtype) {
-  
+
   for (unsigned int i = 0; ; i++) {
     const optspec &o = optspecs[i];
     //PEP167 change
@@ -325,7 +324,7 @@ catagorize(const Optarg &arg, int progtype) {
   }
   if(progtype == 0)
       return OPTEND_CIMMOF;
-  else 
+  else
       return OPTEND_CIMMOFL;
 }
 
@@ -397,7 +396,7 @@ getType(const char *name)
   const char *pos2;
   pos = strrchr(name, SEPCHAR);
   pos2 = strrchr(name, SEPCHAR2);
-  pos = (pos2 > pos) ? pos2 : pos; 
+  pos = (pos2 > pos) ? pos2 : pos;
   if (!pos)
     pos = name;
   else
@@ -429,7 +428,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   cmdline.parse(argc, argv);
   switch (getType(argv[0])) {
   case 1: cmdlinedata.set_is_local();
-    #ifdef PEGASUS_OS_OS400  
+    #ifdef PEGASUS_OS_OS400
     	// check if we are in qsh, if we are NOT running in a qsh environment then
       // send and escape message,
       // if we ARE then call ycmServerIsActive without the quiet option
@@ -449,20 +448,20 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	      return CPFDF81_RC;
 	  }
       }
-#pragma convert(0) 
-#endif 
+#pragma convert(0)
+#endif
     break;
   default: cmdlinedata.reset_is_local();
   }
   applyDefaults(cmdlinedata);
   if (cmdline.hasErrors()) {
-    
+
     //  throw an exception and hande it in the caller
     //l10n
     //String msg = "Command line errors:\n";
     MessageLoaderParms parms("Compiler.cmdline.cimmof.CMDLINE_ERRORS",
     						 "Command line errors:\n");
-    String msg = MessageLoader::getMessage(parms);						 
+    String msg = MessageLoader::getMessage(parms);
     cmdline.printErrors(msg);
 
     throw ArgumentErrorsException(msg);
@@ -478,10 +477,10 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
           throw ArgumentErrorsException(parms);
     switch (c)
       {
-      case VERSIONFLAG:  
+      case VERSIONFLAG:
         if(type != -1) throw ArgumentErrorsException(parms);
         break;
-      case HELPFLAG:  
+      case HELPFLAG:
         if(type != -1) throw ArgumentErrorsException(parms);
         break;
       case INCLUDEPATH:cmdlinedata.add_include_path(arg.optarg());
@@ -494,7 +493,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	break;
       case REPOSITORYNAME:  cmdlinedata.set_repository_name(arg.optarg());
 	break;
-      case REPOSITORYMODE: 
+      case REPOSITORYMODE:
 	{
 	  cmdlinedata.set_repository_mode(arg.optarg());
 
@@ -508,12 +507,12 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 	      MessageLoaderParms parms("Compiler.cmdline.cimmof.UNKNOWN_VALUE_OPTION_A",
 				       "Unknown value specified for option -M.");
 	      throw ArgumentErrorsException(parms);
-	    }	    
+	    }
 
 	}
 	break;
       case UPDATEFLAG:
-        { 
+        {
           if (arg.optarg().size() == 1)
           {
               for (unsigned int i = 0; i < arg.optarg().size(); i++)
@@ -543,7 +542,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
         }
         break;
       case ALLOWFLAG:
-        { 
+        {
           if ((arg.optarg().size() <= 2) && (arg.optarg().size() != 0))
           {
               for (unsigned int i = 0; i < arg.optarg().size(); i++)
@@ -580,7 +579,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
 		       cmdlinedata.set_operationType(
 				compilerCommonDefs::DO_NOT_ADD_TO_REPOSITORY);
 	break;
-      case TRACEFLAG: 
+      case TRACEFLAG:
 	{
 	  cmdlinedata.set_trace();
 	  const String &s = arg.optarg();
@@ -615,7 +614,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       // This is used during product installation and PTF application.
       // We must be absolutely quiet to avoid a terminal being
       // activated in native mode.
-      case QUIETFLAG: 
+      case QUIETFLAG:
         cmdlinedata.set_quiet();
         // Redirect to /dev/null.
         // Works for both qshell and native modes.
@@ -646,7 +645,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
      help(helpos, getType(argv[0]));
      return(-1);
   }
- 
+
   if (String::equal(cmdlinedata.get_repository(), String::EMPTY)) {
 
   	//l10n
@@ -657,7 +656,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
     throw CmdlineNoRepository(parms);
   }
 
-#ifdef PEGASUS_OS_OS400 
+#ifdef PEGASUS_OS_OS400
   // Force a mof to be specified on OS/400
   if (cmdlinedata.get_filespec_list().size() == 0) {
   	//l10n

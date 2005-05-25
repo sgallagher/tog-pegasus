@@ -30,33 +30,24 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Mike Day (mdday@us.ibm.com)
-//
-// Modified By: Karl Schopmeyer (k.schopmeyer@opengroup.org)
-//
-// Modified By: Nag Boranna (nagaraja_boranna@hp.com)
-//
-// Modified By: Jenny Yu (jenny_yu@hp.com)
-//
-// Modified By: Sushma Fernandes (sushma_fernandes@hp.com)
+//              Karl Schopmeyer (k.schopmeyer@opengroup.org)
+//              Nag Boranna (nagaraja_boranna@hp.com)
+//              Jenny Yu (jenny_yu@hp.com)
+//              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
-//      Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
-//
-// Modified By: Dave Rosckes (rosckes@us.ibm.com)
-//
-// Modified By: Humberto Rivero (hurivero@us.ibm.com)
-//
-// Modified By: Steve Hills (steve.hills@ncr.com)
-//
-// Modified By: Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
-//
-// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2555
-//
-// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032
-//
-// Modified By: Heather Sterling, IBM (hsterl@us.ibm.com) - PEP#197 CIMListener, PEP#222 Service Refactoring
-//
-// Modified By: Amit K Arora, IBM (amita@in.ibm.com) Bug#3028
+//                  (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//              Dave Rosckes (rosckes@us.ibm.com)
+//              Humberto Rivero (hurivero@us.ibm.com)
+//              Steve Hills (steve.hills@ncr.com)
+//              Amit K Arora, IBM (amitarora@in.ibm.com) - pep 167
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2555
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2032
+//              Heather Sterling, IBM (hsterl@us.ibm.com) - PEP#197 CIMListener,
+//                      PEP#222 Service Refactoring
+//              Amit K Arora, IBM (amita@in.ibm.com) Bug#3028
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -111,10 +102,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include <fstream>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
@@ -391,7 +380,7 @@ setlocale(LC_ALL, "");
 	GetModuleFileName(hExe, exeDir, sizeof(exeDir));
 	*strrchr(exeDir, '\\') = '\0';
 	pegasusHome = String(exeDir);
-		
+
 #endif
 
         // Get help, version, and shutdown options

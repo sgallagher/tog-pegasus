@@ -35,8 +35,6 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <fstream>
-#include <iostream>
 #include <cstdio>
 #include <Pegasus/Config/ConfigFileHandler.h>
 

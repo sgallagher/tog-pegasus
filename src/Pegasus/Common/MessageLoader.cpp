@@ -361,7 +361,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		if(resbundl == NULL)
 			 locale = ULOC_US;
 		else
-			 locale = const_cast<char *>(ures_getLocale(resbundl, &status));
+			 locale = ures_getLocale(resbundl, &status);
 
 		//cout << "FORMAT ICU MESSAGE: using locale = " << locale << endl;
 

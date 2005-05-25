@@ -33,8 +33,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-#include <fstream>
 #include <cstdio>
 #include <cassert>
 #include <Pegasus/Common/XmlParser.h>

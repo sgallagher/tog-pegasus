@@ -29,7 +29,7 @@
 //
 // Author: Willis White (whiwill@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3674
 //
 //%/////////////////////////////////////////////////////////////b////////////////
 
@@ -120,7 +120,7 @@ void ClientPerfDataStore::setOperationType(Uint32 type)
 }
 
 
-Boolean ClientPerfDataStore::checkMessageIDandType(String messageID, Uint32 type)
+Boolean ClientPerfDataStore::checkMessageIDandType(const String& messageID, Uint32 type)
 { if(_messID != messageID)
   {
     _errorCondition = true;

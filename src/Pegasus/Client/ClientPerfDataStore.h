@@ -30,6 +30,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3674
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +79,7 @@ public:
     @param type CIM message type of current message
     @return true if @param messageID equals currentMessageID data member
     */
-    Boolean checkMessageIDandType(String messageID, Uint32 type);
+    Boolean checkMessageIDandType(const String& messageID, Uint32 type);
 
     /**sets the server time data member
     */

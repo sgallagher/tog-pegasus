@@ -74,9 +74,6 @@
 #ifndef Pegasus_Base64_h
 #define Pegasus_Base64_h
 
-#include <iostream>
-#include <fstream>
-#include <cstring>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>

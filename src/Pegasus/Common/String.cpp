@@ -31,18 +31,17 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3297
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <cctype>
 #include <cstring>
 #include "String.h"
 #include "Array.h"
 #include "AutoPtr.h"
 #include "InternalException.h"
-#include <iostream>
-#include <fstream>
 #include <Pegasus/Common/CommonUTF.h>
 
 #include "CommonUTF.h"

@@ -1,0 +1,29 @@
+instance of PG_ProviderModule
+{
+   Name             = "JMPI_PropertyProviderModule";
+   Location         = "JMPI_PropertyProvider.jar:org/pegasus/jmpi/tests/PropertyProvider/JMPI_PropertyProvider";
+   Vendor           = "Pegasus Community";
+   Version          = "2.0.0";
+   InterfaceType    = "JMPI";
+   InterfaceVersion = "1.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "JMPI_PropertyProviderModule";
+   Name               = "JMPI_PropertyProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName  = "JMPI_PropertyProviderModule";
+   ProviderName        = "JMPI_PropertyProvider";
+   CapabilityID        = "1";
+   ClassName           = "JMPI_PropertyProvider";
+   Namespaces          = {"test/static"};
+   // ValueMap {"2",        "3",           "4" ,          "5" ,     "6" ,                 "7"},
+   // Values   {"Instance", "Association", "Indication" , "Method", "IndicationConsumer", "InstanceQuery"}]
+   ProviderType        = { 2, 7 };
+   SupportedProperties = NULL;     // All properties
+   SupportedMethods    = NULL;     // All methods
+};

@@ -221,6 +221,14 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleReferenceNamesRequest(request);
         break;
 
+    case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+        response = handleGetPropertyRequest(request);
+        break;
+
+    case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+        response = handleSetPropertyRequest(request);
+        break;
+
     case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
         response = handleInvokeMethodRequest(request);
         break;
@@ -237,7 +245,7 @@ Message * JMPIProviderManager::processMessage(Message * request) throw()
         response = handleDeleteSubscriptionRequest(request);
         break;
 
-/*    case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+/*  case CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
         response = handleExportIndicationRequest(request);
         break;
 */
@@ -2601,6 +2609,290 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         case METHOD_UNKNOWN:
         {
             DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: should not be here!"<<PEGASUS_STD(endl));
+            break;
+        }
+        }
+    }
+    HandlerCatch(handler);
+
+    if (env) JMPIjvm::detachThread();
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
+
+Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message) throw()
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleGetPropertyRequest");
+
+    HandlerIntro(GetProperty,message,request,response,handler,CIMValue());
+
+    typedef enum {
+       METHOD_UNKNOWN = 0,
+       METHOD_SNIA_PROVIDER20,
+    } METHOD_VERSION;
+    METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
+    JNIEnv          *env           = NULL;
+
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleGetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
+
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->instanceName.getClassName(),
+            request->instanceName.getKeyBindings());
+
+        // resolve provider name
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
+
+        // get cached or load new provider module
+        JMPIProvider::OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+
+        // convert arguments
+        OperationContext context;
+
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+
+        // forward request
+        JMPIProvider &pr = ph.GetProvider();
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.getPropertyValue: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: Calling provider getPropertyValue: "<<pr.getName()<<PEGASUS_STD(endl));
+
+        JvmVector *jv = 0;
+
+        env = JMPIjvm::attachThread(&jv);
+
+        JMPIProvider::pm_service_op_lock op_lock(&pr);
+
+        STAT_GETSTARTTIME;
+
+        jmethodID id = NULL;
+
+        // public abstract org.pegasus.jmpi.CIMValue getPropertyValue (org.pegasus.jmpi.CIMObjectPath cop,
+        //                                                             java.lang.String               oclass,
+        //                                                             java.lang.String               pName)
+        //        throws org.pegasus.jmpi.CIMException
+        //
+        id = env->GetMethodID((jclass)pr.jProviderClass,
+                              "getPropertyValue",
+                              "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;)Lorg/pegasus/jmpi/CIMValue;");
+
+        if (id != NULL)
+        {
+            eMethodFound = METHOD_SNIA_PROVIDER20;
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: found METHOD_SNIA_PROVIDER20."<<PEGASUS_STD(endl));
+        }
+
+        if (id == NULL)
+        {
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: found no method!"<<PEGASUS_STD(endl));
+        }
+
+        JMPIjvm::checkException(env);
+
+        switch (eMethodFound)
+        {
+        case METHOD_SNIA_PROVIDER20:
+        {
+            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+
+            JMPIjvm::checkException(env);
+
+            jstring joclass = env->NewStringUTF(request->instanceName.getClassName().getString().getCString());
+
+            JMPIjvm::checkException(env);
+
+            jstring jpName = env->NewStringUTF(request->propertyName.getString().getCString());
+
+            JMPIjvm::checkException(env);
+
+            STAT_GETSTARTTIME;
+
+            jobject jval = env->CallObjectMethod ((jobject)pr.jProvider,
+                                                  id,
+                                                  jcop,
+                                                  joclass,
+                                                  jpName);
+
+            JMPIjvm::checkException(env);
+
+            STAT_PMS_PROVIDEREND;
+
+            handler.processing();
+
+            if (jval)
+            {
+               jint      jvalref = env->CallIntMethod(jval,JMPIjvm::jv.CIMValueCInst);
+               CIMValue *cv      = DEBUG_ConvertJavaToC (jint, CIMValue*, jvalref);
+
+               JMPIjvm::checkException(env);
+
+               handler.deliver(*cv);
+            }
+            handler.complete();
+            break;
+        }
+
+        case METHOD_UNKNOWN:
+        {
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: should not be here!"<<PEGASUS_STD(endl));
+            break;
+        }
+        }
+    }
+    HandlerCatch(handler);
+
+    if (env) JMPIjvm::detachThread();
+
+    PEG_METHOD_EXIT();
+
+    return(response);
+}
+
+Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message) throw()
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,"JMPIProviderManager::handleSetPropertyRequest");
+
+    HandlerIntroVoid(SetProperty,message,request,response,handler);
+
+    typedef enum {
+       METHOD_UNKNOWN = 0,
+       METHOD_SNIA_PROVIDER20,
+    } METHOD_VERSION;
+    METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
+    JNIEnv          *env           = NULL;
+
+    try {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            "JMPIProviderManager::handleSetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+            System::getHostName(),
+            request->nameSpace.getString(),
+            request->instanceName.getClassName().getString());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
+
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->instanceName.getClassName(),
+            request->instanceName.getKeyBindings());
+
+        // resolve provider name
+        ProviderName name = _resolveProviderName(
+            request->operationContext.get(ProviderIdContainer::NAME));
+
+        // get cached or load new provider module
+        JMPIProvider::OpProviderHolder ph =
+            providerManager.getProvider(name.getPhysicalName(), name.getLogicalName(), String::EMPTY);
+
+        // convert arguments
+        OperationContext context;
+
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+        context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME));
+        context.insert(request->operationContext.get(ContentLanguageListContainer::NAME));
+
+        // forward request
+        JMPIProvider &pr = ph.GetProvider();
+
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.setPropertyValue: " + pr.getName());
+
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: Calling provider setPropertyValue: "<<pr.getName()<<PEGASUS_STD(endl));
+
+        JvmVector *jv = 0;
+
+        env = JMPIjvm::attachThread(&jv);
+
+        JMPIProvider::pm_service_op_lock op_lock(&pr);
+
+        STAT_GETSTARTTIME;
+
+        jmethodID id = NULL;
+
+        // public abstract void setPropertyValue (org.pegasus.jmpi.CIMObjectPath cop,
+        //                                        java.lang.String               oclass,
+        //                                        java.lang.String               pName,
+        //                                        org.pegasus.jmpi.CIMValue      val)
+        //        throws org.pegasus.jmpi.CIMException
+        //
+        id = env->GetMethodID((jclass)pr.jProviderClass,
+                              "setPropertyValue",
+                              "(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/lang/String;Lorg/pegasus/jmpi/CIMValue;)V");
+
+        if (id != NULL)
+        {
+            eMethodFound = METHOD_SNIA_PROVIDER20;
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: found METHOD_SNIA_PROVIDER20."<<PEGASUS_STD(endl));
+        }
+
+        if (id == NULL)
+        {
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: found no method!"<<PEGASUS_STD(endl));
+        }
+
+        JMPIjvm::checkException(env);
+
+        switch (eMethodFound)
+        {
+        case METHOD_SNIA_PROVIDER20:
+        {
+            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
+
+            JMPIjvm::checkException(env);
+
+            jstring joclass = env->NewStringUTF(request->instanceName.getClassName().getString().getCString());
+
+            JMPIjvm::checkException(env);
+
+            jstring jpName = env->NewStringUTF(request->propertyName.getString().getCString());
+
+            JMPIjvm::checkException(env);
+
+            CIMValue val (request->newValue);
+
+            JMPIjvm::checkException(env);
+
+            jint    jvalref = DEBUG_ConvertCToJava (CIMValue*, jint, &val);
+            jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewI, jvalref);
+
+            JMPIjvm::checkException(env);
+
+            STAT_GETSTARTTIME;
+
+            env->CallVoidMethod ((jobject)pr.jProvider,
+                                 id,
+                                 jcop,
+                                 joclass,
+                                 jpName,
+                                 jval);
+
+            JMPIjvm::checkException(env);
+
+            STAT_PMS_PROVIDEREND;
+            break;
+        }
+
+        case METHOD_UNKNOWN:
+        {
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: should not be here!"<<PEGASUS_STD(endl));
             break;
         }
         }

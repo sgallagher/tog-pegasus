@@ -1,0 +1,33 @@
+// ===================================================================
+// JMPI_PropertyProvider
+// ===================================================================
+
+[ Version ("2.2.0"),
+  Description ("JMPI_PropertyProvider is a concrete class"),
+  provider("JMPI_PropertyProvider")
+]
+class JMPI_PropertyProvider
+{
+   [ Key,
+     MaxLen (256),
+     Description (
+          "CreationClassName indicates the name of the class or the "
+          "subclass used in the creation of an instance. When used "
+          "with the other key properties of this class, this property "
+          "allows all instances of this class and its subclasses to "
+          "be uniquely identified.")
+   ]
+   string CreationClassName;
+
+   [ Key,
+     Description (
+          "An identifier that uniquely identifies each instance "
+          "of the JMPI_TestElement hierarchy.")
+   ]
+   uint64 InstanceId;
+
+   [ Maxlen (256),
+     Description ("a string property of JMPI_TestPropertyTypes")
+   ]
+   string PropertyString;
+};

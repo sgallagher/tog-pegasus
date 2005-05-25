@@ -118,8 +118,8 @@ protected:
     Message * handleReferencesRequest(const Message * message) throw();
     Message * handleReferenceNamesRequest(const Message * message) throw();
 
-////Message * handleGetPropertyRequest(const Message * message) throw();
-////Message * handleSetPropertyRequest(const Message * message) throw();
+    Message * handleGetPropertyRequest(const Message * message) throw();
+    Message * handleSetPropertyRequest(const Message * message) throw();
 
     Message * handleInvokeMethodRequest(const Message * message) throw();
 

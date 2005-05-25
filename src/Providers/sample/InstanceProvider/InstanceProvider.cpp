@@ -153,6 +153,15 @@ void InstanceProvider::enumerateInstanceNames(
 	handler.complete();
 }
 
+
+// ***********************************************************************
+//
+// The modify, create and delete Instance methods are not supported
+// because this Sample Provider only uses the Pegasus public interface
+// which does not provide any locks. Locks are required to support the
+// maintenance of a dynamic data store in a multi-threaded environment.
+//
+// ***********************************************************************
 void InstanceProvider::modifyInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
@@ -161,133 +170,49 @@ void InstanceProvider::modifyInstance(
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference =
-        CIMObjectPath(
-            String(),
-            CIMNamespaceName(),
-            instanceReference.getClassName(),
-            instanceReference.getKeyBindings());
-	
-	// begin processing the request
-	handler.processing();
-
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instances[i].getPath())
-		{
-            CIMInstance cimInstance = instanceObject.clone();
-
-            CIMObjectPath instanceName =
-                CIMObjectPath(
-                    String(),
-                    CIMNamespaceName(),
-                    instanceReference.getClassName(),
-                    instanceReference.getKeyBindings());
-
-            cimInstance.setPath(instanceName);
-
-            _instances[i] = instanceObject;
-			
-            break;
-		}
-	}
-	
-	// complete processing the request
-	handler.complete();
+  // deliver exception to the ProviderManager, which in turn will return the 
+  // error message to the requestor
+  
+  throw CIMNotSupportedException("InstanceProvider::modifyInstance()");
 }
 
+// ***********************************************************************
+//
+// The modify, create and delete Instance methods are not supported
+// because this Sample Provider only uses the Pegasus public interface
+// which does not provide any locks. Locks are required to support the
+// maintenance of a dynamic data store in a multi-threaded environment.
+//
+// ***********************************************************************
 void InstanceProvider::createInstance(
     const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMInstance & instanceObject,
     ObjectPathResponseHandler & handler)
 {
-    // Validate the class name
-    if(!instanceObject.getClassName().equal("Sample_InstanceProviderClass"))
-    {
-        throw CIMNotSupportedException(
-            instanceObject.getClassName().getString());
-    }
-
-    // Find the key property
-    Uint32 idIndex = instanceObject.findProperty("Identifier");
-
-    if(idIndex == PEG_NOT_FOUND)
-    {
-        throw CIMInvalidParameterException("Missing key value");
-    }
-
-    CIMInstance cimInstance = instanceObject.clone();
-
-    // Create the new instance name
-    CIMValue idValue = instanceObject.getProperty(idIndex).getValue();
-    Array<CIMKeyBinding> keys;
-    keys.append(CIMKeyBinding("Identifier", idValue));
-
-    CIMObjectPath instanceName =
-        CIMObjectPath(
-            String(),
-            CIMNamespaceName(),
-            instanceObject.getClassName(),
-            keys);
-
-    cimInstance.setPath(instanceName);
-
-    // Determine whether this instance already exists
-    for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-    {
-        if(instanceName == _instances[i].getPath())
-        {
-            throw CIMObjectAlreadyExistsException(instanceName.toString());
-        }
-    }
-
-    // begin processing the request
-    handler.processing();
-
-    // add the new instance to the array
-    _instances.append(cimInstance);
-
-    // deliver the new instance name
-    handler.deliver(instanceName);
-
-    // complete processing the request
-    handler.complete();
+  // deliver exception to the ProviderManager, which in turn will return the 
+  // error message to the requestor
+  
+  throw CIMNotSupportedException("InstanceProvider::createInstance()");
 }
 
+
+// ***********************************************************************
+//
+// The modify, create and delete Instance methods are not supported
+// because this Sample Provider only uses the Pegasus public interface
+// which does not provide any locks. Locks are required to support the
+// maintenance of a dynamic data store in a multi-threaded environment.
+//
+// ***********************************************************************
 void InstanceProvider::deleteInstance(
 	const OperationContext & context,
 	const CIMObjectPath & instanceReference,
 	ResponseHandler & handler)
 {
-	// convert a potential fully qualified reference into a local reference
-	// (class name and keys only).
-	CIMObjectPath localReference =
-        CIMObjectPath(
-            String(),
-            CIMNamespaceName(),
-            instanceReference.getClassName(),
-            instanceReference.getKeyBindings());
-	
-	// begin processing the request
-	handler.processing();
-
-	// instance index corresponds to reference index
-	for(Uint32 i = 0, n = _instances.size(); i < n; i++)
-	{
-		if(localReference == _instances[i].getPath())
-		{
-			// remove instance from the array
-			_instances.remove(i);
-
-            break;
-		}
-	}
-	
-	// complete processing the request
-	handler.complete();
+  // deliver exception to the ProviderManager, which in turn will return the 
+  // error message to the requestor
+  
+  throw CIMNotSupportedException("InstanceProvider::deleteInstance()");
 }
 

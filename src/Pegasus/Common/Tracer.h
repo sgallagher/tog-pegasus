@@ -39,7 +39,6 @@
 #define Pegasus_Tracer_h
 
 #include <stdarg.h>
-#include <fstream>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>

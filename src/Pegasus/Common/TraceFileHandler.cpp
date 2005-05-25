@@ -37,8 +37,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <fstream>
-#include <iostream>
+//#include <fstream>
+//#include <iostream>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/TraceFileHandler.h>
 

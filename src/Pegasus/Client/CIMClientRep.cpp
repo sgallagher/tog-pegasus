@@ -1223,7 +1223,6 @@ Message* CIMClientRep::_doRequest(
                     throw cimException;
                 }
 
-
                 /* if excicution gets here everytihng is working correctly and a proper response
                 was generated and recived */
 
@@ -1307,88 +1306,30 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(const CIMObjectPath& obj
 
     MessageLoaderParms typeMismatchMessage;
     // splitting the port from hostname as we have to compare both separate
-    int i = ObjHost.find(":");
-    String ObjPort = String::EMPTY;
-    // only if there is a ":" we should split a port address from hostname string
-    if (i > 0)
-    {
-        ObjPort = ObjHost.subString(i+1);
-        ObjHost.remove(i);
+        int i = ObjHost.find(":");
+        String ObjPort = String::EMPTY;
+        // only if there is a ":" we should split a port address from hostname string
+        if (i > 0)
+        {
+            ObjPort = ObjHost.subString(i+1);
+            ObjHost.remove(i);
 
-        // lets see who we are really connected to
-        // should stand in UInt32 _connectPortNumber and String _connectHost;
+            // lets see who we are really connected to
+            // should stand in UInt32 _connectPortNumber and String _connectHost;
 
-        // comparing the stuff
-        // first the easy part, comparing the ports
-        Uint32 objectport = strtoul((const char*) ObjPort.getCString(), NULL, 0);
+            // comparing the stuff
+            // first the easy part, comparing the ports
+            Uint32 objectport = strtoul((const char*) ObjPort.getCString(), NULL, 0);
 
         // if port in object path does not equal port of connection throw a TypeMismatch Exception
         if (objectport != _connectPortNumber)
         {
-
-
             typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_PORTMISMATCH",
                                                      "Failed validation of CIM object path: port of CIMClient connection($0) and port of object path($1) not equal",
                                                      _connectPortNumber, objectport);
             throw TypeMismatchException(typeMismatchMessage);
         }
     }
-
-    // lets retrieve ip addresses for both hostnames
-    Uint32 ipObjectPath, ipConnection = 0xFFFFFFFF;
-    ipObjectPath = System::_acquireIP((const char *) ObjHost.getCString());
-    if (ipObjectPath == 0x7F000001)
-    {
-        // localhost or ip address of 127.0.0.1
-        // still for compare we need the real ip address
-        ipObjectPath = System::_acquireIP((const char *) System::getHostName().getCString());
-    }
-    if (ipObjectPath == 0xFFFFFFFF)
-    {
-        // bad formatted ip address or not resolveable
-        typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATH_IP_UNRESOLVEABLE",
-                                                 "Failed validation of CIM object path: failed to resolve IP address($0) from object path",
-                                                 ObjHost);
-        throw TypeMismatchException(typeMismatchMessage);
-    }
-#ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-    // a local domain socket connection is represented as empty _connectHost
-    if (_connectHost == String::EMPTY)
-    {
-        // ok, it is the localhost, so lets compare with that given
-        ipConnection = 0x7F000001;
-        // return;
-    } else
-    {
-        ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
-    }
-#else
-    ipConnection = System::_acquireIP((const char *) _connectHost.getCString());
-#endif
-    if (ipConnection == 0x7F000001)
-    {
-        // localhost or ip address of 127.0.0.1
-        // still for compare we need the real ip address
-        ipConnection = System::_acquireIP((const char *) System::getHostName().getCString());
-    }
-    if (ipConnection == 0xFFFFFFFF)
-    {
-        // bad formatted ip address or not resolveable
-        typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_CIMCLIENTCONNECTION_IP_UNRESOLVEABLE",
-                                                 "Failed validation of CIM object path: failed to resolve IP address($0) of CIMClient connection",
-                                                 _connectHost);
-        throw TypeMismatchException(typeMismatchMessage);
-    }
-
-    if (ipObjectPath != ipConnection)
-    {
-        typeMismatchMessage = MessageLoaderParms("Client.CIMClientRep.TYPEMISMATCH_OBJECTPATHS_NOTEQUAL",
-                                                 "Failed validation of CIM object path: host of CIMClient connection($0) and object path($1) not equal",
-                                                 _connectHost,
-                                                 ObjHost);
-        throw TypeMismatchException(typeMismatchMessage);
-    }
-
 }
 
 

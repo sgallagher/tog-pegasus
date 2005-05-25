@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -31,22 +31,21 @@
 //
 // Modified By: Nag Boranna, Hewlett Packard Company (nagaraja_boranna@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// 
-// This file implements the functionality required to manage password file. 
+//
+// This file implements the functionality required to manage password file.
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AuthorizationHandler_h
 #define Pegasus_AuthorizationHandler_h
-
-#include <cctype>
-#include <fstream>
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
@@ -75,7 +74,7 @@ private:
     //
     // Authorization cache
     //
-    AuthTable       	          _authTable;
+    AuthTable                     _authTable;
 
     //
     // Repository handle
@@ -103,7 +102,7 @@ public:
     */
     Boolean verifyNamespace( const CIMNamespaceName& nameSpace );
 
-    /** Verify whether the specified operation has authorization to be performed 
+    /** Verify whether the specified operation has authorization to be performed
     by the specified user.
     @param userName   string containing the user name.
     @param nameSpace  string containing the namespace name.
@@ -124,7 +123,7 @@ public:
     void setAuthorization(
                             const String& userName,
                             const CIMNamespaceName& nameSpace,
-			    const String& auth);
+                            const String& auth);
 
     /** Remove the authorizations of the specified user on the specified namespace.
     @param userName   string containing the user name.

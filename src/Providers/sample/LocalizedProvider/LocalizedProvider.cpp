@@ -32,6 +32,8 @@
 // Modified By:
 //      Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //      Chip Vincent (cvincent@us.ibm.com)
+//      David Dillard, VERITAS Software Corp.
+//          (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,20 +106,15 @@
 // l10n TODO
 // -- implement test providers for other provider types
 
-#include <Pegasus/Common/Config.h>
+#include "LocalizedProvider.h"
 #include <cassert>
 #include <cstdlib>
-#include <fstream>
 
 // Globalization headers
 #include <Pegasus/Common/AcceptLanguages.h>
-#include <Pegasus/Common/ContentLanguages.h>
-#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
-
-#include "LocalizedProvider.h"
 
 PEGASUS_USING_STD;
 

@@ -33,10 +33,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <iostream>
 #include <cassert>
 #include <cstdlib>
-#include <fstream>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/FileSystem.h>

@@ -140,9 +140,8 @@ public:
 
     static Boolean copyFile(const char* fromPath, const char* toPath);
 
-    /** Unix issue:<br><br><b>RTLD_<bah></b> issue. Currently Pegasus uses RTLD_NOW during
-	loading of the library if supported by OS.  Previous to 2.2, Pegasus used RTLD_GLOBAL on Linux
-	- that behaviour is now deprecated.
+    /** Unix issue:<br><br><b>RTLD_<blah></b> issue. Currently Pegasus uses RTLD_GLOBAL during
+	loading of the library if supported by OS.  Previous to 2.2, Pegasus used RTLD_GLOBAL on Linux. In between 2.3 and 2.4, it used RTDL_NOW. In 2.5 it is using RTLD_GLOBAL. Please consult doc/ProviderLoading.txt for more information.
     */
     static DynamicLibraryHandle loadDynamicLibrary(const char* fileName);
 

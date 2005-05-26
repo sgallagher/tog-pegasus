@@ -247,12 +247,23 @@ InteropProvider::InteropProvider(CIMRepository* repository)
     // This is a tempory fix untill there is a method created for the InteropProvider to 
     // do it's inalization work. This fix sets StatisticalData::CopyGSD, enabling the 
     //statistical gathering function.
-    Array<CIMInstance> instance = repository->enumerateInstances(
-                        CIMNamespaceName("root/cimv2"),
-                        CIMName ("CIM_ObjectManager"));
 
-    if(instance.size() > 0)
-    {
+
+     Boolean InstancesExists = true;
+     Array<CIMInstance> instance;
+
+     try
+     {
+         instance = repository->enumerateInstances(CIMNamespaceName("root/cimv2"), 
+                                                   CIMName ("CIM_ObjectManager"));
+     }
+     catch(Exception e)
+     {
+       InstancesExists = false;
+     }
+
+     if(instance.size() > 0 && InstancesExists)
+     {                               
         Boolean output = false;
         Uint32 pos;
         if ((pos = instance[0].findProperty(CIMName("GatherStatisticalData"))) != PEG_NOT_FOUND)

@@ -57,11 +57,11 @@ public:
    CmpiPropertyMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveSetProperty
-   (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eOp, char* name, CMPIData data);
+   (CMPIPropertyMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eOp, const char* name, CMPIData data);
    static CMPIStatus driveGetProperty
-   (CMPIPropertyMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eOp, char* name);
+   (CMPIPropertyMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eOp, const char* name);
 
    virtual CmpiStatus setProperty
    (const CmpiContext& ctx, CmpiResult& rslt,

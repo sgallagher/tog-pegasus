@@ -58,9 +58,9 @@ public:
    CmpiMethodMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveInvokeMethod
-   (CMPIMethodMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop, const char* methodName,
-    CMPIArgs* eIn, CMPIArgs* eOut);
+   (CMPIMethodMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop, const char* methodName,
+    const CMPIArgs* eIn, CMPIArgs* eOut);
 
    virtual CmpiStatus invokeMethod
    (const CmpiContext& ctx, CmpiResult& rslt,

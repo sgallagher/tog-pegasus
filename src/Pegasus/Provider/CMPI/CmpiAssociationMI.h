@@ -56,20 +56,20 @@ public:
    CmpiAssociationMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveAssociators
-   (CMPIAssociationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eOp, const char* asscClass, const char* resultClass,
-    const char* role, const char* resultRole, char** properties);
+   (CMPIAssociationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eOp, const char* asscClass, const char* resultClass,
+    const char* role, const char* resultRole, const char** properties);
    static CMPIStatus driveAssociatorNames
-   (CMPIAssociationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eOp, const char* assocClass, const char* resultClass,
+   (CMPIAssociationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eOp, const char* assocClass, const char* resultClass,
     const char* role, const char* resultRole);
    static CMPIStatus driveReferences
-   (CMPIAssociationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eOp, const char* resultClass, const char* role ,
-    char** properties);
+   (CMPIAssociationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eOp, const char* resultClass, const char* role ,
+    const char** properties);
    static CMPIStatus driveReferenceNames
-   (CMPIAssociationMI*, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eOp, const char* resultClass, const char* role);
+   (CMPIAssociationMI*, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eOp, const char* resultClass, const char* role);
 
    virtual CmpiStatus associators
    (const CmpiContext& ctx, CmpiResult& rslt,

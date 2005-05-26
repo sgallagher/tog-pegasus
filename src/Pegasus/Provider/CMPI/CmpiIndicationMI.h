@@ -55,17 +55,20 @@ public:
    CmpiIndicationMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveAuthorizeFilter
-   (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPISelectExp* se, const char* ns, CMPIObjectPath* op, const char* user);
+   (CMPIIndicationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPISelectExp* se, const char* ns, const CMPIObjectPath* op, 
+    const char* user);
    static CMPIStatus driveMustPoll
-   (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRrslt,
-    CMPISelectExp* se, const char* ns, CMPIObjectPath* op);
+   (CMPIIndicationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRrslt,
+    const CMPISelectExp* se, const char* ns, const CMPIObjectPath* op);
    static CMPIStatus driveActivateFilter
-   (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPISelectExp* se, const char* ns, CMPIObjectPath* op, CMPIBoolean first);
+   (CMPIIndicationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPISelectExp* se, const char* ns, const CMPIObjectPath* op, 
+    CMPIBoolean first);
    static CMPIStatus driveDeActivateFilter
-   (CMPIIndicationMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPISelectExp* se, const char* ns, CMPIObjectPath* op, CMPIBoolean last);
+   (CMPIIndicationMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPISelectExp* se, const char* ns, 
+    const CMPIObjectPath* op, CMPIBoolean last);
    static void driveEnableIndications
    (CMPIIndicationMI* mi);
    static void driveDisableIndications

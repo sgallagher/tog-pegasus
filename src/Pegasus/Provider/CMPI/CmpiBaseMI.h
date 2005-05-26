@@ -60,7 +60,7 @@ public:
    void setProviderBase(CmpiProviderBase* base);
    CmpiProviderBase* getProviderBase();
 
-   static CMPIStatus driveBaseCleanup(void* mi, CMPIContext* eCtx);
+   static CMPIStatus driveBaseCleanup(void* mi, const CMPIContext* eCtx, CMPIBoolean* b);
 
    virtual CmpiStatus initialize(const CmpiContext& ctx);
    virtual CmpiStatus cleanup(CmpiContext& ctx);

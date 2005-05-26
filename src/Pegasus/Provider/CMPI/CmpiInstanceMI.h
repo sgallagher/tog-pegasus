@@ -58,26 +58,27 @@ public:
    CmpiInstanceMI(const CmpiBroker &mbp, const CmpiContext& ctx);
 
    static CMPIStatus driveEnumInstanceNames
-   (CMPIInstanceMI* mi,CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop);
+   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop);
    static CMPIStatus driveEnumInstances
-   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop, char* *properties);
+   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop, const char* *properties);
    static CMPIStatus driveGetInstance
-   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop, char* *properties);
+   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop, const char* *properties);
    static CMPIStatus driveCreateInstance
-   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop, CMPIInstance* eInst);
+   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop, const CMPIInstance* eInst);
    static CMPIStatus driveSetInstance
-   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop, CMPIInstance* eInst, char* *properties);
+   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop, const CMPIInstance* eInst, 
+    const char* *properties);
    static CMPIStatus driveDeleteInstance
-   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop);
+   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop);
    static CMPIStatus driveExecQuery
-   (CMPIInstanceMI* mi, CMPIContext* eCtx, CMPIResult* eRslt,
-    CMPIObjectPath* eCop, char* language ,char* query);
+   (CMPIInstanceMI* mi, const CMPIContext* eCtx, const CMPIResult* eRslt,
+    const CMPIObjectPath* eCop, const char* language ,const char* query);
 
 
    virtual CmpiStatus enumInstanceNames

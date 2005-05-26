@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,38 +29,48 @@
 //
 // Author:      Adrian Schuur, schuur@de.ibm.com
 //
-// Modified By:
+// Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
-
 public class SelectExp extends WQLExp {
-   int cInst;
-   private native void   _finalize(int ci);
 
-   protected void finalize() {
+   int cInst;
+
+   private native void   _finalize (int cInst);
+
+   protected void finalize ()
+   {
       _finalize(cInst);
    }
 
-   SelectExp(int ci) {
+   SelectExp (int ci)
+   {
      cInst=ci;
    }
 
+   public String getSelectString ()
+   {
+      return null;
+   }
 
-   public String getSelectString() {
+   public QueryExp getWhereClause ()
+   {
       return null;
    }
-   public QueryExp getWhereClause() {
+
+   public SelectList getSelectList ()
+   {
       return null;
    }
-   public SelectList getSelectList() {
+
+   public FromExp getFromClause ()
+   {
       return null;
    }
-   public FromExp getFromClause() {
-      return null;
+
+   static {
+      System.loadLibrary("JMPIProviderManager");
    }
 };
-

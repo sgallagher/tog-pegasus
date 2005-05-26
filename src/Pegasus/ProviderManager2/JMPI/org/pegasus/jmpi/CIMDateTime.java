@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,7 +33,6 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 package org.pegasus.jmpi;
 
 import java.util.Calendar;
@@ -45,28 +44,30 @@ import java.util.TimeZone;
 public class CIMDateTime {
 
    int cInst;
-   private native int    _datetime(String n);
-   private native int    _datetimeempty();
-   private native boolean _after(int c, int d);
-   private native boolean _before(int c, int d);
 
-   private static String GMT = "GMT";
-   private static int UTC_MULTIPLIER = 60000;
-   private native void _finalize(int cdt);
+   private native int     _datetime      (String n);
+   private native int     _datetimeempty ();
+   private native boolean _after         (int    c,
+                                          int    d);
+   private native boolean _before        (int    c,
+                                          int    d);
+   private native void    _finalize      (int    cInst);
 
-   protected void finalize() {
+   private static String  GMT            = "GMT";
+   private static int     UTC_MULTIPLIER = 60000;
+
+   protected void finalize()
+   {
       _finalize(cInst);
    }
 
-   CIMDateTime(int ci) {
+   CIMDateTime (int ci)
+   {
       cInst=ci;
    }
 
-   int cInst() {
-      return cInst;
-   }
-
-   public CIMDateTime() {
+   public CIMDateTime ()
+   {
       cInst=_datetimeempty();
    }
 
@@ -77,7 +78,8 @@ public class CIMDateTime {
     * @param inStr The date/time as defined by the CIM specification
     *
     */
-   public CIMDateTime(String n) {
+   public CIMDateTime(String n)
+   {
       cInst=_datetime(n);
    }
 
@@ -86,22 +88,27 @@ public class CIMDateTime {
     *
     * @param inDate The date to initialize the CIMDateType from
     */
-   public CIMDateTime(java.util.Date inDate) {
+   public CIMDateTime (java.util.Date inDate)
+   {
       String dateTime = getDateString(inDate);
       cInst=_datetime(dateTime);
    }
 
-   public boolean after(CIMDateTime d) {
-      return _after(cInst, d.cInst());
+   public boolean after (CIMDateTime d)
+   {
+      return _after(cInst, d.cInst);
    }
 
-   public boolean before(CIMDateTime d) {
-      return _before(cInst, d.cInst());
+   public boolean before (CIMDateTime d)
+   {
+      return _before(cInst, d.cInst);
    }
 
-   private String getDateString(java.util.Date d) {
-      Calendar cal = Calendar.getInstance( TimeZone.getTimeZone(GMT));
+   private String getDateString (java.util.Date d)
+   {
+      Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(GMT));
       cal.setTime(d);
+
       int UTCOffset = ((cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET))/UTC_MULTIPLIER);
       StringBuffer newString = new StringBuffer();
 
@@ -117,27 +124,34 @@ public class CIMDateTime {
       newString.append(padZero(6,cal.get(Calendar.MILLISECOND)));
       if (UTCOffset > 0) {
          newString.append("+");
-      } 
+      }
       else {
          newString.append("-");
       }
-      newString.append(padZero(3, Math.abs(UTCOffset))); 
+      newString.append(padZero(3, Math.abs(UTCOffset)));
+
       return newString.toString();
    }
 
-   private String padZero(int length, int value) {
+   private String padZero (int length,
+                           int value)
+   {
       String buf = String.valueOf(value);
       int delta = length - buf.length();
-      
+
       if (delta < 1) {
          return buf;
       }
-   
+
       String prefix = "0";
       for (int i = 1; i < delta; i++) {
          prefix = prefix + "0";
       }
+
       return prefix + buf;
    }
 
+   static {
+      System.loadLibrary("JMPIProviderManager");
+   }
 }

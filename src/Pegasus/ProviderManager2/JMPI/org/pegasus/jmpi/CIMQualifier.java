@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,43 +29,63 @@
 //
 // Author:      Adrian Duta
 //
-// Modified By: Adrian Schuur, schuur@de.ibm.com 
+// Modified By: Adrian Schuur, schuur@de.ibm.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
 package org.pegasus.jmpi;
 
-public class CIMQualifier 
+public class CIMQualifier
 {
    int cInst;
-   private native int _new(String n);
-   private native String _getName(int cq);
-   private native Object _getValue(int cq);
-   private native void   _setValue(int cq, int v);
-   private native void   _finalize(int cq);
 
-   protected void finalize() {
+   private native int    _new      (String n);
+   private native String _getName  (int    cq);
+   private native Object _getValue (int    cq);
+   private native void   _setValue (int    cq,
+                                    int    v);
+   private native void   _finalize (int    cInst);
+
+   protected void finalize ()
+   {
       _finalize(cInst);
    }
- 
 
-   CIMQualifier(int ci) {
+   CIMQualifier (int ci)
+   {
       cInst=ci;
    }
-   
-   public CIMQualifier(String iname) {
+
+   public CIMQualifier (String iname)
+   {
       cInst=_new(iname);
    }
 
-   public CIMValue getValue() {
-      return new CIMValue(_getValue(cInst));
+   public CIMValue getValue ()
+   {
+      Object oValue = _getValue(cInst);
+
+      if (oValue != null)
+      {
+         return new CIMValue (oValue);
+      }
+      else
+      {
+         return null;
+      }
    }
 
-   public void setValue(CIMValue value) {
+   public void setValue (CIMValue value)
+   {
       _setValue(cInst,value.cInst);
    }
 
-   public String getName() {
+   public String getName ()
+   {
       return _getName(cInst);
+   }
+
+   static {
+      System.loadLibrary("JMPIProviderManager");
    }
 }

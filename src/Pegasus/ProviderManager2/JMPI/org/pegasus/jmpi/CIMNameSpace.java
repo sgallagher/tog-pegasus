@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,12 +27,11 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
+// Author:      Adrian Schuur, schuur@de.ibm.com
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
 package org.pegasus.jmpi;
 
 
@@ -43,56 +42,71 @@ public class CIMNameSpace {
 
    int cInst;
 
-   private native int _new();
-   private native int _newHn(String hn);
-   private native int _newHnNs(String hn, String ns);
-   private native String _getNameSpace(int inst);
-   private native String _getHost(int inst);
-   private native void   _setNameSpace(int inst, String ns);
-   private native void   _setHost(int inst, String h);
-   private native void _finalize(int cns);
-    
-   public CIMNameSpace() {
+   private native int    _new          ();
+   private native int    _newHn        (String hn);
+   private native int    _newHnNs      (String hn,
+                                        String ns);
+   private native String _getNameSpace (int    cInst);
+   private native String _getHost      (int    cInst);
+   private native void   _setNameSpace (int    cInst,
+                                        String ns);
+   private native void   _setHost      (int    cInst,
+                                        String h);
+   private native void   _finalize     (int    cInst);
+
+   public CIMNameSpace ()
+   {
       cInst=_new();
    }
 
-   protected void finalize() {
-      //   _finalize(cInst);
+   protected void finalize ()
+   {
+      _finalize(cInst);
    }
 
-   public CIMNameSpace(String host) {
+   public CIMNameSpace (String host)
+   {
       cInst=_newHn(host);
    }
-   
-   public CIMNameSpace(String host,String ns) {
+
+   public CIMNameSpace (String host,
+                        String ns)
+   {
       cInst=_newHnNs(host,ns);
    }
-   
-   public String getNameSpace() {
+
+   public String getNameSpace ()
+   {
       return _getNameSpace(cInst);
    }
-   
-   public String getHost(){
+
+   public String getHost ()
+   {
       return _getHost(cInst);
    }
-   
-   public void setNameSpace(String ns) {
+
+   public void setNameSpace (String ns)
+   {
       _setNameSpace(cInst,ns);
    }
-   
-   public void setHost(String host) {
+
+   public void setHost (String host)
+   {
       _setHost(cInst,host);
    }
 
-   public int getPortNumber() {
+   public int getPortNumber ()
+   {
       return 0;
    }
 
-   public String getProtocol() {
+   public String getProtocol ()
+   {
       return null;
    }
 
-   public String getHostURL() {
+   public String getHostURL ()
+   {
       return null;
    }
 

@@ -394,11 +394,10 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->instanceName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -468,7 +467,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
@@ -480,8 +479,11 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
 
-            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            JMPIjvm::checkException(env);
+
+            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jObj);
 
@@ -516,7 +518,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
@@ -528,8 +530,11 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
 
-            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            JMPIjvm::checkException(env);
+
+            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jObj);
 
@@ -597,10 +602,9 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->className);
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -678,7 +682,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
@@ -690,9 +694,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
+
             JMPIjvm::checkException(env);
 
-            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jObj);
 
@@ -735,7 +741,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
@@ -747,9 +753,11 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
+
             JMPIjvm::checkException(env);
 
-            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jObj);
 
@@ -826,10 +834,9 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->className);
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -900,7 +907,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
@@ -912,10 +919,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
 
-            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jObj);
 
@@ -952,7 +960,7 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
@@ -964,10 +972,11 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
 
-            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            jObj = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jObj);
 
@@ -1042,11 +1051,10 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleCreateInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->newInstance.getPath().getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->newInstance.getPath().getClassName(),
-            request->newInstance.getPath().getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->newInstance.getPath().getClassName(),
+                                                       request->newInstance.getPath().getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -1100,12 +1108,14 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         {
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
 
-            jObj = DEBUG_ConvertCToJava (CIMInstance*, jint, &request->newInstance);
+            CIMInstance *cInst = new CIMInstance (request->newInstance);
+
+            jObj = DEBUG_ConvertCToJava (CIMInstance*, jint, cInst);
 
             jobject jInst = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jObj);
 
@@ -1174,11 +1184,10 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->modifiedInstance.getPath().getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->modifiedInstance.getPath ().getClassName(),
-            request->modifiedInstance.getPath ().getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->modifiedInstance.getPath ().getClassName(),
+                                                       request->modifiedInstance.getPath ().getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -1254,12 +1263,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
 
-            jObj = DEBUG_ConvertCToJava (CIMInstance*, jint, &request->modifiedInstance);
+            CIMInstance *cInst = new CIMInstance (request->modifiedInstance);
+
+            jObj = DEBUG_ConvertCToJava (CIMInstance*, jint, cInst);
 
             jobject jInst = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jObj);
 
@@ -1281,12 +1292,14 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
 
-            jObj = DEBUG_ConvertCToJava (CIMInstance*, jint, &request->modifiedInstance);
+            CIMInstance *cInst = new CIMInstance (request->modifiedInstance);
+
+            jObj = DEBUG_ConvertCToJava (CIMInstance*, jint, cInst);
 
             jobject jInst = env->NewObject(jv->CIMInstanceClassRef,jv->CIMInstanceNewI,jObj);
 
@@ -1342,11 +1355,10 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleDeleteInstanceRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->instanceName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -1398,7 +1410,7 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         {
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jRef = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
 
             JMPIjvm::checkException(env);
@@ -1451,10 +1463,9 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->className);
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->className);
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -1535,7 +1546,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
 
             JMPIjvm::checkException(env);
@@ -1550,9 +1561,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
+
             JMPIjvm::checkException(env);
 
-            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
 
@@ -1591,7 +1604,7 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
 
             JMPIjvm::checkException(env);
@@ -1606,9 +1619,11 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
                                                       true,
                                                       true,
                                                       CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
+
             JMPIjvm::checkException(env);
 
-            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, &cls);
+            jint jcls = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
 
             jobject jCc=env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jcls);
 
@@ -1687,17 +1702,13 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath assocPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->assocClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *assocPath  = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->assocClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -1788,7 +1799,7 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
@@ -1833,6 +1844,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                     const CIMObjectPath& op  = ci->getPath();
                     CIMObjectPath        iop = ci->buildPath(cls);
 
+                    JMPIjvm::checkException(env);
+
                     iop.setNameSpace(op.getNameSpace());
                     ci->setPath(iop);
 
@@ -1845,12 +1858,12 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &assocPath);
+            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
             jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
 
             JMPIjvm::checkException(env);
@@ -1895,6 +1908,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                     CIMClass             cls = pr._cimom_handle->getClass(context,request->nameSpace,ci->getClassName(),false,true,true,CIMPropertyList());
                     const CIMObjectPath& op  = ci->getPath();
                     CIMObjectPath        iop = ci->buildPath(cls);
+
+                    JMPIjvm::checkException(env);
 
                     iop.setNameSpace(op.getNameSpace());
                     ci->setPath(iop);
@@ -1946,17 +1961,13 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorNamesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath assocPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->assocClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *assocPath  = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->assocClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -2039,7 +2050,7 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
@@ -2084,12 +2095,12 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &assocPath);
+            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, assocPath);
             jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
 
             JMPIjvm::checkException(env);
@@ -2173,17 +2184,13 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath resultPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->resultClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *resultPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->resultClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -2268,7 +2275,7 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
@@ -2315,6 +2322,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                     const CIMObjectPath& op  = ci->getPath();
                     CIMObjectPath        iop = ci->buildPath(cls);
 
+                    JMPIjvm::checkException(env);
+
                     iop.setNameSpace(op.getNameSpace());
                     ci->setPath(iop);
 
@@ -2327,12 +2336,12 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &resultPath);
+            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
             jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
 
             JMPIjvm::checkException(env);
@@ -2379,6 +2388,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                                                                           CIMPropertyList());
                     const CIMObjectPath& op  = ci->getPath();
                     CIMObjectPath        iop = ci->buildPath(cls);
+
+                    JMPIjvm::checkException(env);
 
                     iop.setNameSpace(op.getNameSpace());
                     ci->setPath(iop);
@@ -2430,17 +2441,13 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferenceNamesRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->objectName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->objectName.getClassName());
-
-        objectPath.setKeyBindings(request->objectName.getKeyBindings());
-
-        CIMObjectPath resultPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->resultClass.getString());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->objectName.getClassName(),
+                                                       request->objectName.getKeyBindings());
+        CIMObjectPath *resultPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->resultClass.getString());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -2518,7 +2525,7 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         {
         case METHOD_PEGASUS_24:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
@@ -2560,12 +2567,12 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jAssociationNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jAssociationName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jAssociationNameRef);
 
             JMPIjvm::checkException(env);
 
-            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &resultPath);
+            jint    jPathNameRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, resultPath);
             jobject jPathName    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jPathNameRef);
 
             JMPIjvm::checkException(env);
@@ -2645,11 +2652,10 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetPropertyRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -2709,7 +2715,7 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
         {
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
 
             JMPIjvm::checkException(env);
@@ -2788,11 +2794,10 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleSetPropertyRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->className.getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -2853,7 +2858,7 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
         {
         case METHOD_SNIA_PROVIDER20:
         {
-            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint    jcopref = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef, jv->CIMObjectPathNewI, jcopref);
 
             JMPIjvm::checkException(env);
@@ -2866,11 +2871,11 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            CIMValue val (request->newValue);
+            CIMValue *val = new CIMValue (request->newValue);
 
             JMPIjvm::checkException(env);
 
-            jint    jvalref = DEBUG_ConvertCToJava (CIMValue*, jint, &val);
+            jint    jvalref = DEBUG_ConvertCToJava (CIMValue*, jint, val);
             jobject jval    = env->NewObject(jv->CIMValueClassRef, jv->CIMValueNewI, jvalref);
 
             JMPIjvm::checkException(env);
@@ -2930,11 +2935,10 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleInvokeMethodRequest: hostname = "<<System::getHostName()<<", namespace = "<<request->nameSpace.getString()<<", classname = "<<request->instanceName.getClassName().getString()<<PEGASUS_STD(endl));
 
         // make target object path
-        CIMObjectPath objectPath(
-            System::getHostName(),
-            request->nameSpace,
-            request->instanceName.getClassName(),
-            request->instanceName.getKeyBindings());
+        CIMObjectPath *objectPath = new CIMObjectPath (System::getHostName(),
+                                                       request->nameSpace,
+                                                       request->instanceName.getClassName(),
+                                                       request->instanceName.getKeyBindings());
 
         // resolve provider name
         ProviderName name = _resolveProviderName(
@@ -3008,7 +3012,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         {
         case METHOD_PEGASUS_24:
         {
-            jint jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
 
             jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
             JMPIjvm::checkException(env);
@@ -3061,7 +3065,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
         case METHOD_SNIA_PROVIDER20:
         {
-            jint jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, &objectPath);
+            jint jObj = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
 
             jobject jRef=env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jObj);
             JMPIjvm::checkException(env);

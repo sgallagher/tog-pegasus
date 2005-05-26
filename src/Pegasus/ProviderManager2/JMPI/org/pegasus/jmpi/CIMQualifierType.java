@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,56 +29,71 @@
 //
 // Author:      Adrian Duta
 //
-// Modified By: Adrian Schuur, schuur@de.ibm.com 
+// Modified By: Adrian Schuur, schuur@de.ibm.com
+//              Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
 package org.pegasus.jmpi;
 
 public class CIMQualifierType
 {
    int cInst;
-   private native int    _new();
-   private native String _getName(int qt);
-   private native int    _setName(int qt, String n);
-   private native void   _setValue(int qt, int v);
-   private native void   _finalize(int qt);
 
-   protected void finalize() {
+   private native int    _new      ();
+   private native String _getName  (int    qt);
+   private native int    _setName  (int    qt,
+                                    String n);
+   private native void   _setValue (int    qt,
+                                    int    v);
+   private native void   _finalize (int    qt);
+
+   protected void finalize ()
+   {
       _finalize(cInst);
    }
 
-
-   CIMQualifierType(int qt) {
+   CIMQualifierType (int qt)
+   {
       cInst=qt;
    }
 
-   public CIMQualifierType() {
+   public CIMQualifierType ()
+   {
       cInst=_new();
    }
 
-   public String getName() {
+   public String getName ()
+   {
       return _getName(cInst);
    }
 
-   public void setName(String n) {
-       cInst=_setName(cInst,n);
+   public void setName (String n)
+   {
+      cInst=_setName(cInst,n);
    }
 
-   public void setValue(CIMValue v) {
-       _setValue(cInst,v.cInst);
+   public void setValue (CIMValue v)
+   {
+      _setValue(cInst,v.cInst);
    }
 
-   public void setDefaultValue(CIMValue v) {
+   public void setDefaultValue (CIMValue v)
+   {
    }
 
-   public void setType(CIMDataType t) {
+   public void setType (CIMDataType t)
+   {
    }
 
-   public void addFlavor(CIMFlavor t) {
+   public void addFlavor (CIMFlavor t)
+   {
    }
 
-   public void addScope(CIMScope t) {
+   public void addScope (CIMScope t)
+   {
+   }
+
+   static {
+      System.loadLibrary("JMPIProviderManager");
    }
 }
-

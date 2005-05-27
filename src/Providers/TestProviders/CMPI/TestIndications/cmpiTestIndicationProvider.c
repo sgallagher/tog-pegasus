@@ -90,7 +90,7 @@ PROV_LOG_CLOSE ()
 }
 
 void
-PROV_LOG_OPEN (const char *file)
+PROV_LOG_OPEN (const char *file, const char *location)
 {
   char *path = NULL;
   const char *env;
@@ -98,7 +98,7 @@ PROV_LOG_OPEN (const char *file)
   size_t j = 0;
   size_t len = strlen (file);
   size_t env_len = 0;
-  size_t loc_len = strlen (_ProviderLocation);
+  size_t loc_len = strlen (location);
   size_t ext_len = strlen (_LogExtension);
 
   env = getenv ("PEGASUS_ROOT");
@@ -110,7 +110,7 @@ PROV_LOG_OPEN (const char *file)
   strncpy (path, env, env_len);
 
   path[env_len] = 0;
-  strncat (path, _ProviderLocation, loc_len);
+  strncat (path, location, loc_len);
   for (i = 0; i < len; i++)
     /* Only use good names. */
     if (isalpha (file[i]))
@@ -465,7 +465,7 @@ TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_IndClassName);
+  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
 
   PROV_LOG ("--- %s CMPI AuthorizeFilter() called", _IndClassName);
   /* we don't object */
@@ -503,7 +503,7 @@ TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_IndClassName);
+  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
 
   PROV_LOG ("--- %s CMPI MustPoll() called", _IndClassName);
 
@@ -568,7 +568,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   CMPIString *left_side = NULL;
   CMPIString *right_side = NULL;
 
-  PROV_LOG_OPEN (_IndClassName);
+  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
 
   PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
 
@@ -817,7 +817,7 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIString *str = NULL;
 
-  PROV_LOG_OPEN (_IndClassName);
+  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI DeActivateFilter() called", _IndClassName);
   str = CMGetSelExpString (se, &rc);
   PROV_LOG ("-- Query is [%s]", CMGetCharPtr (str));

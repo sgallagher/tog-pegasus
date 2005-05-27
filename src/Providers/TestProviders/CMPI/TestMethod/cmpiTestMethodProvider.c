@@ -88,7 +88,7 @@ PROV_LOG_CLOSE ()
 }
 
 void
-PROV_LOG_OPEN (const char *file)
+PROV_LOG_OPEN (const char *file, const char *location)
 {
   char *path = NULL;
   const char *env;
@@ -96,7 +96,7 @@ PROV_LOG_OPEN (const char *file)
   size_t j = 0;
   size_t len = strlen (file);
   size_t env_len = 0;
-  size_t loc_len = strlen (_ProviderLocation);
+  size_t loc_len = strlen (location);
   size_t ext_len = strlen (_LogExtension);
 
   env = getenv ("PEGASUS_ROOT");
@@ -108,7 +108,7 @@ PROV_LOG_OPEN (const char *file)
   strncpy (path, env, env_len);
 
   path[env_len] = 0;
-  strncat (path, _ProviderLocation, loc_len);
+  strncat (path, location, loc_len);
   for (i = 0; i < len; i++)
     /* Only use good names. */
     if (isalpha (file[i]))
@@ -117,7 +117,7 @@ PROV_LOG_OPEN (const char *file)
         j++;
       }
   path[j + env_len + loc_len] = 0;
-  strncat (path, _LogExtension, ext_len);
+  strncat (path, location, ext_len);
   path[j + env_len + loc_len + ext_len] = 0;
 
   fd = fopen (path, "a+");
@@ -492,7 +492,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
   int oper_rc = 1;
   char *result = NULL;
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
   PROV_LOG ("--- %s CMPI InvokeMethod() called", _ClassName);
 
@@ -623,6 +623,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
     }
 
   PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);
+  PROV_LOG_CLOSE();
   return rc;
 }
 

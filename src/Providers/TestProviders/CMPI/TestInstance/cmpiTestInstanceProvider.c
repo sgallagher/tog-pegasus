@@ -92,7 +92,7 @@ PROV_LOG_CLOSE ()
 }
 
 void
-PROV_LOG_OPEN (const char *file)
+PROV_LOG_OPEN (const char *file, const char *location)
 {
   char *path = NULL;
   const char *env;
@@ -100,7 +100,7 @@ PROV_LOG_OPEN (const char *file)
   size_t j = 0;
   size_t len = strlen (file);
   size_t env_len = 0;
-  size_t loc_len = strlen (_ProviderLocation);
+  size_t loc_len = strlen (location);
   size_t ext_len = strlen (_LogExtension);
 
   env = getenv ("PEGASUS_ROOT");
@@ -112,7 +112,7 @@ PROV_LOG_OPEN (const char *file)
   strncpy (path, env, env_len);
 
   path[env_len] = 0;
-  strncat (path, _ProviderLocation, loc_len);
+  strncat (path, location, loc_len);
   for (i = 0; i < len; i++)
     /* Only use good names. */
     if (isalpha (file[i]))
@@ -121,7 +121,7 @@ PROV_LOG_OPEN (const char *file)
         j++;
       }
   path[j + env_len + loc_len] = 0;
-  strncat (path, _LogExtension, ext_len);
+  strncat (path, location, ext_len);
   path[j + env_len + loc_len + ext_len] = 0;
 
   fd = fopen (path, "a+");
@@ -522,7 +522,7 @@ TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
   CMPIObjectPath *op = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
   PROV_LOG ("--- %s CMPI EnumInstanceNames() called", _ClassName);
 
@@ -560,7 +560,7 @@ TestCMPIInstanceProviderEnumInstances (CMPIInstanceMI * mi,
   CMPIInstance *ci = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI EnumInstances() called", _ClassName);
 
   op = make_ObjectPath (CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
@@ -602,7 +602,7 @@ TestCMPIInstanceProviderGetInstance (CMPIInstanceMI * mi,
   /*CMPIInstance * ci = NULL; */
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI GetInstance() called", _ClassName);
 
   CMSetStatusWithChars (_broker, &rc,
@@ -631,7 +631,7 @@ TestCMPIInstanceProviderCreateInstance (CMPIInstanceMI * mi,
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI CreateInstance() called", _ClassName);
 
   CMSetStatusWithChars (_broker, &rc,
@@ -661,7 +661,7 @@ TestCMPIInstanceProviderSetInstance (CMPIInstanceMI * mi,
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI SetInstance() called", _ClassName);
 
   CMSetStatusWithChars (_broker, &rc,
@@ -689,7 +689,7 @@ TestCMPIInstanceProviderDeleteInstance (CMPIInstanceMI * mi,
 {
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI DeleteInstance() called", _ClassName);
 
   CMSetStatusWithChars (_broker, &rc,
@@ -739,7 +739,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   CMPICount cnt = 0;
   int rc_setProperty = 0;
 
-  PROV_LOG_OPEN (_ClassName);
+  PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   
   PROV_LOG ("--- %s CMPI ExecQuery() called", _ClassName);
   PROV_LOG ("--- Query: [%s], language: [%s]", query, lang);

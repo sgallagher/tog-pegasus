@@ -92,27 +92,10 @@ class PEGASUS_SERVER_LINKAGE ShutdownService
 {
 public:
 
-    class callback_data
-    {
-        public:
-            AutoPtr<Message> reply; //PEP101
-            Semaphore client_sem;
-            ShutdownService & cimom_handle;
-
-            callback_data(ShutdownService *handle)
-               : client_sem(0), cimom_handle(*handle)
-            {
-            }
-            
-            Message *get_reply(void)
-            {
-               return reply.release();
-            }
-
-        private:
-            callback_data(void);
-    };
-
+    /**
+    Terminate the ShutdownService
+    */
+    static void terminate( void );
     /**
     Construct the singleton instance of the ShutdownService and return a
     pointer to that instance.

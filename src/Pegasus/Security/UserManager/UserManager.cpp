@@ -86,6 +86,18 @@ UserManager::~UserManager()
 }
 
 //
+// Terminates the usermanager;
+//
+void
+UserManager::terminate(void)
+{
+    if (_instance)
+    {
+       delete _instance;
+       _instance = 0;
+    }
+}
+//
 // Construct the singleton instance of the UserManager and return a
 // pointer to that instance.
 //

@@ -95,6 +95,11 @@ public:
     */
     static UserManager* getInstance(CIMRepository* repository = 0);
 
+
+    /**
+    Terminates the UserManager singleton.
+    */
+    static void terminate(void);
     /**
     Add a user.
 

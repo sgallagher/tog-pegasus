@@ -99,7 +99,18 @@ ShutdownService::ShutdownService(CIMServer* cimserver)
         throw UninitializedObjectException();
     }
 }
-
+/**
+ Terminates the shutdown service
+*/
+void
+ShutdownService::terminate(void)
+{
+    if (_instance)
+    {
+        delete _instance;
+        _instance = 0;
+    }
+}
 /** Destructor. */
 ShutdownService::~ShutdownService()
 {

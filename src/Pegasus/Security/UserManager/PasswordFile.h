@@ -29,7 +29,7 @@
 //
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:  Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3606
+// Modified By:  Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3606,3607
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ public:
 
     @return String    name of the password file.
     */
-    const String getFileName() const {return _passwordFile;}
+    String getFileName() const {return _passwordFile;}
 
 
     /** 

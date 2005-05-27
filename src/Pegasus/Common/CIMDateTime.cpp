@@ -283,7 +283,7 @@ Boolean CIMDateTimeRep::set_utcOffSet(const String & uOffSet)
     String uOff_num = uOffSet.subString(1,3);
     for (int i=0; i < 3; i++)
     {
-        if (!isdigit(uOff_num[i]))
+        if ((uOff_num[i] < '0') || (uOff_num[i] > '9'))
         {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                  "Format is wrong - UTC offset contains non digit character.");
@@ -712,10 +712,14 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
 
 
 
-     // Check to see if other characters are digits or astrisks (*)
+    // Check to see if other characters are digits or astrisks (*)
 
-    for (Uint32 i = 0; i < CIMDateTimeRep::FORMAT_LENGTH; i++){
-	    if (i != DOT_OFFSET && i != SIGN_OFFSET && !isdigit(dateTimeStr[i]) && (String::compare(dateTimeStr.subString(i,1),"*") != 0)){
+    for (Uint32 i = 0; i < CIMDateTimeRep::FORMAT_LENGTH; i++)
+    {
+        if (!((i == DOT_OFFSET) || (i == SIGN_OFFSET) ||
+              ((dateTimeStr[i] >= '0') && (dateTimeStr[i] <= '9')) ||
+              (dateTimeStr[i] == '*')))
+        {
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                     "CIMdateTime object has an incorrect format.");
             return false;
@@ -748,7 +752,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
           }
       }
 
-	    // Get the month:
+        // Get the month:
         buffer = dateTimeStr.subString(4,2);
         ans = fieldcheck(buffer, _rep->month);
         if (ans == SOME_WILD_CARDS) {
@@ -762,10 +766,10 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
             long month = atoi(buffer.getCString());
 
             // Allow for zero month - default value processing
-	        if (month == 0 || month > 12) {
+            if (month == 0 || month > 12) {
                 Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "CIMDateTime - Format of the string is incorrect. Month fild is out of range");
-	            return false;
+                return false;
             }
         }
         else if (ans == ONLY_WILD_CARDS) {
@@ -778,7 +782,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
         }
 
 
-	    // Get the day:
+        // Get the day:
 
         buffer = dateTimeStr.subString(6,2);
         ans = fieldcheck(buffer, _rep->days);
@@ -790,7 +794,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
 
         else if (ans == ONLY_DIGITS) {          // month field has only digits
 
-	        long day = atoi(buffer.getCString());
+            long day = atoi(buffer.getCString());
 
             // Allow for zero day - 0 "day" values are only allowed for default object
             /*ATTN: this does not check for the number of days in a
@@ -799,7 +803,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
             if (day == 0 || day > 31){
                 Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                         "CIMDateTime - Format of the string is incorrect. Day field is incorrect");
-	            return false;
+                return false;
             }
          }
         else if (ans == ONLY_WILD_CARDS) {
@@ -915,7 +919,7 @@ Boolean CIMDateTime::_set(const String & dateTimeStr)
             return false;
 
         }
-	}
+    }
 
     else if (ans == ONLY_WILD_CARDS) {
           if (!restOfFields(12,dateTimeStr)){
@@ -1000,7 +1004,7 @@ Boolean CIMDateTime::restOfFields(Uint32 start_position,const String & inStr)
 void CIMDateTime::set(const String & str)
 {
     if (!_set(str)){
-	    throw InvalidDateTimeFormatException();
+        throw InvalidDateTimeFormatException();
     }
 }
 
@@ -1243,7 +1247,7 @@ void CIMDateTime::convertToUTC()
     MessageLoaderParms parmsUn("Common.CIMDateTime.UTC_UNDERFLOW",
         "underflow has occurred during conversion to UTC");
 
-    char 		sign;   // Get the sign and UTC offset.
+    char sign;   // Get the sign and UTC offset.
     sign = _rep->data[21];
 
     //if there are no wild cards in the minute postion then the entire utc offSet
@@ -1306,7 +1310,7 @@ Boolean CIMDateTime::isInterval()
 */
 Boolean CIMDateTime::isInterval() const
 {
-    const Uint32 	SIGN_OFFSET = 21;
+    const Uint32 SIGN_OFFSET = 21;
 
     Boolean isInterval = strcmp(&_rep->data[SIGN_OFFSET], ":000") == 0 ;
     return isInterval;

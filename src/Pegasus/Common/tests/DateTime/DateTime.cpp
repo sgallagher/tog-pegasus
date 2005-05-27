@@ -183,6 +183,20 @@ int main(int argc, char** argv)
           assert(te1);
           te1 = false;
 
+          // Check for invalid non-ASCII character
+          try
+          {
+              String str = "20001012010920.002000:000";
+              str[7] = Char16(0x0132);
+              CIMDateTime cdt(str); 
+          }
+          catch (const InvalidDateTimeFormatException&)
+          {
+              te1 = true;
+          }
+          assert(te1);
+          te1 = false;
+
                                /* verify CIMDateTime::CIMDateTime(const Uint64 microSec, Boolena) 
                                and toMicroSeconds()*/ 
          try{

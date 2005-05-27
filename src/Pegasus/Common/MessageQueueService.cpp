@@ -246,9 +246,16 @@ void MessageQueueService::_shutdown_incoming_queue()
 
    msg->op->_op_dest = this;
    msg->op->_request.insert_first(msg);
-
-   _incoming.insert_last_wait(msg->op);
-   _polling_sem.signal();
+   try {
+     _incoming.insert_last_wait(msg->op);
+     _polling_sem.signal();
+   } catch (const ListClosed &) 
+   { 
+	// This means the queue has already been shut-down (happens  when there
+    // are two AsyncIoctrl::IO_CLOSE messages generated and one got first
+    // processed.
+     delete msg; 
+   }
 }
 
 

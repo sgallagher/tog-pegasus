@@ -246,8 +246,9 @@ client_func (void *parm)
       // sending the messages, and the MessageQueueService does not get to pickup
       // the messages, the machine can crawl to halt with about 300-400 threads
       // and ever-continuing number of them created. So we stop at the magic number
-      // of 1000 messages.
-      if (rq_count.value () < 1000)
+      // of 1100 messages. The extra 100 messages or so should be deleted when
+      // we delete the MessageQueueService
+      if (rq_count.value () < 1100)
         {
           Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
 
@@ -285,8 +286,9 @@ client_func (void *parm)
       // sending the messages, and the MessageQueueService does not get to pickup
       // the messages, the machine can crawl to halt with about 300-400 threads
       // and ever-continuing number of them created. So we stop at the magic number
-      // of 1000 messages.
-      if (rq_count.value () < 1000)
+      // of 1100 messages.The extra 100 messages or so should be deleted when
+      // we delete the MessageQueueService.
+      if (rq_count.value () < 1100)
         {
           Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
 

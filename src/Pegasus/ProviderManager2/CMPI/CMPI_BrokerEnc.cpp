@@ -182,13 +182,28 @@ static Formatter::Arg formatValue(va_list *argptr, CMPIStatus *rc, int *err) {
 
 
 static inline CIMNamespaceName NameSpaceName(const char *ns) {
-    if (ns==NULL) return CIMNamespaceName();
-    return CIMNamespaceName(ns);
+
+    CIMNamespaceName n;
+    if (ns==NULL) return n;
+    try  {
+       n = CIMNamespaceName(ns);
+    } catch (...) 
+    {
+         // n won't be assigned to anything yet, so it is safe
+         // to send it off.
+    }
+    return n;
 }
 
 static inline CIMName Name(const char *n) {
-    if (n==NULL) return CIMName();
-    return CIMName(n);
+    CIMName name;
+    if (n==NULL) return name;
+    try {
+       name =CIMName(n);
+     } catch ( ...)
+     {
+     }
+     return name;
 }
 
 

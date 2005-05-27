@@ -34,6 +34,7 @@
 //              Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
 //              Willis White (whiwill@us.ibm.com)
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for Bug#3449
+//              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3684
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -565,12 +566,12 @@ int main(int argc, char** argv)
 
     //if StatisticalData::copyGSD is FALSE this will only return 0's
 
-            printf(" %-25s"
-                   "%9"  PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%10" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
+            printf("%-25s"
+                   "%10"  PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
                (const char*)statName.getCString(),
                numberOfRequests, averageCimomTime,
                averageProviderTime, averageRequestSize,

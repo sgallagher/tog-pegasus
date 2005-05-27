@@ -32,6 +32,7 @@
 // Modified By: Dave Sudlik (dsudlik@us.ibm.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3666
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -287,7 +288,7 @@ CIMClass BinaryStreamer::extractClass(const Array<char>& in, Uint32 & pos, const
       }
    }
    catch (BinException &be) {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integraty failure: "+
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integrity failure: "+
          be.message+" - Accessing class: "+path);
    }
    PEGASUS_UNREACHABLE(return CIMClass();)
@@ -385,7 +386,7 @@ CIMInstance BinaryStreamer::extractInstance(const Array<char>& in, Uint32 & pos,
       }
    }
    catch (BinException &be) {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integraty failure: "+
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integrity failure: "+
          be.message+" - Accessing instance: "+path);
    }
    PEGASUS_UNREACHABLE( return CIMInstance(); )
@@ -467,7 +468,7 @@ CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<char>& in, Uin
       }
    }
    catch (BinException &be) {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integraty failure: "+
+      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integrity failure: "+
          be.message+" - Accessing instance: "+path);
    }
    PEGASUS_UNREACHABLE( return CIMQualifierDecl(); )

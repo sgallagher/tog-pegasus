@@ -110,7 +110,7 @@ inline static  void CMSetStatus(CMPIStatus* st, CMPIrc rcp)
       @param string Message string
   */
 inline static   void CMSetStatusWithString(const CMPIBroker *mb, CMPIStatus *st, CMPIrc rcp,
-                                  CMPIString *string)
+                                  const CMPIString *string)
       { (st)->rc=(rcp); (st)->msg=(string); }
 #else
 #define CMSetStatusWithString(st,rcp,string) \
@@ -155,7 +155,7 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
   /** Tests for encapsulated NULL object.
       @param obj CMPI Object pointer
   */
-  inline static   CMPIBoolean CMIsNullObject(void* obj)
+  inline static   CMPIBoolean CMIsNullObject(const void* obj)
        { return ((obj)==NULL || *((void**)(obj))==NULL); }
 #else
   #define CMIsNullObject(o)           ((o)==NULL || *((void**)(o))==NULL)
@@ -165,7 +165,7 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
   /** Tests for nullValue data item.
       @param val Value object
   */
-  inline static   CMPIBoolean CMIsNullValue(CMPIData val)
+  inline static   CMPIBoolean CMIsNullValue(const CMPIData val)
        { return ((val.state) & CMPI_nullValue); }
 #else
   #define CMIsNullValue(v)                   ((v.state) & CMPI_nullValue)
@@ -1399,7 +1399,7 @@ IBMKR
 #ifdef CMPI_INLINE
      /** CIMOM name
      */
-   inline static const char* CBbrokerName(const CMPIBroker* mb)
+   inline static const char* CBBrokerName(const CMPIBroker* mb)
 	{ return ((mb)->bft->brokerName); }
 #else
   #define CBBrokerName(b)                          ((b)->bft->brokerName)

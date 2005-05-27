@@ -1263,7 +1263,7 @@ CmpiObjectPath CmpiInstance::getObjectPath() const {
 //--
 //---------------------------------------------------
 
-const CMPIStatus CmpiStatus::status() const {
+CMPIStatus CmpiStatus::status() const {
    return st;
 }
 CmpiStatus::CmpiStatus(const CMPIrc rcp, const char *msg) {
@@ -1271,7 +1271,7 @@ CmpiStatus::CmpiStatus(const CMPIrc rcp, const char *msg) {
    st.msg=CMNewString(CmpiProviderBase::getBroker(),(char*)msg,NULL);
 }
 
-const CMPIrc CmpiStatus::rc() const {
+CMPIrc CmpiStatus::rc() const {
    return st.rc;
 }
 

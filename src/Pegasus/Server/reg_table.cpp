@@ -290,11 +290,7 @@ class reg_table_rep : public Sharable
       reg_table_rep(void) 
       {
       }
-      
-      ~reg_table_rep(void) 
-      {
-      }
-      
+      ~reg_table_rep(void); 
    private:
 
       // store a record 
@@ -363,6 +359,32 @@ const Uint32 reg_table_rep::EXTENDED =     0x00000010;
 const Uint32 reg_table_rep::SERVICE  =     0x00000020;
 const Uint32 reg_table_rep::STRINGS  =     0x00000020;
 
+reg_table_rep::~reg_table_rep(void)
+{
+   type_table *tt;
+   routing_table *rt;
+   reg_table_record *record  = 0;
+
+   try { 
+    for(namespace_table::Iterator _table_i = _table.start(); _table_i; _table_i++)
+    {
+      tt = _table_i.value();
+      for(type_table::Iterator _tt_i = tt->start(); _tt_i  ;_tt_i++)
+       {
+         rt = _tt_i.value();
+         for (routing_table::Iterator _rt_i = rt->start(); _rt_i; _rt_i++)
+          {
+             delete _rt_i.value();
+          }
+         delete rt;
+       }
+     delete tt;
+    }
+   } catch (... ) 
+   {
+     // Just ignore them. The worst that can happend is that we have a memory leak.
+   }
+}
 // insert optimized for simplicity, not speed 
 Boolean
 reg_table_rep::_insert(const reg_table_record &rec)

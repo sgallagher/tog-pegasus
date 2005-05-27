@@ -207,7 +207,7 @@ ConfigManager::ConfigManager()
  Terminate the ConfigManager
 */
 void
-ConfigManager::terminate( void )
+ConfigManager::destroy( void )
 {
    if (_instance)
    {

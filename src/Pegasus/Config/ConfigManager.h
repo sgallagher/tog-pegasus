@@ -220,7 +220,7 @@ public:
     /**
     Terminate the ConfigManager.
     */
-    static void terminate( void );
+    static void destroy( void );
     /**
     Initialize the current value of a config property.
 

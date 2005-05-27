@@ -89,7 +89,7 @@ UserManager::~UserManager()
 // Terminates the usermanager;
 //
 void
-UserManager::terminate(void)
+UserManager::destroy(void)
 {
     if (_instance)
     {

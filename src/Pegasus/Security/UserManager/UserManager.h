@@ -99,7 +99,7 @@ public:
     /**
     Terminates the UserManager singleton.
     */
-    static void terminate(void);
+    static void destroy(void);
     /**
     Add a user.
 

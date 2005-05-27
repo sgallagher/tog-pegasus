@@ -337,9 +337,9 @@ extern "C" {
       return newDateTimeBin(time,interval);
    }
 
-   extern CMPIDateTime *newDateTimeChar(char*);
+   extern CMPIDateTime *newDateTimeChar(const char*);
 
-   static CMPIDateTime* mbEncNewDateTimeFromString(const CMPIBroker* mb, char *t ,CMPIStatus *rc) {
+   static CMPIDateTime* mbEncNewDateTimeFromString(const CMPIBroker* mb, const char *t ,CMPIStatus *rc) {
    //   cout<<"--- mbEncNewDateTimeFromString()"<<endl;
 	  CMPIDateTime *date = NULL;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);

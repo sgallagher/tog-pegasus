@@ -125,7 +125,7 @@ extern "C" {
       return (CMPIDateTime*)new CMPI_Object(makeCIMDateTime(tim/1000000,tim%1000000,interval));
    }
 
-   CMPIDateTime *newDateTimeChar(char *strTime) {
+   CMPIDateTime *newDateTimeChar(const char *strTime) {
       CIMDateTime *dt=new CIMDateTime();
 	  try {
       	*dt=String(strTime);

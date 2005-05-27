@@ -218,6 +218,10 @@ public:
 
 
     /**
+    Terminate the ConfigManager.
+    */
+    static void terminate( void );
+    /**
     Initialize the current value of a config property.
 
     @param  propertyName  The name of the property to initialize (e.g.,

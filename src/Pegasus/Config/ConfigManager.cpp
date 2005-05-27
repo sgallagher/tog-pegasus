@@ -203,7 +203,27 @@ ConfigManager::ConfigManager()
     _initPropertyTable();
 }
 
-
+/**
+ Terminate the ConfigManager
+*/
+void
+ConfigManager::terminate( void )
+{
+   if (_instance)
+   {
+       delete _instance->traceOwner;
+       delete _instance->logOwner;
+       delete _instance->defaultOwner;
+       delete _instance->securityOwner;
+       delete _instance->repositoryOwner;
+       delete _instance->shutdownOwner;
+       delete _instance->fileSystemOwner;
+       delete _instance->providerDirOwner;
+       delete _instance->normalizationOwner;
+       delete _instance;
+       _instance = 0;	
+   }
+}
 /**
     Get a reference to the singleton ConfigManager instance.  If no
     ConfigManager instance exists, construct one.

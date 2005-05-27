@@ -600,23 +600,15 @@ CIMServer::~CIMServer ()
       _sslContextMgr = 0;
     }
   // ConfigManager. Really weird way of doing it.
-  ConfigManager *configManager = ConfigManager::getInstance ();
-  if (configManager)
-    {
-      // Refer to Bug #3537. It will soon have a fix.
-      //delete configManager;
-    }
-  UserManager *userManager = UserManager::getInstance (_repository);
-  if (userManager)
-    {
-      // Bug #3537 will soon fix this  
-      //delete userManager;
-    }
   // Lastly the repository.
   if (_repository)
     {
       delete _repository;
     }
+  ConfigManager::terminate ();
+  UserManager::terminate();
+  ShutdownService::terminate();
+
   PEG_METHOD_EXIT ();
 }
 

@@ -262,6 +262,23 @@ InteropProvider::InteropProvider(CIMRepository* repository)
        InstancesExists = false;
      }
 
+     /* When Bug 3696 is fixed the following try block will replace the try block above. But for
+        now if no instances of the CIM_ObjectManager class are found in the root/cimv2 name space
+        the root/PG_InterOp name space will be checked
+     */
+     if(!InstancesExists)
+     {
+         try
+         { 
+             instance = repository->enumerateInstances(CIMNamespaceName("root/PG_InterOp"), 
+                                                       CIMName ("CIM_ObjectManager"));
+         }
+         catch(Exception e)
+         {
+             InstancesExists = false;
+         }
+     }
+
      if(instance.size() > 0 && InstancesExists)
      {                               
         Boolean output = false;

@@ -45,6 +45,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/System.h>
 #include <string.h>
+#include <new>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -77,7 +78,7 @@ extern "C" {
             obj->unlink();
             if (rc) CMSetStatus(rc,CMPI_RC_OK);
             return reinterpret_cast<CMPIInstance *>(obj.release());
-      } catch(const std::bad_alloc&) {
+      } catch(const PEGASUS_STD(bad_alloc)&) {
           if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
           return NULL;
       }
@@ -230,7 +231,7 @@ extern "C" {
             obj->unlink();
             if (rc) CMSetStatus(rc,CMPI_RC_OK);
             return reinterpret_cast<CMPIObjectPath*> (obj.release()); 
-      } catch(const std::bad_alloc&) {
+      } catch(const PEGASUS_STD(bad_alloc)&) {
           if (rc) CMSetStatus(rc, CMPI_RC_ERROR_SYSTEM);
           return NULL;
       }

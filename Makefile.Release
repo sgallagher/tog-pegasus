@@ -63,7 +63,9 @@ stage: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusDirectories 
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusFiles 
 	$(MAKE) -f $(ROOT)/mak/SDKMakefile stageSDK
+ifdef PEGASUS_BUILD_TEST_RPM
 	$(MAKE) -f $(ROOT)/Makefile.ReleaseTest stageTEST
+endif
 
 preinstall: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release prestage_verifyInstallEnabled
@@ -731,6 +733,7 @@ _append_PreambleToSpecFile: FORCE
 	@$(ECHO-E) "%define srcRelease 1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Version: $(PEGASUS_PRODUCT_VERSION)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Release: 1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "Epoch:   1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-intro.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)

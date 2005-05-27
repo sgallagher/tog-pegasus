@@ -237,14 +237,17 @@ preinstall_setreleasepermissions:
 	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.ReleaseTest setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
 
 _append_preunSectionToSpecFile:
+	@$(ECHO-E) "%if %{PEGASUS_BUILD_TEST_RPM}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%preun test" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "make --directory $(PEGASUS_TEST_DIR) -s unsetupTEST"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "[ -d $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME) ] && \
                        rm -rf $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME);" >> \
                        $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%endif" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_filesSectionToSpecFile:
+	@$(ECHO-E) "%if %{PEGASUS_BUILD_TEST_RPM}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%files test"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# Test Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -265,4 +268,5 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) "%attr(-,$(CIMSERVER_USR),$(CIMSERVER_GRP)) $(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)" \
                        >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%endif" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 

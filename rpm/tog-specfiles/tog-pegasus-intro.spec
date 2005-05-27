@@ -1,7 +1,9 @@
+%{?!PEGASUS_BUILD_TEST_RPM:   %define PEGASUS_BUILD_TEST_RPM        0}
+# do "rpmbuild --define 'PEGASUS_BUILD_TEST_RPM 1'" to build test RPM .
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
 Group: Systems Management/Base
-Copyright: Open Group Pegasus Open Source
+License: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{srcRelease}.tar.gz
 Requires: openssl >= 0.9.6 lsb >= 1.3

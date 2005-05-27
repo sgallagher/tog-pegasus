@@ -9,6 +9,7 @@ The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenP
 Services for Linux release. It provides Linux C++ developers with the WBEM files required to
 build WBEM Clients and Providers. It also supports C provider developers via the CMPI interface.
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 %package test
 Summary: The OpenPegasus Tests
 Group: Systems Management/Base
@@ -17,3 +18,5 @@ Requires: tog-pegasus >= %{version}
 
 %description test
 The OpenPegasus WBEM tests for the OpenPegasus %{version} Linux rpm.
+%endif
+

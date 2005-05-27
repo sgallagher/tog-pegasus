@@ -42,12 +42,15 @@
 %define srcRelease 1
 Version: 2.5Alpha1
 Release: 1
+Epoch:   1
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec
+%{?!PEGASUS_BUILD_TEST_RPM:   %define PEGASUS_BUILD_TEST_RPM        0}
+# do "rpmbuild --define 'PEGASUS_BUILD_TEST_RPM 1'" to build test RPM .
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
 Group: Systems Management/Base
-Copyright: Open Group Pegasus Open Source
+License: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{srcRelease}.tar.gz
 Requires: openssl >= 0.9.6 lsb >= 1.3
@@ -117,6 +120,7 @@ The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenP
 Services for Linux release. It provides Linux C++ developers with the WBEM files required to
 build WBEM Clients and Providers. It also supports C provider developers via the CMPI interface.
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 %package test
 Summary: The OpenPegasus Tests
 Group: Systems Management/Base
@@ -125,6 +129,8 @@ Requires: tog-pegasus >= %{version}
 
 %description test
 The OpenPegasus WBEM tests for the OpenPegasus %{version} Linux rpm.
+%endif
+
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec
 
 %prep
@@ -172,7 +178,11 @@ export PATH=$PEGASUS_HOME/bin:$PATH
 
 export PEGASUS_STAGING_DIR=$RPM_BUILD_ROOT
 
+%if %{PEGASUS_BUILD_TEST_RPM}
+make -f $PEGASUS_ROOT/Makefile.Release stage PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR PEGASUS_BUILD_TEST_RPM=%{PEGASUS_BUILD_TEST_RPM}
+%else
 make -f $PEGASUS_ROOT/Makefile.Release stage PEGASUS_STAGING_DIR=$PEGASUS_STAGING_DIR
+%endif
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-install.spec
 [ "$PEGASUS_STAGING_DIR" != "/" ] && [ -d $PEGASUS_STAGING_DIR ] &&  [ -d $PEGASUS_STAGING_DIR%PEGASUS_PEM_DIR ] &&  rm -f $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE  $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_CERT_FILE  $PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_KEY_FILE  $PEGASUS_STAGING_DIR/%PEGASUS_CONFIG_DIR/ssl.cnf;
 [ "$PEGASUS_HOME" != "/" ] && [ -d $PEGASUS_HOME ] && rm -rf $PEGASUS_HOME;
@@ -319,10 +329,12 @@ fi
 %preun sdk
 make --directory /opt/tog-pegasus/samples -s clean
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 %preun test
 make --directory /opt/tog-pegasus/test -s unsetupTEST
 [ -d /var/opt/tog-pegasus/testrepository ] &&  rm -rf /var/opt/tog-pegasus/testrepository;
 
+%endif
 %postun
 if [ $1 -eq 0 ]; then
    [ -f %PEGASUS_PEM_DIR/key-2048.pem ] && rm %PEGASUS_PEM_DIR/key-2048.pem;
@@ -695,6 +707,7 @@ fi
 #
 %attr(-,root ,root) /opt/tog-pegasus/html
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 %files test
 
 # Test Files
@@ -747,3 +760,4 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/test/Makefile
 %attr(-,root,root) /var/opt/tog-pegasus/testrepository
 
+%endif

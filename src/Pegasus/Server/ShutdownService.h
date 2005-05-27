@@ -95,7 +95,7 @@ public:
     /**
     Terminate the ShutdownService
     */
-    static void terminate( void );
+    static void destroy( void );
     /**
     Construct the singleton instance of the ShutdownService and return a
     pointer to that instance.

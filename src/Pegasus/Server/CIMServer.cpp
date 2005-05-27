@@ -605,9 +605,9 @@ CIMServer::~CIMServer ()
     {
       delete _repository;
     }
-  ConfigManager::terminate ();
-  UserManager::terminate();
-  ShutdownService::terminate();
+  ConfigManager::destroy ();
+  UserManager::destroy();
+  ShutdownService::destroy();
 
   PEG_METHOD_EXIT ();
 }

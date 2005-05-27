@@ -103,7 +103,7 @@ ShutdownService::ShutdownService(CIMServer* cimserver)
  Terminates the shutdown service
 */
 void
-ShutdownService::terminate(void)
+ShutdownService::destroy(void)
 {
     if (_instance)
     {

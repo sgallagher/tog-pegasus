@@ -90,6 +90,10 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 
 	@ $(ECHO) +++++ Registering TestCMPI_ProviderRegistration ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestCMPI_ProviderRegistration.mof
+ifdef PEGASUS_ENABLE_EXECQUERY
+	@ $(ECHO) +++++ Registering TestCMPI_ProviderExecQueryRegistration ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestCMPI_ProviderExecQueryRegistration.mof
+endif
 
 endif
 
@@ -144,6 +148,11 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
 	@ $(ECHO) +++++ Registering TestCMPI_ProviderRegistration ...
 	@ cimmof   "-n$(INTEROPNS)" TestCMPI_ProviderRegistration.mof
+ifdef PEGASUS_ENABLE_EXECQUERY
+	@ $(ECHO) +++++ Registering TestCMPI_ProviderExecQueryRegistration ...
+	@ cimmof   "-n$(INTEROPNS)" TestCMPI_ProviderExecQueryRegistration.mof
+endif
+
 endif
 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
@@ -182,8 +191,10 @@ unregisterproviders:
 	cimprovider -r -m MethodTestProviderModule
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m TestCMPIIndicationProviderModule
-	cimprovider -r -m TestCMPIInstanceProviderModule
 	cimprovider -r -m TestCMPIMethodProviderModule
+ifdef PEGASUS_ENABLE_EXECQUERY
+	cimprovider -r -m TestCMPIInstanceProviderModule
+endif
 endif 
 ifndef PEGASUS_DISABLE_PROV_USERCTXT
 ifndef PEGASUS_DISABLE_PROV_USERCTXT_REQUESTOR

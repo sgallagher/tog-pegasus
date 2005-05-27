@@ -41,7 +41,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-
 cimom *MessageQueueService::_meta_dispatcher = 0;
 AtomicInt MessageQueueService::_service_count = 0;
 AtomicInt MessageQueueService::_xid(1);
@@ -107,7 +106,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       MessageQueueService *service = list->next(0);
       while(service != NULL)
       {
-         if (service->_incoming.count() > 0)
+         if (service->_incoming.count() > 0 && service->_die.value() == 0)
          {
             _thread_pool->allocate_and_awaken(service, _req_proc);
          }
@@ -141,6 +140,7 @@ MessageQueueService::MessageQueueService(
    : Base(name, true,  queueID),
      _mask(mask),
      _die(0),
+	_threads(0),
      _incoming(true, 0),
      _incoming_queue_shutdown(0)
 {
@@ -187,8 +187,14 @@ MessageQueueService::~MessageQueueService()
    if (_incoming_queue_shutdown.value() == 0)
    {
       _shutdown_incoming_queue();
+
    }
 
+ while (_threads.value() > 0)
+     {
+          pegasus_yield();
+     }
+   _polling_list.remove(this);
    {
      AutoMutex autoMut(_meta_dispatcher_mutex);
      _service_count--;
@@ -210,7 +216,6 @@ MessageQueueService::~MessageQueueService()
       _thread_pool = 0;
      }
    } // mutex unlocks here
-   _polling_list.remove(this);
    // Clean up in case there are extra stuff on the queue.
   while (_incoming.count())
   {
@@ -243,7 +248,7 @@ void MessageQueueService::_shutdown_incoming_queue()
    msg->op->_request.insert_first(msg);
 
    _incoming.insert_last_wait(msg->op);
-
+   _polling_sem.signal();
 }
 
 
@@ -261,17 +266,17 @@ void MessageQueueService::enqueue(Message *msg)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     void * parm)
 {
+    MessageQueueService* service =
+            reinterpret_cast<MessageQueueService*>(parm);
+    PEGASUS_ASSERT(service != 0);
     try
     {
-        MessageQueueService* service =
-            reinterpret_cast<MessageQueueService*>(parm);
-        PEGASUS_ASSERT(service != 0);
 
         if (service->_die.value() != 0)
         {
             return (0);
         }
-
+	    service->_threads++;
         // pull messages off the incoming queue and dispatch them. then
         // check pending messages that are non-blocking
         AsyncOpNode *operation = 0;
@@ -309,7 +314,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Caught unrecognized exception.  Exiting _req_proc.");
     }
-
+    service->_threads--;
     return(0);
 }
 

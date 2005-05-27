@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek
+// Author: Konrad Rzeszutek, IBM Corp.
 // Modified by:
 //         Steve Hills (steve.hills@ncr.com)
 //

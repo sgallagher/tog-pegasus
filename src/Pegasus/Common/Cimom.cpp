@@ -247,9 +247,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 		     accepted = true;
 		  }
 		  else // deliver the start or resume message 
+			if (dest_svc->_die.value() == 0)
 		     accepted = dest_svc->accept_async(op);
 	       }
 	       else 
+			if (dest_svc->_die.value() == 0)
 		  accepted = dest_svc->accept_async(op);
 	    }
 	    if ( accepted == false )

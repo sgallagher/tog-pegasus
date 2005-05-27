@@ -124,6 +124,7 @@ public:
 
     Uint32 _mask;
     AtomicInt _die;
+	AtomicInt _threads;
 
 protected:
     virtual Boolean accept_async(AsyncOpNode *op);

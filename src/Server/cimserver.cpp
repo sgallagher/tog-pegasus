@@ -190,6 +190,7 @@ public:
 AutoPtr<CIMServerProcess> _cimServerProcess(new CIMServerProcess());
 static CIMServer* _cimServer = 0;
 static Monitor* _monitor = 0;
+static Thread* dummyInitialThread = 0;
 //
 //  The command name.
 //
@@ -326,6 +327,11 @@ void deleteCIMServer()
    if (_monitor)
    {
 	delete _monitor;
+   }
+   if (dummyInitialThread)
+   {
+	Thread::clearLanguages();
+	delete dummyInitialThread;
    }
 }
 
@@ -1132,7 +1138,7 @@ MessageLoader::_useProcessLocale = false;
     // because this thread is not in a ThreadPool, but is used
     // to service CIM requests.
     // The run function for the dummy Thread should never be called,
-    Thread *dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
+    dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
     Thread::setCurrent(dummyInitialThread);
     AcceptLanguages default_al;
     try{

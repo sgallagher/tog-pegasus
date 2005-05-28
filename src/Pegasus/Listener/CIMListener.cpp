@@ -152,24 +152,18 @@ CIMListenerService::CIMListenerService(CIMListenerService& svc)
 }
 CIMListenerService::~CIMListenerService()
 {
-	// if port is alive, clean up the port
-	//if(_sslContext!=NULL)
-	//	delete _sslContext;
+    // if port is alive, clean up the port
+    //delete _sslContext;
 
-	if(_responseEncoder!=NULL)
-		delete _responseEncoder;
+    delete _responseEncoder;
 
-	if(_requestDecoder!=NULL)
-		delete _requestDecoder;
+    delete _requestDecoder;
 
-	//if(_dispatcher!=NULL)
-	//	delete _dispatcher;
+    //delete _dispatcher;
 
-	if(_monitor!=NULL)
-		delete _monitor;
+    delete _acceptor;
 
-	if(_acceptor!=NULL)
-		delete _acceptor;
+    delete _monitor;
 }
 
 void CIMListenerService::init()

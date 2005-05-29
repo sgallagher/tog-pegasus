@@ -308,6 +308,9 @@ if [ $1 -eq 1 ]; then
    echo " run /opt/tog-pegasus/sbin/settogpath."
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
 
+elif [ $1 -gt 1 ]; then
+/sbin/service tog-pegasus condrestart
+:;
 fi
 %preun
 if [ $1 -eq 0 ]; then

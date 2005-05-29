@@ -73,6 +73,14 @@ case "$1" in
 		echo "CIM server is not running"
 	fi
 	;;
+     condrestart)
+	pid=`pidofproc $CIMSERVER_BIN`
+	RETVAL=$?
+	if [ "$RETVAL" -eq 0 ]; then
+	    $0 stop && $0 start;
+	    RETVAL=$?;
+	fi;
+        ;;
      try-restart)
 	$0 stop && $0 start
 	;;

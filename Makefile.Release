@@ -898,6 +898,9 @@ _append_postSectionToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-post.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "elif [ \044\061 -gt 1 ]; then" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "/sbin/service tog-pegasus condrestart" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ":;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_postSectionToSpecFile_createSymbolicLinks: FORCE

@@ -30,6 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +119,7 @@ void parseLanguageSubtags(Array<String> &subtags, String language_tag);
  * @param s String language to be validated
  * @return Boolean
  */
-Boolean isValid(String language_tag, Boolean length_check = true);
+Boolean isValid(const String& language_tag, Boolean length_check = true);
 
 /** Checks if the String has all characters in A-Z OR a-z range.
  * @param s String

@@ -30,6 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -209,7 +210,7 @@ void LanguageParser::parseLanguageSubtags(Array<String> &subtags, String languag
 	PEG_METHOD_EXIT();
 }
 
-Boolean LanguageParser::isValid(String language_tag, Boolean validate_length){
+Boolean LanguageParser::isValid(const String& language_tag, Boolean validate_length){
 	//break the String down into parts(subtags), then validate each part
 	
 	if(language_tag == "*") return true;

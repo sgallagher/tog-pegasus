@@ -33,6 +33,7 @@
 //                 (sushma_fernandes@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3612
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3610
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -296,7 +297,7 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    String getDefaultValue(const String& name);
+    String getDefaultValue(const String& name) const;
 
 
     /**
@@ -307,7 +308,7 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    String getCurrentValue(const String& name);
+    String getCurrentValue(const String& name) const;
 
 
     /**
@@ -318,7 +319,7 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    String getPlannedValue(const String& name);
+    String getPlannedValue(const String& name) const;
         //throw (UnrecognizedConfigProperty);
 
 
@@ -330,7 +331,7 @@ public:
 
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
-    void getPropertyInfo(const String& name, Array<String>& propertyInfo);
+    void getPropertyInfo(const String& name, Array<String>& propertyInfo) const;
         //throw (UnrecognizedConfigProperty);
 
 
@@ -344,7 +345,7 @@ public:
     */
     void getAllPropertyNames(
         Array<String>& propertyNames,
-        Boolean includeHiddenProperties);
+        Boolean includeHiddenProperties) const;
 
     /**
     Merges the config properties from the specified configuration files.

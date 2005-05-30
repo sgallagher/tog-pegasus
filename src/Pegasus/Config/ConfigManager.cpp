@@ -43,6 +43,7 @@
 //      David Dillard, VERITAS Software Corp.
 //          (david.dillard@veritas.com)
 //      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3612
+//      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3610
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -420,7 +421,7 @@ Boolean ConfigManager::validatePropertyValue(
 /**
 Get default value of the specified property.
 */
-String ConfigManager::getDefaultValue(const String& name)
+String ConfigManager::getDefaultValue(const String& name) const
 {
     //
     // Check for a property with a fixed value
@@ -448,7 +449,7 @@ String ConfigManager::getDefaultValue(const String& name)
 /**
 Get current value of the specified property.
 */
-String ConfigManager::getCurrentValue(const String& name)
+String ConfigManager::getCurrentValue(const String& name) const
 {
     //
     // Check for a property with a fixed value
@@ -477,7 +478,7 @@ String ConfigManager::getCurrentValue(const String& name)
 /**
 Get planned value of the specified property.
 */
-String ConfigManager::getPlannedValue(const String& name)
+String ConfigManager::getPlannedValue(const String& name) const
 {
     //
     // Check for a property with a fixed value
@@ -508,7 +509,7 @@ Get all the attributes of the specified property.
 */
 void ConfigManager::getPropertyInfo(
     const String& name,
-    Array<String>& propertyInfo)
+    Array<String>& propertyInfo) const
 {
     //
     // get property owner object from config table
@@ -529,7 +530,7 @@ Get a list of all property names.
 */
 void ConfigManager::getAllPropertyNames(
     Array<String>& propertyNames,
-    Boolean includeHiddenProperties)
+    Boolean includeHiddenProperties) const
 {
     Array<String> propertyInfo;
     propertyNames.clear();

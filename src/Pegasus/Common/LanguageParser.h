@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +82,7 @@ void parseHdr(Array<String> &values, String hdr);
  * @return Real32 if a valid quality found then 1 <=> 0, otherwise 1
  * @exception throws ???
  */
-Real32 parseAcceptLanguageValue(String &language, String & hdr);
+Real32 parseAcceptLanguageValue(String &language, String hdr);
 
 String parseContentLanguageValue(String & hdr);
 

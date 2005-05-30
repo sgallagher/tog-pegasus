@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,7 @@ void LanguageParser::parseHdr(Array<String> &values, String hdr){
 	PEG_METHOD_EXIT();
 }
 
-Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String & hdr){
+Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String hdr){
 	// look for ';' in hdr, that means we have a quality value to capture
     // if not, we only have a language
     

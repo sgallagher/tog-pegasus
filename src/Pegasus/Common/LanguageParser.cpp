@@ -30,7 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -248,7 +248,7 @@ String LanguageParser::convertPrivateLanguageTag(const String & language_tag){
 	}		
 }
 
-Boolean LanguageParser::checkAlpha(CString _str){
+Boolean LanguageParser::checkAlpha(const CString & _str){
 	Uint32 length = (Uint32) strlen(_str);
 	for(Uint32 i = 0; i < length; i++)
 		if( !isalpha(_str[i]) )
@@ -256,7 +256,7 @@ Boolean LanguageParser::checkAlpha(CString _str){
 	return true;
 }
 
-char LanguageParser::findSeparator(CString _str){
+char LanguageParser::findSeparator(const CString & _str){
 	Uint32 length = (Uint32) strlen(_str);
 	for(Uint32 i = 0; i < length; i++)
 		if(!isalnum(_str[i]))
@@ -264,7 +264,7 @@ char LanguageParser::findSeparator(CString _str){
 	return '\0';
 }
 
-CString LanguageParser::replaceSeparator(CString _s, char new_sep){
+CString LanguageParser::replaceSeparator(const CString & _s, char new_sep){
 	char * _str = const_cast<char *>((const char*)_s);
 	Uint32 length = (Uint32) strlen(_str);
 	for(Uint32 i = 0; i < length; i++)

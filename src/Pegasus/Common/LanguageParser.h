@@ -30,7 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -125,11 +125,11 @@ Boolean isValid(const String& language_tag, Boolean length_check = true);
  * @param s String
  * @return Boolean
  */
-Boolean checkAlpha(CString _str);
+Boolean checkAlpha(const CString & _str);
 
-CString replaceSeparator(CString _s, char new_sep = '-');
+CString replaceSeparator(const CString & _s, char new_sep = '-');
 
-char findSeparator(CString _str);
+char findSeparator(const CString & _str);
 
 String convertPrivateLanguageTag(const String & language_tag);
 

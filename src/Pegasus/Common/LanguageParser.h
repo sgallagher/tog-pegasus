@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ void parseHdr(Array<String> &values, String hdr);
  */
 Real32 parseAcceptLanguageValue(String &language, String hdr);
 
-String parseContentLanguageValue(String & hdr);
+String parseContentLanguageValue(const String& hdr);
 
 /** 
  * Given a language ex: en-US-xx, 

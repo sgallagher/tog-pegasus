@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +132,7 @@ Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String hdr
 	return quality;
 }
 
-String LanguageParser::parseContentLanguageValue(String & hdr){
+String LanguageParser::parseContentLanguageValue(const String& hdr){
 	// we are looking for the language part of the hdr only,
 	// according to the RFC, there may be parenthesized strings
 	// that describe the purpose of the language, we need to ignore those

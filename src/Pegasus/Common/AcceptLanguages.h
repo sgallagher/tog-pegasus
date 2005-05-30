@@ -69,7 +69,7 @@ public:
     /** Constructor
         @param hdr String complete value portion of AcceptLanguage header
      */
-    AcceptLanguages(String hdr);
+    AcceptLanguages(const String& hdr);
 
     /**
         Constructor

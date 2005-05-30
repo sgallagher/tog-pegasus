@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3514
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ AcceptLanguages::AcceptLanguages()
 {
 }
 
-AcceptLanguages::AcceptLanguages(String hdr)
+AcceptLanguages::AcceptLanguages(const String& hdr)
 {
     if (hdr.size() > 0)
     {

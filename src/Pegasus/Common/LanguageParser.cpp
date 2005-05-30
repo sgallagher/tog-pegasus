@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -168,7 +168,7 @@ String LanguageParser::parseContentLanguageValue(const String& hdr){
 	return value;
 }
 
-String LanguageParser::getLanguage(String & language_tag){
+String LanguageParser::getLanguage(const String & language_tag){
 	// given a language_tag: en-US-mn we want to return "en"
 	Uint32 i;
 	if((i = language_tag.find(findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND)
@@ -176,7 +176,7 @@ String LanguageParser::getLanguage(String & language_tag){
 	return String(language_tag);
 } 
 
-String LanguageParser::getCountry(String & language_tag){
+String LanguageParser::getCountry(const String & language_tag){
 	// given a language_tag: en-US-mn we want to return "US"
 	Uint32 i,j;
 	if( (i = language_tag.find(findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND )
@@ -187,7 +187,7 @@ String LanguageParser::getCountry(String & language_tag){
 	return String::EMPTY;
 }
 
-String LanguageParser::getVariant(String & language_tag){
+String LanguageParser::getVariant(const String & language_tag){
 	// given a language_tag: en-US-mn we want to return "mn"
 	Uint32 i;
 	if( (i = language_tag.find(findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND )

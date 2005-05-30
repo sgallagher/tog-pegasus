@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -93,11 +93,11 @@ String parseContentLanguageValue(const String& hdr);
  * @param separator Char16 the character that separates the various subtags
  * @return String base of the language parameter
  */
-String getLanguage(String & language_tag);
+String getLanguage(const String & language_tag);
 
-String getCountry(String & language_tag);
+String getCountry(const String & language_tag);
 
-String getVariant(String & language_tag);
+String getVariant(const String & language_tag);
 
 private:
 

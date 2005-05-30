@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +44,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 const LanguageParser LanguageParser::EMPTY = LanguageParser();
 
-void LanguageParser::parseHdr(Array<String> &values, String & hdr){
+void LanguageParser::parseHdr(Array<String> &values, String hdr){
 	// look for ',' which designates distict (Accept/Content)-Language fields
 	// the form: [languagetag, languagetag, languagetag] so whitespace removal
 	// may be necessary.

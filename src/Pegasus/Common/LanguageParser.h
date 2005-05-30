@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ static const LanguageParser EMPTY;
  * @param values Array<String>& where the individual fields are stored
  * @param hdr String the value portion of the HTTP Accept/ContentLanguage header
  */
-void parseHdr(Array<String> &values, String & hdr);
+void parseHdr(Array<String> &values, String hdr);
 
 /** Parses an AcceptLanguage or ContentLanguage value from a header.
  * If a valid AcceptLanguage value is determined to contain a quality

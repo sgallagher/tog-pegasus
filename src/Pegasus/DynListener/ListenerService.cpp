@@ -29,7 +29,7 @@
 //
 // Author: Heather Sterling (hsterl@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3654
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -384,7 +384,7 @@ Boolean ListenerService::shutdownListener()
     return(gracefulShutdown);
 }
 
-Boolean ListenerService::isAlive()
+Boolean ListenerService::isAlive() const throw()
 {
     return _running;
 }

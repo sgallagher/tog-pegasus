@@ -29,7 +29,7 @@
 //
 // Author: Heather Sterling (hsterl@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3654
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +69,7 @@ public:
 
     Boolean shutdownListener();
 
-    Boolean isAlive();
+    Boolean isAlive() const throw();
 
     Uint32 getPortNumber() const;
 

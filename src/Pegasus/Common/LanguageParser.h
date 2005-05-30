@@ -67,6 +67,7 @@ static const LanguageParser EMPTY;
  * them in an array.
  * @param values Array<String>& where the individual fields are stored
  * @param hdr String the value portion of the HTTP Accept/ContentLanguage header
+ * this parameter is passed as object intentionally
  */
 void parseHdr(Array<String> &values, String hdr);
 

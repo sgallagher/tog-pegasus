@@ -30,7 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -131,7 +131,7 @@ CString replaceSeparator(CString _s, char new_sep = '-');
 
 char findSeparator(CString _str);
 
-String convertPrivateLanguageTag(String language_tag);
+String convertPrivateLanguageTag(const String & language_tag);
 
 }; //end LanguageParser
 

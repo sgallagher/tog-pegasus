@@ -30,7 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -230,12 +230,14 @@ Boolean LanguageParser::isValid(const String& language_tag, Boolean validate_len
 	return true;
 }
 
-String LanguageParser::convertPrivateLanguageTag(String language_tag){
+String LanguageParser::convertPrivateLanguageTag(const String & language_tag){
 	// figure out if its a unix style locale or windows locale
 	Uint32 i;
 	if(( i = language_tag.find("pegasus-")) != PEG_NOT_FOUND ){
-		language_tag = language_tag.subString(i+5);  // capture the remainder of the string
-		return String(replaceSeparator(language_tag.getCString(), '-'));
+		String str;
+		str = language_tag.subString(i+5);
+		//language_tag = language_tag.subString(i+5);  // capture the remainder of the string
+		return String(replaceSeparator(str.getCString(), '-'));
 	}
 	//else if( (i = language_tag.find("win-")) != PEG_NOT_FOUND ){
 	  // return language_tag.subString(i+4);  // capture the remainder of the string

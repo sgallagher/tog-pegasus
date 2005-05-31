@@ -29,14 +29,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: Ben Heilbronn (ben_heilbronn@hp.com)
-//              Sushma Fernandes (sushma_fernandes@hp.com)
-//              Nag Boranna (nagaraja_boranna@hp.com)
-//              Dave Rosckes (rosckes@us.ibm.com)
-//              Sean Keenan (sean.keenan@hp.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
+// Modified By: Sean Keenan (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -56,8 +49,11 @@
 #include <netdb.h>
 #include <prvdef.h>
 #include <descrip.h>
+#include <iodef.h>
 #include <stsdef.h>
 #include <ssdef.h>
+#include <ttdef.h>
+#include <tt2def.h>
 #include <starlet.h>
 #include <libdef.h>
 #include <cxx_exception.h>
@@ -70,140 +66,141 @@ PEGASUS_NAMESPACE_BEGIN
 
 inline void sleep_wrapper(Uint32 seconds)
 {
-    sleep(seconds);
+  sleep(seconds);
 }
 
-void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
+void System::getCurrentTime(Uint32 & seconds, Uint32 & milliseconds)
 {
-    timeval tv;
-    gettimeofday(&tv, 0);
-    seconds = Uint32(tv.tv_sec);
-    milliseconds = Uint32(tv.tv_usec) / 1000;
+  timeval tv;
+  gettimeofday(&tv, 0);
+  seconds = Uint32(tv.tv_sec);
+  milliseconds = Uint32(tv.tv_usec) / 1000;
 }
 
 String System::getCurrentASCIITime()
 {
-    char    str[50];
-    time_t  rawTime;
+  char str[50];
+  time_t rawTime;
 
-    time(&rawTime);
-    strftime(str, 40,"%m/%d/%Y-%T", localtime(&rawTime));
-    String time = str;
-    return time;
+  time(&rawTime);
+  strftime(str, 40, "%m/%d/%Y-%T", localtime(&rawTime));
+  String time = str;
+  return time;
 }
 
 void System::sleep(Uint32 seconds)
 {
-    sleep_wrapper(seconds);
+  sleep_wrapper(seconds);
 }
 
-Boolean System::exists(const char* path)
+Boolean System::exists(const char *path)
 {
-    return access(path, F_OK) == 0;
+  return access(path, F_OK) == 0;
 }
 
-Boolean System::canRead(const char* path)
+Boolean System::canRead(const char *path)
 {
-    return access(path, R_OK) == 0;
+  return access(path, R_OK) == 0;
 }
 
-Boolean System::canWrite(const char* path)
+Boolean System::canWrite(const char *path)
 {
-    return access(path, W_OK) == 0;
+  return access(path, W_OK) == 0;
 }
 
-Boolean System::getCurrentDirectory(char* path, Uint32 size)
+Boolean System::getCurrentDirectory(char *path, Uint32 size)
 {
-    return getcwd(path, size) != NULL;
+  return getcwd(path, size) != NULL;
 }
 
-Boolean System::isDirectory(const char* path)
+Boolean System::isDirectory(const char *path)
 {
-    struct stat st;
+  struct stat st;
 
-    if (stat(path, &st) != 0)
-    {
-        return false;
-    }
-    return S_ISDIR(st.st_mode);
+  if (stat(path, &st) != 0)
+  {
+    return false;
+  }
+  return S_ISDIR(st.st_mode);
 }
 
-Boolean System::changeDirectory(const char* path)
+Boolean System::changeDirectory(const char *path)
 {
-    return chdir(path) == 0;
+  return chdir(path) == 0;
 }
 
-Boolean System::makeDirectory(const char* path)
+Boolean System::makeDirectory(const char *path)
 {
-    return mkdir(path, 0777) == 0;
+  return mkdir(path, 0777) == 0;
 }
 
-Boolean System::getFileSize(const char* path, Uint32& size)
+Boolean System::getFileSize(const char *path, Uint32 & size)
 {
-    struct stat st;
+  struct stat st;
 
-    if (stat(path, &st) != 0)
-    {
-        return false;
-    }
-    size = st.st_size;
-    return true;
+  if (stat(path, &st) != 0)
+  {
+    return false;
+  }
+  size = st.st_size;
+  return true;
 }
 
-Boolean System::removeDirectory(const char* path)
+Boolean System::removeDirectory(const char *path)
 {
-    return rmdir(path) == 0;
+  return rmdir(path) == 0;
 }
 
-Boolean System::removeFile(const char* path)
+Boolean System::removeFile(const char *path)
 {
-    return unlink(path) == 0;
+  return unlink(path) == 0;
 }
 
-Boolean System::renameFile(const char* oldPath, const char* newPath)
+Boolean System::renameFile(const char *oldPath, const char *newPath)
 {
-    if (rename(oldPath, newPath) != 0)
-    {
-        return false;
-    }
-    return true;
+  if (rename(oldPath, newPath) != 0)
+  {
+    return false;
+  }
+  return true;
 }
 
-DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
+DynamicLibraryHandle System::loadDynamicLibrary(const char *fileName)
 {
-    PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "System::loadDynamicLibrary()");
+  PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "System::loadDynamicLibrary()");
 
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2, 
-                  "Attempting to load library %s - 1", fileName);
+  Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+	"Attempting to load library %s - 1", fileName);
 
-    saveFileName = fileName;
+  saveFileName = fileName;
 
-    PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(1);
+  PEG_METHOD_EXIT();
+  return DynamicLibraryHandle(1);
 }
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
-    // ATTN: Should this method indicate success/failure?
+  // ATTN: Should this method indicate success/failure?
 
-    dlclose(libraryHandle);
+  dlclose(libraryHandle);
 }
 
-String System::dynamicLoadError() {
-    // ATTN: Is this safe in a multi-threaded process?  Should this string
-    // be returned from loadDynamicLibrary?
-//    String dlerr = dlerror();
-//    return dlerr;
-    return String::EMPTY;
-}
+String System::dynamicLoadError()
+{
+  // ATTN: Is this safe in a multi-threaded process?  Should this string
+  // be returned from loadDynamicLibrary?
+  //    String dlerr = dlerror();
+  //    return dlerr;
 
+  return String::EMPTY;
+}
 
 DynamicSymbolHandle System::loadVmsDynamicSymbol(
-    const char* symbolName, 
-    const char* fileName, 
-    const char* vmsProviderDir)
+						  const char *symbolName,
+						  const char *fileName,
+					      const char *vmsProviderDir)
 {
-  char* Errorout;
+  char *Errorout;
   unsigned int status;
   CString cstr;
 
@@ -218,403 +215,564 @@ DynamicSymbolHandle System::loadVmsDynamicSymbol(
   $DESCRIPTOR(vmsSymbolName, "Dummy symbolName");
   $DESCRIPTOR(vmsDirName, "Dummy vmsProviderDir");
 
-  vmsFileName.dsc$b_dtype   = DSC$K_DTYPE_T;
-  vmsFileName.dsc$b_class   = DSC$K_CLASS_S;
-  vmsFileName.dsc$w_length  = strlen(fName);
-  vmsFileName.dsc$a_pointer = (char *)fName;
+  vmsFileName.dsc$b_dtype = DSC$K_DTYPE_T;
+  vmsFileName.dsc$b_class = DSC$K_CLASS_S;
+  vmsFileName.dsc$w_length = strlen(fName);
+  vmsFileName.dsc$a_pointer = (char *) fName;
 
-  vmsSymbolName.dsc$b_dtype   = DSC$K_DTYPE_T;
-  vmsSymbolName.dsc$b_class   = DSC$K_CLASS_S;
-  vmsSymbolName.dsc$w_length  = strlen(sName);
-  vmsSymbolName.dsc$a_pointer = (char *)sName;
+  vmsSymbolName.dsc$b_dtype = DSC$K_DTYPE_T;
+  vmsSymbolName.dsc$b_class = DSC$K_CLASS_S;
+  vmsSymbolName.dsc$w_length = strlen(sName);
+  vmsSymbolName.dsc$a_pointer = (char *) sName;
 
-  vmsDirName.dsc$b_dtype   = DSC$K_DTYPE_T;
-  vmsDirName.dsc$b_class   = DSC$K_CLASS_S;
-  vmsDirName.dsc$w_length     = strlen(dName);
-  vmsDirName.dsc$a_pointer = (char *)dName;
+  vmsDirName.dsc$b_dtype = DSC$K_DTYPE_T;
+  vmsDirName.dsc$b_class = DSC$K_CLASS_S;
+  vmsDirName.dsc$w_length = strlen(dName);
+  vmsDirName.dsc$a_pointer = (char *) dName;
 
 //  status = lib$find_image_symbol (&vmsFileName, &vmsSymbolName, &symbolValue, &vmsDirName, flags);
 
-  cxxl$set_condition (cxx_exception);
+  cxxl$set_condition(cxx_exception);
 
   try
   {
-    status = lib$find_image_symbol (&vmsFileName, &vmsSymbolName, &symbolValue, &vmsDirName, flags);
+    status = lib$find_image_symbol(&vmsFileName, &vmsSymbolName, &symbolValue, &vmsDirName, flags);
   }
 
-  catch (struct chf$signal_array &obj)
+  catch(struct chf$signal_array &obj)
   {
     if (obj.chf$is_sig_name != LIB$_EOMWARN)
     {
       symbolValue = 0;
-      cxxl$set_condition (unix_signal);
-      return (DynamicSymbolHandle)symbolValue;
+      cxxl$set_condition(unix_signal);
+      return (DynamicSymbolHandle) symbolValue;
     }
   }
 
-  catch (...)
+  catch(...)
   {
     symbolValue = 0;
-    cxxl$set_condition (unix_signal);
-    return (DynamicSymbolHandle)symbolValue;
+    cxxl$set_condition(unix_signal);
+    return (DynamicSymbolHandle) symbolValue;
   }
 
   if (!$VMS_STATUS_SUCCESS(status))
   {
     symbolValue = 0;
   }
-  cxxl$set_condition (unix_signal);
-  return (DynamicSymbolHandle)symbolValue;
+  cxxl$set_condition(unix_signal);
+  return (DynamicSymbolHandle) symbolValue;
 }
 
 DynamicSymbolHandle System::loadDynamicSymbol(
-    DynamicLibraryHandle libraryHandle,
-    const char* symbolName)
+				      DynamicLibraryHandle libraryHandle,
+					       const char *symbolName)
 {
   DynamicSymbolHandle Dsh;
 
-  char* tmp = getenv("PEGASUS_SYSSHARE");
+  char *tmp = getenv("PEGASUS_SYSSHARE");
 
   if (tmp == "")
   {
     throw UnrecognizedConfigProperty("PEGASUS_SYSSHARE");
   }
 
-  String vmsProviderDir = ( tmp + saveFileName + ".exe");
+  String vmsProviderDir = (tmp + saveFileName + ".exe");
 
-  Dsh = loadVmsDynamicSymbol((const char*) symbolName, 
-                             (const char*) saveFileName.getCString(),
-                             (const char*) vmsProviderDir.getCString());
+  Dsh = loadVmsDynamicSymbol((const char *) symbolName,
+			     (const char *) saveFileName.getCString(),
+			     (const char *) vmsProviderDir.getCString());
   return Dsh;
 }
 
 String System::getHostName()
 {
-    static char hostname[PEGASUS_MAXHOSTNAMELEN];
+  static char hostname[PEGASUS_MAXHOSTNAMELEN];
 
-    if (!*hostname)
-    {
-        gethostname(hostname, sizeof(hostname));
-    }
-    return hostname;
+  if (!*hostname)
+  {
+    gethostname(hostname, sizeof (hostname));
+  }
+  return hostname;
 }
 
-String System::getFullyQualifiedHostName ()
+String System::getFullyQualifiedHostName()
 {
-    char hostName [PEGASUS_MAXHOSTNAMELEN];
-    struct hostent *he;
-    String fqName;
+  char hostName[PEGASUS_MAXHOSTNAMELEN];
+  struct hostent *he;
+  String fqName;
 
-    if (gethostname (hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
-    {
-        return String::EMPTY;
-    }
+  if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+  {
+  return String::EMPTY;
+  }
 
-    if (he = gethostbyname (hostName))
-    {
-       strcpy (hostName, he->h_name);
-    }
+  if (he = gethostbyname(hostName))
+  {
+    strcpy(hostName, he->h_name);
+  }
 
-    fqName.assign (hostName);
+  fqName.assign(hostName);
 
-    return fqName;
+  return fqName;
 }
 
-String System::getSystemCreationClassName ()
+String System::getSystemCreationClassName()
 {
-    return "CIM_ComputerSystem";
+  return "CIM_ComputerSystem";
 }
 
 Uint32 System::lookupPort(
-    const char * serviceName, 
-    Uint32 defaultPort)
+			    const char *serviceName,
+			    Uint32 defaultPort)
 {
-    Uint32 localPort;
+  Uint32 localPort;
 
-    struct servent *serv;
+  struct servent *serv;
 
-    //
-    // Get wbem-local port from /etc/services
-    //
-    if ( (serv = getservbyname(serviceName, TCP)) != NULL )
-    {
-        localPort = htons((uint16_t)serv->s_port);
-    }
-    else
-    {
-        localPort = defaultPort;
-    }
+  //
+  // Get wbem-local port from /etc/services
+  //
+  if ((serv = getservbyname(serviceName, TCP)) != NULL)
+  {
+    localPort = htons((uint16_t) serv->s_port);
+  }
+  else
+  {
+    localPort = defaultPort;
+  }
 
-    return localPort;
+  return localPort;
 }
 
-String System::getPassword(const char* prompt)
-{
+#define MAX_PASS_LEN 32
 
-    String password("dummy");
-    return password;
+String System::getPassword(const char *prompt)
+{
+  struct
+  {
+    short int numbuf;
+    char frst_char;
+    char rsv1;
+    long rsv2;
+  }
+  tahead;
+
+  typedef struct
+  {				/* I/O status block     */
+    short i_cond;		/* Condition value      */
+    short i_xfer;		/* Transfer count     */
+    long i_info;		/* Device information     */
+  }
+  iosb;
+
+  typedef struct
+  {				/* Terminal characteristics   */
+    char t_class;		/* Terminal class     */
+    char t_type;		/* Terminal type      */
+    short t_width;		/* Terminal width in characters   */
+    long t_mandl;		/* Terminal's mode and length   */
+    long t_extend;		/* Extended terminal characteristics  */
+  }
+  termb;
+
+  termb otermb;
+  termb ntermb;
+
+  static long ichan;		/* Gets channel number for TT:  */
+
+  register int errorcode;
+  int kbdflgs;			/* saved keyboard fd flags  */
+  int kbdpoll;			/* in O_NDELAY mode         */
+  int kbdqp = false;		/* there is a char in kbdq  */
+  int psize;			/* size of the prompt */
+
+  static char buf[MAX_PASS_LEN];
+  char kbdq;			/* char we've already read  */
+
+  iosb iostatus;
+
+  static long termset[2] =
+  {0, 0};			/* No terminator                */
+
+  $DESCRIPTOR(inpdev, "TT");	/* Terminal to use for input    */
+
+  //
+  //
+  //
+
+  buf[0] = 0;
+
+  if ((errorcode = (sys$assign(&inpdev,		/* Device name */
+			       &ichan,	/* Channel assigned */
+			       0,	/* request KERNEL mode access */
+			       0)))	/* No mailbox assigned */
+      != SS$_NORMAL)
+  {
+    fprintf(stderr, "TTOPEN - KBIN assign failed.  code = %X\n", errorcode);
+    exit(errorcode);
+  }
+
+  /* Read current terminal settings */
+
+  if ((errorcode = sys$qiow(0,	/* Wait on event flag zero  */
+			    ichan,	/* Channel to input terminal  */
+			    IO$_SENSEMODE,	/* Function - Sense Mode */
+			    &iostatus,	/* Status after operation */
+			    0, 0,	/* No AST service   */
+			    &otermb,	/* [P1] Address of Char Buffer */
+			    sizeof (otermb),	/* [P2] Size of Char Buffer */
+			    0, 0, 0, 0))	/* [P3] - [P6] */
+      != SS$_NORMAL)
+  {
+    fprintf(stderr, "TTOPEN - Sensemode failed.  code = %X\n", errorcode);
+    exit(errorcode);
+  }
+  /* setup new settings   */
+
+  ntermb = otermb;
+
+  /* turn on passthru and nobroadcast */
+
+  ntermb.t_extend |= TT2$M_PASTHRU;
+  ntermb.t_mandl |= TT$M_NOBRDCST;
+
+  /* Write out new terminal settings */
+
+  if ((errorcode = sys$qiow(0,	/* Wait on event flag zero  */
+			    ichan,	/* Channel to input terminal  */
+			    IO$_SETMODE,	/* Function - Set Mode */
+			    &iostatus,	/* Status after operation */
+			    0, 0,	/* No AST service   */
+			    &ntermb,	/* [P1] Address of Char Buffer */
+			    sizeof (ntermb),	/* [P2] Size of Char Buffer */
+			    0, 0, 0, 0))	/* [P3] - [P6] */
+      != SS$_NORMAL)
+  {
+    fprintf(stderr, "TTOPEN - Setmode failed.  code = %X\n", errorcode);
+    exit(errorcode);
+  }
+
+//
+// Write a prompt, read characters from the terminal, performing no editing
+//  and doing no echo at all.
+//
+
+    psize = strlen(prompt);
+
+    if ((errorcode = sys$qiow(0,		/* Event flag */
+			      ichan,		/* Input channel */
+			      IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TRMNOECHO,
+						/* Read with prompt, no echo, no translate, no termination char in buffer */
+			      &iostatus,	/* I/O status block */
+			      NULL,		/* AST block (none) */
+			      0,		/* AST parameter */
+			      &buf,		/* P1 - input buffer */
+			      MAX_PASS_LEN,	/* P2 - buffer length */
+			      0,		/* P3 - ignored (timeout) */
+			      0,		/* P4 - ignored (terminator char set) */
+			      prompt,		/* P5 - prompt buffer */
+			      psize))		/* P6 - prompt size */
+	!= SS$_NORMAL)
+    {
+      fprintf(stderr, "TTGETC - Readblk failed.  code = %X\n", errorcode);
+      exit(errorcode);
+    }
+  /* Write out old terminal settings */
+
+  if ((errorcode = sys$qiow(0,	/* Wait on event flag zero  */
+			    ichan,	/* Channel to input terminal  */
+			    IO$_SETMODE,	/* Function - Set Mode */
+			    &iostatus,	/* Status after operation */
+			    0, 0,	/* No AST service   */
+			    &otermb,	/* [P1] Address of Char Buffer */
+			    sizeof (otermb),	/* [P2] Size of Char Buffer */
+			    0, 0, 0, 0))	/* [P3] - [P6] */
+      != SS$_NORMAL)
+  {
+    fprintf(stderr, "TTOPEN - Setmode failed.  code = %X\n", errorcode);
+    exit(errorcode);
+  }
+
+  return buf;
 }
 
 String System::getEffectiveUserName()
 {
-    String userName = String::EMPTY;
-    struct passwd*   pwd = NULL;
+  String userName = String::EMPTY;
+  struct passwd *pwd = NULL;
 
+  //
+  //  get the currently logged in user's UID.
+  //
+  pwd = getpwuid(geteuid());
+  if (pwd == NULL)
+  {
+  Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+	"getpwuid failure, user may have been removed just after login");
+  }
+  else
+  {
     //
-    //  get the currently logged in user's UID.
+    //  get the user name
     //
-    pwd = getpwuid(geteuid());
-    if ( pwd == NULL )
-    {
-         Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL4,
-             "getpwuid failure, user may have been removed just after login");
-    }
-    else
-    {
-        //
-        //  get the user name
-        //
-        userName.assign(pwd->pw_name);
-    }
-    return(userName);
+    userName.assign(pwd->pw_name);
+  }
+  return (userName);
 }
 
-String System::encryptPassword(const char* password, const char* salt)
+String System::encryptPassword(const char *password, const char *salt)
 {
-    return ( String("dummy") );
+  char pbBuffer[MAX_PASS_LEN] = {0};
+  int dwByteCount;
+  char pcSalt[3] = {0};
+
+  strncpy(pcSalt, salt, 2);
+  dwByteCount = strlen(password);
+  memcpy(pbBuffer, password, dwByteCount);
+  for (int i=0; (i<dwByteCount) || (i>=MAX_PASS_LEN); i++)
+  {
+    (i%2 == 0) ? pbBuffer[i] ^= pcSalt[1] : pbBuffer[i] ^= pcSalt[0];
+  }
+
+  return String(pcSalt) + String((char *)pbBuffer);
 }
 
-Boolean System::isSystemUser(const char* userName)
+Boolean System::isSystemUser(const char *userName)
 {
-    //
-    //  get the password entry for the user
-    //
-    if  ( getpwnam(userName) == NULL )
-    {
-        return false;
-    }
+  //
+  //  get the password entry for the user
+  //
+  struct passwd *result;
+
+  result = getpwnam(userName);
+
+  if (result == NULL)
+  {
+    return false;
+  }
+  return true;
+}
+
+Boolean System::isPrivilegedUser(const String & userName)
+{
+  //
+  // Check if the given user is a privileged user
+  //
+  int retStat;
+
+  unsigned long int prvPrv = 0;
+
+  retStat = sys$setprv(0, 0, 0, &prvPrv);
+  if (!$VMS_STATUS_SUCCESS(retStat))
+  {
+    return false;
+  }
+  if ((PRV$M_SETPRV && prvPrv) == 1)
+  {
     return true;
-}
-
-Boolean System::isPrivilegedUser(const String& userName)
-{
-    //
-    // Check if the given user is a privileged user
-    //
-    int retStat;
-
-    unsigned long int prvPrv = 0;
-
-    retStat = sys$setprv(0, 0, 0, &prvPrv);
-    if (!$VMS_STATUS_SUCCESS( retStat))
-    {
-      return false;
-    }
-    if ((PRV$M_SETPRV && prvPrv) == 1)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+  }
+  else
+  {
+    return false;
+  }
 }
 
 String System::getPrivilegedUserName()
 {
-    static String userName = String::EMPTY;
+  static String userName = String::EMPTY;
 
-    if (userName == String::EMPTY)
+if (userName == String::EMPTY)
+  {
+    struct passwd *pwd = NULL;
+    //
+    //  get the privileged user's UID.
+    //
+
+    pwd = getpwuid(geteuid());
+    if (pwd != NULL)
     {
-        struct passwd*   pwd = NULL;
-        //
-        //  get the privileged user's UID.
-        //
-
-        pwd = getpwuid(geteuid());
-        if ( pwd != NULL )
-        {
-            //
-            //  get the user name
-            //
-            userName.assign(pwd->pw_name);
-        }
-        else
-        {
-            Tracer::trace (TRC_OS_ABSTRACTION, Tracer::LEVEL4,
-                       "Could not find entry.");
-            PEGASUS_ASSERT(0);
-        }
+      //
+      //  get the user name
+      //
+      userName.assign(pwd->pw_name);
     }
-    return (userName);
+    else
+    {
+    Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+	    "Could not find entry.");
+      PEGASUS_ASSERT(0);
+    }
+  }
+  return (userName);
 }
 
 #ifdef PEGASUS_ENABLE_USERGROUP_AUTHORIZATION
 
-Boolean System::isGroupMember(const char* userName, const char* groupName)
+Boolean System::isGroupMember(const char *userName, const char *groupName)
 {
-    struct group                        grp;
-    char                                *member;
-    Boolean                             retVal = false;
-    const unsigned int                  PWD_BUFF_SIZE = 1024;
-    const unsigned int                  GRP_BUFF_SIZE = 1024;
-    struct passwd                       pwd;
-    struct passwd                       *result;
-    struct group                        *grpresult;
-    char                                pwdBuffer[PWD_BUFF_SIZE];
-    char                                grpBuffer[GRP_BUFF_SIZE];
+  struct group grp;
+  char *member;
+  Boolean retVal = false;
+  const unsigned int PWD_BUFF_SIZE = 1024;
+  const unsigned int GRP_BUFF_SIZE = 1024;
+  struct passwd pwd;
+  struct passwd *result;
+  struct group *grpresult;
+  char pwdBuffer[PWD_BUFF_SIZE];
+  char grpBuffer[GRP_BUFF_SIZE];
 
-    //
-    // Search Primary group information.
-    //
+  //
+  // Search Primary group information.
+  //
 
-    // Find the entry that matches "userName"
+  // Find the entry that matches "userName"
 
-    if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
+  if (getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result) != 0)
+  {
+    String errorMsg = String("getpwnam_r failure : ") +
+    String(strerror(errno));
+  Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+		     errorMsg);
+  Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
+	errorMsg);
+    throw InternalSystemError();
+  }
+
+  if (result != NULL)
+  {
+    // User found, check for group information.
+    gid_t group_id;
+    group_id = pwd.pw_gid;
+
+    // Get the group name using group_id and compare with group passed.
+    if (getgrgid_r(group_id, &grp,
+		   grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0)
     {
-        String errorMsg = String("getpwnam_r failure : ") +
-                            String(strerror(errno));
-        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-                                  errorMsg);
-        throw InternalSystemError();
+      String errorMsg = String("getgrgid_r failure : ") +
+      String(strerror(errno));
+    Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+		       errorMsg);
+    Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
+	  errorMsg);
+      throw InternalSystemError();
     }
 
-    if ( result != NULL )
+    // Compare the user's group name to groupName.
+    if (strcmp(grp.gr_name, groupName) == 0)
     {
-        // User found, check for group information.
-        gid_t           group_id;
-        group_id = pwd.pw_gid;
-
-        // Get the group name using group_id and compare with group passed.
-        if ( getgrgid_r(group_id, &grp,
-                 grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0)
-        {
-            String errorMsg = String("getgrgid_r failure : ") +
-                                 String(strerror(errno));
-            Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                      errorMsg);
-            Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-                                  errorMsg);
-            throw InternalSystemError();
-        }
-
-        // Compare the user's group name to groupName.
-        if ( strcmp (grp.gr_name, groupName) == 0 )
-        {
-             // User is a member of the group.
-             return true;
-        }
+      // User is a member of the group.
+      return true;
     }
+  }
 
-    //
-    // Search supplemental groups.
-    // Get a user group entry
-    //
-    if ( getgrnam_r(groupName, &grp,
-              grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0 )
+  //
+  // Search supplemental groups.
+  // Get a user group entry
+  //
+  if (getgrnam_r(groupName, &grp,
+		 grpBuffer, GRP_BUFF_SIZE, &grpresult) != 0)
 
+  {
+    String errorMsg = String("getgrnam_r failure : ") +
+    String(strerror(errno));
+  Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+		     errorMsg);
+  Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
+	errorMsg);
+    throw InternalSystemError();
+  }
+
+  // Check if the requested group was found.
+  if (grpresult == NULL)
+  {
+    return false;
+  }
+
+  Uint32 j = 0;
+
+  //
+  // Get all the members of the group
+  //
+  member = grp.gr_mem[j++];
+
+  while (member)
+  {
+    //
+    // Check if the user is a member of the group
+    //
+    if (strcmp(userName, member) == 0)
     {
-        String errorMsg = String("getgrnam_r failure : ") +
-                            String(strerror(errno));
-        Tracer::PEG_TRACE_STRING (TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                                  errorMsg);
-        Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
-                                  errorMsg);
-        throw InternalSystemError();
+      retVal = true;
+      break;
     }
-
-    // Check if the requested group was found.
-    if (grpresult == NULL)
-    {
-        return false;
-    }
-
-    Uint32 j = 0;
-
-    //
-    // Get all the members of the group
-    //
     member = grp.gr_mem[j++];
+  }
 
-    while (member)
-    {
-        //
-        // Check if the user is a member of the group
-        //
-        if ( strcmp(userName, member) == 0 )
-        {
-            retVal = true;
-            break;
-        }
-        member = grp.gr_mem[j++];
-    }
-
-    return retVal;
+  return retVal;
 }
 
 #endif
 
-Boolean System::changeUserContext(const char* userName)
+Boolean System::changeUserContext(const char *userName)
 {
-    const unsigned int PWD_BUFF_SIZE = 1024;
-    struct passwd pwd;
-    struct passwd *result;
-    char pwdBuffer[PWD_BUFF_SIZE];
+  const unsigned int PWD_BUFF_SIZE = 1024;
+  struct passwd pwd;
+  struct passwd *result;
+  char pwdBuffer[PWD_BUFF_SIZE];
 
-    int rc = getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result);
+  int rc = getpwnam_r(userName, &pwd, pwdBuffer, PWD_BUFF_SIZE, &result);
 
-    if (rc != 0)
-    {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            String("getpwnam_r failed: ") + String(strerror(errno)));
-        return false;
-    }
+  if (rc != 0)
+  {
+  PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+		String("getpwnam_r failed: ") + String(strerror(errno)));
+    return false;
+  }
 
-    if (result == 0)
-    {
-        Tracer::PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            "getpwnam_r failed.");
-        return false;
-    }
+  if (result == 0)
+  {
+  Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+		     "getpwnam_r failed.");
+    return false;
+  }
 
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4, 
-        "Changing user context to: uid = %d, gid = %d",
-        (int)pwd.pw_uid, (int)pwd.pw_gid);
+Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+	"Changing user context to: uid = %d, gid = %d",
+	(int) pwd.pw_uid, (int) pwd.pw_gid);
 
-    if (setgid(pwd.pw_gid) != 0)
-    {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            String("setgid failed: ") + String(strerror(errno)));
-        return false;
-    }
+  if (setgid(pwd.pw_gid) != 0)
+  {
+  PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+		     String("setgid failed: ") + String(strerror(errno)));
+    return false;
+  }
 
-    if (setuid(pwd.pw_uid) != 0)
-    {
-        PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-            String("setuid failed: ") + String(strerror(errno)));
-        return false;
-    }
+  if (setuid(pwd.pw_uid) != 0)
+  {
+  PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+		     String("setuid failed: ") + String(strerror(errno)));
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 Uint32 System::getPID()
 {
-    //
-    // Get the Process ID
-    //
-    Uint32 pid = getpid();
+  //
+  // Get the Process ID
+  //
+  Uint32 pid = getpid();
 
-    return pid;
+  return pid;
 }
 
 Boolean System::truncateFile(
-    const char* path, 
-    size_t newSize)
+			      const char *path,
+			      size_t newSize)
 {
-    return (truncate(path, newSize) == 0);
+  return (truncate(path, newSize) == 0);
 }
 
 // Is absolute path?
@@ -622,41 +780,41 @@ Boolean System::is_absolute_path(const char *path)
 {
   if (path == NULL)
     return false;
-  
+
   if (path[0] == '/')
     return true;
-  
+
   return false;
 }
 
 // Changes file permissions on the given file.
-Boolean System::changeFilePermissions(const char* path, mode_t mode)
+Boolean System::changeFilePermissions(const char *path, mode_t mode)
 {
-    Sint32 ret = 0;
+  Sint32 ret = 0;
 
-    const char * tmp = path;
-    ret = chmod(tmp, mode);
-    return ( ret != -1 );
+  const char *tmp = path;
+  ret = chmod(tmp, mode);
+  return (ret != -1);
 }
 
-Boolean System::verifyFileOwnership(const char* path)
+Boolean System::verifyFileOwnership(const char *path)
 {
-    struct stat st;
+  struct stat st;
 
-    if (stat(path, &st) != 0)
-    {
-        return false;
-    }
-    return (st.st_uid == geteuid());
+  if (stat(path, &st) != 0)
+  {
+    return false;
+  }
+  return (st.st_uid == geteuid());
 }
 
-void System::syslog(const String& ident, Uint32 severity, const char* message)
+void System::syslog(const String & ident, Uint32 severity, const char *message)
 {
-    // Not implemented
+  // Not implemented
 }
 
 // System ID constants for Logger::put and Logger::trace
 
-const String System::CIMSERVER = "cimserver";  // Server system ID
-    
+const String System::CIMSERVER = "cimserver";	// Server system ID
+
 PEGASUS_NAMESPACE_END

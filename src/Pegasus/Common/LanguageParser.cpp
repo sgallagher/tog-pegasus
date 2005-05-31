@@ -30,7 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703, 3704
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -265,7 +265,8 @@ char LanguageParser::findSeparator(const CString & _str){
 }
 
 CString LanguageParser::replaceSeparator(const CString & _s, char new_sep){
-	char * _str = const_cast<char *>((const char*)_s);
+	char * _str = 0;
+	strcpy(_str,_s);
 	Uint32 length = (Uint32) strlen(_str);
 	for(Uint32 i = 0; i < length; i++)
 		_str[i] = (!isalnum(_str[i])) ? new_sep : _str[i];

@@ -219,7 +219,13 @@ MessageQueueService::~MessageQueueService()
    // Clean up in case there are extra stuff on the queue.
   while (_incoming.count())
   {
-    delete _incoming.remove_first();
+    try { 
+      delete _incoming.remove_first();
+    } catch (const ListClosed &e)
+    {
+      // If the list is closed, there is nothing we can do. 
+      break;
+    }
   }
 }
 

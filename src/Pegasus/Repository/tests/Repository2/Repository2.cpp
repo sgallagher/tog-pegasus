@@ -199,7 +199,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     assert(classNames.size() == 2);
     assert(classNames[1] == CIMName ("SuperClass"));
     assert(classNames[0] == CIMName ("SubClass"));
-#ifdef PEGASUS_ENABLE_INSTANCE_FILTER
+
 	//
 	// Test the getClass operation options, localonly,
 	//		includeQualifiers, includeClassOrigin, propertyList
@@ -291,7 +291,6 @@ void TestCreateClass(CIMRepository_Mode mode)
 	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
 
-#endif
 
     // -- Create an instance of each class:
 

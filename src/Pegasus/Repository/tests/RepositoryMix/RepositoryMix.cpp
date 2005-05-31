@@ -76,7 +76,7 @@ void TestCloseRepo()
   if (verbose) cout << ProgName << "-TestCloseRepo()" << endl;
   // -- close  repository 
 
-  free ( r);
+  delete  r;
 
 
 }

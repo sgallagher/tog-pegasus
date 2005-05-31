@@ -259,6 +259,7 @@ void TestCreateClass(CIMRepository_Mode mode)
 	assert(pos != PEG_NOT_FOUND);
 	p = cc2.getProperty(pos);
 	assert(p.getClassOrigin() == CIMName("SuperClass"));
+
 	
 	// Test for Class origin set false. Should return null CIMName.
     cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, false);
@@ -272,25 +273,45 @@ void TestCreateClass(CIMRepository_Mode mode)
 	// NOTE: Expand this test to cover empty propertylist, etc.
 	//
 
+	// Test with empty property in list.
+	Array<CIMName> pls_empty;
+	CIMPropertyList pl(pls_empty); 
+    cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
+	assert(cc2.findProperty("ratio") == PEG_NOT_FOUND);
+	assert(cc2.findProperty("message") == PEG_NOT_FOUND);
+	assert(cc2.getPropertyCount() == 0);
+
+
 	// Test with one property in list.
 	Array<CIMName> pls;
 	pls.append(CIMName("ratio"));
-	CIMPropertyList pl(pls); 
-	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
-	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
-
+	pl.clear();
+	pl.set(pls);
     cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
 	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") == PEG_NOT_FOUND);
+	assert(cc2.getPropertyCount() == 1);
 
-	// restest with two entries in the list.
+	// retest with two entries in the list.
 	pls.append(CIMName("message"));
 	pl.clear();
 	pl.set(pls);
     cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
 	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
 	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
+	assert(cc2.getPropertyCount() == 2);
 
+	// Test with an invalid property in the list. It should be ignored 
+	// and the results should be identical to the previous.
+	pls.append(CIMName("herroyalhighnessofyork"));
+	pl.clear();
+	pl.set(pls);
+    cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
+	assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+	assert(cc2.findProperty("message") != PEG_NOT_FOUND);
+	assert(cc2.getPropertyCount() == 2);
+
+	
 
     // -- Create an instance of each class:
 
@@ -359,6 +380,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     assert(namedInstances[0].identical(inst1));
     
 #ifdef PEGASUS_ENABLE_INSTANCE_FILTER
+
     // Test enumerating with classOrigin false
 
     namedInstances = r.enumerateInstances(NS, 
@@ -474,6 +496,8 @@ void TestCreateClass(CIMRepository_Mode mode)
     // test with localonly set vs. not set
 
     // test with deepinheritance set.
+
+
 #endif
 
     // -- Modify one of the instances:

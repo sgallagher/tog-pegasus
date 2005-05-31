@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,10 +29,11 @@
 //
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
-// Modified By:
-//      Sushma Fernandes, Hewlett-Packard Company, sushma_fernandes@hp.com
-//      Chip Vincent (cvincent@us.ibm.com)
-//      Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+// Modified By: Sushma Fernandes, Hewlett-Packard Company, sushma_fernandes@hp.com
+//              Chip Vincent (cvincent@us.ibm.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +93,6 @@ public:
     */
     virtual void getPropertyInfo(const String& name,
         Array<String>& propertyInfo) = 0;
-        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /**
@@ -103,7 +103,6 @@ public:
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual String getDefaultValue(const String& name) = 0;
-        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /**
@@ -114,7 +113,6 @@ public:
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual String getCurrentValue(const String& name) = 0;
-        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /**
@@ -125,7 +123,6 @@ public:
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual String getPlannedValue(const String& name) = 0;
-        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /**
@@ -140,7 +137,6 @@ public:
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
     virtual void initCurrentValue(const String& name, const String& value) = 0;
-        //throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
 
 
     /**
@@ -155,7 +151,6 @@ public:
     @exception     InvalidPropertyValue  if the property value is not valid.
     */
     virtual void initPlannedValue(const String& name, const String& value) = 0;
-        //throw (UnrecognizedConfigProperty, InvalidPropertyValue) = 0;
 
 
     /**
@@ -187,7 +182,6 @@ public:
     virtual void updatePlannedValue(
         const String& name,
         const String& value) = 0;
-        //throw (InvalidPropertyValue, UnrecognizedConfigProperty) = 0;
 
 
     /**
@@ -199,7 +193,6 @@ public:
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual Boolean isValid(const String& name, const String& value) = 0;
-        //throw (UnrecognizedConfigProperty) = 0;
 
 
     /**
@@ -210,8 +203,6 @@ public:
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual Boolean isDynamic(const String& name) = 0;
-        //throw (UnrecognizedConfigProperty) = 0;
-
 };
 
 

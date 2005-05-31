@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -34,6 +34,8 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3612
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3610
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +105,6 @@ private:
     */
     Boolean _initPropertyWithCommandLineOption(
         const String& configOption);
-            //throw (InvalidPropertyValue, UnrecognizedConfigProperty);
 
 
     /**
@@ -115,7 +116,6 @@ private:
                             while parsing the config files.
     */
     void _loadConfigProperties();
-        //throw (CannotRenameFile, ConfigFileSyntaxError, CannotOpenFile);
 
 
     /**
@@ -320,7 +320,6 @@ public:
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
     String getPlannedValue(const String& name) const;
-        //throw (UnrecognizedConfigProperty);
 
 
     /**
@@ -332,7 +331,6 @@ public:
     @exception UnrecognizedConfigProperty  if property is not defined.
     */
     void getPropertyInfo(const String& name, Array<String>& propertyInfo) const;
-        //throw (UnrecognizedConfigProperty);
 
 
     /**

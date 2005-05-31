@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,10 +30,12 @@
 // Author: Nag Boranna (nagaraja_boranna@hp.com)
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                (carolann_graves@hp.com)
+//                  (carolann_graves@hp.com)
 //              Warren Otsuka (warren.otsuka@hp.com)
 //              Amit K Arora (amita@in.ibm.com) for PEP101
 //              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3609.
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -60,14 +62,14 @@ struct ConfigTable;
 #include "ConfigFileDir.h"
 
 /**
-  This class provides methods to read/write config properties 
+  This class provides methods to read/write config properties
   from the config file.
 */
 class PEGASUS_CONFIG_LINKAGE ConfigFileHandler
 {
 public:
 
-    /** 
+    /**
     Default constructor.
 
     @param        currentFile current config file name.
@@ -76,61 +78,56 @@ public:
     @exception  FileNotReadable  if file is not readable.
     */
     ConfigFileHandler (
-        const String& currentFile = CURRENT_CONFIG_FILE, 
+        const String& currentFile = CURRENT_CONFIG_FILE,
         const String& plannedFile = PLANNED_CONFIG_FILE,
         const Boolean offLine = false);
-            //throw (NoSuchFile, FileNotReadable);
 
 
     /** Destructor. */
     ~ConfigFileHandler ();
 
 
-    /** 
-    Overwrites config properties in the current config file with the 
-    the config properties from the planned config file. 
+    /**
+    Overwrites config properties in the current config file with the
+    the config properties from the planned config file.
 
     The content of the current config file will be copied in to a
-    backup (.bak) file before copying planned file contents over the 
+    backup (.bak) file before copying planned file contents over the
     current file.
 
     @exception  CannotRenameFile  if failed to create the backup file.
     @exception  CannotOpenFile  if failed to set permissions on the config file.
     */
     void copyPlannedFileOverCurrentFile();
-        //throw (CannotRenameFile, CannotOpenFile);
 
 
-    /** 
+    /**
     Load the config properties from the config files.
 
     @exception ConfigFileSyntaxError if file contains a syntax error.
     */
     void loadAllConfigProperties ();
-        //throw (ConfigFileSyntaxError);
 
 
-    /** 
+    /**
     Load the config properties from the current config file.
 
     @exception ConfigFileSyntaxError if file contains a syntax error.
     */
     void loadCurrentConfigProperties ();
-        //throw (ConfigFileSyntaxError);
 
 
-    /** 
+    /**
     Load the config properties from the planned config file.
 
     @exception ConfigFileSyntaxError if file contains a syntax error.
     */
     void loadPlannedConfigProperties ();
-       //throw (ConfigFileSyntaxError);
 
 
-    /** 
-    Update the specified property name and value in the current 
-    config file.  
+    /**
+    Update the specified property name and value in the current
+    config file.
 
     @param  name   name of the property to be updated.
     @param  value  value of the property to be updated.
@@ -143,9 +140,9 @@ public:
         Boolean unset);
 
 
-    /** 
-    Update the specified property name and value in the planned 
-    config file.  
+    /**
+    Update the specified property name and value in the planned
+    config file.
 
     @param  name   name of the property to be updated.
     @param  value  value of the property to be updated.
@@ -158,8 +155,8 @@ public:
         Boolean unset);
 
 
-    /** 
-    Get the current property value for the specified property name. 
+    /**
+    Get the current property value for the specified property name.
 
     @param  name   name of the property.
     @param  value  value of the property (output parameter).
@@ -168,8 +165,8 @@ public:
     Boolean getCurrentValue (const CIMName& name, String& value) const;
 
 
-    /** 
-    Get the planned property value for the specified property name. 
+    /**
+    Get the planned property value for the specified property name.
 
     @param  name   name of the property.
     @param  value  value of the property (output parameter).
@@ -178,7 +175,7 @@ public:
     Boolean getPlannedValue (const CIMName& name, String& value) const;
 
 
-    /** 
+    /**
     Get all current property names.
 
     @param  propertyNames   string array to hold the property names.
@@ -186,18 +183,18 @@ public:
     void getAllCurrentPropertyNames (Array<CIMName>& propertyNames);
 
 
-    /** 
+    /**
     Get all current property names and values.
 
     @param  propertyNames   string array to hold the property names.
     @param  propertyValues  string array to hold the property values.
     */
     void getAllCurrentProperties (
-        Array<CIMName>& propertyNames, 
+        Array<CIMName>& propertyNames,
         Array<String>& propertyValues);
 
 
-    /** 
+    /**
     Get all planned config property names.
 
     @param  propertyNames   string array to hold the property names.
@@ -205,14 +202,14 @@ public:
     void getAllPlannedPropertyNames (Array<CIMName>& propertyNames);
 
 
-    /** 
+    /**
     Get all planned config property names and values.
 
     @param  propertyNames   string array to hold the property names.
     @param  propertyValues  string array to hold the property values.
     */
     void getAllPlannedProperties(
-        Array<CIMName>& propertyNames, 
+        Array<CIMName>& propertyNames,
         Array<String>& propertyValues);
 
 private:
@@ -228,7 +225,7 @@ private:
     File handlers for the current and planned config files.
     */
     AutoPtr<ConfigFile>  _currentConfFile; //PEP101
- 
+
     AutoPtr<ConfigFile>  _plannedConfFile; //PEP101
 
     /**

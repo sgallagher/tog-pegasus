@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,9 @@
 //
 // Author: Sushma Fernandes, Hewlett Packard Company (sushma_fernandes@hp.com)
 //
-// Modified By:  Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3606,3607
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3606,3607
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +47,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////
-// PasswordTable 
+// PasswordTable
 ////////////////////////////////////////////////////////////////////////////////
 
 typedef HashTable<String, String, EqualFunc<String>, HashFunc<String> > PasswordTable;
@@ -55,7 +57,7 @@ typedef HashTable<String, String, EqualFunc<String>, HashFunc<String> > Password
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  This class provides methods to read/write from the 
+  This class provides methods to read/write from the
   password file.
 */
 class PEGASUS_USERMANAGER_LINKAGE PasswordFile
@@ -74,20 +76,19 @@ private:
 
 public:
 
-    /** 
-    Constructor. 
+    /**
+    Constructor.
 
     @exception  FileNotReadable  if the specified file is not readable.
     */
     PasswordFile(const String& fileName);
-        //throw (FileNotReadable);
 
 
     /** Destructor. */
     ~PasswordFile( );
 
 
-    /** 
+    /**
     Get the name of the password file.
 
     @return String    name of the password file.
@@ -95,26 +96,24 @@ public:
     String getFileName() const {return _passwordFile;}
 
 
-    /** 
+    /**
     Load the username and password from the password file.
 
     @param     passwordTable   hash table containing the username and password.
 
-    Note: Original code was taken from OptionManager::mergeFile() 
+    Note: Original code was taken from OptionManager::mergeFile()
     */
     void load(PasswordTable& passwordTable);
 
 
 
-    /** 
+    /**
     Save the username and password to the password file.
 
     @param  passwordTable    hash table containing the user name and password.
     @exception  CannotRenameFile  if failed to create the backup file.
     */
     void save(const PasswordTable& passwordTable);
-        //throw (CannotRenameFile);
-
 };
 
 

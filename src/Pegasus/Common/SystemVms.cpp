@@ -64,6 +64,10 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#define MAX_PASS_LEN 32
+#define CR 0x0d
+#define LF 0x0a
+
 inline void sleep_wrapper(Uint32 seconds)
 {
   sleep(seconds);
@@ -345,8 +349,6 @@ Uint32 System::lookupPort(
   return localPort;
 }
 
-#define MAX_PASS_LEN 32
-
 String System::getPassword(const char *prompt)
 {
   struct
@@ -359,140 +361,149 @@ String System::getPassword(const char *prompt)
   tahead;
 
   typedef struct
-  {				/* I/O status block     */
-    short i_cond;		/* Condition value      */
-    short i_xfer;		/* Transfer count     */
-    long i_info;		/* Device information     */
+  {				// I/O status block     
+    short i_cond;		// Condition value      
+    short i_xfer;		// Transfer count     
+    long i_info;		// Device information     
   }
   iosb;
 
   typedef struct
-  {				/* Terminal characteristics   */
-    char t_class;		/* Terminal class     */
-    char t_type;		/* Terminal type      */
-    short t_width;		/* Terminal width in characters   */
-    long t_mandl;		/* Terminal's mode and length   */
-    long t_extend;		/* Extended terminal characteristics  */
+  {				// Terminal characteristics   
+    char t_class;		// Terminal class     
+    char t_type;		// Terminal type      
+    short t_width;		// Terminal width in characters   
+    long t_mandl;		// Terminal's mode and length   
+    long t_extend;		// Extended terminal characteristics  
   }
   termb;
 
   termb otermb;
   termb ntermb;
 
-  static long ichan;		/* Gets channel number for TT:  */
+  static long ichan;		// Gets channel number for TT:  
 
   register int errorcode;
-  int kbdflgs;			/* saved keyboard fd flags  */
-  int kbdpoll;			/* in O_NDELAY mode         */
-  int kbdqp = false;		/* there is a char in kbdq  */
-  int psize;			/* size of the prompt */
+  int kbdflgs;			// saved keyboard fd flags  
+  int kbdpoll;			// in O_NDELAY mode         
+  int kbdqp = false;		// there is a char in kbdq  
+  int psize;			// size of the prompt 
 
   static char buf[MAX_PASS_LEN];
-  char kbdq;			/* char we've already read  */
+  char kbdq;			// char we've already read  
 
   iosb iostatus;
 
   static long termset[2] =
-  {0, 0};			/* No terminator                */
+  {0, 0};			// No terminator                
 
-  $DESCRIPTOR(inpdev, "TT");	/* Terminal to use for input    */
+  $DESCRIPTOR(inpdev, "TT");	// Terminal to use for input    
 
   //
-  //
+  // Get a channel for the terminal
   //
 
   buf[0] = 0;
 
-  if ((errorcode = (sys$assign(&inpdev,		/* Device name */
-			       &ichan,	/* Channel assigned */
-			       0,	/* request KERNEL mode access */
-			       0)))	/* No mailbox assigned */
+  if ((errorcode = (sys$assign(&inpdev,		// Device name 
+			       &ichan,	// Channel assigned 
+			       0,	// request KERNEL mode access 
+			       0)))	// No mailbox assigned 
       != SS$_NORMAL)
   {
-    fprintf(stderr, "TTOPEN - KBIN assign failed.  code = %X\n", errorcode);
-    exit(errorcode);
+    throw InternalSystemError();
   }
 
-  /* Read current terminal settings */
+  //
+  // Read current terminal settings
+  //
 
-  if ((errorcode = sys$qiow(0,	/* Wait on event flag zero  */
-			    ichan,	/* Channel to input terminal  */
-			    IO$_SENSEMODE,	/* Function - Sense Mode */
-			    &iostatus,	/* Status after operation */
-			    0, 0,	/* No AST service   */
-			    &otermb,	/* [P1] Address of Char Buffer */
-			    sizeof (otermb),	/* [P2] Size of Char Buffer */
-			    0, 0, 0, 0))	/* [P3] - [P6] */
+  if ((errorcode = sys$qiow(0,	// Wait on event flag zero  
+			    ichan,	// Channel to input terminal  
+			    IO$_SENSEMODE,	// Function - Sense Mode 
+			    &iostatus,	// Status after operation 
+			    0, 0,	// No AST service   
+			    &otermb,	// [P1] Address of Char Buffer 
+			    sizeof (otermb),	// [P2] Size of Char Buffer 
+			    0, 0, 0, 0))	// [P3] - [P6] 
       != SS$_NORMAL)
   {
-    fprintf(stderr, "TTOPEN - Sensemode failed.  code = %X\n", errorcode);
-    exit(errorcode);
+    throw InternalSystemError();
   }
-  /* setup new settings   */
+
+  //
+  // setup new settings   
+  //
 
   ntermb = otermb;
 
-  /* turn on passthru and nobroadcast */
+  //
+  // turn on passthru and nobroadcast 
+  //
 
   ntermb.t_extend |= TT2$M_PASTHRU;
   ntermb.t_mandl |= TT$M_NOBRDCST;
 
-  /* Write out new terminal settings */
+  //
+  // Write out new terminal settings 
+  //
 
-  if ((errorcode = sys$qiow(0,	/* Wait on event flag zero  */
-			    ichan,	/* Channel to input terminal  */
-			    IO$_SETMODE,	/* Function - Set Mode */
-			    &iostatus,	/* Status after operation */
-			    0, 0,	/* No AST service   */
-			    &ntermb,	/* [P1] Address of Char Buffer */
-			    sizeof (ntermb),	/* [P2] Size of Char Buffer */
-			    0, 0, 0, 0))	/* [P3] - [P6] */
+  if ((errorcode = sys$qiow(0,	// Wait on event flag zero  
+			    ichan,	// Channel to input terminal  
+			    IO$_SETMODE,	// Function - Set Mode 
+			    &iostatus,	// Status after operation 
+			    0, 0,	// No AST service   
+			    &ntermb,	// [P1] Address of Char Buffer 
+			    sizeof (ntermb),	// [P2] Size of Char Buffer 
+			    0, 0, 0, 0))	// [P3] - [P6] 
       != SS$_NORMAL)
   {
-    fprintf(stderr, "TTOPEN - Setmode failed.  code = %X\n", errorcode);
-    exit(errorcode);
+    throw InternalSystemError();
   }
 
-//
-// Write a prompt, read characters from the terminal, performing no editing
-//  and doing no echo at all.
-//
+  //
+  // Write a prompt, read characters from the terminal, performing no editing
+  //  and doing no echo at all.
+  //
 
-    psize = strlen(prompt);
+  psize = strlen(prompt);
 
-    if ((errorcode = sys$qiow(0,		/* Event flag */
-			      ichan,		/* Input channel */
-			      IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TRMNOECHO,
-						/* Read with prompt, no echo, no translate, no termination char in buffer */
-			      &iostatus,	/* I/O status block */
-			      NULL,		/* AST block (none) */
-			      0,		/* AST parameter */
-			      &buf,		/* P1 - input buffer */
-			      MAX_PASS_LEN,	/* P2 - buffer length */
-			      0,		/* P3 - ignored (timeout) */
-			      0,		/* P4 - ignored (terminator char set) */
-			      prompt,		/* P5 - prompt buffer */
-			      psize))		/* P6 - prompt size */
+  if ((errorcode = sys$qiow(0,		// Event flag 
+			    ichan,		// Input channel 
+			    IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TRMNOECHO,
+						// Read with prompt, no echo, no translate, no termination char in buffer 
+			    &iostatus,	// I/O status block 
+			    NULL,		// AST block (none) 
+			    0,		// AST parameter 
+			    &buf,		// P1 - input buffer 
+			    MAX_PASS_LEN,	// P2 - buffer length 
+			    0,		// P3 - ignored (timeout) 
+			    0,		// P4 - ignored (terminator char set) 
+			    prompt,		// P5 - prompt buffer 
+			    psize))		// P6 - prompt size 
 	!= SS$_NORMAL)
-    {
-      fprintf(stderr, "TTGETC - Readblk failed.  code = %X\n", errorcode);
-      exit(errorcode);
-    }
-  /* Write out old terminal settings */
+  {
+    throw InternalSystemError();
+  }
 
-  if ((errorcode = sys$qiow(0,	/* Wait on event flag zero  */
-			    ichan,	/* Channel to input terminal  */
-			    IO$_SETMODE,	/* Function - Set Mode */
-			    &iostatus,	/* Status after operation */
-			    0, 0,	/* No AST service   */
-			    &otermb,	/* [P1] Address of Char Buffer */
-			    sizeof (otermb),	/* [P2] Size of Char Buffer */
-			    0, 0, 0, 0))	/* [P3] - [P6] */
+  //
+  // Write out old terminal settings 
+  //
+
+  if ((errorcode = sys$qiow(0,	// Wait on event flag zero  
+			    ichan,	// Channel to input terminal  
+			    IO$_SETMODE,	// Function - Set Mode 
+			    &iostatus,	// Status after operation 
+			    0, 0,	// No AST service   
+			    &otermb,	// [P1] Address of Char Buffer 
+			    sizeof (otermb),	// [P2] Size of Char Buffer 
+			    0, 0, 0, 0))	// [P3] - [P6] 
       != SS$_NORMAL)
   {
-    fprintf(stderr, "TTOPEN - Setmode failed.  code = %X\n", errorcode);
-    exit(errorcode);
+    throw InternalSystemError();
   }
+  fputc (CR, stdout);
+  fputc (LF, stdout);
 
   return buf;
 }

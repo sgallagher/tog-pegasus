@@ -48,38 +48,6 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 static char * verbose;
 
-
-/////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////
-
-/*  bug 1046 and 1066
-The following fix  turns off the filtering of enumerate
-instances for localOnly, includeQualifiers, IncludClassOrigin
-deepInheritance, PropertyList. It is included for the moment
-13 November 2003 to keep the code installed but not change
-current client behavior pending architecture team decison.
-KS, 13 Sept 2003  Note that there is also a flag in 
-cimrepository.cpp. See CIMRepository and bugs */
-
-//
-//  Enable the filter test. (bug 2334, 1975, 1046) 
-//  (see additional comments below)
-//  
-//  Enabled in these two files
-//  src/Pegasus/Repository/CIMRepository.cpp
-//  Repository/tests/Repository2/Repository2.cpp
-//
-//  The #ifdef PEGASUS_ENABLE_INSTANCE_FILTER statements have been left in
-//  as an easy way to disable this code should any problems arise during
-//  the next week or so with this functionalty. after that the ifdefs 
-//  shall be removed.
-//                                       JR Wunderlch April 5, 05 
-////     #define PEGASUS_ENABLE_INSTANCE_FILTER // enable filter test
-
-
-////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////
-
 String repositoryRoot;
 
 void TestNameSpaces(CIMRepository_Mode mode)

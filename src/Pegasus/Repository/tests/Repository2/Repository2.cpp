@@ -386,7 +386,7 @@ void TestCreateClass(CIMRepository_Mode mode)
 
     assert(namedInstances[0].identical(inst1));
     
-#ifdef PEGASUS_ENABLE_INSTANCE_FILTER
+#ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
     //
     // Test enumerating with classOrigin false
     //
@@ -599,7 +599,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     }
 
 
-#endif // PEGASUS_ENABLE_INSTANCE_FILTER 
+#endif // PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER 
 
 
     //

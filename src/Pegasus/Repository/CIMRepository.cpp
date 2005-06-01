@@ -392,7 +392,7 @@ void _filterInstance(CIMInstance& cimInstance,
                 Boolean includeClassOrigin)
 {
     // Remove properties based on propertylist and localOnly flag
-#ifdef PEGASUS_ENABLE_INSTANCE_FILTER
+#ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
     _removeProperties(cimInstance, propertyList, localOnly);
 #endif
     // If includequalifiers false, remove all qualifiers from
@@ -2493,7 +2493,7 @@ Array<CIMInstance> CIMRepository::enumerateInstancesForClass(
         // Do any required filtering of properties, qualifiers, classorigin
         // on the returned instances.
 // Turn off this function for the moment since it changes client behavior
-#ifdef PEGASUS_ENABLE_INSTANCE_FILTER
+#ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
         for (Uint32 i = 0 ; i < namedInstances.size(); i++)
         {
             _filterInstance(namedInstances[i],

@@ -78,7 +78,7 @@ endif
 ########################################################################
 ##
 ## 
-## The PEGASUS_ENABLE_INSTANCE_FILTER build config variable turns on
+## The PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER build config variable turns on
 ## the filtering of enumerate instances for localOnly, includeQualifiers,
 ## IncludClassOrigin, deepInheritance, and PropertyList. 
 ##
@@ -89,8 +89,8 @@ endif
 ########################################################################
 
 
-ifdef PEGASUS_ENABLE_INSTANCE_FILTER
-  LOCAL_DEFINES += -DPEGASUS_ENABLE_INSTANCE_FILTER
+ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
+  LOCAL_DEFINES += -DPEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
 endif
 
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)

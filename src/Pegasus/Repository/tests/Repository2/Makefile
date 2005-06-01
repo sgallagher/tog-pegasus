@@ -37,7 +37,7 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 ########################################################################
 ##
 ## 
-## The PEGASUS_ENABLE_INSTANCE_FILTER build config variable turns on
+## The PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER build config variable turns on
 ## the filtering of enumerate instances for localOnly, includeQualifiers,
 ## IncludClassOrigin, deepInheritance, and PropertyList.
 ##
@@ -48,8 +48,8 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 ########################################################################
 
 
-ifdef PEGASUS_ENABLE_INSTANCE_FILTER
-  LOCAL_DEFINES += -DPEGASUS_ENABLE_INSTANCE_FILTER
+ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
+  LOCAL_DEFINES += -DPEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
 endif
 
 

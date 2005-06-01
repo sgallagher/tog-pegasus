@@ -60,7 +60,7 @@ static CMPIBroker * _broker;
 
 #ifdef CMPI_VER_100
 CMPIStatus CWS_DirectoryContainsFileCleanup( CMPIInstanceMI * mi,
-				 const CMPIContext * ctx, CMPIBoolean *term)
+				 const CMPIContext * ctx, CMPIBoolean term)
 #else
 CMPIStatus CWS_DirectoryContainsFileCleanup( CMPIInstanceMI * mi,
 				 CMPIContext * ctx)
@@ -197,7 +197,7 @@ CMPIStatus CWS_DirectoryContainsFileExecQuery( CMPIInstanceMI * mi,
 
 #ifdef CMPI_VER_100
 CMPIStatus CWS_DirectoryContainsFileAssociationCleanup( CMPIAssociationMI * mi,
-					      const CMPIContext * ctx, CMPIBoolean *term) 
+					      const CMPIContext * ctx, CMPIBoolean term) 
 #else
 CMPIStatus CWS_DirectoryContainsFileAssociationCleanup( CMPIAssociationMI * mi,
 					      CMPIContext * ctx) 

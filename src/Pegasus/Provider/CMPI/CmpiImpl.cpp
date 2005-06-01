@@ -79,7 +79,7 @@ CmpiBaseMI::~CmpiBaseMI()
 }
 
 CMPIStatus CmpiBaseMI::driveBaseCleanup
-      (void* vi, const CMPIContext* eCtx, CMPIBoolean *b) {
+      (void* vi, const CMPIContext* eCtx, CMPIBoolean b) {
   try {
    CMPIInstanceMI *mi=( CMPIInstanceMI*)vi;
    CmpiContext ctx((CMPIContext*)eCtx);

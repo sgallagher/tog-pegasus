@@ -43,7 +43,6 @@ extern "C"
 {
 #endif
 
-#define CMPINamespace "CMPINamespace"
 
 #ifdef PEGASUS_USE_EXPERIMENTAL
 /*

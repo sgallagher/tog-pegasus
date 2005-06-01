@@ -54,7 +54,7 @@ static CMPIBroker * _broker;
 
 #ifdef CMPI_VER_100
 CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi, 
-				 const CMPIContext * ctx, CMPIBoolean *term) 
+				 const CMPIContext * ctx, CMPIBoolean term) 
 #else
 CMPIStatus CWS_DirectoryCleanup( CMPIInstanceMI * mi, 
 				 CMPIContext * ctx) 

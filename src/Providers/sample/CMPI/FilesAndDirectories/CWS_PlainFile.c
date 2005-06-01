@@ -52,7 +52,7 @@ static CMPIBroker * _broker;
  * ------------------------------------------------------------------ */
 #ifdef CMPI_VER_100
 CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi, 
-				 const CMPIContext * ctx,CMPIBoolean *term) 
+				 const CMPIContext * ctx, CMPIBoolean term) 
 #else
 CMPIStatus CWS_PlainFileCleanup( CMPIInstanceMI * mi, 
 				 CMPIContext * ctx) 
@@ -283,7 +283,7 @@ CMPIStatus CWS_PlainFileExecQuery( CMPIInstanceMI * mi,
 
 #ifdef CMPI_VER_100
 CMPIStatus CWS_PlainFileMethodCleanup( CMPIMethodMI * mi,
-				       const CMPIContext * ctx, CMPIBoolean *term)
+				       const CMPIContext * ctx, CMPIBoolean term)
 #else
 CMPIStatus CWS_PlainFileMethodCleanup( CMPIMethodMI * mi,
 				       CMPIContext * ctx)

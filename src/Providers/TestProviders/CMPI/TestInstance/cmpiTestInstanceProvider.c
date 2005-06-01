@@ -493,7 +493,7 @@ _setProperty (CMPIInstance * ci, const char *p)
 #ifdef CMPI_VER_100
 CMPIStatus
 TestCMPIInstanceProviderCleanup (CMPIInstanceMI * mi, const CMPIContext * ctx,
-                                 CMPIBoolean * term)
+                                 CMPIBoolean  term)
 #else
 CMPIStatus
 TestCMPIInstanceProviderCleanup (CMPIInstanceMI * mi, CMPIContext * ctx)

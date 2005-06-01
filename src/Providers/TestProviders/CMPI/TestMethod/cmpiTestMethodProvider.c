@@ -457,7 +457,7 @@ _CMTraceMessage (char **result)
 CMPIStatus
 TestCMPIMethodProviderMethodCleanup (CMPIMethodMI * mi,
                                      const CMPIContext * ctx,
-                                     CMPIBoolean * term)
+                                     CMPIBoolean  term)
 #else
 CMPIStatus
 TestCMPIMethodProviderMethodCleanup (CMPIMethodMI * mi, CMPIContext * ctx)

@@ -2067,7 +2067,7 @@ extern "C" {
 	      CMPI_RC_NEVER_UNLOAD Operation successful -  never unload.o
       */
      CMPIStatus (*cleanup)
-       (CMPIInstanceMI* mi, const CMPIContext* ctx, CMPIBoolean *terminating);
+       (CMPIInstanceMI* mi, const CMPIContext* ctx, CMPIBoolean terminating);
 
        /** Enumerate ObjectPaths of Instances serviced by this provider.
 	 @param mi Provider this pointer.
@@ -2232,7 +2232,7 @@ extern "C" {
 
       */
      CMPIStatus (*cleanup)
-            (CMPIAssociationMI* mi, const CMPIContext* ctx, CMPIBoolean *terminating);
+            (CMPIAssociationMI* mi, const CMPIContext* ctx, CMPIBoolean terminating);
 
       /** Enumerate ObjectPaths associated with the Instance defined by &lt;op&gt;.
 	 @param mi Provider this pointer.
@@ -2422,7 +2422,7 @@ extern "C" {
 	      CMPI_RC_NEVER_UNLOAD Operation successful - never unload.
       */
      CMPIStatus (*cleanup)
-            (CMPIMethodMI* mi, const CMPIContext* ctx, CMPIBoolean *terminating);
+            (CMPIMethodMI* mi, const CMPIContext* ctx, CMPIBoolean terminating);
 
       /** Invoke a named, extrinsic method of an Instance
          defined by the &lt;op&gt; parameter.
@@ -2498,7 +2498,7 @@ extern "C" {
 	 @return Function return status.
       */
      CMPIStatus (*cleanup)
-             (CMPIPropertyMI* mi, const CMPIContext* ctx, CMPIBoolean *term);
+             (CMPIPropertyMI* mi, const CMPIContext* ctx, CMPIBoolean term);
 
       /** Set the named property value of an Instance defined by the &lt;op&gt; parameter.
 	 @param mi Provider this pointer.
@@ -2598,7 +2598,7 @@ extern "C" {
 	      CMPI_RC_NEVER_UNLOAD Operation successful %Gâ ³%@ never unload.W
       */     
      CMPIStatus (*cleanup)
-            (CMPIIndicationMI* mi, const CMPIContext* ctx, CMPIBoolean *terminating);
+            (CMPIIndicationMI* mi, const CMPIContext* ctx, CMPIBoolean terminating);
      CMPIStatus (*authorizeFilter)
             (CMPIIndicationMI* mi, const CMPIContext* ctx, 
              const CMPISelectExp* se, const char *ns, const CMPIObjectPath* op, const char *user);

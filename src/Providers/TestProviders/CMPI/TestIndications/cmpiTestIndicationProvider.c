@@ -428,7 +428,7 @@ instance_accessor (const char *name, void *param)
 CMPIStatus
 TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
                                              const CMPIContext * ctx,
-											 CMPIBoolean *term)
+											 CMPIBoolean term)
 #else
 CMPIStatus
 TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,

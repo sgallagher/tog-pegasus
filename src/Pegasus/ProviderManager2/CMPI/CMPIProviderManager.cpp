@@ -396,6 +396,14 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
+ 
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -506,6 +514,13 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -609,6 +624,13 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -715,6 +737,13 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -824,6 +853,13 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -927,6 +963,13 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1042,6 +1085,13 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
 						  CMPINamespace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1166,6 +1216,13 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1284,6 +1341,13 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1403,6 +1467,13 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1517,6 +1588,13 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1631,6 +1709,13 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1809,6 +1894,13 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
 
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);
@@ -1976,6 +2068,14 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 						  CMPINamespace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
+
+        const AcceptLanguageListContainer accept_language=            
+           request->operationContext.get(AcceptLanguageListContainer::NAME);     
+ 
+        eCtx.ft->addEntry(&eCtx,  
+                          "AcceptLanguage",                         
+                          (CMPIValue *)(const char*)accept_language.getName().getCString(),
+                          CMPI_chars);       
         if (remote) {
            CString info=pidc.getRemoteInfo().getCString();
            eCtx.ft->addEntry(&eCtx,"CMPIRRemoteInfo",(CMPIValue*)(const char*)info,CMPI_chars);

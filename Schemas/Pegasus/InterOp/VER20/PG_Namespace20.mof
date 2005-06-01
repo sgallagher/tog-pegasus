@@ -26,16 +26,18 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-
-
+// This class extends CIM_namespace to define characteristics associated
+// with the Pegasus Shared namespace mechanisms. The characteristics
+// of the shared namespace concept is defined in Pegasus PEP 129 that
+// is available on the openpegasus web site. 
 // ==================================================================
 // PG_Namespace
 // ==================================================================
 
     [Version ("2.0.1"), Description (
         "This class extends CIM_Namepsace to define characteristics "
-        "associated with the Shared Namespace mechanisms defined in Pegasus "
-        "PEP 129. Namespace sharing allows the schema entities (class and "
+        "associated with the Pegasus Shared Namespace mechanisms. "
+        "Namespace sharing allows the schema entities (class and "
         "qualifiers) to be shared between parent and child namespaces so that"
         "the schema entites from the parent are visible in the child as if "
         "they were defined in the child."

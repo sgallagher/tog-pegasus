@@ -692,6 +692,10 @@ String IndicationFormatter::_formatDefaultIndicationText(
 		        indicationStr.append(_localizeBooleanStr(booleanValue,
 		    	    locale));
 		    }
+		    else
+		    {
+			indicationStr.append(propertyValue.toString());
+		    }
 		}
 		else
 		{

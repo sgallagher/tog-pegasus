@@ -32,29 +32,39 @@
 // PG_Namespace
 // ==================================================================
 
-    [Version ("2.0.0"), Description (
-        "This class is an extends CIM_Namepsace to define characteristics "
+    [Version ("2.0.1"), Description (
+        "This class extends CIM_Namepsace to define characteristics "
         "associated with the Shared Namespace mechanisms defined in Pegasus "
-        "PEP 129. It adds definitions necessary to understand if a "
-        "Namespace is shared or not and if updates are allowed. "
-        "The correct way to do this is a change to CIMNamespace but "
-        "that depends on a change in the DMTF which has not been "
-        "accomplished at this point in time." )
+        "PEP 129. Namespace sharing allows the schema entities (class and "
+        "qualifiers) to be shared between parent and child namespaces so that"
+        "the schema entites from the parent are visible in the child as if "
+        "they were defined in the child."
+        "This class adds definitions necessary to understand if a "
+        "Namespace is shared or not and if schema updates are allowed "
+        "in the shared namespace. The shared namespace capabilities defined "
+        "in this class are proprietary to Pegasus today.")
     ]
 class PG_NameSpace : CIM_Namespace {
    [ Description (
-         "It defines whether the schema parts can be added or modified in" ) 
+         "Defines whether the schema entities (qualifiers and classes) "
+         "can be added or modified in this namespace.  If true, "
+         "class and qualifiers can be manipulated in this namespace." ) 
    ]
    Boolean SchemaUpdatesAllowed = TRUE;
    [ Description (
          "Defines whether the schema parts of this namespace can be shared "
-         "by other namespaces" )
+         "by other namespaces. " )
    ]
    Boolean IsShareable = FALSE;
    [ Description (
-         "The parent namespace name in case this namespace is a secondary namespace. "
-         "Otherwise a null string. This implementation is probably a hack "
-         "and this should be an association in any permanent solution." )
+         "The parent namespace name for this namespace if this  is "
+         "a secondary namespace. "
+         "If NULL, this is NOT a shared namespace. Note that this is the "
+         "only indication that this is the secondary/shared namespace. "
+         "The implication is that the classes and qualifiers in the parent "
+         "namespace are visible as if they were in this namespace. "
+         "It is illegal to define a ParentNamespace that is not "
+         "shareable (isShareable == false)." )
   ]
    String ParentNamespace = NULL;
 };

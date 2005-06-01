@@ -247,7 +247,6 @@ void CMPIProvider::_terminate(Boolean terminating)
     CMPIStatus rc={CMPI_RC_OK,NULL};
     CMPI_ContextOnStack eCtx(opc);
     CMPI_ThreadContext thr(&broker,&eCtx);
-    CMPIBoolean term = terminating;
 /*
  @param terminating When true, the terminating argument indicates that the MB is in the process of
      terminating and that cleanup must be done. When set to false, the MI may respond with
@@ -260,27 +259,27 @@ void CMPIProvider::_terminate(Boolean terminating)
         CMPI_RC_NEVER_UNLOAD Operation successful - never unload.
 */
     if (miVector.miTypes & CMPI_MIType_Instance) {
-       rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, &term);
+       rc=miVector.instMI->ft->cleanup(miVector.instMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
 	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Association) {
-       rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx, &term);
+       rc=miVector.assocMI->ft->cleanup(miVector.assocMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
 	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Method) {
-       rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx, &term);
+       rc=miVector.methMI->ft->cleanup(miVector.methMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
 	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Property) {
-       rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx, &term);
+       rc=miVector.propMI->ft->cleanup(miVector.propMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
 	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
     if (miVector.miTypes & CMPI_MIType_Indication) {
-       rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx, &term);
+       rc=miVector.indMI->ft->cleanup(miVector.indMI,&eCtx, terminating);
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
 	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   

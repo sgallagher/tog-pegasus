@@ -639,7 +639,7 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
         MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_REAL_CHAR"),
                                  String("Error converting string to $0.  Character '$1' in string '$2` is invalid."),
                                  String("Real64"),
-                                 String(p-1, 1), stringNum);
+                                 String(p, 1), stringNum);
         throw CQLRuntimeException(mload);    
       }
       p++;

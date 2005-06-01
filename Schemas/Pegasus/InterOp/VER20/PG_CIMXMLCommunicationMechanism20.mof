@@ -48,8 +48,11 @@ class PG_CIMXMLCommunicationMechanism : CIM_CIMXMLCommunicationMechanism {
         "Object Name defintion."),
        ValueMap {"0", "2", "3", "4..100" }, 
        Values { "Unknown", "http", "https", "Pegasus Reserved" }] 
-    Uint16 NamespaceAccessProtocol;
+    Uint16 namespaceAccessProtocol;
     
-        [Description ( "IP Address for this comm mechanism") ]
+        [Description ( "IP Address for this comm mechanism. This MUST "
+        "BE the complete address so that the CIM Server can be "
+        "addressed from the network. It must include the port "
+        "number unless the DMTF defined default ports are used." )]
     String IPAddress;
 };

@@ -202,7 +202,8 @@ private:
 
     CIMInstance _buildInstanceSkeleton(
         const CIMObjectPath & objectPath,
-        const CIMName& className);
+        const CIMName& className,
+        CIMClass& returnedClass);
 
     CIMObjectPath _buildReference(
         const CIMObjectPath& objectPath,

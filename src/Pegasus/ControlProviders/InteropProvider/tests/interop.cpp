@@ -1294,7 +1294,8 @@ void InteropTest::testObjectManagerClass()
             XmlWriter::printInstanceElement(instanceObjectManager);
         }
         // Rebuild the path from the instance
-        CIMObjectPath objectManagerPath = instanceObjectManager.buildPath(CIM_OBJECTMANAGER_CLASSNAME);
+        CIMObjectPath rebuiltObjectManagerPath = 
+            instanceObjectManager.buildPath(objectManagerClass);
 
         // test to confirm that both names and instances return same thing.
         Array<CIMObjectPath> pathsObjMgr = _client.enumerateInstanceNames(
@@ -1303,22 +1304,21 @@ void InteropTest::testObjectManagerClass()
 
         // Again assert that there is only one instance
         assert(pathsObjMgr.size() == 1);
+        CIMObjectPath nameEnumObjectManagerPath = pathsObjMgr[0];
 
-        CIMObjectPath objectManagerPath1 = instanceObjectManager.getPath();
+        CIMObjectPath rcvdObjectManagerPath = instanceObjectManager.getPath();
 
         if (verbose)
         {
-        cout << "Object Manager path from enumerateInstancesNames: " << pathsObjMgr[0].toString() << endl
-             << "Object manager path from enumerateInstances bld : " << objectManagerPath.toString() << endl
-             << "Object Manager path form enumerateInstances path: " << instanceObjectManager.getPath().toString() << endl   ;
+        cout << "Object Manager path from enumerateInstancesNames: " << nameEnumObjectManagerPath.toString() << endl << endl
+             << "Object manager path from enumerateInstances bld : " << rebuiltObjectManagerPath.toString() << endl <<endl
+             << "Object Manager path form enumerateInstances path: " << rcvdObjectManagerPath.toString() << endl   ;
         }
 
-        // Add code to compare paths, objects, etc. for object manager.
-
-        // Right now this test failing.  not sure why.
-        // assert(objectManagerPath1 == objectManagerPath);
-        // assert (objectManagerPath1 == objectManagerPath);
-        // assert (paths.objMgr[0] == objectManagerPath)
+        // compare locally built path from instance with path from enumerateInstances
+        assert(rcvdObjectManagerPath == nameEnumObjectManagerPath);
+        assert (rcvdObjectManagerPath == rebuiltObjectManagerPath);
+        assert (nameEnumObjectManagerPath == rebuiltObjectManagerPath);
 
         // Test existence of properties in instance returned..
         // NOTE This is a duplication of the loop for all properties test below.
@@ -1552,6 +1552,7 @@ void InteropTest::testCommunicationClass()
         assert(instancesCommMech.size() > 0);
         #endif
 
+        // Test enumerate instances.  Note that we do this both with 
         for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
         {
             assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
@@ -1562,7 +1563,40 @@ void InteropTest::testCommunicationClass()
             assert (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("IPAddress") != PEG_NOT_FOUND);
+
+            // The following property exists only on PG_..., not the superclass
+            assert (instancesCommMech[i].findProperty("IPAddress") == PEG_NOT_FOUND);
+            CIMObjectPath instancePath = instancesCommMech[i].getPath();
+
+            assert (instancePath.getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME ||
+                    instancePath.getClassName() == CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME);
+
+        }
+
+         // Repeat with deepInheritance = true.
+         instancesCommMech = _client.enumerateInstances(
+                                                     PEGASUS_NAMESPACENAME_INTEROP,
+                                                     CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
+                                                     true, false, false,false, CIMPropertyList());
+        // COMMENT KS - There is no reason for this.  The whole thing should be covered.
+        #ifdef PEGASUS_ENABLE_SLP
+        assert(instancesCommMech.size() > 0);
+        #endif
+
+        for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
+        {
+            assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("SystemName") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("CreationClassName") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("Name") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
+            if (instancesCommMech[i].getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME)
+            {
+                assert (instancesCommMech[i].findProperty("IPAddress") != PEG_NOT_FOUND);
+            }
         }
     }
     // Catch block for all of the CIM_ObjectManager Tests.

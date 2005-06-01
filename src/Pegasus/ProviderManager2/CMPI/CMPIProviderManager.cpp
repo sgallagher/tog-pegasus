@@ -69,7 +69,6 @@
 #include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
 #endif
 
-#include <Pegasus/Provider/CMPI/cmpi_cql.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -1082,7 +1081,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
                           (CMPIValue*)(const char*)container.getUserName().getCString(),
                           CMPI_chars);
 		eCtx.ft->addEntry(&eCtx,
-						  CMPINamespace,
+						  CMPIInitNameSpace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
         const AcceptLanguageListContainer accept_language=            
@@ -1890,7 +1889,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
                           CMPI_chars);
 
 		eCtx.ft->addEntry(&eCtx,
-						  CMPINamespace,
+						  CMPIInitNameSpace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
 
@@ -2065,7 +2064,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
                           CMPI_chars);
 
 		eCtx.ft->addEntry(&eCtx,
-						  CMPINamespace,
+						  CMPIInitNameSpace,
 						  (CMPIValue*)(const char*)request->nameSpace.getString().getCString(),
 						  CMPI_chars);
 

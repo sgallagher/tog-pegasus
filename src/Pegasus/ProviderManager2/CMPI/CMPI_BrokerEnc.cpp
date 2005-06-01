@@ -788,7 +788,7 @@ extern "C" {
         // Get the namespace.
         const CMPIContext *ctx = CMPI_ThreadContext::getContext ();
 
-        CMPIData data = ctx->ft->getEntry (ctx, CMPINamespace, &rc);
+        CMPIData data = ctx->ft->getEntry (ctx, CMPIInitNameSpace, &rc);
         if (rc.rc != CMPI_RC_OK)
           {
             if (st)

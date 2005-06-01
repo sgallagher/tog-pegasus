@@ -30,19 +30,26 @@
 // PG_CIMXMLCommunicationMechanism
 // ==================================================================
 
-   [Version ("2.0.0"), Description (
+   [Version ("2.1.0"), Description (
        "This class specializes CIM_CIMXMLCommunicationMechanism, "
        "adding properties required for Pegasus today. This was "
        "temporarily added to get all the parameters into interop that "
-       "are required by the discovery mechanism. "
-       "The correct way to do this is the adapter but that is changing in "
-       "CIM 2.8 so we took the cheap approach." ) ]
+       "are required by the discovery mechanism. ")]
        
 class PG_CIMXMLCommunicationMechanism : CIM_CIMXMLCommunicationMechanism {
 
-        [Description ( "Is this link encrypted or not. http or https") ]
+        [Deprecated { "PGNamespaceAccessProtocol" }, Description ( "Is this link "
+        "encrypted or not. http or https. "
+        "This field is deprecated because it is too vague.") ]
     String namespaceType;
-        [Description ( "IP Address for this comm mechanins") ]
+    
+        [Description ( "NamespaceType definition. Note that namespaceType"
+        "is the official name of this field in the CIM specification "
+        "Object Name defintion."),
+       ValueMap {"0", "2", "3", "4..100" }, 
+       Values { "Unknown", "http", "https", "Pegasus Reserved" }] 
+    Uint16 NamespaceAccessProtocol;
+    
+        [Description ( "IP Address for this comm mechanism") ]
     String IPAddress;
-
 };

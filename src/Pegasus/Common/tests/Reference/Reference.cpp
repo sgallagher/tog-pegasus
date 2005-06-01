@@ -983,26 +983,125 @@ void test07()
     assert(op1.makeHashCode() == op2.makeHashCode());
 }
 
+// Test non-ASCII character handling
+void test08()
+{
+    CIMObjectPath op = CIMObjectPath("//myHost/ns1/ns2:aClass.key1=1");
+    Boolean errorDetected;
+
+    // Test non-ASCII first character of hostname
+    errorDetected = false;
+    try
+    {
+        String hostname = "123.123.123.123";
+        hostname[0] = 0x131;
+        op.setHost(hostname);
+    } catch (const MalformedObjectNameException&)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Test non-ASCII non-first character of IP address octet
+    errorDetected = false;
+    try
+    {
+        String hostname = "123.123.123.123";
+        hostname[1] = 0x132;
+        op.setHost(hostname);
+    } catch (const MalformedObjectNameException&)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Test non-ASCII first character of IP address octet
+    errorDetected = false;
+    try
+    {
+        String hostname = "123.123.123.123";
+        hostname[4] = 0x131;
+        op.setHost(hostname);
+    } catch (const MalformedObjectNameException&)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Test non-ASCII first character of hostname segment
+    errorDetected = false;
+    try
+    {
+        String hostname = "myhost.123.com";
+        hostname[7] = 0x131;
+        op.setHost(hostname);
+    } catch (const MalformedObjectNameException&)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Test non-ASCII non-first character of hostname segment
+    errorDetected = false;
+    try
+    {
+        String hostname = "myhost.123.com";
+        hostname[8] = 0x132;
+        op.setHost(hostname);
+    } catch (const MalformedObjectNameException&)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Test non-ASCII first character of port number
+    errorDetected = false;
+    try
+    {
+        String hostname = "myhost.123.com:1234";
+        hostname[15] = 0x131;
+        op.setHost(hostname);
+    } catch (const MalformedObjectNameException&)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+
+    // Test non-ASCII non-first character of port number
+    errorDetected = false;
+    try
+    {
+        String hostname = "myhost.123.com:1234";
+        hostname[18] = 0x134;
+        op.setHost(hostname);
+    } catch (const MalformedObjectNameException&)
+    {
+        errorDetected = true;
+    }
+    assert(errorDetected);
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     try
     {
-	test01();
-	test02();
-	test03();
-	test04();
-	test05();
-	test06();
-	test07();
+        test01();
+        test02();
+        test03();
+        test04();
+        test05();
+        test06();
+        test07();
+        test08();
 
         cout << argv[0] << " +++++ passed all tests" << endl;
     }
     catch (Exception& e)
     {
-	cerr << argv[0] << " Exception " << e.getMessage() << endl;
-	exit(1);
+        cerr << argv[0] << " Exception " << e.getMessage() << endl;
+        exit(1);
     }
     return 0;
 }

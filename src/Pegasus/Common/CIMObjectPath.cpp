@@ -468,7 +468,7 @@ public:
 
         Boolean isValid = false;
 
-        if (isdigit(hostname[0]))
+        if (isascii(hostname[0]) && isdigit(hostname[0]))
         {
             //--------------------------------------------------------------
             // Attempt to validate an IP address, but keep in mind that it
@@ -485,13 +485,14 @@ public:
                 // If a non-digit is encountered in the input parameter,
                 // then break from here and attempt to validate as host name.
                 //----------------------------------------------------------
-                if (!isdigit(hostname[i]))
+                if (!(isascii(hostname[i]) && isdigit(hostname[i])))
                 {
                     isValid = false;
                     break;
                 }
 
-                while (isdigit(hostname[i]))  // skip over digits
+                // skip over digits
+                while (isascii(hostname[i]) && isdigit(hostname[i]))
                 {
                     octetValue = octetValue*10 + (hostname[i] - '0');
                     i++;
@@ -534,13 +535,14 @@ public:
                 expectHostSegment = false;
                 hostSegmentIsNumeric = true; // assume all-numeric host segment
 
-                if (!isalnum(hostname[i]))
+                if (!(isascii(hostname[i]) && isalnum(hostname[i])))
                 {
                     return false;
                 }
 
-                while (isalnum(hostname[i]) || (hostname[i] == '-') ||
-                                               (hostname[i] == '_'))
+                while (isascii(hostname[i]) &&
+                       (isalnum(hostname[i]) || (hostname[i] == '-') ||
+                        (hostname[i] == '_')))
                 {
                     // If a non-digit is encountered, set "all-numeric"
                     // flag to false
@@ -573,12 +575,17 @@ public:
 
         if (hostname[i] == ':')
         {
-            if (!isdigit(hostname[++i]))
+            i++;
+            if (!(isascii(hostname[i]) && isdigit(hostname[i])))
             {
                 return false;
             }
+            i++;
 
-            while (isdigit(hostname[++i]));
+            while (isascii(hostname[i]) && isdigit(hostname[i]))
+            {
+                i++;
+            }
         }
 
         return (hostname[i] == char(0));

@@ -1656,7 +1656,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
   if (version.size())
   {
       // If "V" specified as first character go ahead and ignore
-      if (isdigit(version[0]))
+      if ((version[0] >= '0') && (version[0] <= '9'))
       {
           pos = 0;
           posM = version.find(0, CHAR_PERIOD);
@@ -1718,7 +1718,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
       }
       for (int i = pos; i < endM; i++)
       {
-           if (!isdigit(version[i]))
+           if (!((version[i] >= '0') && (version[i] <= '9')))
            {
                // Example of invalid version:  "1B.2D.3F"
                return false;
@@ -1742,7 +1742,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
           }
           for (int i = posM+1; i < endN; i++)
           {
-               if (!isdigit(version[i]))
+               if (!((version[i] >= '0') && (version[i] <= '9')))
                {
                    // Example of invalid version:  "99.CD", "11.2D.3F"
                    return false;
@@ -1755,7 +1755,7 @@ cimmofParser::verifyVersion(const String &version, int &iM, int &iN, int &iU)
       {
           for (int i = posN+1; i < (int)version.size(); i++)
           {
-               if (!isdigit(version[i]))
+               if (!((version[i] >= '0') && (version[i] <= '9')))
                {
                     // Example of invalid version: "99.88.EF", "11.22.3F"
                     return false;

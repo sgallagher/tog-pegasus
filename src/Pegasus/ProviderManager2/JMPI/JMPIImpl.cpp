@@ -3447,7 +3447,7 @@ int _nameSpace::port() {
    }
    Sint32 p=hostName_.reverseFind(':');
    if (p>=0) {
-      if (isdigit(hostName_[p+1]))
+      if ((hostName_[p+1] >= '0') && (hostName_[p+1] <= '9'))
          port_=atoi(hostName_.subString(p+1).getCString());
       hostName_.remove(p);
    }

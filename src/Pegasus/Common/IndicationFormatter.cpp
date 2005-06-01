@@ -526,7 +526,7 @@ void IndicationFormatter::_isValidIndex (
     }
 
     Uint32 i=0;
-    while (isdigit(indexSubStr[i]))
+    while ((indexSubStr[i] >= '0') && (indexSubStr[i] <= '9'))
     {
         i++;
     }

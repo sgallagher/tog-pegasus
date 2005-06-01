@@ -119,7 +119,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   if (*p == '+')
     p++;  // skip over the positive sign
 
-  if (!isdigit(*p))
+  if (!((*p >= '0') && (*p <= '9')))
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
                               String("Error converting string to $0.  String '$1' is badly formed."),
@@ -147,7 +147,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
     }
 
     // Add on each digit, checking for overflow errors
-    while (isxdigit(*p))
+    while (isascii(*p) && isxdigit(*p))
     {
       // Make sure we won't overflow when we multiply by 16
       if (x > PEGASUS_UINT64_MAX/16)
@@ -244,7 +244,7 @@ Uint64 CQLUtilities::stringToUint64(const String &stringNum)
   // Expect a positive decimal digit:
 
   // Add on each digit, checking for overflow errors
-  while (isdigit(*p))
+  while ((*p >= '0') && (*p <= '9'))
   {
     // Make sure we won't overflow when we multiply by 10
     if (x > PEGASUS_UINT64_MAX/10)
@@ -329,7 +329,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   if (*p == '+')
     p++;
 
-  if (!isdigit(*p))
+  if (!((*p >= '0') && (*p <= '9')))
   {
      MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_NUM_FORMAT"),
                               String("Error converting string to $0.  String '$1' is badly formed."),
@@ -362,7 +362,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
     }
 
     // Add on each digit, checking for overflow errors
-    while (isxdigit(*p))
+    while (isascii(*p) && isxdigit(*p))
     {
       // Make sure we won't overflow when we multiply by 16
       if (x < PEGASUS_SINT64_MIN/16)
@@ -488,7 +488,7 @@ Sint64 CQLUtilities::stringToSint64(const String &stringNum)
   // Expect a positive decimal digit:
 
   // Add on each digit, checking for overflow errors
-  while (isdigit(*p))
+  while ((*p >= '0') && (*p <= '9'))
   {
     // Make sure we won't overflow when we multiply by 10
     if (x < PEGASUS_SINT64_MIN/10)
@@ -610,22 +610,23 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
   
   // Skip optional first set of digits:
 
-  while (isdigit(*p))
+  while ((*p >= '0') && (*p <= '9'))
     p++;
 
   // Test if optional dot is there
   if (*p++ == '.')
   {
     // One or more digits required:
-    if (!isdigit(*p++))
+    if (!((*p >= '0') && (*p <= '9')))
     {
       MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_CHAR_POST_DOT"),
                                String("Error converting string to Real64.  String '$0' must have a digit character following the decimal point."),
                                stringNum);
       throw CQLRuntimeException(mload);    
     }
+    p++;
 
-    while (isdigit(*p))
+    while ((*p >= '0') && (*p <= '9'))
       p++;
 
     // If there is an exponent now:
@@ -649,15 +650,16 @@ Real64 CQLUtilities::stringToReal64(const String &stringNum)
         p++;
 
       // One or more digits required:
-      if (!isdigit(*p++))
+      if (!((*p >= '0') && (*p <= '9')))
       {
         MessageLoaderParms mload(String("CQL.CQLUtilities.INVALID_REAL_EXP"),
-                                 String("Error converting string to Real64.  String '$0' has an badly formed exponent.  Character '$1' is invalid."),
+                                 String("Error converting string to Real64.  String '$0' has a badly formed exponent.  Character '$1' is invalid."),
                                  stringNum, String(p, 1));
         throw CQLRuntimeException(mload);    
       }
+      p++;
 
-      while (isdigit(*p))
+      while ((*p >= '0') && (*p <= '9'))
         p++;
     }
   } // end-if optional decimal point

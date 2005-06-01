@@ -2117,7 +2117,7 @@ IBMKR
     CMPICurrentVersion, \
     CMPICurrentVersion, \
     "instance" #pn, \
-    (CMPIStatus(*)(CMPIInstanceMI*,const CMPIContext*,CMPIBoolean*))CmpiBaseMI::driveBaseCleanup, \
+    (CMPIStatus(*)(CMPIInstanceMI*,const CMPIContext*,CMPIBoolean))CmpiBaseMI::driveBaseCleanup, \
     CmpiInstanceMI::driveEnumInstanceNames, \
     CmpiInstanceMI::driveEnumInstances, \
     CmpiInstanceMI::driveGetInstance, \
@@ -2165,7 +2165,7 @@ IBMKR
     CMPICurrentVersion, \
     CMPICurrentVersion, \
     "association" #pn, \
-    (CMPIStatus(*)(CMPIAssociationMI*,const CMPIContext*,CMPIBoolean*))CmpiBaseMI::driveBaseCleanup, \
+    (CMPIStatus(*)(CMPIAssociationMI*,const CMPIContext*,CMPIBoolean))CmpiBaseMI::driveBaseCleanup, \
     CmpiAssociationMI::driveAssociators, \
     CmpiAssociationMI::driveAssociatorNames, \
     CmpiAssociationMI::driveReferences, \
@@ -2210,7 +2210,7 @@ IBMKR
     CMPICurrentVersion, \
     CMPICurrentVersion, \
     "method" #pn, \
-    (CMPIStatus(*)(CMPIMethodMI*,const CMPIContext*, CMPIBoolean*))CmpiBaseMI::driveBaseCleanup, \
+    (CMPIStatus(*)(CMPIMethodMI*,const CMPIContext*, CMPIBoolean))CmpiBaseMI::driveBaseCleanup, \
     CmpiMethodMI::driveInvokeMethod, \
    }; \
    static CMPIMethodMI mi; \
@@ -2251,7 +2251,7 @@ IBMKR
     CMPICurrentVersion, \
     CMPICurrentVersion, \
     "property" #pn, \
-    (CMPIStatus(*)(CMPIPropertyMI*,const CMPIContext*,CMPIBoolean*))CmpiBaseMI::driveBaseCleanup, \
+    (CMPIStatus(*)(CMPIPropertyMI*,const CMPIContext*,CMPIBoolean))CmpiBaseMI::driveBaseCleanup, \
     CmpiPropertyMI::driveSetProperty, \
     CmpiPropertyMI::driveGetProperty, \
    }; \
@@ -2302,7 +2302,7 @@ IBMKR
     CMPICurrentVersion, \
     CMPICurrentVersion, \
     "indication" #pn, \
-    (CMPIStatus(*)(CMPIIndicationMI*,const CMPIContext*,CMPIBoolean*))CmpiBaseMI::driveBaseCleanup, \
+    (CMPIStatus(*)(CMPIIndicationMI*,const CMPIContext*,CMPIBoolean))CmpiBaseMI::driveBaseCleanup, \
     CmpiIndicationMI::driveAuthorizeFilter, \
     CmpiIndicationMI::driveMustPoll, \
     CmpiIndicationMI::driveActivateFilter, \

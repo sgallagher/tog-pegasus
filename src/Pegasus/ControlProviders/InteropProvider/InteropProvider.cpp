@@ -353,7 +353,6 @@ void _setCompleteInstancePath(CIMInstance& instance,
      Boolean includeClassOrigin, const CIMPropertyList& propertyList)
  {
      _setCompleteInstancePath( instance, path);
-
      instance.filter(includeQualifiers,
                      includeClassOrigin,
                      propertyList );
@@ -843,7 +842,8 @@ CIMInstance InteropProvider::_buildInstanceSkeleton(const CIMObjectPath & object
 }
 
 /* build a single instance of the cimxmlcommunicationmechanism class
-   using the parameter provided as the name property
+   using the parameter provided as the name property.
+   Builds the complete instance and sets the path into it.
    @parm name String representing the name to be used for this object.
    @return CIMInstance of the class
 */
@@ -909,6 +909,9 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     _setPropertyValue(instance, "namespaceAccessProtocol", accessProtocol);
 
     _setPropertyValue(instance, "IPAddress", IPAddress);
+
+    // build the instance path and set into instance
+    instance.setPath(instance.buildPath(targetClass));
 
     PEG_METHOD_EXIT();
     return(instance);
@@ -1980,19 +1983,21 @@ void InteropProvider::getInstance(
         handler.processing();
         CIMInstance instance;
         Boolean found = false;
+
         if (classEnum == CIM_OBJECTMANAGER)
         {
             instance = _getInstanceCIMObjectManager(
                             instanceName,
                             includeQualifiers,
                             includeClassOrigin, propertyList);
+            _finishInstance(instance, instanceName, includeQualifiers,
+                                includeClassOrigin,
+                                propertyList );
             if (instanceName == instance.getPath())
             {
                 found = true;
             }
-            //handler.deliver(instance);
         }
-
         else if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
         {
             // ATTN: test for correct instance KS: Priority 1
@@ -2003,6 +2008,9 @@ void InteropProvider::getInstance(
                             includeClassOrigin, propertyList);
             for (Uint32 i = 0 ; i < instances.size() ; i++)
             {
+                _finishInstance(instances[i], instanceName, includeQualifiers,
+                                    includeClassOrigin,
+                                    propertyList );
                 if (instanceName == instances[i].getPath())
                 {
                     instance = instances[i];
@@ -2010,8 +2018,6 @@ void InteropProvider::getInstance(
                     break;
                 }
             }
-            //instance = instances[0];
-            //handler.deliver(instances[0]);
         }
 
         else if (classEnum == CIM_NAMESPACEINMANAGER)
@@ -2030,32 +2036,30 @@ void InteropProvider::getInstance(
             CIMNamespaceName namespaceName = 
                 _getKeyValue(instanceName, CIM_NAMESPACE_PROPERTY_NAME);
 
-            // ATTN: Why this CIMNamespaceName parentNamespaceName = instanceName.getNameSpace();
-            if (!Contains(namespaceNames, namespaceName))
+            if (Contains(namespaceNames, namespaceName))
             {
-                throw CIMObjectNotFoundException("Namespace does not exist: "
-                                     + namespaceName.getString());
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+                   "Namespace = " + namespaceName.getString() + " successfully found.");
+    
+                instance = _getInstanceCIMNamespace(instanceName);
+                found = true;
             }
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-               "Namespace = " + namespaceName.getString() + " successfully found.");
-
-            instance = _getInstanceCIMNamespace(instanceName);
-            found = true;
         }
-        else  // processing for __Namespace
+        else 
         {
             PEG_METHOD_EXIT();
             throw CIMNotSupportedException
                 (instanceName.getClassName().getString() + " not supported by Interop Provider");
         }
-       if (found)
-       {
+
+       // deliver a single instance if found after cleaning it up.
+        if (found)
+        {
            instance.filter( includeQualifiers,
                             includeClassOrigin,
                             propertyList); 
            handler.deliver(instance);
-       }
-
+        }
        handler.complete();
 
        PEG_METHOD_EXIT();

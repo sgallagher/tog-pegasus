@@ -106,6 +106,21 @@ static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  =
         CIMName ("CIM_NamespaceInManager");
 
 
+/** Check to see if the specified property is in the property list
+    @param property the specified property
+    @param propertyList the property list
+    @return true if the property is in the list otherwise false.
+*/
+Boolean _containsObjectPath(const CIMObjectPath& path, 
+    const Array<CIMObjectPath>& pathList)
+{
+    for (Uint32 p=0; p<pathList.size(); p++)
+    {
+        if (pathList[p] ==path)
+            return true;
+    }
+    return false;
+}
 String _toString(Boolean x)
 {
     return(x ? "true" : "false");
@@ -1344,6 +1359,14 @@ void InteropTest::testObjectManagerClass()
         // Add a test for the different get parameters on instances.
 
         // Note that we have no way of testing the persistence of the object ID at this point.
+
+        // test get instance.
+        CIMInstance instance = _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
+                                         rcvdObjectManagerPath);
+
+        // TODO: add test for equality
+
+        // TODO: Add test for get bad object.
     }
 
     // Catch block for all of the CIM_ObjectManager Tests.
@@ -1546,12 +1569,40 @@ void InteropTest::testCommunicationClass()
         assert(pathsObjMgr.size() == 1);
 
         CIMObjectPath objectManagerPath = pathsObjMgr[0];
+        Array<CIMObjectPath> pathsCommMech = _client.enumerateInstanceNames(
+                                                     PEGASUS_NAMESPACENAME_INTEROP,
+                                                     CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME);
+
         Array<CIMInstance> instancesCommMech = _client.enumerateInstances(
                                                      PEGASUS_NAMESPACENAME_INTEROP,
                                                      CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
                                                      false, false, false, false, CIMPropertyList());
-        // COMMENT KS - There is no reason for this.  The whole thing should be covered.
 
+
+        //Test to confirm that instances and instance names return same thing.
+
+        assert(instancesCommMech.size() == pathsCommMech.size());
+        
+        Boolean found = true;
+        for (Uint32 i = 0 ; i < pathsCommMech.size() ; i++)
+        {
+            if (!_containsObjectPath(instancesCommMech[i].getPath(), pathsCommMech))
+            {
+            cout << "Error with " << instancesCommMech[i].getPath().toString() << " count = " << i << endl;
+            
+            }
+            assert(_containsObjectPath(instancesCommMech[i].getPath(), pathsCommMech));
+        }
+        assert(found = true);
+        
+
+        // now get every instance to confirm that it is gettable
+        for (Uint32 i = 0 ; i < pathsCommMech.size() ; i++)
+        {
+            CIMInstance instance = _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
+                                              pathsCommMech[i]);
+        }
+        // COMMENT KS - There is no reason for this.  The whole thing should be covered.
         #ifdef PEGASUS_ENABLE_SLP
         assert(instancesCommMech.size() > 0);
         #endif
@@ -1638,15 +1689,15 @@ void InteropTest::testCommunicationClass()
     // Catch block for all of the CIM_ObjectManager Tests.
     catch(CIMException& e)
     {
-        TERMINATE(" CIM_ObjectManager Test CIMException: " << e.getMessage());
+        TERMINATE(" testCommunicationClass Test CIMException: " << e.getMessage());
     }
     catch(Exception& e)
     {
-        cerr << pgmName << " CIM_ObjectManager Test Pegasus Exception: " << e.getMessage()  << endl;
+        cerr << pgmName << " testCommunicationClass Test Pegasus Exception: " << e.getMessage()  << endl;
     }
     catch(...)
     {
-        cerr << pgmName << " CIM_ObjectManager Test Caught General Exception:" << endl;
+        cerr << pgmName << " testCommunicationClass Test Caught General Exception:" << endl;
     }
     if (verbose)
         cout << "test Communication Class successful" << endl;

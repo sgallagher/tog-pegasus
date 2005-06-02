@@ -1114,7 +1114,6 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
                 String(PEGASUS_PRODUCT_VERSION) + " " +
                 String(PEGASUS_PRODUCT_STATUS);
 
-        cout << "Description: " << description << endl;
         _setPropertyValue(instance, CIMName("Description"), description);
 
         //Property GatherStatisticalData. Initially this is set to false

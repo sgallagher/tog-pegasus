@@ -3051,7 +3051,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
 
                 if (jArg==NULL) break;
 
-                jint           jp = env->CallIntMethod(jArg,JMPIjvm::jv.ArgumentCInst);
+                jint           jp = env->CallIntMethod(jArg,JMPIjvm::jv.CIMArgumentCInst);
                 CIMParamValue *p  = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jp);
 
                 JMPIjvm::checkException(env);
@@ -3107,7 +3107,7 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
                 jobject jProp=env->CallObjectMethod(jVecOut,JMPIjvm::jv.VectorElementAt,i);
                 JMPIjvm::checkException(env);
 
-                jint         jp = env->CallIntMethod(jProp,JMPIjvm::jv.PropertyCInst);
+                jint         jp = env->CallIntMethod(jProp,JMPIjvm::jv.CIMPropertyCInst);
                 CIMProperty *p  = DEBUG_ConvertJavaToC (jint, CIMProperty*, jp);
 
                 JMPIjvm::checkException(env);

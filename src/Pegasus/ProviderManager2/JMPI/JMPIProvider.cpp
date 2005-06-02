@@ -44,6 +44,12 @@
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
+#ifdef PEGASUS_DEBUG
+#define DDD(x) if (JMPIjvm::trace) x;
+#else
+#define DDD(x)
+#endif
+
 #include "Convert.h"
 
 // set current operations to 1 to prevent an unload
@@ -97,32 +103,34 @@ String JMPIProvider::getName(void) const
 
 void JMPIProvider::initialize(CIMOMHandle& cimom)
 {
-    _status = INITIALIZING;
+    _status       = INITIALIZING;
+    _cimom_handle = &cimom;
 
-    _cimom_handle=&cimom;
-    JvmVector *jv;
-#ifdef PEGASUS_DEBUG
-    if (JMPIjvm::trace)
-       cerr<<"--- JMPIProvider::Initialize()"<<endl;
-#endif
+    DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::Initialize()"<<PEGASUS_STD(endl));
 
-    JNIEnv *env=JMPIjvm::attachThread(&jv);
+    JvmVector *jv  = 0;
+    JNIEnv    *env = JMPIjvm::attachThread(&jv);
 
-    jmethodID id=env->GetMethodID((jclass)jProviderClass,"initialize",
-       "(Lorg/pegasus/jmpi/CIMOMHandle;)V");
+    // public abstract void initialize (org.pegasus.jmpi.CIMOMHandle ch)
+    //        throws org.pegasus.jmpi.CIMException
+    jmethodID id = env->GetMethodID((jclass)jProviderClass,
+                                    "initialize",
+                                    "(Lorg/pegasus/jmpi/CIMOMHandle;)V");
+
     JMPIjvm::checkException(env);
 
-    jstring jName=env->NewStringUTF(_name.getCString());
+    jstring jName = env->NewStringUTF(_name.getCString());
+
     JMPIjvm::checkException(env);
 
-    jint jCimom = DEBUG_ConvertCToJava (CIMOMHandle*, jint, &cimom);
+    jint    jCimom = DEBUG_ConvertCToJava (CIMOMHandle*, jint, &cimom); //@BUG? Is cimom stack allocated?  If so, needs to be newed!
+    jobject hdl    = env->NewObject(jv->CIMOMHandleClassRef,JMPIjvm::jv.CIMOMHandleNewISt,jCimom,jName);
 
-    jobject hdl=env->NewObject(jv->CIMOMHandleClassRef,jv->CIMOMHandleNewI,jCimom,jName);
     env->CallVoidMethod((jobject)jProvider,id,hdl);
 
     JMPIjvm::detachThread();
 
-    _status = INITIALIZED;
+    _status             = INITIALIZED;
     _current_operations = 0;
 }
 

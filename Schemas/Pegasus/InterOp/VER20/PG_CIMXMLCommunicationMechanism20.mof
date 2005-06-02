@@ -32,15 +32,17 @@
 
    [Version ("2.1.0"), Description (
        "This class specializes CIM_CIMXMLCommunicationMechanism, "
-       "adding properties required for Pegasus today. This was "
-       "temporarily added to get all the parameters into interop that "
-       "are required by the discovery mechanism. ")]
+       "adding properties required for Pegasus. This class "
+       "provides additional properties required for the SLP "
+       "discovery template, primarily information on the cimserver "
+       "address. ")]
        
 class PG_CIMXMLCommunicationMechanism : CIM_CIMXMLCommunicationMechanism {
 
-        [Deprecated { "PGNamespaceAccessProtocol" }, Description ( "Is this link "
-        "encrypted or not. http or https. "
-        "This field is deprecated because it is too vague.") ]
+        [Deprecated { 
+            "PG_CIMXMLCommunicationMechanism.namespaceAccessProtocol" },
+        Description ( "Is this link encrypted or not. http or https. "
+        "This field is deprecated because a string is too vague.") ]
     String namespaceType;
     
         [Description ( "NamespaceType definition. Note that namespaceType"

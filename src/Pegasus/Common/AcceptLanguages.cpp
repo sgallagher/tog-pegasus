@@ -197,10 +197,6 @@ Uint32 AcceptLanguages::find(const AcceptLanguageElement& element) const
             {
                 return i;
             }
-            else
-            {
-                return i;
-            }
         }
     }
     return PEG_NOT_FOUND;

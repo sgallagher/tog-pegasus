@@ -76,7 +76,6 @@ void TestCloseRepo()
   if (verbose) cout << ProgName << "-TestCloseRepo()" << endl;
   // -- close  repository 
 
-  r->~CIMRepository();
   delete  r;
 
 }
@@ -375,11 +374,6 @@ void TestQualifiers()
     // -- Delete the namespace:
 
     r->deleteNameSpace(NS);
-}
-
-void getClassOptions()
-{
-
 }
 
 int main(int argc, char** argv)

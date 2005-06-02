@@ -96,6 +96,10 @@ static const CIMName CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME  =
         CIMName ("CIM_ObjectManagerCommunicationMechanism");
 static const CIMName PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME  =
         CIMName ("PG_CIMXMLCommunicationMechanism");
+
+static const CIMName CIM_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME  =
+        CIMName ("CIM_CIMXMLCommunicationMechanism");
+
 static const CIMName CIM_COMMMECHANISMFORMANAGER_CLASSNAME  =
         CIMName ("CIM_CommMechanismForManager");
 static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  =
@@ -1542,17 +1546,17 @@ void InteropTest::testCommunicationClass()
         assert(pathsObjMgr.size() == 1);
 
         CIMObjectPath objectManagerPath = pathsObjMgr[0];
-
         Array<CIMInstance> instancesCommMech = _client.enumerateInstances(
                                                      PEGASUS_NAMESPACENAME_INTEROP,
                                                      CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
-                                                     false, false, false,false, CIMPropertyList());
+                                                     false, false, false, false, CIMPropertyList());
         // COMMENT KS - There is no reason for this.  The whole thing should be covered.
+
         #ifdef PEGASUS_ENABLE_SLP
         assert(instancesCommMech.size() > 0);
         #endif
 
-        // Test enumerate instances.  Note that we do this both with 
+        // Test enumerate instances.  Note that we do this both with deep inheritance and not 
         for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
         {
             assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
@@ -1564,13 +1568,12 @@ void InteropTest::testCommunicationClass()
             assert (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
 
-            // The following property exists only on PG_..., not the superclass
+            // The following property exists only on PG_..., not the superclass and this is no DI
             assert (instancesCommMech[i].findProperty("IPAddress") == PEG_NOT_FOUND);
             CIMObjectPath instancePath = instancesCommMech[i].getPath();
 
-            assert (instancePath.getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME ||
-                    instancePath.getClassName() == CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME);
-
+            // should be getting only the PG_CIMXMLCOMMUNICATIONM... class
+            assert (instancePath.getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME );
         }
 
          // Repeat with deepInheritance = true.
@@ -1595,7 +1598,40 @@ void InteropTest::testCommunicationClass()
             assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
             if (instancesCommMech[i].getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME)
             {
-                assert (instancesCommMech[i].findProperty("IPAddress") != PEG_NOT_FOUND);
+                Uint32 pos;
+
+                // test IPaddress property to determine if correct.
+                assert ((pos = instancesCommMech[i].findProperty("IPAddress")) != PEG_NOT_FOUND);
+                CIMProperty p = instancesCommMech[i].getProperty(pos);
+                CIMValue v1 = p.getValue();
+                String getIPAddress;
+                v1.get(getIPAddress);
+                // test to assure that the port number ss part of the value
+                assert(getIPAddress.find(':'));
+
+                // test namespaceAccessProtocol property to determine if correct
+                assert ((pos = instancesCommMech[i].findProperty("namespaceAccessProtocol")) != PEG_NOT_FOUND);
+                pos = instancesCommMech[i].findProperty("namespaceAccessProtocol");
+                p = instancesCommMech[i].getProperty(pos);
+                CIMValue v2 = p.getValue();
+                Uint16 accessProtocolValue;
+                v2.get(accessProtocolValue);
+                // test to assure that this is a 2 or 3 (http or https)
+                assert(accessProtocolValue == 2 || accessProtocolValue == 3);
+
+                assert ((pos = instancesCommMech[i].findProperty("namespaceType")) != PEG_NOT_FOUND);
+
+                p = instancesCommMech[i].getProperty(pos);
+                CIMValue v3 = p.getValue();
+                String namespaceTypeValue;
+                v3.get(namespaceTypeValue);
+                // test to assure that the port number ss part of the value
+                if (accessProtocolValue ==2)
+                    assert(namespaceTypeValue == "http");
+                if (accessProtocolValue ==3)
+                    assert(namespaceTypeValue == "https");
+
+                // TBD  Test agains the valuemap. KS may 05
             }
         }
     }

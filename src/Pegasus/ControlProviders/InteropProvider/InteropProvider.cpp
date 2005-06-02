@@ -422,12 +422,15 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
     used for localhost (127.0.0.1).
 
     @param hostName String with the name of the host
-    @return String with the IP address to be used
-    NOTE: This code should not be in slpprovider. This
-    should be in the Interop classes but for the moment
-    it is not.
+    @param namespaceType - Uint32 representing the
+    access protocol for this request.  This is exactly
+    the definition in the PG_CIMXMLCommunicationMechanism
+    mof for the property namespaceAccessProtocol.
+    @return String with the IP address to be used. This must
+    be the complete address sufficient to access the
+    IP address. Therefore, it includes the port number.
 */
-String _getHostAddress(String hostName)
+String _getHostAddress(String & hostName, Uint32  namespaceType)
 {
   String ipAddress;
 
@@ -439,6 +442,43 @@ String _getHostAddress(String hostName)
       // set default address if everything else failed
       ipAddress = String("127.0.0.1");
   }
+  // Question: is there a case where we leave off the port number.
+  // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
+  // Need to tie these two together.
+  Uint32 portNumber;
+
+  /********************** Drop this
+  ConfigManager* configManager = ConfigManager::getInstance();
+  Boolean enableHttpConnection = String::equal(
+      configManager->getCurrentValue("enableHttpConnection"), "true");
+  Boolean enableHttpsConnection = String::equal(
+      configManager->getCurrentValue("enableHttpsConnection"), "true");
+  ***********************/
+
+  // ATTN: The following is incorrect and must be modified as part
+  // of bug 1857 and possibly other bug reports. KS. This is 2.5 mustfix.
+
+  // Match the protocol and port number from internal information.
+  if (namespaceType == 3)
+       portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
+          WBEM_DEFAULT_HTTPS_PORT);
+  else if (namespaceType == 2)
+  {
+      portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
+          WBEM_DEFAULT_HTTP_PORT);
+  }
+  else
+      portNumber = 0;
+  // convert portNumber to ascii
+  char buffer[32];
+  sprintf(buffer, ":%u", portNumber);
+  if (portNumber != 0)
+      ipAddress.append(buffer);
+
+  // now fillout the serviceIDAttribute from the object manager instance name property.
+  // This is a key field so must have a value.
+  //String strUUID = _getPropertyValue( instance_ObjMgr, namePropertyName, "DefaultEmptyUUID");
+
   return ipAddress;
 }
 
@@ -810,6 +850,7 @@ CIMInstance InteropProvider::_buildInstanceSkeleton(const CIMObjectPath & object
 CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
             const CIMObjectPath& objectPath,
             const String& namespaceType,
+            const Uint16& accessProtocol,
             const String& IPAddress,
             const Boolean& includeQualifiers,
             const Boolean& includeClassOrigin,
@@ -865,16 +906,9 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     // Obsolete function 
     _setPropertyValue(instance, "namespaceType", namespaceType);
 
+    _setPropertyValue(instance, "namespaceAccessProtocol", accessProtocol);
+
     _setPropertyValue(instance, "IPAddress", IPAddress);
-
-    CDEBUG("Set IP Address: " << " instance " << (( CIMObject ) instance).toString());
-
-    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s CIMXMLInstanceBuild returns  IPAddress %s\n%s", thisProvider, IPAddress.getCString(),
-        ( ( CIMObject) instance).toString().getCString());
-
-    // add the path to this instance.
-    instance.setPath(instance.buildPath(targetClass));
 
     PEG_METHOD_EXIT();
     return(instance);
@@ -890,36 +924,52 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
             "InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanism");
 
     // This is a temporary hack to get the multiple connections.
+    // This is based on the configmanager being the source of what
+    // protocols are available, http and https.
+
     ConfigManager* configManager = ConfigManager::getInstance();
     Boolean enableHttpConnection = String::equal(
         configManager->getCurrentValue("enableHttpConnection"), "true");
     Boolean enableHttpsConnection = String::equal(
         configManager->getCurrentValue("enableHttpsConnection"), "true");
 
-    String IPAddress = _getHostAddress(System::getHostName());
     Array<CIMInstance> instances;
+    Uint32 namespaceAccessProtocol;
+    String namespaceType;
 
+    // for each type, create the instance if that type is defined.
     if (enableHttpConnection)
     {
-        CIMInstance instance = _buildInstancePGCIMXMLCommunicationMechanism(
-                                        objectPath,
-                                        "http", IPAddress,
-                                        includeQualifiers,
-                                        includeClassOrigin,
-                                        propertyList);
+        namespaceAccessProtocol = 2;
+        namespaceType = "http";
+        CIMInstance instance = 
+            _buildInstancePGCIMXMLCommunicationMechanism(
+                objectPath,
+                namespaceType,
+                namespaceAccessProtocol,
+                _getHostAddress(System::getHostName(), namespaceAccessProtocol),
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
         instances.append(instance);
     }
 
     if (enableHttpsConnection)
     {
-        CIMInstance instance = _buildInstancePGCIMXMLCommunicationMechanism(
-                                        objectPath,
-                                        "https", IPAddress,
-                                        includeQualifiers,
-                                        includeClassOrigin,
-                                        propertyList);
+        namespaceAccessProtocol = 3;
+        namespaceType = "https";
+        CIMInstance instance = 
+            _buildInstancePGCIMXMLCommunicationMechanism(
+                objectPath,
+                namespaceType,
+                namespaceAccessProtocol,
+                _getHostAddress(System::getHostName(), namespaceAccessProtocol),
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
         instances.append(instance);
     }
+
 
     PEG_METHOD_EXIT();
     return(instances);
@@ -955,6 +1005,7 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_getInstanceCIMObjectManager");
+
     // Try to get persistent instance from repository
     Array<CIMInstance> instances;
     try
@@ -981,12 +1032,10 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
                     "Error. Multiple definitons of : $0",
                     CIM_OBJECTMANAGER_CLASSNAME.getString());
             }
-            CDEBUG("getInstanceFromRepository returning true");
             return(true);
         }
         else
         {
-            CDEBUG("getInstanceFromRepository returning false");
             return(false);
         }
     }
@@ -1036,8 +1085,6 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         //
         // No instance in the repository. Build new instance and save it.
         //
-        CDEBUG("Creating New instance of CIMOBjectManager");
-
         CIMClass targetClass;
         instance = _buildInstanceSkeleton(objectPath, CIM_OBJECTMANAGER_CLASSNAME,
                     targetClass);

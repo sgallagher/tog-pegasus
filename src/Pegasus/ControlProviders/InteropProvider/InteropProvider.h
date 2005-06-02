@@ -227,6 +227,7 @@ private:
     CIMInstance _buildInstancePGCIMXMLCommunicationMechanism(
         const CIMObjectPath& objectPath,
         const String& namespaceType,
+        const Uint16& accessProtocol,
         const String& IPAddress,
         const Boolean& includeQualifiers,
         const Boolean& includeClassOrigin,

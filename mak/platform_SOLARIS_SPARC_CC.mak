@@ -70,6 +70,13 @@ DEFINES += -DPEGASUS_SNIA_INTEROP_TEST
 
 DEFINES += -DPEGASUS_HAS_SIGNALS
 
+#
+# This is needed for SPARC.  It shouldn't be needed for x86
+# or x86-64 if a port is ever done for Solaris on those
+# platforms.
+#
+DEFINES += -DTYPE_CONV
+
 # "READBUG" forces fstream.read to read 1 char at a time to
 # overcome a bug in Wshop 6.2
 # There are patches for this now.

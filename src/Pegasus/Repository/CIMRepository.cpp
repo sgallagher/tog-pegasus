@@ -1245,13 +1245,6 @@ void CIMRepository::createClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
-    if (contentLangs.size() > 0)
-    {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-              "The Content-Language header is not supported for this request"));
-    }
-
     WriteLock lock(_lock);
     _createClass(nameSpace, newClass);
 
@@ -1488,13 +1481,6 @@ CIMObjectPath CIMRepository::createInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
-    if (contentLangs.size() > 0)
-    {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-              "The Content-Language header is not supported for this request"));
-    }
-
     WriteLock lock(_lock);
     CIMObjectPath instanceName = _createInstance(nameSpace, newInstance);
 
@@ -1717,13 +1703,6 @@ void CIMRepository::modifyClass(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
-    if (contentLangs.size() > 0)
-    {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-              "The Content-Language header is not supported for this request"));
-    }
-
     WriteLock lock(_lock);
     _modifyClass(nameSpace, modifiedClass);
 
@@ -1816,14 +1795,6 @@ void CIMRepository::modifyInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
-    if (contentLangs.size() > 0)
-    {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-              "The Content-Language header is not supported for this request"));
-    }
-
-    WriteLock lock(_lock);
 
     //
     // Get paths of index and data files:
@@ -3110,13 +3081,6 @@ void CIMRepository::setProperty(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setProperty");
 
-    if (contentLangs.size() > 0)
-    {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-              "The Content-Language header is not supported for this request"));
-    }
-
     // It is not necessary to control access to the ReadWriteSem _lock here.
     // This method calls modifyInstance, which does its own access control.
 
@@ -3197,13 +3161,6 @@ void CIMRepository::setQualifier(
     const ContentLanguages& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
-
-    if (contentLangs.size() > 0)
-    {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_INVALID_PARAMETER,
-          MessageLoaderParms("Repository.CIMRepository.UNSUPPORTED_CONTENTLANG",
-              "The Content-Language header is not supported for this request."));
-    }
 
     WriteLock lock(_lock);
     _setQualifier(nameSpace, qualifierDecl);

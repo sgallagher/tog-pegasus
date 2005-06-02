@@ -1099,18 +1099,22 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
 
         //
         //Description property this object manager instance
-        // default is Pegasus CIM_Server Version.
-        // Provided undocumented option to get this from the environment.
-        // This should probably be removed or documented.
-        //
-        String description;
-        char * envDescription;
-        envDescription = getenv("PEGASUS_CIMOM_DESCRIPTION");
+        // default is Pegasus CIM_Server Version. Get from
+        // fields defined in PegasusVersion.
+        // TODO. Add as an alternative the capability to get this
+        // from config parameters.
+        // If PEGASUS_CIMOM_DESCRIPTION is non-zero length, use it.
+        // Otherwise build form the components below.
 
-        description = (envDescription) ? envDescription :
-            String(PEGASUS_PRODUCT_NAME) + " Version " +
-                String(PEGASUS_PRODUCT_VERSION);
+        String description = (String(PEGASUS_CIMOM_DESCRIPTION).size() != 0) ?
+                String(PEGASUS_CIMOM_DESCRIPTION)
+            :
+                String(PEGASUS_CIMOM_GENERIC_NAME) + " " +
+                String(PEGASUS_PRODUCT_NAME) + " Version " +
+                String(PEGASUS_PRODUCT_VERSION) + " " +
+                String(PEGASUS_PRODUCT_STATUS);
 
+        cout << "Description: " << description << endl;
         _setPropertyValue(instance, CIMName("Description"), description);
 
         //Property GatherStatisticalData. Initially this is set to false

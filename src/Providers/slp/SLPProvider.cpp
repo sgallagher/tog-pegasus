@@ -386,6 +386,20 @@ String _arrayToString(const Array<String>& s)
         return(output);
 }
 
+String _arrayToString(const Array<Uint16>& s)
+{
+    String output;
+    for (Uint32 i = 0 ; i < s.size() ; i++)
+        {
+            if (i > 0)
+                output.append(",");
+            char buffer[128];
+            sprintf(buffer,"%i", s[i]);
+            output.append(String(buffer));
+        }
+        return(output);
+}
+
 /** append the input string and if output not empty a comma separator
     param s String to which we will append s1.
     param s1 String to be appended
@@ -404,12 +418,12 @@ void _appendCSV(String& s, const String& s1)
     not exist, is Null, or is not a string type. The substitute is String::EMPTY
     @return String value found or defaultValue.
 */
-String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyName,
+String _getPropertyValueString(const CIMInstance& instance, const CIMName& propertyName,
      const String& defaultValue = String::EMPTY)
 {
     String output;
     Uint32 pos;
-    CDEBUG("_getPropertyValue for name= " << propertyName.getString()
+    CDEBUG("_getPropertyValue String for name= " << propertyName.getString()
         << " default= " << defaultValue);
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
     {
@@ -431,6 +445,33 @@ String _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNam
     return(output);
 }
 
+
+Uint16 _getPropertyValueUint16(const CIMInstance& instance, const CIMName& propertyName,
+     const Uint16& defaultValue = 0)
+{
+    Uint16 output;
+    Uint32 pos;
+    CDEBUG("_getPropertyValue Uint16 for name= " << propertyName.getString()
+        << " default= " << defaultValue);
+    if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
+    {
+        CIMConstProperty p1 = instance.getProperty(pos);
+        if (p1.getType() == CIMTYPE_UINT16)
+        {
+            CIMValue v1  = p1.getValue();
+
+            if (!v1.isNull())
+                v1.get(output);
+            else
+                output = defaultValue;
+        }
+        else
+            output = defaultValue;
+    }
+    else
+        output = defaultValue;
+    return(output);
+}
 /** Set the value of a property defined by property name in the instance provided.
     Sets a String into the value field unless the property name cannot be found.
     If the property cannot be found, it simply returns.
@@ -564,11 +605,11 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     // Extract the namespace names and class info from the objects.
     for (Uint32 i = 0 ; i < CIMNamespaceInstances.size() ; i++)
     {
-        String temp = _getPropertyValue(CIMNamespaceInstances[i], CIMName(namePropertyName));
+        String temp = _getPropertyValueString(CIMNamespaceInstances[i], CIMName(namePropertyName), "");
         if (temp != String::EMPTY)
         {
             _appendCSV(names, temp );
-            _appendCSV(classInfo, _getPropertyValue(CIMNamespaceInstances[i], CIMName(classinfoAttribute), ""));
+            _appendCSV(classInfo, _getPropertyValueString(CIMNamespaceInstances[i], CIMName(classinfoAttribute), String::EMPTY));
         }
         else
             CDEBUG("Must log error here if property not found");
@@ -691,24 +732,6 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     //_currentSLPTemplateCIMInstance
     CIMInstance instance1(SlpTemplateClassName);
 
-    // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
-    // Need to tie these two together.
-    Uint32 portNumber;
-
-    // Match the protocol and port number from internal information.
-    if (protocol.find("https") != PEG_NOT_FOUND)
-         portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
-            WBEM_DEFAULT_HTTPS_PORT);
-    else
-        portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
-            WBEM_DEFAULT_HTTP_PORT);
-
-    // convert portNumber to ascii
-    char buffer[32];
-
-    // now fillout the serviceIDAttribute from the object manager instance name property.
-    // This is a key field so must have a value.
-    String strUUID = _getPropertyValue( instance_ObjMgr, namePropertyName, "DefaultEmptyUUID");
 
     // template-url-syntax=string
     // #The template-url-syntax MUST be the WBEM URI Mapping of
@@ -719,8 +742,13 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
     // #Specification 1.0.0 (DSP0207).
     // # Example: (template-url-syntax=https://localhost:5989)
 
-    sprintf(buffer, "%u", portNumber);
-    String serviceUrlSyntaxValue = protocol + "://" + IPAddress + ":" + buffer;
+    String serviceUrlSyntaxValue = protocol + "://" + IPAddress;
+
+    // now fillout the serviceIDAttribute from the object manager instance name property.
+    // This is a key field so must have a value.
+
+    String strUUID = _getPropertyValueString( instance_ObjMgr, namePropertyName, "DefaultEmptyUUID");
+
     populateTemplateField(instance1, serviceUrlSyntaxAttribute, serviceUrlSyntaxValue,
         serviceUrlSyntaxProperty);
 
@@ -731,7 +759,7 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
         serviceIDProperty);
 
     // get the properties from the cimobject class.
-    for(Uint32 j=0; j < instance_ObjMgr.getPropertyCount(); j++)
+    for(Uint32 j = 0 ; j < instance_ObjMgr.getPropertyCount() ; j++)
     {
         CIMConstProperty p1=instance_ObjMgr.getProperty(j);
         CIMValue v1=p1.getValue();
@@ -769,7 +797,7 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
                             templateDescriptionProperty);
 
     // InterOp Schema
-    populateTemplateField(instance1, InteropSchemaNamespaceAttribute, InteropSchemaNamespaceName);
+    populateTemplateField(instance1, InteropSchemaNamespaceAttribute, InteropSchemaNamespaceName, String::EMPTY);
     CDEBUG("Before instance_objMgrComm. instance count = " << instance_ObjMgrComm.getPropertyCount());
     // ATTN: KS Loop through all properties Note: This does not make it easy to
     // distinguish required vs. optional but works for now.
@@ -794,17 +822,20 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
 
         else if (n1.equal(otherCommunicationMechanismAttribute))
         {
-
             if (String::equalNoCase(v1.toString(),"1"))
             {
                  //index = instance_ObjMgrComm.findProperty(CIMName(otherCommunicationMechanismDescriptionAttribute));
                  //CIMConstProperty temppr = instance_ObjMgrComm.getProperty(index);
-                 String tmp = _getPropertyValue(instance_ObjMgrComm, CIMName(otherCommunicationMechanismDescriptionAttribute));
+                 String tmp = _getPropertyValueString(
+                            instance_ObjMgrComm,
+                            CIMName(otherCommunicationMechanismDescriptionAttribute),
+                            String::EMPTY);
+
                  populateTemplateField(instance1, otherCommunicationMechanismDescriptionAttribute,tmp);
             }
         }
         else if (n1.equal("Version"))
-          populateTemplateField(instance1, protocolVersionAttribute,v1.toString());
+            populateTemplateField(instance1, protocolVersionAttribute,v1.toString());
 
         else if (n1.equal("FunctionalProfileDescriptions"))
         {
@@ -816,25 +847,35 @@ Boolean SLPProvider::populateRegistrationData(const String &protocol,
 
             if (String::equalNoCase(v1.toString(),"Other"))
             {
-              Uint32 pos = instance_ObjMgrComm.findProperty(CIMName(otherProfileDescriptionAttribute));
-              CIMConstProperty temppr = instance_ObjMgrComm.getProperty(pos);
-              String tmp = _getPropertyValue(instance_ObjMgrComm, CIMName(otherProfileDescriptionAttribute));
-              populateTemplateField(instance1, otherProfileDescriptionAttribute, tmp);
+                Uint32 pos = instance_ObjMgrComm.findProperty(CIMName(otherProfileDescriptionAttribute));
+                CIMConstProperty temppr = instance_ObjMgrComm.getProperty(pos);
+                String tmp = _getPropertyValueString(instance_ObjMgrComm, CIMName(otherProfileDescriptionAttribute), String::EMPTY);
+                populateTemplateField(instance1, otherProfileDescriptionAttribute, tmp);
             }
         }
 
         else if (n1.equal(multipleOperationsSupportedAttribute))
             populateTemplateField(instance1, multipleOperationsSupportedAttribute,v1.toString());
 
-        else if (n1.equal(authenticationMechanismDescriptionsAttribute))
+        else if (n1.equal(authenticationMechanismsSupportedAttribute))
         {
-            Array<String> authenticationDescriptions;
-            v1.get(authenticationDescriptions);
-            String authList = _arrayToString(authenticationDescriptions);
+            Array<Uint16> authenticationMechanisms;
+            v1.get(authenticationMechanisms);
+            String authList = _arrayToString(authenticationMechanisms);
 
             populateTemplateField(instance1,
                                     authenticationMechanismsSupportedAttribute,
                                     authList);
+        }
+        else if (n1.equal(authenticationMechanismDescriptionsAttribute))
+        {
+            Array<String> authenticationDescriptions;
+            v1.get(authenticationDescriptions);
+            String authDesList = _arrayToString(authenticationDescriptions);
+
+            populateTemplateField(instance1,
+                                    authenticationMechanismDescriptionsAttribute,
+                                    authDesList);
         }
     }
 
@@ -964,7 +1005,7 @@ Boolean SLPProvider::issueSLPRegistrations()
     CIMObjectPath objectManagerPath =  pathsObjMgr[0];
     try
     {
-    Array<CIMObject> objects = _cimomHandle.associators(
+        Array<CIMObject> objects = _cimomHandle.associators(
                             OperationContext(),                      // context
                             PEGASUS_NAMESPACE_INTEROP,               // namespace
                             objectManagerPath,                        // Target Object
@@ -976,9 +1017,6 @@ Boolean SLPProvider::issueSLPRegistrations()
                             true,                                   // includeClassOrigin
                             CIMPropertyList();                      // PropertyList
                             );
-
-
-
     }
         catch(CIMException& e)
     {
@@ -991,7 +1029,7 @@ Boolean SLPProvider::issueSLPRegistrations()
                                              OperationContext(),
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIMName(CIMObjectManagerCommMechName),
-                                             false, false, true,false, CIMPropertyList());
+                                             true, false, true,true, CIMPropertyList());
 
     CDEBUG("Registration found Obj Mgr Comm. No Instance = " << instancesObjMgrComm.size());
     //Loop to create an SLP registration for each communication mechanism
@@ -1001,10 +1039,11 @@ Boolean SLPProvider::issueSLPRegistrations()
     for (Uint32 i = 0; i < instancesObjMgrComm.size(); i++)
     {
         // get protocol property
-        String protocol  = _getPropertyValue(instancesObjMgrComm[i], CIMName("namespaceType"), "http");
+        String protocol  = _getPropertyValueString(instancesObjMgrComm[i], CIMName("namespaceType"), "http");
 
+        Uint16 accessProtocol = _getPropertyValueUint16(instancesObjMgrComm[i], CIMName("namespaceAccessProtocol"));
         // get ipaddress property
-        String IPAddress = _getPropertyValue(instancesObjMgrComm[i], CIMName("IPAddress"), "127.0.0.1");
+        String IPAddress = _getPropertyValueString(instancesObjMgrComm[i], CIMName("IPAddress"), "127.0.0.1");
 
         // create a registration instance, test and register it.
         if (populateRegistrationData(protocol, IPAddress, instancesObjMgr[0], instancesObjMgrComm[i]))

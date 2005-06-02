@@ -938,6 +938,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
     String namespaceType;
 
     // for each type, create the instance if that type is defined.
+    String hostName = System::getHostName();
     if (enableHttpConnection)
     {
         namespaceAccessProtocol = 2;
@@ -947,7 +948,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
                 objectPath,
                 namespaceType,
                 namespaceAccessProtocol,
-                _getHostAddress(System::getHostName(), namespaceAccessProtocol),
+                _getHostAddress(hostName, namespaceAccessProtocol),
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList);
@@ -963,7 +964,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
                 objectPath,
                 namespaceType,
                 namespaceAccessProtocol,
-                _getHostAddress(System::getHostName(), namespaceAccessProtocol),
+                _getHostAddress(hostName, namespaceAccessProtocol),
                 includeQualifiers,
                 includeClassOrigin,
                 propertyList);

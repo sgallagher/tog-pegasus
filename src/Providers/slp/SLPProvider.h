@@ -113,7 +113,8 @@ class SLPProvider: public CIMInstanceProvider, public CIMMethodProvider
         Boolean populateRegistrationData(const String &protocol,
             const String& IPAddress,
             const CIMInstance& instance_ObjMgr,
-            const CIMInstance& instance_ObjMgrComm);
+            const CIMInstance& instance_ObjMgrComm,
+            const CIMClass& commMechClass);
 
         Boolean issueSLPRegistrations();
 

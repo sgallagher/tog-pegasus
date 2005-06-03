@@ -34,6 +34,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +139,7 @@ class PEGASUS_CQL_LINKAGE CQLFunction
 
    String toString()const;
 
-   void applyContext(QueryContext& inContext);
+   void applyContext(const QueryContext& inContext);
 
    CQLFunction& operator=(const CQLFunction& rhs);
    

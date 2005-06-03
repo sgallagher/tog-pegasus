@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com) 
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -74,8 +74,8 @@ class PEGASUS_CQL_LINKAGE CQLTermRep
 
    Array<FactorOpType> getOperators()const;
 
-   void applyContext(QueryContext& inContext,
-                     CQLChainedIdentifier& inCid); 
+   void applyContext(const QueryContext& inContext,
+                     const CQLChainedIdentifier& inCid); 
 /*
   Boolean operator==(const CQLTermRep& rhs)const;
   

@@ -29,7 +29,7 @@
 //
 // Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -151,8 +151,8 @@ Array<TermOpType> CQLExpressionRep::getOperators()const
    return _TermOperators;
 }
 
-void CQLExpressionRep::applyContext(QueryContext& inContext,
-                                    CQLChainedIdentifier& inCid)
+void CQLExpressionRep::applyContext(const QueryContext& inContext,
+                                    const CQLChainedIdentifier& inCid)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLExpressionRep::applyContext()");
 

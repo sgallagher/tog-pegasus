@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -207,7 +207,7 @@ class PEGASUS_CQL_LINKAGE CQLSimplePredicate
         @throws - None.
         <I><B>Experimental Interface</B></I><BR>
     */
-    void applyContext(QueryContext& queryContext);
+    void applyContext(const QueryContext& queryContext);
 
     /**
        Returns this predicate in string form.

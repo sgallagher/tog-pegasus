@@ -34,6 +34,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +99,7 @@ enum ExpressionOpType CQLSimplePredicate::getOperation() const
     return _rep->getOperation();
 }
 
-void CQLSimplePredicate::applyContext(QueryContext& queryContext)
+void CQLSimplePredicate::applyContext(const QueryContext& queryContext)
 {
     _rep->applyContext(queryContext);
 }

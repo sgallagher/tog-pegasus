@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com) 
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +141,7 @@ Array<BooleanOpType> CQLPredicateRep::getOperators()const{
 	return _operators;
 }
 
-void CQLPredicateRep::applyContext(QueryContext& queryContext)
+void CQLPredicateRep::applyContext(const QueryContext& queryContext)
 {
   PEG_METHOD_ENTER(TRC_CQL, "CQLPredicateRep::applyContext");
   if (isSimple())

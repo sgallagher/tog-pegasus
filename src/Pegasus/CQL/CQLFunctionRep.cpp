@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -305,7 +305,7 @@ FunctionOpType CQLFunctionRep::getFunctionType()const
    return _funcOpType;
 }
  
-void CQLFunctionRep::applyContext(QueryContext& inContext)
+void CQLFunctionRep::applyContext(const QueryContext& inContext)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLFunctionRep::applyContext()");
 

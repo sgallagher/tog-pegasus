@@ -29,7 +29,7 @@
 //
 // Author: Dave Rosckes (rosckes@us.ibm.com)
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590.
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,8 +104,8 @@ Array<TermOpType> CQLExpression::getOperators()const
    return _rep->getOperators();
 }
 
-void CQLExpression::applyContext(QueryContext& inContext,
-                                 CQLChainedIdentifier inCid)
+void CQLExpression::applyContext(const QueryContext& inContext,
+                                 const CQLChainedIdentifier inCid)
 {
   _rep->applyContext(inContext, inCid);
 }

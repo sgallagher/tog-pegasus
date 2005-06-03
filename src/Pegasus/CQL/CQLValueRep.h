@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -271,8 +272,8 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
    CIMObjectPath getReference()const;
    CIMObject getObject()const;
    String toString()const;
-   void applyContext(QueryContext& _ctx,
-                     CQLChainedIdentifier& inCid);
+   void applyContext(const QueryContext& _ctx,
+                     const CQLChainedIdentifier& inCid);
    
    static String valueTypeToString(const CQLValue::CQLValueType parmType);
    friend class CQLFactory; 

@@ -30,6 +30,7 @@
 // Author: Dave Rosckes (rosckes@us.ibm.com)
 //
 // Modified By: Dan Gorey (djgorey@us.ibm.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/CQL/CQLValue.h>
@@ -1646,8 +1647,8 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
   return;
 }
 
-void CQLValueRep::applyContext(QueryContext& _ctx,
-                              CQLChainedIdentifier& inCid)
+void CQLValueRep::applyContext(const QueryContext& _ctx,
+                              const CQLChainedIdentifier& inCid)
 {
    if(inCid.size() != 0 && _CQLChainId.size() == 1)
      {  
@@ -1679,14 +1680,14 @@ void CQLValueRep::applyContext(QueryContext& _ctx,
      }
    else
      {
-       _CQLChainId.applyContext(_ctx); 
+       _CQLChainId.applyContext(const_cast<QueryContext&>(_ctx)); 
      }
 
    // Add the chained identifier to the WHERE identifier list.
    // Note: CQLValue's are only used in WHERE processing.
    if (_CQLChainId.size() > 0)
    {
-     _ctx.addWhereIdentifier(_CQLChainId);
+     const_cast<QueryContext&>(_ctx).addWhereIdentifier(_CQLChainId);
    }
 }
 

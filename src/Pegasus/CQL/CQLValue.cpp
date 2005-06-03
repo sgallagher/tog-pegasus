@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/CQL/CQLValue.h>
@@ -299,8 +300,8 @@ String CQLValue::toString() const
    return _rep->toString();
 }
 
-void CQLValue::applyContext(QueryContext& _ctx,
-                            CQLChainedIdentifier& inCid)
+void CQLValue::applyContext(const QueryContext& _ctx,
+                            const CQLChainedIdentifier& inCid)
 {
    _rep->applyContext(_ctx,inCid);
 }

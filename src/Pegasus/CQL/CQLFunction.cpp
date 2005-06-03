@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ FunctionOpType CQLFunction::getFunctionType()const
    return _rep->getFunctionType();
 }
  
-void CQLFunction::applyContext(QueryContext& inContext)
+void CQLFunction::applyContext(const QueryContext& inContext)
 {
   _rep->applyContext(inContext);
 }

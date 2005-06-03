@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com) 
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -159,8 +159,8 @@ Array<FactorOpType> CQLTermRep::getOperators()const
    return _FactorOperators;
 }
 
-void CQLTermRep::applyContext(QueryContext& inContext,
-                              CQLChainedIdentifier& inCid)
+void CQLTermRep::applyContext(const QueryContext& inContext,
+                              const CQLChainedIdentifier& inCid)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::applyContext()");
 

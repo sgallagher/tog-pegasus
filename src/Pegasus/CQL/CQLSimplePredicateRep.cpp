@@ -34,6 +34,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -229,7 +230,7 @@ enum ExpressionOpType CQLSimplePredicateRep::getOperation()const
 	return _operator;
 }
 
-void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
+void CQLSimplePredicateRep::applyContext(const QueryContext& queryContext)
 {
   PEG_METHOD_ENTER(TRC_CQL, "CQLSimplePredicateRep::applyContext");
   CQLIdentifier _id;
@@ -325,7 +326,8 @@ void CQLSimplePredicateRep::applyContext(QueryContext& queryContext)
           QueryChainedIdentifier isaId = _rightSide.getTerms()[0].
             getFactors()[0].
             getValue().getChainedIdentifier();
-          queryContext.addWhereIdentifier(isaId);
+            const_cast<QueryContext&>(queryContext).addWhereIdentifier(isaId);
+
         }
       }
    }

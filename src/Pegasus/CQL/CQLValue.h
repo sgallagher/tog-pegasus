@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -543,8 +544,8 @@ public:
       @throw  None.
       <I><B>Experimental Interface</B></I><BR>
   */
-  void applyContext(QueryContext& _ctx,
-            CQLChainedIdentifier& inCid);
+  void applyContext(const QueryContext& _ctx,
+            const CQLChainedIdentifier& inCid);
 
   friend class CQLFactory;
 

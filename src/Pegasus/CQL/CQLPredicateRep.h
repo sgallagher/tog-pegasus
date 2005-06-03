@@ -34,6 +34,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -152,7 +153,7 @@ class PEGASUS_CQL_LINKAGE CQLPredicateRep
 
     Array<BooleanOpType> getOperators()const;
 
-    void applyContext(QueryContext& queryContext);
+    void applyContext(const QueryContext& queryContext);
 
     Boolean isSimple()const;
 

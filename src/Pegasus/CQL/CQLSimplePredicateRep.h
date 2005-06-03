@@ -34,6 +34,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +104,7 @@ class CQLSimplePredicateRep
 
     ExpressionOpType getOperation()const;
 
-    void applyContext(QueryContext& queryContext);
+    void applyContext(const QueryContext& queryContext);
 
     String toString()const;
 

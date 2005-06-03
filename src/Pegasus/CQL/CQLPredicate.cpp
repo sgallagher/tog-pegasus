@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By:
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +107,7 @@ Array<BooleanOpType> CQLPredicate::getOperators()const{
 	return _rep->getOperators();
 }
 
-void CQLPredicate::applyContext(QueryContext& queryContext) {
+void CQLPredicate::applyContext(const QueryContext& queryContext) {
   _rep->applyContext(queryContext);
 }
 

@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -117,8 +117,8 @@ String CQLFactor::toString()const
   return _rep->toString();
 }
 
-void CQLFactor::applyContext(QueryContext& inContext,
-			     CQLChainedIdentifier& inCid)
+void CQLFactor::applyContext(const QueryContext& inContext,
+			     const CQLChainedIdentifier& inCid)
 {
   _rep->applyContext(inContext,inCid);   
 }

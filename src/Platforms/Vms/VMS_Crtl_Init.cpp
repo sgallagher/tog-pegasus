@@ -56,6 +56,7 @@ static void set(char *name, int value)
 static void set_coe(void)
 {
   set ("DECC$ARGV_PARSE_STYLE", TRUE);
+  set ("DECC$ENABLE_GETENV_CACHE", TRUE);
   set ("DECC$FILE_SHARING", TRUE);
   set ("DECC$DISABLE_TO_VMS_LOGNAME_TRANSLATION", TRUE);
   set ("DECC$EFS_CASE_PRESERVE", TRUE);

@@ -468,9 +468,16 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
 
 #ifdef CMPI_VER_100
 #ifdef CMPI_INLINE
-       /** IBMKR
-	 @param rc Output: Service return status (suppressed when NULL).
-	 @return Property value.
+       /** Logs the message to the standard logging facility.
+	 @example  CMLogMessage(_broker, 1, "TestProvider","Entering EnumerateInstance", NULL);
+     @param mb Broker this pointer
+	 @param severity The severity is from 1-4. 1 is for information,
+       2, is for warning, 3 for severe and 4 for fatal.
+     @param id The ID of the provider.
+	 @param text The message. If not NULL, is the message text to be logged.
+	 @param string The message. If not NULL,  is the message text to be logged. 
+       string will be ignored when text is not NULL.
+	 @param rc Output: Service return status 
       */
    inline static   CMPIStatus CMLogMessage
               (const CMPIBroker *b, int severity, const char *id,
@@ -483,8 +490,16 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
 
 #ifdef CMPI_VER_100
 #ifdef CMPI_INLINE
-       /** IBMKR
-	 @return Property value.
+       /**  Logs the message to the trace facility.
+	 @example  CMLogMessage(_broker, 1, "TestProvider","Entering EnumerateInstance", NULL);
+     @param mb Broker this pointer
+	 @param level The severity is from 1-4. 
+     @param component The component name to use for logging. The available 
+      facilities are defined in TraceComponents.h file.
+	 @param text The message. If not NULL, is the message text to be logged.
+	 @param string The message. If not NULL,  is the message text to be logged. 
+       string will be ignored when text is not NULL.
+	 @param rc Output: Service return status 
       */
    inline static   CMPIStatus CMTraceMessage
               (const CMPIBroker *b, int level, const char *component,
@@ -575,7 +590,11 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
 
 #ifdef CMPI_VER_100
 #ifdef CMPI_INLINE
-	/* IBMKR
+      /** Replaces the ObjectPath of the instance.
+	 @param inst Instance this pointer.
+     @param obj Pointer to the new object path.
+	 @param rc Output: Service return status (suppressed when NULL).
+         @return the generated ObjectPath.
       */
      inline static   CMPIStatus CMSetObjectPath
               ( CMPIInstance* inst, const CMPIObjectPath *obj)
@@ -1351,12 +1370,10 @@ inline static   void CMSetStatusWithChars(const CMPIBroker *mb, CMPIStatus* st, 
 
 #if defined(CMPI_VER_100)
 #ifdef CMPI_INLINE
-       /** Evaluate the predicate using a specific value.
-IBMKR
+       /** Evaluate this predicate  by using a data value accessor routine. .
 	 @param pr Predicate this pointer.
-	 @param type Property type.
-	 @param value Address of value structure.
-	 @param type Value type.
+	 @param accessor Data accessor routine to be used.
+	 @param parm Data accessor parameter.
 	 @param rc Output: Service return status (suppressed when NULL).
 	 @return Evaluation result.
       */

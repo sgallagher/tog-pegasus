@@ -1806,22 +1806,20 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         Boolean remote=false;
         CMPIProvider::OpProviderHolder ph;
 
-        String fileName = _resolvePhysicalName(providerLocation);
-
         if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
+	  ph = providerManager.getRemoteProvider(providerLocation, providerName);
         }
         else {
         // get cached or load new provider module
-           ph = providerManager.getProvider(fileName, providerName);
+	  ph = providerManager.getProvider(providerLocation, providerName);
         }
 
         indProvRecord *prec=NULL;
-        provTab.lookup(providerName,prec);
+        provTab.lookup(ph.GetProvider().getName(),prec);
         if (prec) prec->count++;
         else {
            prec=new indProvRecord();
-           provTab.insert(providerName,prec);
+           provTab.insert(ph.GetProvider().getName(),prec);
         }
 
         //
@@ -2016,24 +2014,22 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         Boolean remote=false;
         CMPIProvider::OpProviderHolder ph;
 
-        String fileName = _resolvePhysicalName(providerLocation);
-
         if ((remote=pidc.isRemoteNameSpace())) {
-           ph = providerManager.getProvider("CMPIRProxyProvider", providerName);
+           ph = providerManager.getRemoteProvider(providerLocation, providerName);
         }
         else {
         // get cached or load new provider module
-           ph = providerManager.getProvider(fileName, providerName);
+           ph = providerManager.getProvider(providerLocation, providerName);
         }
 
 
         indProvRecord *prec=NULL;
-        provTab.lookup(providerName,prec);
+        provTab.lookup(ph.GetProvider().getName(),prec);
         if (--prec->count<=0) {
 		   if (prec->handler)
 				   delete prec->handler;
 		   delete prec;
-           provTab.remove(providerName);
+           provTab.remove(ph.GetProvider().getName());
            prec=NULL;
         }
 

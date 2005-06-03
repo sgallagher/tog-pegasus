@@ -134,7 +134,14 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
 	    CMPIStatus rc = {CMPI_RC_OK, NULL};
 
         if (miVector.genericMode) {
-           CString mName=name.getCString();
+  	   String realProviderName(name);
+	   Uint32 idx = realProviderName.find(":");
+	   if (idx == PEG_NOT_FOUND) {
+	     realProviderName.remove(0,1);
+	   } else {
+	     realProviderName.remove(idx+1,1);
+	   } 
+           CString mName=realProviderName.getCString();
            if (miVector.miTypes & CMPI_MIType_Instance)
               miVector.instMI=miVector.createGenInstMI(&broker,&eCtx,mName, &rc);
            if (miVector.miTypes & CMPI_MIType_Association)
@@ -164,7 +171,7 @@ void CMPIProvider::initialize(CIMOMHandle & cimom)
 {
     String providername(_name);
     // remove the first letter
-    providername.remove(0,1);
+    // providername.remove(0,1);
 
     if(_status == UNINITIALIZED)
   {

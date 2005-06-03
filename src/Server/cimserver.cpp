@@ -1169,11 +1169,13 @@ MessageLoader::_useProcessLocale = false;
     }
 #endif
 
+#ifndef PEGASUS_OS_TYPE_WINDOWS
+    umask(S_IRWXG|S_IRWXO);
+#endif
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
 || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
 || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined (PEGASUS_OS_VMS)
-    umask(S_IWGRP|S_IWOTH);
 
     //
     // check if CIMServer is already running

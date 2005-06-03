@@ -59,9 +59,9 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
 
     temp =  fileName + String(".exe");
 
-    temp =  FileSystem::getAbsoluteFileName(
-                        ConfigManager::getHomedPath(
-                        getenv("PEGASUS_SYSSHAREA")), temp);
+    temp = FileSystem::getAbsoluteFileName(
+                           ConfigManager::getInstance()->getCurrentValue("providerDir"),
+                         temp);
     if (temp == String::EMPTY)
     {
       return temp;

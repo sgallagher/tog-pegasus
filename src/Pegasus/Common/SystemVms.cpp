@@ -176,10 +176,8 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char *fileName)
   Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 	"Attempting to load library %s - 1", fileName);
 
-  saveFileName = fileName;
-
   PEG_METHOD_EXIT();
-  return DynamicLibraryHandle(1);
+  return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
 }
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
@@ -193,100 +191,23 @@ String System::dynamicLoadError()
 {
   // ATTN: Is this safe in a multi-threaded process?  Should this string
   // be returned from loadDynamicLibrary?
-  //    String dlerr = dlerror();
-  //    return dlerr;
 
-  return String::EMPTY;
-}
-
-DynamicSymbolHandle System::loadVmsDynamicSymbol(
-						  const char *symbolName,
-						  const char *fileName,
-					      const char *vmsProviderDir)
-{
-  char *Errorout;
-  unsigned int status;
-  CString cstr;
-
-  const char *sName = symbolName;
-  const char *fName = fileName;
-  const char *dName = vmsProviderDir;
-
-  int symbolValue = 0;
-  unsigned int flags = 0;
-
-  $DESCRIPTOR(vmsFileName, "Dummy fileName");
-  $DESCRIPTOR(vmsSymbolName, "Dummy symbolName");
-  $DESCRIPTOR(vmsDirName, "Dummy vmsProviderDir");
-
-  vmsFileName.dsc$b_dtype = DSC$K_DTYPE_T;
-  vmsFileName.dsc$b_class = DSC$K_CLASS_S;
-  vmsFileName.dsc$w_length = strlen(fName);
-  vmsFileName.dsc$a_pointer = (char *) fName;
-
-  vmsSymbolName.dsc$b_dtype = DSC$K_DTYPE_T;
-  vmsSymbolName.dsc$b_class = DSC$K_CLASS_S;
-  vmsSymbolName.dsc$w_length = strlen(sName);
-  vmsSymbolName.dsc$a_pointer = (char *) sName;
-
-  vmsDirName.dsc$b_dtype = DSC$K_DTYPE_T;
-  vmsDirName.dsc$b_class = DSC$K_CLASS_S;
-  vmsDirName.dsc$w_length = strlen(dName);
-  vmsDirName.dsc$a_pointer = (char *) dName;
-
-//  status = lib$find_image_symbol (&vmsFileName, &vmsSymbolName, &symbolValue, &vmsDirName, flags);
-
-  cxxl$set_condition(cxx_exception);
-
-  try
-  {
-    status = lib$find_image_symbol(&vmsFileName, &vmsSymbolName, &symbolValue, &vmsDirName, flags);
-  }
-
-  catch(struct chf$signal_array &obj)
-  {
-    if (obj.chf$is_sig_name != LIB$_EOMWARN)
-    {
-      symbolValue = 0;
-      cxxl$set_condition(unix_signal);
-      return (DynamicSymbolHandle) symbolValue;
-    }
-  }
-
-  catch(...)
-  {
-    symbolValue = 0;
-    cxxl$set_condition(unix_signal);
-    return (DynamicSymbolHandle) symbolValue;
-  }
-
-  if (!$VMS_STATUS_SUCCESS(status))
-  {
-    symbolValue = 0;
-  }
-  cxxl$set_condition(unix_signal);
-  return (DynamicSymbolHandle) symbolValue;
+  String dlerr = dlerror();
+  return dlerr;
 }
 
 DynamicSymbolHandle System::loadDynamicSymbol(
 				      DynamicLibraryHandle libraryHandle,
 					       const char *symbolName)
 {
-  DynamicSymbolHandle Dsh;
+  char* Errorout;
+  void* Dsh;
 
-  char *tmp = getenv("PEGASUS_SYSSHARE");
-
-  if (tmp == "")
+  if ((Dsh = dlsym(libraryHandle, (char*)symbolName)) == 0)
   {
-    throw UnrecognizedConfigProperty("PEGASUS_SYSSHARE");
+    Errorout = dlerror();
   }
-
-  String vmsProviderDir = (tmp + saveFileName + ".exe");
-
-  Dsh = loadVmsDynamicSymbol((const char *) symbolName,
-			     (const char *) saveFileName.getCString(),
-			     (const char *) vmsProviderDir.getCString());
-  return Dsh;
+  return (DynamicSymbolHandle)Dsh;
 }
 
 String System::getHostName()
@@ -405,30 +326,32 @@ String System::getPassword(const char *prompt)
 
   buf[0] = 0;
 
-  if ((errorcode = (sys$assign(&inpdev,		// Device name 
-			       &ichan,	// Channel assigned 
-			       0,	// request KERNEL mode access 
-			       0)))	// No mailbox assigned 
-      != SS$_NORMAL)
+  errorcode = sys$assign(&inpdev,	// Device name 
+			  &ichan,	// Channel assigned 
+			  0,		// request KERNEL mode access 
+			  0);		// No mailbox assigned 
+
+  if (errorcode != SS$_NORMAL)
   {
-    throw InternalSystemError();
+    return buf;
   }
 
   //
   // Read current terminal settings
   //
 
-  if ((errorcode = sys$qiow(0,	// Wait on event flag zero  
-			    ichan,	// Channel to input terminal  
-			    IO$_SENSEMODE,	// Function - Sense Mode 
-			    &iostatus,	// Status after operation 
-			    0, 0,	// No AST service   
-			    &otermb,	// [P1] Address of Char Buffer 
-			    sizeof (otermb),	// [P2] Size of Char Buffer 
-			    0, 0, 0, 0))	// [P3] - [P6] 
-      != SS$_NORMAL)
+  errorcode = sys$qiow(0,	// Wait on event flag zero  
+			ichan,	// Channel to input terminal  
+			IO$_SENSEMODE,	// Function - Sense Mode 
+			&iostatus,	// Status after operation 
+			0, 0,	// No AST service   
+			&otermb,	// [P1] Address of Char Buffer 
+			sizeof (otermb),	// [P2] Size of Char Buffer 
+			0, 0, 0, 0);	// [P3] - [P6] 
+
+  if (errorcode != SS$_NORMAL)
   {
-    throw InternalSystemError();
+    return buf;
   }
 
   //
@@ -448,17 +371,18 @@ String System::getPassword(const char *prompt)
   // Write out new terminal settings 
   //
 
-  if ((errorcode = sys$qiow(0,	// Wait on event flag zero  
-			    ichan,	// Channel to input terminal  
-			    IO$_SETMODE,	// Function - Set Mode 
-			    &iostatus,	// Status after operation 
-			    0, 0,	// No AST service   
-			    &ntermb,	// [P1] Address of Char Buffer 
-			    sizeof (ntermb),	// [P2] Size of Char Buffer 
-			    0, 0, 0, 0))	// [P3] - [P6] 
-      != SS$_NORMAL)
+  errorcode = sys$qiow(0,	// Wait on event flag zero  
+			ichan,	// Channel to input terminal  
+			IO$_SETMODE,	// Function - Set Mode 
+			&iostatus,	// Status after operation 
+			0, 0,	// No AST service   
+			&ntermb,	// [P1] Address of Char Buffer 
+			sizeof (ntermb),	// [P2] Size of Char Buffer 
+			0, 0, 0, 0);	// [P3] - [P6] 
+
+  if (errorcode != SS$_NORMAL)
   {
-    throw InternalSystemError();
+    return buf;
   }
 
   //
@@ -468,40 +392,47 @@ String System::getPassword(const char *prompt)
 
   psize = strlen(prompt);
 
-  if ((errorcode = sys$qiow(0,		// Event flag 
-			    ichan,		// Input channel 
-			    IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TRMNOECHO,
-						// Read with prompt, no echo, no translate, no termination char in buffer 
-			    &iostatus,	// I/O status block 
-			    NULL,		// AST block (none) 
-			    0,		// AST parameter 
-			    &buf,		// P1 - input buffer 
-			    MAX_PASS_LEN,	// P2 - buffer length 
-			    0,		// P3 - ignored (timeout) 
-			    0,		// P4 - ignored (terminator char set) 
-			    prompt,		// P5 - prompt buffer 
-			    psize))		// P6 - prompt size 
-	!= SS$_NORMAL)
+  errorcode = sys$qiow(0,		// Event flag 
+			ichan,		// Input channel 
+			IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TRMNOECHO,
+					// Read with prompt, no echo, no translate, no termination char in buffer 
+			&iostatus,	// I/O status block 
+			NULL,		// AST block (none) 
+			0,		// AST parameter 
+			&buf,		// P1 - input buffer 
+			MAX_PASS_LEN,	// P2 - buffer length 
+			0,		// P3 - ignored (timeout) 
+			0,		// P4 - ignored (terminator char set) 
+			prompt,		// P5 - prompt buffer 
+			psize);		// P6 - prompt size 
+
+  if (errorcode != SS$_NORMAL)
   {
-    throw InternalSystemError();
+    return buf;
   }
 
   //
   // Write out old terminal settings 
   //
 
-  if ((errorcode = sys$qiow(0,	// Wait on event flag zero  
-			    ichan,	// Channel to input terminal  
-			    IO$_SETMODE,	// Function - Set Mode 
-			    &iostatus,	// Status after operation 
-			    0, 0,	// No AST service   
-			    &otermb,	// [P1] Address of Char Buffer 
-			    sizeof (otermb),	// [P2] Size of Char Buffer 
-			    0, 0, 0, 0))	// [P3] - [P6] 
-      != SS$_NORMAL)
+  errorcode = sys$qiow(0,	// Wait on event flag zero  
+			ichan,	// Channel to input terminal  
+			IO$_SETMODE,	// Function - Set Mode 
+			&iostatus,	// Status after operation 
+			0, 0,	// No AST service   
+			&otermb,	// [P1] Address of Char Buffer 
+			sizeof (otermb),	// [P2] Size of Char Buffer 
+			0, 0, 0, 0);	// [P3] - [P6] 
+
+  if (errorcode != SS$_NORMAL)
   {
-    throw InternalSystemError();
+    return buf;
   }
+
+  //
+  // Start new line
+  //
+
   fputc (CR, stdout);
   fputc (LF, stdout);
 

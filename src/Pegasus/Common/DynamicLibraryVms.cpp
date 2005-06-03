@@ -66,9 +66,9 @@ Boolean DynamicLibrary::load(void)
     // ensure the module is not already loaded
     PEGASUS_ASSERT(isLoaded() == false);
 
-    vmsSaveFileName = _fileName;
+    CString cstr = _fileName.getCString();
 
-    _handle = (LIBRARY_HANDLE)1;
+    _handle = dlopen(cstr, RTLD_NOW);
     return(isLoaded());
 }
 
@@ -77,6 +77,7 @@ Boolean DynamicLibrary::unload(void)
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
 
+    dlclose(_handle);
     _handle = 0;
 
     return(isLoaded());
@@ -87,92 +88,21 @@ Boolean DynamicLibrary::isLoaded(void) const
     return(_handle != 0);
 }
 
-DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getVmsSymbol(const char *symbolName, 
-                                                            const char *fileName, 
-                                                            const char *vmsProviderDir)
-{
-  char* Errorout;
-  unsigned int status;
-  CString cstr;
-
-  const char *sName = symbolName;
-  const char *fName = fileName;
-  const char *dName = vmsProviderDir;
-
-  int symbolValue = 0;
-  unsigned int flags = 0;
-
-  $DESCRIPTOR(vmsFileName, "Dummy fileName");
-  $DESCRIPTOR(vmsSymbolName, "Dummy symbolName");
-  $DESCRIPTOR(vmsDirName, "Dummy vmsProviderDir");
-
-  vmsFileName.dsc$b_dtype   = DSC$K_DTYPE_T;
-  vmsFileName.dsc$b_class   = DSC$K_CLASS_S;
-  vmsFileName.dsc$w_length  = strlen(fName);
-  vmsFileName.dsc$a_pointer = (char *)fName;
-
-  vmsSymbolName.dsc$b_dtype   = DSC$K_DTYPE_T;
-  vmsSymbolName.dsc$b_class   = DSC$K_CLASS_S;
-  vmsSymbolName.dsc$w_length  = strlen(sName);
-  vmsSymbolName.dsc$a_pointer = (char *)sName;
-
-  vmsDirName.dsc$b_dtype   = DSC$K_DTYPE_T;
-  vmsDirName.dsc$b_class   = DSC$K_CLASS_S;
-  vmsDirName.dsc$w_length     = strlen(dName);
-  vmsDirName.dsc$a_pointer = (char *)dName;
-
-  if(isLoaded())
-  {
-    try
-    {
-      status = lib$find_image_symbol (&vmsFileName, &vmsSymbolName, &symbolValue, &vmsDirName, flags);
-    }
-
-    catch (struct chf$signal_array &obj)
-    {
-//      if (obj.chf$is_sig_name != LIB$_EOMWARN)
-//      {
-        symbolValue = 0;
-        return (LIBRARY_SYMBOL)symbolValue;
-//      }
-    }
-
-    catch (...)
-    {
-      symbolValue = 0;
-      return (LIBRARY_SYMBOL)symbolValue;
-    }
-
-    if (!$VMS_STATUS_SUCCESS(status))
-    {
-      symbolValue = 0;
-    }
-  }
-  return (LIBRARY_SYMBOL)symbolValue;
-}
-
 DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
 {
 
-  LIBRARY_SYMBOL Ls;
-
-  char* tmp = getenv("PEGASUS_SYSSHARE");
-
-  if (tmp == "")
-  {
-    throw UnrecognizedConfigProperty("PEGASUS_SYSSHARE");
-  }
-
-  String vmsProviderDir = ( tmp + vmsSaveFileName + ".exe");
+  char* Errorout;
+  void* Dsh;
 
   if(isLoaded())
   {
     CString cstr = symbolName.getCString();
 
-    Ls = getVmsSymbol((const char *)symbolName.getCString(), 
-                       (const char *)vmsSaveFileName.getCString(),
-                       (const char *)vmsProviderDir.getCString());
-   return Ls;
+    if ((Dsh = dlsym(_handle, cstr)) == 0)
+    {
+      Errorout = dlerror();
+    }
+    return (LIBRARY_SYMBOL)Dsh;
   }
   return (0);
 }

@@ -64,14 +64,6 @@ typedef unsigned long mode_t;
 PEGASUS_NAMESPACE_BEGIN
 
 
-#if defined(PEGASUS_OS_VMS)
-    // 
-    // Needed to save filename. We do NOT use dlopen and dlsym.
-    // VMS implementation uses OS specific code for these functions.
-    // 
-    static String saveFileName;
-#endif
-
 /** This is an opaque type which is used to represent dynamic library
     handles returned by the System::loadDynamicLibrary() method and
     accepted by the System::loadDynamicProcedure() method.
@@ -152,13 +144,6 @@ public:
     static DynamicSymbolHandle loadDynamicSymbol(
 	DynamicLibraryHandle libraryHandle,
 	const char* symbolName);
-
-#if defined(PEGASUS_OS_VMS)
-    static DynamicSymbolHandle loadVmsDynamicSymbol(
-        const char* symbolName, 
-        const char* fileName, 
-        const char *vmsProviderDir);
-#endif
 
     static String getHostName();
     static String getFullyQualifiedHostName ();

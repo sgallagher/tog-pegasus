@@ -88,24 +88,10 @@ public:
     String getFileName(void) const;
     LIBRARY_HANDLE getHandle(void) const;
     LIBRARY_SYMBOL getSymbol(const String & symbolName);
-// 
-// VMS implementation uses OS specific code for these functions.
-// 
-#if defined(PEGASUS_OS_VMS)
-    LIBRARY_SYMBOL getVmsSymbol(const char* symbolName, const char* fileName, const char *vmsProviderDir);
-#endif
 
 private:
     String _fileName;
     LIBRARY_HANDLE _handle;
-// 
-// Needed to save filename. We do NOT use dlopen and dlsym.
-// VMS implementation uses OS specific code for these functions.
-// 
-#if defined(PEGASUS_OS_VMS)
-    String vmsSaveFileName;
-#endif
-
 
 };
 

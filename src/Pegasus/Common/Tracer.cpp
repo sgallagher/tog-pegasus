@@ -164,8 +164,8 @@ void Tracer::_trace(
                //
                // pegasus_thread_self returns long-long-unsigned.
                //
-//               "[%d:%llu:%s:%u]: ",
-               "[%x:%llx:%s:%u]: ",
+               "[%d:%llu:%s:%u]: ",
+//               "[%x:%llx:%s:%u]: ",
                System::getPID(),
                pegasus_thread_self(),
 #else

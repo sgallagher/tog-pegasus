@@ -38,6 +38,8 @@
 #
 include $(PEGASUS_ROOT)/mak/config.mak
 
+GROFFOPTIONS=man
+# old was man
 DOCUMENT=CLI
 SOURCE=$(DOCUMENT).nroff
 
@@ -45,5 +47,11 @@ html:
 	man2html <$(SOURCE) >$(DOCUMENT).html
 
 
-ascii:
-	nroff -man $(SOURCE) >$(DOCUMENT).txt 
+manpage:
+	nroff -$(GROFFOPTIONS) $(SOURCE) >$(DOCUMENT)
+
+test:
+	nroff -$(GROFFOPTIONS) $(SOURCE) | less
+
+text:
+	groff -$(GROFFOPTIONS) $(SOURCE) | col -b > $(DOCUMENT).txt

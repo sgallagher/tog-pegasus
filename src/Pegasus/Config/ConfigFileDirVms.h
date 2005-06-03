@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Sean Keenan (sean.keenan@hp.com)
+// Author: Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 // Modified By:
 //
@@ -40,17 +40,17 @@
 /**
     Default file name for the current configuration.
 */
-static char CURRENT_CONFIG_FILE [] = "/var/opt/wbem/cimserver_current.conf";
+static char CURRENT_CONFIG_FILE [] = "/wbem_var/opt/wbem/cimserver_current.conf";
 
 /**
     Default file name for the planned configuration.
 */
-static char PLANNED_CONFIG_FILE [] = "/var/opt/wbem/cimserver_planned.conf";
+static char PLANNED_CONFIG_FILE [] = "/wbem_var/opt/wbem/cimserver_planned.conf";
 
 /**
     Default file name for the cimserver startup file containing the PID
 */
-static char CIMSERVER_START_FILE [] = "/var/opt/wbem/cimserver_start.conf";
+static char CIMSERVER_START_FILE [] = "/wbem_var/opt/wbem/cimserver_start.conf";
 #else
 /**
     Default file name for the current configuration.

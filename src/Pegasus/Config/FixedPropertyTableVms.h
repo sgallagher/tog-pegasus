@@ -51,19 +51,20 @@
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
-    {"traceFilePath",       "/var/opt/wbem/cimserver.trc"},
-    {"passwordFilePath",    "/etc/opt/wbem/cimserver.passwd"},
-    {"sslCertificateFilePath", "/etc/opt/hp/sslshare/cert.pem"},
-    {"sslKeyFilePath",      "/etc/opt/hp/sslshare/file.pem"},
+    {"traceFilePath",       "/wbem_var/opt/wbem/cimserver.trc"},
+    {"passwordFilePath",    "/wbem_etc/opt/wbem/cimserver.passwd"},
+    {"sslCertificateFilePath", "/wbem_etc/opt/hp/sslshare/cert.pem"},
+    {"sslKeyFilePath",      "/wbem_etc/opt/hp/sslshare/file.pem"},
 //
-    {"sslTrustStore",       "/etc/opt/hp/sslshare/cimserver_trust"},
-    {"exportSSLTrustStore", "/etc/opt/hp/sslshare/indication_trust"},
-    {"crlStore",            "/etc/opt/hp/sslshare/crl"},
+    {"sslTrustStore",       "/wbem_etc/opt/hp/sslshare/cimserver_trust"},
+    {"exportSSLTrustStore", "/wbem_etc/opt/hp/sslshare/indication_trust"},
+    {"crlStore",            "/wbem_etc/opt/hp/sslshare/crl"},
 //
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
-    {"logdir",              "/var/opt/wbem/logs"},
-    {"repositoryDir",       "/var/opt/wbem/repository"},
-    {"providerDir",         "/var/opt/wbem/providers/lib"},
+    {"logdir",              "/wbem_var/opt/wbem/logs"},
+    {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
+//    {"providerDir",         "/wbem_var/opt/wbem/providers/lib"},
+    {"providerDir",         "sys$share:"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

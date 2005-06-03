@@ -416,16 +416,16 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/lsb-pegasus/sbin/cimprovagt"
 # elif defined(PEGASUS_OS_VMS)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
-#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/var/opt/wbem/client.pem"
+#  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/wbem_var/opt/wbem/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
-#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/var/opt/wbem/ssl.rnd"
+#  define PEGASUS_SSLCLIENT_RANDOMFILE      "/wbem_var/opt/wbem/ssl.rnd"
 #  undef PEGASUS_SSLSERVER_RANDOMFILE
-#  define PEGASUS_SSLSERVER_RANDOMFILE      "/var/opt/wbem/cimserver.rnd"
+#  define PEGASUS_SSLSERVER_RANDOMFILE      "/wbem_var/opt/wbem/cimserver.rnd"
 #  undef PEGASUS_LOCAL_AUTH_DIR
-#  define PEGASUS_LOCAL_AUTH_DIR            "/var/opt/wbem/localauth"
+#  define PEGASUS_LOCAL_AUTH_DIR            "/wbem_var/opt/wbem/localauth"
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
-#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/var/opt/wbem/bin/cimprovagt"
+#  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/wbem_var/opt/wbem/bin/cimprovagt"
 # endif
 #endif
 

@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com)
 //
-// Modified By: 
+// Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +79,7 @@ class PEGASUS_CQL_LINKAGE CQLFunctionRep
 
    String toString()const;
 
-   void applyContext(QueryContext& inContext);
+   void applyContext(const QueryContext& inContext);
 
   // Boolean operator==(const CQLFunctionRep& func)const;
 

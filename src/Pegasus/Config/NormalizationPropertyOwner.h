@@ -30,6 +30,7 @@
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
 // Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +67,8 @@ public:
     @param propertyInfo   List to store the property info.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    void getPropertyInfo(const String & name, Array<String> & propertyInfo);
+    void getPropertyInfo(const String & name, Array<String> & propertyInfo)
+    const;
 
     /**
     Get default value of the specified property.
@@ -75,7 +77,7 @@ public:
     @return string containing the default value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    String getDefaultValue(const String & name);
+    String getDefaultValue(const String & name)const;
 
     /**
     Get current value of the specified property.
@@ -84,7 +86,7 @@ public:
     @return string containing the currnet value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    String getCurrentValue(const String & name);
+    String getCurrentValue(const String & name)const;
 
     /**
     Get planned value of the specified property.
@@ -93,7 +95,7 @@ public:
     @return string containing the planned value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    String getPlannedValue(const String & name);
+    String getPlannedValue(const String & name)const;
 
     /**
     Init current value of the specified property to the specified value.
@@ -152,7 +154,7 @@ public:
     @return Boolean      True if the specified value for the property is valid.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    Boolean isValid(const String & name, const String & value);
+    Boolean isValid(const String & name, const String & value)const;
 
     /**
     Checks to see if the specified property is dynamic or not.
@@ -161,7 +163,7 @@ public:
     @return Boolean      True if the specified property is dynamic.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    Boolean isDynamic(const String & name);
+    Boolean isDynamic(const String & name)const;
 
 private:
     struct ConfigProperty * _lookupConfigProperty(const String & name);

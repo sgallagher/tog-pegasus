@@ -30,6 +30,7 @@
 // Author: Sushma Fernandes (sushma_fernandes@hp.com)
 //
 // Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -148,11 +149,14 @@ Get information about the specified property.
 */
 void FileSystemPropertyOwner::getPropertyInfo(
     const String& name, 
-    Array<String>& propertyInfo)
+    Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
 
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    FileSystemPropertyOwner* const localThis = const_cast
+                             <FileSystemPropertyOwner* const>(this);
+    struct ConfigProperty* configProperty = 
+                             localThis->_lookupConfigProperty(name);
 
     propertyInfo.append(configProperty->propertyName);
     propertyInfo.append(configProperty->defaultValue);
@@ -180,27 +184,39 @@ void FileSystemPropertyOwner::getPropertyInfo(
 /**
 Get default value of the specified property.
 */
-String FileSystemPropertyOwner::getDefaultValue(const String& name)
+String FileSystemPropertyOwner::getDefaultValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    FileSystemPropertyOwner* const localThis = 
+                           const_cast<FileSystemPropertyOwner* const>(this);
+    struct ConfigProperty* configProperty = 
+                           localThis->_lookupConfigProperty(name);    
+
     return configProperty->defaultValue;
 }
 
 /** 
 Get current value of the specified property.
 */
-String FileSystemPropertyOwner::getCurrentValue(const String& name)
+String FileSystemPropertyOwner::getCurrentValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    FileSystemPropertyOwner* const localThis =
+                          const_cast<FileSystemPropertyOwner* const>(this);
+    struct ConfigProperty* configProperty = 
+                          localThis->_lookupConfigProperty(name);
+
     return configProperty->currentValue;
 }
 
 /** 
 Get planned value of the specified property.
 */
-String FileSystemPropertyOwner::getPlannedValue(const String& name)
+String FileSystemPropertyOwner::getPlannedValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    FileSystemPropertyOwner* const localThis = 
+                          const_cast<FileSystemPropertyOwner* const>(this);
+    struct ConfigProperty* configProperty = 
+                          localThis->_lookupConfigProperty(name);
+
     return configProperty->plannedValue;
 }
 
@@ -261,7 +277,8 @@ void FileSystemPropertyOwner::updatePlannedValue(
 /** 
 Checks to see if the given value is valid or not.
 */
-Boolean FileSystemPropertyOwner::isValid(const String& name, const String& value)
+Boolean FileSystemPropertyOwner::isValid(const String& name, 
+                                 const String& value) const
 {
     if (!isDirValid( value ))
     {
@@ -274,9 +291,13 @@ Boolean FileSystemPropertyOwner::isValid(const String& name, const String& value
 /** 
 Checks to see if the specified property is dynamic or not.
 */
-Boolean FileSystemPropertyOwner::isDynamic(const String& name)
+Boolean FileSystemPropertyOwner::isDynamic(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    FileSystemPropertyOwner* const localThis = 
+                             const_cast<FileSystemPropertyOwner* const>(this);
+    struct ConfigProperty* configProperty = 
+                             localThis->_lookupConfigProperty(name);
+
     return (configProperty->dynamic==IS_DYNAMIC);
 }
 

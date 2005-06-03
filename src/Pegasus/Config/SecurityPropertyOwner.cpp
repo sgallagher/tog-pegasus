@@ -35,6 +35,7 @@
 //       Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //       Heather Sterling, IBM (hsterl@us.ibm.com)
 //       Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+//       Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -472,11 +473,14 @@ Get information about the specified property.
 */
 void SecurityPropertyOwner::getPropertyInfo(
     const String& name, 
-    Array<String>& propertyInfo)
+    Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
 
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    SecurityPropertyOwner* const localThis = 
+                              const_cast<SecurityPropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                              localThis->_lookupConfigProperty(name);
 
     propertyInfo.append(configProperty->propertyName);
     propertyInfo.append(configProperty->defaultValue);
@@ -503,27 +507,36 @@ void SecurityPropertyOwner::getPropertyInfo(
 /** 
 Get default value of the specified property.
 */
-String SecurityPropertyOwner::getDefaultValue(const String& name)
+String SecurityPropertyOwner::getDefaultValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    SecurityPropertyOwner* const localThis =
+                              const_cast<SecurityPropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                              localThis->_lookupConfigProperty(name);
     return configProperty->defaultValue;
 }
 
 /** 
 Get current value of the specified property.
 */
-String SecurityPropertyOwner::getCurrentValue(const String& name)
+String SecurityPropertyOwner::getCurrentValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    SecurityPropertyOwner* const localThis =
+                              const_cast<SecurityPropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                              localThis->_lookupConfigProperty(name);
     return configProperty->currentValue;
 }
 
 /** 
 Get planned value of the specified property.
 */
-String SecurityPropertyOwner::getPlannedValue(const String& name)
+String SecurityPropertyOwner::getPlannedValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    SecurityPropertyOwner* const localThis =
+                              const_cast<SecurityPropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                              localThis->_lookupConfigProperty(name);
     return configProperty->plannedValue;
 }
 
@@ -585,7 +598,8 @@ void SecurityPropertyOwner::updatePlannedValue(
 /** 
 Checks to see if the given value is valid or not.
 */
-Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
+Boolean SecurityPropertyOwner::isValid(const String& name, 
+                             const String& value) const
 {
     Boolean retVal = false;
 
@@ -849,9 +863,13 @@ Boolean SecurityPropertyOwner::isValid(const String& name, const String& value)
 /** 
 Checks to see if the specified property is dynamic or not.
 */
-Boolean SecurityPropertyOwner::isDynamic(const String& name)
+Boolean SecurityPropertyOwner::isDynamic(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    SecurityPropertyOwner* const localThis =
+                              const_cast<SecurityPropertyOwner* const>(this);
+    struct ConfigProperty * configProperty =
+                              localThis->_lookupConfigProperty(name);
+
     return (configProperty->dynamic==IS_DYNAMIC);
 }
 

@@ -32,6 +32,7 @@
 // Modified By: Yi Zhou (yi_zhou@hp.com)
 //              Sushma Fernandes (sushma_fernandes@hp.com)
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -222,11 +223,14 @@ Get information about the specified property.
 */
 void TracePropertyOwner::getPropertyInfo(
     const String& name, 
-    Array<String>& propertyInfo)
+    Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
 
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    TracePropertyOwner* const localThis = 
+                                 const_cast<TracePropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                                 localThis->_lookupConfigProperty(name);
 
     propertyInfo.append(configProperty->propertyName);
     propertyInfo.append(configProperty->defaultValue);
@@ -253,27 +257,36 @@ void TracePropertyOwner::getPropertyInfo(
 /** 
 Get default value of the specified property.
 */
-String TracePropertyOwner::getDefaultValue(const String& name)
+String TracePropertyOwner::getDefaultValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    TracePropertyOwner* const localThis = 
+                                 const_cast<TracePropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                                 localThis->_lookupConfigProperty(name);
     return configProperty->defaultValue;
 }
 
 /** 
 Get current value of the specified property.
 */
-String TracePropertyOwner::getCurrentValue(const String& name)
+String TracePropertyOwner::getCurrentValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    TracePropertyOwner* const localThis = 
+                                 const_cast<TracePropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                                 localThis->_lookupConfigProperty(name);
     return configProperty->currentValue;
 }
 
 /** 
 Get planned value of the specified property.
 */
-String TracePropertyOwner::getPlannedValue(const String& name)
+String TracePropertyOwner::getPlannedValue(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    TracePropertyOwner* const localThis = 
+                                 const_cast<TracePropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                                 localThis->_lookupConfigProperty(name);
     return configProperty->plannedValue;
 }
 
@@ -403,7 +416,7 @@ void TracePropertyOwner::updatePlannedValue(
 /** 
 Checks to see if the given value is valid or not.
 */
-Boolean TracePropertyOwner::isValid(const String& name, const String& value)
+Boolean TracePropertyOwner::isValid(const String& name, const String& value) const
 {
     if (String::equalNoCase(_traceComponents->propertyName, name))
     {
@@ -457,9 +470,12 @@ Boolean TracePropertyOwner::isValid(const String& name, const String& value)
 /** 
 Checks to see if the specified property is dynamic or not.
 */
-Boolean TracePropertyOwner::isDynamic(const String& name)
+Boolean TracePropertyOwner::isDynamic(const String& name) const
 {
-    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
+    TracePropertyOwner* const localThis = 
+                                 const_cast<TracePropertyOwner* const>(this);
+    struct ConfigProperty * configProperty = 
+                                 localThis->_lookupConfigProperty(name);
     return (configProperty->dynamic==IS_DYNAMIC);
 }
 

@@ -34,6 +34,7 @@
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +93,7 @@ public:
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
     virtual void getPropertyInfo(const String& name,
-        Array<String>& propertyInfo) = 0;
+                         Array<String>& propertyInfo) const = 0;
 
 
     /**
@@ -102,7 +103,7 @@ public:
     @return string containing the default value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual String getDefaultValue(const String& name) = 0;
+    virtual String getDefaultValue(const String& name) const = 0;
 
 
     /**
@@ -112,7 +113,7 @@ public:
     @return string containing the currnet value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual String getCurrentValue(const String& name) = 0;
+    virtual String getCurrentValue(const String& name) const = 0;
 
 
     /**
@@ -122,7 +123,7 @@ public:
     @return string containing the planned value of the property specified.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual String getPlannedValue(const String& name) = 0;
+    virtual String getPlannedValue(const String& name) const = 0;
 
 
     /**
@@ -192,7 +193,7 @@ public:
     @return true if the specified value for the property is valid.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual Boolean isValid(const String& name, const String& value) = 0;
+    virtual Boolean isValid(const String& name, const String& value)const = 0;
 
 
     /**
@@ -202,7 +203,7 @@ public:
     @return true if the specified property is dynamic.
     @exception UnrecognizedConfigProperty  if the property is not defined.
     */
-    virtual Boolean isDynamic(const String& name) = 0;
+    virtual Boolean isDynamic(const String& name) const = 0;
 };
 
 

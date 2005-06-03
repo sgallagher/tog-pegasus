@@ -34,6 +34,7 @@
 //              Sushma Fernandes, Hewlett-Packard Company
 //                     (sushma_fernandes@hp.com)
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
+//              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +100,7 @@ Get information about the specified property.
 */
 void DefaultPropertyOwner::getPropertyInfo(
     const String& name,
-    Array<String>& propertyInfo)
+    Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
 
@@ -140,7 +141,7 @@ void DefaultPropertyOwner::getPropertyInfo(
 /**
 Get default value of the specified property
 */
-String DefaultPropertyOwner::getDefaultValue(const String& name)
+String DefaultPropertyOwner::getDefaultValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -159,7 +160,7 @@ String DefaultPropertyOwner::getDefaultValue(const String& name)
 /**
 Get current value of the specified property
 */
-String DefaultPropertyOwner::getCurrentValue(const String& name)
+String DefaultPropertyOwner::getCurrentValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -178,7 +179,7 @@ String DefaultPropertyOwner::getCurrentValue(const String& name)
 /**
 Get planned value of the specified property
 */
-String DefaultPropertyOwner::getPlannedValue(const String& name)
+String DefaultPropertyOwner::getPlannedValue(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {
@@ -283,6 +284,7 @@ void DefaultPropertyOwner::updatePlannedValue(
 Checks to see if the given value is valid or not.
 */
 Boolean DefaultPropertyOwner::isValid(const String& name, const String& value)
+const
 {
     //
     // By default, no validation is done. It can optionally be added here
@@ -294,7 +296,7 @@ Boolean DefaultPropertyOwner::isValid(const String& name, const String& value)
 /**
 Checks to see if the specified property is dynamic or not.
 */
-Boolean DefaultPropertyOwner::isDynamic(const String& name)
+Boolean DefaultPropertyOwner::isDynamic(const String& name) const
 {
     for (Uint32 i = 0; i < NUM_PROPERTIES; i++)
     {

@@ -313,6 +313,7 @@ Uint32 CIMListenerService::getPortNumber() const
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine(void *param)
 {
+  try { 
     AutoPtr<CIMListenerService> svc(reinterpret_cast<CIMListenerService *>(param));
 
     //svc->init(); bug 1394
@@ -323,7 +324,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerService::_listener_routine
 #endif
         svc->runForever();
     }
-
+  } catch (...) 
+  { 
+        Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
+			"Unknown exception thrown in _listener_routine.");
+  }
     return 0;
 }
 

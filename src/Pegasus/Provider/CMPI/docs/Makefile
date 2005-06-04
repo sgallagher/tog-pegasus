@@ -30,7 +30,7 @@ ROOT = ../../../../../
 
 DIR = Pegasus/Provider/CMPI/docs
 
-LOCAL_DEFINES = -DPEGASUS_USE_EXPERIMENTAL_INTERFACES -DDOC_ONLY
+LOCAL_DEFINES =  -DDOC_ONLY
 
 include $(ROOT)/mak/config.mak
 

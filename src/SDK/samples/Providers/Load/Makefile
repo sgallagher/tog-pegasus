@@ -48,6 +48,7 @@ createrepository:
 	@ $(PEGASUS_BIN_DIR)/cimmof -I$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA) -n$(SAMPLEPROVIDERNS) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/CIM_Event$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading class definitions into $(SAMPLEPROVIDERNS) namespace ...
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLEPROVIDERNS) SampleProviderSchema.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(SAMPLEPROVIDERNS) CWS_FilesAndDir.mof
 
 registerproviders:
 	@ $(ECHO) +++++ Registering providers for SampleProvider namespace  ...
@@ -55,6 +56,7 @@ registerproviders:
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) MethodProviderR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) IndicationProviderR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) SimpleDisplayConsumerR.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) CWS_FilesAndDirR.mof
 
 deregisterproviders:
 	@ $(ECHO) +++++ Deregistering SampleInstanceProvider ...
@@ -65,3 +67,5 @@ deregisterproviders:
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleIndicationProviderModule
 	@ $(ECHO) +++++ Deregistering SimpleDisplayConsumerModule ...
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SimpleDisplayConsumerModule
+	@ $(ECHO) +++++ Deregistering FilesandDirectoryModule ... 	 
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m FilesAndDirectoriesModule

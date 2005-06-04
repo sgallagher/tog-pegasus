@@ -59,15 +59,13 @@ PROVIDER_SRCPATH2 = $(PEGASUS_ROOT)/src/Providers/sample
 PROVIDER_SRCPATH3 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Providers
 PROVIDER_SRCPATH4 = $(PEGASUS_ROOT)/src/Providers/IndicationConsumer
 
-HTML_DIRS = \
-  DefaultC++
-
 INCLUDE_DIRS = \
   Pegasus \
   Pegasus/Client \
   Pegasus/Common \
   Pegasus/Consumer \
-  Pegasus/Provider
+  Pegasus/Provider \
+  Pegasus/Provider/CMPI 
 
 INCLUDE_FILES = \
    Pegasus/Client/CIMClientException.h \
@@ -126,6 +124,15 @@ INCLUDE_FILES += \
    Pegasus/Client/ClientOpPerformanceDataHandler.h \
    Pegasus/Common/CIMOperationType.h
 
+# CMPI header files
+INCLUDE_FILES += \
+   Pegasus/Provider/CMPI/cmpift.h \
+   Pegasus/Provider/CMPI/cmpidt.h \
+   Pegasus/Provider/CMPI/cmpimacs.h \
+   Pegasus/Provider/CMPI/cmpios.h \
+   Pegasus/Provider/CMPI/cmpipl.h \
+   Pegasus/Provider/CMPI/cmpi_cql.h 
+
 SAMPLES_DIRS = \
    Clients \
    Clients/DefaultC++ \
@@ -138,8 +145,11 @@ SAMPLES_DIRS = \
    Providers/DefaultC++/InstanceProvider \
    Providers/DefaultC++/MethodProvider \
    Providers/DefaultC++/SimpleDisplayConsumer \
+   Providers/CMPI/FilesAndDirectories \
+   Providers/CMPI/FilesAndDirectories/tests \
    Providers/Load \
    mak
+
 
 CLIENTSRCPATH1FILES = \
    Makefile \
@@ -173,12 +183,44 @@ PROVIDERSRCPATH1FILES = \
    DefaultC++/IndicationProvider/IndicationProvider.cpp \
    DefaultC++/IndicationProvider/IndicationProvider.h \
    DefaultC++/IndicationProvider/IndicationProviderMain.cpp \
-   DefaultC++/SimpleDisplayConsumer/Makefile
+   DefaultC++/SimpleDisplayConsumer/Makefile \
+   CMPI/Makefile \
+   CMPI/FilesAndDirectories/Makefile \
+   CMPI/FilesAndDirectories/tests/Makefile 
+
    
 PROVIDERSRCPATH2FILES = \
    Load/InstanceProviderR.mof \
    Load/MethodProviderR.mof \
-   Load/SimpleDisplayConsumerR.mof 
+   Load/SimpleDisplayConsumerR.mof \
+   Load/CWS_FilesAndDir.mof \
+   Load/CWS_FilesAndDirR.mof
+
+#CMPI provider.
+PROVIDERSRCPATH2FILES += \
+     CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml \
+     CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml \
+     CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml \
+     CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml \
+     CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml \
+     CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml \
+     CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml \
+     CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml \
+     CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml \
+     CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml \
+     CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml \
+     CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml \
+     CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml \
+     CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml \
+     CMPI/FilesAndDirectories/cwssimdata.c \
+     CMPI/FilesAndDirectories/cwsutil.h \
+     CMPI/FilesAndDirectories/CWS_Directory.c \
+     CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c \
+     CMPI/FilesAndDirectories/cwsutil.c \
+     CMPI/FilesAndDirectories/cwstest.c \
+     CMPI/FilesAndDirectories/CWS_FileUtils.c \
+     CMPI/FilesAndDirectories/CWS_PlainFile.c \
+     CMPI/FilesAndDirectories/CWS_FileUtils.h 
 
 PROVIDERSRCPATH3FILES = \
    InstanceProvider/InstanceProvider.cpp \

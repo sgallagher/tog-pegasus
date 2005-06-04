@@ -31,6 +31,7 @@ ROOT = ..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
-   DefaultC++
+   DefaultC++ \
+   CMPI \
 
 include $(ROOT)/mak/recurse.mak

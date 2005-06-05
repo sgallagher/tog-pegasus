@@ -82,10 +82,11 @@ PEGASUS_NAMESPACE_BEGIN
 
     This provider implements the following functions:
     - createInstance		( adds a new namespace to the repository)
-    - getInstance		( Gets one instance containing a namespace name)
-    - modifyInstance		( Limited Support)
-    - enumerateInstances	( Lists all namespaces as Instances)
-    - enumerateInstanceNames	( Lists all namespace names )
+    - getInstance		( Gets one instance of any supported object)
+    - modifyInstance		( Limited Support - selected fields in CIM_Namespace)
+    - enumerateInstances	( Lists all namespaces of all supported classes)
+    - enumerateInstanceNames	( Lists all namespace names of all supported classes )
+    - reference and associations 
     TBD
 */
 
@@ -103,39 +104,39 @@ public:
     }
 
     virtual void createInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+    	const OperationContext & context,
+    	const CIMObjectPath & instanceReference,
         const CIMInstance& myInstance,
-	ObjectPathResponseHandler & handler);
+    	ObjectPathResponseHandler & handler);
 
     virtual void deleteInstance(
-	const OperationContext & context,
+    	const OperationContext & context,
         const CIMObjectPath& instanceName,
-	ResponseHandler & handler);
+    	ResponseHandler & handler);
 
     virtual void getInstance(
-	const OperationContext & context,
+    	const OperationContext & context,
         const CIMObjectPath& instanceName,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
+    	const Boolean includeQualifiers,
+    	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-	InstanceResponseHandler & handler);
+    	InstanceResponseHandler & handler);
 
     void modifyInstance(
-	const OperationContext & context,
-	const CIMObjectPath & instanceReference,
+    	const OperationContext & context,
+    	const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
-	const Boolean includeQualifiers,
+    	const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
 	ResponseHandler & handler);
 
     virtual void enumerateInstances(
-	const OperationContext & context,
-	const CIMObjectPath & ref,
-	const Boolean includeQualifiers,
-	const Boolean includeClassOrigin,
+    	const OperationContext & context,
+    	const CIMObjectPath & ref,
+    	const Boolean includeQualifiers,
+    	const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList,
-	InstanceResponseHandler & handler);
+    	InstanceResponseHandler & handler);
 
     virtual void enumerateInstanceNames(
 	const OperationContext & context,
@@ -205,11 +206,6 @@ private:
         const CIMName& className,
         CIMClass& returnedClass);
 
-    CIMObjectPath _buildReference(
-        const CIMObjectPath& objectPath,
-        const CIMInstance& instance,
-        const CIMName& className);
-
     CIMObjectPath _buildObjectPath(
         const CIMObjectPath& objectPath,
         const CIMName& className, 
@@ -228,16 +224,10 @@ private:
         const CIMObjectPath& objectPath,
         const String& namespaceType,
         const Uint16& accessProtocol,
-        const String& IPAddress,
-        const Boolean& includeQualifiers,
-        const Boolean& includeClassOrigin,
-        const CIMPropertyList& propertyList);
+        const String& IPAddress);
 
     Array<CIMInstance> _buildInstancesPGCIMXMLCommunicationMechanism(
-        const CIMObjectPath& objectPath,
-        const Boolean includeQualifiers,
-        const Boolean includeClassOrigin,
-        const CIMPropertyList& propertyList);
+        const CIMObjectPath& objectPath);
 
     CIMInstance _getInstanceCIMObjectManager(
         const CIMObjectPath& objectPath,
@@ -246,10 +236,7 @@ private:
         const CIMPropertyList& propertyList);
 
     Array<CIMInstance> _getInstancesCIMNamespace(
-        const CIMObjectPath& objectPath,
-        const Boolean& includeQualifiers,
-        const Boolean& includeClassOrigin,
-        const CIMPropertyList& propertyList);
+        const CIMObjectPath& objectPath);
 
 
     CIMInstance _getInstanceCIMNamespace(
@@ -280,6 +267,31 @@ private:
         const CIMPropertyList& propertyList,
         ResponseHandler & handler);
 
+    // The following are internal equivalents of the operations
+    // allowing the operations to call one another internally within
+    // the provider.
+    Array<CIMInstance> InteropProvider::localEnumerateInstances(
+        const OperationContext & context,
+        const CIMObjectPath & ref,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList& propertyList);
+
+    Array<CIMObject> InteropProvider::localReferences(
+    	const OperationContext & context,
+    	const CIMObjectPath & objectName,
+    	const CIMName & resultClass,
+    	const String & role,
+    	const Boolean includeQualifiers,
+    	const Boolean includeClassOrigin,
+    	const CIMPropertyList & propertyList);
+
+    CIMInstance InteropProvider::localGetInstance(
+        const OperationContext & context,
+        const CIMObjectPath & instanceName,
+        const Boolean includeQualifiers,
+        const Boolean includeClassOrigin,
+        const CIMPropertyList & propertyList);
     // Repository Instance variable
     //
        CIMRepository*   _repository;

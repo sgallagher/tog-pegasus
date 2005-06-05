@@ -76,6 +76,7 @@
     3. Review the key parameters on create, etc. to be sort out which are
        required from user and which we can supply.  I think we are asking too
        much of the user right now.
+    4. Review deletion of _buildObjectPath, _reference, etc.
 */
 
 #include <Pegasus/Common/Config.h>
@@ -120,7 +121,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 #define CDEBUG(X)
 #define LDEBUG()
-//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropProvider (" << __LINE__ << ") " << X << PEGASUS_STD(endl)
 //#define LDEBUG(X) Logger::put (Logger::DEBUG_LOG, "InteropProvider", Logger::TRACE, "$0", X)
 
 //**************************************************************************
@@ -233,6 +234,26 @@ enum targetClass{
      CIM_COMMMECHANISMFORMANAGERASSOC=2
  };
 
+
+String _showPathArray(Array<CIMObjectPath>& p)
+{
+    String rtn;
+    for (Uint32 i = 0 ; i < p.size() ; i++)
+    {
+        if (i > 0)
+            rtn.append(" ");
+        rtn.append(p[i].toString());
+    }
+    return(rtn);
+}
+
+ void _printInstance(String& message, CIMInstance& instance)
+ {
+     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+         "%s %s\npath: %s\n %s",thisProvider, message.getCString(),
+         (instance.getPath().toString().getCString()),
+         ( ( CIMObject) instance).toString().getCString());
+ }
 
 //*************************************************************
 //  Constructor
@@ -752,42 +773,42 @@ String _validateUserID(const OperationContext & context)
     @param value String value to set into property
 
 */
-void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const String& value)
+void _setPropertyValue(CIMInstance& instance, const CIMName& propertyName, const String& value)
 {
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
         instance.getProperty(pos).setValue(CIMValue(value));
 }
 
-void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const Boolean& value)
+void _setPropertyValue(CIMInstance& instance, const CIMName& propertyName, const Boolean& value)
 {
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
         instance.getProperty(pos).setValue(CIMValue(value));
 }
 
-void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const Uint16& value)
+void _setPropertyValue(CIMInstance& instance, const CIMName& propertyName, const Uint16& value)
 {
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
         instance.getProperty(pos).setValue(CIMValue(value));
 }
 
-void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const Array<String>& value)
+void _setPropertyValue(CIMInstance& instance, const CIMName& propertyName, const Array<String>& value)
 {
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
         instance.getProperty(pos).setValue(CIMValue(value));
 }
 
-void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const Array<Uint16>& value)
+void _setPropertyValue(CIMInstance& instance, const CIMName& propertyName, const Array<Uint16>& value)
 {
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
         instance.getProperty(pos).setValue(CIMValue(value));
 }
 
-void _setPropertyValue(CIMInstance& instance, const CIMName propertyName, const CIMObjectPath& value)
+void _setPropertyValue(CIMInstance& instance, const CIMName& propertyName, const CIMObjectPath& value)
 {
     Uint32 pos;
     if ((pos = instance.findProperty(propertyName)) != PEG_NOT_FOUND)
@@ -851,10 +872,7 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
             const CIMObjectPath& objectPath,
             const String& namespaceType,
             const Uint16& accessProtocol,
-            const String& IPAddress,
-            const Boolean& includeQualifiers,
-            const Boolean& includeClassOrigin,
-            const CIMPropertyList& propertyList)
+            const String& IPAddress)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism()");
@@ -894,7 +912,7 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     Array<Uint16> authentications;
     Array<String> authenticationDescriptions;
 
-    // Note that we have fixed authentication here.
+    //TODO - get from system.
     authentications.append(3); authenticationDescriptions.append("Basic");
 
     _setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMSSUPPORTED, authentications);
@@ -918,10 +936,7 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
 }
 
 Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanism(
-                                            const CIMObjectPath& objectPath,
-                                            const Boolean includeQualifiers,
-                                            const Boolean includeClassOrigin,
-                                            const CIMPropertyList& propertyList)
+                                            const CIMObjectPath& objectPath)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanism");
@@ -951,10 +966,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
                 objectPath,
                 namespaceType,
                 namespaceAccessProtocol,
-                _getHostAddress(hostName, namespaceAccessProtocol),
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
+                _getHostAddress(hostName, namespaceAccessProtocol));
         instances.append(instance);
     }
 
@@ -967,10 +979,8 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
                 objectPath,
                 namespaceType,
                 namespaceAccessProtocol,
-                _getHostAddress(hostName, namespaceAccessProtocol),
-                includeQualifiers,
-                includeClassOrigin,
-                propertyList);
+                _getHostAddress(hostName, namespaceAccessProtocol));
+
         instances.append(instance);
     }
 
@@ -978,6 +988,7 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
     PEG_METHOD_EXIT();
     return(instances);
 }
+
 /*  Gets the value for the CIMObjectManager name.  This is a key
     property with the following characteristics.
     1. It is persistent. This must be persistent through CIMOM
@@ -1019,7 +1030,6 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
                 CIM_OBJECTMANAGER_CLASSNAME, true, false, includeQualifiers,
                 includeClassOrigin, propertyList);
 
-        CDEBUG("_getInstancefrom... " << instances.size());
         if (instances.size() >= 1)
         {
             // set this instance into global variable.
@@ -1138,16 +1148,15 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
 
         // write instance to the repository
         CIMObjectPath instancePath;
-        // Add the instance path to this if necessary ATTN ATTN:
+
         try
         {
-            CDEBUG("Create Instance for CIM_ObjectManager");
             instancePath = _repository->createInstance(objectPath.getNameSpace(),
                            instance );
         }
         catch(const CIMException&)
         {
-            // ATTN: KS generate log error if this not possible
+            // TODO ATTN: KS generate log error if this not possible
             PEG_METHOD_EXIT();
             throw;
         }
@@ -1159,7 +1168,6 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         }
         instance.setPath(instancePath);
     }
-    // KS_TEMP Drop Thisinstance.filter(includeQualifiers, includeClassOrigin, propertyList);
     PEG_METHOD_EXIT();
     return(instance);
 }
@@ -1169,17 +1177,12 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
     match all of the request attributes.
 */
 Array<CIMInstance> InteropProvider::_getInstancesCIMNamespace(
-                            const CIMObjectPath& objectPath,
-                            const Boolean& includeQualifiers,
-                            const Boolean& includeClassOrigin,
-                            const CIMPropertyList& propertyList)
+                            const CIMObjectPath& objectPath)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_getInstancesCIMNamespace()");
 
-    CDEBUG("_getinstancesPGNamespace");
     Array<CIMNamespaceName> namespaceNames = _enumerateNameSpaces();
-    CDEBUG("_getInstancesCIMNamespace. count = " << namespaceNames.size());
     Array<CIMInstance> instanceArray;
 
     // Build instances of PG namespace since that is the leaf class
@@ -1187,7 +1190,6 @@ Array<CIMInstance> InteropProvider::_getInstancesCIMNamespace(
     {
        instanceArray.append( _buildInstancePGNamespace(objectPath, namespaceNames[i]));
     }
-    CDEBUG("Build this many PG_Namespace Instances. count= " << instanceArray.size());
     PEG_METHOD_EXIT();
     return(instanceArray);
 }
@@ -1205,7 +1207,7 @@ CIMInstance InteropProvider::_getInstanceCIMNamespace(const CIMObjectPath& objec
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_getInstancesCIMNamespace()");
 
-    Array<CIMInstance> instances = _getInstancesCIMNamespace(objectPath, true, true, CIMPropertyList());
+    Array<CIMInstance> instances = _getInstancesCIMNamespace(objectPath);
 
     CIMNamespaceName nameSpace = objectPath.getNameSpace();
     // search the instances for one with the name property value = input parameter.
@@ -1221,46 +1223,51 @@ CIMInstance InteropProvider::_getInstanceCIMNamespace(const CIMObjectPath& objec
     CIMInstance nullInstance;
     return(nullInstance);
 }
+/* build the full instances set of of the association class NamespacInManager.
 
-CIMObjectPath InteropProvider::_buildReference(const CIMObjectPath& objectPath,
-        const CIMInstance& instance, const CIMName& className)
-{
-    return(_buildObjectPath(objectPath,className, instance));
-}
-
-Array<CIMInstance> InteropProvider::_buildInstancesNamespaceInManager(const CIMObjectPath& objectPath)
+    NOTE: THe input object path is not really use at this point.
+*/
+Array<CIMInstance> InteropProvider::_buildInstancesNamespaceInManager(
+                            const CIMObjectPath& objectPath)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancesNamespaceInManager");
 
-    Array<CIMInstance> namespaceInstances = _getInstancesCIMNamespace(objectPath, false,
-                            false, CIMPropertyList());
+    Array<CIMInstance> namespaceInstances = _getInstancesCIMNamespace(objectPath);
 
-    CIMInstance instanceObjMgr = _getInstanceCIMObjectManager(objectPath, true, true, CIMPropertyList());
+    CIMInstance instanceObjMgr = _getInstanceCIMObjectManager(objectPath,
+        true, true, CIMPropertyList());
 
-    CIMObjectPath refObjMgr = _buildReference(objectPath,instanceObjMgr, CIM_OBJECTMANAGER_CLASSNAME);
+    CIMObjectPath refObjMgr = instanceObjMgr.getPath();
+
+    refObjMgr.setHost(objectPath.getHost());
+    refObjMgr.setNameSpace(objectPath.getNameSpace());
 
     Array<CIMInstance> assocInstances;
     CIMClass targetClass;
 
+    CIMInstance instanceskel = _buildInstanceSkeleton(objectPath, 
+        CIM_NAMESPACEINMANAGER_CLASSNAME,
+                            targetClass);
+    // Build and instance for each namespace instance.
     for (Uint32 i = 0 ; i < namespaceInstances.size() ; i++)
     {
-        CIMInstance instance = _buildInstanceSkeleton(objectPath, CIM_NAMESPACEINMANAGER_CLASSNAME,
-                                                    targetClass);
-
+        CIMInstance instance = instanceskel.clone();
         _setPropertyValue(instance, CIMName("Antecedent"), refObjMgr);
-        //ATTNATTN: this is weak qualifier.
-        _setPropertyValue(instance, CIMName("Dependent"), 
-            _buildReference(objectPath, namespaceInstances[i], CIM_NAMESPACEINMANAGER_CLASSNAME));
+
+        CIMObjectPath temp = namespaceInstances[i].getPath(); 
+        temp.setHost(objectPath.getHost());
+        temp.setNameSpace(objectPath.getNameSpace());
+        _setPropertyValue(instance, CIMName("Dependent"), temp); 
+
         instance.setPath(instance.buildPath(targetClass));
         assocInstances.append(instance);
     }
-
     PEG_METHOD_EXIT();
-    
     return(assocInstances);
 }
-
+/* build the instances of the defined association.
+*/
 Array<CIMInstance> InteropProvider::_buildInstancesCommMechanismForManager(
     const CIMObjectPath& objectPath)
 {
@@ -1268,25 +1275,24 @@ Array<CIMInstance> InteropProvider::_buildInstancesCommMechanismForManager(
             "InteropProvider::_buildInstancesCommMechanismForManager");
 
     Array<CIMInstance> commInstances = _buildInstancesPGCIMXMLCommunicationMechanism(
-         objectPath,true,
-         true, CIMPropertyList());
+         objectPath);
 
-    CIMInstance instanceObjMgr = _getInstanceCIMObjectManager(objectPath, true, true, CIMPropertyList());
+    CIMInstance instanceObjMgr = _getInstanceCIMObjectManager(objectPath,
+        true, true, CIMPropertyList());
 
-    CIMObjectPath refObjMgr = _buildReference(objectPath, instanceObjMgr, CIM_OBJECTMANAGER_CLASSNAME);
+    CIMObjectPath refObjMgr = instanceObjMgr.getPath();
 
     Array<CIMInstance> assocInstances;
     CIMClass targetClass;
+    CIMInstance instanceskel = _buildInstanceSkeleton(objectPath, 
+        CIM_NAMESPACEINMANAGER_CLASSNAME, targetClass);
     for (Uint32 i = 0 ; i < commInstances.size() ; i++)
     {
+        CIMInstance instance = instanceskel.clone();
 
-        CIMInstance instance = _buildInstanceSkeleton(objectPath,CIM_COMMMECHANISMFORMANAGER_CLASSNAME,
-                                                      targetClass);
+        _setPropertyValue(instance, CIMName("Antecedent"), refObjMgr);
 
-        _setPropertyValue(instance,CIMName("Antecedent"), refObjMgr);
-        //ATTNATTN: this is weak qualifier.
-        _setPropertyValue(instance,CIMName("Dependent"), 
-            _buildReference(objectPath, commInstances[i],CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
+        _setPropertyValue(instance, CIMName("Dependent"), commInstances[i].getPath());
 
         instance.setPath(instance.buildPath(targetClass));
         assocInstances.append(instance);
@@ -1674,8 +1680,8 @@ CIMObjectPath InteropProvider::_buildInstancePath(const CIMObjectPath& objectPat
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancePath");
 
-    // get the class CIM_Namespace class to use in building path
-    // Exception out if Class does not exist in this namespace
+    // get the class  to use in building path
+    // Exception if Class does not exist in this namespace
     CIMClass thisClass = _getClass(objectPath, className);
 
     CIMObjectPath ref = instance.buildPath(thisClass);
@@ -1728,6 +1734,92 @@ String _getKeyValue(const CIMInstance& instance, const CIMName& keyName)
     return(name);
 }
 
+/** Test for valid CIMReferences from an association instance. If there is a role 
+    property, tests if there is a match for this role and the target object.
+    Confirms that this role and this reference exist in the target instance.
+ 
+    @param target - The target path for the association. Localization assumed.
+    @param instance - The association class instance we are searching for references
+    @param role - The role we require. I there is no role, this is String::EMPTY
+    @return - returns Boolean true if target is found in a reference that is
+    the same role
+ */
+Boolean _isInstanceValidReference(const CIMObjectPath& target,
+                                  const CIMInstance& instance,
+                                  const String& role)
+{
+    // Test if role parameter is valid property.
+    Uint32 pos;
+    if (role != String::EMPTY)
+    {
+        // Test if property with this role exists.
+        if ((pos = instance.findProperty(role)) == PEG_NOT_FOUND)
+            throw CIMException(CIM_ERR_INVALID_PARAMETER);
+     
+         // Check to be sure this is a reference property
+         // This test may not be necessary. Combine it into the loop.
+         if (instance.getProperty(pos).getType() != CIMTYPE_REFERENCE)
+             throw CIMException(CIM_ERR_INVALID_PARAMETER);
+    }
+
+    //Search instance for all reference properties
+    for (Uint32 j = 0; j < instance.getPropertyCount() ; j++)
+    {
+        const CIMConstProperty p = instance.getProperty(j);
+        if (p.getType() == CIMTYPE_REFERENCE)
+        {
+            // If there is no role or the role is the same as this property name
+            CIMValue v = p.getValue();
+            CIMObjectPath path;
+            v.get(path);
+
+            // if no role or role ==this role and target = this path, rtn true.
+            if ((role == String::EMPTY) || (role == p.getName().getString()))
+            {
+                if (target.identical(path))
+                    return(true);
+            }
+        }
+    }
+    return( false );
+}
+/** Filters the input of instances (which contain path info)
+    using the assocClassName, assocRole, ResultClassName and
+    resultRole. Removes any instances from the list that
+    do not match the filters.
+    @instances Array<CIMInstance to filter.
+    @
+ * TODO - Shouldn't we remove rather than copy??? faster.
+ * TODO - why extra check for no resultClass??
+*/
+Array<CIMObject> _filterReferenceInstances(Array<CIMInstance>& instances,
+                      const CIMObjectPath& targetobjectName,
+                      const CIMName& resultClass,
+                      const String& resultRole)
+{
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+            "_filterReferenceInstances()");
+            
+    CIMObjectPath targetReference = CIMObjectPath(
+                            String(),
+                            CIMNamespaceName(),
+                            targetobjectName.getClassName(),
+                            targetobjectName.getKeyBindings());
+    Array<CIMObject> rtnObjects;
+    for (Uint32 i = 0 ; i < instances.size() ; i++)
+    {
+        if (resultClass.isNull() || resultClass.equal(instances[i].getClassName()))
+        {
+            // if this association instance has this role in targetReference, true
+            if (_isInstanceValidReference(targetobjectName, instances[i], resultRole))
+                {
+                    rtnObjects.append(instances[i]);
+                }
+        }
+    }
+    PEG_METHOD_EXIT();
+    return( rtnObjects );
+}
 //***************************************************************************
 //  The following section is the Instance Operation processors
 //***************************************************************************
@@ -1748,7 +1840,6 @@ void InteropProvider::createInstance(
 
         handler.processing();
 
-        CDEBUG("CreateInstance " << instanceReference.toString());
         // operation namespace needed internally to get class.
         // KS_TEMP _operationNamespace = instanceReference.getNameSpace();
 
@@ -1953,6 +2044,68 @@ void InteropProvider::deleteInstance(
         return ;
     }
 
+/** Local version of getInstance to be used by other functions in the
+    the provider.  Returns a single instance.  Note that it always
+    returns an instance.  If none was found, it is unitinialitized.
+*/
+CIMInstance InteropProvider::localGetInstance(
+    const OperationContext & context,
+    const CIMObjectPath & instanceName,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList & propertyList)
+{
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::localGetInstance");
+    
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "%s getInstance. instanceName= %s , includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        thisProvider,
+        (const char *)instanceName.toString().getCString(),
+        (const char *)_showBool(includeQualifiers).getCString(),
+        (const char*) _showBool(includeClassOrigin).getCString(),
+        (const char *)_showPropertyList(propertyList).getCString());
+    
+    // Verify that ClassName is correct and get value
+    targetClass classEnum  = _verifyValidClassInput(instanceName.getClassName());
+    
+    String userName = _validateUserID(context);
+    
+    // create reference from host, namespace, class components of
+    // instance name
+    CIMObjectPath ref;
+    ref.setHost(instanceName.getHost());
+    ref.setClassName(instanceName.getClassName());
+    ref.setNameSpace(instanceName.getNameSpace());
+    
+    // Enumerate instances for this class. Returns all instances
+    // Note that this returns paths setup and instances already
+    // filtered per the input criteria.
+    
+    Array<CIMInstance> instances =  localEnumerateInstances(
+            context,
+            ref,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
+    
+    // deliver a single instance if found.
+    CIMInstance rtnInstance;
+    for (Uint32 i = 0 ; i < instances.size() ; i++)
+    {
+       if (instanceName == instances[i].getPath())
+       {
+           Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+               "%s getInstance return instance number %u\npath: %s\n %s\n",thisProvider, i,
+               (instances[i].getPath().toString().getCString()),
+               ( ( CIMObject) instances[i]).toString().getCString());
+          rtnInstance = instances[i];
+          break;
+          // TODO Add test for duplicates somewhere.
+       }
+    }
+    PEG_METHOD_EXIT();
+    return(rtnInstance);
+}
 //***************************************************************************
 //                getInstance
 //***************************************************************************
@@ -1963,139 +2116,55 @@ void InteropProvider::getInstance(
     const Boolean includeClassOrigin,
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
-    {
-        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::getInstance");
-
-        Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            "%s getInstance. instanceName= %s , includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
-            thisProvider,
-            (const char *)instanceName.toString().getCString(),
-            (const char *)_showBool(includeQualifiers).getCString(),
-            (const char*) _showBool(includeClassOrigin).getCString(),
-            (const char *)_showPropertyList(propertyList).getCString());
-
-        // Verify that ClassName is correct and get value
-        targetClass classEnum  = _verifyValidClassInput(instanceName.getClassName());
-
-        String userName = _validateUserID(context);
-
-        // begin processing the request
-        handler.processing();
-        CIMInstance instance;
-        Boolean found = false;
-
-        if (classEnum == CIM_OBJECTMANAGER)
-        {
-            instance = _getInstanceCIMObjectManager(
-                            instanceName,
-                            includeQualifiers,
-                            includeClassOrigin, propertyList);
-            _finishInstance(instance, instanceName, includeQualifiers,
-                                includeClassOrigin,
-                                propertyList );
-            if (instanceName == instance.getPath())
-            {
-                found = true;
-            }
-        }
-        else if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
-        {
-            // ATTN: test for correct instance KS: Priority 1
-            Array <CIMInstance> instances = 
-                _buildInstancesPGCIMXMLCommunicationMechanism(
-                            instanceName,
-                            includeQualifiers,
-                            includeClassOrigin, propertyList);
-            for (Uint32 i = 0 ; i < instances.size() ; i++)
-            {
-                _finishInstance(instances[i], instanceName, includeQualifiers,
-                                    includeClassOrigin,
-                                    propertyList );
-                if (instanceName == instances[i].getPath())
-                {
-                    instance = instances[i];
-                    found = true;
-                    break;
-                }
-            }
-        }
-
-        else if (classEnum == CIM_NAMESPACEINMANAGER)
-        {
-        }
-
-        else if (classEnum == PG_NAMESPACE)
-        {
-            // Get List of namespaces
-            Array<CIMNamespaceName> namespaceNames;
-            namespaceNames = _enumerateNameSpaces();
-
-            // Not clear what we have to take into account here.
-            // get the namespace from the name value.
-            // should check the other keys to see if valid.
-            CIMNamespaceName namespaceName = 
-                _getKeyValue(instanceName, CIM_NAMESPACE_PROPERTY_NAME);
-
-            if (Contains(namespaceNames, namespaceName))
-            {
-                PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                   "Namespace = " + namespaceName.getString() + " successfully found.");
+{
+    handler.processing();
     
-                instance = _getInstanceCIMNamespace(instanceName);
-                found = true;
-            }
-        }
-        else 
-        {
-            PEG_METHOD_EXIT();
-            throw CIMNotSupportedException
-                (instanceName.getClassName().getString() + " not supported by Interop Provider");
-        }
+    CIMInstance myInstance = localGetInstance(
+                    context,
+                    instanceName,
+                    includeQualifiers,
+                    includeClassOrigin,
+                    propertyList);
 
-       // deliver a single instance if found after cleaning it up.
-        if (found)
-        {
-           instance.filter( includeQualifiers,
-                            includeClassOrigin,
-                            propertyList); 
-           handler.deliver(instance);
-        }
-       handler.complete();
+    if (!myInstance.isUninitialized())
+        handler.deliver(myInstance);
+    
+    handler.complete();
+}
 
-       PEG_METHOD_EXIT();
-       return ;
-    }
+//*****************************************************************************************
+//   localEnumerateInstances 
+//   EnumerateInstances equivalent to external but returns instances
+//   Used by other operations to build instances for processing
+//   Note that this delivers instances as a group rather than incrementally.
+//    This technique should only be used for small groups of instances.
+//****************************************************************************************
 
-
-
-//***************************************************************************
-//                enumerateInstances
-//***************************************************************************
-void InteropProvider::enumerateInstances(
+Array<CIMInstance> InteropProvider::localEnumerateInstances(
     const OperationContext & context,
     const CIMObjectPath & ref,
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin,
-    const CIMPropertyList& propertyList,
-    InstanceResponseHandler & handler)
+    const CIMPropertyList& propertyList)
+{
+
     {
-        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::enumerateInstances()");
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::localEnumerateInstances()");
+
 
         Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-            "%s enumerateInstances. ref= %s, includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+            "%s enumerateInstances. referenc= %s , includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
             thisProvider,
-            (const char *) ref.toString().getCString(),
-            (const char *) _showBool(includeQualifiers).getCString(),
-            (const char *) _showBool(includeClassOrigin).getCString(),
-            (const char *) _showPropertyList(propertyList).getCString());
+            (const char *)ref.toString().getCString(),
+            (const char *)_showBool(includeQualifiers).getCString(),
+            (const char*) _showBool(includeClassOrigin).getCString(),
+            (const char *)_showPropertyList(propertyList).getCString());
+
 
         // Verify that ClassName is correct and get value
         targetClass classEnum  = _verifyValidClassInput(ref.getClassName());
 
         //String userName = _validateUserID(context);
-
-        // The following 3 classes deliver a single instance because
-        // that is all there is today.
 
         Array<CIMInstance> instances;
         if (classEnum == CIM_OBJECTMANAGER)
@@ -2112,26 +2181,22 @@ void InteropProvider::enumerateInstances(
         else if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
         {
             instances = _buildInstancesPGCIMXMLCommunicationMechanism(
-                                    ref,
-                                    includeQualifiers,
-                                    includeClassOrigin,
-                                    propertyList);
+                                    ref);
         }
 
         else if (classEnum == CIM_NAMESPACEINMANAGER)
         {
-            //handler.complete();
-            //PEG_METHOD_EXIT();
-            //return;
+            instances = _buildInstancesNamespaceInManager(ref);
+        }
+
+        else if (classEnum == CIM_NAMESPACEINMANAGER)
+        {
+            instances = _buildInstancesCommMechanismForManager(ref);
         }
 
         else if (classEnum == PG_NAMESPACE)
         {
-            instances = _getInstancesCIMNamespace(
-                                    ref,
-                                    includeQualifiers,
-                                    includeClassOrigin,
-                                    propertyList);
+            instances = _getInstancesCIMNamespace(ref);
         }
         else
         {
@@ -2143,22 +2208,56 @@ void InteropProvider::enumerateInstances(
         // Filter and deliver the resulting instances
         for (Uint32 i = 0 ; i < instances.size() ; i++)
         {
-            _finishInstance(instances[i], ref, includeQualifiers,
-                                includeClassOrigin,
-                                propertyList );
-            /*** Debug Trace of the Instances generated
+            _finishInstance(instances[i],
+                            ref,
+                            includeQualifiers,
+                            includeClassOrigin,
+                            propertyList );
+
+            // Debug Trace of the Instances generated
             Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-                "%s enumerateInstances return instance number %u\npath: %s\n %s",thisProvider, i,
+                "%s enumerateInstances return instance number %u\npath: %s\n %s\n",thisProvider, i,
                 (instances[i].getPath().toString().getCString()),
                 ( ( CIMObject) instances[i]).toString().getCString());
-            ****/
+            //****/
 
-            handler.deliver(instances[i]);
         }
-        handler.complete();
-
+        return(instances);
         PEG_METHOD_EXIT();
     }
+}
+
+//***************************************************************************
+//                enumerateInstances - External Operation call
+//    Delivers instances back through response handler.
+//***************************************************************************
+void InteropProvider::enumerateInstances(
+    const OperationContext & context,
+    const CIMObjectPath & ref,
+    const Boolean includeQualifiers,
+    const Boolean includeClassOrigin,
+    const CIMPropertyList& propertyList,
+    InstanceResponseHandler & handler)
+    {
+        PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::enumerateInstances()");
+
+        handler.processing();
+
+        // Call the internal enumerateInstances to generate instances of defined
+        // class.  This expects the instances to be returned complete including
+        // complete path.
+        Array<CIMInstance> instances =  localEnumerateInstances(
+                context,
+                ref,
+                includeQualifiers,
+                includeClassOrigin,
+                propertyList);
+
+        handler.deliver(instances);
+        handler.complete();
+        
+        PEG_METHOD_EXIT();
+    }   
 
 void InteropProvider::modifyObjectManagerInstance(const OperationContext & context,
     const CIMObjectPath & instanceReference,
@@ -2218,14 +2317,16 @@ void InteropProvider::modifyObjectManagerInstance(const OperationContext & conte
 
     }
     PEG_METHOD_EXIT();
-    // ATTN Expand this defintion to be more precise since it allows only mod of
+    // ATTN Expand this definition to be more precise since it allows only mod of
     // one property and that property MUST be in the instance to be modifiable.
     throw CIMNotSupportedException
         (OM_GATHERSTATISTICALDATA.getString() + 
                 " modify operation not supported by Interop Provider");
 }
 //***************************************************************************
+//***************************************************************************
 //                modifyInstance
+//***************************************************************************
 //***************************************************************************
 void InteropProvider::modifyInstance(const OperationContext & context,
     const CIMObjectPath & instanceReference,
@@ -2295,8 +2396,11 @@ void InteropProvider::modifyInstance(const OperationContext & context,
 }
 
 //***************************************************************************
+//***************************************************************************
 //                enumerateInstanceNames
 //***************************************************************************
+//***************************************************************************
+
 void InteropProvider::enumerateInstanceNames(
 	const OperationContext & context,
 	const CIMObjectPath & classReference,
@@ -2318,86 +2422,21 @@ void InteropProvider::enumerateInstanceNames(
         // begin processing the request
         handler.processing();
 
-        // Deliver a single instance because there should only be one instance.
-        if (classEnum == CIM_OBJECTMANAGER)
+        Boolean includeQualifiers = true;
+        Boolean includeClassOrigin = true;
+        
+        Array<CIMInstance> instances =  localEnumerateInstances(
+                context,
+                classReference,
+                includeQualifiers,
+                includeClassOrigin,
+                CIMPropertyList());
+
+        for (Uint32 i = 0 ; i < instances.size() ; i++)
         {
-            CIMInstance instance = _getInstanceCIMObjectManager(
-                            classReference, true, true, CIMPropertyList());
-
-            CIMObjectPath ref = _buildInstancePath(classReference,
-                CIM_OBJECTMANAGER_CLASSNAME, instance);
-
-            handler.deliver(ref);
+            handler.deliver(instances[i].getPath());
         }
 
-        // Deliver all possible instances of this class
-        else if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
-        {
-            Array<CIMInstance> instances = 
-                _buildInstancesPGCIMXMLCommunicationMechanism(
-                        classReference, true,
-                        true, CIMPropertyList());
-
-            for (Uint32 i = 0 ; i < instances.size() ; i++)
-            {
-                CIMObjectPath ref = _buildInstancePath(classReference,
-                        PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME, instances[i]);
-                handler.deliver(ref);
-            }
-        }
-
-        else if (classEnum == CIM_NAMESPACEINMANAGER)
-        {
-        }
-
-        else if (classEnum == PG_NAMESPACE)
-        {
-            Array<CIMInstance> instances = _getInstancesCIMNamespace(
-                                    classReference,
-                                    false,
-                                    false, CIMPropertyList());
-            CDEBUG("EvalNames. Found instances. Count= " << instances.size());
-
-            for (Uint32 i = 0 ; i < instances.size() ; i++)
-            {
-                CIMObjectPath ref = _buildInstancePath(classReference,
-                        CIM_NAMESPACE_CLASSNAME, instances[i]);
-                handler.deliver(ref);
-            }
-        }
-
-        else if (classEnum == CIM_COMMMECHANISMFORMANAGERINST)
-        {
-            Array<CIMInstance> instances = 
-                _buildInstancesCommMechanismForManager(classReference);
-
-            for (Uint32 i = 0 ; i < instances.size() ; i++ )
-            {
-                CIMObjectPath ref = _buildObjectPath(classReference,
-                        CIM_COMMMECHANISMFORMANAGER_CLASSNAME, instances[i]);
-                handler.deliver(ref);
-            }
-        }
-
-        else if (classEnum == CIM_NAMESPACEINMANAGERINST)
-        {
-            Array<CIMInstance> instances = _buildInstancesNamespaceInManager(classReference);
-            for (Uint32 i = 0 ; i < instances.size() ; i++ )
-            {
-                CIMObjectPath ref = _buildObjectPath(classReference,
-                        CIM_NAMESPACEINMANAGER_CLASSNAME, instances[i]);
-                handler.deliver(ref);
-            }
-        }
-        else
-        {
-            // ERROR: Code should never get here because of Enum tests.
-            throw CIMNotSupportedException("Class not processed by Interop "
-                 + classReference.getClassName().getString());
-        }
-
-
-        // ATTN: Exception response because of error
         handler.complete();
         PEG_METHOD_EXIT();
     }
@@ -2405,6 +2444,60 @@ void InteropProvider::enumerateInstanceNames(
 //**************************************************************
 //**************************************************************
 // Association Functions
+//**************************************************************
+//**************************************************************
+
+/** _filterInstancesToTargetPaths - Filters one associaton and returns references that represent the result of
+    filtering on resultclass and role.  Any reference that matches the resultclass and role
+    and not the target is returned
+    @param assocInstance - The association instance being processed.
+    @param targetObjectPath - The original target. This is required since this is the one reference
+    we don't want.
+    @resultClass - The resultClass we want to filter on
+    @resultRole  - The result role we want to filter on
+    @return - returns the CIMObjectPaths that represent the other side of the association that pass 
+    the resultClass and resultRole filters.
+ */
+
+// TODO convert the CIMOBjectPath back to const.
+Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(const CIMObject& assocInstance,
+                    const CIMObjectPath& targetObjectPath,
+                    const CIMName resultClass,
+                    const String resultRole)
+{
+    Array<CIMObjectPath> returnPaths;
+    // get all reference properties except for target.
+    for (Uint32 i = 0 ; i < assocInstance.getPropertyCount() ; i++)
+    {
+        CIMConstProperty p = assocInstance.getProperty(i);
+
+        if (p.getType() == CIMTYPE_REFERENCE)
+        {
+            CIMValue v = p.getValue();
+            CIMObjectPath path;
+            v.get(path);
+            
+            if (!targetObjectPath.identical(path))
+            {
+                if (resultClass.isNull() || resultClass == path.getClassName())
+                {
+                    if (resultRole == String::EMPTY || p.getName().getString() == resultRole)
+                    {
+                        returnPaths.append(path);
+                    }
+                }
+            }
+        }
+    }
+    CDEBUG("_filterAssoc PathsReturned. Count = " << returnPaths.size() 
+	   << "\n" << _showPathArray(returnPaths));
+    return( returnPaths );
+}
+
+
+//**************************************************************
+//**************************************************************
+// Associators Operation Call
 //**************************************************************
 //**************************************************************
 
@@ -2422,9 +2515,72 @@ void InteropProvider::associators(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
-	//throw CIMNotSupportedException("AssociationProvider::associators");
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        thisProvider,
+        (const char *)objectName.toString().getCString(),
+        (const char *)associationClass.getString().getCString(),
+        (const char *)resultClass.getString().getCString(),
+        (const char *)role.getCString(),
+        (const char *)resultRole.getCString(),
+        (const char *)_showBool(includeQualifiers).getCString(),
+        (const char*) _showBool(includeClassOrigin).getCString(),
+        (const char *)_showPropertyList(propertyList).getCString());
+    handler.processing();
+    // Get references for this object. Note that this
+    // uses the associationClass as resultClass.
+    Array<CIMObject> referenceObjects = localReferences(
+            context,
+            objectName,
+            associationClass,
+            role,
+            includeQualifiers,
+            includeClassOrigin,
+            propertyList);
+ 
+    // Note that Result Class is not always there.  We need to account for
+    // both case where it exists and where it does not exist.
+    // enumerate all reference instances of the resultClass (i.e. the association)
+    // create path for resultClass
+
+    // for each reference object, get all non-target references
+    Array<CIMObjectPath> resultPaths;
+    for (Uint32 i = 0 ; i < referenceObjects.size() ; i++)
+    {
+        // get Other references from each reference object.
+        Array<CIMObjectPath> tempPath =
+            _filterAssocInstanceToTargetPaths(
+                                referenceObjects[i],
+                                objectName,
+                                resultClass,
+                                resultRole);
+        for (Uint32 i = 0 ; i < tempPath.size() ; i++)
+        {
+            resultPaths.append(tempPath[i]);
+        }
+    }
+
+    // get the instance using getInstance.
+    for (Uint32 i = 0 ; i < resultPaths.size() ; i++)
+    {
+        CIMInstance thisInstance = localGetInstance(context, resultPaths[i],
+                                        includeQualifiers,
+                                        includeClassOrigin, propertyList);
+        if (!thisInstance.isUninitialized())
+        {
+            handler.deliver(thisInstance);
+        }
+    }
+    handler.processing();
+    handler.complete();
+    PEG_METHOD_EXIT();
 }
 
+//**************************************************************
+//**************************************************************
+// AssociatorNames Operation Function
+//**************************************************************
+//**************************************************************
 void InteropProvider::associatorNames(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
@@ -2437,8 +2593,105 @@ void InteropProvider::associatorNames(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
 	//throw CIMNotSupportedException("AssociationProvider::associatorNames");
+
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole",
+        thisProvider,
+        (const char *)objectName.toString().getCString(),
+        (const char *)associationClass.getString().getCString(),
+        (const char *)resultClass.getString().getCString(),
+        (const char *)role.getCString(),
+        (const char *)resultRole.getCString());
+
+    handler.processing();
+    // Get references for this object. Note that this
+    // uses the associationClass as resultClass.
+    Array<CIMObject> referenceObjects = localReferences(
+            context,
+            objectName,
+            associationClass,
+            role,
+            false,
+            false,
+            CIMPropertyList());
+ 
+    // Note that Result Class is not always there.  We need to account for
+    // both case where it exists and where it does not exist.
+    // enumerate all reference instances of the resultClass (i.e. the association)
+    // create path for resultClass
+
+    // for each reference object, get all non-target references
+    Array<CIMObjectPath> resultPaths;
+    for (Uint32 i = 0 ; i < referenceObjects.size() ; i++)
+    {
+        // get Other references from each association object.
+        Array<CIMObjectPath> tempPath = 
+            _filterAssocInstanceToTargetPaths(referenceObjects[i],
+            objectName, resultClass, resultRole);
+
+        for (Uint32 i = 0 ; i < tempPath.size() ; i++)
+        {
+            resultPaths.append(tempPath[i]);
+        }
+    }
+    handler.deliver(resultPaths);
+
+    handler.processing();
+    handler.complete();
+    PEG_METHOD_EXIT();
 }
 
+
+Array<CIMObject> InteropProvider::localReferences(
+	const OperationContext & context,
+	const CIMObjectPath & objectName,
+	const CIMName & resultClass,
+	const String & role,
+	const Boolean includeQualifiers,
+	const Boolean includeClassOrigin,
+	const CIMPropertyList & propertyList)
+{
+
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
+            "InteropProvider::references()");
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        thisProvider,
+        (const char *)objectName.toString().getCString(),
+        (const char *)resultClass.getString().getCString(),
+        (const char *)role.getCString(),
+        (const char *)_showBool(includeQualifiers).getCString(),
+        (const char*) _showBool(includeClassOrigin).getCString(),
+        (const char *)_showPropertyList(propertyList).getCString());
+
+    Array<CIMInstance> rtnInstances;
+
+    // operation namespace needed internally to get class.
+    String userName = _validateUserID(context);
+
+    // determine if valid class result class
+    CIMName targetAssocClassName = resultClass;
+
+    targetAssocClass classEnum  = _verifyValidAssocClassInput(targetAssocClassName);
+
+    // resultClass should NEVER be NULL in Pegasus.
+    assert(!resultClass.isNull());
+
+    // enumerate all reference instances of the resultClass (i.e. the association)
+    CIMObjectPath classReference(objectName.getHost(), objectName.getNameSpace(),
+                                 resultClass);
+
+    Array<CIMInstance> assocInstances = 
+        localEnumerateInstances(context,
+                                classReference,
+                                true, true, CIMPropertyList());
+
+    Array<CIMObject> rtnObjects = _filterReferenceInstances(
+                    assocInstances, objectName, resultClass, role);
+
+    PEG_METHOD_EXIT();
+    return(rtnObjects);
+}
 void InteropProvider::references(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
@@ -2451,18 +2704,31 @@ void InteropProvider::references(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::references()");
-	//throw CIMNotSupportedException("AssociationProvider::references");
-}
 
-void _filterAssocInstances(Array<CIMInstance>& instances,
-                      CIMName assocClassName,
-                      String assocRole,
-                      CIMName resultClassName = CIMName(),
-                      String resultRole = String::EMPTY)
-{
-    return;
-}
+    Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
+        "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        thisProvider,
+        (const char *)objectName.toString().getCString(),
+        (const char *)resultClass.getString().getCString(),
+        (const char *)role.getCString(),
+        (const char *)_showBool(includeQualifiers).getCString(),
+        (const char*) _showBool(includeClassOrigin).getCString(),
+        (const char *)_showPropertyList(propertyList).getCString());
 
+    handler.processing();
+    Array<CIMObject> rtnObjects =
+                    localReferences(context,
+                                    objectName,
+                                    resultClass,
+                                    role,
+                                    includeQualifiers,
+                                    includeClassOrigin,
+                                    propertyList);
+
+    handler.deliver(rtnObjects);
+    handler.complete();
+    PEG_METHOD_EXIT();
+}
 void InteropProvider::referenceNames(
 	const OperationContext & context,
 	const CIMObjectPath & objectName,
@@ -2475,33 +2741,23 @@ void InteropProvider::referenceNames(
     CDEBUG("::referenceNames(): object= " << objectName.toString() << " result Class= " << resultClass.getString());
 
     // operation namespace needed internally to get class.
-    // KS_TEMP _operationNamespace = objectName.getNameSpace();
     String userName = _validateUserID(context);
+
     // begin processing the request
     handler.processing();
 
-    // determine if valid class result class
+    Array<CIMObject> rtnObjects =
+        localReferences(context,
+                        objectName,
+                        resultClass,
+                        role,
+                        true,
+                        true,
+                        CIMPropertyList());
 
-    CIMName targetAssocClassName = resultClass;
-
-    // KSTEMPCIMName targetClassName = objectName.getClassName();
-
-    targetAssocClass classEnum  = _verifyValidAssocClassInput(targetAssocClassName);
-
-    Array<CIMInstance> assocInstances;
-
-    if (classEnum == CIM_COMMMECHANISMFORMANAGERASSOC)
-        assocInstances = _buildInstancesCommMechanismForManager(objectName);
-
-    if (classEnum == CIM_NAMESPACEINMANAGERASSOC)
-        assocInstances = _buildInstancesNamespaceInManager(objectName);
-
-    _filterAssocInstances(assocInstances, resultClass, role);
-
-    for (Uint32 i = 0 ; i < assocInstances.size() ; i++ )
+    for (Uint32 i = 0 ; i < rtnObjects.size() ; i++ )
     {
-        CIMObjectPath ref = _buildObjectPath(objectName,
-                targetAssocClassName, assocInstances[i]);
+        CIMObjectPath ref = rtnObjects[i].getPath();
         CDEBUG("referenceNames returns: " << ref.toString());
         handler.deliver(ref);
     }
@@ -2509,7 +2765,6 @@ void InteropProvider::referenceNames(
     handler.complete();
 
     PEG_METHOD_EXIT();
-    // Convert the instances to referenceNames response
 }
 
 PEGASUS_NAMESPACE_END

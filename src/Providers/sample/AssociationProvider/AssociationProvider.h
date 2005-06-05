@@ -25,18 +25,11 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_AssociationProvider_h
 #define Pegasus_AssociationProvider_h
 
-#include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>

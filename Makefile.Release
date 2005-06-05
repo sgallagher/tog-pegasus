@@ -692,6 +692,8 @@ ifdef PEGASUS_PRODUCT_STATUS
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_VERSION "\""$(PEGASUS_PRODUCT_VERSION)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#define PEGASUS_PRODUCT_STATUS "\""$(PEGASUS_PRODUCT_STATUS)"\""" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) " " >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "#define PEGASUS_CIMOM_GENERIC_NAME \"Pegasus\"" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
+	@$(ECHO-E) "#define PEGASUS_CIMOM_DESCRIPTION \"\"" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 	@$(ECHO-E) "#endif /* Product_Version_h */" >> $(ROOT)/src/Pegasus/Common/ProductVersion.h
 endif
 endif

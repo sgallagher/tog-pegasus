@@ -57,6 +57,7 @@ registerproviders:
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) IndicationProviderR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) SimpleDisplayConsumerR.mof
 	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) CWS_FilesAndDirR.mof
+	@ $(PEGASUS_BIN_DIR)/cimmof -n$(INTEROPNS) AssociationProviderR.mof
 
 deregisterproviders:
 	@ $(ECHO) +++++ Deregistering SampleInstanceProvider ...
@@ -69,3 +70,5 @@ deregisterproviders:
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SimpleDisplayConsumerModule
 	@ $(ECHO) +++++ Deregistering FilesandDirectoryModule ... 	 
 	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m FilesAndDirectoriesModule
+	@ $(ECHO) +++++ Deregistering SampleAssociationModule ...
+	@ $(PEGASUS_BIN_DIR)/cimprovider -r -m SampleAssociationModule

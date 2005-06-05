@@ -26,14 +26,21 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../..
-
+ROOT = ../../..
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    EnumInstances \
-    InvokeMethod \
-    SendTestIndications \
-    Associations
+LIBRARY = SampleAssociationProvider
 
-include $(ROOT)/mak/recurse.mak
+SOURCE_DIR = Providers/DefaultC++/AssociationProvider
+
+LIBRARIES = \
+	 pegcommon \
+	 pegprovider
+	
+SOURCES = \
+   AssociationProviderMain.cpp \
+   AssociationProvider.cpp
+
+include $(ROOT)/mak/library.mak
+
+tests:

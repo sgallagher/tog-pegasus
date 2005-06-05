@@ -591,6 +591,7 @@ fi
 %dir %attr(555,root ,root) /opt/tog-pegasus/include/Pegasus/Common
 %dir %attr(555,root ,root) /opt/tog-pegasus/include/Pegasus/Consumer
 %dir %attr(555,root ,root) /opt/tog-pegasus/include/Pegasus/Provider
+%dir %attr(555,root ,root) /opt/tog-pegasus/include/Pegasus/Provider/CMPI
 %attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClientException.h
 %attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Client/CIMClient.h
 %attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Client/Linkage.h
@@ -644,6 +645,12 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Common/LanguageElement.h
 %attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Client/ClientOpPerformanceDataHandler.h
 %attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Common/CIMOperationType.h
+%attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Provider/CMPI/cmpift.h
+%attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Provider/CMPI/cmpidt.h
+%attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Provider/CMPI/cmpimacs.h
+%attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Provider/CMPI/cmpios.h
+%attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Provider/CMPI/cmpipl.h
+%attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Provider/CMPI/cmpi_cql.h
 %attr(444,root ,root) /opt/tog-pegasus/include/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h
 
 # SDK Sample Files
@@ -654,12 +661,16 @@ fi
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications
+%dir %attr(777,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/Associations
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer
+%dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories
+%dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests
+%dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/Load
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/mak
 %attr(444,root ,root) /opt/tog-pegasus/samples/Makefile
@@ -673,10 +684,12 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/Makefile
+%attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/Associations/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/mak/%PEGASUS_HARDWARE_PLATFORM.mak
 %attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/EnumInstances/EnumInstances.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/InvokeMethod/InvokeMethod.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/SendTestIndications/SendTestIndications.cpp
+%attr(444,root ,root) /opt/tog-pegasus/samples/Clients/DefaultC++/Associations/AssociationTestClient.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/SampleProviderSchema.mof
@@ -689,9 +702,40 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProvider.h
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/IndicationProvider/IndicationProviderMain.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/Makefile
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/Makefile
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/Makefile
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/Makefile
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/InstanceProviderR.mof
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/MethodProviderR.mof
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/SimpleDisplayConsumerR.mof
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/CWS_FilesAndDir.mof
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/CWS_FilesAndDirR.mof
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/AssociationProvider.mof
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/AssociationProviderR.mof
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwssimdata.c
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwsutil.h
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_Directory.c
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwsutil.c
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwstest.c
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProviderMain.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider/InstanceProvider.h
@@ -705,6 +749,9 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.cpp
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/SimpleDisplayConsumer.h
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider/AssociationProvider.cpp
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider/AssociationProvider.h
+%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider/AssociationProviderMain.cpp
 
 # SDK Documentation
 #

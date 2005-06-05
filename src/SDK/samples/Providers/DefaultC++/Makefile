@@ -34,6 +34,7 @@ DIRS = \
     InstanceProvider \
     MethodProvider \
     IndicationProvider \
-    SimpleDisplayConsumer
+    SimpleDisplayConsumer \
+    AssociationProvider
 
 include $(ROOT)/mak/recurse.mak

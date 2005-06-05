@@ -25,12 +25,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Jenny Yu, Hewlett-Packard Company <jenny_yu@hp.com>
-//
-// Modified By:
-//
 //%////////////////////////////////////////////////////////////////////////////
 //
 // This CIM client program is used to test the SampleAssociationProvider.

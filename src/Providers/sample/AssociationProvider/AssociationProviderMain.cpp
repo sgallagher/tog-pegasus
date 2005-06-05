@@ -25,12 +25,6 @@
 // ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-//==============================================================================
-//
-// Author: Chip Vincent (cvincent@us.ibm.com)
-//
-// Modified By: Jenny Yu, Hewlett-Packard Company (jenny.yu@hp.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -42,7 +36,7 @@ PEGASUS_USING_PEGASUS;
 
 extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & name)
 {
-        if (String::equalNoCase(name, "sampleAssociationProvider"))
+        if (String::equalNoCase(name, "SampleAssociationProvider"))
         {
                 return(new AssociationProvider());
         }

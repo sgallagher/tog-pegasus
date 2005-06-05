@@ -35,3 +35,4 @@ class RT_TestIndication : CIM_Indication
     string MethodName;
     [Static] uint32 SendTestIndication();
 };
+#pragma include ("AssociationProvider.mof")

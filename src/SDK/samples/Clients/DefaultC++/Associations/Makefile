@@ -26,14 +26,25 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../..
+ROOT = ../../..
+include $(ROOT)/mak/config.mak
 
 include $(ROOT)/mak/config.mak
 
-DIRS = \
-    EnumInstances \
-    InvokeMethod \
-    SendTestIndications \
-    Associations
+SOURCE_DIR = Clients/DefaultC++/Associations
 
-include $(ROOT)/mak/recurse.mak
+PROGRAM = AssociationTestClient
+
+SOURCES = \
+	AssociationTestClient.cpp
+
+LIBRARIES = \
+	pegprovider \
+	pegclient \
+	pegcommon
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	@$(PEGASUS_SAMPLES_DIR)/$(SOURCE_DIR)/$(PROGRAM)
+

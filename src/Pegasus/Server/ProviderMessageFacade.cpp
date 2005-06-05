@@ -27,6 +27,12 @@
 //
 //==============================================================================
 //
+// This module provides the calling facade for control providers.
+// Accepting CIMMessages on the input side it provides calls for each of
+// the CIM provider operations to control providers setting up the
+// appropriate context for each call and processing handler responses.
+// NOTE: Today the execquery is NOT SUPPORTED by this facade.
+//
 // Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 // Modified By:
@@ -664,7 +670,7 @@ Message * ProviderMessageFacade::_handleDeleteInstanceRequest(Message * message)
 Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message) 
 {
     const CIMExecQueryRequestMessage * request =
-	dynamic_cast<CIMExecQueryRequestMessage *>(message);
+        dynamic_cast<CIMExecQueryRequestMessage *>(message);
 
     STAT_GETSTARTTIME
 
@@ -699,31 +705,81 @@ Message * ProviderMessageFacade::_handleExecuteQueryRequest(Message * message)
 Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message) 
 {
     const CIMAssociatorsRequestMessage * request =
-	dynamic_cast<CIMAssociatorsRequestMessage *>(message);
+        dynamic_cast<CIMAssociatorsRequestMessage *>(message);
 
     STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
+    CIMException cimException;
     Array<CIMObject> cimObjects;
+    ContentLanguages contentLangs;  // l10n
 
     // l10n
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->objectName.getClassName(),
+        request->objectName.getKeyBindings());
 
+	// convert arguments
+	OperationContext context;
+
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+
+	CIMPropertyList propertyList(request->propertyList);
+
+	SimpleObjectResponseHandler handler;
+
+	associators(
+	    context,
+	    objectPath,
+        request->assocClass,
+        request->resultClass,
+        request->role,
+        request->resultRole,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    propertyList,
+	    handler);
+
+	// save returned Objects
+        cimObjects = handler.getObjects();
+        contentLangs = handler.getLanguages();  // l10n
+    }
+    catch(CIMException & e)
+    {
+        cimException = e;
+    }
+    catch(Exception & e)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+      // l10n
+
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+    }
+
+    // create response message
     AutoPtr<CIMAssociatorsResponseMessage> response(
 	new CIMAssociatorsResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
+	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimObjects));
-
-    // CIMAssociatorsResponseMessage * response =
-    // new CIMAssociatorsResponseMessage(
-    //    request->messageId,
-    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-    //    request->queueIds.copyAndPop(),
-    //    cimObjects);
+	    cimObjects));  // l10n
 
     STAT_PMS_PROVIDEREND
+
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
     response->setKey(request->getKey());
@@ -734,69 +790,159 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
 Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message) 
 {
     const CIMAssociatorNamesRequestMessage * request =
-	dynamic_cast<CIMAssociatorNamesRequestMessage *>(message);
+        dynamic_cast<CIMAssociatorNamesRequestMessage *>(message);
 
     STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
+    CIMException cimException;
     Array<CIMObjectPath> cimReferences;
+    ContentLanguages contentLangs;  // l10n
 
-    // l10n
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->objectName.getClassName(),
+        request->objectName.getKeyBindings());
 
+	// convert arguments
+	OperationContext context;
+
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+
+	SimpleObjectPathResponseHandler handler;
+
+	associatorNames(
+	    context,
+	    objectPath,
+        request->assocClass,
+        request->resultClass,
+        request->role,
+        request->resultRole,
+	    handler);
+
+	// save returned Objects
+        cimReferences = handler.getObjects();
+        contentLangs = handler.getLanguages();  // l10n
+    }
+    catch(CIMException & e)
+    {
+        cimException = e;
+    }
+    catch(Exception & e)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+      // l10n
+
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+    }
+
+    // create response message
     AutoPtr<CIMAssociatorNamesResponseMessage> response(
 	new CIMAssociatorNamesResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
+	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimReferences));
-
-    // CIMAssociatorNamesResponseMessage * response =
-    // new CIMAssociatorNamesResponseMessage(
-    //    request->messageId,
-    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-    //    request->queueIds.copyAndPop(),
-    //    cimReferences);
+	    cimReferences));  // l10n
 
     STAT_PMS_PROVIDEREND
+
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
     response->setKey(request->getKey());
 
     return response.release();
 }
-
 Message * ProviderMessageFacade::_handleReferencesRequest(Message * message) 
 {
     const CIMReferencesRequestMessage * request =
-	dynamic_cast<CIMReferencesRequestMessage *>(message);
+        dynamic_cast<CIMReferencesRequestMessage *>(message);
 
     STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
+    CIMException cimException;
     Array<CIMObject> cimObjects;
+    ContentLanguages contentLangs;  // l10n
 
     // l10n
 
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->objectName.getClassName(),
+        request->objectName.getKeyBindings());
+
+	// convert arguments
+	OperationContext context;
+
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+
+	CIMPropertyList propertyList(request->propertyList);
+
+	SimpleObjectResponseHandler handler;
+
+	references(
+	    context,
+	    objectPath,
+        request->resultClass,
+        request->role,
+	    request->includeQualifiers,
+	    request->includeClassOrigin,
+	    propertyList,
+	    handler);
+
+	// save returned Objects
+        cimObjects = handler.getObjects();
+        contentLangs = handler.getLanguages();  // l10n
+    }
+    catch(CIMException & e)
+    {
+        cimException = e;
+    }
+    catch(Exception & e)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+      // l10n
+
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+    }
+
+    // create response message
     AutoPtr<CIMReferencesResponseMessage> response(
 	new CIMReferencesResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
+	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimObjects));
-
-    // CIMReferencesResponseMessage * response =
-    // new CIMReferencesResponseMessage(
-    //    request->messageId,
-    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-    //    request->queueIds.copyAndPop(),
-    //    cimObjects);
-
-    // preserve message key
+	    cimObjects));  // l10n
 
     STAT_PMS_PROVIDEREND
 
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
+    // preserve message key
     response->setKey(request->getKey());
 
     return response.release();
@@ -805,34 +951,75 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
 Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message) 
 {
     const CIMReferenceNamesRequestMessage * request =
-	dynamic_cast<CIMReferenceNamesRequestMessage *>(message);
+        dynamic_cast<CIMReferenceNamesRequestMessage *>(message);
 
     STAT_GETSTARTTIME
 
     PEGASUS_ASSERT(request != 0);
 
+    CIMException cimException;
     Array<CIMObjectPath> cimReferences;
+    ContentLanguages contentLangs;  // l10n
 
-    // l10n
+    try
+    {
+	// make target object path
+	CIMObjectPath objectPath(
+	    System::getHostName(),
+	    request->nameSpace,
+	    request->objectName.getClassName(),
+        request->objectName.getKeyBindings());
 
+	// convert arguments
+	OperationContext context;
+
+	// add the user name and accept and content Languages to the context
+	context.insert(request->operationContext.get(IdentityContainer::NAME));
+	context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
+	context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
+
+	SimpleObjectPathResponseHandler handler;
+
+	referenceNames(
+	    context,
+	    objectPath,
+        request->resultClass,
+        request->role,
+	    handler);
+
+	// save returned Objects
+        cimReferences = handler.getObjects();
+        contentLangs = handler.getLanguages();  // l10n
+    }
+    catch(CIMException & e)
+    {
+        cimException = e;
+    }
+    catch(Exception & e)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch(...)
+    {
+      // l10n
+
+      cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR", "Unknown Error"));
+      // cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "Unknown Error");
+    }
+
+    // create response message
     AutoPtr<CIMReferenceNamesResponseMessage> response(
 	new CIMReferenceNamesResponseMessage(
 	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
+	    cimException,
 	    request->queueIds.copyAndPop(),
-	    cimReferences));
-
-    // CIMReferenceNamesResponseMessage * response =
-    // new CIMReferenceNamesResponseMessage(
-    //    request->messageId,
-    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-    //    request->queueIds.copyAndPop(),
-    //    cimReferences);
-
-    // preserve message key
+	    cimReferences));  // l10n
 
     STAT_PMS_PROVIDEREND
 
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
+
+    // preserve message key
     response->setKey(request->getKey());
 
     return response.release();
@@ -841,7 +1028,7 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message) 
 {
     const CIMGetPropertyRequestMessage * request =
-	dynamic_cast<CIMGetPropertyRequestMessage *>(message);
+        dynamic_cast<CIMGetPropertyRequestMessage *>(message);
 
     STAT_GETSTARTTIME
 

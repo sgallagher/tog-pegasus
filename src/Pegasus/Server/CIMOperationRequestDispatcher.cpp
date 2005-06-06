@@ -3926,6 +3926,49 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         return;
     }
 
+    // Validate role parameter syntax
+    if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
+    {
+	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_PARAMETER, request->role);
+
+        CIMAssociatorsResponseMessage* response =
+            new CIMAssociatorsResponseMessage(
+                request->messageId,
+                cimException,
+                request->queueIds.copyAndPop(),
+                Array<CIMObject>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // Validate resultRole parameter syntax
+    if ((request->resultRole != String::EMPTY) && 
+	(!CIMName::legal(request->resultRole)))
+    {
+	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_PARAMETER, request->resultRole);
+
+        CIMAssociatorsResponseMessage* response =
+            new CIMAssociatorsResponseMessage(
+                request->messageId,
+                cimException,
+                request->queueIds.copyAndPop(),
+                Array<CIMObject>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+
     CIMException checkClassException;
     _checkExistenceOfClass(request->nameSpace,
                            request->objectName.getClassName(),
@@ -4191,6 +4234,49 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 cimException,
                 request->queueIds.copyAndPop(),
                 Array<CIMObjectPath>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // Validate role parameter syntax
+    if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
+    {
+	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_PARAMETER, request->role);
+
+        CIMAssociatorsResponseMessage* response =
+            new CIMAssociatorsResponseMessage(
+                request->messageId,
+                cimException,
+                request->queueIds.copyAndPop(),
+                Array<CIMObject>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // Validate resultRole parameter syntax
+    if ((request->resultRole != String::EMPTY) &&
+        (!CIMName::legal(request->resultRole)))
+    {
+	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_PARAMETER, request->resultRole);
+
+        CIMAssociatorsResponseMessage* response =
+            new CIMAssociatorsResponseMessage(
+                request->messageId,
+                cimException,
+                request->queueIds.copyAndPop(),
+                Array<CIMObject>());
 
         STAT_COPYDISPATCHER
 
@@ -4468,6 +4554,27 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         return;
     }
 
+    // Validate role parameter syntax
+    if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
+    {
+	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_PARAMETER, request->role);
+
+        CIMAssociatorsResponseMessage* response =
+            new CIMAssociatorsResponseMessage(
+                request->messageId,
+                cimException,
+                request->queueIds.copyAndPop(),
+                Array<CIMObject>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+
     CIMException checkClassException;
     _checkExistenceOfClass(request->nameSpace,
                            request->objectName.getClassName(),
@@ -4730,6 +4837,27 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 cimException,
                 request->queueIds.copyAndPop(),
                 Array<CIMObjectPath>());
+
+        STAT_COPYDISPATCHER
+
+        _enqueueResponse(request, response);
+
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // Validate role parameter syntax
+    if ((request->role != String::EMPTY) && (!CIMName::legal(request->role)))
+    {
+	CIMException cimException = PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_INVALID_PARAMETER, request->role);
+
+        CIMAssociatorsResponseMessage* response =
+            new CIMAssociatorsResponseMessage(
+                request->messageId,
+                cimException,
+                request->queueIds.copyAndPop(),
+                Array<CIMObject>());
 
         STAT_COPYDISPATCHER
 

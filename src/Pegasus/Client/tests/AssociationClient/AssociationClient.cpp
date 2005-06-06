@@ -208,6 +208,68 @@ int main(int argc, char** argv)
         _displayResult(resultObjects, verbose);
 
         // ===================================================================
+        // associators
+        //
+        // Validate role and resultRole parameters syntax.
+        // ===================================================================
+
+        // invalid role parameter syntax
+        String invalidRole = "Teaches_*student";
+        try 
+        {
+            resultObjects = client.associators(
+                                    NAMESPACE, 
+                                    instancePath, 
+                                    assocClass,
+                                    resultClass, 
+                                    invalidRole, 
+                                    resultRole);
+
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
+            {
+                if (verbose)
+                {
+                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                }
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // invalid resultRole parameter syntax
+        String invalidResultRole = "3Taught_By";
+        try 
+        {
+            resultObjects = client.associators(
+                                    NAMESPACE, 
+                                    instancePath, 
+                                    assocClass,
+                                    resultClass, 
+                                    role, 
+                                    invalidResultRole);
+
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
+            {
+                if (verbose)
+                {
+                    cout << "Test resultRole parameter syntax: " << e.getMessage() << endl;
+                }
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // ===================================================================
         // associatorNames
         //
         // Get the names of the CIM instances (Sample_Student instances) that 
@@ -234,6 +296,64 @@ int main(int argc, char** argv)
         _displayResult(resultObjectPaths, verbose);
 
         // ===================================================================
+        // associatorNames
+        //
+        // Validate role and resultRole parameters syntax.
+        // ===================================================================
+
+        // invalid role parameter syntax
+        try
+        {
+            resultObjectPaths = client.associatorNames(
+                                    NAMESPACE, 
+                                    instancePath, 
+                                    assocClass,
+                                    resultClass, 
+                                    invalidRole, 
+                                    resultRole);
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
+            {
+                if (verbose)
+                {
+                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                }
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // invalid resultRole parameter syntax
+        try
+        {
+            resultObjectPaths = client.associatorNames(
+                                    NAMESPACE, 
+                                    instancePath, 
+                                    assocClass,
+                                    resultClass, 
+                                    role, 
+                                    invalidResultRole);
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
+            {
+                if (verbose)
+                {
+                    cout << "Test resultRole parameter syntax: " << e.getMessage() << endl;
+                }
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // ===================================================================
         // references
         //
         // Get the association instances (Sample_TeacherStudent instances) that
@@ -257,6 +377,36 @@ int main(int argc, char** argv)
         _displayResult(resultObjects, verbose);
 
         // ===================================================================
+        // references
+        //
+        // Validate role parameter syntax.
+        // ===================================================================
+
+        // invalid role parameter syntax
+        try
+        {
+            resultObjects = client.references(
+                                    NAMESPACE, 
+                                    instancePath, 
+                                    resultClass,
+                                    invalidRole); 
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
+            {
+                if (verbose)
+                {
+                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                }
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        // ===================================================================
         // referenceNames
         //
         // Get the names of the association instances (Sample_TeacherStudent 
@@ -278,6 +428,36 @@ int main(int argc, char** argv)
         // display result
         // cout << "Number of reference name objects = " << numObjects << endl;
         _displayResult(resultObjectPaths, verbose);
+
+        // ===================================================================
+        // referenceNames
+        //
+        // Validate role parameter syntax.
+        // ===================================================================
+
+        // invalid role parameter syntax
+        try
+        {
+            resultObjectPaths = client.referenceNames(
+                                        NAMESPACE, 
+                                        instancePath, 
+                                        resultClass,
+                                        invalidRole); 
+        }
+        catch(CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
+            {
+                if (verbose)
+                {
+                    cout << "Test role parameter syntax: " << e.getMessage() << endl;
+                }
+            }
+            else
+            {
+                throw;
+            }
+        }
 
         // ===================================================================
         // Call the association methods with different filters specified.

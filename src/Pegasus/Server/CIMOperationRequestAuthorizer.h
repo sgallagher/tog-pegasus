@@ -97,8 +97,9 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
       Array<String> _getAuthorizedUserGroups();
 
       Array<String> _authorizedUserGroups;
-
-      AutoPtr<MessageQueueService> _outputQueue; //PEP101
+      // Do not make this an AutoPtr as the MQS has to be deleted
+      // by somebody else, not this class.
+      MessageQueueService *_outputQueue; 
 
       // Flag to indicate whether or not the CIMServer is shutting down.
       Boolean _serverTerminating;

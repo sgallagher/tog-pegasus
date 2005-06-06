@@ -363,7 +363,7 @@ class PG_OperatingSystem	: CIM_OperatingSystem
 {
     [Description (
          "The capability of this operating system. "
-         "One capability is '32 bits' or '64 bits'. ")
+         "One capability is '32 bit' or '64 bit'. ")
     ]
     string OperatingSystemCapability;
     [Description (

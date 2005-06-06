@@ -74,21 +74,19 @@ String Formatter::Arg::toString() const
 	    return buffer;
 	}
 
-	case LINTEGER:
-	{
-	    char buffer[32];
-	    // ATTN-B: truncation here!
-	    sprintf(buffer, "%ld", long(_lInteger));
-	    return buffer;
-	}
-	
-	case ULINTEGER:
-	{
-	    char buffer[32];
-	    // ATTN-B: truncation here:
-	    sprintf(buffer, "%lu", long(_lUInteger));
-	    return buffer;
-	}
+        case LINTEGER:
+        {
+            char buffer[32];
+            sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", _lInteger);
+            return buffer;
+        }
+
+        case ULINTEGER:
+        {
+            char buffer[32];
+            sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", _lUInteger);
+            return buffer;
+        }
 
 	case STRING:
 	    return _string;

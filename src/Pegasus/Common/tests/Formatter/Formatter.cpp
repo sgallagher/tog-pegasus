@@ -97,17 +97,46 @@ int main(int argc, char** argv)
 	assert(Formatter::format("[TRUE$0]", test2 ) == "[TRUE9999]");
     }
 
-    // Test for 64 bit integer
+    // Test for 64 bit signed integer
     {
-	 Sint64 test1 = 999999;
-	 Uint64 test2 = 9999999;
-	 String str = Formatter::format("test1 $0 test2 $1", test1, test2);
+        Sint64 test1 = 0x7fffffffffffffff;
+        Sint64 test2 = 0x8000000000000000;
+        Sint64 test3 = 0xffffffffffffffff;
+        String str = Formatter::format(
+            "test1 $0 test2 $1 test3 $2", test1, test2, test3);
 
-         if (verbose)
-	 cout << "str[" << str << "]" << endl;
+        if (verbose)
+        {
+            cout << "str[" << str << "]" << endl;
+        }
 
-	 assert(Formatter::format("[TRUE$0]", test1 ) == "[TRUE999999]");
-	 assert(Formatter::format("[TRUE$0]", test2 ) == "[TRUE9999999]");
+        assert(Formatter::format("[TRUE$0]", test1) ==
+            "[TRUE9223372036854775807]");
+        assert(Formatter::format("[TRUE$0]", test2) ==
+            "[TRUE-9223372036854775808]");
+        assert(Formatter::format("[TRUE$0]", test3) ==
+            "[TRUE-1]");
+    }
+
+    // Test for 64 bit unsigned integer
+    {
+        Uint64 test1 = 0x7fffffffffffffff;
+        Uint64 test2 = 0x8000000000000000;
+        Uint64 test3 = 0xffffffffffffffff;
+        String str = Formatter::format(
+            "test1 $0 test2 $1 test3 $2", test1, test2, test3);
+
+        if (verbose)
+        {
+            cout << "str[" << str << "]" << endl;
+        }
+
+        assert(Formatter::format("[TRUE$0]", test1) ==
+            "[TRUE9223372036854775807]");
+        assert(Formatter::format("[TRUE$0]", test2) ==
+            "[TRUE9223372036854775808]");
+        assert(Formatter::format("[TRUE$0]", test3) ==
+            "[TRUE18446744073709551615]");
     }
 
     // Test for all  10 parameters in the string

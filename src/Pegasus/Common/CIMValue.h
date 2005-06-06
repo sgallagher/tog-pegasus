@@ -114,6 +114,12 @@ public:
     CIMValue(const CIMObjectPath& x);
 
     /// Constructor.
+    /// Note: Constructing a CIMValue with an uninitialized CIMObject is not 
+    /// defined and results in a thrown UninitializedObjectException.
+    /// Note: The input CIMObject will be cloned before putting it into the
+    /// value of the constructed CIMValue. This is because CIMObjects use a
+    /// shared representation model, but we don't want CIMObjects inside a 
+    /// CIMValue to be altered by other external changes.
     CIMValue(const CIMObject& x);
 
     /// Constructor.
@@ -162,19 +168,38 @@ public:
     CIMValue(const Array<CIMObjectPath>& x);
 
     /// Constructor.
+    /// Note: Constructing a CIMValue with an uninitialized CIMObject anywhere
+    /// in the input array is not defined and results in a thrown 
+    /// UninitializedObjectException.
+    /// Note: Each CIMObject in the input Array will be cloned before putting 
+    /// the Array into the value of the constructed CIMValue. This is because
+    /// CIMObjects use a shared representation model, but we don't want 
+    /// CIMObjects inside a CIMValue to be altered by other external changes.
     CIMValue(const Array<CIMObject>& x);
 
     /// Constructor.
+    /// Note: If the input type is CIMObject, it/they will be cloned before
+    /// putting it into the value of the constructed CIMValue. This is because
+    /// CIMObjects use a shared representation model, but we don't want 
+    /// CIMObjects inside a CIMValue to be altered by other external changes.
     CIMValue(const CIMValue& x);
 
     /// Destructor.
     ~CIMValue();
 
     /// Operator =
+    /// Note: If the right hand side type is CIMObject, it/they will be cloned
+    /// before putting it into the value of the target CIMValue. This is because
+    /// CIMObjects use a shared representation model, but we don't want 
+    /// CIMObjects inside a CIMValue to be altered by other external changes.
     CIMValue& operator=(const CIMValue& x);
 
     /** Assigns one CIMValue object to another CIMValue object.
         @param x - CIMValue object to be used for assignment.
+        Note: If the input type is CIMObject, it/they will be cloned before 
+        putting it into the value of the target CIMValue. This is because 
+        CIMObjects use a shared representation model, but we don't want  
+        CIMObjects inside a CIMValue to be altered by other external changes.
     */
     void assign(const CIMValue& x);
 
@@ -236,6 +261,13 @@ public:
             CIMValue x;
             x.set(Uint16(9));
         </pre>
+        @exception UninitializedObjectException If the given type is CIMObject, 
+        and the input CIMObject parameter is uninitialized or at least one entry 
+        in the Array of CIMObjects is uninitialized.
+        Note: If the input type is CIMObject, it/they will be cloned before
+        putting it into the value of the target CIMValue. This is because 
+        CIMObjects use a shared representation model, but we don't want
+        CIMObjects inside a CIMValue to be altered by other external changes.
     */    
     void set(Boolean x);
 
@@ -305,6 +337,8 @@ public:
     /** Gets the value of a CIMValue.
         Note: Before using get, the caller should use getType () and isNull ()
         to ensure that the value is not null, and is of the correct type.
+     
+        The behavior of get is undefined when the value is null.
 
         @param Variable in which to return the value.
         @exception TypeMismatchException If the CIMValue type is not compatible

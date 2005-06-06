@@ -455,8 +455,18 @@ void CIMValue::assign(const CIMValue& x)
                 break;
 
         case CIMTYPE_OBJECT:
-                _rep->_u._objectArray =
-                    new Array<CIMObject>(*(x._rep->_u._objectArray));
+                _rep->_u._objectArray = new Array<CIMObject>();
+                // Need to check each CIMObject entry in Array input parameter.
+                for (Uint32 i = 0; i < x._rep->_u._objectArray->size() ; i++)
+                {
+                    if ((*(x._rep->_u._objectArray))[i].isUninitialized()) {
+                        // This should never occur.
+                        throw UninitializedObjectException();
+                    }
+                    else {
+                        _rep->_u._objectArray->append((*(x._rep->_u._objectArray))[i].clone());
+                    }
+                }
                 break;
 
             default:
@@ -906,7 +916,11 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
                 break;
 
             case CIMTYPE_OBJECT:
-                set(CIMObject());
+                // Since we can't use set() with an uninitialized CIMObject(), and
+                // nothing else really makes sense, we duplicate the set() function
+                // here for an uninitialized object.
+                _rep->_u._objectValue = new CIMObject();
+                _rep->_type = CIMTYPE_OBJECT;
                 break;
 
             default:
@@ -1044,9 +1058,8 @@ void CIMValue::set(const CIMObject& x)
 {
     clear();
     if (x.isUninitialized()) {
-        // Don't need to clone since null CIMObjects aren't shared when created.
-        // Doesn't work anyway, clone() throws an exception if null.
-        _rep->_u._objectValue = new CIMObject(x);
+        // Bug 3373, throw exception if uninitialized object is passed to set().
+        throw UninitializedObjectException();
     }
     else {
         _rep->_u._objectValue = new CIMObject(x.clone());
@@ -1193,7 +1206,18 @@ void CIMValue::set(const Array<CIMObjectPath>& x)
 void CIMValue::set(const Array<CIMObject>& x)
 {
     clear();
-    _rep->_u._objectArray = new Array<CIMObject>(x);
+    _rep->_u._objectArray = new Array<CIMObject>();
+    // Need to check each CIMObject entry in Array input parameter.
+    for (Uint32 i = 0; i < x.size() ; i++)
+    {
+        if (x[i].isUninitialized()) {
+            // Bug 3373, throw exception if uninitialized object is passed to set().
+            throw UninitializedObjectException();
+        }
+        else {
+            _rep->_u._objectArray->append(x[i].clone());
+        }
+    }
     _rep->_type = CIMTYPE_OBJECT;
     _rep->_isArray = true;
     _rep->_isNull = false;

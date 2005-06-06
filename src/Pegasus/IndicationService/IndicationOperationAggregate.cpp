@@ -70,7 +70,7 @@ IndicationOperationAggregate::~IndicationOperationAggregate()
         //  Since deleteRequest also removes the element from the array,
         //  delete first element of the array each time
         //
-        deleteRequest(0);
+        _deleteRequest (0);
     }
     Uint32 numberResponses = getNumberResponses();
     for (Uint32 j = 0; j < numberResponses; j++)
@@ -79,7 +79,7 @@ IndicationOperationAggregate::~IndicationOperationAggregate()
         //  Since deleteResponse also removes the element from the array,
         //  delete first element of the array each time
         //
-        deleteResponse(0);
+        _deleteResponse (0);
     }
 }
 
@@ -188,18 +188,11 @@ CIMResponseMessage* IndicationOperationAggregate::getResponse(Uint32 pos) const
     return _responseList[pos];
 }
 
-void IndicationOperationAggregate::deleteResponse(Uint32 pos)
-{
-    delete _responseList[pos];
-    _responseList.remove(pos);
-}
-
 void IndicationOperationAggregate::appendRequest(
     CIMRequestMessage* request)
 {
     AutoMutex autoMut(_appendRequestMutex);
     _requestList.append(request);
-
 }
 
 Uint32 IndicationOperationAggregate::getNumberRequests() const
@@ -210,12 +203,6 @@ Uint32 IndicationOperationAggregate::getNumberRequests() const
 CIMRequestMessage* IndicationOperationAggregate::getRequest(Uint32 pos) const
 {
     return _requestList[pos];
-}
-
-void IndicationOperationAggregate::deleteRequest(Uint32 pos)
-{
-    delete _requestList[pos];
-    _requestList.remove(pos);
 }
 
 ProviderClassList IndicationOperationAggregate::findProvider(
@@ -280,6 +267,18 @@ ProviderClassList IndicationOperationAggregate::findProvider(
     //
     PEGASUS_ASSERT(false);
     return provider;
+}
+
+void IndicationOperationAggregate::_deleteRequest (Uint32 pos)
+{
+    delete _requestList[pos];
+    _requestList.remove(pos);
+}
+
+void IndicationOperationAggregate::_deleteResponse (Uint32 pos)
+{
+    delete _responseList[pos];
+    _responseList.remove(pos);
 }
 
 const Uint32 IndicationOperationAggregate::_theMagicNumber = 98765;

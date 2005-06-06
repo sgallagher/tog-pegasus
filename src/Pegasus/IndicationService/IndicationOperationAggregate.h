@@ -169,12 +169,22 @@ public:
     /**
         Sets the number of requests to be issued for this aggregation.
 
+        Note: It is the responsibility of the caller to set the number of
+        requests correctly.
+
         @param   i                     the number of requests
     */
     void setNumberIssued(Uint32 i);
 
     /**
         Appends a new response to the response list for this aggregation.
+
+        Note: The _appendResponseMutex is used to synchronize appending of
+        responses by multiple threads.
+
+        Note: The correctness of the return value from this method depends on
+        the caller having correctly set the number of requests with the
+        setNumberIssued() method.
 
         @param   response              the response
 
@@ -194,21 +204,19 @@ public:
         Gets the response at the specified position in the list for this
         aggregation.
 
+        Note: It is the responsibility of the caller to ensure that all threads
+        are done using the appendResponse() method before any thread uses the
+        getResponse() method.
+
         @return  a pointer to the response
     */
     CIMResponseMessage* getResponse(Uint32 pos) const;
 
     /**
-        Deletes the response at the specified position in the list for this
-        aggregation.
-
-        @param   pos                   the position in the list of the response
-                                           to be deleted
-    */
-    void deleteResponse(Uint32 pos);
-
-    /**
         Appends a new request to the request list for this aggregation.
+
+        Note: The _appendRequestMutex is used to synchronize appending of
+        requests by multiple threads.
 
         @param   request               the request
     */
@@ -225,21 +233,20 @@ public:
         Gets the request at the specified position in the list for this
         aggregation.
 
+        Note: It is the responsibility of the caller to ensure that all threads
+        are done using the appendRequest() method before any thread uses the
+        getRequest() method.
+
         @return  a pointer to the request
     */
     CIMRequestMessage* getRequest(Uint32 pos) const;
 
     /**
-        Deletes the request at the specified position in the list for this
-        aggregation.
-
-        @param   pos                   the position in the list of the request
-                                           to be deleted
-    */
-    void deleteRequest(Uint32 pos);
-
-    /**
         Finds the provider that sent the response with the specified message ID.
+
+        Note: It is the responsibility of the caller to ensure that all threads
+        are done using the appendRequest() method before any thread uses the
+        findProvider() method.
 
         @return  a ProviderClassList struct for the provider that sent the
                      response
@@ -262,6 +269,28 @@ private:
      */
     IndicationOperationAggregate& operator==(
         const IndicationOperationAggregate& x);
+
+    /**
+        Deletes the request at the specified position in the list for this
+        aggregation.
+
+        Note: Only the destructor uses this method.
+
+        @param   pos                   the position in the list of the request
+                                           to be deleted
+    */
+    void _deleteRequest (Uint32 pos);
+
+    /**
+        Deletes the response at the specified position in the list for this
+        aggregation.
+
+        Note: Only the destructor uses this method.
+
+        @param   pos                   the position in the list of the response
+                                           to be deleted
+    */
+    void _deleteResponse (Uint32 pos);
 
     CIMRequestMessage* _origRequest;
     Array<CIMName> _indicationSubclasses;

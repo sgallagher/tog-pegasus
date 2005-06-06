@@ -247,14 +247,6 @@ String _showPathArray(Array<CIMObjectPath>& p)
     return(rtn);
 }
 
- void _printInstance(String& message, CIMInstance& instance)
- {
-     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-         "%s %s\npath: %s\n %s",thisProvider, message.getCString(),
-         (instance.getPath().toString().getCString()),
-         ( ( CIMObject) instance).toString().getCString());
- }
-
 //*************************************************************
 //  Constructor
 //**********************************************************
@@ -2094,10 +2086,12 @@ CIMInstance InteropProvider::localGetInstance(
     {
        if (instanceName == instances[i].getPath())
        {
+           /* DEBUG SUPPORT
            Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                "%s getInstance return instance number %u\npath: %s\n %s\n",thisProvider, i,
                (instances[i].getPath().toString().getCString()),
                ( ( CIMObject) instances[i]).toString().getCString());
+           *****/
           rtnInstance = instances[i];
           break;
           // TODO Add test for duplicates somewhere.
@@ -2214,12 +2208,12 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
                             includeClassOrigin,
                             propertyList );
 
-            // Debug Trace of the Instances generated
+            /* Debug Trace of the Instances generated
             Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
                 "%s enumerateInstances return instance number %u\npath: %s\n %s\n",thisProvider, i,
                 (instances[i].getPath().toString().getCString()),
                 ( ( CIMObject) instances[i]).toString().getCString());
-            //****/
+            ****/
 
         }
         return(instances);

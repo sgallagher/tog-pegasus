@@ -270,14 +270,14 @@ private:
     // The following are internal equivalents of the operations
     // allowing the operations to call one another internally within
     // the provider.
-    Array<CIMInstance> InteropProvider::localEnumerateInstances(
+    Array<CIMInstance> localEnumerateInstances(
         const OperationContext & context,
         const CIMObjectPath & ref,
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    Array<CIMObject> InteropProvider::localReferences(
+    Array<CIMObject> localReferences(
     	const OperationContext & context,
     	const CIMObjectPath & objectName,
     	const CIMName & resultClass,

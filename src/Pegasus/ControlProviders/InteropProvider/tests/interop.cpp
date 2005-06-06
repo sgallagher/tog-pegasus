@@ -439,9 +439,9 @@ Boolean InteropTest::matchPathsAndInstancePaths(const Array<CIMObjectPath>& path
         if (!_containsObjectPath(instances[i].getPath(), paths))
         {
             String tmp;
-            for (Uint32 i = 0 ; i < instances.size() ; i++)
+            for (Uint32 j = 0 ; j < instances.size() ; j++)
             {
-                tmp.append(instances[i].getPath().toString());
+                tmp.append(instances[j].getPath().toString());
                 tmp.append("\n");
             }
             if (verbose)

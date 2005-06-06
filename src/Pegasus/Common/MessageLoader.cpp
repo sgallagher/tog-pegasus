@@ -345,11 +345,6 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		return String((const Char16 *)uchar_str, len);
 	}
 
-	UChar* MessageLoader::string2UChar(String s){
-		return (UChar*)((uint16_t *)s.getChar16Data());
-	}
-
-
 	String MessageLoader::formatICUMessage(UResourceBundle * resbundl, const UChar * msg, int msg_len, MessageLoaderParms &parms){
 
 		// format the message
@@ -411,13 +406,51 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			//cout << "arg" << " = " << arg.toString() << endl;
 			switch (arg._type)
     		{
-				case Formatter::Arg::INTEGER:   formattable = (int32_t)arg._integer;break;
-				case Formatter::Arg::UINTEGER:  formattable = (int32_t)arg._uinteger;break;
-				case Formatter::Arg::BOOLEAN:   formattable = (int32_t)arg._boolean;break;
-				case Formatter::Arg::REAL:      formattable = (float)arg._real;break;
-				case Formatter::Arg::LINTEGER:  formattable = (int64_t)arg._lInteger;break;
-				case Formatter::Arg::ULINTEGER: formattable = (int64_t)arg._lUInteger;break;
-				case Formatter::Arg::STRING:    formattable = Formattable(string2UChar(arg._string));break;
+				case Formatter::Arg::INTEGER:
+                    formattable = (int32_t)arg._integer;
+                    break;
+				case Formatter::Arg::UINTEGER:
+                    // Note: the ICU Formattable class doesn't support
+                    // unsigned 32.  Cast to signed 64.
+                    formattable = (int64_t)arg._uinteger;
+                    break;
+				case Formatter::Arg::BOOLEAN:
+                    // Note: the ICU formattable class doesn't support
+                    // boolean.  Turn it into a string.
+                    if (!arg._boolean)
+                        formattable = Formattable("false");
+                    else
+                        formattable = Formattable("true");
+                    break;
+				case Formatter::Arg::REAL:
+                    formattable = (double)arg._real;
+                    break;
+				case Formatter::Arg::LINTEGER:
+                    // Note: this uses a Formattable constructor that is
+                    // labelled ICU 2.8 draft.  Assumes that Pegasus uses
+                    // at least ICU 2.8.
+                    formattable = (int64_t)arg._lInteger;
+                    break;
+				case Formatter::Arg::ULINTEGER:
+                    // Note: the ICU Formattable class doesn't support
+                    // unsigned 64.  If the number is too big for signed 64
+                    // then turn it into a string.  This string will  
+                    // not be formatted for the locale, but at least the number
+                    // will appear in the message.
+                    if (arg._lUInteger >  PEGASUS_UINT64_LITERAL(0x7FFFFFFFFFFFFFFF))
+                    {
+                        char buffer[32];  // Should need 21 chars max
+                        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", arg._lUInteger);
+                        formattable = Formattable(buffer);
+                    }
+                    else
+                    {
+                        formattable = (int64_t)arg._lUInteger;
+                    }
+                    break;
+				case Formatter::Arg::STRING:
+                    formattable = Formattable((UChar*)arg._string.getChar16Data());
+                    break;
 	    		case Formatter::Arg::VOIDT:
             default:
               formattable = "";

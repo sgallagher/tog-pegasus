@@ -265,12 +265,19 @@ char LanguageParser::findSeparator(const CString & _str){
 }
 
 CString LanguageParser::replaceSeparator(const CString & _s, char new_sep){
-	char * _str = 0;
-	strcpy(_str,_s);
-	Uint32 length = (Uint32) strlen(_str);
-	for(Uint32 i = 0; i < length; i++)
-		_str[i] = (!isalnum(_str[i])) ? new_sep : _str[i];
-	return (String(_str)).getCString();
+    const Uint32 length = (Uint32) strlen(_s);
+    AutoArrayPtr<char> _str(new char[length + 1]);
+    strcpy(_str.get(),_s);
+    for(Uint32 i = 0; i < length; i++)
+    {
+        if (!isalnum(_str.get()[i]))
+        {
+            _str.get()[i] = new_sep;
+        }
+    }
+	const String retval(_str.get());
+    _str.release();
+    return(retval.getCString());
 }
 
 

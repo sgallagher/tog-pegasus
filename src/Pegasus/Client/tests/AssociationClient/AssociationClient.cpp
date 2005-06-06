@@ -67,6 +67,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/InternalException.h>
 #include <string.h>
 
 PEGASUS_USING_STD;
@@ -215,6 +216,8 @@ int main(int argc, char** argv)
 
         // invalid role parameter syntax
         String invalidRole = "Teaches_*student";
+
+	Boolean gotException = false;
         try 
         {
             resultObjects = client.associators(
@@ -230,6 +233,7 @@ int main(int argc, char** argv)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
+                gotException = true;
                 if (verbose)
                 {
                     cout << "Test role parameter syntax: " << e.getMessage() << endl;
@@ -240,9 +244,11 @@ int main(int argc, char** argv)
                 throw;
             }
         }
+        PEGASUS_ASSERT(gotException);
 
         // invalid resultRole parameter syntax
         String invalidResultRole = "3Taught_By";
+        gotException = false;
         try 
         {
             resultObjects = client.associators(
@@ -258,6 +264,7 @@ int main(int argc, char** argv)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
+                gotException = true;
                 if (verbose)
                 {
                     cout << "Test resultRole parameter syntax: " << e.getMessage() << endl;
@@ -268,6 +275,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
+        PEGASUS_ASSERT(gotException);
 
         // ===================================================================
         // associatorNames
@@ -302,6 +310,7 @@ int main(int argc, char** argv)
         // ===================================================================
 
         // invalid role parameter syntax
+        gotException = false;
         try
         {
             resultObjectPaths = client.associatorNames(
@@ -316,6 +325,7 @@ int main(int argc, char** argv)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
+                gotException = true;
                 if (verbose)
                 {
                     cout << "Test role parameter syntax: " << e.getMessage() << endl;
@@ -326,8 +336,10 @@ int main(int argc, char** argv)
                 throw;
             }
         }
+        PEGASUS_ASSERT(gotException);
 
         // invalid resultRole parameter syntax
+        gotException = false;
         try
         {
             resultObjectPaths = client.associatorNames(
@@ -342,6 +354,7 @@ int main(int argc, char** argv)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
+                gotException = true;
                 if (verbose)
                 {
                     cout << "Test resultRole parameter syntax: " << e.getMessage() << endl;
@@ -352,6 +365,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
+        PEGASUS_ASSERT(gotException);
 
         // ===================================================================
         // references
@@ -383,6 +397,7 @@ int main(int argc, char** argv)
         // ===================================================================
 
         // invalid role parameter syntax
+        gotException = false;
         try
         {
             resultObjects = client.references(
@@ -395,6 +410,7 @@ int main(int argc, char** argv)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
+                gotException = true;
                 if (verbose)
                 {
                     cout << "Test role parameter syntax: " << e.getMessage() << endl;
@@ -405,6 +421,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
+        PEGASUS_ASSERT(gotException);
 
         // ===================================================================
         // referenceNames
@@ -436,6 +453,7 @@ int main(int argc, char** argv)
         // ===================================================================
 
         // invalid role parameter syntax
+        gotException = false;
         try
         {
             resultObjectPaths = client.referenceNames(
@@ -448,6 +466,7 @@ int main(int argc, char** argv)
         {
             if (e.getCode() == CIM_ERR_INVALID_PARAMETER)
             {
+                gotException = true;
                 if (verbose)
                 {
                     cout << "Test role parameter syntax: " << e.getMessage() << endl;
@@ -458,6 +477,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
+        PEGASUS_ASSERT(gotException);
 
         // ===================================================================
         // Call the association methods with different filters specified.

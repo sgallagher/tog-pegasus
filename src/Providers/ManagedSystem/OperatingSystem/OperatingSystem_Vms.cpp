@@ -63,14 +63,14 @@
 #define MAXHOSTNAMELEN  256
 #define MAXUSERNAME 512
 
-extern "C" {
+extern "C"
+{
 #if defined (PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
   extern const long SCH$GL_FREECNT;
 #elif defined (PEGASUS_PLATFORM_VMS_IPF_DECCXX)
   extern const long SCH$GI_FREECNT;
 #endif
 }
-
 
 PEGASUS_USING_STD;
 
@@ -94,10 +94,10 @@ OperatingSystem::~OperatingSystem(void)
 // ================================================================================
 //
 
-static Boolean getUtilGetHostName(String& csName)
+static Boolean getUtilGetHostName(String & csName)
 {
-  char    hostName[MAXHOSTNAMELEN];
-  struct  hostent *he;
+  char hostName[MAXHOSTNAMELEN];
+  struct hostent *he;
 
   if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
   {
@@ -107,7 +107,7 @@ static Boolean getUtilGetHostName(String& csName)
   // Now get the official hostname.  If this call fails then return
   // the value from gethostname().
 
-  he=gethostbyname(hostName);
+  he = gethostbyname(hostName);
   if (he)
   {
     strcpy(hostName, he->h_name);
@@ -133,15 +133,15 @@ static Boolean getUtilGetHostName(String& csName)
 int convertToCIMDateString(struct tm *t, char *time)
 {
   // Format the date.
-  sprintf(time,"%04d%02d%02d%02d%02d%02d.000000%c%03d",
-          t->tm_year + 1900,
-          t->tm_mon + 1,
-          t->tm_mday,
-          t->tm_hour,
-          t->tm_min,
-          t->tm_sec,
-          (timezone>0)?'-':'+',
-          timezone/60 - ( t->tm_isdst? 60:0 ));
+  sprintf(time, "%04d%02d%02d%02d%02d%02d.000000%c%03d",
+	  t->tm_year + 1900,
+	  t->tm_mon + 1,
+	  t->tm_mday,
+	  t->tm_hour,
+	  t->tm_min,
+	  t->tm_sec,
+	  (timezone > 0) ? '-' : '+',
+	  timezone / 60 - (t->tm_isdst ? 60 : 0));
 
   return 1;
 }
@@ -164,13 +164,13 @@ struct tm *get_time()
 
   if (getclock(TIMEOFDAY, &since_epoch) != 0)
   {
-    return(NULL); /*getclock error*/
+    return (NULL);		/*getclock error */
   }
   else
   {
-    if ((local = localtime(&since_epoch.tv_sec)) == (struct tm *)NULL)
+    if ((local = localtime(&since_epoch.tv_sec)) == (struct tm *) NULL)
     {
-      return(NULL); /*localtime error*/
+      return (NULL);		/*localtime error */
     }
     else
     {
@@ -190,7 +190,7 @@ struct tm *get_time()
 // ================================================================================
 //
 
-int GetFreeMem (long *pFreeMem)
+int GetFreeMem(long *pFreeMem)
 {
 #if defined (PEGASUS_PLATFORM_VMS_ALPHA_DECCXX)
   *pFreeMem = SCH$GL_FREECNT;
@@ -198,7 +198,7 @@ int GetFreeMem (long *pFreeMem)
   *pFreeMem = SCH$GI_FREECNT;
 #endif
 
-  return(SS$_NORMAL);
+  return (SS$_NORMAL);
 }
 
 //
@@ -212,7 +212,7 @@ int GetFreeMem (long *pFreeMem)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getCSName(String& csName)
+Boolean OperatingSystem::getCSName(String & csName)
 {
   return getUtilGetHostName(csName);
 }
@@ -228,9 +228,9 @@ Boolean OperatingSystem::getCSName(String& csName)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getName(String& osName)
+Boolean OperatingSystem::getName(String & osName)
 {
-  struct utsname  unameInfo;
+  struct utsname unameInfo;
 
   // Call uname and check for any errors.
   if (uname(&unameInfo) < 0)
@@ -254,8 +254,8 @@ Boolean OperatingSystem::getName(String& osName)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getCaption(String& caption)
-{ 
+Boolean OperatingSystem::getCaption(String & caption)
+{
   caption.assign("The current Operating System");
   return true;
 }
@@ -271,11 +271,11 @@ Boolean OperatingSystem::getCaption(String& caption)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getDescription(String& description)
+Boolean OperatingSystem::getDescription(String & description)
 {
   description.assign("This instance reflects the Operating System"
-  " on which the CIMOM is executing (as distinguished from instances"
-  " of other installed operating systems that could be run).");
+      " on which the CIMOM is executing (as distinguished from instances"
+	    " of other installed operating systems that could be run).");
 
   return true;
 }
@@ -292,37 +292,45 @@ Boolean OperatingSystem::getDescription(String& description)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
+Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 {
-  int status, istr;
-  char record1[512], *rptr1=0;
-  FILE *fptr1=0;
-  unsigned __int64 bintime=0;
-  unsigned short int timbuf[7], val=0;
-  char cimtime[80]="";
+  int status,
+    istr;
+  char record1[512],
+   *rptr1 = 0;
+  FILE *fptr1 = 0;
+  unsigned __int64 bintime = 0;
+  unsigned short int timbuf[7],
+    val = 0;
+  char cimtime[80] = "";
   struct tm timetm;
-  struct tm *ptimetm=&timetm;
-  time_t tme=0, tme1=0;
-  char t_string[24]="", libdst;
+  struct tm *ptimetm = &timetm;
+  time_t tme = 0,
+    tme1 = 0;
+  char t_string[24] = "",
+    libdst;
   unsigned int retlen;
-  unsigned long libop, libdayweek, libdayear;
+  unsigned long libop,
+    libdayweek,
+    libdayear;
   long dst_desc[2];
-  char log_string[]="SYS$TIMEZONE_DAYLIGHT_SAVING";
+  char log_string[] = "SYS$TIMEZONE_DAYLIGHT_SAVING";
   struct dsc$descriptor_s sysinfo;
-  static $DESCRIPTOR(lnm_tbl,"LNM$SYSTEM");
+  static $DESCRIPTOR(lnm_tbl, "LNM$SYSTEM");
   struct
   {
     unsigned short wLength;
     unsigned short wCode;
-    void*    pBuffer;
-    unsigned int* pRetLen;
+    void *pBuffer;
+    unsigned int *pRetLen;
     int term;
-  } item_list;
+  }
+  item_list;
 
-  sysinfo.dsc$b_dtype=DSC$K_DTYPE_T;
-  sysinfo.dsc$b_class=DSC$K_CLASS_S;
-  sysinfo.dsc$w_length=sizeof(t_string);
-  sysinfo.dsc$a_pointer=t_string;
+  sysinfo.dsc$b_dtype = DSC$K_DTYPE_T;
+  sysinfo.dsc$b_class = DSC$K_CLASS_S;
+  sysinfo.dsc$w_length = sizeof (t_string);
+  sysinfo.dsc$a_pointer = t_string;
 
   status = system("pipe product show history openvms | search/nolog/nowarn/out=history.out sys$input install");
   if (!$VMS_STATUS_SUCCESS(status))
@@ -332,96 +340,112 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
 
   if (fptr1 = fopen("history.out", "r"))
   {
-    while (fgets(record1, sizeof(record1), fptr1))
+    while (fgets(record1, sizeof (record1), fptr1))
     {
-      for (istr=0; istr<=(sizeof(record1)-4); istr++)
+      for (istr = 0; istr <= (sizeof (record1) - 4); istr++)
       {
-        if ((rptr1 = strstr(record1+istr,"-")) && !strncmp(rptr1+4,"-",1))
-        {
-          break;
-        }
-        rptr1 = 0;
+	if ((rptr1 = strstr(record1 + istr, "-")) && !strncmp(rptr1 + 4, "-", 1))
+	{
+	  break;
+	}
+	rptr1 = 0;
       }
       if (rptr1)
       {
-        time(&tme);
-        tme1 = mktime(ptimetm);		/* get timezone */
-        strcpy(t_string,rptr1-2);
-        t_string[20]='.';
-        t_string[21]='0';
-        t_string[22]='0';
-        t_string[23]='0';
-        status = sys$bintim (&sysinfo, &bintime);
-        if (!$VMS_STATUS_SUCCESS(status))
-        {
-          return false;
-        }
+	time(&tme);
+	tme1 = mktime(ptimetm);	/* get timezone */
+	strcpy(t_string, rptr1 - 2);
+	t_string[20] = '.';
+	t_string[21] = '0';
+	t_string[22] = '0';
+	t_string[23] = '0';
+	status = sys$bintim(&sysinfo, &bintime);
+	if (!$VMS_STATUS_SUCCESS(status))
+	{
+	  fclose(fptr1);
+	  fptr1 = 0;
+	  return false;
+	}
 
-        libop=LIB$K_DAY_OF_WEEK;
-        status=lib$cvt_from_internal_time (&libop,&libdayweek,&bintime);
-        if (!$VMS_STATUS_SUCCESS(status))
-        {
-          return false;
-        }
+	libop = LIB$K_DAY_OF_WEEK;
+	status = lib$cvt_from_internal_time(&libop, &libdayweek, &bintime);
+	if (!$VMS_STATUS_SUCCESS(status))
+	{
+	  fclose(fptr1);
+	  fptr1 = 0;
+	  return false;
+	}
 
-        libop=LIB$K_DAY_OF_YEAR;
-        status=lib$cvt_from_internal_time (&libop,&libdayear,&bintime);
-        if (!$VMS_STATUS_SUCCESS(status))
-        {
-          return false;
-        }
+	libop = LIB$K_DAY_OF_YEAR;
+	status = lib$cvt_from_internal_time(&libop, &libdayear, &bintime);
+	if (!$VMS_STATUS_SUCCESS(status))
+	{
+	  fclose(fptr1);
+	  fptr1 = 0;
+	  return false;
+	}
 
-        dst_desc[0]  = strlen(log_string);
-        dst_desc[1]  = (long) log_string;
-        item_list.wLength = 1;
-        item_list.wCode = LNM$_STRING;
-        item_list.pBuffer = &libdst;
-        item_list.pRetLen = &retlen;
-        item_list.term =0;
+	dst_desc[0] = strlen(log_string);
+	dst_desc[1] = (long) log_string;
+	item_list.wLength = 1;
+	item_list.wCode = LNM$_STRING;
+	item_list.pBuffer = &libdst;
+	item_list.pRetLen = &retlen;
+	item_list.term = 0;
 
-        status = sys$trnlnm (0,&lnm_tbl,&dst_desc,0,&item_list);
-        if (!$VMS_STATUS_SUCCESS(status))
-        {
-          return false;
-        }
+	status = sys$trnlnm(0, &lnm_tbl, &dst_desc, 0, &item_list);
+	if (!$VMS_STATUS_SUCCESS(status))
+	{
+	  fclose(fptr1);
+	  fptr1 = 0;
+	  return false;
+	}
 
-        status = sys$numtim(timbuf,&bintime);
-        if (!$VMS_STATUS_SUCCESS(status))
-        {
-          return false;
-        }
+	status = sys$numtim(timbuf, &bintime);
+	if (!$VMS_STATUS_SUCCESS(status))
+	{
+	  fclose(fptr1);
+	  fptr1 = 0;
+	  return false;
+	}
 
-        timetm.tm_sec = timbuf[5];
-        timetm.tm_min = timbuf[4];
-        timetm.tm_hour = timbuf[3];
-        timetm.tm_mday = timbuf[2];
-        timetm.tm_mon = timbuf[1]-1;
-        timetm.tm_year = timbuf[0]-1900;
-        timetm.tm_wday = libdayweek-1;
-        timetm.tm_yday = libdayear-1;
-        if (libdst != 48) timetm.tm_isdst = 1;
+	timetm.tm_sec = timbuf[5];
+	timetm.tm_min = timbuf[4];
+	timetm.tm_hour = timbuf[3];
+	timetm.tm_mday = timbuf[2];
+	timetm.tm_mon = timbuf[1] - 1;
+	timetm.tm_year = timbuf[0] - 1900;
+	timetm.tm_wday = libdayweek - 1;
+	timetm.tm_yday = libdayear - 1;
+	if (libdst != 48)
+	  timetm.tm_isdst = 1;
 
-        status = convertToCIMDateString(ptimetm,cimtime);
-        if (!$VMS_STATUS_SUCCESS(status))
-        {
-          return false;
-        }
+	status = convertToCIMDateString(ptimetm, cimtime);
+	if (!$VMS_STATUS_SUCCESS(status))
+	{
+	  fclose(fptr1);
+	  fptr1 = 0;
+	  return false;
+	}
 
-        installDate.clear();
+	installDate.clear();
 	installDate.set(cimtime);
-        fclose (fptr1);
 
-        status = system("if (f$search(\"history.out\") .nes. \"\") then delete history.out;*");
-        return true;
-      } // end if (rptr1 = strstr(record1,"Install"))
+	status = system("if (f$search(\"history.out\") .nes. \"\") then delete history.out;*");
+	fclose(fptr1);
+	fptr1 = 0;
+	return true;
+      }				// end if (rptr1 = strstr(record1,"Install"))
+
     }
-    fclose (fptr1);
+    fclose(fptr1);
+    fptr1 = 0;
     status = system("if (f$search(\"history.out\") .nes. \"\") then delete history.out;*");
     return false;
-  } // end if (fptr1 = fopen(history.out, "r"))
+  }				// end if (fptr1 = fopen(history.out, "r"))
+
   else
   {
-    fclose (fptr1);
     status = system("if (f$search(\"history.out\") .nes. \"\") then delete history.out;*");
     return false;
   }
@@ -438,10 +462,10 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getStatus(String& status)
+Boolean OperatingSystem::getStatus(String & status)
 {
-    status.assign("Unknown");
-    return true;
+  status.assign("Unknown");
+  return true;
 }
 
 //
@@ -455,10 +479,10 @@ Boolean OperatingSystem::getStatus(String& status)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getVersion(String& osVersion)
+Boolean OperatingSystem::getVersion(String & osVersion)
 {
-  struct utsname  unameInfo;
-  char version[sizeof(unameInfo.release) + sizeof(unameInfo.version)];
+  struct utsname unameInfo;
+  char version[sizeof (unameInfo.release) + sizeof (unameInfo.version)];
 
   // Call uname and check for any errors.
 
@@ -484,7 +508,7 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getOSType(Uint16& osType)
+Boolean OperatingSystem::getOSType(Uint16 & osType)
 {
   osType = OpenVMS;
   return true;
@@ -501,9 +525,9 @@ Boolean OperatingSystem::getOSType(Uint16& osType)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
+Boolean OperatingSystem::getOtherTypeDescription(String & otherTypeDescription)
 {
-  otherTypeDescription = String::EMPTY;
+otherTypeDescription = String::EMPTY;
   return true;
 }
 
@@ -518,77 +542,84 @@ Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
+Boolean OperatingSystem::getLastBootUpTime(CIMDateTime & lastBootUpTime)
 {
-  long status, item=SYI$_BOOTTIME, dst_desc[2];
-  char t_string[24]="";
-  char cimtime[80]="";
-  char log_string[]="SYS$TIMEZONE_DAYLIGHT_SAVING";
+  long status,
+    item = SYI$_BOOTTIME,
+    dst_desc[2];
+  char t_string[24] = "";
+  char cimtime[80] = "";
+  char log_string[] = "SYS$TIMEZONE_DAYLIGHT_SAVING";
   char libdst;
-  time_t tme=0, tme1=0;
-  unsigned __int64 bintime=0;
-  unsigned short int timbuf[7], val=0;
-  unsigned long libop, libdayweek, libdayear;
+  time_t tme = 0,
+    tme1 = 0;
+  unsigned __int64 bintime = 0;
+  unsigned short int timbuf[7],
+    val = 0;
+  unsigned long libop,
+    libdayweek,
+    libdayear;
   unsigned int retlen;
   struct tm timetm;
-  struct tm *ptimetm=&timetm;
+  struct tm *ptimetm = &timetm;
   struct dsc$descriptor_s sysinfo;
-  static $DESCRIPTOR(lnm_tbl,"LNM$SYSTEM");
+  static $DESCRIPTOR(lnm_tbl, "LNM$SYSTEM");
   struct
   {
     unsigned short wLength;
     unsigned short wCode;
-    void*    pBuffer;
-    unsigned int* pRetLen;
+    void *pBuffer;
+    unsigned int *pRetLen;
     int term;
-  } item_list;
+  }
+  item_list;
 
-  sysinfo.dsc$b_dtype=DSC$K_DTYPE_T;
-  sysinfo.dsc$b_class=DSC$K_CLASS_S;
-  sysinfo.dsc$w_length=sizeof(t_string);
-  sysinfo.dsc$a_pointer=t_string;
+  sysinfo.dsc$b_dtype = DSC$K_DTYPE_T;
+  sysinfo.dsc$b_class = DSC$K_CLASS_S;
+  sysinfo.dsc$w_length = sizeof (t_string);
+  sysinfo.dsc$a_pointer = t_string;
 
-  status=lib$getsyi(&item,0,&sysinfo,&val,0,0);
+  status = lib$getsyi(&item, 0, &sysinfo, &val, 0, 0);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  status = sys$bintim (&sysinfo, &bintime);
+  status = sys$bintim(&sysinfo, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  libop=LIB$K_DAY_OF_WEEK;
-  status=lib$cvt_from_internal_time (&libop,&libdayweek,&bintime);
+  libop = LIB$K_DAY_OF_WEEK;
+  status = lib$cvt_from_internal_time(&libop, &libdayweek, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  libop=LIB$K_DAY_OF_YEAR;
-  status=lib$cvt_from_internal_time (&libop,&libdayear,&bintime);
+  libop = LIB$K_DAY_OF_YEAR;
+  status = lib$cvt_from_internal_time(&libop, &libdayear, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  dst_desc[0]  = strlen(log_string);
-  dst_desc[1]  = (long) log_string;
+  dst_desc[0] = strlen(log_string);
+  dst_desc[1] = (long) log_string;
   item_list.wLength = 1;
   item_list.wCode = LNM$_STRING;
   item_list.pBuffer = &libdst;
   item_list.pRetLen = &retlen;
-  item_list.term =0;
+  item_list.term = 0;
 
-  status = sys$trnlnm (0,&lnm_tbl,&dst_desc,0,&item_list);
+  status = sys$trnlnm(0, &lnm_tbl, &dst_desc, 0, &item_list);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  status = sys$numtim(timbuf,&bintime);
+  status = sys$numtim(timbuf, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -598,14 +629,15 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
   timetm.tm_min = timbuf[4];
   timetm.tm_hour = timbuf[3];
   timetm.tm_mday = timbuf[2];
-  timetm.tm_mon = timbuf[1]-1;
-  timetm.tm_year = timbuf[0]-1900;
-  timetm.tm_wday = libdayweek-1;
-  timetm.tm_yday = libdayear-1;
+  timetm.tm_mon = timbuf[1] - 1;
+  timetm.tm_year = timbuf[0] - 1900;
+  timetm.tm_wday = libdayweek - 1;
+  timetm.tm_yday = libdayear - 1;
   timetm.tm_isdst = 0;
-  if (libdst != 48) timetm.tm_isdst = 1;
+  if (libdst != 48)
+    timetm.tm_isdst = 1;
 
-  if(convertToCIMDateString(ptimetm,cimtime) != -1)
+  if (convertToCIMDateString(ptimetm, cimtime) != -1)
   {
     lastBootUpTime.clear();
     lastBootUpTime.set(cimtime);
@@ -628,17 +660,17 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
+Boolean OperatingSystem::getLocalDateTime(CIMDateTime & localDateTime)
 {
   struct tm *local;
   char date[80];
 
-  if((local = get_time()) == NULL)
+  if ((local = get_time()) == NULL)
   {
     return false;
   }
 
-  if(convertToCIMDateString(local, date) != -1)
+  if (convertToCIMDateString(local, date) != -1)
   {
     localDateTime.clear();
     localDateTime.set(date);
@@ -659,24 +691,24 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
+Boolean OperatingSystem::getCurrentTimeZone(Sint16 & currentTimeZone)
 {
   struct tm *tz;
-  
-  if((tz = get_time()) == NULL)
+
+  if ((tz = get_time()) == NULL)
   {
     return false;
   }
 
-  if(timezone > 0)
+  if (timezone > 0)
   {
-    currentTimeZone = -(timezone/60 - ( tz->tm_isdst? 60:0 ));
+    currentTimeZone = -(timezone / 60 - (tz->tm_isdst ? 60 : 0));
   }
   else
   {
-    currentTimeZone = timezone/60 - ( tz->tm_isdst? 60:0 );
+    currentTimeZone = timezone / 60 - (tz->tm_isdst ? 60 : 0);
   }
-  
+
   return true;
 }
 
@@ -691,11 +723,18 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
+Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers)
 {
-  int status, loaded_units, req_units;
-  char record1[512], record2[512], *rptr1=0, *rptr2=0, *rptr3=0;
-  FILE *fptr1=0, *fptr2=0;
+  int status,
+    loaded_units,
+    req_units;
+  char record1[512],
+    record2[512],
+   *rptr1 = 0,
+   *rptr2 = 0,
+   *rptr3 = 0;
+  FILE *fptr1 = 0,
+   *fptr2 = 0;
 
   status = system("show license/usage/out=usage.out openvms-alpha");
   if (!$VMS_STATUS_SUCCESS(status))
@@ -711,58 +750,78 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
 
   if (fptr1 = fopen("usage.out", "r"))
   {
-    while (fgets(record1, sizeof(record1), fptr1))
+    while (fgets(record1, sizeof (record1), fptr1))
     {
-      if (rptr1 = strstr(record1,"DEC "))
+      if (rptr1 = strstr(record1, "DEC "))
       {
-	rptr2 = strstr(rptr1+3,"Unlimited license");
+	rptr2 = strstr(rptr1 + 3, "Unlimited license");
 	if (rptr2)
 	{
 	  numberOfLicensedUsers = 0;
-	  fclose (fptr1);
 	  status = system("if (f$search(\"usage.out\") .nes. \"\") then delete usage.out;*");
 	  status = system("if (f$search(\"units.out\") .nes. \"\") then delete units.out;*");
+	  fclose(fptr1);
+	  fptr1 = 0;
 	  return true;
 	}
 	else
 	{
-	  rptr2 = strtok(rptr1+3," ");
-          loaded_units = strtol(rptr2, NULL, 10);
-          if (fptr2 = fopen("units.out", "r"))
-          {
-	    while (fgets(record2, sizeof(record2), fptr2))
-            {
-              if (rptr1 = strstr(record2,"Type: A, Units Required:"))
-              {
-		rptr3 = strtok(rptr1+25," ");
-                req_units = strtol(rptr3, NULL, 10);
-		fclose (fptr1);
-		fclose (fptr2);
+	  rptr2 = strtok(rptr1 + 3, " ");
+	  loaded_units = strtol(rptr2, NULL, 10);
+	  if (fptr2 = fopen("units.out", "r"))
+	  {
+	    while (fgets(record2, sizeof (record2), fptr2))
+	    {
+	      if (rptr1 = strstr(record2, "Type: A, Units Required:"))
+	      {
+		rptr3 = strtok(rptr1 + 25, " ");
+		req_units = strtol(rptr3, NULL, 10);
+		fclose(fptr1);
+		fptr1 = 0;
+		fclose(fptr2);
+		fptr2 = 0;
 		status = system("if (f$search(\"usage.out\") .nes. \"\") then delete usage.out;*");
 		status = system("if (f$search(\"units.out\") .nes. \"\") then delete units.out;*");
-                if (req_units != 0)
+		if (req_units != 0)
 		{
-		  numberOfLicensedUsers = loaded_units/req_units;
+		  numberOfLicensedUsers = loaded_units / req_units;
 		  return true;
 		}
 		else
-                {
+		{
 		  return false;
-                }
+		}
 	      }
-	    } // end while (fgets(record2, sizeof(record2), fptr2))
-	  } // end if (fptr2 = fopen("units.out", "r"))
+	    }			// end while (fgets(record2, sizeof(record2), fptr2))
+
+	  }			// end if (fptr2 = fopen("units.out", "r"))
+
 	  else
 	  {
-	    fclose (fptr1);
+	    fclose(fptr1);
+	    fptr1 = 0;
 	    status = system("if (f$search(\"usage.out\") .nes. \"\") then delete usage.out;*");
 	    status = system("if (f$search(\"units.out\") .nes. \"\") then delete units.out;*");
 	    return false;
 	  }
-	} // end if (rptr2)
-      } // end if (rptr1 = strstr(record1,"DEC "))
-    } // end while (fgets(record1, sizeof(record1), fptr1))
-  } // end if (fptr1 = fopen(usage.out, "r"))
+	}			// end if (rptr2)
+
+      }				// end if (rptr1 = strstr(record1,"DEC "))
+
+    }				// end while (fgets(record1, sizeof(record1), fptr1))
+
+  }				// end if (fptr1 = fopen(usage.out, "r"))
+
+  if (!fptr1 == 0)
+  {
+    fclose(fptr1);
+    fptr1 = 0;
+  }
+  if (!fptr2 == 0)
+  {
+    fclose(fptr2);
+    fptr2 = 0;
+  }
 
   return false;
 }
@@ -778,9 +837,12 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
+Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
 {
-  int i, status, count=0, usernamlen;
+  int i,
+    status,
+    count = 0,
+    usernamlen;
   unsigned long int jpictx;
   typedef struct
   {
@@ -788,12 +850,13 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
   char usernamebuf[13];
-  char *ptr1=0;
-  char username[MAXUSERNAME*13]="";
+  char *ptr1 = 0;
+  char username[MAXUSERNAME * 13] = "";
 
   itmlst3[0].wlength = 0;
   itmlst3[0].wcode = PSCAN$_MODE;
@@ -804,7 +867,7 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -830,19 +893,19 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
     {
       return false;
     }
-    usernamebuf[12]='\0';
-    for (i=0; i < MAXUSERNAME; i++)
+    usernamebuf[12] = '\0';
+    for (i = 0; i < MAXUSERNAME; i++)
     {
-      ptr1 = &username[i*13];
-      if (!strncmp(usernamebuf,ptr1,13))
+      ptr1 = &username[i * 13];
+      if (!strncmp(usernamebuf, ptr1, 13))
       {
-        break;
+	break;
       }
-      else if (!strcmp(ptr1,""))
+      else if (!strcmp(ptr1, ""))
       {
-        strncpy(ptr1,usernamebuf,13);
-        count++;
-        break;
+	strncpy(ptr1, usernamebuf, 13);
+	count++;
+	break;
       }
     }
   }
@@ -855,7 +918,7 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -881,19 +944,19 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
     {
       return false;
     }
-    usernamebuf[12]='\0';
-    for (i=0; i < MAXUSERNAME; i++)
+    usernamebuf[12] = '\0';
+    for (i = 0; i < MAXUSERNAME; i++)
     {
-      ptr1 = &username[i*13];
-      if (!strncmp(usernamebuf,ptr1,13))
+      ptr1 = &username[i * 13];
+      if (!strncmp(usernamebuf, ptr1, 13))
       {
-        break;
+	break;
       }
-      else if (!strcmp(ptr1,""))
+      else if (!strcmp(ptr1, ""))
       {
-        strncpy(ptr1,usernamebuf,13);
-        count++;
-        break;
+	strncpy(ptr1, usernamebuf, 13);
+	count++;
+	break;
       }
     }
   }
@@ -906,7 +969,7 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -932,19 +995,19 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
     {
       return false;
     }
-    usernamebuf[12]='\0';
-    for (i=0; i < MAXUSERNAME; i++)
+    usernamebuf[12] = '\0';
+    for (i = 0; i < MAXUSERNAME; i++)
     {
-      ptr1 = &username[i*13];
-      if (!strncmp(usernamebuf,ptr1,13))
+      ptr1 = &username[i * 13];
+      if (!strncmp(usernamebuf, ptr1, 13))
       {
-        break;
+	break;
       }
-      else if (!strcmp(ptr1,""))
+      else if (!strcmp(ptr1, ""))
       {
-        strncpy(ptr1,usernamebuf,13);
-        count++;
-        break;
+	strncpy(ptr1, usernamebuf, 13);
+	count++;
+	break;
       }
     }
   }
@@ -957,7 +1020,7 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -983,19 +1046,19 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
     {
       return false;
     }
-    usernamebuf[12]='\0';
-    for (i=0; i < MAXUSERNAME; i++)
+    usernamebuf[12] = '\0';
+    for (i = 0; i < MAXUSERNAME; i++)
     {
-      ptr1 = &username[i*13];
-      if (!strncmp(usernamebuf,ptr1,13))
+      ptr1 = &username[i * 13];
+      if (!strncmp(usernamebuf, ptr1, 13))
       {
-        break;
+	break;
       }
-      else if (!strcmp(ptr1,""))
+      else if (!strcmp(ptr1, ""))
       {
-        strncpy(ptr1,usernamebuf,13);
-        count++;
-        break;
+	strncpy(ptr1, usernamebuf, 13);
+	count++;
+	break;
       }
     }
   }
@@ -1014,9 +1077,11 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
+Boolean OperatingSystem::getNumberOfProcesses(Uint32 & numberOfProcesses)
 {
-  int status, count=0, usernamlen;
+  int status,
+    count = 0,
+    usernamlen;
   unsigned long int jpictx;
   typedef struct
   {
@@ -1024,7 +1089,8 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
   char usernamebuf[13];
@@ -1038,7 +1104,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -1075,7 +1141,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -1112,7 +1178,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -1149,7 +1215,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$process_scan ( &jpictx, itmlst3);
+  status = sys$process_scan(&jpictx, itmlst3);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -1192,20 +1258,22 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
+Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32 & mMaxProcesses)
 {
-  int status,maxprocount;
+  int status,
+    maxprocount;
   typedef struct
   {
     unsigned short wlength;
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
-  itmlst3[0].wlength = sizeof(maxprocount);
+  itmlst3[0].wlength = sizeof (maxprocount);
   itmlst3[0].wcode = SYI$_MAXPROCESSCNT;
   itmlst3[0].pbuffer = &maxprocount;
   itmlst3[0].pretlen = NULL;
@@ -1214,7 +1282,7 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
     mMaxProcesses = maxprocount;
@@ -1237,16 +1305,18 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
+Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64 & mTotalSwapSpaceSize)
 {
-  int status, swapsize;
+  int status,
+    swapsize;
   typedef struct
   {
     unsigned short wlength;
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
@@ -1259,10 +1329,10 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
-    mTotalSwapSpaceSize = swapsize*8;
+    mTotalSwapSpaceSize = swapsize * 8;
     return true;
   }
   else
@@ -1284,21 +1354,25 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
+Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64 & total)
 {
-  long status,retlen,item=0;
-  unsigned long pid, val1, val2;
+  long status,
+    retlen,
+    item = 0;
+  unsigned long pid,
+    val1,
+    val2;
   char libres[80];
 
-  item=JPI$_PID;
-  status=lib$getjpi(&item,0,0,&pid,0,0);
+  item = JPI$_PID;
+  status = lib$getjpi(&item, 0, 0, &pid, 0, 0);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  item=JPI$_PGFLQUOTA;
-  status=lib$getjpi(&item,&pid,0,&val1,0,0);
+  item = JPI$_PGFLQUOTA;
+  status = lib$getjpi(&item, &pid, 0, &val1, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
     total = val1;
@@ -1323,21 +1397,25 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
+Boolean OperatingSystem::getFreeVirtualMemory(Uint64 & freeVirtualMemory)
 {
-  long status,retlen,item=0;
-  unsigned long pid, val1, val2;
+  long status,
+    retlen,
+    item = 0;
+  unsigned long pid,
+    val1,
+    val2;
   char libres[80];
 
-  item=JPI$_PID;
-  status=lib$getjpi(&item,0,0,&pid,0,0);
+  item = JPI$_PID;
+  status = lib$getjpi(&item, 0, 0, &pid, 0, 0);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  item=JPI$_PAGFILCNT;
-  status=lib$getjpi(&item,&pid,0,&val2,0,0);
+  item = JPI$_PAGFILCNT;
+  status = lib$getjpi(&item, &pid, 0, &val2, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
     freeVirtualMemory = val2;
@@ -1360,23 +1438,30 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
+Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
 {
-  long status = SS$_NORMAL, lFreeMem;
+  long status = SS$_NORMAL,
+    lFreeMem;
 
-  struct k1_arglist 
-  {                             // kernel call arguments
-    long    lCount;             // number of arguments
-    long    *pFreeMem;
-  } getfreememkargs = {1};      // init 1 argument
+  struct k1_arglist
+  {				// kernel call arguments
+
+    long lCount;		// number of arguments
+
+    long *pFreeMem;
+  }
+  getfreememkargs =
+  {
+    1
+  };				// init 1 argument
 
   getfreememkargs.pFreeMem = &lFreeMem;
 
-  status = sys$cmkrnl(GetFreeMem,&getfreememkargs);
+  status = sys$cmkrnl(GetFreeMem, &getfreememkargs);
   if ($VMS_STATUS_SUCCESS(status))
   {
     total = lFreeMem;
-    total = total*8;
+    total = total * 8;
     return true;
   }
   else
@@ -1396,9 +1481,10 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
-{ 
-  long status, physmem;
+Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64 & memory)
+{
+  long status,
+    physmem;
   __int64 membytes;
   typedef struct
   {
@@ -1406,7 +1492,8 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
@@ -1419,11 +1506,11 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
     membytes = physmem;
-    memory = membytes*8;
+    memory = membytes * 8;
     return true;
   }
   else
@@ -1444,16 +1531,18 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
+Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
 {
-  int status,pagesize;
+  int status,
+    pagesize;
   typedef struct
   {
     unsigned short wlength;
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
@@ -1466,10 +1555,10 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
-    total = pagesize*8;
+    total = pagesize * 8;
     return true;
   }
   else
@@ -1490,16 +1579,18 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFiles)
+Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64 & freeSpaceInPagingFiles)
 {
-  int status, pagefree;
+  int status,
+    pagefree;
   typedef struct
   {
     unsigned short wlength;
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
@@ -1512,10 +1603,10 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFile
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
-    freeSpaceInPagingFiles = pagefree*8;
+    freeSpaceInPagingFiles = pagefree * 8;
     return true;
   }
   else
@@ -1536,7 +1627,7 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFile
 // ================================================================================
 //
 
-Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
+Boolean OperatingSystem::getMaxProcessMemorySize(Uint64 & maxProcessMemorySize)
 {
   int status;
   __int64 maxprocmem;
@@ -1546,11 +1637,12 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
-  itmlst3[0].wlength = sizeof(maxprocmem);
+  itmlst3[0].wlength = sizeof (maxprocmem);
   itmlst3[0].wcode = SYI$_WSMAX;
   itmlst3[0].pbuffer = &maxprocmem;
   itmlst3[0].pretlen = NULL;
@@ -1559,10 +1651,10 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
-    maxProcessMemorySize  = (maxprocmem*512)/1024;
+    maxProcessMemorySize = (maxprocmem * 512) / 1024;
     return true;
   }
   else
@@ -1584,16 +1676,18 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getDistributed(Boolean& distributed)
+Boolean OperatingSystem::getDistributed(Boolean & distributed)
 {
-  int status, clumem;
+  int status,
+    clumem;
   typedef struct
   {
     unsigned short wlength;
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
@@ -1606,7 +1700,7 @@ Boolean OperatingSystem::getDistributed(Boolean& distributed)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
     distributed = clumem;
@@ -1629,20 +1723,22 @@ Boolean OperatingSystem::getDistributed(Boolean& distributed)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
+Boolean OperatingSystem::getMaxProcsPerUser(Uint32 & maxProcsPerUser)
 {
-  int status,maxprocount;
+  int status,
+    maxprocount;
   typedef struct
   {
     unsigned short wlength;
     unsigned short wcode;
     void *pbuffer;
     void *pretlen;
-  } item_list;
+  }
+  item_list;
 
   item_list itmlst3[2];
 
-  itmlst3[0].wlength = sizeof(maxprocount);
+  itmlst3[0].wlength = sizeof (maxprocount);
   itmlst3[0].wcode = SYI$_MAXPROCESSCNT;
   itmlst3[0].pbuffer = &maxprocount;
   itmlst3[0].pretlen = NULL;
@@ -1651,7 +1747,7 @@ Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
   itmlst3[1].pbuffer = NULL;
   itmlst3[1].pretlen = NULL;
 
-  status = sys$getsyiw (0, 0, 0, itmlst3, 0, 0, 0);
+  status = sys$getsyiw(0, 0, 0, itmlst3, 0, 0, 0);
   if ($VMS_STATUS_SUCCESS(status))
   {
     maxProcsPerUser = maxprocount;
@@ -1674,77 +1770,84 @@ Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
 // ================================================================================
 //
 
-Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
+Boolean OperatingSystem::getSystemUpTime(Uint64 & mUpTime)
 {
-  long status, item=SYI$_BOOTTIME, dst_desc[2];
-  char t_string[24]="";
-  char cimtime[80]="";
-  char log_string[]="SYS$TIMEZONE_DAYLIGHT_SAVING";
+  long status,
+    item = SYI$_BOOTTIME,
+    dst_desc[2];
+  char t_string[24] = "";
+  char cimtime[80] = "";
+  char log_string[] = "SYS$TIMEZONE_DAYLIGHT_SAVING";
   char libdst;
-  time_t tme=0, tme1=0;
-  unsigned __int64 bintime=0;
-  unsigned short int timbuf[7], val=0;
-  unsigned long libop, libdayweek, libdayear;
+  time_t tme = 0,
+    tme1 = 0;
+  unsigned __int64 bintime = 0;
+  unsigned short int timbuf[7],
+    val = 0;
+  unsigned long libop,
+    libdayweek,
+    libdayear;
   unsigned int retlen;
   struct tm timetm;
-  struct tm *ptimetm=&timetm;
+  struct tm *ptimetm = &timetm;
   struct dsc$descriptor_s sysinfo;
-  static $DESCRIPTOR(lnm_tbl,"LNM$SYSTEM");
+  static $DESCRIPTOR(lnm_tbl, "LNM$SYSTEM");
   struct
   {
     unsigned short wLength;
     unsigned short wCode;
-    void*    pBuffer;
-    unsigned int* pRetLen;
+    void *pBuffer;
+    unsigned int *pRetLen;
     int term;
-  } item_list;
+  }
+  item_list;
 
-  sysinfo.dsc$b_dtype=DSC$K_DTYPE_T;
-  sysinfo.dsc$b_class=DSC$K_CLASS_S;
-  sysinfo.dsc$w_length=sizeof(t_string);
-  sysinfo.dsc$a_pointer=t_string;
+  sysinfo.dsc$b_dtype = DSC$K_DTYPE_T;
+  sysinfo.dsc$b_class = DSC$K_CLASS_S;
+  sysinfo.dsc$w_length = sizeof (t_string);
+  sysinfo.dsc$a_pointer = t_string;
 
-  status=lib$getsyi(&item,0,&sysinfo,&val,0,0);
+  status = lib$getsyi(&item, 0, &sysinfo, &val, 0, 0);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  status = sys$bintim (&sysinfo, &bintime);
+  status = sys$bintim(&sysinfo, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  libop=LIB$K_DAY_OF_WEEK;
-  status=lib$cvt_from_internal_time (&libop,&libdayweek,&bintime);
+  libop = LIB$K_DAY_OF_WEEK;
+  status = lib$cvt_from_internal_time(&libop, &libdayweek, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  libop=LIB$K_DAY_OF_YEAR;
-  status=lib$cvt_from_internal_time (&libop,&libdayear,&bintime);
+  libop = LIB$K_DAY_OF_YEAR;
+  status = lib$cvt_from_internal_time(&libop, &libdayear, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  dst_desc[0]  = strlen(log_string);
-  dst_desc[1]  = (long) log_string;
+  dst_desc[0] = strlen(log_string);
+  dst_desc[1] = (long) log_string;
   item_list.wLength = 1;
   item_list.wCode = LNM$_STRING;
   item_list.pBuffer = &libdst;
   item_list.pRetLen = &retlen;
-  item_list.term =0;
+  item_list.term = 0;
 
-  status = sys$trnlnm (0,&lnm_tbl,&dst_desc,0,&item_list);
+  status = sys$trnlnm(0, &lnm_tbl, &dst_desc, 0, &item_list);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
   }
 
-  status = sys$numtim(timbuf,&bintime);
+  status = sys$numtim(timbuf, &bintime);
   if (!$VMS_STATUS_SUCCESS(status))
   {
     return false;
@@ -1754,10 +1857,10 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
   timetm.tm_min = timbuf[4];
   timetm.tm_hour = timbuf[3];
   timetm.tm_mday = timbuf[2];
-  timetm.tm_mon = timbuf[1]-1;
-  timetm.tm_year = timbuf[0]-1900;
-  timetm.tm_wday = libdayweek-1;
-  timetm.tm_yday = libdayear-1;
+  timetm.tm_mon = timbuf[1] - 1;
+  timetm.tm_year = timbuf[0] - 1900;
+  timetm.tm_wday = libdayweek - 1;
+  timetm.tm_yday = libdayear - 1;
   timetm.tm_isdst = 0;
   if (libdst != 48)
   {
@@ -1766,7 +1869,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 
   time(&tme);
   tme1 = mktime(ptimetm);
-  mUpTime = tme-tme1;
+  mUpTime = tme - tme1;
   return true;
 }
 
@@ -1781,8 +1884,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 // ================================================================================
 //
 
-
-Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
+Boolean OperatingSystem::getOperatingSystemCapability(String & scapability)
 {
   scapability.assign("64 bit");
   return true;

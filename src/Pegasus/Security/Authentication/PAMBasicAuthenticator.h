@@ -143,7 +143,7 @@ private:
 	const String& password);
 
 #if defined(PEGASUS_USE_PAM_STANDALONE_PROC)
-    PAMBasicAuthenticatorStandAlone* _pamBasicAuthenticatorStandAlone;
+    PAMBasicAuthenticatorStandAlone _pamBasicAuthenticatorStandAlone;
 #endif
 
 };

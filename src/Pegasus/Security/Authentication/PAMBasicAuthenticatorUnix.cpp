@@ -111,17 +111,6 @@ PAMBasicAuthenticator::PAMBasicAuthenticator()
     _realm.append(":");
     _realm.append(port);
 
-    //
-    // Check for platforms that allow PAM Standalone Process
-    //
-#if defined(PEGASUS_USE_PAM_STANDALONE_PROC)
-    //
-    // Set up the separate process to do PAM Authentication
-    //
-    _pamBasicAuthenticatorStandAlone = 
-            new PAMBasicAuthenticatorStandAlone();
-#endif
-
     PEG_METHOD_EXIT();
 }
 
@@ -152,9 +141,8 @@ Boolean PAMBasicAuthenticator::authenticate(
         Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
            "Authentication Mutex lock.");
         AutoMutex lock(_authSerializeMutex);
-        authenticated =
-                _pamBasicAuthenticatorStandAlone->authenticate(userName,
-                                                              password);
+        authenticated = _pamBasicAuthenticatorStandAlone.authenticate(
+            userName, password);
 #endif
 
     PEG_METHOD_EXIT();

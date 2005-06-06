@@ -202,12 +202,12 @@ Uint32 AcceptLanguages::find(const AcceptLanguageElement& element) const
     return PEG_NOT_FOUND;
 }
 
-Uint32 AcceptLanguages::find(String language_tag, Real32 quality) const
+Uint32 AcceptLanguages::find(const String & language_tag, Real32 quality) const
 {
     return find(AcceptLanguageElement(language_tag,quality));
 }
 
-void AcceptLanguages::buildLanguageElements(Array<String> values)
+void AcceptLanguages::buildLanguageElements(const Array<String>& values)
 {
     for (Uint32 i = 0; i < values.size(); i++)
     {

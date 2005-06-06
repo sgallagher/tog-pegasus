@@ -175,13 +175,13 @@ public:
         @param quality Real32 language_tag quality value of the element to find
         @return int index of element if found, otherwise PEG_NOT_FOUND
      */
-    Uint32 find(String language_tag, Real32 quality) const;
+    Uint32 find(const String & language_tag, Real32 quality) const;
 
     static AcceptLanguages getDefaultAcceptLanguages();
 
     void prioritize();
 
-    void buildLanguageElements(Array<String> values);
+    void buildLanguageElements(const Array<String>& values);
 
 }; // end AcceptLanguages
 

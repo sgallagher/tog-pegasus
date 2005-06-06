@@ -577,6 +577,154 @@ void drive_MessageLoader(){
 
 }
 
+//
+// Tests the substitutions into the message
+//
+void drive_MessageLoaderSubs()
+{
+	String msg;
+	AcceptLanguages al("en_US");
+
+	MessageLoader::_acceptlanguages.clear();
+
+#ifdef PEGASUS_HAS_ICU
+	// If PEGASUS_MSG_HOME is set then use that as the message home for this test.
+	// This will ignore any msg home defined for the platform (Constants.h) 
+	// since this is a test environment, not a production environment.
+	const char* env = getenv("PEGASUS_MSG_HOME");
+	if (env != NULL)
+	{
+	  MessageLoader::setPegasusMsgHome(env);
+	}
+
+    // If PEGASUS_USE_DEFAULT_MESSAGES env var is set then we need to make sure that it doesn't
+	// break this test.
+	// Reset _useDefaultMsg to make sure PEGASUS_USE_DEFAULT_MESSAGES is ignored.
+	MessageLoader::_useDefaultMsg = false;
+#endif
+
+    //
+    // Test Uint64 support.  ICU does not support Uint64, so there
+    // is special handling for it in MessageLoader.
+
+    //
+    // Uint64 Substitution is the biggest positive to fit in int64_t. 
+    // This does not test the special code in MessageLoader.
+    //
+	MessageLoaderParms mlp1("CIMStatusCode.CIM_ERR_SUCCESS","Default CIMStatusCode, $0 $1",
+                            String("rab oof is foo bar backwards"),
+                            PEGASUS_UINT64_LITERAL(0x7fffffffffffffff));
+	mlp1.msg_src_path = "test/pegasusTest";
+    mlp1.acceptlanguages = al;
+
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 9,223,372,036,854,775,807");
+#else
+    /* ====> Commenting this out until Formatter.cpp is fixed for ULInteger (it truncates the value)
+       The main purpose of these tests is ICU substitution.
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards 9223372036854775807" );
+    */
+#endif
+
+    //
+    // Uint64 substitution is too big to fit int64_t.  Tests the special MessageLoader
+    // code for this.  Expect the number to be unformatted.
+    //
+    mlp1.arg1 = PEGASUS_UINT64_LITERAL(0x8000000000000000);
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 9223372036854775808");
+#else
+    /* ====> Commenting this out until Formatter.cpp is fixed for ULInteger (it truncates the value)
+       The main purpose of these tests is ICU substitution.
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards 9223372036854775807" );
+    */
+#endif
+
+    //
+    // Sint64 substitution - biggest negative.
+    //
+    mlp1.arg1 = PEGASUS_SINT64_LITERAL(0x8000000000000000);
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = -9,223,372,036,854,775,808");
+#else
+    /* ====> Commenting this out until Formatter.cpp is fixed for ULInteger (it truncates the value)
+       The main purpose of these tests is ICU substitution.
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards -9223372036854775808" );
+    */
+#endif
+
+    //
+    // Uint32 substitution - biggest possible
+    //
+    mlp1.arg1 = (Uint32)(0xffffffff);
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 4,294,967,295");
+#else
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards 4294967295" );
+#endif
+
+    //
+    // Sint32 substitution - biggest negative
+    //
+    mlp1.arg1 = (Sint32)(0x80000000);
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = -2,147,483,648");
+#else
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards -2147483648" );
+#endif
+
+    //
+    // Real64 substitution 
+    //
+    mlp1.arg1 = (Real64)-64000.125;  
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = -64,000.125");
+#else
+    /* Commenting out due to platform differences 
+       The main purpose of this tests is ICU substitution.
+    cout << MessageLoader::getMessage(mlp1) << endl;
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards -64000.125" );
+    */
+#endif
+
+    //
+    // Boolean substitution = true 
+    //
+    mlp1.arg1 = true;
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = true");
+#else
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards true" );
+#endif
+
+    //
+    // Boolean substitution = false
+    //
+    mlp1.arg1 = false;
+#ifdef PEGASUS_HAS_ICU
+	assert ( MessageLoader::getMessage(mlp1) ==
+        "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = false");
+#else
+	assert ( MessageLoader::getMessage(mlp1) == 
+         "Default CIMStatusCode, rab oof is foo bar backwards false" );
+#endif
+
+}
+
 
 
 int main( int argc, char *argv[] ){
@@ -599,6 +747,7 @@ int main( int argc, char *argv[] ){
 
 		drive_MessageLoader();
 
+        drive_MessageLoaderSubs();
 	
 
 	//END TESTS....

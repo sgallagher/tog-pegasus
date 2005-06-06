@@ -462,10 +462,17 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
         propValue.get (ref);
 
         //
+        //  Remove Host and Namespace from reference property value, if
+        //  present, before comparing
+        //
+        CIMObjectPath href ("", CIMNamespaceName (),
+            ref.getClassName (), ref.getKeyBindings ());
+
+        //
         //  If the current subscription references the specified instance,
         //  delete it
         //
-        if (handler == ref)
+        if (handler == href)
         {
             //
             //  Delete referencing subscription instance from repository

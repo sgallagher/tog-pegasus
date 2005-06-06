@@ -1506,6 +1506,85 @@ void _valid (CIMClient & client, String& qlang)
     _deleteProviderInstance (client, 
         "ProcessIndicationProvider2", 
         "ProcessIndicationProviderModule");
+
+    //
+    //  Create Subscription with correct Host and Namespace in Filter and
+    //  Handler reference property value
+    //  Verify Host and Namespace do not appear in Subscription instance name
+    //  returned from Create Instance operation
+    //
+    CIMObjectPath fPath;
+    CIMObjectPath hPath;
+    CIMObjectPath sPath;
+    CIMInstance filter08 (PEGASUS_CLASSNAME_INDFILTER);
+    query = "SELECT * FROM CIM_ProcessIndication";
+    _addStringProperty (filter08, "Name", "Filter08");
+    _addStringProperty (filter08, "SourceNamespace", 
+        SOURCENAMESPACE.getString ());
+    _addStringProperty (filter08, "Query", query);
+    _addStringProperty (filter08, "QueryLanguage", qlang);
+    fPath = client.createInstance (NAMESPACE, filter08);
+    fPath.setHost (System::getFullyQualifiedHostName ());
+    fPath.setNameSpace (NAMESPACE);
+
+    CIMInstance listenerdestination02 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+    _addStringProperty (listenerdestination02, "Name", 
+        "ListenerDestination02");
+    _addStringProperty (listenerdestination02, "Destination", 
+        "localhost/CIMListener/test4");
+    hPath = client.createInstance 
+        (NAMESPACE, listenerdestination02);
+    hPath.setHost (System::getFullyQualifiedHostName ());
+    hPath.setNameSpace (NAMESPACE);
+
+    CIMInstance subscription10 = _buildSubscriptionInstance
+        (fPath, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath);
+    sPath = client.createInstance (NAMESPACE, subscription10);
+    _checkSubscriptionPath (sPath, "Filter08", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02");
+
+    _deleteSubscriptionInstance (client, "Filter08", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02");
+    _deleteFilterInstance (client, "Filter08");
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        "ListenerDestination02");
+
+    //
+    //  Create Subscription with correct Namespace in Filter and Handler 
+    //  reference property value
+    //  Verify Namespace does not appear in Subscription instance name
+    //  returned from Create Instance operation
+    //
+    CIMInstance filter09 (PEGASUS_CLASSNAME_INDFILTER);
+    query = "SELECT * FROM CIM_ProcessIndication";
+    _addStringProperty (filter09, "Name", "Filter09");
+    _addStringProperty (filter09, "SourceNamespace", 
+        SOURCENAMESPACE.getString ());
+    _addStringProperty (filter09, "Query", query);
+    _addStringProperty (filter09, "QueryLanguage", qlang);
+    fPath = client.createInstance (NAMESPACE, filter09);
+    fPath.setNameSpace (NAMESPACE);
+
+    CIMInstance listenerdestination03 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+    _addStringProperty (listenerdestination03, "Name", 
+        "ListenerDestination03");
+    _addStringProperty (listenerdestination03, "Destination", 
+        "localhost/CIMListener/test5");
+    hPath = client.createInstance 
+        (NAMESPACE, listenerdestination03);
+    hPath.setNameSpace (NAMESPACE);
+
+    CIMInstance subscription11 = _buildSubscriptionInstance
+        (fPath, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath);
+    sPath = client.createInstance (NAMESPACE, subscription11);
+    _checkSubscriptionPath (sPath, "Filter09", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03");
+
+    _deleteSubscriptionInstance (client, "Filter09", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03");
+    _deleteFilterInstance (client, "Filter09");
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        "ListenerDestination03");
 }
 
 //
@@ -2848,9 +2927,87 @@ void _error (CIMClient & client)
     }
 
     //
-    //  Create filter and handler for subscription testing
+    //
+    //  Create Filter, Listener Destination, Subscription for testing
+    //  Create Subscription with correct Host and Namespace in Filter and
+    //  Handler reference property value
+    //  Verify Host and Namespace do not appear in Subscription instance name
+    //  returned from Create Instance operation
     //
     String query;
+    CIMObjectPath fPath;
+    CIMObjectPath hPath;
+    CIMObjectPath sPath;
+    CIMInstance filter10 (PEGASUS_CLASSNAME_INDFILTER);
+    query = "SELECT * FROM CIM_ProcessIndication";
+    _addStringProperty (filter10, "Name", "Filter10");
+    _addStringProperty (filter10, "SourceNamespace", 
+        SOURCENAMESPACE.getString ());
+    _addStringProperty (filter10, "Query", query);
+    _addStringProperty (filter10, "QueryLanguage", "WQL");
+    fPath = client.createInstance (NAMESPACE, filter10);
+    fPath.setHost (System::getFullyQualifiedHostName ());
+    fPath.setNameSpace (NAMESPACE);
+
+    CIMInstance listenerdestination04 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+    _addStringProperty (listenerdestination04, "Name", 
+        "ListenerDestination04");
+    _addStringProperty (listenerdestination04, "Destination", 
+        "localhost/CIMListener/test6");
+    hPath = client.createInstance 
+        (NAMESPACE, listenerdestination04);
+    hPath.setHost (System::getFullyQualifiedHostName ());
+    hPath.setNameSpace (NAMESPACE);
+
+    CIMInstance subscription12 = _buildSubscriptionInstance
+        (fPath, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath);
+    sPath = client.createInstance (NAMESPACE, subscription12);
+    _checkSubscriptionPath (sPath, "Filter10", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");
+
+    //
+    //  Filter: Attempt to delete a filter referenced by a subscription
+    //          A Filter referenced by a subscription may not be deleted
+    //
+    try
+    {
+        _deleteFilterInstance (client, "Filter10");
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_FAILED);
+    }
+
+    //
+    //  Listener Destination: Attempt to delete a listener destination
+    //      referenced by a subscription
+    //      A Listener Destination referenced by a subscription may not be
+    //          deleted
+    //
+    try
+    {
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+            "ListenerDestination04");
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_FAILED);
+    }
+
+    //
+    //  Once Subscription is deleted, Filter and Handler may also be deleted
+    //
+    _deleteSubscriptionInstance (client, "Filter10", 
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");
+    _deleteFilterInstance (client, "Filter10");
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        "ListenerDestination04");
+
+    //
+    //  Create filter and handler for subscription testing
+    //
     CIMObjectPath path;
     CIMInstance filter00 (PEGASUS_CLASSNAME_INDFILTER);
     query = "SELECT * FROM CIM_ProcessIndication";
@@ -2934,6 +3091,130 @@ void _error (CIMClient & client)
         CIMInstance subscription = _buildSubscriptionInstance
             (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"), PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
+        path = client.createInstance (NAMESPACE, subscription);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_FOUND);
+    }
+
+    //
+    //  Subscription: Incorrect Host in Filter reference property value
+    //
+    try
+    {
+        CIMObjectPath fPath = _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
+        fPath.setHost ("ahost.region.acme.com");
+        fPath.setNameSpace (NAMESPACE);
+        CIMInstance subscription = _buildSubscriptionInstance
+            (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
+        path = client.createInstance (NAMESPACE, subscription);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+    }
+
+    //
+    //  Subscription: Incorrect Namespace in Filter reference property value
+    //
+    try
+    {
+        CIMObjectPath fPath = _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
+        fPath.setHost (System::getFullyQualifiedHostName ());
+        fPath.setNameSpace (CIMNamespaceName ("root"));
+        CIMInstance subscription = _buildSubscriptionInstance
+            (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
+        path = client.createInstance (NAMESPACE, subscription);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_FOUND);
+    }
+
+    //
+    //  Subscription: Incorrect Namespace in Filter reference property value
+    //
+    try
+    {
+        CIMObjectPath fPath = _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
+        fPath.setNameSpace (CIMNamespaceName ("root"));
+        CIMInstance subscription = _buildSubscriptionInstance
+            (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+            _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
+        path = client.createInstance (NAMESPACE, subscription);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_FOUND);
+    }
+
+    //
+    //  Subscription: Incorrect Host in Handler reference property value
+    //
+    try
+    {
+        CIMObjectPath hPath = _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+        hPath.setHost ("ahost.region.acme.com");
+        hPath.setNameSpace (NAMESPACE);
+        CIMInstance subscription = _buildSubscriptionInstance
+            (_buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"), 
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
+        path = client.createInstance (NAMESPACE, subscription);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+    }
+
+    //
+    //  Subscription: Incorrect Namespace in Handler reference property value
+    //
+    try
+    {
+        CIMObjectPath hPath = _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+        hPath.setHost (System::getFullyQualifiedHostName ());
+        hPath.setNameSpace (CIMNamespaceName ("root"));
+        CIMInstance subscription = _buildSubscriptionInstance
+            (_buildFilterOrHandlerPath
+            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
+        path = client.createInstance (NAMESPACE, subscription);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_FOUND);
+    }
+
+    //
+    //  Subscription: Incorrect Namespace in Handler reference property value
+    //
+    try
+    {
+        CIMObjectPath hPath = _buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+        hPath.setNameSpace (CIMNamespaceName ("root"));
+        CIMInstance subscription = _buildSubscriptionInstance
+            (_buildFilterOrHandlerPath 
+            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
     }
@@ -3543,6 +3824,15 @@ void _cleanup (CIMClient & client)
     //
     try
     {
+        _deleteSubscriptionInstance (client, "Filter00", 
+            PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
         _deleteSubscriptionInstance (client, "Filter01", 
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     }
@@ -3631,6 +3921,33 @@ void _cleanup (CIMClient & client)
     {
     }
 
+    try
+    {
+        _deleteSubscriptionInstance (client, "Filter08", 
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteSubscriptionInstance (client, "Filter09", 
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteSubscriptionInstance (client, "Filter10", 
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");
+    }
+    catch (...)
+    {
+    }
+
     //
     //  Delete handler instances
     //
@@ -3674,6 +3991,33 @@ void _cleanup (CIMClient & client)
     {
         _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
             "ListenerDestination01");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+            "ListenerDestination02");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+            "ListenerDestination03");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+            "ListenerDestination04");
     }
     catch (...)
     {
@@ -3749,6 +4093,30 @@ void _cleanup (CIMClient & client)
     try
     {
         _deleteFilterInstance (client, "Filter07");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteFilterInstance (client, "Filter08");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteFilterInstance (client, "Filter09");
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteFilterInstance (client, "Filter10");
     }
     catch (...)
     {

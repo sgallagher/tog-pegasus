@@ -314,6 +314,66 @@ Uint32 System::_acquireIP(const char* hostname)
 	return ip;
 }
 
+Boolean System::sameHost (const String & hostName)
+{
+    //
+    //  If a port is included, return false
+    //
+    if (hostName.find (":") != PEG_NOT_FOUND)
+    {
+        return false;
+    }
+
+    //
+    //  Retrieve IP addresses for both hostnames
+    //
+    Uint32 hostNameIP, systemHostIP = 0xFFFFFFFF;
+    hostNameIP = System::_acquireIP ((const char *) hostName.getCString ());
+    if (hostNameIP == 0x7F000001)
+    {
+        //
+        //  localhost or IP address of 127.0.0.1
+        //  real IP address needed for compare
+        //
+        hostNameIP = System::_acquireIP
+            ((const char *) System::getHostName ().getCString ());
+    }
+    if (hostNameIP == 0xFFFFFFFF)
+    {
+        //
+        //  Malformed IP address or not resolveable
+        //
+        return false;
+    }
+
+    systemHostIP = System::_acquireIP
+        ((const char *) System::getFullyQualifiedHostName ().getCString ());
+
+    if (systemHostIP == 0x7F000001)
+    {
+        //
+        //  localhost or IP address of 127.0.0.1
+        //  real IP address needed for compare
+        //
+        systemHostIP = System::_acquireIP
+            ((const char *) System::getHostName ().getCString ());
+    }
+    if (systemHostIP == 0xFFFFFFFF)
+    {
+        //
+        //  Malformed IP address or not resolveable
+        //
+        return false;
+    }
+
+    if (hostNameIP != systemHostIP)
+    {
+        return false;
+    }
+
+    return true;
+}
+
 // System ID constants for Logger::put and Logger::trace
 const String System::CIMLISTENER = "cimlistener"; // Listener systme ID
 

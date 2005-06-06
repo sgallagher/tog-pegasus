@@ -3076,7 +3076,8 @@ Boolean IndicationService::_canCreate (
     //  For a property that has a specified set of valid values, validate
     //
     if ((instance.getClassName ().equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION)) ||
-    (instance.getClassName ().equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
+        (instance.getClassName ().equal
+            (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION)))
     {
         //
         //  Filter and Handler are key properties for Subscription
@@ -3109,6 +3110,139 @@ Boolean IndicationService::_canCreate (
         CIMInstance handlerInstance =
             _subscriptionRepository->getInstance (nameSpace, handlerPath,
             true, false, false, CIMPropertyList ());
+
+        //
+        //  Currently, the Indication Service requires that a Subscription
+        //  instance and the Filter and Handler instances to which it refers
+        //  all be created in the same Namespace and on the same Host.
+        //  Developers are recommended NOT to include Host or Namespace in the
+        //  Filter or Handler reference property values.
+        //
+
+        //
+        //  If Host is included in a Filter or Handler reference property
+        //  value, attempt to validate that it is correct and if correct,
+        //  remove it.
+        //  If Host cannot be validated, reject the create operation.
+        //
+        CIMObjectPath origFilterPath = filterPath;
+        if (filterPath.getHost () != String::EMPTY)
+        {
+            if (System::sameHost (filterPath.getHost ()))
+            {
+                //
+                //  Remove Host from subscription Filter property value
+                //
+                filterPath.setHost (String::EMPTY);
+                filterProperty.setValue (CIMValue (filterPath));
+            }
+            else
+            {
+                //
+                //  Reject subscription creation
+                //
+                String exceptionStr = _MSG_INVALID_VALUE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    exceptionStr, 
+                    origFilterPath.toString(), _PROPERTY_FILTER.getString()));
+            }
+        }
+
+        CIMObjectPath origHandlerPath = handlerPath;
+        if (handlerPath.getHost () != String::EMPTY)
+        {
+            if (System::sameHost (handlerPath.getHost ()))
+            {
+                //
+                //  Remove Host from subscription Filter property value
+                //
+                handlerPath.setHost (String::EMPTY);
+                handlerProperty.setValue (CIMValue (handlerPath));
+            }
+            else
+            {
+                //
+                //  Reject subscription creation
+                //
+                String exceptionStr = _MSG_INVALID_VALUE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    exceptionStr, 
+                    origHandlerPath.toString(), _PROPERTY_HANDLER.getString()));
+            }
+        }
+
+        //
+        //  If Namespace is included in a Filter or Handler reference property
+        //  value, validate that it is correct and, if correct, remove it
+        //  If incorrect, reject the create operation
+        //
+        if (!(filterPath.getNameSpace ().isNull ()))
+        {
+            if (filterPath.getNameSpace ().equal (nameSpace))
+            {
+                //
+                //  Remove namespace from subscription Filter property value
+                //
+                filterPath.setNameSpace (CIMNamespaceName ());
+                filterProperty.setValue (CIMValue (filterPath));
+            }
+            else
+            {
+                //
+                //  Reject subscription creation
+                //
+                String exceptionStr = _MSG_INVALID_VALUE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    exceptionStr, 
+                    origFilterPath.toString(), _PROPERTY_FILTER.getString()));
+            }
+        }
+
+        if (!(handlerPath.getNameSpace ().isNull ()))
+        {
+            if (handlerPath.getNameSpace ().equal (nameSpace))
+            {
+                //
+                //  Remove namespace from subscription Handler property value
+                //
+                handlerPath.setNameSpace (CIMNamespaceName ());
+                handlerProperty.setValue (CIMValue (handlerPath));
+            }
+            else
+            {
+                //
+                //  Reject subscription creation
+                //
+                String exceptionStr = _MSG_INVALID_VALUE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    exceptionStr, 
+                    origHandlerPath.toString(), _PROPERTY_HANDLER.getString()));
+            }
+        }
 
         //
         //  Set the key bindings in the subscription instance
@@ -3581,7 +3715,7 @@ void IndicationService::_checkRequiredProperty (
             //  Check that the property value is of the correct type
             //
             if ((theValue.getType () != expectedType) ||
-		(theValue.isArray () != isArray))
+                (theValue.isArray () != isArray))
             {
                 if (theValue.isArray ())
                 {
@@ -4195,7 +4329,7 @@ Boolean IndicationService::_canDelete (
     CIMName propName;
 
     //
-    //  Get the instance to be deleted from the respository
+    //  Get the instance to be deleted from the repository
     //
     CIMInstance instance;
 
@@ -4280,7 +4414,7 @@ Boolean IndicationService::_canDelete (
         }
 
         //
-        //  Get all the subscriptions in the same namespace from the respository
+        //  Get all the subscriptions in the same namespace from the repository
         //
         Array <CIMInstance> subscriptions =
             _subscriptionRepository->getSubscriptions (nameSpace);
@@ -4304,20 +4438,19 @@ Boolean IndicationService::_canDelete (
             propValue.get (ref);
 
             //
+            //  Remove Host and Namespace from reference property value, if 
+            //  present, before comparing
+            //
+            CIMObjectPath path ("", CIMNamespaceName (),
+                ref.getClassName (), ref.getKeyBindings ());
+
+            //
             //  If the current subscription Filter or Handler is the instance
             //  to be deleted, it may not be deleted
             //
-            // ATTN: Can namespaces in the references cause comparison failure?
-            //
-            if (instanceReference == ref)
+            if (instanceReference == path)
             {
                 PEG_METHOD_EXIT ();
-
-                // l10n
-
-                // String exceptionStr = _MSG_REFERENCED;
-                // throw PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED, exceptionStr);
-
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
                     MessageLoaderParms(_MSG_REFERENCED_KEY, _MSG_REFERENCED));
             }
@@ -4799,7 +4932,7 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
     //
     for (Uint32 i = 0; i < indicationSubclasses.size (); i++)
     {
-        //  Get required property list from filter query (WHERE clause) 
+        //  Get required property list from filter query (WHERE clause)
         //  from this indication subclass
         //
         requiredPropertyList = _getPropertyList (queryExpression,

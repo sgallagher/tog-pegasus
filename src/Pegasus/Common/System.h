@@ -156,6 +156,23 @@ public:
         const char * serviceName,
         Uint32 defaultPort);
 
+    /**
+        Attempts to validate that the input hostName represents the same host as
+        the host represented by the value returned by the 
+        getFullyQualifiedHostName() method.
+
+        Note: this method is modeled on the 
+        CIMClientRep::compareObjectPathtoCurrentConnection() method
+        (Revision 1.44 of pegasus/src/Pegasus/Client/CIMClientRep.cpp)
+
+        @param  hostName  the host name to validate
+
+        @return  True if the input hostName can be validated to represent the
+                 same host;
+                 False otherwise
+     */
+    static Boolean sameHost (const String & hostName);
+
     static String getEffectiveUserName();
 
     /**

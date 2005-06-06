@@ -89,6 +89,8 @@ void test01(const T& x)
     CIMType type = v.getType();            // get the type of v
     CIMValue v4(type,false);
     v3 = v2;
+    CIMValue v5;
+    v5 = v4;
 #ifdef IO
     if (verbose)
     {
@@ -98,17 +100,20 @@ void test01(const T& x)
 #endif
     try
     {
-	T t;
-	v3.get(t);
+        T t;
+        v3.get(t);
         assert (!v.isNull());
         assert (!v.isArray());
         assert (!v2.isNull());
-	assert(t == x);
+        assert(t == x);
         assert (v3.typeCompatible(v2));
         // Confirm that the constructor created Null, not array and correct type
         assert (v4.isNull());
         assert (!v4.isArray());
         assert (v4.typeCompatible(v));
+        assert (v5.isNull());
+        assert (!v5.isArray());
+        assert (v5.typeCompatible(v));
 
         // Test toMof
         Array<char> mofout;
@@ -124,19 +129,19 @@ void test01(const T& x)
         // Test toString
         String valueString = v.toString();
 #ifdef IO
-	if (verbose)
-	{
-	    cout << "MOF = [" << mofout.getData() << "]" << endl;
-	    cout << "toString Output [" << valueString << "]" << endl;
-	}
+        if (verbose)
+        {
+            cout << "MOF = [" << mofout.getData() << "]" << endl;
+            cout << "toString Output [" << valueString << "]" << endl;
+        }
 #endif
 
     // There should be no exceptions to this point in the test.
     }
     catch(Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
     // From here forward, in the future we may have exceptions because
@@ -160,12 +165,12 @@ void test01(const T& x)
         MofWriter::appendValueElement(mofOutput2, v);
         mofOutput2.append('\0');
 #ifdef IO
-	if (verbose)
-	{
-	    cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
-	    cout << "toString NULL Output [" << valueString2 << "]" << endl;
-	    cout << " XML NULL = [" << xmlBuffer.getData() << "]" << endl;
-	}
+        if (verbose)
+        {
+            cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
+            cout << "toString NULL Output [" << valueString2 << "]" << endl;
+            cout << " XML NULL = [" << xmlBuffer.getData() << "]" << endl;
+        }
 #endif
         v.clear();
         assert(v.isNull());
@@ -175,8 +180,8 @@ void test01(const T& x)
     }
     catch(Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
 }
@@ -193,18 +198,21 @@ void test02(const Array<T>& x)
     // Create a null constructor
     CIMType type = va.getType();            // get the type of v
     CIMValue va4(type,true);
+    CIMValue va5;
+    va5 = va4;
 #ifdef IO
     if (verbose)
     {
-	cout << "\n----------------------\n";
-	XmlWriter::printValueElement(va3, cout);
+        cout << "\n----------------------\n";
+        XmlWriter::printValueElement(va3, cout);
     }
 #endif
+    
     try
     {
-	Array<T> t;
-	va3.get(t);
-	assert(t == x);
+        Array<T> t;
+        va3.get(t);
+        assert(t == x);
         assert (va3.typeCompatible(va2));
         assert (!va.isNull());
         assert (va.isArray());
@@ -216,11 +224,15 @@ void test02(const Array<T>& x)
         // Note that this test depends on what is built.  Everything has 2 entries.
         assert (va.getArraySize() == 3);
 
-        // Confirm that va4 is Null, and array and zero length
+        // Confirm that va4 (and va5) is Null, and array and zero length
         assert (va4.isNull());
         assert (va4.isArray());
         assert (va4.getArraySize() == 0);
         assert (va4.typeCompatible(va));
+        assert (va5.isNull());
+        assert (va5.isArray());
+        assert (va5.getArraySize() == 0);
+        assert (va5.typeCompatible(va));
 
 
         // Test toMof
@@ -236,19 +248,19 @@ void test02(const Array<T>& x)
         // Test toString
         String valueString = va.toString();
 #ifdef IO
-	if (verbose)
-	{
-	    cout << "MOF = [" << mofOutput.getData() << "]" << endl;
-	    cout << "toString Output [" << valueString << "]" << endl;
-	}
+        if (verbose)
+        {
+            cout << "MOF = [" << mofOutput.getData() << "]" << endl;
+            cout << "toString Output [" << valueString << "]" << endl;
+        }
 #endif
         // There should be no exceptions to this point so the
         // catch simply terminates.
     }
     catch(Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
     // Test the Null Characteristics
@@ -274,20 +286,20 @@ void test02(const Array<T>& x)
         MofWriter::appendValueElement(mofOutput2, va);
         mofOutput2.append('\0');
 #ifdef IO
-	if (verbose)
-	{
-	    cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
-	    cout << "toString NULL Output [" << valueString2 << "]" << endl;
-	    cout << " XML NULL = [" << xmlBuffer.getData() << "]" << endl;
-	}
+        if (verbose)
+        {
+            cout << "MOF NULL = [" << mofOutput2.getData() << "]" << endl;
+            cout << "toString NULL Output [" << valueString2 << "]" << endl;
+            cout << " XML NULL = [" << xmlBuffer.getData() << "]" << endl;
+        }
 #endif
         va.clear();
         assert(va.isNull());
     }
     catch(Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-	exit(1);
+        cerr << "Error: " << e.getMessage() << endl;
+        exit(1);
     }
 
 }
@@ -405,6 +417,31 @@ int main(int argc, char** argv)
 
     test01(CIMObject(instance1));
 
+    // Specific test for setting value as a null CIMObject() (see bug 3373).
+    // Confirm that CIMValue() with an uninitialized CIMObject will throw exception.
+    Boolean caught_exception = false;
+    try
+    {
+        CIMObject obj = CIMObject();
+        CIMValue y(obj);
+    }
+    catch(UninitializedObjectException& e)
+    {
+        caught_exception = true;
+    }
+    assert (caught_exception == true);
+    // Confirm that set() with an uninitialized CIMObject will throw exception.
+    caught_exception = false;
+    try
+    {
+        CIMValue y;
+        y.set(CIMObject());
+    }
+    catch(UninitializedObjectException& e)
+    {
+        caught_exception = true;
+    }
+    assert (caught_exception == true);
 
     // Test CIMValue arrays
 
@@ -515,6 +552,34 @@ int main(int argc, char** argv)
     arr16.append(CIMObject(instance2));
     arr16.append(CIMObject(instance3));
     test02(arr16);
+
+    // Specific test for setting value as a null CIMObject() (see bug 3373).
+    // Confirm that CIMValue() with an uninitialized CIMObject in the input
+    // array will throw exception.
+    arr16.append(CIMObject());
+    caught_exception = false;
+    try
+    {
+        CIMValue y(arr16);
+    }
+    catch(UninitializedObjectException& e)
+    {
+        caught_exception = true;
+    }
+    assert (caught_exception == true);
+    // Confirm that set() with an uninitialized CIMObject in the input
+    // array will throw exception.
+    caught_exception = false;
+    try
+    {
+        CIMValue y;
+        y.set(arr16);
+    }
+    catch(UninitializedObjectException& e)
+    {
+        caught_exception = true;
+    }
+    assert (caught_exception == true);
 
     // Calling remaining  Array tests..
     CIMDateTime D1("19991224120000.000000+100");

@@ -3,4 +3,6 @@
 //[Version ("2.5.0")]
 class IndicationStressTestClass : CIM_Indication
 {
+  [Static]
+  uint32 SendTestIndicationNormal(uint32 indicationSendCount);
 };

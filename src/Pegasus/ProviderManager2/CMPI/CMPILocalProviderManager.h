@@ -120,7 +120,6 @@ private:
     ProviderTable _providers;
     ModuleTable _modules;
     Uint32 _idle_timeout;
-
     Sint32 _provider_ctrl(CTRL code, void *parm, void *ret);
 
     CMPIProvider* _initProvider(CMPIProvider * provider,

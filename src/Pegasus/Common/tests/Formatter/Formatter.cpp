@@ -99,9 +99,9 @@ int main(int argc, char** argv)
 
     // Test for 64 bit signed integer
     {
-        Sint64 test1 = 0x7fffffffffffffff;
-        Sint64 test2 = 0x8000000000000000;
-        Sint64 test3 = 0xffffffffffffffff;
+        Sint64 test1 = PEGASUS_SINT64_LITERAL(0x7fffffffffffffff);
+        Sint64 test2 = PEGASUS_SINT64_LITERAL(0x8000000000000000);
+        Sint64 test3 = PEGASUS_SINT64_LITERAL(0xffffffffffffffff);
         String str = Formatter::format(
             "test1 $0 test2 $1 test3 $2", test1, test2, test3);
 
@@ -120,9 +120,9 @@ int main(int argc, char** argv)
 
     // Test for 64 bit unsigned integer
     {
-        Uint64 test1 = 0x7fffffffffffffff;
-        Uint64 test2 = 0x8000000000000000;
-        Uint64 test3 = 0xffffffffffffffff;
+        Uint64 test1 = PEGASUS_UINT64_LITERAL(0x7fffffffffffffff);
+        Uint64 test2 = PEGASUS_UINT64_LITERAL(0x8000000000000000);
+        Uint64 test3 = PEGASUS_UINT64_LITERAL(0xffffffffffffffff);
         String str = Formatter::format(
             "test1 $0 test2 $1 test3 $2", test1, test2, test3);
 

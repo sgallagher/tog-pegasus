@@ -32,7 +32,7 @@
 // Modified By: Seema Gupta (gseema@in.ibm.com)
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,6 +91,7 @@ main(int argc, char ** argv) {
   MessageLoaderParms parms;
 
   MessageLoader::_useProcessLocale = true; //l10n set message loading to use process locale
+  MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
 #ifdef PEGASUS_OS_OS400
 

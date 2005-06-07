@@ -38,6 +38,7 @@
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1499,6 +1500,7 @@ int main (int argc, char* argv[])
     Uint32               retCode;
 
     MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
+    MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
     //
     // Check if root is issuing the command

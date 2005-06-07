@@ -29,7 +29,7 @@
 //
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
-// Modified By:
+// Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,6 +38,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/FileSystem.h>
 #include <iostream>
 #ifdef PEGASUS_OS_OS400
 #include "OS400ConvertChar.h"
@@ -493,7 +494,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getQualifiedMsgPath");
 
 		if(pegasus_MSG_HOME.size() == 0)
-				initPegasusMsgHome();
+			initPegasusMsgHome(String::EMPTY);
 
 		if(path.size() == 0)
 		{
@@ -521,46 +522,159 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			checkDefaultMsgLoading();
 		PEG_METHOD_EXIT();
 	}
-	void MessageLoader::initPegasusMsgHome(){
+    void MessageLoader::setPegasusMsgHomeRelative(const String& argv0)
+    {
+#ifdef PEGASUS_HAS_MESSAGES
+      try
+      {
+        String startingDir, pathDir;
+
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+        if(PEG_NOT_FOUND == argv0.find('\\'))
+        {
+          char exeDir[_MAX_PATH];
+          HMODULE module = GetModuleHandle(NULL);
+          if(NULL != module )
+          {
+              DWORD filename = GetModuleFileName(module,exeDir ,sizeof(exeDir));
+               if(0 != filename)
+               {
+                   String path(exeDir);
+                   Uint32 command = path.reverseFind('\\');
+                   startingDir = path.subString(0, command+1);
+               }
+          }
+        }
+        else
+        {
+            Uint32 command = argv0.reverseFind('\\');
+            startingDir = argv0.subString(0, command+1);
+        }
+#endif
+
+#ifdef PEGASUS_OS_TYPE_UNIX
+        if(PEG_NOT_FOUND  != argv0.find('/'))
+        {
+            Uint32 command = argv0.reverseFind('/');
+            startingDir = argv0.subString(0, command+1);
+        }
+        else
+        {
+          if(FileSystem::existsNoCase(argv0))
+          {
+             FileSystem::getCurrentDirectory(startingDir);
+             startingDir.append("/");
+          }
+          else
+          {
+           String path;
+           #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
+             #pragma convert(37)
+                const char* env = getenv("PATH");
+                if(env != NULL)
+                  EtoA((char*)env);
+             #pragma convert(0)
+           #else
+                const char* env = getenv("PATH");
+           #endif
+           if (env != NULL)
+              path.assign(env);
+           String pathDelim = FileSystem::getPathDelimiter();
+           Uint32 size = path.size();
+           while(path.size() > 0)
+           {
+             try
+             {
+              Uint32 delim = path.find(pathDelim);
+              if(delim != PEG_NOT_FOUND)
+              {
+                 pathDir = path.subString(0,delim);
+                 path.remove(0,(delim+1));
+               }
+               else
+               {
+                     pathDir = path;
+                     path = "";
+               }
+               String commandPath = pathDir.append('/');
+               commandPath = commandPath.append(argv0) ;
+               Boolean dirContent = FileSystem::existsNoCase(commandPath);
+               if(dirContent)
+               {
+                    startingDir = pathDir;
+                    break;
+               }
+             }
+             catch(Exception &e)
+             {
+                //Have to do nothing. 
+                //Catching the exception if there is any exception while searching in the path variable
+             }
+           }
+          }
+        }
+#endif
+         initPegasusMsgHome(startingDir);
+      }
+      catch(Exception &e)
+      {
+                //Have to do nothing.
+                //Catching the exception if there is any exception while searching in the path variable
+      }
+#endif
+}
+
+
+void MessageLoader::initPegasusMsgHome(const String & startDir)
+{
+    String startingDir = startDir; 
+    if (startingDir.size() == 0)
+    {
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #pragma convert(37)
-		const char* env = getenv("PEGASUS_MSG_HOME");
-        if(env != NULL)
-		   EtoA((char*)env);
+         const char* env = getenv("PEGASUS_MSG_HOME");
+            if(env != NULL)
+               EtoA((char*)env);
 #pragma convert(0)
 #else
-		const char* env = getenv("PEGASUS_MSG_HOME");
+        const char* env = getenv("PEGASUS_MSG_HOME");
 #endif
+
+        if (env != NULL)
+            startingDir.assign(env);
+    }
+
 #ifdef PEGASUS_DEFAULT_MESSAGE_SOURCE
-		if(System::is_absolute_path(
-				(const char *)PEGASUS_DEFAULT_MESSAGE_SOURCE))
-		{
-			pegasus_MSG_HOME = PEGASUS_DEFAULT_MESSAGE_SOURCE;
-			pegasus_MSG_HOME.append('/');
-		}
-		else
-		{
-		    if(env != NULL)
-		    {
-			pegasus_MSG_HOME = env;
-			pegasus_MSG_HOME.append('/');
-                    }
-		    pegasus_MSG_HOME.append(PEGASUS_DEFAULT_MESSAGE_SOURCE);
-		    pegasus_MSG_HOME.append('/');
-		}
+        if(System::is_absolute_path(
+                (const char *)PEGASUS_DEFAULT_MESSAGE_SOURCE))
+        {
+			cout << "its absolute path " << endl;
+            pegasus_MSG_HOME = PEGASUS_DEFAULT_MESSAGE_SOURCE;
+            pegasus_MSG_HOME.append('/');
+        }
+        else
+        {
+            if (startingDir.size() != 0)
+            {
+               pegasus_MSG_HOME = startingDir;
+                pegasus_MSG_HOME.append('/');
+            }
+            pegasus_MSG_HOME.append(PEGASUS_DEFAULT_MESSAGE_SOURCE);
+            pegasus_MSG_HOME.append('/');
+        }
 #else
-    		if (env != NULL)
-		{
-			pegasus_MSG_HOME = env;
-			pegasus_MSG_HOME.append("/");
-    		}
-		else
-		{
-			// Will use current working directory
-		}
+        if (startingDir.size() != 0)
+        {
+            pegasus_MSG_HOME = startingDir;
+            pegasus_MSG_HOME.append("/");
+        }
+        else
+        {
+             // Will use current working directory
+        }
 #endif
-		checkDefaultMsgLoading();
-	}
+        checkDefaultMsgLoading();
+     }
 
 	void MessageLoader::checkDefaultMsgLoading(){
 	  // Note: this function is a special hook for the automated tests (poststarttests)

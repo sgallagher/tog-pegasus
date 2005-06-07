@@ -233,6 +233,8 @@ public:
 	static String getMessage(MessageLoaderParms &parms);
 	
 	static void setPegasusMsgHome(String home);
+
+    static void setPegasusMsgHomeRelative(const String& argv0);
 	
 	static Boolean _useProcessLocale;
 	
@@ -246,7 +248,7 @@ private:
 	
 	static String getQualifiedMsgPath(String path);
 
-	static void initPegasusMsgHome();
+	static void initPegasusMsgHome(const String & startDir);
 	
 	static void checkDefaultMsgLoading();
 	

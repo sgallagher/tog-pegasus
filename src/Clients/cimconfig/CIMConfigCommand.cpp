@@ -37,7 +37,7 @@
 //              Alagaraja Ramasubramanian, IBM (alags_raj@in.ibm.com) - PEP-167
 //              Amit K Arora, IBM (amitarora@in.ibm.com) - Bug#2333,#2351
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#1794
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101, Bug#2756
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - PEP#101, Bug#2756, Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1973,6 +1973,7 @@ int main (int argc, char* argv [])
     Uint32               returnCode;
     
 	MessageLoader::_useProcessLocale = true; //l10n set message loading to process locale
+    MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 	
 #ifdef PEGASUS_OS_OS400
 

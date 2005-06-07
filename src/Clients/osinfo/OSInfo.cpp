@@ -46,6 +46,7 @@
 //          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756
 //          David Dillard, VERITAS Software Corp.
 //              (david.dillard@veritas.com)
+//          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1098,6 +1099,7 @@ int main (int argc, char* argv [])
     OSInfoCommand    command = OSInfoCommand ();
     int                rc;
 
+    MessageLoader::setPegasusMsgHomeRelative(argv[0]);
     try
     {
         command.setCommand (argc, argv);

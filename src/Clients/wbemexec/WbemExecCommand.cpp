@@ -40,7 +40,7 @@
 //         Amit K Arora (amita@in.ibm.com) for Bug#2333, #2351
 //         David Dillard, VERITAS Software Corp.
 //             (david.dillard@veritas.com)
-//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, #3424
+//         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#2756, #3424, Bug#3032
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1149,6 +1149,7 @@ int main (int argc, char* argv [])
 {
     WbemExecCommand    command = WbemExecCommand ();
     int                rc;
+    MessageLoader::setPegasusMsgHomeRelative(argv[0]);
 
     try
     {

@@ -584,16 +584,19 @@ String SLPProvider::getRegisteredProfileList()
 
     const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
     const CIMName          CLASSNAME = CIMName ("CIM_RegisteredProfile");
-    String                  reglist;
+    String                  regitem = String::EMPTY;
+    String                  reglist = String::EMPTY;
+
     Array<CIMInstance> 	cimInstances;
     CIMClass RO_Class;
+
+    Array<String> regarray;
 
     Boolean 		deepInheritance = true;
     Boolean 		localOnly = true;
     Boolean 		includeQualifiers = false;
     Boolean 		includeClassOrigin = false;
-
-      
+   
     try
       {
 	RO_Class = _cimomHandle.getClass(
@@ -608,7 +611,11 @@ String SLPProvider::getRegisteredProfileList()
 
     catch(Exception& e)
       {
-	cerr << "Error: " << e.getMessage() << endl;
+        CDEBUG("SLPProvider::getRegisterdProfiles: get class error");
+
+        Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
+            "getRegisterdProfiles: get class error");
+
 	return(defaultregisteredProfilesList); 
       }
 
@@ -632,16 +639,23 @@ String SLPProvider::getRegisteredProfileList()
     }
     catch(Exception& e)
     {
-	cerr << "Error: " << e.getMessage() << endl;
-           return(defaultregisteredProfilesList); 
+        CDEBUG("SLPProvider::getRegisterdProfiles: enum instances error");
+        Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
+            "getRegisterdProfiles: get class error");
+
+	return(defaultregisteredProfilesList); 
     }
 
     cout << "Total Number of Instances: " << cimInstances.size() << endl;
 
+    int j = 0;
     for (int i=0; i < cimInstances.size(); i++)
       {
+	if (cimInstances[i].getClassName() != "CIM_RegisterdProfile")
+	  continue;
+
 	Uint32 index_RO = cimInstances[i].findProperty("RegisterdOrganization");
-	Uint32 index_ID = cimInstances[i].findProperty("InstanceID");    
+	Uint32 index_RN = cimInstances[i].findProperty("RegisteredName");    
 
         CIMConstProperty RO_Property = cimInstances[i].getProperty(index_RO);
         CIMName RO_PropertyName = RO_Property.getName();
@@ -655,14 +669,19 @@ String SLPProvider::getRegisteredProfileList()
             }
 
 
-        CIMConstProperty ID_Property = cimInstances[i].getProperty(index_ID);
-        CIMName ID_PropertyName = ID_Property.getName();
+        CIMConstProperty RN_Property = cimInstances[i].getProperty(index_RN);
+        CIMName RN_PropertyName = RN_Property.getName();
 
-	reglist.append(RegOrg);
-	reglist.append(":");
-	reglist.append(ID_PropertyName.getString());
+	regitem.append(RegOrg);
+	regitem.append(":");
+	regitem.append(RN_PropertyName.getString());
+	regarray[j] = regitem;
+	j++;
       }
-
+    if (j > 0)
+      {
+	reglist = _arrayToString(regarray);
+      }
 
     PEG_METHOD_EXIT();
     return(reglist);

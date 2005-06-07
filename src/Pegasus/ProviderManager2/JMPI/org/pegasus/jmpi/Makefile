@@ -43,6 +43,7 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMInstance.class \
    CIMDataType.class \
    CIMDateTime.class \
+   CIMElement.class \
    CIMException.class \
    CIMInstanceException.class \
    CIMInstance.class \

@@ -50,7 +50,12 @@
 //      CIM_ObjectManagerCommunicationMechanism
 //      CIM_CIMXMLCommunicationMechanism
 //      CIM_ProtocolAdapter  (Note: Removed because deprecated class in cim 2.9)
-//      CIM_Namespace (Effective Pegasus 2.4 we use PG_Namespace.
+//      CIM_Namespace -- Only creates are allowed directly against this class.
+//              This allows the publice class CIM_Namespace to be used to
+//              create namespaces.  Modifies, deletes must use the returned
+//              paths. Enumerates references, etc. all use hiearchy.
+//              NOTE: Changes the class to PG_Namespace and returns that
+//              objectpath
 //
 //      PG_Namespace - Pegasus particular subclass of CIM_Namespace that
 //      add the parameters for shared namespaces
@@ -63,6 +68,8 @@
 //      including:
 //      CIM_NamespaceInManager
 //      ...
+//      Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
+//      namespace.
 //      This is a control provider and as such uses the Tracer functions
 //      for data and function traces.  Since we do not expect high volume
 //      use we added a number of traces to help diagnostics.
@@ -221,12 +228,13 @@ static const CIMName PG_NAMESPACE_PROPERTY_NAME =
 // operations.
 
 enum targetClass{
-        PG_NAMESPACE = 1,
-        CIM_OBJECTMANAGER = 2,
-        PG_CIMXMLCOMMUNICATIONMECHANISM = 3,
-        CIM_NAMESPACEINMANAGERINST =4,
-        CIM_COMMMECHANISMFORMANAGERINST=5,
-        CIM_NAMESPACEINMANAGER=6
+        CIM_NAMESPACE = 1,
+        PG_NAMESPACE = 2,
+        CIM_OBJECTMANAGER = 3,
+        PG_CIMXMLCOMMUNICATIONMECHANISM = 4,
+        CIM_NAMESPACEINMANAGERINST =5,
+        CIM_COMMMECHANISMFORMANAGERINST=6,
+        CIM_NAMESPACEINMANAGER=7
     };
 
  enum targetAssocClass{
@@ -591,6 +599,53 @@ Boolean _validateRequiredProperty(const CIMInstance& instance,
     return(false);
 }
 
+/* _CheckRequiredProperty
+    Note validate does about the same thing.
+*/
+Boolean _checkRequiredProperty(CIMInstance& instance,
+    const CIMName& propertyName,
+    const CIMType expectedType,
+    const String & message)
+{
+
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "_checkRequiredProperty");
+
+    Boolean propertyError = false;
+
+    //
+    //  Required property must exist in instance
+    //
+    if (instance.findProperty (propertyName) == PEG_NOT_FOUND)
+        propertyError = true;
+    else
+    {
+        //
+        //  Get the property
+        //
+        CIMProperty theProperty = instance.getProperty
+            (instance.findProperty (propertyName));
+        CIMValue theValue = theProperty.getValue ();
+
+        //
+        //  Required property must have a non-null value
+        //
+        if (theValue.isNull ())
+            propertyError = true;
+        else
+        {
+            //
+            // Must have type defined 
+            //
+
+            if ((theValue.getType ()) != expectedType)
+                propertyError = true;
+        }
+
+    }
+    PEG_METHOD_EXIT ();
+    return(propertyError);
+}
 Boolean _validateRequiredProperty(const CIMInstance& instance,
                           const CIMName& propertyName,
                           const Uint16& value)
@@ -707,6 +762,9 @@ static targetClass _verifyValidClassInput(const CIMName& className)
     if (className.equal(CIM_NAMESPACEINMANAGER_CLASSNAME))
         return CIM_NAMESPACEINMANAGER;
 
+    if (className.equal(CIM_NAMESPACE_CLASSNAME))
+        return CIM_NAMESPACE;
+
     // Last entry, reverse test and return OK if PG_Namespace
     // Note: Changed to PG_Namespace for CIM 2.4
     if (!className.equal(PG_NAMESPACE_CLASSNAME))
@@ -739,7 +797,6 @@ String _validateUserID(const OperationContext & context)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_validateUserID");
-    //ATTN-DME-P3-20020522: ADD AUTHORIZATION CHECK TO __NAMESPACE PROVIDER
     String userName;
     try
     {
@@ -1310,8 +1367,6 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMObjectPath& obje
 
     // ATTN: KS need to get the real objectManager name from elsewhere.  the only place
     // this exists is through the objectmanager object.
-    // ATTN: Should we be saving the objectmanager name somewhere internally either in
-    // interop or more generally somewhere within the system for common access.
     String ObjectManagerName = "ObjectManagerNameValue";
 
     CIMClass targetClass;
@@ -1461,7 +1516,6 @@ void _validateCIMNamespaceKeys(const CIMObjectPath& objectPath)
     }
     PEG_METHOD_EXIT();
 }
-
 /** completes a property in the defined instance either
     by adding the complete property if it does not exist
     or by adding the value if the property does exist.
@@ -1842,6 +1896,27 @@ void InteropProvider::createInstance(
         CIMObjectPath newInstanceReference;
 
         CIMNamespaceName newNamespaceName;
+        CIMInstance localInstance;
+        CIMObjectPath localInstanceReference = instanceReference;
+
+        if (classEnum == CIM_NAMESPACE)
+        {
+            // create instance of PG_Namespace and continue.
+            CIMInstance localPGInstance(PG_NAMESPACE_CLASSNAME);
+            for (Uint32 i = 0 ; i < myInstance.getQualifierCount() ; i++)
+            {
+                localInstance.addQualifier(myInstance.getQualifier(i).clone());
+            }
+
+            for (Uint32 i = 0 ; i < myInstance.getPropertyCount() ; i++)
+            {
+                localInstance.addProperty(myInstance.getProperty(i).clone());
+            }
+            //TODO set path in instance???
+            localInstanceReference.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+            // set classEnum so next if interprets this as PG_Namespace
+            classEnum = PG_NAMESPACE;
+        }
         if (classEnum == PG_NAMESPACE)
         {
 #ifdef PEGASUS_OS_OS400
@@ -1851,14 +1926,17 @@ void InteropProvider::createInstance(
                 PG_NAMESPACE_CLASSNAME.getString());
             throw CIMNotSupportedException(mparms);
 #else
-            // Create local instance to complete any keys.
-            CIMInstance localInstance = myInstance.clone();
+            // Create local instance to complete any keys if not created above.
+            if (localInstance.isUninitialized())
+            {
+                localInstance = myInstance.clone();
+            }
 
             _completeCIMNamespaceKeys(localInstance);
             // Validate that keys are as required. Does its own exception.
             newNamespaceName = _getKeyValue(myInstance, CIM_NAMESPACE_PROPERTY_NAME);
 
-            newInstanceReference = _buildInstancePath(instanceReference,
+            newInstanceReference = _buildInstancePath(localInstanceReference,
                                         PG_NAMESPACE_CLASSNAME, localInstance);
 #endif
         }
@@ -2145,7 +2223,6 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::localEnumerateInstances()");
 
-
         Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
             "%s enumerateInstances. referenc= %s , includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
             thisProvider,
@@ -2158,7 +2235,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         // Verify that ClassName is correct and get value
         targetClass classEnum  = _verifyValidClassInput(ref.getClassName());
 
-        //String userName = _validateUserID(context);
+        String userName = _validateUserID(context);
 
         Array<CIMInstance> instances;
         if (classEnum == CIM_OBJECTMANAGER)
@@ -2174,8 +2251,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
 
         else if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
         {
-            instances = _buildInstancesPGCIMXMLCommunicationMechanism(
-                                    ref);
+            instances = _buildInstancesPGCIMXMLCommunicationMechanism(ref);
         }
 
         else if (classEnum == CIM_NAMESPACEINMANAGER)
@@ -2183,7 +2259,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
             instances = _buildInstancesNamespaceInManager(ref);
         }
 
-        else if (classEnum == CIM_NAMESPACEINMANAGER)
+        else if (classEnum == CIM_COMMMECHANISMFORMANAGERINST)
         {
             instances = _buildInstancesCommMechanismForManager(ref);
         }
@@ -2192,11 +2268,17 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         {
             instances = _getInstancesCIMNamespace(ref);
         }
+        else if (classEnum == CIM_NAMESPACE)
+        {
+            // returns nothing if CIM_Namespace
+            // This class used only to create. Enumerates
+            // automatically get the hiearchy.
+        }
         else
         {
             PEG_METHOD_EXIT();
             throw CIMNotSupportedException
-                (ref.getClassName().getString() + " not supported by Interop Provider");
+                (ref.getClassName().getString() + " not supported by Interop Provider enumerate");
         }
 
         // Filter and deliver the resulting instances
@@ -2222,7 +2304,7 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
 }
 
 //***************************************************************************
-//                enumerateInstances - External Operation call
+//                EnumerateInstances - External Operation call
 //    Delivers instances back through response handler.
 //***************************************************************************
 void InteropProvider::enumerateInstances(

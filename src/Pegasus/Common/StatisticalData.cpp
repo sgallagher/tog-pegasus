@@ -34,13 +34,15 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "StatisticalData.h"
+#include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-String StatisticalData::requestName[] = {
+String StatisticalData::requestName[] = 
+{
     "GET_CLASS",
     "GET_INSTANCE",
-	"EXPORT_INDICATION",
+    "EXPORT_INDICATION",
     "DELETE_CLASS",
     "DELETE_INSTANCE",
     "CREATE_CLASS",
@@ -61,50 +63,95 @@ String StatisticalData::requestName[] = {
     "GET_QUALIFIER",
     "SET_QUALIFIER",
     "DELETE_QUALIFIER",
-    "ENUMERATE_QUALIFIERS"
-      };
+    "ENUMERATE_QUALIFIERS",
+    "INVOKE_METHOD"
+};
 
 const Uint32 StatisticalData::length = NUMBER_OF_TYPES;
 
 StatisticalData* StatisticalData::cur = NULL;
 
-StatisticalData* StatisticalData::current(){
-   if (cur == NULL){
-      cur = new StatisticalData();
-   }
-   return cur;
+StatisticalData* StatisticalData::current()
+{
+    if (cur == NULL)
+    {
+        cur = new StatisticalData();
+    }
+    return cur;
 }
 
-StatisticalData::StatisticalData(){
+StatisticalData::StatisticalData()
+{
+    copyGSD = 0;
 
-
-   copyGSD = 0;
-
-   for (unsigned int i=0; i<StatisticalData::length; i++){
-      numCalls[i] = 0;
-      cimomTime[i] = 0;      
-	  providerTime[i] = 0;
-      responseSize[i] = 0;
-      requestSize[i] = 0;
-	  
-   }
+    for (unsigned int i=0; i<StatisticalData::length; i++)
+    {
+        numCalls[i] = 0;
+        cimomTime[i] = 0;      
+        providerTime[i] = 0;
+        responseSize[i] = 0;
+        requestSize[i] = 0;
+    }
 }
 
-void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t){
-   if(copyGSD){
-     AutoMutex autoMut(_mutex);
-     switch(t){
-	    case SERVER:      numCalls[type] += 1;
-                          cimomTime[type] += value;
-                          break;
-        case PROVIDER:    providerTime[type] += value;
-                          break;
-        case BYTES_SENT:  responseSize[type] += value;
-                          break;
-        case BYTES_READ:  requestSize[type] += value;
-                          break;
-     }
-   }
+void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
+{
+    if (type >= NUMBER_OF_TYPES)
+    {
+         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+             "StatData: Statistical Data Discarded.  "
+                 "Invalid Request Type =  %u", type);
+         return;
+    }
+
+    if (copyGSD)
+    {
+        AutoMutex autoMut(_mutex);
+        switch (t)
+        {
+            case SERVER:
+                numCalls[type] += 1;
+                cimomTime[type] += value;
+                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                    "StatData: SERVER: %s(%d): count = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                    (const char *)requestName[type].getCString(), type,
+                    numCalls[type], value, cimomTime[type]);
+                break;
+            case PROVIDER:
+                providerTime[type] += value;
+                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                    "StatData: PROVIDER: %s(%d): count = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                    (const char *)requestName[type].getCString(), type,
+                    numCalls[type], value, providerTime[type]);
+                break;
+        case BYTES_SENT:
+                responseSize[type] += value;
+                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                    "StatData: BYTES_SENT: %s(%d): count = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                    (const char *)requestName[type].getCString(), type,
+                    numCalls[type], value, responseSize[type]);
+                break;
+        case BYTES_READ:
+                requestSize[type] += value;
+                Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
+                    "StatData: BYTES_READ: %s(%d): count = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; value = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d; total = %"
+                        PEGASUS_64BIT_CONVERSION_WIDTH "d",
+                    (const char *)requestName[type].getCString(), type,
+                    numCalls[type], value, requestSize[type]);
+                break;
+        }
+    }
 }
 
  void StatisticalData::setCopyGSD(Boolean flag)

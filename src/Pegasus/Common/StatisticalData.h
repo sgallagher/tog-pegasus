@@ -162,6 +162,7 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
          SET_QUALIFIER,
          DELETE_QUALIFIER,
          ENUMERATE_QUALIFIERS,
+         INVOKE_METHOD,
          NUMBER_OF_TYPES
       };
 

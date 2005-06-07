@@ -361,13 +361,13 @@ Boolean ListenerService::shutdownListener()
         }
     }
 
-    //delete monitor
-    delete _monitor;
-    _monitor = 0;
-
     //delete acceptor
     delete _acceptor;
     _acceptor = 0;
+
+    //delete monitor
+    delete _monitor;
+    _monitor = 0;
 
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "Listener stopped.");
 

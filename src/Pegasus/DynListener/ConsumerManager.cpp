@@ -61,9 +61,8 @@ static struct OptionRow optionsTable[] =
 const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 
 //retry settings
-//ATTN: Do we want to make these configurable?  If so, is a global setting for all the consumers ok?
 static const Uint32 DEFAULT_MAX_RETRY_COUNT = 5;
-static const Uint32 DEFAULT_RETRY_LAPSE = 10000; //300000;  //ms
+static const Uint32 DEFAULT_RETRY_LAPSE = 300000;  //ms = 5 minutes
 
 
 
@@ -85,7 +84,8 @@ _forceShutdown(true)
                   idleTimeout);
 
 
-    _optionMgr.registerOptions(optionsTable, NUM_OPTIONS);
+	//ATTN: Bugzilla 3765 - Uncomment when OptionManager has a reset capability
+    //_optionMgr.registerOptions(optionsTable, NUM_OPTIONS);
 
     struct timeval deallocateWait = {15, 0};
     _thread_pool = new ThreadPool(0, "ConsumerManager", 0, 0, deallocateWait);
@@ -208,7 +208,9 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
 
         try
         {
-            //ATTN: Does the OptionManager need to be reset?  There's no method for it.
+            //Bugzilla 3765 - Change this to use a member var when OptionManager has a reset option
+			OptionManager _optionMgr;
+			_optionMgr.registerOptions(optionsTable, NUM_OPTIONS); //comment this line out later
             _optionMgr.mergeFile(configFile);
             _optionMgr.checkRequiredOptions();
 

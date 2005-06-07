@@ -99,10 +99,12 @@ private:
     //config properties
     String _consumerDir;
     String _consumerConfigDir;
-    OptionManager _optionMgr;
     Boolean _enableConsumerUnload;
     Uint32 _idleTimeout; //ms
     Boolean _forceShutdown;
+
+	//ATTN: Bugzilla 3765 - Uncomment when OptionManager has a reset capability
+	//OptionManager _optionMgr;
 
     //global thread pool
     ThreadPool* _thread_pool;

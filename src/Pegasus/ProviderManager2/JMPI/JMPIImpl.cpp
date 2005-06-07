@@ -291,12 +291,18 @@ int JMPIjvm::initJVM()
    JNIEnv *env;
    JavaVMOption *poptions = 0;
    int maxoption = 0;
+   typedef struct _JVMOptions {
+      const char *pszEnvName;
+      const char *pszPrefix;
+      bool        fSplit;
+   } JVMOPTIONS;
    Array<std::string> JNIoptions;
-   static const char *aENVoptions[][2] = {
-      { "CLASSPATH",                           "-Djava.class.path=" },
-      { "PEGASUS_JMPI_MAX_HEAP",               "-Xmx" },
-      { "PEGASUS_JMPI_INITIAL_HEAP",           "-Xms" },
-      { "PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE", "-Xss" }
+   static JVMOPTIONS aEnvOptions[] = {
+      { "CLASSPATH",                           "-Djava.class.path=", false },
+      { "PEGASUS_JMPI_MAX_HEAP",               "-Xmx"              , false },
+      { "PEGASUS_JMPI_INITIAL_HEAP",           "-Xms"              , false },
+      { "PEGASUS_JMPI_JAVA_THREAD_STACK_SIZE", "-Xss"              , false },
+      { "PEGASUS_JMPI_VERBOSE",                "-verbose:"         , true  }
    };
    std::ostringstream oss;
 
@@ -323,21 +329,60 @@ int JMPIjvm::initJVM()
 ///JNIoptions.append ("-Djava.compiler=NONE");
 ///maxoption++;
 
-   for (Uint32 i = 0; i < (int)(sizeof (aENVoptions)/sizeof (aENVoptions[0])); i++)
+   for (Uint32 i = 0; i < (int)(sizeof (aEnvOptions)/sizeof (aEnvOptions[0])); i++)
    {
-      const char *name = aENVoptions[i][0];
+      JVMOPTIONS *pEnvOption = &aEnvOptions[i];
 
-      envstring = getenv (name);
+      envstring = getenv (pEnvOption->pszEnvName);
       if (envstring)
       {
-         maxoption++;
+         if (pEnvOption->fSplit)
+         {
+            bool              fCommaFound  = true;
+            string            stringValues = envstring;
+            string::size_type posStart     = 0;
+            string::size_type posEnd       = stringValues.length () - 1;
 
-         oss.str ("");
-         oss << aENVoptions[i][1] << envstring;
+            while (fCommaFound)
+            {
+               string            stringValue;
+               string::size_type posComma    = stringValues.find (',', posStart);
 
-         JNIoptions.append (oss.str ());
+               if (posComma != string::npos)
+               {
+                  fCommaFound = true;
+                  stringValue = stringValues.substr (posStart, posComma);
+                  posStart    = posComma + 1;
+               }
+               else
+               {
+                  fCommaFound = false;
+                  stringValue = stringValues.substr (posStart, posEnd - posStart + 1);
+               }
 
-         DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM(): " << name << " found!  Specifying \"" << oss.str () << "\"" << PEGASUS_STD(endl));
+               DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM(): fCommaFound = " << fCommaFound << ", posStart = " << posStart << ", posComma = " << posComma << ", posEnd = " << posEnd << "" << PEGASUS_STD(endl));
+
+               maxoption++;
+
+               oss.str ("");
+               oss << pEnvOption->pszPrefix << stringValue;
+
+               JNIoptions.append (oss.str ());
+
+               DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM(): " << pEnvOption->pszEnvName << " found!  Specifying \"" << oss.str () << "\"" << PEGASUS_STD(endl));
+            }
+         }
+         else
+         {
+            maxoption++;
+
+            oss.str ("");
+            oss << pEnvOption->pszPrefix << envstring;
+
+            JNIoptions.append (oss.str ());
+
+            DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM(): " << pEnvOption->pszEnvName << " found!  Specifying \"" << oss.str () << "\"" << PEGASUS_STD(endl));
+         }
       }
    }
 
@@ -358,7 +403,7 @@ int JMPIjvm::initJVM()
       DDD(PEGASUS_STD(cout) << "--- JMPIjvm::initJVM(): Setting option " << i << " to \"" << poptions[i].optionString << "\"" << PEGASUS_STD(endl));
    }
 
-   vm_args.version=0x00010002;
+   vm_args.version=JNI_VERSION_1_2;
    vm_args.options=poptions;
    vm_args.nOptions=maxoption;
    vm_args.ignoreUnrecognized=JNI_TRUE;
@@ -382,6 +427,7 @@ int JMPIjvm::initJVM()
       jv.classRefs=classRefs;
       jv.instMethodIDs=instanceMethodIDs;
       jv.staticMethodIDs=staticMethodIDs;
+      jv.instanceMethodNames=instanceMethodNames;
    }
 
    if (env->ExceptionOccurred()) {

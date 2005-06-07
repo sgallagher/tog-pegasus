@@ -49,6 +49,13 @@ Environment settings
 
    export PEGASUS_JMPI_MAX_HEAP=128m
 
+   There is a new environment variable that tells the JVM to output more debugging information.  The variable name 
+   is called PEGASUS_JMPI_VERBOSE.  An example usage is as follows:
+
+   export PEGASUS_JMPI_VERBOSE="jni,class"
+
+   This will tell the JVM to output debug information on the JNI layer and class loading.
+
    When using this script, place a copy of this script above your PEGASUS_HOME directory.
    "cd" to PEGASUS_HOME, and issue ". ../setJPeg". Then do a normal make.
 

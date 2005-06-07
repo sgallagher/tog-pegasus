@@ -69,13 +69,20 @@ PEGASUS_NAMESPACE_BEGIN
       jEnv->Throw((jthrowable)ev); \
    }
 
+typedef struct {
+  int         clsIndex;
+  const char *methodName;
+  const char *signature;
+} METHOD_STRUCT;
+
 typedef struct jvmVector {
-   int       initRc;
-   JavaVM    *jvm;
-   JNIEnv    *env;
-   jclass    *classRefs;
-   jmethodID *instMethodIDs;
-   jmethodID *staticMethodIDs;
+   int                  initRc;
+   JavaVM              *jvm;
+   JNIEnv              *env;
+   jclass              *classRefs;
+   jmethodID           *instMethodIDs;
+   jmethodID           *staticMethodIDs;
+   const METHOD_STRUCT *instanceMethodNames;
 } JvmVector;
 
 class JMPIjvm {

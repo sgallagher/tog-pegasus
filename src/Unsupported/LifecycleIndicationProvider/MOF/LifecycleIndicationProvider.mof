@@ -13,7 +13,7 @@ class Sample_LifecycleIndicationProviderClass
 // ====================================================================
 // subclass of CIM_InstCreation
 // ====================================================================
-   [Indication, Version ( "2.6.0" ), Description (
+   [Indication, Version ( "2.5.0" ), Description (
        "subclass of CIM_InstCreation for use by Sample Lifecycle Indication "
        "Provider and associated with the resource "
        "Sample_LifecycleIndicationProviderClass.")]
@@ -23,7 +23,7 @@ class InstCreation_for_Sample_LifecycleIndicationProviderClass : CIM_InstCreatio
 // ====================================================================
 // subclass of CIM_InstDeletion
 // ====================================================================
-   [Indication, Version ( "2.6.0" ), Description (
+   [Indication, Version ( "2.5.0" ), Description (
        "subclass of CIM_InstDeletion for use by Sample Lifecycle Indication "
        "Provider and associated with the resource "
        "Sample_LifecycleIndicationProviderClass.")]
@@ -33,7 +33,7 @@ class InstDeletion_for_Sample_LifecycleIndicationProviderClass : CIM_InstDeletio
 // ====================================================================
 // subclass of CIM_InstModification
 // ====================================================================
-   [Indication, Version ( "2.6.0" ), Description (
+   [Indication, Version ( "2.5.0" ), Description (
        "subclass of CIM_InstModification for use by Sample Lifecycle Indication "
        "Provider and associated with the resource "
        "Sample_LifecycleIndicationProviderClass.")]
@@ -43,7 +43,7 @@ class InstModification_for_Sample_LifecycleIndicationProviderClass : CIM_InstMod
 // ====================================================================
 // subclass of CIM_InstMethodCall
 // ====================================================================
-   [Indication, Version ( "2.6.0" ), Description (
+   [Indication, Version ( "2.5.0" ), Description (
        "subclass of CIM_InstMethodCall for use by Sample Lifecycle Indication "
        "Provider and associated with the resource "
        "Sample_LifecycleIndicationProviderClass.")]
@@ -53,7 +53,7 @@ class InstMethodCall_for_Sample_LifecycleIndicationProviderClass : CIM_InstMetho
 // ====================================================================
 // subclass of CIM_InstRead
 // ====================================================================
-   [Indication, Version ( "2.6.0" ), Description (
+   [Indication, Version ( "2.5.0" ), Description (
        "subclass of CIM_InstRead for use by Sample Lifecycle Indication "
        "Provider and associated with the resource "
        "Sample_LifecycleIndicationProviderClass.")]

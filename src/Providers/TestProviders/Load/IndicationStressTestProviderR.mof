@@ -6,7 +6,7 @@ instance of PG_ProviderModule
     Caption = "Sample Pegasus Provider for stress testing Indications";
     Name = "IndicationStressTestProviderModule";
     Vendor = "Pegasus";
-    Version = "2.0.0";
+    Version = "2.5.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.5.0";
     Location = "IndicationStressTestProvider";

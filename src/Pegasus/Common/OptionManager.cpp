@@ -339,6 +339,10 @@ void OptionManager::mergeFile(const String& fileName)
 			value.append('"');
 			break;
 
+            case '\\':
+            value.append('\\');
+            break;
+
 		    case '\0':
 			throw OMConfigFileSyntaxError(fileName, lineNumber);
 

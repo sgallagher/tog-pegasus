@@ -157,7 +157,7 @@ String InteropSchemaNamespaceName = "root/PG_Interop";
 
 // Default list of registered Profiles until we move to 2.8 and get list from
 // the proper classes.
-const char registeredProfilesList[] =
+const char defaultregisteredProfilesList[] =
 "SNIA:Array,SNIA:Array:Cluster,SNIA:Array:Access Points,SNIA:Array:Disk \
 Drive,SNIA:Array:Location,SNIA:Array:LUN Mapping and Masking,SNIA:Array:Pool \
 Manipulation Capabilities and Settings,SNIA:Array:Extent Mapping,SNIA:Array:LUN \
@@ -582,10 +582,90 @@ String SLPProvider::getRegisteredProfileList()
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
       "SLPProvider::getRegisteredProfileList()");
 
-    char * regList = getenv("PEGASUS_REGISTERED_PROFILES");
+    const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+    const CIMName          CLASSNAME = CIMName ("CIM_RegisteredProfile");
+    String                  reglist;
+    Array<CIMInstance> 	cimInstances;
+    CIMClass RO_Class;
+
+    Boolean 		deepInheritance = true;
+    Boolean 		localOnly = true;
+    Boolean 		includeQualifiers = false;
+    Boolean 		includeClassOrigin = false;
+
+      
+    try
+      {
+	RO_Class = _cimomHandle.getClass(
+					 OperationContext(),
+					 NAMESPACE,  
+					 CLASSNAME, 
+					 localOnly,  
+					 includeQualifiers,
+					 includeClassOrigin,
+					 CIMPropertyList());
+      }
+
+    catch(Exception& e)
+      {
+	cerr << "Error: " << e.getMessage() << endl;
+	return(defaultregisteredProfilesList); 
+      }
+
+
+    try
+    {
+        //
+        // Enumerate Instances.
+        //
+        cimInstances = _cimomHandle.enumerateInstances( 
+				OperationContext(),
+                                NAMESPACE,  
+                                CLASSNAME, 
+                                deepInheritance,
+				localOnly,  
+                                includeQualifiers,
+			        includeClassOrigin,
+				CIMPropertyList());
+
+
+    }
+    catch(Exception& e)
+    {
+	cerr << "Error: " << e.getMessage() << endl;
+           return(defaultregisteredProfilesList); 
+    }
+
+    cout << "Total Number of Instances: " << cimInstances.size() << endl;
+
+    for (int i=0; i < cimInstances.size(); i++)
+      {
+	Uint32 index_RO = cimInstances[i].findProperty("RegisterdOrganization");
+	Uint32 index_ID = cimInstances[i].findProperty("InstanceID");    
+
+        CIMConstProperty RO_Property = cimInstances[i].getProperty(index_RO);
+        CIMName RO_PropertyName = RO_Property.getName();
+        CIMValue RO_v1= RO_Property.getValue();
+
+	
+	String RegOrg = _getValueQualifier(RO_Property, RO_Class);
+	if (RegOrg == String::EMPTY)
+            {
+                RegOrg = "Unknown";
+            }
+
+
+        CIMConstProperty ID_Property = cimInstances[i].getProperty(index_ID);
+        CIMName ID_PropertyName = ID_Property.getName();
+
+	reglist.append(RegOrg);
+	reglist.append(":");
+	reglist.append(ID_PropertyName.getString());
+      }
+
 
     PEG_METHOD_EXIT();
-    return((regList)? String(regList) : registeredProfilesList);
+    return(reglist);
 }
 
 /** get the list of valid namespaces and supporting info.

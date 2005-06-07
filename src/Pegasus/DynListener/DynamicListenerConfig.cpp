@@ -200,7 +200,7 @@ Boolean DynamicListenerConfig::lookupIntegerValue(const String& name, Uint32& va
     {
     } else if (String::equal(name, "traceLevel"))
     {
-        if (value > 4 || value < 0)
+        if (value > 4)
         {
             throw OMInvalidOptionValue(name, "");
         }

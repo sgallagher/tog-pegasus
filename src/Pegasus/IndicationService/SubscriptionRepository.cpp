@@ -535,8 +535,12 @@ CIMInstance SubscriptionRepository::getHandler (
             (subscription.getPath ().getNameSpace (), handlerRef,
              false, false, false, CIMPropertyList ());
     }
-    catch (const Exception &)
+    catch (const Exception & exception)
     {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get Handler instance (" +
+            handlerRef.toString () + "): " +
+            exception.getMessage ());
         PEG_METHOD_EXIT ();
         throw;
     }
@@ -622,8 +626,8 @@ void SubscriptionRepository::getFilterProperties (
     }
     catch (const Exception & exception)
     {
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-            "Exception caught in getting filter instance (" +
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get Filter instance (" +
             filterReference.toString () + "): " +
             exception.getMessage ());
         PEG_METHOD_EXIT ();
@@ -742,8 +746,12 @@ Boolean SubscriptionRepository::validateIndicationClassName (
         theClass = _repository->getClass (nameSpaceName, indicationClassName,
             false, true, false, CIMPropertyList ());
     }
-    catch (const Exception &)
+    catch (const Exception & exception)
     {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get indication class (" +
+            indicationClassName.getString () + "): " +
+            exception.getMessage ());
         PEG_METHOD_EXIT ();
         throw;
     }
@@ -844,8 +852,19 @@ CIMClass SubscriptionRepository::getClass (
     Boolean includeClassOrigin,
     const CIMPropertyList & propertyList) const
 {
-    return _repository->getClass (nameSpaceName, className, localOnly,
-         includeQualifiers, includeClassOrigin, propertyList);
+    try
+    {
+        return _repository->getClass (nameSpaceName, className, localOnly,
+            includeQualifiers, includeClassOrigin, propertyList);
+    }
+    catch (const Exception & exception)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Exception caught trying to get class (" +
+            className.getString () + "): " +
+            exception.getMessage ());
+        throw;
+    }
 }
 
 CIMInstance SubscriptionRepository::getInstance (

@@ -280,29 +280,45 @@ void CIMExportClient::exportIndication(
    const CIMInstance& instanceName,
    const ContentLanguages& contentLanguages)
 {
-   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::exportIndication()");
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::exportIndication()");
 
-   // encode request
-// l10n  
-   CIMRequestMessage* request = new CIMExportIndicationRequestMessage(
-      String::EMPTY,
-      url,
-      instanceName,
-      QueueIdStack(),
-      String::EMPTY,
-      String::EMPTY);
+    try
+    {
+        // encode request
+        // l10n  
+        CIMRequestMessage* request = new CIMExportIndicationRequestMessage(
+            String::EMPTY,
+            url,
+            instanceName,
+            QueueIdStack(),
+            String::EMPTY,
+            String::EMPTY);
 
-   request->operationContext.set(ContentLanguageListContainer(contentLanguages));
+        request->operationContext.set
+            (ContentLanguageListContainer(contentLanguages));
 
-   Message* message = _doRequest(request,
-      CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);
+        Message* message = _doRequest(request,
+            CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);
 
-   CIMExportIndicationResponseMessage* response = 
-      (CIMExportIndicationResponseMessage*)message;
+        CIMExportIndicationResponseMessage* response = 
+            (CIMExportIndicationResponseMessage*)message;
     
-   AutoPtr<CIMExportIndicationResponseMessage> ap(response);
+        AutoPtr<CIMExportIndicationResponseMessage> ap(response);
+    }
+    catch (const Exception & e)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL4, 
+            "Failed to export indication: " + e.getMessage ());
+        throw;
+    }
+    catch (...)
+    {
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL4, 
+            "Failed to export indication");
+        throw;
+    }
 
-   PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 Message* CIMExportClient::_doRequest(
@@ -414,7 +430,7 @@ Message* CIMExportClient::_doRequest(
             else if (response->getType() == expectedResponseMessageType)
             {
                 PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, 
-                    "Received expected indication reponse message.");
+                    "Received expected indication response message.");
                 CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
                 if (cimResponse->messageId != messageId)
                 {
@@ -488,7 +504,7 @@ Message* CIMExportClient::_doRequest(
     {
     }
 
-    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Connection to the listner timed out.");
+    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Connection to the listener timed out.");
     PEG_METHOD_EXIT();
     //
     // Throw timed out exception:

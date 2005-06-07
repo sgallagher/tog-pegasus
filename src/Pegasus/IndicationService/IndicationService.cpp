@@ -1892,7 +1892,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     Array <CIMInstance> matchedSubscriptions;
     CIMInstance handlerNamedInstance;
 
-    CIMInstance handler;
     CIMInstance indication = request->indicationInstance;
 
     PEG_TRACE_STRING (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
@@ -2195,7 +2194,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
     {
         response->cimException = exception;
 
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "CIMException caught in attempting to process indication: " +
             exception.getMessage ());
     }
@@ -2204,7 +2203,7 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
         response->cimException = PEGASUS_CIM_EXCEPTION (CIM_ERR_FAILED,
             exception.getMessage ());
 
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
             "Exception caught in attempting to process indication: " +
             exception.getMessage ());
     }
@@ -2216,8 +2215,8 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
                 "IndicationService.IndicationService.UNKNOWN_ERROR",
                 "Unknown Error"));
 
-        PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL, Tracer::LEVEL2,
-            "Exception caught in attempting to process indication.");
+        PEG_TRACE_STRING (TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            "Unknown error occurred in attempting to process indication.");
     }
 
     _enqueueResponse (request, response);

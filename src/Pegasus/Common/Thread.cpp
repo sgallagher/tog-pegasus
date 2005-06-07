@@ -413,7 +413,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
 
             if (work == 0)
             {
-                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                Tracer::trace(TRC_THREAD, Tracer::LEVEL4,
                     "ThreadPool::_loop: work func is 0, meaning we should exit.");
                 break;
             }

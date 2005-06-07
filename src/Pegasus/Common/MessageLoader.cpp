@@ -648,7 +648,6 @@ void MessageLoader::initPegasusMsgHome(const String & startDir)
         if(System::is_absolute_path(
                 (const char *)PEGASUS_DEFAULT_MESSAGE_SOURCE))
         {
-			cout << "its absolute path " << endl;
             pegasus_MSG_HOME = PEGASUS_DEFAULT_MESSAGE_SOURCE;
             pegasus_MSG_HOME.append('/');
         }

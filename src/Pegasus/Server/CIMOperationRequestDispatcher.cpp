@@ -570,84 +570,84 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
       if(_initialized.value() == 0 )
       {
          _routing_table.insert_record(PEGASUS_CLASSNAME_CONFIGSETTING,
-                                      PEGASUS_NAMESPACENAME_CONFIG,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_CONFIGPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                          PEGASUS_NAMESPACENAME_CONFIG,
+                          DynamicRoutingTable::INTERNAL,
+                          0,
+                          static_cast<MessageQueueService *>
+                          (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                          PEGASUS_MODULENAME_CONFIGPROVIDER,
+                          PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_AUTHORIZATION,
-                                      PEGASUS_NAMESPACENAME_AUTHORIZATION,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_USERAUTHPROVIDER,
-                                      service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+                          PEGASUS_NAMESPACENAME_AUTHORIZATION,
+                          DynamicRoutingTable::INTERNAL,
+                          0,
+                          static_cast<MessageQueueService *>
+                          (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                          PEGASUS_MODULENAME_USERAUTHPROVIDER,
+                          service = PEGASUS_QUEUENAME_CONTROLSERVICE);
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_USER,
-                                      PEGASUS_NAMESPACENAME_USER,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_USERAUTHPROVIDER,
-                                      service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+                          PEGASUS_NAMESPACENAME_USER,
+                          DynamicRoutingTable::INTERNAL,
+                          0,
+                          static_cast<MessageQueueService *>
+                          (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                          PEGASUS_MODULENAME_USERAUTHPROVIDER,
+                          service = PEGASUS_QUEUENAME_CONTROLSERVICE);
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_SHUTDOWN,
-                                      PEGASUS_NAMESPACENAME_SHUTDOWN,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                          PEGASUS_NAMESPACENAME_SHUTDOWN,
+                          DynamicRoutingTable::INTERNAL,
+                          0,
+                          static_cast<MessageQueueService *>
+                          (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                          PEGASUS_MODULENAME_SHUTDOWNPROVIDER,
+                          PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 
          _routing_table.insert_record(PEGASUS_CLASSNAME___NAMESPACE,
-                                      _wild,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_NAMESPACEPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                          _wild,
+                          DynamicRoutingTable::INTERNAL,
+                          0,
+                          static_cast<MessageQueueService *>
+                          (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                          PEGASUS_MODULENAME_NAMESPACEPROVIDER,
+                          PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 #ifdef PEGASUS_HAS_SSL
         //PEP187
         _routing_table.insert_record(PEGASUS_CLASSNAME_CERTIFICATE,
-                                     PEGASUS_NAMESPACENAME_CERTIFICATE,
-                                     DynamicRoutingTable::INTERNAL,
-                                     0,
-                                     static_cast<MessageQueueService *>
-                                     (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                     PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
-                                     service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+                         PEGASUS_NAMESPACENAME_CERTIFICATE,
+                         DynamicRoutingTable::INTERNAL,
+                         0,
+                         static_cast<MessageQueueService *>
+                         (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                         PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
+                         service = PEGASUS_QUEUENAME_CONTROLSERVICE);
 
         //PEP187
         _routing_table.insert_record(PEGASUS_CLASSNAME_CRL,
-                                     PEGASUS_NAMESPACENAME_CERTIFICATE,
-                                     DynamicRoutingTable::INTERNAL,
-                                     0,
-                                     static_cast<MessageQueueService *>
-                                     (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                     PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
-                                     service = PEGASUS_QUEUENAME_CONTROLSERVICE);
+                         PEGASUS_NAMESPACENAME_CERTIFICATE,
+                         DynamicRoutingTable::INTERNAL,
+                         0,
+                         static_cast<MessageQueueService *>
+                         (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                         PEGASUS_MODULENAME_CERTIFICATEPROVIDER,
+                         service = PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif
 
 
 #ifndef PEGASUS_DISABLE_PERFINST
         _routing_table.insert_record(PEGASUS_CLASSNAME_CIMOMSTATDATA,
-                                     PEGASUS_NAMESPACENAME_CIMOMSTATDATA,
-                                     DynamicRoutingTable::INTERNAL,
-                                     0,
-                                     static_cast<MessageQueueService *>
-                                     (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                     PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
-                                     PEGASUS_QUEUENAME_CONTROLSERVICE);
+                         PEGASUS_NAMESPACENAME_CIMOMSTATDATA,
+                         DynamicRoutingTable::INTERNAL,
+                         0,
+                         static_cast<MessageQueueService *>
+                         (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                         PEGASUS_MODULENAME_CIMOMSTATDATAPROVIDER,
+                         PEGASUS_QUEUENAME_CONTROLSERVICE);
 #endif
 
 #ifndef PEGASUS_DISABLE_CQL
@@ -662,7 +662,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
 #endif
 
 #if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
-         // Interop Class, InteropProvider ObjectManager Class
+         // InteropProvider ObjectManager Class
          _routing_table.insert_record(PEGASUS_CLASSNAME_OBJECTMANAGER,
                         _wild,
                         DynamicRoutingTable::INTERNAL,
@@ -672,77 +672,88 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                         PEGASUS_MODULENAME_INTEROPPROVIDER,
                         PEGASUS_QUEUENAME_CONTROLSERVICE);
 
+         // CIM_Namespace - Implemented to assure that it does not
+         // access the repository and to allow  access to
+         // common class CIM_Namespace for namespace creation.
+         _routing_table.insert_record(PEGASUS_CLASSNAME_CIMNAMESPACE,
+                        _wild,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_INTEROPPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
-     // PG_Namespace.  Note that this means that CIM_Namespace is not
-     // managed by the provider. PG_Namespace is the subclass.  It is not implemented
-     // so that the information comes from PG_Namespace.
+         // PG_NAMESPACE - Implements subclass of CIM_Namespace managed by
+         // InteropProvider. 
          _routing_table.insert_record(PEGASUS_CLASSNAME_PGNAMESPACE,
-                                      _wild,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_INTEROPPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        _wild,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_INTEROPPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 #endif
 
 #ifdef PEGASUS_ENABLE_SLP
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_PG_CIMXMLCOMMUNICATIONMECHANISM,
-                                      _wild,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_INTEROPPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        _wild,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_INTEROPPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_NAMESPACEINMANAGER,
-                                      _wild,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_INTEROPPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        _wild,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_INTEROPPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
+
+
 #endif // PEGASUS_ENABLE_SLP
          _routing_table.insert_record(PEGASUS_CLASSNAME_PROVIDERMODULE,
-                                      PEGASUS_NAMESPACENAME_PROVIDERREG,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_PROVREGPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
-
+                        PEGASUS_NAMESPACENAME_PROVIDERREG,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_PROVREGPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_PROVIDER,
-                                      PEGASUS_NAMESPACENAME_PROVIDERREG,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_PROVREGPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        PEGASUS_NAMESPACENAME_PROVIDERREG,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_PROVREGPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_PROVIDERCAPABILITIES,
-                                      PEGASUS_NAMESPACENAME_PROVIDERREG,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_PROVREGPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        PEGASUS_NAMESPACENAME_PROVIDERREG,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_PROVREGPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
          _routing_table.insert_record(PEGASUS_CLASSNAME_CONSUMERCAPABILITIES,
-                                      PEGASUS_NAMESPACENAME_PROVIDERREG,
-                                      DynamicRoutingTable::INTERNAL,
-                                      0,
-                                      static_cast<MessageQueueService *>
-                                      (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
-                                      PEGASUS_MODULENAME_PROVREGPROVIDER,
-                                      PEGASUS_QUEUENAME_CONTROLSERVICE);
+                        PEGASUS_NAMESPACENAME_PROVIDERREG,
+                        DynamicRoutingTable::INTERNAL,
+                        0,
+                        static_cast<MessageQueueService *>
+                        (MessageQueue::lookup(PEGASUS_QUEUENAME_CONTROLSERVICE)),
+                        PEGASUS_MODULENAME_PROVREGPROVIDER,
+                        PEGASUS_QUEUENAME_CONTROLSERVICE);
 
 
          if (_enableIndicationService)

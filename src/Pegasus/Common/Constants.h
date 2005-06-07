@@ -177,16 +177,13 @@ static const CIMName PEGASUS_CLASSNAME_CIMQUERYCAPABILITIES   =
     CIMName ("CIM_QueryCapabilities");
 #endif
 
+// Interop Classes Accessed through Interop Control Provider
 #if !defined(PEGASUS_DISABLE_PERFINST) || defined(PEGASUS_ENABLE_SLP)
 static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGER            = 
     CIMName ("CIM_ObjectManager");
 static const CIMName PEGASUS_CLASSNAME_PGNAMESPACE            = 
     CIMName ("PG_Namespace");
-#endif
-
-#ifdef PEGASUS_ENABLE_SLP
-// Interop Classes Accessed through Interop Control Provider
-static const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE            = 
+static const CIMName PEGASUS_CLASSNAME_CIMNAMESPACE = 
     CIMName ("CIM_Namespace");
 static const CIMName PEGASUS_CLASSNAME_OBJECTMANAGERCOMMUNICATIONMECHANISM  = 
     CIMName ("CIM_ObjectManagerCommunicationMechanism");
@@ -201,7 +198,7 @@ static const CIMName PEGASUS_CLASSNAME_NAMESPACEINMANAGER  =
 
 // slp Class which operates slp provider. Started by system
 
-static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE             = 
+static const CIMName PEGASUS_CLASSNAME_WBEMSLPTEMPLATE = 
     CIMName ("PG_WBEMSLPTEMPLATE");
 #endif
 

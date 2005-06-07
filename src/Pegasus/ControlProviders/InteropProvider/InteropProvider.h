@@ -200,7 +200,6 @@ public:
 
 private:
 
-
     CIMInstance _buildInstanceSkeleton(
         const CIMObjectPath & objectPath,
         const CIMName& className,
@@ -238,7 +237,6 @@ private:
     Array<CIMInstance> _getInstancesCIMNamespace(
         const CIMObjectPath& objectPath);
 
-
     CIMInstance _getInstanceCIMNamespace(
         const CIMObjectPath& objectPath);
     //
@@ -251,7 +249,6 @@ private:
 
     Array<CIMInstance> _buildInstancesCommMechanismForManager(
         const CIMObjectPath& objectPath);
-
 
     Boolean _getInstanceFromRepositoryCIMObjectManager(
         const CIMObjectPath& objectPath,
@@ -286,7 +283,7 @@ private:
     	const Boolean includeClassOrigin,
     	const CIMPropertyList & propertyList);
 
-    CIMInstance InteropProvider::localGetInstance(
+    CIMInstance localGetInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceName,
         const Boolean includeQualifiers,

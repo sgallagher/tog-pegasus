@@ -1,6 +1,6 @@
 #pragma locale("en_US")
 
-//[Version ("2.5.0")]
+[Version ("2.5.0")]
 class Sample_LifecycleIndicationProviderClass
 {
     [key,Description ("")]

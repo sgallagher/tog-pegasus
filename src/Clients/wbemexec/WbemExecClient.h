@@ -211,7 +211,7 @@ private:
 
     AutoPtr<Monitor> _monitor;//PEP101
     AutoPtr<HTTPConnector> _httpConnector;//PEP101
-    AutoPtr<HTTPConnection> _httpConnection;//PEP101
+    HTTPConnection* _httpConnection;
 
     Uint32 _timeoutMilliseconds;
     Boolean _connected;

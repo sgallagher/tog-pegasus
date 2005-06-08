@@ -157,7 +157,6 @@ void CIMExportClient::_disconnect()
         if (_httpConnector)
         {
             _httpConnector->disconnect(_httpConnection);
-            delete _httpConnection;
             _httpConnection = 0;
         }
           

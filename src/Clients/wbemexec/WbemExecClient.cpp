@@ -128,10 +128,8 @@ void WbemExecClient::_connect(
     //
     //try
     //{
-    _httpConnection.reset(_httpConnector->connect(host,
-                                                  portNumber,
-                                                  sslContext.get(),
-                                                  this));
+    _httpConnection = _httpConnector->connect(
+         host, portNumber, sslContext.get(), this);
     sslContext.release();
 
     //}
@@ -274,7 +272,8 @@ void WbemExecClient::disconnect()
         //
         // Close the connection
         //
-        _httpConnector->disconnect(_httpConnection.get());
+        _httpConnector->disconnect(_httpConnection);
+        _httpConnection = 0;
 
         _authenticator.clear();
 

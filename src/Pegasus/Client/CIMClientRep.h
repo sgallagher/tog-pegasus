@@ -318,7 +318,7 @@ private:
     String _getLocalHostName();
     AutoPtr<Monitor> _monitor;
     AutoPtr<HTTPConnector> _httpConnector;
-    AutoPtr<HTTPConnection> _httpConnection;
+    HTTPConnection* _httpConnection;
 
 
     Uint32 _timeoutMilliseconds;

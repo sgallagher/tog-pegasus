@@ -177,7 +177,7 @@ void CIMClientRep::_connect()
             httpConnection.get(), connectHost, &_authenticator, showOutput));
 
     _responseDecoder.reset(responseDecoder.release());
-    _httpConnection.reset(httpConnection.release());
+    _httpConnection = httpConnection.release();
     _requestEncoder.reset(requestEncoder.release());
     _responseDecoder->setEncoderQueue(_requestEncoder.get());
     _connected = true;
@@ -198,8 +198,8 @@ void CIMClientRep::_disconnect()
         //
         if (_httpConnector.get())
         {
-            _httpConnector->disconnect(_httpConnection.get());
-            _httpConnection.reset();
+            _httpConnector->disconnect(_httpConnection);
+            _httpConnection = 0;
         }
 
 

@@ -636,14 +636,20 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
 
         //
         //  Allow time for the indication to be received and forwarded
-        //  Wait up to 30 seconds, in 5 second intervals.
+        //  Wait up to 1/5 sec per transaction in 30 second intervals.
         //
-        for (Uint32 i = 1; i <= 6; i++)
+#define SLEEP_SEC 30
+
+        int sleep_nbr = 1 + (indicationSendCount * runClientThreadCount)/(5*SLEEP_SEC);
+
+        cout << "+++++ sleep_iterations = " << sleep_nbr << endl;
+
+        for (Uint32 i = 1; i <= sleep_nbr; i++)
         {
-            System::sleep (5);
+            System::sleep (SLEEP_SEC);
             if ((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value())
                 break;
-            cout << "      sleeping " << i*5 << " more secs..." << endl;
+            cout << "   received indications = " << receivedIndicationCount.value() << " sleeping " << SLEEP_SEC << " more secs..." << endl;
         }
 
         cout << "+++++ Stopping the listener"  << endl;

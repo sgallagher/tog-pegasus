@@ -55,22 +55,72 @@ include $(ROOT)/mak/program.mak
 
 tests:
 
-poststarttests:
-	@$(ECHO) "TestIndicationStressTest setup wql"
-	@$(PROGRAM) setup wql
-	@$(ECHO) "TestIndicationStressTest run 1"
-	@$(PROGRAM) run 1
-	@$(ECHO) "TestIndicationStressTest run 10 1"
-	@$(PROGRAM) run 10 1
-	@$(ECHO) "TestIndicationStressTest cleanup"
-	@$(PROGRAM) cleanup
-	@$(ECHO) "TestIndicationStressTest setup cim:cql"
-	@$(PROGRAM) setup cim:cql
-	@$(ECHO) "TestIndicationStressTest run 1"
-	@$(PROGRAM) run 1
-	@$(ECHO) "TestIndicationStressTest run 10 1"
-	@$(PROGRAM) run 10 1
-	@$(ECHO) "TestIndicationStressTest cleanup"
-	@$(PROGRAM) cleanup
+## poststarttests: wql_10_1  cql_10_1 wql_10_10 cql_10_10 wql_10_100 cql_10_100 wql_100_10 cql_100_10 
+
+poststarttests: wql_10_1  cql_10_1 
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
-	
+
+wql_10_1:
+	$(PROGRAM) setup wql
+	$(PROGRAM) run 1
+	$(PROGRAM) run 10 1
+	$(PROGRAM) cleanup
+
+wql_10_10:
+	$(PROGRAM) setup wql
+	$(PROGRAM) run 10 10
+	$(PROGRAM) cleanup
+
+wql_10_100:
+	$(PROGRAM) setup wql
+	$(PROGRAM) run 10 100
+	$(PROGRAM) cleanup
+
+wql_100_10:
+	$(PROGRAM) setup wql
+	$(PROGRAM) run 100 10
+	$(PROGRAM) cleanup
+
+wql_100_100:
+	$(PROGRAM) setup wql
+	$(PROGRAM) run 100 100
+	$(PROGRAM) cleanup
+
+wql_1000_100:
+	$(PROGRAM) setup wql
+	$(PROGRAM) run 1000 100
+	$(PROGRAM) cleanup
+
+cql_10_1:
+	$(PROGRAM) setup cim:cql
+	$(PROGRAM) run 1
+	$(PROGRAM) run 10 1
+	$(PROGRAM) cleanup
+
+cql_10_10:
+	$(PROGRAM) setup cim:cql
+	$(PROGRAM) run 10 10
+	$(PROGRAM) cleanup
+
+cql_10_100:
+	$(PROGRAM) setup cim:cql
+	$(PROGRAM) run 10 100
+	$(PROGRAM) cleanup
+
+cql_100_10:
+	$(PROGRAM) setup cim:cql
+	$(PROGRAM) run 100 10
+	$(PROGRAM) cleanup
+
+cql_100_100:
+	$(PROGRAM) setup cim:cql
+	$(PROGRAM) run 100 100
+	$(PROGRAM) cleanup
+
+cql_1000_100:
+	$(PROGRAM) setup cim:cql
+	$(PROGRAM) run 1000 100
+	$(PROGRAM) cleanup
+
+testsclean:
+	$(PROGRAM) cleanup

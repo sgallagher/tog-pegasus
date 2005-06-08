@@ -247,7 +247,6 @@ $(DIFF) $(1).tmp $(2).tmp $(NL) \
 $(RM) -f $(1).tmp $(NL) \
 $(RM) -f $(2).tmp $(NL)
 
-
 ################################################################################
 ##
 ## Attempt to include a platform configuration file:
@@ -270,6 +269,30 @@ endif
 ##  Assumes that compile time flags are controlled with -D CLI option.
 ##
 ################################################################################
+
+
+################################################################################
+##
+## PEGASUS_MAX_THREADS_PER_SVC_QUEUE
+##
+## Controls the maximum number of threads allowed per message service queue.
+##     It is allowed to range between 1 and MAX_THREADS_PER_SVC_QUEUE_LIMIT
+##     as set in pegasus/src/Pegasus/Common/MessageQueueService.cpp. 
+##
+##      defaults to 0 (zero)
+##
+##      if set to 0 (zero) the max threads per service queue is then
+##        set to MAX_THREADS_PER_SVC_QUEUE_LIMIT.
+##      if set larger than the MAX_THREADS_PER_SVC_QUEUE_LIMIT it is set to it.
+##
+##
+
+ifdef PEGASUS_MAX_THREADS_PER_SVC_QUEUE
+  DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=$(PEGASUS_MAX_THREADS_PER_SVC_QUEUE)
+else
+  DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=0
+endif
+
 
 # Setup the conditional compile for client displays.
 #

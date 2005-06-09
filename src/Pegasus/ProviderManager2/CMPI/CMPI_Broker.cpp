@@ -457,7 +457,7 @@ extern "C" {
 
    static CMPIStatus mbSetProperty(const CMPIBroker *mb, const CMPIContext *ctx,
                   const CMPIObjectPath *cop, const char *name, const CMPIValue *val,
-                  const CMPIType type) {
+                   CMPIType type) {
       DDD(cout<<"--- mbSetProperty()"<<endl);
       mb=CM_BROKER;
       CMPIrc rc;

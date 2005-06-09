@@ -454,18 +454,19 @@ void CIMValue::assign(const CIMValue& x)
                     new Array<CIMObjectPath>(*(x._rep->_u._referenceArray));
                 break;
 
-        case CIMTYPE_OBJECT:
+            case CIMTYPE_OBJECT:
+                // Clone the object array
                 _rep->_u._objectArray = new Array<CIMObject>();
-                // Need to check each CIMObject entry in Array input parameter.
-                for (Uint32 i = 0; i < x._rep->_u._objectArray->size() ; i++)
+                for (Uint32 i = 0, n = x._rep->_u._objectArray->size();
+                     i < n; i++)
                 {
-                    if ((*(x._rep->_u._objectArray))[i].isUninitialized()) {
-                        // This should never occur.
-                        throw UninitializedObjectException();
-                    }
-                    else {
-                        _rep->_u._objectArray->append((*(x._rep->_u._objectArray))[i].clone());
-                    }
+                    // Encountering an uninitialized CIMObject here would
+                    // indicate a Pegasus bug rather than improper use of the
+                    // CIMValue class
+                    PEGASUS_ASSERT(
+                        !(*(x._rep->_u._objectArray))[i].isUninitialized());
+                    _rep->_u._objectArray->append(
+                        (*(x._rep->_u._objectArray))[i].clone());
                 }
                 break;
 
@@ -1206,18 +1207,21 @@ void CIMValue::set(const Array<CIMObjectPath>& x)
 void CIMValue::set(const Array<CIMObject>& x)
 {
     clear();
-    _rep->_u._objectArray = new Array<CIMObject>();
-    // Need to check each CIMObject entry in Array input parameter.
-    for (Uint32 i = 0; i < x.size() ; i++)
+
+    // Copy the input value
+    AutoPtr<Array<CIMObject> > objectArray(new Array<CIMObject>());
+    for (Uint32 i = 0, n = x.size(); i < n; i++)
     {
-        if (x[i].isUninitialized()) {
-            // Bug 3373, throw exception if uninitialized object is passed to set().
+        // Do not allow the value to contain an uninitialized CIMObject
+        if (x[i].isUninitialized())
+        {
             throw UninitializedObjectException();
         }
-        else {
-            _rep->_u._objectArray->append(x[i].clone());
-        }
+
+        objectArray->append(x[i].clone());
     }
+    _rep->_u._objectArray = objectArray.release();
+
     _rep->_type = CIMTYPE_OBJECT;
     _rep->_isArray = true;
     _rep->_isNull = false;

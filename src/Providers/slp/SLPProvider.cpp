@@ -611,10 +611,10 @@ String SLPProvider::getRegisteredProfileList()
 
     catch(Exception& e)
       {
-        CDEBUG("SLPProvider::getRegisterdProfiles: get class error");
+        CDEBUG("SLPProvider::getRegisteredProfiles: get class error");
 
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
-            "getRegisterdProfiles: get class error");
+            "getRegisteredProfiles: get class error");
 
 	return(defaultregisteredProfilesList); 
       }
@@ -639,22 +639,22 @@ String SLPProvider::getRegisteredProfileList()
     }
     catch(Exception& e)
     {
-        CDEBUG("SLPProvider::getRegisterdProfiles: enum instances error");
+        CDEBUG("SLPProvider::getRegisteredProfiles: enum instances error");
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
-            "getRegisterdProfiles: get class error");
+            "getRegisteredProfiles: get class error");
 
 	return(defaultregisteredProfilesList); 
     }
 
-    cout << "Total Number of Instances: " << cimInstances.size() << endl;
+    CDEBUG ("SLPProvider::getRegisteredProfiles: Total Number of Instances: " << cimInstances.size());
 
     int j = 0;
     for (int i=0; i < cimInstances.size(); i++)
       {
-	if (cimInstances[i].getClassName() != "CIM_RegisterdProfile")
+	if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
 	  continue;
 
-	Uint32 index_RO = cimInstances[i].findProperty("RegisterdOrganization");
+	Uint32 index_RO = cimInstances[i].findProperty("RegisteredOrganization");
 	Uint32 index_RN = cimInstances[i].findProperty("RegisteredName");    
 
         CIMConstProperty RO_Property = cimInstances[i].getProperty(index_RO);

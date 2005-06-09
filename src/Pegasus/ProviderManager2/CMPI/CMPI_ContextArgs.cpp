@@ -84,7 +84,7 @@ extern "C" {
       return -1;
    }
 
-   static CMPIStatus argsAddArg(const CMPIArgs* eArg, const char *name, const CMPIValue* data,  CMPIType type) {
+   static CMPIStatus argsAddArg(const CMPIArgs* eArg, const char *name, const CMPIValue* data, const CMPIType type) {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
       CMPIrc rc;
       CIMValue v=value2CIMValue(data,type,&rc);
@@ -192,7 +192,7 @@ static CMPIStatus contextReleaseNop(CMPIContext* eCtx) {
    }
 
    static CMPIStatus contextAddEntry(const CMPIContext* eCtx, const char *name,
-               const CMPIValue* data,  CMPIType type) {
+               const CMPIValue* data, const CMPIType type) {
       if (strcmp(name,SnmpTrapOidContainer::NAME.getCString())==0) {
          OperationContext *ctx=((CMPI_Context*)eCtx)->ctx;
          if (type==CMPI_chars) {

@@ -420,7 +420,7 @@ Boolean System::isSystemUser(const char* userName)
     // Make a copy of the specified username, it cannot be used directly because it's
     // declared as const and strchr() may modify the string.
     strncpy(tUserName, userName, sizeof(tUserName) - 1);
-    tUserName[sizeof(tUserName)] = '\0';
+    tUserName[sizeof(tUserName)- 1] = '\0';
 
     //separate the domain and user name if both are present.
     if (NULL != (pbs = strchr(tUserName, '\\')))

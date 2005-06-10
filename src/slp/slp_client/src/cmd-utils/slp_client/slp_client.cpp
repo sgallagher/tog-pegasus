@@ -4150,13 +4150,13 @@ uint32 lslpCheckSum(char *s, int16 l)
 	p = (uint16 *)s;
 	while (l > 1)
 	{
-		a += *p++;
-		b += a;
+		a = (a + *p++) & 0xFFFF;
+		b = (b + a) & 0xFFFF;
 		l -= 2;
 	}
 	/* "pad" the string with a zero word */
 	if (pad == TRUE)
-		b += a;
+		b = (b + a) & 0xFFFF;
 	/* return the value as a dword with containing two shorts in */
 	/* network order -- ab */
 	_LSLP_SETSHORT((uint8 *)&c, a, 0 );

@@ -29,17 +29,17 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
 //
-// Modified By: Dave Sudlik (dsudlik@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3666
+// Modified By: 
+//     Dave Sudlik (dsudlik@us.ibm.com)
+//     David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
+//     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3666
+//     Michael Brasher (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "XmlWriter.h"
 #include "XmlReader.h"
 #include "XmlParser.h"
-
 #include "CIMName.h"
 #include "BinaryStreamer.h"
 #include "CIMClassRep.h"
@@ -48,1416 +48,913 @@
 #include "CIMParameterRep.h"
 #include "CIMPropertyRep.h"
 #include "CIMQualifierRep.h"
-
 #include "CIMValue.h"
 #include "CIMValueRep.h"
+#include "Packer.h"
+
+#define MAGIC_BYTE Uint8(0x11)
+#define VERSION_NUMBER Uint8(1)
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-#if defined(PEGASUS_OS_HPUX)
-#define TYPE_CONV 
-#endif
-
-void BinaryStreamer::encode(Array<char>& out, const CIMClass& cls)
+enum BinaryObjectType
 {
-   toBin(out, cls);
+    BINARY_CLASS,
+    BINARY_INSTANCE,
+    BINARY_QUALIFIER_DECL,
+};
+
+static inline void _packMagicByte(Array<char>& out)
+{
+    Packer::packUint8(out, MAGIC_BYTE);
 }
 
-void BinaryStreamer::encode(Array<char>& out, const CIMInstance& inst)
+static void _checkMagicByte(const Array<char>& in, Uint32& pos)
 {
-   toBin(out, inst);
+    Uint8 magicByte;
+    Packer::unpackUint8(in, pos, magicByte);
+
+    if (magicByte != MAGIC_BYTE)
+	throw BinException("Bad magic byte");
 }
 
-void BinaryStreamer::encode(Array<char>& out, const CIMQualifierDecl& qual)
+struct Header
 {
-   toBin(out, qual);
+    // A version number for this message.
+    Uint8 versionNumber;
+
+    // The object type (see BinaryObjectType enum).
+    Uint8 objectType; 
+};
+
+static void _packHeader(Array<char>& out, Uint8 objectType)
+{
+    Packer::packUint8(out, VERSION_NUMBER);
+    Packer::packUint8(out, objectType);
 }
 
-void BinaryStreamer::decode(const Array<char>& in, unsigned int pos, CIMClass& cls)
+static void _checkHeader(
+    const Array<char>& in, Uint32& pos, Uint8 expectedObjectType)
 {
-   cls=extractClass(in,pos,"");
+    Header header;
+    Packer::unpackUint8(in, pos, header.versionNumber);
+    Packer::unpackUint8(in, pos, header.objectType);
+
+    if (header.objectType != expectedObjectType)
+	throw BinException("Unexpected object type");
+
+    if (header.versionNumber != VERSION_NUMBER)
+	throw BinException("Unsupported version");
 }
 
-void BinaryStreamer::decode(const Array<char>& in, unsigned int pos, CIMInstance& inst)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Boolean& x)
 {
-   inst=extractInstance(in,pos,"");
+    Packer::unpackBoolean(in, pos, x);
 }
 
-void BinaryStreamer::decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Uint8& x)
 {
-   qual=extractQualifierDecl(in,pos,"");
+    Packer::unpackUint8(in, pos, x);
 }
 
-
-
-void BinaryStreamer::append(Array<char>& out, const CIMObjectPath &op)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Sint8& x)
 {
-   CString ustr=op.toString().getCString();
-   Uint16 nl=strlen((const char*)ustr);
-   out.append((char*)&nl,sizeof(Uint16));
-   out.append((char*)((const char*)ustr),nl);
+    Packer::unpackUint8(in, pos, (Uint8&)x);
 }
 
-void BinaryStreamer::append(Array<char>& out, const CIMName &cn)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Uint16& x)
 {
-   CString ustr=cn.getString().getCString();
-   Uint16 nl=strlen((const char*)ustr);
-   out.append((char*)&nl,sizeof(Sint16));
-   if (nl)
-       out.append((char*)((const char*)ustr),nl);
+    Packer::unpackUint16(in, pos, x);
 }
 
-void BinaryStreamer::append(Array<char>& out, const CIMType &typ)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Sint16& x)
 {
-   Uint16 type=(Uint16)typ;
-   out.append((char*)&type,sizeof(Uint16));
+    Packer::unpackUint16(in, pos, (Uint16&)x);
 }
 
-void BinaryStreamer::append(Array<char>& out, Uint16 ui)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Uint32& x)
 {
-   out.append((char*)&ui,sizeof(Uint16));
+    Packer::unpackUint32(in, pos, x);
 }
 
-void BinaryStreamer::append(Array<char>& out, Uint32 ui)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Sint32& x)
 {
-   out.append((char*)&ui,sizeof(Uint32));
+    Packer::unpackUint32(in, pos, (Uint32&)x);
 }
 
-void BinaryStreamer::append(Array<char>& out, Boolean b)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Uint64& x)
 {
-  out.append((char*) &b,sizeof(Boolean));
+    Packer::unpackUint64(in, pos, x);
 }
 
-
-
-CIMObjectPath BinaryStreamer::extractObjectPath(const char *ar, Uint32 & pos)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Sint64& x)
 {
-   Uint16 sl; //=*(Uint16*)(ar+pos);
-   memcpy( &sl, ar + pos, sizeof (Uint16));
-   Uint32 ppos=pos+=sizeof(Uint16);
-
-   pos+=sl;
-   return CIMObjectPath(String(((char*)(ar+ppos)),sl));
+    Packer::unpackUint64(in, pos, (Uint64&)x);
 }
 
-CIMName BinaryStreamer::extractName(const char *ar, Uint32 & pos)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Real32& x)
 {
-   Uint16 sl; //=*(Uint16*)(ar+pos);
-   memcpy(&sl, ar + pos, sizeof (Uint16)); 
-   Uint32 ppos=pos+=sizeof(Uint16);
-   if (sl) {
-      pos+=sl;
-      return CIMName(String(((char*)(ar+ppos)),sl));
-   }
-   return CIMName();
+    Packer::unpackReal32(in, pos, x);
 }
 
-Uint16 BinaryStreamer::extractUint16(const char *ar, Uint32 & pos)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Real64& x)
 {
-   Uint16 ui; //=*(Uint16*)(ar+pos);
-   memcpy (&ui, ar + pos, sizeof (Uint16));
-   pos+=sizeof(Uint16);
-   return ui;
+    Packer::unpackReal64(in, pos, x);
 }
 
-CIMType BinaryStreamer::extractType(const char *ar, Uint32 & pos)
+static inline void _unpack(const Array<char>& in, Uint32& pos, Char16& x)
 {
-   Uint16 ui; //=*(Uint16*)(ar+pos);
-   memcpy( &ui, ar + pos, sizeof (Uint16));
-   pos+=sizeof(Uint16);
-   CIMType t=(CIMType)ui;
-   return t;
+    Packer::unpackChar16(in, pos, x);
 }
 
-Uint32 BinaryStreamer::extractUint32(const char *ar, Uint32 & pos)
+static inline void _unpack(const Array<char>& in, Uint32& pos, String& x)
 {
-   Uint32 ui; //=*(Uint32*)(ar+pos);
-   memcpy ( &ui, ar + pos, sizeof(Uint32));
-   pos+=sizeof(Uint32);
-   return ui;
+    Packer::unpackString(in, pos, x);
 }
 
-Boolean BinaryStreamer::extractBoolean(const char *ar, Uint32 & pos)
+static void _unpack(const Array<char>& in, Uint32& pos, CIMDateTime& x)
 {
-  Boolean b; //=*(Boolean*)(ar+pos);
-  memcpy ( &b, ar + pos, sizeof(Boolean));
-  pos+=sizeof(Boolean);
-  return b;
+    String tmp;
+    Packer::unpackString(in, pos, tmp);
+    x.set(tmp);
 }
 
-
-
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMClass& cls)
+static void _unpack(const Array<char>& in, Uint32& pos, CIMObjectPath& x)
 {
-   CIMClassRep *rep=cls._rep;
-   static BINREP_CLASS_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
-
-   append(out,rep->getClassName());
-
-   append(out,rep->getSuperClassName());
-
-   Uint16 qn=rep->getQualifierCount();
-   append(out,qn);
-   for (Uint16 i=0; i<qn; i++) {
-       const CIMQualifier &cq=rep->getQualifier(i);
-       toBin(out,cq);
-   }
-
-   Uint16 pn=rep->getPropertyCount();
-   append(out,pn);
-   for (Uint16 i = 0; i < pn; i++) {
-       toBin(out,rep->getProperty(i));
-   }
-
-   Uint16 mn=rep->getMethodCount();
-   append(out,mn);
-   for (Uint16 i = 0; i < mn; i++) {
-       toBin(out,rep->getMethod(i));
-   }
-
-   append(out,rep->_resolved);
+    String tmp;
+    Packer::unpackString(in, pos, tmp);
+    x.set(tmp);
 }
 
-
-CIMClass BinaryStreamer::extractClass(const Array<char>& in, Uint32 & pos, const String &path)
+template<class T>
+struct UnpackArray
 {
-#ifdef TYPE_CONV
-  AutoPtr<record_preamble> preamble(new record_preamble());
+    static void func(
+	const Array<char>& in, Uint32& pos, size_t n, CIMValue& value)
+    {
+	Array<T> array;
+	array.reserveCapacity(n);
 
-  Uint32 idx = pos;
-  memcpy( &preamble->_format, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_pVersion, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_pLenAndCtl, in.getData()+idx, sizeof(Uint16));
-  idx+=sizeof(Uint16);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-   BINREP_RECORD_IN(preamble,in,pos);
-#endif
-   const char *ar=in.getData();
+	for (size_t i = 0; i < n; i++)
+	{
+	    T tmp;
+	    _unpack(in, pos, tmp);
+	    array.append(tmp);
+	}
 
-   try {
-      if (!preamble->endogenous()) {
-          throw BinException(BINREP_CLASS,String("Incompatible Binary Repository not supported"));
-      }
-      if (preamble->type()!=BINREP_CLASS) {
-          throw BinException(BINREP_CLASS,String("Expected CIMClass subtype not found"));
-      }
+	value.set(array);
+    }
+};
 
-      pos+=preamble->size();
+template<class T>
+struct UnpackScalar
+{
+    static void func(
+	const Array<char>& in, Uint32& pos, CIMValue& value)
+    {
+	T tmp;
+	_unpack(in, pos, tmp);
+	value.set(tmp);
+    }
+};
 
-      switch (preamble->version()) {
-      case BINREP_CLASS_V1: {
+template<class OBJECT>
+struct UnpackQualifiers
+{
+    static void func(const Array<char>& in, Uint32& pos, OBJECT& x)
+    {
+	Uint32 n;
+	Packer::unpackSize(in, pos, n);
 
-         CIMName name=extractName(ar,pos); //if (name=="CIM_Memory") asm("int $3");
-         CIMName super=extractName(ar,pos);
-         CIMClass cls(name,super);
+	CIMQualifier q;
 
-         Uint16 qn=extractUint16(ar,pos);
-         for (Uint16 i=0; i<qn; i++) {
-            CIMQualifier q=extractQualifier(in,pos);
-            cls.addQualifier(q);
-         }
+	for (size_t i = 0; i < n; i++)
+	{
+	    BinaryStreamer::_unpackQualifier(in, pos, q);
+	    x.addQualifier(q);
+	}
+    }
+};
 
-         Uint16 pn=extractUint16(ar,pos);
-         for (Uint16 i=0; i<pn; i++) {
-            CIMProperty p=extractProperty(in,pos);
-            cls.addProperty(p);
-         }
+template<class REP>
+struct PackQualifiers
+{
+    static void func(Array<char>& out, REP* rep)
+    {
+	Uint32 n = rep->getQualifierCount();
+	Packer::packSize(out, n);
 
-         Uint16 mn=extractUint16(ar,pos);
-         for (Uint16 i=0; i<mn; i++) {
-            CIMMethod m=extractMethod(in,pos);
-            cls.addMethod(m);
-         }
+	for (Uint32 i = 0; i < n; i++)
+	    BinaryStreamer::_packQualifier(out, rep->getQualifier(i));
+    }
+};
 
-         cls._rep->_resolved=extractBoolean(ar,pos);
-         return cls;
-      }
-      default:
-          throw BinException(BINREP_CLASS,String("CIMClass subtype version ")+
-             CIMValue(preamble->version()).toString()+" not supported ");
-      }
-   }
-   catch (BinException &be) {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integrity failure: "+
-         be.message+" - Accessing class: "+path);
-   }
-   PEGASUS_UNREACHABLE(return CIMClass();)
+template<class OBJECT>
+struct UnpackProperties
+{
+    static void func(const Array<char>& in, Uint32& pos, OBJECT& x)
+    {
+	Uint32 n;
+	Packer::unpackSize(in, pos, n);
+
+	CIMProperty p;
+
+	for (size_t i = 0; i < n; i++)
+	{
+	    BinaryStreamer::_unpackProperty(in, pos, p);
+	    x.addProperty(p);
+	}
+    }
+};
+
+template<class OBJECT>
+struct UnpackMethods
+{
+    static void func(const Array<char>& in, Uint32& pos, OBJECT& x)
+    {
+	Uint32 n;
+	Packer::unpackSize(in, pos, n);
+
+	CIMMethod m;
+
+	for (size_t i = 0; i < n; i++)
+	{
+	    BinaryStreamer::_unpackMethod(in, pos, m);
+	    x.addMethod(m);
+	}
+    }
+};
+
+void BinaryStreamer::_packName(Array<char>& out, const CIMName& x)
+{
+    Packer::packString(out, x.getString());
 }
 
-
-
-
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMInstance& inst)
+void BinaryStreamer::_unpackName(
+    const Array<char>& in, Uint32& pos, CIMName& x)
 {
-   CIMInstanceRep *rep=inst._rep;
-
-   static BINREP_INSTANCE_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
-
-   append(out,rep->getPath());
-
-   Uint16 qn=rep->getQualifierCount();
-   append(out,qn);
-   for (Uint16 i=0; i<qn; i++) {
-       const CIMQualifier &cq=rep->getQualifier(i);
-       toBin(out,cq);
-   }
-
-   Uint16 pn=rep->getPropertyCount();
-   append(out,pn);
-   for (Uint16 i = 0; i < pn; i++) {
-       toBin(out,rep->getProperty(i));
-   }
-
-   append(out,rep->_resolved);
+    String tmp;
+    Packer::unpackString(in, pos, tmp);
+    x = tmp.size() ? CIMName(tmp) : CIMName();
 }
 
-
-CIMInstance BinaryStreamer::extractInstance(const Array<char>& in, Uint32 & pos,
-        const String & path)
+void BinaryStreamer::_packQualifier(Array<char>& out, const CIMQualifier& x)
 {
+    CIMQualifierRep* rep = x._rep;
 
-#ifdef TYPE_CONV
-  AutoPtr<record_preamble> preamble(new record_preamble());
-
-  Uint32 idx = pos;
-  memcpy( &preamble->_format, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_pVersion, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_pLenAndCtl, in.getData()+idx, sizeof(Uint16));
-  idx+=sizeof(Uint16);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-   BINREP_RECORD_IN(preamble,in,pos);
-#endif
-   const char *ar=in.getData();
-
-   try {
-      if (!preamble->endogenous()) {
-          throw BinException(BINREP_INSTANCE,String("Incompatible Binary Repository not supported"));
-      }
-      if (preamble->type()!=BINREP_INSTANCE) {
-          throw BinException(BINREP_INSTANCE,String("Expected CIMInstance subtype not found"));
-      }
-
-      pos+=preamble->size();
-
-      switch (preamble->version()) {
-      case BINREP_INSTANCE_V1: {
-
-         CIMObjectPath op=extractObjectPath(ar,pos);
-         CIMInstance inst(op.getClassName());
-         inst.setPath(op);
-
-         Uint16 qn=extractUint16(ar,pos);
-         for (Uint16 i=0; i<qn; i++) {
-            CIMQualifier q=extractQualifier(in,pos);
-            inst.addQualifier(q);
-         }
-
-         Uint16 pn=extractUint16(ar,pos);
-         for (Uint16 i=0; i<pn; i++) {
-            CIMProperty p=extractProperty(in,pos);
-            inst.addProperty(p);
-         }
-
-         inst._rep->_resolved=extractBoolean(ar,pos);
-
-         return inst;
-      }
-      default:
-          throw BinException(BINREP_INSTANCE,String("CIMInstance subtype version ")+
-             CIMValue(preamble->version()).toString()+" not supported ");
-      }
-   }
-   catch (BinException &be) {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integrity failure: "+
-         be.message+" - Accessing instance: "+path);
-   }
-   PEGASUS_UNREACHABLE( return CIMInstance(); )
+    _packMagicByte(out);
+    _packName(out, rep->getName());
+    _packValue(out, rep->getValue());
+    _packFlavor(out, rep->getFlavor());
+    Packer::packBoolean(out, rep->getPropagated());
 }
 
-
-
-
-
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMQualifierDecl& qdc)
+void BinaryStreamer::_unpackQualifier(
+    const Array<char>& in, Uint32& pos, CIMQualifier& x)
 {
-   static BINREP_QUALIFIERDECL_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
+    _checkMagicByte(in, pos);
 
-   append(out,qdc.getName());
+    CIMName name;
+    _unpackName(in, pos, name);
 
-   toBin(out,qdc.getValue());
+    CIMValue value;
+    _unpackValue(in, pos, value);
 
-   toBin(out,qdc.getScope());
+    CIMFlavor flavor;
+    BinaryStreamer::_unpackFlavor(in, pos, flavor);
 
-   toBin(out,qdc.getFlavor());
+    Boolean propagated;
+    Packer::unpackBoolean(in, pos, propagated);
 
-   append(out,qdc.getArraySize());
-
+    x = CIMQualifier(name, value, flavor, propagated);
 }
 
-
-CIMQualifierDecl BinaryStreamer::extractQualifierDecl(const Array<char>& in, Uint32 & pos,
-        const String &path)
+void BinaryStreamer::_packValue(Array<char>& out, const CIMValue& x)
 {
-#ifdef TYPE_CONV
-  AutoPtr<record_preamble> preamble(new record_preamble());
+    CIMValueRep* rep = x._rep;
 
-  Uint32 idx = pos;
-  memcpy( &preamble->_format, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_pVersion, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_pLenAndCtl, in.getData()+idx, sizeof(Uint16));
-  idx+=sizeof(Uint16);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-   BINREP_RECORD_IN(preamble,in,pos);
-#endif
-   const char *ar=in.getData();
+    _packMagicByte(out);
+    _packType(out, x.getType());
+    Packer::packBoolean(out, x.isArray());
 
-   try {
-      if (!preamble->endogenous()) {
-          throw BinException(BINREP_QUALIFIERDECL,String
-             ("Incompatible Binary Repository not supported"));
-      }
-      if (preamble->type()!=BINREP_QUALIFIERDECL) {
-          throw BinException(BINREP_QUALIFIERDECL,String(
-             "Expected CIMQualifierDecl subtype not found"));
-      }
+    Uint32 n = x.getArraySize();
 
-      pos+=preamble->size();
+    if (x.isArray())
+	Packer::packSize(out, n);
 
-      switch (preamble->version()) {
-      case BINREP_INSTANCE_V1: {
+    Packer::packBoolean(out, x.isNull());
 
-         CIMName name=extractName(ar,pos);
-         CIMValue val=extractValue(in,pos);
-         CIMScope scp=extractScope(in,pos);
-         CIMFlavor fl=extractFlavor(in,pos);
-         Uint32    as=extractUint32(ar,pos);
+    if (x.isNull())
+	return;
 
-         CIMQualifierDecl qdl(name,val,scp,fl,as);
+    if (x.isArray())
+    {
+	switch (x.getType()) 
+	{
+	    case CIMTYPE_BOOLEAN:
+		Packer::packBoolean(out, rep->_u._booleanArray->getData(), n);
+		break;
 
-         return qdl;
-      }
-      default:
-          throw BinException(BINREP_INSTANCE,String("CIMInstance subtype version ")+
-             CIMValue(preamble->version()).toString()+" not supported ");
-      }
-   }
-   catch (BinException &be) {
-      throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,"Binary Repository integrity failure: "+
-         be.message+" - Accessing instance: "+path);
-   }
-   PEGASUS_UNREACHABLE( return CIMQualifierDecl(); )
-}
+	    case CIMTYPE_SINT8:
+	    case CIMTYPE_UINT8:
+		Packer::packUint8(out, rep->_u._uint8Array->getData(), n);
+		break;
 
+	    case CIMTYPE_SINT16:
+	    case CIMTYPE_UINT16:
+	    case CIMTYPE_CHAR16:
+		Packer::packUint16(out, rep->_u._uint16Array->getData(), n);
+		break;
 
+	    case CIMTYPE_SINT32:
+	    case CIMTYPE_UINT32:
+	    case CIMTYPE_REAL32:
+		Packer::packUint32(out, rep->_u._uint32Array->getData(), n);
+		break;
 
+	    case CIMTYPE_SINT64:
+	    case CIMTYPE_UINT64:
+	    case CIMTYPE_REAL64:
+		Packer::packUint64(out, rep->_u._uint64Array->getData(), n);
+		break;
 
+	    case CIMTYPE_STRING:
+		Packer::packString(out, rep->_u._stringArray->getData(), n);
+		break;
 
-void BinaryStreamer::toBin(Array<char>& out, const CIMMethod &meth)
-{
-   CIMMethodRep *rep=meth._rep;
+	    case CIMTYPE_DATETIME:
+	    {
+		for (Uint32 i = 0; i < n; i++) 
+	        {
+		    Packer::packString(out,
+			(*(rep->_u._dateTimeArray))[i].toString());
+                }
+		break;
+	    }
 
-   static BINREP_METHOD_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
+	    case CIMTYPE_REFERENCE:
+	    {
+		for (Uint32 i = 0; i < n; i++) 
+	        {
+		    Packer::packString(out,
+			(*(rep->_u._referenceArray))[i].toString());
+                }
+		break;
+	    }
 
-   append(out,rep->getName());
+	    case CIMTYPE_OBJECT:
+		break;
+	}
+    }
+    else
+    {
+	switch (x.getType()) 
+	{
+	    case CIMTYPE_BOOLEAN:
+		Packer::packBoolean(out, rep->_u._booleanValue ? true : false);
+		break;
 
-   append(out,rep->getType());
+	    case CIMTYPE_SINT8:
+	    case CIMTYPE_UINT8:
+		Packer::packUint8(out, rep->_u._uint8Value);
+		break;
 
-   append(out,rep->getClassOrigin());
+	    case CIMTYPE_SINT16:
+	    case CIMTYPE_UINT16:
+	    case CIMTYPE_CHAR16:
+		Packer::packUint16(out, rep->_u._uint16Value);
+		break;
 
-   append(out,rep->getPropagated());
+	    case CIMTYPE_SINT32:
+	    case CIMTYPE_UINT32:
+	    case CIMTYPE_REAL32:
+		Packer::packUint32(out, rep->_u._uint32Value);
+		break;
 
-   Uint16 qn=rep->getQualifierCount();
-   append(out,qn);
-   for (Uint16 i=0; i<qn; i++) {
-       const CIMQualifier &cq=rep->getQualifier(i);
-       toBin(out,cq);
-   }
+	    case CIMTYPE_SINT64:
+	    case CIMTYPE_UINT64:
+	    case CIMTYPE_REAL64:
+		Packer::packUint64(out, rep->_u._uint64Value);
+		break;
 
-    Uint16 pn=rep->getParameterCount();
-    out.append((char*)&pn,sizeof(Uint16));
-    for (Uint16 i = 0; i < pn; i++) {
-       toBin(out,rep->getParameter(i));
+	    case CIMTYPE_STRING:
+		Packer::packString(out, *rep->_u._stringValue);
+		break;
+
+	    case CIMTYPE_DATETIME:
+		Packer::packString(out, rep->_u._dateTimeValue->toString());
+		break;
+
+	    case CIMTYPE_REFERENCE:
+		Packer::packString(out, rep->_u._referenceValue->toString());
+		break;
+
+	    case CIMTYPE_OBJECT:
+		break;
+	}
     }
 }
 
-
-CIMMethod BinaryStreamer::extractMethod(const Array<char>& in, Uint32 & pos)
+void BinaryStreamer::_unpackValue(
+    const Array<char>& in, Uint32& pos, CIMValue& x)
 {
-#ifdef TYPE_CONV
-  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+    _checkMagicByte(in, pos);
 
-  Uint32 idx = pos;
-  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-   BINREP_SUBTYPE_IN(preamble,in,pos);
-#endif
-   const char *ar=in.getData();
+    CIMType type;
+    _unpackType(in, pos, type);
 
-   if (preamble->type()!=BINREP_METHOD) {
-       throw BinException(BINREP_METHOD,String("Expected CIMMethod subtype not found"));
-   }
+    Boolean isArray;
+    Packer::unpackBoolean(in, pos, isArray);
 
-   pos+=preamble->size();
+    Uint32 arraySize;
 
-   switch (preamble->version()) {
-   case BINREP_METHOD_V1: {
+    if (isArray)
+	Packer::unpackSize(in, pos, arraySize);
 
-      CIMName name=extractName(ar,pos);
-      CIMType type=extractType(ar,pos);
-      CIMName orig=extractName(ar,pos);
-      Boolean prpg=extractBoolean(ar,pos);
+    Boolean isNull;
+    Packer::unpackBoolean(in, pos, isNull);
 
-      CIMMethod meth(name,type,orig,prpg);
+    if (isNull)
+    {
+	x = CIMValue(type, isArray, arraySize);
+	return;
+    }
 
-      Uint16 qn=extractUint16(ar,pos);
-      for (Uint16 i=0; i<qn; i++) {
-         CIMQualifier q=extractQualifier(in,pos);
-         meth.addQualifier(q);
-      }
+    if (isArray)
+    {
+	CIMValue cimValue(type, isArray, arraySize);
 
-      Uint16 pn=extractUint16(ar,pos);
-      for (Uint16 i=0; i<pn; i++) {
-         CIMParameter p=extractParameter(in,pos);
-         meth.addParameter(p);
-      }
+	switch (type) 
+	{
+	    case CIMTYPE_BOOLEAN:
+		UnpackArray<Boolean>::func(in, pos, arraySize, cimValue);
+		break;
 
-      return meth;
-   }
-   default: ;
-       throw BinException(BINREP_METHOD,String("CIMMethod subtype version ")+
-          CIMValue(preamble->version()).toString()+" not supported ");
-   }
-   PEGASUS_UNREACHABLE( return CIMMethod(); )
+	    case CIMTYPE_UINT8:
+		UnpackArray<Uint8>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_SINT8:
+		UnpackArray<Sint8>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_UINT16:
+		UnpackArray<Uint16>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_SINT16:
+		UnpackArray<Sint16>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_UINT32:
+		UnpackArray<Uint32>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_SINT32:
+		UnpackArray<Sint32>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_UINT64:
+		UnpackArray<Uint64>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_SINT64:
+		UnpackArray<Sint64>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_REAL32:
+		UnpackArray<Real32>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_REAL64:
+		UnpackArray<Real64>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_CHAR16:
+		UnpackArray<Char16>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_STRING:
+		UnpackArray<String>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_DATETIME:
+		UnpackArray<CIMDateTime>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_REFERENCE:
+		UnpackArray<CIMObjectPath>::func(in, pos, arraySize, cimValue);
+		break;
+
+	    case CIMTYPE_OBJECT:
+		break;
+	}
+
+	x = cimValue;
+    }
+    else
+    {
+	CIMValue cimValue(type, isArray);
+
+	switch (type) 
+	{
+	    case CIMTYPE_BOOLEAN:
+		UnpackScalar<Boolean>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_UINT8:
+		UnpackScalar<Uint8>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_SINT8:
+		UnpackScalar<Sint8>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_UINT16:
+		UnpackScalar<Uint16>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_SINT16:
+		UnpackScalar<Sint16>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_UINT32:
+		UnpackScalar<Uint32>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_SINT32:
+		UnpackScalar<Sint32>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_UINT64:
+		UnpackScalar<Uint64>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_SINT64:
+		UnpackScalar<Sint64>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_REAL32:
+		UnpackScalar<Real32>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_REAL64:
+		UnpackScalar<Real64>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_CHAR16:
+		UnpackScalar<Char16>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_STRING:
+		UnpackScalar<String>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_DATETIME:
+		UnpackScalar<CIMDateTime>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_REFERENCE:
+		UnpackScalar<CIMObjectPath>::func(in, pos, cimValue);
+		break;
+
+	    case CIMTYPE_OBJECT:
+		break;
+	}
+
+	x = cimValue;
+    }
+
+    return;
 }
 
-
-
-
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMParameter& prm)
+void BinaryStreamer::_packProperty(Array<char>& out, const CIMProperty& x)
 {
-   CIMParameterRep *rep=prm._rep;
+    CIMPropertyRep* rep = x._rep;
 
-   static BINREP_PARAMETER_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
-
-   append(out,rep->getName());
-
-   append(out,rep->getType());
-
-   append(out,rep->isArray());
-
-   append(out,rep->getArraySize());
-
-   append(out,rep->getReferenceClassName());
-
-   Uint16 qn=rep->getQualifierCount();
-   append(out,qn);
-   for (Uint16 i=0; i<qn; i++) {
-       const CIMQualifier &cq=rep->getQualifier(i);
-       toBin(out,cq);
-   }
+    _packMagicByte(out);
+    _packName(out, rep->getName());
+    _packValue(out, rep->getValue());
+    Packer::packSize(out, rep->getArraySize());
+    _packName(out, rep->getReferenceClassName());
+    _packName(out, rep->getClassOrigin());
+    Packer::packBoolean(out, rep->getPropagated());
+    PackQualifiers<CIMPropertyRep>::func(out, rep);
 }
 
-CIMParameter BinaryStreamer::extractParameter(const Array<char>& in, Uint32 &pos)
+void BinaryStreamer::_unpackProperty(
+    const Array<char>& in, Uint32& pos, CIMProperty& x)
 {
-#ifdef TYPE_CONV
-  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+    _checkMagicByte(in, pos);
 
-  Uint32 idx = pos;
-  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-   BINREP_SUBTYPE_IN(preamble,in,pos);
-#endif
-   const char *ar=in.getData();
+    CIMName name;
+    _unpackName(in, pos, name);
 
-   if (preamble->type()!=BINREP_PARAMETER) {
-       throw BinException(BINREP_PARAMETER,String("Expected CIMParameter subtype not found"));
-  }
+    CIMValue value;
+    _unpackValue(in, pos, value);
 
-   pos+=preamble->size();
+    Uint32 arraySize;
+    Packer::unpackSize(in, pos, arraySize);
 
-   switch (preamble->version()) {
-   case BINREP_PARAMETER_V1: {
+    CIMName referenceClassName;
+    _unpackName(in, pos, referenceClassName);
 
-      CIMName name=extractName(ar,pos);
-      CIMType type=extractType(ar,pos);
-      Boolean isAr=extractBoolean(ar,pos);
-      Uint32    as=extractUint32(ar,pos);
-      CIMName clsr=extractName(ar,pos);
+    CIMName classOrigin;
+    _unpackName(in, pos, classOrigin);
 
-      CIMParameter parm(name,type,isAr,as,clsr);
+    Boolean propagated;
+    Packer::unpackBoolean(in, pos, propagated);
 
-      Uint16 qn=extractUint16(ar,pos);
-      for (Uint16 i=0; i<qn; i++) {
-         CIMQualifier q=extractQualifier(in,pos);
-         parm.addQualifier(q);
-      }
+    CIMProperty cimProperty(
+	name, value, arraySize, referenceClassName, classOrigin, propagated);
 
-      return parm;
-   }
-   default: ;
-       throw BinException(BINREP_PARAMETER,String("CIMParameter subtype version ")+
-          CIMValue(preamble->version()).toString()+" not supported ");
-   }
-   PEGASUS_UNREACHABLE( return CIMParameter(); )
+    UnpackQualifiers<CIMProperty>::func(in, pos, cimProperty);
+
+    x = cimProperty;
 }
 
-
-
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMProperty& prop)
+void BinaryStreamer::_packParameter(Array<char>& out, const CIMParameter& x)
 {
-   CIMPropertyRep *rep=prop._rep;
+    CIMParameterRep* rep = x._rep;
 
-   static BINREP_PROPERTY_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
-
-   append(out,rep->getName());
-
-   toBin(out,rep->getValue());
-
-   append(out,rep->getArraySize());
-
-   append(out,rep->getReferenceClassName());
-
-   append(out,rep->getClassOrigin());
-
-   append(out,rep->getPropagated());
-
-   Uint16 qn=rep->getQualifierCount();
-   append(out,qn);
-   for (Uint16 i=0; i<qn; i++) {
-       const CIMQualifier &cq=rep->getQualifier(i);
-       toBin(out,cq);
-   }
+    _packMagicByte(out);
+    _packName(out, rep->getName());
+    _packType(out, rep->getType());
+    Packer::packBoolean(out, rep->isArray());
+    Packer::packSize(out, rep->getArraySize());
+    _packName(out, rep->getReferenceClassName());
+    PackQualifiers<CIMParameterRep>::func(out, rep);
 }
 
-
-CIMProperty BinaryStreamer::extractProperty(const Array<char>& in, Uint32 &pos)
+void BinaryStreamer::_unpackParameter(
+    const Array<char>& in, Uint32& pos, CIMParameter& x)
 {
-#ifdef TYPE_CONV
-  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+    _checkMagicByte(in, pos);
 
-  Uint32 idx = pos;
-  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-   BINREP_SUBTYPE_IN(preamble,in,pos);
-#endif
-   const char *ar=in.getData();
+    CIMName name;
+    _unpackName(in, pos, name);
 
-   if (preamble->type()!=BINREP_PROPERTY) {
-       throw BinException(BINREP_PROPERTY,String("Expected CIMProperty subtype not found"));
-   }
+    CIMType type;
+    _unpackType(in, pos, type);
 
-   pos+=preamble->size();
+    Boolean isArray;
+    Packer::unpackBoolean(in, pos, isArray);
 
-   switch (preamble->version()) {
-   case BINREP_PROPERTY_V1: {
+    Uint32 arraySize;
+    Packer::unpackSize(in, pos, arraySize);
 
-      CIMName name=extractName(ar,pos);
-      CIMValue val=extractValue(in,pos);
-      Uint32    as=extractUint32(ar,pos);
-      CIMName clsr=extractName(ar,pos);
-      CIMName orig=extractName(ar,pos);
-      Boolean prpg=extractBoolean(ar,pos);
+    CIMName referenceClassName;
+    _unpackName(in, pos, referenceClassName);
 
-      CIMProperty prop(name,val,as,clsr,orig,prpg);
+    CIMParameter cimParameter(
+	name, type, isArray, arraySize, referenceClassName);
 
-      Uint16 qn=extractUint16(ar,pos);
-      for (Uint16 i=0; i<qn; i++) {
-         CIMQualifier q=extractQualifier(in,pos);
-         prop.addQualifier(q);
-      }
+    UnpackQualifiers<CIMParameter>::func(in, pos, cimParameter);
 
-      return prop;
-   }
-   default: ;
-       throw BinException(BINREP_PROPERTY,String("CIMProperty subtype version ")+
-          CIMValue(preamble->version()).toString()+" not supported ");
-   }
-   PEGASUS_UNREACHABLE( return CIMProperty(); )
+    x = cimParameter;
 }
 
-
-
-
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMFlavor& flav)
+void BinaryStreamer::_packParameters(Array<char>& out, CIMMethodRep* rep)
 {
-   out.append((char*)&flav.cimFlavor,sizeof(flav.cimFlavor));
+    Uint32 n = rep->getParameterCount();
+    Packer::packSize(out, n);
+
+    for (Uint32 i = 0; i < n; i++)
+	BinaryStreamer::_packParameter(out, rep->getParameter(i));
 }
 
-
-CIMFlavor BinaryStreamer::extractFlavor(const Array<char>& in, Uint32 & pos)
+void BinaryStreamer::_unpackParameters(
+    const Array<char>& in, Uint32& pos, CIMMethod& x)
 {
-   CIMFlavor flav;
-   flav.cimFlavor=extractUint32(in.getData(),pos);
-   return flav;
+    Uint32 n;
+    Packer::unpackSize(in, pos, n);
+
+    for (size_t i = 0; i < n; i++)
+    {
+	CIMParameter q;
+	_unpackParameter(in, pos, q);
+	x.addParameter(q);
+    }
 }
 
-
-
-
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMScope& scp)
+void BinaryStreamer::_packMethod(Array<char>& out, const CIMMethod& x)
 {
-   out.append((char*)&scp.cimScope,sizeof(scp.cimScope));
+    CIMMethodRep* rep = x._rep;
+
+    _packMagicByte(out);
+    _packName(out, rep->getName());
+    _packType(out, rep->getType());
+    _packName(out, rep->getClassOrigin());
+    Packer::packBoolean(out, rep->getPropagated());
+    PackQualifiers<CIMMethodRep>::func(out, rep);
+    _packParameters(out, rep);
 }
 
-
-CIMScope BinaryStreamer::extractScope(const Array<char>& in, Uint32 & pos)
+void BinaryStreamer::_unpackMethod(
+    const Array<char>& in, Uint32& pos, CIMMethod& x)
 {
-   CIMScope scp;
-   scp.cimScope=extractUint32(in.getData(),pos);
-   return scp;
+    _checkMagicByte(in, pos);
+
+    CIMName name;
+    _unpackName(in, pos, name);
+
+    CIMType type;
+    _unpackType(in, pos, type);
+
+    CIMName classOrigin;
+    _unpackName(in, pos, classOrigin);
+
+    Boolean propagated;
+    Packer::unpackBoolean(in, pos, propagated);
+
+    CIMMethod cimMethod(name, type, classOrigin, propagated);
+    UnpackQualifiers<CIMMethod>::func(in, pos, cimMethod);
+    _unpackParameters(in, pos, cimMethod);
+
+    x = cimMethod;
 }
 
-
- 
-
-void BinaryStreamer::toBin(Array<char>& out, const CIMQualifier& qual)
+void BinaryStreamer::_packObjectPath(Array<char>& out, const CIMObjectPath& x)
 {
-   CIMQualifierRep *rep=qual._rep;
-
-   static BINREP_QUALIFIER_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
-
-   CIMName name=rep->getName();
-   append(out,name);
-
-   toBin(out,rep->getValue());
-
-   toBin(out,rep->getFlavor());
-
-   append(out,rep->getPropagated());
+    Packer::packString(out, x.toString());
 }
 
-
-CIMQualifier BinaryStreamer::extractQualifier(const Array<char>& in, Uint32 & pos)
+void BinaryStreamer::_unpackObjectPath(
+    const Array<char>& in, Uint32& pos, CIMObjectPath& x)
 {
-#ifdef TYPE_CONV
-  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
-
-  Uint32 idx = pos;
-  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-   BINREP_SUBTYPE_IN(preamble,in,pos);
-#endif
-   const char *ar=in.getData();
-
-   if (preamble->type()!=BINREP_QUALIFIER) {
-       throw BinException(BINREP_QUALIFIER,String("Expected CIMQualifier subtype not found"));
-   }
-
-  pos+=preamble->size();
-
-   switch (preamble->version()) {
-   case BINREP_QUALIFIER_V1: {
-
-      CIMName name=extractName(ar,pos);
-      CIMValue val=extractValue(in,pos);
-      CIMFlavor fl=extractFlavor(in,pos);
-      Boolean prpg=extractBoolean(ar,pos);
-
-      CIMQualifier q(name,val,fl,prpg);
-
-      return q;
-   }
-   default: ;
-       throw BinException(BINREP_QUALIFIER,String("CIMQualifier subtype version ")+
-          CIMValue(preamble->version()).toString()+" not supported ");
-   }
-   PEGASUS_UNREACHABLE( return CIMQualifier(); )
+    String tmp;
+    Packer::unpackString(in, pos, tmp);
+    x = CIMObjectPath(tmp);
 }
 
-
-
-
-void BinaryStreamer::toBin(Array<char> & out, const CIMValue& val)
+void BinaryStreamer::_packProperties(Array<char>& out, CIMObjectRep* rep)
 {
-   CIMValueRep *_rep=val._rep;
+    Uint32 n = rep->getPropertyCount();
+    Packer::packSize(out, n);
 
-   static BINREP_VALUE_PREAMBLE_V1(preamble);
-   out.append((char*)&preamble,sizeof(preamble));
-
-   append(out,val.getType());
-
-   Boolean isArray=val.isArray();
-   append(out,isArray);
-
-   Uint32 as=0;
-
-   if (isArray) {
-      as=val.getArraySize();
-      append(out,as);
-   }
-
-   Boolean isNull=val.isNull();
-   append(out,isNull);
-
-   if (!isNull) {
-      if (isArray) {
-         switch (val.getType()) {
-         case CIMTYPE_BOOLEAN: {
-               out.append((char*)_rep->_u._booleanArray->getData(),sizeof(Boolean)*as);
-            }
-            break;
-         case CIMTYPE_UINT8: {
-               out.append((char*)_rep->_u._uint8Array->getData(),sizeof(Uint8)*as);
-            }
-            break;
-         case CIMTYPE_SINT8: {
-               out.append((char*)_rep->_u._sint8Array->getData(),sizeof(Sint8)*as);
-            }
-            break;
-         case CIMTYPE_UINT16: {
-               out.append((char*)_rep->_u._uint16Array->getData(),sizeof(Uint16)*as);
-            }
-            break;
-         case CIMTYPE_SINT16: {
-               out.append((char*)_rep->_u._sint16Array->getData(),sizeof(Sint16)*as);
-            }
-            break;
-         case CIMTYPE_UINT32: {
-               out.append((char*)_rep->_u._uint32Array->getData(),sizeof(Uint32)*as);
-            }
-            break;
-         case CIMTYPE_SINT32: {
-               out.append((char*)_rep->_u._sint32Array->getData(),sizeof(Sint32)*as);
-            }
-            break;
-         case CIMTYPE_UINT64: {
-               out.append((char*)_rep->_u._uint64Array->getData(),sizeof(Uint64)*as);
-            }
-            break;
-         case CIMTYPE_SINT64: {
-               out.append((char*)_rep->_u._sint64Array->getData(),sizeof(Uint64)*as);
-            }
-            break;
-         case CIMTYPE_REAL32: {
-               out.append((char*)_rep->_u._real32Array->getData(),sizeof(Real32)*as);
-            }
-            break;
-         case CIMTYPE_REAL64: {
-               out.append((char*)_rep->_u._real64Array->getData(),sizeof(Real64)*as);
-            }
-            break;
-         case CIMTYPE_CHAR16: {
-               out.append((char*)_rep->_u._char16Array->getData(),sizeof(Char16)*as);
-            }
-            break;
-         case CIMTYPE_STRING: {
-               for (Uint32 i=0; i<as; i++) {
-                  CString ustr=(*(_rep->_u._stringArray))[i].getCString();
-                  Uint32 sz=strlen((const char*)ustr);
-                  out.append((char*)&sz,sizeof(Uint32));
-                  out.append((char*)((const char*)ustr),sz);
-               }
-            }
-            break;
-         case CIMTYPE_DATETIME: {
-               for (Uint32 i=0; i<as; i++) {
-                  String dts=(*(_rep->_u._dateTimeArray))[i].toString();
-                  Sint32 dtl=dts.size();
-                  out.append((char*)&dtl,sizeof(Sint32));
-                  out.append((char*)dts.getChar16Data(),dtl*sizeof(Char16));
-               }
-            }
-            break;
-         case CIMTYPE_REFERENCE: {
-                for (Uint32 i=0; i<as; i++) {
-                  String rfs=(*(_rep->_u._referenceArray))[i].toString();
-                  Sint32 rfl=rfs.size();
-                  out.append((char*)&rfl,sizeof(Sint32));
-                  out.append((char*)rfs.getChar16Data(),rfl*sizeof(Char16));
-               }
-            }
-            break;
-         case CIMTYPE_OBJECT: {
-                for (Uint32 i=0; i<as; i++) {
-                  String obs=(*(_rep->_u._objectArray))[i].toString();
-                  Sint32 obl=obs.size();
-                  out.append((char*)&obl,sizeof(Sint32));
-                  out.append((char*)obs.getChar16Data(),obl*sizeof(Char16));
-               }
-            }
-            break;
-         }
-      }
-
-      else switch (val.getType()) {
-      case CIMTYPE_BOOLEAN:
-         out.append((char*)&_rep->_u,sizeof(Boolean));  break;
-      case CIMTYPE_UINT8:
-         out.append((char*)&_rep->_u,sizeof(Uint8));    break;
-      case CIMTYPE_SINT8:
-         out.append((char*)&_rep->_u,sizeof(Sint8));    break;
-      case CIMTYPE_UINT16:
-         out.append((char*)&_rep->_u,sizeof(Uint16));   break;
-      case CIMTYPE_SINT16:
-         out.append((char*)&_rep->_u,sizeof(Sint16));   break;
-      case CIMTYPE_UINT32:
-         out.append((char*)&_rep->_u,sizeof(Uint32));   break;
-      case CIMTYPE_SINT32:
-         out.append((char*)&_rep->_u,sizeof(Sint32));   break;
-      case CIMTYPE_UINT64:
-         out.append((char*)&_rep->_u,sizeof(Uint64));   break;
-      case CIMTYPE_SINT64:
-         out.append((char*)&_rep->_u,sizeof(Uint64));   break;
-      case CIMTYPE_REAL32:
-         out.append((char*)&_rep->_u,sizeof(Real32));   break;
-      case CIMTYPE_REAL64:
-         out.append((char*)&_rep->_u,sizeof(Real64));   break;
-      case CIMTYPE_CHAR16:
-         out.append((char*)&_rep->_u,sizeof(Char16));   break;
-      case CIMTYPE_STRING: {
-            CString ustr=_rep->_u._stringValue->getCString();
-            Uint32 sz=strlen((const char*)ustr);
-            out.append((char*)&sz,sizeof(Uint32));
-            out.append((char*)((const char*)ustr),sz);
-         }
-         break;
-      case CIMTYPE_DATETIME: {
-            String dts=_rep->_u._dateTimeValue->toString();
-            Sint32 dtl=dts.size();
-            out.append((char*)&dtl,sizeof(Sint32));
-            out.append((char*)dts.getChar16Data(),dtl*sizeof(Char16));
-         }
-         break;
-      case CIMTYPE_REFERENCE: {
-            String rfs=_rep->_u._referenceValue->toString();
-            Sint32 rfl=rfs.size();
-            out.append((char*)&rfl,sizeof(Sint32));
-            out.append((char*)rfs.getChar16Data(),rfl*sizeof(Char16));
-         }
-         break;
-      case CIMTYPE_OBJECT: {
-            String obs=_rep->_u._objectValue->toString();
-            Sint32 obl=obs.size();
-            out.append((char*)&obl,sizeof(Sint32));
-            out.append((char*)obs.getChar16Data(),obl*sizeof(Char16));
-         }
-         break;
-      }
-   }
-   else {
-   }
+    for (Uint32 i = 0; i < n; i++)
+	BinaryStreamer::_packProperty(out, rep->getProperty(i));
 }
 
-
-CIMValue BinaryStreamer::extractValue(const Array<char>& in, Uint32 & pos)
+void BinaryStreamer::_packMethods(Array<char>& out, CIMClassRep* rep)
 {
-#ifdef TYPE_CONV
-  AutoPtr<subtype_preamble> preamble(new subtype_preamble());
+    Uint32 n = rep->getMethodCount();
+    Packer::packSize(out, n);
 
-  Uint32 idx = pos;
-  memcpy( &preamble->_pLength, in.getData() +idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_type, in.getData()+idx, sizeof(Uint8));
-  idx+=sizeof(Uint8);
-  memcpy( &preamble->_tVersion, in.getData()+idx, sizeof(Uint8));
-  //idx+=sizeof(Uint8);
-#else
-    BINREP_SUBTYPE_IN(preamble,in,pos);
-#endif
-    const char *ar=in.getData();
-
-   if (preamble->type()!=BINREP_VALUE) {
-       throw BinException(BINREP_VALUE,String("Expected CIMValue subtype not found"));
-   }
-
-    pos+=preamble->size();
-
-    Uint32 as=0;
-
-    switch (preamble->version()) {
-    case BINREP_VALUE_V1: {
-
-      const char *ar=in.getData();
-
-      CIMType type=extractType(ar,pos);
-
-      Boolean isArray=extractBoolean(ar,pos);
-      if (isArray)
-          as=extractUint32(ar,pos);
-
-      Boolean isNull=extractBoolean(ar,pos);
-
-      if (!isNull) {
-         if (isArray) {
-
-            CIMValue val(type,isArray,as);
-
-            switch (type) {
-            case CIMTYPE_BOOLEAN: {
-#ifdef TYPE_CONV
-		  Array<Boolean> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Boolean); i+=sizeof(Boolean)) {
-			Boolean b;
-			memcpy( &b, ar + pos + i, sizeof(Boolean));
-		  	a_val.append(b);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Boolean>((Boolean*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Boolean)*as;
-               }
-               break;
-            case CIMTYPE_UINT8: {
-#ifdef TYPE_CONV
-		  Array<Uint8> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Uint8); i+=sizeof(Uint8)) {
-			Uint8 val;
-			memcpy( &val, ar + pos + i, sizeof(Uint8));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else		  
-                  val.set(Array<Uint8>((Uint8*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Uint8)*as;
-               }
-               break;
-            case CIMTYPE_SINT8: {
-#ifdef TYPE_CONV
-		  Array<Sint8> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(char); i+=sizeof(Sint8)) {
-			char val;
-			memcpy( &val, ar + pos + i, sizeof(Sint8));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Sint8>((Sint8 *)(ar+pos),as));
-#endif
-                  pos+=sizeof(Sint8)*as;
-               }
-               break;
-            case CIMTYPE_UINT16: {
-#ifdef TYPE_CONV
-		  Array<Uint16> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Uint16); i+=sizeof(Uint16)) {
-			Uint16 val;
-			memcpy( &val, ar + pos + i, sizeof(Uint16));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Uint16>((Uint16*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Uint16)*as;
-               }
-               break;
-            case CIMTYPE_SINT16: {
-#ifdef TYPE_CONV
-		  Array<Sint16> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Sint16); i+=sizeof(Sint16)) {
-			Sint16 val;
-			memcpy( &val, ar + pos + i, sizeof(Sint16));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Sint16>((Sint16*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Sint16)*as;
-               }
-               break;
-            case CIMTYPE_UINT32: {
-#ifdef TYPE_CONV
-		  Array<Uint32> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Uint32); i+=sizeof(Uint32)) {
-			Uint32 val;
-			memcpy( &val, ar + pos + i, sizeof(Uint32));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Uint32>((Uint32*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Uint32)*as;
-               }
-               break;
-            case CIMTYPE_SINT32: {
-#ifdef TYPE_CONV
-		  Array<Sint32> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Sint32); i+=sizeof(Sint32)) {
-			Sint32 val;
-			memcpy( &val, ar + pos + i, sizeof(Sint32));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Sint32>((Sint32*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Sint32)*as;
-               }
-               break;
-            case CIMTYPE_UINT64: {
-#ifdef TYPE_CONV
-		  Array<Uint64> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Uint64); i+=sizeof(Uint64)) {
-			Uint64 val;
-			memcpy( &val, ar + pos + i, sizeof(Uint64));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Uint64>((Uint64*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Uint64)*as;
-               }
-               break;
-            case CIMTYPE_SINT64: {
-#ifdef TYPE_CONV
-		  Array<Sint64> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Sint64); i+=sizeof(Sint64)) {
-			Sint64 val;
-			memcpy( &val, ar + pos + i, sizeof(Sint64));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Sint64>((Sint64*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Sint64)*as;
-               }
-               break;
-            case CIMTYPE_REAL32: {
-#ifdef TYPE_CONV
-		  Array<Real32> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Real32); i+=sizeof(Real32)) {
-			Real32 val;
-			memcpy( &val, ar + pos + i, sizeof(Real32));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Real32>((Real32*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Real32)*as;
-               }
-               break;
-            case CIMTYPE_REAL64: {
-#ifdef TYPE_CONV
-		  Array<Real64> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Real64); i+=sizeof(Real64)) {
-			Real64 val;
-			memcpy( &val, ar + pos + i, sizeof(Real64));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Real64>((Real64*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Real64)*as;
-               }
-               break;
-            case CIMTYPE_CHAR16: {
-#ifdef TYPE_CONV
-		  Array<Char16> a_val;
-		  a_val.reserveCapacity(as);
-		  for (Uint32 i =0; i < as*sizeof(Char16); i+=sizeof(Char16)) {
-			Char16 val;
-			memcpy( &val, ar + pos + i, sizeof(Char16));
-		  	a_val.append(val);
-		  }
-		  val.set(a_val);
-#else
-                  val.set(Array<Char16>((Char16*)(ar+pos),as));
-#endif
-                  pos+=sizeof(Char16)*as;
-               }
-               break;
-            case CIMTYPE_STRING: {
-                  Array<String> sar;
-                  for (Uint32 i=0; i<as; i++) {
-                     Uint32 sl; //=*(Uint32*)(ar+pos);
-		     memcpy( &sl, ar+pos, sizeof(Uint32));
-                     pos+=sizeof(Uint32);
-                     sar.append(String(((char*)(ar+pos)),sl));
-                     pos+=sl;
-                  }
-                  val.set(sar);
-               }
-               break;
-            case CIMTYPE_DATETIME: {
-                  Array<CIMDateTime> dar;
-                  for (Uint32 i=0; i<as; i++) {
-                     Uint32 sl; //=*(Uint32*)(ar+pos);
-		     memcpy( &sl, ar + pos, sizeof(Uint32));		    
-                     pos+=sizeof(Uint32);
-#ifdef TYPE_CONV
-		     String string;
-		     string.reserveCapacity(sl);
-		     for (Uint32 j=0; j < sl*sizeof(Char16); j+=sizeof(Char16)) {
-			Char16 char16;
-			memcpy( &char16, ar + pos + j, sizeof(Char16));
-			string.append( char16 );
-		     }
-		     dar.append(CIMDateTime(string));
-#else
-                     dar.append(CIMDateTime(String(((Char16*)(ar+pos)),sl)));
-#endif
-                     pos+=sl*sizeof(Char16);
-                  }
-                  val.set(dar);
-               }
-               break;
-            case CIMTYPE_REFERENCE: {
-                  Array<CIMObjectPath> rar;
-                  for (Uint32 i=0; i<as; i++) {
-                     Uint32 sl; //=*(Uint32*)(ar+pos);
-		     memcpy( &sl, ar + pos, sizeof(Uint32));
-                     pos+=sizeof(Uint32);
-#ifdef TYPE_CONV
-		     String string;
-		     string.reserveCapacity(sl);
-		     for (Uint32 j=0; j < sl*sizeof(Char16); j+=sizeof(Char16)) {
-			Char16 char16;
-			memcpy( &char16, ar + pos + j, sizeof(Char16));
-			string.append( char16 );
-		     }
-		     rar.append(CIMObjectPath( string ));
-#else
-                     rar.append(CIMObjectPath(String(((Char16*)(ar+pos)),sl)));
-#endif
-                     pos+=sl*sizeof(Char16);
-                  }
-                  val.set(rar);
-               }
-               break;
-            default:
-               PEGASUS_ASSERT(false);
-            }
-            return val;
-         }
-
-         else {
-
-            CIMValue val(type,isArray);
-
-            switch (type) {
-            case CIMTYPE_BOOLEAN:
-	       Boolean b;
-	       memcpy(&b, ar + pos, sizeof(Boolean));
-               //val.set(*(Boolean*)(ar+pos));
-	       val.set(b);
-	       pos+=sizeof(Boolean);
-               break;
-            case CIMTYPE_SINT8:
-	      {
-	       Sint8 sint=0;
-	       memcpy( &sint, ar + pos, sizeof(Sint8));
-               //val.set(*(Sint8*)(ar+pos));
-	       val.set(sint);
-               pos++;
-	      }
-               break;
-            case CIMTYPE_UINT8:
-	       Uint8 uint;
-               //val.set(*(Uint8*)(ar+pos));
-	       memcpy(&uint, ar + pos, sizeof(Uint8));
-	       val.set(uint);
-               pos++;
-               break;
-            case CIMTYPE_UINT16:
-	       Uint16 uint16;
-               //val.set(*(Uint16*)(ar+pos));
-	       memcpy( &uint16, ar + pos, sizeof(Uint16));
-	       val.set(uint16);
-               pos+=sizeof(Uint16);
-               break;
-            case CIMTYPE_SINT16:
-	       Sint16 sint16;
-               //val.set(*(Sint16*)(ar+pos));
-	       memcpy( &sint16, ar + pos, sizeof(Sint16));
-	       val.set(sint16);
-               pos+=sizeof(Sint16);
-               break;
-            case CIMTYPE_CHAR16: {
-		Char16 char16;
-		memcpy( &char16, ar + pos, sizeof(Char16));
-               //val.set(*(Char16*)(ar+pos));
-		val.set ( char16 );
-               pos+=sizeof(Char16);
-               break;
-	  	}
-            case CIMTYPE_UINT32:
-	       Uint32 uint32;
-	       memcpy ( &uint32, ar + pos, sizeof(Uint32));
-               //val.set(*(Uint32*)(ar+pos));
-	       val.set( uint32 );
-               pos+=sizeof(Uint32);
-               break;
-            case CIMTYPE_SINT32:
-	       Sint32 sint32;
-	       memcpy ( &sint32, ar + pos, sizeof(Sint32));
-               //val.set(*(Sint32*)(ar+pos));
-	       val.set ( sint32 );
-               pos+=sizeof(Sint32);
-               break;
-            case CIMTYPE_REAL32:
-	       Real32 real32;
-	       memcpy ( &real32, ar + pos, sizeof(Real32));
-               //val.set(*(Real32*)(ar+pos));
-	       val.set ( real32 );
-               pos+=sizeof(Real32);
-               break;
-            case CIMTYPE_UINT64:
-	       Uint64 uint64;
-	       memcpy ( &uint64, ar + pos, sizeof(Uint64));
-               //val.set(*(Uint64*)(ar+pos));
-	       val.set( uint64 );
-               pos+=sizeof(Uint64);
-               break;
-            case CIMTYPE_SINT64:
-	       Sint64 sint64;
-	       memcpy( &sint64, ar + pos, sizeof(Sint64));
-               //val.set(*(Sint64*)(ar+pos));
-	       val.set( sint64 );
-               pos+=sizeof(Sint64);
-               break;
-            case CIMTYPE_REAL64:
-	       Real64 real64;
-	       memcpy ( &real64, ar + pos, sizeof(Real64));
-               //val.set(*(Real64*)(ar+pos));
-		val.set( real64 );
-               pos+=sizeof(Real64);
-               break;
-            case CIMTYPE_STRING: {
-                  Uint32 sl; //=*(Uint32*)(ar+pos);
-		  memcpy( &sl, ar + pos, sizeof(Uint32));
-                  pos+=sizeof(Uint32);
-                  val.set(String(((char*)(ar+pos)),sl));
-                  pos+=sl;
-               }
-               break;
-            case CIMTYPE_DATETIME: {
-                  Uint32 dtl; //=*(Uint32*)(ar+pos);
-		  memcpy( &dtl, ar + pos, sizeof (Uint32));
-                  pos+=sizeof(Uint32);
-
-		  CIMDateTime time;
-#ifdef TYPE_CONV
-		  String string;
-		  string.reserveCapacity(dtl);
-
-		   for (Uint32 i =0; i < dtl*sizeof(Char16); i+=sizeof(Char16)) {
-			Char16 char_at;
-			memcpy( &char_at, ar + pos + i, sizeof(Char16));
-			string.append( char_at );
-		   }
-		 time = CIMDateTime ( string ); 
-#else
-		 time = CIMDateTime(String(((Char16*)(ar+pos)),dtl));
-#endif
-                 val.set( time );
-                 pos+=dtl*sizeof(Char16);
-               }
-               break;
-            case CIMTYPE_REFERENCE: {
-                  Uint32 rfl; //=*(Uint32*)(ar+pos);
-		  memcpy( &rfl, ar + pos, sizeof (Uint32));
-                  pos+=sizeof(Uint32);
-
-		  CIMObjectPath objPath;
-#ifdef TYPE_CONV
-		  String string;
-
-		  string.reserveCapacity(rfl);
-		  for (Uint32 i =0; i < rfl*sizeof(Char16); i+=sizeof(Char16)) {
-			Char16 char_at;
-			memcpy ( &char_at, ar + pos +i, sizeof(Char16));
-			string.append( char_at );
-		  }
-		  objPath = CIMObjectPath( string );
-#else
-		  objPath = CIMObjectPath(String(((Char16*)(ar+pos)),rfl));
-#endif
-		  val.set( objPath);
-                  pos+=rfl*sizeof(Char16);
-               }
-               break;
-            default:
-               PEGASUS_ASSERT(false);
-            }
-            return val;
-         }
-      }
-      else {
-         CIMValue val;
-         val.setNullValue(type,isArray,as);
-         return val;
-      }
-      break;
-   }
-   default:
-       throw BinException(BINREP_VALUE,String("CIMValue subtype version ")+
-          CIMValue(preamble->version()).toString()+" not supported ");
-   }
-   return CIMValue();
+    for (Uint32 i = 0; i < n; i++)
+	BinaryStreamer::_packMethod(out, rep->getMethod(i));
 }
 
+void BinaryStreamer::_packScope(Array<char>& out, const CIMScope& x)
+{
+    Packer::packUint32(out, x.cimScope);
+}
+
+void BinaryStreamer::_unpackScope(
+    const Array<char>& in, Uint32& pos, CIMScope& x)
+{
+    Packer::unpackUint32(in, pos, x.cimScope);
+}
+
+void BinaryStreamer::_packFlavor(Array<char>& out, const CIMFlavor& x)
+{
+    Packer::packUint32(out, x.cimFlavor);
+}
+
+void BinaryStreamer::_unpackFlavor(
+    const Array<char>& in, Uint32& pos, CIMFlavor& x)
+{
+    Packer::unpackUint32(in, pos, x.cimFlavor);
+}
+
+void BinaryStreamer::_packType(Array<char>& out, const CIMType& x)
+{
+    Packer::packUint8(out, Uint8(x));
+}
+
+void BinaryStreamer::_unpackType(
+    const Array<char>& in, Uint32& pos, CIMType& x)
+{
+    Uint8 tmp;
+    Packer::unpackUint8(in, pos, tmp);
+    x = CIMType(tmp);
+}
+
+void BinaryStreamer::encode(
+    Array<char>& out, 
+    const CIMClass& x)
+{
+    CIMClassRep* rep = x._rep;
+    _packMagicByte(out);
+    _packHeader(out, BINARY_CLASS);
+    _packName(out, x.getClassName());
+    _packName(out, x.getSuperClassName());
+    PackQualifiers<CIMClassRep>::func(out, rep);
+    _packProperties(out, rep);
+    _packMethods(out, rep);
+    Packer::packBoolean(out, rep->_resolved);
+}
+
+void BinaryStreamer::decode(
+    const Array<char>& in, 
+    unsigned int pos, 
+    CIMClass& x)
+{
+    _checkMagicByte(in, pos);
+    _checkHeader(in, pos, BINARY_CLASS);
+
+    CIMName className;
+    _unpackName(in, pos, className);
+
+    CIMName superClassName;
+    _unpackName(in, pos, superClassName);
+
+    CIMClass cimClass(className, superClassName);
+
+    UnpackQualifiers<CIMClass>::func(in, pos, cimClass);
+    UnpackProperties<CIMClass>::func(in, pos, cimClass);
+    UnpackMethods<CIMClass>::func(in, pos, cimClass);
+
+    Boolean resolved;
+    Packer::unpackBoolean(in, pos, resolved);
+    cimClass._rep->_resolved = resolved;
+    x = cimClass;
+}
+
+void BinaryStreamer::encode(
+    Array<char>& out, 
+    const CIMInstance& x)
+{
+    CIMInstanceRep* rep = x._rep;
+    _packMagicByte(out);
+    _packHeader(out, BINARY_INSTANCE);
+    _packObjectPath(out, x.getPath());
+    PackQualifiers<CIMInstanceRep>::func(out, rep);
+    _packProperties(out, rep);
+    Packer::packBoolean(out, rep->_resolved);
+}
+
+void BinaryStreamer::decode(
+    const Array<char>& in, 
+    unsigned int pos, 
+    CIMInstance& x)
+{
+    _checkMagicByte(in, pos);
+    _checkHeader(in, pos, BINARY_INSTANCE);
+
+    CIMObjectPath objectPath;
+    _unpackObjectPath(in, pos, objectPath);
+    CIMInstance cimInstance(objectPath.getClassName());
+    cimInstance.setPath(objectPath);
+
+    UnpackQualifiers<CIMInstance>::func(in, pos, cimInstance);
+    UnpackProperties<CIMInstance>::func(in, pos, cimInstance);
+
+    Boolean resolved;
+    Packer::unpackBoolean(in, pos, resolved);
+    cimInstance._rep->_resolved = resolved;
+    x = cimInstance;
+}
+
+void BinaryStreamer::encode(
+    Array<char>& out, 
+    const CIMQualifierDecl& x)
+{
+    _packMagicByte(out);
+    _packHeader(out, BINARY_QUALIFIER_DECL);
+    _packName(out , x.getName());
+    _packValue(out , x.getValue());
+    _packScope(out , x.getScope());
+    _packFlavor(out , x.getFlavor());
+    Packer::packSize(out, x.getArraySize());
+}
+
+void BinaryStreamer::decode(
+    const Array<char>& in, 
+    unsigned int pos, 
+    CIMQualifierDecl& x)
+{
+    _checkMagicByte(in, pos);
+    _checkHeader(in, pos, BINARY_QUALIFIER_DECL);
+
+    CIMName qualifierName;
+    _unpackName(in, pos, qualifierName);
+
+    CIMValue value;
+    _unpackValue(in, pos, value);
+
+    CIMScope scope;
+    _unpackScope(in, pos, scope);
+
+    CIMFlavor flavor;
+    BinaryStreamer::_unpackFlavor(in, pos, flavor);
+
+    Uint32 arraySize;
+    Packer::unpackSize(in, pos, arraySize);
+
+    x = CIMQualifierDecl(qualifierName, value, scope, flavor, arraySize);
+}
 
 PEGASUS_NAMESPACE_END

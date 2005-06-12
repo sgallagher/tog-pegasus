@@ -123,6 +123,7 @@ SOURCES = \
     OperationContext.cpp \
     OperationContextInternal.cpp \
     OptionManager.cpp \
+    Packer.cpp \
     Pair.cpp \
     QueryExpressionRep.cpp \
     Queue.cpp \

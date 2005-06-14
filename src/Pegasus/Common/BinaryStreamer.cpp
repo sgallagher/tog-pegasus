@@ -63,7 +63,7 @@ enum BinaryObjectType
 {
     BINARY_CLASS,
     BINARY_INSTANCE,
-    BINARY_QUALIFIER_DECL,
+    BINARY_QUALIFIER_DECL
 };
 
 static inline void _packMagicByte(Array<char>& out)
@@ -109,79 +109,79 @@ static void _checkHeader(
 	throw BinException("Unsupported version");
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Boolean& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Boolean& x)
 {
     Packer::unpackBoolean(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Uint8& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Uint8& x)
 {
     Packer::unpackUint8(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Sint8& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Sint8& x)
 {
     Packer::unpackUint8(in, pos, (Uint8&)x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Uint16& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Uint16& x)
 {
     Packer::unpackUint16(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Sint16& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Sint16& x)
 {
     Packer::unpackUint16(in, pos, (Uint16&)x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Uint32& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Uint32& x)
 {
     Packer::unpackUint32(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Sint32& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Sint32& x)
 {
     Packer::unpackUint32(in, pos, (Uint32&)x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Uint64& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Uint64& x)
 {
     Packer::unpackUint64(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Sint64& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Sint64& x)
 {
     Packer::unpackUint64(in, pos, (Uint64&)x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Real32& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Real32& x)
 {
     Packer::unpackReal32(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Real64& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Real64& x)
 {
     Packer::unpackReal64(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, Char16& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, Char16& x)
 {
     Packer::unpackChar16(in, pos, x);
 }
 
-static inline void _unpack(const Array<char>& in, Uint32& pos, String& x)
+inline void _unpack(const Array<char>& in, Uint32& pos, String& x)
 {
     Packer::unpackString(in, pos, x);
 }
 
-static void _unpack(const Array<char>& in, Uint32& pos, CIMDateTime& x)
+void _unpack(const Array<char>& in, Uint32& pos, CIMDateTime& x)
 {
     String tmp;
     Packer::unpackString(in, pos, tmp);
     x.set(tmp);
 }
 
-static void _unpack(const Array<char>& in, Uint32& pos, CIMObjectPath& x)
+void _unpack(const Array<char>& in, Uint32& pos, CIMObjectPath& x)
 {
     String tmp;
     Packer::unpackString(in, pos, tmp);

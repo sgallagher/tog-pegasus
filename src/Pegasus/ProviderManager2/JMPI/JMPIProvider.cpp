@@ -88,6 +88,7 @@ JMPIProvider::~JMPIProvider(void)
 
 JMPIProvider::Status JMPIProvider::getStatus(void) const
 {
+    AutoMutex lock(_statusMutex);
     return(_status);
 }
 
@@ -117,16 +118,34 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
                                     "initialize",
                                     "(Lorg/pegasus/jmpi/CIMOMHandle;)V");
 
+    DDD(PEGASUS_STD(cout)
+        <<"--- JMPIProvider::Initialize:id = "
+        <<PEGASUS_STD(hex)
+        <<(int)id
+        <<PEGASUS_STD(dec)
+        <<PEGASUS_STD(endl));
+
     JMPIjvm::checkException(env);
 
-    jstring jName = env->NewStringUTF(_name.getCString());
+    if (id != NULL)
+    {
+       jstring jName = env->NewStringUTF(_name.getCString());
 
-    JMPIjvm::checkException(env);
+       JMPIjvm::checkException(env);
 
-    jint    jCimom = DEBUG_ConvertCToJava (CIMOMHandle*, jint, &cimom); //@BUG? Is cimom stack allocated?  If so, needs to be newed!
-    jobject hdl    = env->NewObject(jv->CIMOMHandleClassRef,JMPIjvm::jv.CIMOMHandleNewISt,jCimom,jName);
+       jint    jCimomRef = DEBUG_ConvertCToJava (CIMOMHandle*, jint, &cimom);
+       jobject jch       = env->NewObject(jv->CIMOMHandleClassRef,
+                                          JMPIjvm::jv.CIMOMHandleNewISt,
+                                          jCimomRef,
+                                          jName);
 
-    env->CallVoidMethod((jobject)jProvider,id,hdl);
+       JMPIjvm::checkException(env);
+
+       env->CallVoidMethod((jobject)jProvider,id,jch);
+
+       JMPIjvm::checkException(env);
+    }
+    env->ExceptionClear();
 
     JMPIjvm::detachThread();
 

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -48,9 +48,25 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+int JMPILocalProviderManager::trace=0;
+
+#ifdef PEGASUS_DEBUG
+#define DDD(x) if (JMPILocalProviderManager::trace) x;
+#else
+#define DDD(x)
+#endif
+
 JMPILocalProviderManager::JMPILocalProviderManager(void)
     : _idle_timeout(IDLE_LIMIT)
 {
+#ifdef PEGASUS_DEBUG
+   if (getenv("PEGASUS_JMPI_TRACE"))
+      JMPILocalProviderManager::trace=1;
+   else
+      JMPILocalProviderManager::trace=0;
+#else
+   JMPILocalProviderManager::trace=0;
+#endif
 }
 
 JMPILocalProviderManager::~JMPILocalProviderManager(void)
@@ -62,7 +78,6 @@ JMPILocalProviderManager::~JMPILocalProviderManager(void)
 
 Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret)
 {
-
     static Uint32 quantum;
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "_provider_ctrl");
 
@@ -74,120 +89,278 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case GET_PROVIDER:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::GET_PROVIDER");
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                             Tracer::LEVEL2,
+                             "_provider_ctrl::GET_PROVIDER");
 
-            JMPIProvider *pr = NULL;
+            String providerName = *(parms->providerName);
+            String moduleFileName = *(parms->fileName);
+            String interfaceName = *(parms->interfaceName);
+
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: GET_PROVIDER "
+                <<providerName
+                <<PEGASUS_STD(endl));
+
             JMPIProvider::OpProviderHolder* ph =
-	          reinterpret_cast< JMPIProvider::OpProviderHolder* >( ret );
+               reinterpret_cast< JMPIProvider::OpProviderHolder* >( ret );
+            JMPIProviderModule *newModule = NULL;
+            JMPIProviderModule *module = NULL;
+            JMPIProvider *newProvider = NULL;
+            JMPIProvider *provider = NULL;
+            ProviderVector base;
 
-
-            if(true == _providers.lookup( *(parms->providerName), pr ))
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Found JMPIProvider " + *(parms->providerName) + " in JMPIProvider Manager Cache");
-
-                ph->SetProvider( pr );
-//                ph->GetProvider().update_idle_timer();
-                break;
-            }
-
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Creating JMPIProvider " + *(parms->providerName) );
-            JMPIProviderModule *module;
-
-            if(false  == _modules.lookup(*(parms->fileName), module))
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Creating JMPIProvider Module " + *(parms->fileName) );
-
-                module = new JMPIProviderModule(*(parms->fileName),*(parms->interfaceName));
-
-                _modules.insert((*parms->fileName), module);
-            }
-            else
-            {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Using Cached  JMPIProvider Module " + *(parms->fileName) );
-            }
-
-
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                "Loading/Linking JMPIProvider Module " + *(parms->fileName) );
-
-            ProviderVector base ;
             try
             {
-                base = module->load(*(parms->fileName));
+               {
+                  AutoMutex lock (_providerTableMutex);
+
+                  if (true == _providers.lookup(providerName, provider))
+                  {
+                      PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                       Tracer::LEVEL4,
+                                       "Found JMPIProvider "
+                                       + providerName
+                                       + " in JMPIProvider Manager Cache");
+                      DDD(PEGASUS_STD(cout)
+                          <<"--- JMPILocalProviderManager::_provider_ctrl: Found "
+                          <<providerName
+                          <<" in JMPIProvider Manager Cache"
+                          <<PEGASUS_STD(endl));
+                      DDD(PEGASUS_STD(cout)
+                          <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                            " setting provider to "
+                          <<PEGASUS_STD(hex)
+                          <<(int)provider
+                          <<PEGASUS_STD(dec)
+                          <<PEGASUS_STD(endl));
+
+                      ph->SetProvider(provider);
+
+//////////////////////ph->GetProvider().update_idle_timer();
+                      break;
+                  }
+
+                  PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                   Tracer::LEVEL4,
+                                   "Creating JMPIProvider " + providerName );
+                  DDD(PEGASUS_STD(cout)
+                      <<"--- JMPILocalProviderManager::_provider_ctrl: Creating "
+                      <<providerName
+                      <<PEGASUS_STD(endl));
+
+                  if (false == _modules.lookup(moduleFileName, module))
+                  {
+                      PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                       Tracer::LEVEL4,
+                                       "Creating JMPIProvider Module "
+                                       + moduleFileName );
+                      DDD(PEGASUS_STD(cout)
+                          <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                            "Creating module "
+                            <<moduleFileName
+                            <<PEGASUS_STD(endl));
+
+                      newModule = new JMPIProviderModule(moduleFileName,
+                                                         interfaceName);
+
+                      if (0 == newModule)
+                      {
+                          PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                           Tracer::LEVEL4,
+                                           "new JMPIProviderModule is NULL!");
+                          DDD(PEGASUS_STD(cout)
+                              <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                                " new JMPIProviderModule is NULL!"
+                                <<PEGASUS_STD(endl));
+
+                          throw NullPointer();
+                      }
+
+                      module = newModule;
+
+                      _modules.insert(moduleFileName, module);
+                  }
+                  else
+                  {
+                      PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                       Tracer::LEVEL4,
+                                       "Using Cached JMPIProvider Module "
+                                       + moduleFileName);
+                      DDD(PEGASUS_STD(cout)
+                          <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                          "Using cached "
+                          <<moduleFileName
+                          <<PEGASUS_STD(endl));
+                  }
+               }
+
+               PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                Tracer::LEVEL4,
+                                "Loading/Linking JMPIProvider Module "
+                                + moduleFileName );
+               DDD(PEGASUS_STD(cout)
+                   <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                     " Loading/Linking module "
+                     <<moduleFileName
+                     <<PEGASUS_STD(endl));
+
+               try
+               {
+                   base = module->load(moduleFileName);
+               }
+               catch(...)
+               {
+                   PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                    Tracer::LEVEL4,
+                                    "Exception caught Loading/Linking"
+                                    " JMPIProvider Module "
+                                    + moduleFileName );
+                   DDD(PEGASUS_STD(cout)
+                       <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                       "Exception caught Loading/Linking module "
+                       <<moduleFileName
+                       <<PEGASUS_STD(endl));
+
+                   throw;
+               }
+
+               // create provider module
+               newProvider = new JMPIProvider(providerName, module, &base);
+               if (0 == newProvider)
+               {
+                   PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                    Tracer::LEVEL4,
+                                    "new JMPIProvider is NULL!");
+                   DDD(PEGASUS_STD(cout)
+                       <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                         "new JMPIProvider is NULL!"
+                       <<PEGASUS_STD(endl));
+
+                   throw NullPointer();
+               }
+
+               provider = newProvider;
+
+               if (0 == (provider->_cimom_handle = new CIMOMHandle()))
+               {
+                   PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                    Tracer::LEVEL4,
+                                    "_cimom_handle is NULL!");
+                   DDD(PEGASUS_STD(cout)
+                       <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                         " _cimom_handle is NULL!"
+                         <<PEGASUS_STD(endl));
+
+                   throw NullPointer();
+               }
+
+               provider->_quantum = 0;
+
+               {
+                  AutoMutex lock(provider->_statusMutex);
+
+                  PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                   Tracer::LEVEL2,
+                                   "Loading JMPIProvider "
+                                   +  provider->_name);
+                  DDD(PEGASUS_STD(cout)
+                      <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                        " Loading "
+                        <<provider->_name
+                        <<PEGASUS_STD(endl));
+                  try
+                  {
+                      provider->initialize(*(provider->_cimom_handle));
+                  }
+                  catch(...)
+                  {
+                      PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                       Tracer::LEVEL4,
+                                       "Exception caught calling initialize!");
+                      DDD(PEGASUS_STD(cout)
+                          <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                            " Exception caught calling initialize!"
+                            <<PEGASUS_STD(endl));
+
+                      throw UninitializedObjectException();
+                  }
+               }
             }
-            catch(...)
+            catch (...)
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Exception caught Loading/Linking JMPIProvider Module " + *(parms->fileName) );
-                throw;
+               if (newModule)
+               {
+                  _modules.remove(moduleFileName);
+               }
+
+               delete newModule;
+
+               if (newProvider)
+               {
+                  delete newProvider->_cimom_handle;
+               }
+
+               delete newProvider;
+
+               throw;
             }
 
-            // create provider module
 
-            MessageQueue * queue = MessageQueue::lookup(PEGASUS_QUEUENAME_PROVIDERMANAGER_CPP);
-            PEGASUS_ASSERT(queue != 0);
-            MessageQueueService * service = dynamic_cast<MessageQueueService *>(queue);
-            PEGASUS_ASSERT(service != 0);
-            pr = new JMPIProvider(*(parms->providerName), module, &base);
-            if(0 == (pr->_cimom_handle =  new CIMOMHandle()))
-                throw NullPointer();
-            pr->_quantum=0;
+//          provider->update_idle_timer();
 
+            _providers.insert(providerName, provider);
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "Loading JMPIProvider " +  pr->_name);
-            try
-            {
-                pr->initialize(*(pr->_cimom_handle));
-            }
-            catch(...)
-            {
-                delete pr->_cimom_handle;
-                delete pr;
-                throw UninitializedObjectException();
-            }
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl:"
+                  "setting provider to "
+                  <<PEGASUS_STD(hex)
+                  <<(int)provider
+                  <<PEGASUS_STD(dec)
+                  <<PEGASUS_STD(endl));
 
-//            pr->update_idle_timer();
-
-            _providers.insert(*(parms->providerName), pr);
-
-
-            ph->SetProvider( pr );
+            ph->SetProvider( provider );
             break;
         }
 
     case UNLOAD_PROVIDER:
-        { 
-	    break;
+        {
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                  "UNLOAD_PROVIDER"
+                  <<PEGASUS_STD(endl));
+            break;
         }
 
     case LOOKUP_PROVIDER:
         {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                             Tracer::LEVEL2,
+                             "_provider_ctrl::LOOKUP_PROVIDER");
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                "LOOKUP_PROVIDER "
+                <<*(parms->providerName)
+                <<PEGASUS_STD(endl));
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::LOOKUP_PROVIDER");
+            AutoMutex lock (_providerTableMutex);
 
-            if(true == _providers.lookup(*(parms->providerName),
-                *(reinterpret_cast<JMPIProvider * *>(ret))))
+            if (true == _providers.lookup(*(parms->providerName),
+                                   *(reinterpret_cast<JMPIProvider * *>(ret))))
             {
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Found JMPIProvider in cache: " +
-                    *(parms->providerName));
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                 Tracer::LEVEL4,
+                                 "Found JMPIProvider in cache: "
+                                 + *(parms->providerName));
 
-//                (*(reinterpret_cast<JMPIProvider * *>(ret)))->update_idle_timer();
+////////////////(*(reinterpret_cast<JMPIProvider * *>(ret)))->update_idle_timer();
             }
             else
             {
-
-                PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Could not find  JMPIProvider in cache: " +
-                    *(parms->providerName));
+                PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                                 Tracer::LEVEL4,
+                                 "Could not find  JMPIProvider in cache: "
+                                 + *(parms->providerName));
                 ccode = -1;
             }
 
@@ -196,11 +369,18 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case LOOKUP_MODULE:
         {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                             Tracer::LEVEL2,
+                             "_provider_ctrl::LOOKUP_MODULE");
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                  "LOOKUP_MODULE "
+                <<*(parms->fileName)
+                <<PEGASUS_STD(endl));
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::LOOKUP_MODULE");
+            AutoMutex lock (_providerTableMutex);
 
-            if(false  == _modules.lookup(*(parms->fileName),
+            if (false  == _modules.lookup(*(parms->fileName),
                 *(reinterpret_cast<JMPIProviderModule * *>(ret))))
             {
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
@@ -214,64 +394,115 @@ Sint32 JMPILocalProviderManager::_provider_ctrl(CTRL code, void *parm, void *ret
 
     case INSERT_PROVIDER:
         {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                             Tracer::LEVEL2,
+                             "_provider_ctrl::INSERT_PROVIDER");
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                  "INSERT_PROVIDER "
+                <<*(parms->providerName)
+                <<PEGASUS_STD(endl));
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::INSERT_PROVIDER");
-            if(false  == _providers.insert(
-                *(parms->providerName),
-                *reinterpret_cast<JMPIProvider * *>(parm)))
+            AutoMutex lock (_providerTableMutex);
+
+            if (false  == _providers.insert(*(parms->providerName),
+                                    *reinterpret_cast<JMPIProvider * *>(parm)))
                 ccode = -1;
             break;
         }
+
     case INSERT_MODULE:
         {
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::INSERT_MODULE");
-            if(false  == _modules.insert(
-                *(parms->fileName),
-                *reinterpret_cast<JMPIProviderModule * *>(parm)))
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                             Tracer::LEVEL2,
+                             "_provider_ctrl::INSERT_MODULE");
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                  "INSERT_MODULE "
+                <<*(parms->fileName)
+                <<PEGASUS_STD(endl));
+
+            AutoMutex lock (_providerTableMutex);
+
+            if(false  == _modules.insert(*(parms->fileName),
+                              *reinterpret_cast<JMPIProviderModule * *>(parm)))
                 ccode = -1;
             break;
         }
+
     case REMOVE_PROVIDER:
         {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                             Tracer::LEVEL2,
+                             "_provider_ctrl::REMOVE_PROVIDER");
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                  "REMOVE_PROVIDER "
+                <<*(parms->providerName)
+                <<PEGASUS_STD(endl));
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::REMOVE_PROVIDER");
-            if(false == _providers.remove(*(parms->providerName)))
+            AutoMutex lock (_providerTableMutex);
+
+            if (false == _providers.remove(*(parms->providerName)))
                 ccode = -1;
             break;
         }
+
     case REMOVE_MODULE:
         {
+            PEG_TRACE_STRING(TRC_PROVIDERMANAGER,
+                             Tracer::LEVEL2,
+                             "_provider_ctrl::REMOVE_MODULE");
+            DDD(PEGASUS_STD(cout)
+                <<"--- JMPILocalProviderManager::_provider_ctrl: REMOVE_MODULE "
+                <<*(parms->fileName)
+                <<PEGASUS_STD(endl));
 
-            PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                "_provider_ctrl::REMOVE_MODULE");
-            if(false == _modules.remove(*(parms->fileName)))
+            AutoMutex lock (_providerTableMutex);
+
+            if (false == _modules.remove(*(parms->fileName)))
                 ccode = -1;
             break;
         }
 
     case UNLOAD_ALL_PROVIDERS:
         {
-           JMPIjvm::destroyJVM();
+           DDD(PEGASUS_STD(cout)
+               <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                 "UNLOAD_ALL_PROVIDERS"
+               <<PEGASUS_STD(endl));
 
-	   break;
+           JMPIjvm::destroyJVM();
+           break;
         }
-	
+
     case UNLOAD_IDLE_PROVIDERS:
-         { 
-	    break;
+         {
+           DDD(PEGASUS_STD(cout)
+               <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                 "UNLOAD_IDLE_PROVIDERS"
+               <<PEGASUS_STD(endl));
+           break;
         }
 
     case UNLOAD_IDLE_MODULES:
-        { 
-	    break;
+        {
+           DDD(PEGASUS_STD(cout)
+               <<"--- JMPILocalProviderManager::_provider_ctrl: "
+                 "UNLOAD_IDLE_MODULES"
+               <<PEGASUS_STD(endl));
+           break;
         }
 
     default:
-        ccode = -1;
-        break;
+        {
+           DDD(PEGASUS_STD(cout)
+               <<"--- JMPILocalProviderManager::_provider_ctrl: unknown! "
+               <<code
+               <<PEGASUS_STD(endl));
+           ccode = -1;
+           break;
+        }
     }
     PEG_METHOD_EXIT();
     return(ccode);
@@ -287,15 +518,7 @@ JMPIProvider * JMPILocalProviderManager::_getResolver
     }
     return NULL;
 }
-/*
-CMPIResolverModule *JMPILocalProviderManager::_loadResolver
-   (const String & fileName)
-{
-   CMPIResolverModule *rm=new CMPIResolverModule(fileName);
-   rm->load();
-   return rm;
-}
-*/
+
 JMPIProvider::OpProviderHolder JMPILocalProviderManager::getProvider(
     const String & fileName,
     const String & providerName,
@@ -304,30 +527,33 @@ JMPIProvider::OpProviderHolder JMPILocalProviderManager::getProvider(
     JMPIProvider::OpProviderHolder ph;
     CTRL_STRINGS strings;
     Sint32 ccode;
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
     strings.fileName = &fileName;
     strings.providerName = &providerName;
     strings.interfaceName = &interfaceName;
 
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
+
     try {
         ccode = _provider_ctrl( GET_PROVIDER, &strings, &ph );
     }
-    catch (Exception e) {
-#ifdef PEGASUS_DEBUG
-       cerr<<"--- loading proxy: "<<e.getMessage()<<endl;
-#endif
-       PEG_METHOD_EXIT();
+    catch (const Exception &e) {
+        DDD(PEGASUS_STD(cout)
+            <<"--- JMPILocalProviderManager::getProvider: loading proxy: "
+            <<e.getMessage()
+            <<PEGASUS_STD(endl));
+        PEG_METHOD_EXIT();
         throw;
-   }
+    }
     catch(...) {
+        DDD(PEGASUS_STD(cout)
+            <<"--- JMPILocalProviderManager::getProvider: catch (...) "
+            <<PEGASUS_STD(endl));
         PEG_METHOD_EXIT();
         throw;
     }
 
-
     PEG_METHOD_EXIT();
     return(ph);
-
 }
 
 void JMPILocalProviderManager::unloadProvider(
@@ -344,7 +570,6 @@ void JMPILocalProviderManager::unloadProvider(
 
 void JMPILocalProviderManager::shutdownAllProviders(void)
 {
-
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::shutdownAllProviders");
     _provider_ctrl(UNLOAD_ALL_PROVIDERS, (void *)this, (void *)0);
     PEG_METHOD_EXIT();
@@ -353,11 +578,14 @@ void JMPILocalProviderManager::shutdownAllProviders(void)
 
 Boolean JMPILocalProviderManager::hasActiveProviders()
 {
-    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
-        "ProviderManager::hasActiveProviders");
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER, "ProviderManager::hasActiveProviders");
+
+    AutoMutex lock (_providerTableMutex);
+
+    Boolean fRet = _providers.size() > 0;
 
     PEG_METHOD_EXIT();
-    return (_providers.size() > 0);
+    return fRet;
 }
 
 void JMPILocalProviderManager::unloadIdleProviders()
@@ -366,7 +594,7 @@ void JMPILocalProviderManager::unloadIdleProviders()
         "ProviderManager::unloadIdleProviders");
 
     static struct timeval first = {0,0}, now, last = {0,0};
-   
+
     if(first.tv_sec == 0)
     {
         gettimeofday(&first, NULL);
@@ -381,6 +609,8 @@ void JMPILocalProviderManager::unloadIdleProviders()
             "Checking for Idle providers to unload.");
         try
         {
+            AutoMutex lock(_providerTableMutex);
+
             _provider_ctrl(UNLOAD_IDLE_PROVIDERS, this, (void *)0);
         }
         catch(...)
@@ -400,12 +630,12 @@ JMPILocalProviderManager::getIndicationProvidersToEnable ()
 
     Array <JMPIProvider *> enableProviders;
 
-    Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-        "Number of providers in _providers table = %d", _providers.size ());
-
     try
     {
         AutoMutex lock (_providerTableMutex);
+
+        Tracer::trace (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Number of providers in _providers table = %d", _providers.size ());
 
         //
         // Iterate through the _providers table

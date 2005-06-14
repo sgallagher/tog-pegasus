@@ -2188,7 +2188,7 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
 	/* The CIMInstances on request->providers array is completly _different_ than
 	   the request->providerModule CIMInstance. Hence  */
 
-    String physicalName=_resolvePhysicalName(request->providerModule.getProperty(
+    String physicalName=(request->providerModule.getProperty(
               request->providerModule.findProperty("Location")).getValue().toString());
 
     for(Uint32 i = 0, n = _pInstances.size(); i < n; i++)
@@ -2198,10 +2198,9 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
             (CIMName ("Name"))).getValue ().get (providerName);
 
 		Uint32 pos = _pInstances[i].findProperty("Name");
-        providerManager.unloadProvider(_pInstances[i].getProperty(
+        providerManager.unloadProvider(physicalName, _pInstances[i].getProperty(
 											_pInstances[i].findProperty("Name")
-										).getValue ().toString (),
-                                       physicalName);
+										).getValue ().toString ());
 
         //
         //  Reset the indication provider's count of current

@@ -130,13 +130,11 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::UNLOAD_PROVIDER");
         CMPIProvider *pr = _lookupProvider (*(parms->providerName));
-
         if ((pr->getStatus () == CMPIProvider::INITIALIZED))
           {
 
-
             PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                              "Unloading CMPIProvider" + pr->_name);
+                              "Unloading CMPIProvider: " + pr->_name);
 
             AutoMutex lock (_providerTableMutex);
             // The provider table must be locked before unloading. 
@@ -145,6 +143,10 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
             delete pr;
 
           }
+	    else {
+			// No need to have a memory leak.
+			delete pr;
+		}
         break;
       }
 
@@ -504,9 +506,22 @@ CMPILocalProviderManager::unloadProvider (const String & fileName,
 {
   CTRL_STRINGS strings;
   PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, "ProviderManager::unloadProvider");
+
+  String lproviderName ("L");
+  String rproviderName ("R");
+  lproviderName.append (providerName);
+  rproviderName.append (providerName);
+
   strings.fileName = &fileName;
-  strings.providerName = &providerName;
+  strings.providerName = &lproviderName;
+  strings.location = &String::EMPTY;
+
   _provider_ctrl (UNLOAD_PROVIDER, &strings, (void *) 0);
+   
+  strings.providerName = &rproviderName;
+
+  _provider_ctrl (UNLOAD_PROVIDER, &strings, (void *) 0);
+
   PEG_METHOD_EXIT ();
 }
 
@@ -802,7 +817,6 @@ CMPIProvider *
 CMPILocalProviderManager::_lookupProvider (const String & providerName)
 {
   PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, "_lookupProvider");
-
   // lock the providerTable mutex
   AutoMutex lock (_providerTableMutex);
 

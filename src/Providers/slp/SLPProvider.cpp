@@ -299,7 +299,7 @@ String _getValueQualifier(const CIMConstProperty& instanceProperty,
     }
     else
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, 
-            "Interop ProviderProperty find error. Class " +
+            "SLPProvider Property find error. Class " +
             thisClass.getClassName().getString() + " Property "
             + propertyName.getString());
 
@@ -531,7 +531,7 @@ CIMInstance SLPProvider::_buildInstanceSkeleton(const CIMName& className)
 {
     CIMClass myClass;
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::_buildInstanceSkeleton()");
+            "SLPProvider::_buildInstanceSkeleton()");
 
     CIMInstance skeleton(className);
         myClass = _cimomHandle.getClass(OperationContext(), _nameSpace,

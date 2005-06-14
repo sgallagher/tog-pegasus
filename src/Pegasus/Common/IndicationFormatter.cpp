@@ -354,14 +354,31 @@ void IndicationFormatter::_validatePropertyType (
 
     if (space != PEG_NOT_FOUND)
     {
-	String restTypeStr = providedTypeStr.subString(space+1, PEG_NOT_FOUND);
-
-	// remove the appended space from the providedTypeStr
+	// skip the appended space from the providedTypeStr
 	// e.g {1, string  }
+	String restTypeStr = providedTypeStr.subString(space, PEG_NOT_FOUND);
+
+        Uint32 i = 0;
+        while (restTypeStr[i] == ' ')
+        {
+            i++;
+        }
+
+        restTypeStr = restTypeStr.subString(i, PEG_NOT_FOUND);
 	if (strlen(restTypeStr.getCString()) == 0)
 	{
 	    providedTypeStr = providedTypeStr.subString(0, space);
 	}
+        else
+        {
+            // the provided property type is not a valid type
+            // e.g. {1, string  xxx}
+            MessageLoaderParms parms(
+                "IndicationFormatter.IndicationFormatter._MSG_INVALID_TYPE_OF_FOR_PROPERTY",
+            "Invalid property type of $0 in property $1",
+            providedPropertyType,
+            _PROPERTY_TEXTFORMAT.getString());
+        } 
     }
 
     //
@@ -506,9 +523,23 @@ void IndicationFormatter::_isValidIndex (
     Uint32 space = indexSubStr.find(" ");
     if (space != PEG_NOT_FOUND)
     {
-        indexSubStr = indexSubStr.subString(space, PEG_NOT_FOUND);
+        String restIndexSubStr = indexSubStr.subString(space, PEG_NOT_FOUND);
+
+        // skip the appended space from the indexSubStr
+        Uint32 k=0;
+        while (restIndexSubStr[k] == ' ') 
+        {
+            k++;
+        }
+
+        restIndexSubStr = restIndexSubStr.subString(k, PEG_NOT_FOUND);
+
+        if (restIndexSubStr.size() == 0)
+        {
+            indexSubStr = indexSubStr.subString(0, space);
+        }
         // invalid index string [12 xxx]
-        if (indexSubStr.size() > 0)
+        else
         {
             // invalid index string
             MessageLoaderParms parms(

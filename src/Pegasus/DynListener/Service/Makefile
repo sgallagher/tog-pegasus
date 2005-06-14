@@ -35,11 +35,11 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY -DPEGASUS_CONSUMER_INTERNAL
 PROGRAM = cimlistener
 
 LIBRARIES= \
-    pegcommon \
-    pegexportserver \
     pegdynlistener \
     pegprovider \
-    pegservice
+    pegservice \
+    pegexportserver \
+    pegcommon 
 
 SOURCES = cimlistener.cpp
 

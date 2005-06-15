@@ -299,7 +299,7 @@ Uint32 slp_service_agent::test_registration(const char *url,
    if(_initialized.value() == 0 )
       throw UninitializedObjectException();
 
-   cout << "test_registration. type= " << type << endl;
+   //cout << "test_registration. type= " << type << endl;
    if(type ==  0)
       return 1;
    
@@ -319,7 +319,7 @@ Uint32 slp_service_agent::test_registration(const char *url,
 
    Uint32 ccode = _test_reg(_type, _url, _attrs, _scopes);
 
-   cout << "rtn from _tst_reg: " << ccode << endl;
+   //cout << "rtn from _tst_reg: " << ccode << endl;
    
    free(_type);
    free(_url);

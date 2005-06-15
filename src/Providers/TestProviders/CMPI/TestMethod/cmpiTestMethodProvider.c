@@ -44,6 +44,7 @@
 #define _ClassName "TestCMPI_Method"
 #define _ClassName_size strlen(_ClassName)
 #define _Namespace    "test/TestProvider"
+
 #define _ProviderLocation "/src/Providers/TestProviders/CMPI/TestMethod/tests/"
 #define _LogExtension ".log"
 
@@ -117,9 +118,8 @@ PROV_LOG_OPEN (const char *file, const char *location)
         j++;
       }
   path[j + env_len + loc_len] = 0;
-  strncat (path, location, ext_len);
+  strncat (path, _LogExtension, ext_len);
   path[j + env_len + loc_len + ext_len] = 0;
-
   fd = fopen (path, "a+");
   if (fd == NULL)
     fd = stderr;

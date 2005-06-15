@@ -617,7 +617,8 @@ InterfaceList::InterfaceList()
     _ipif.set_protocol(PROTOCOL_IPV4);
 
     for (j = 0; j < (int)(numif-1); j++) {
-	sin = (struct sockaddr_in *)&ifconf.ifc_req[j].ifr_addr;
+	sin = reinterpret_cast<struct sockaddr_in*>(
+            &ifconf.ifc_req[j].ifr_addr);
 	if (sin->sin_addr.s_addr == t.s_addr)
 	{
 	    _ipif.set_simpleIfName(ifconf.ifc_req[j].ifr_name);

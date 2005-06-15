@@ -5415,6 +5415,16 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.BasicProviderManagerRouter.PROVIDERMANAGER_LOAD_FAILED:string {"PGS16800:  Failed to load the Provider Manager for interface type \"{0}\" from library \"{1}\"."}
 
+        // ==========================================================
+        // Messages for src.Service.ServerProcessUnix
+        //  Please use message prefix "PGS17000"
+        // ==========================================================
+        /**
+        * @note PGS17000:
+        *     Do not translate the word 'cimserver'.
+        */
+        src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT:string {"PGS17000: The cimserver command timed out waiting for the CIM server to start."}
+
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

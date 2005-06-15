@@ -44,7 +44,7 @@
 #if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 #include <sys/ps.h>
 #endif
-#define MAX_WAIT_TIME 25
+#define MAX_WAIT_TIME 240
 #if defined(PEGASUS_OS_AIX)
 extern "C" {
 #include <procinfo.h>
@@ -115,6 +115,12 @@ int ServerProcess::cimserver_fork(void)
       {
         sleep(1);
         waitTime--;
+      }
+      if( !handleSigUsr1 )
+        {
+        MessageLoaderParms parms("src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT",
+          "The cimserver command timed out waiting for the CIM server to start.");
+        PEGASUS_STD(cerr) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
       }
       exit(graveError);
   }

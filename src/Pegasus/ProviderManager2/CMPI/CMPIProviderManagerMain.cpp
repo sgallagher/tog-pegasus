@@ -46,7 +46,6 @@ PEGASUS_USING_PEGASUS;
 extern "C" PEGASUS_EXPORT ProviderManager * PegasusCreateProviderManager(
    const String & providerManagerName)
 {
-        cerr<<"--- CMPI Provider Manager activated"<<endl;
     if(String::equalNoCase(providerManagerName, "CMPI"))
     {
 #ifdef PEGASUS_DEBUG

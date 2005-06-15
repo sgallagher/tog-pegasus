@@ -468,7 +468,7 @@ void BinaryStreamer::_unpackValue(
     Boolean isArray;
     Packer::unpackBoolean(in, pos, isArray);
 
-    Uint32 arraySize;
+    Uint32 arraySize = 0;
 
     if (isArray)
 	Packer::unpackSize(in, pos, arraySize);

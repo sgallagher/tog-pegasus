@@ -33,6 +33,7 @@
 //                   (sushma_fernandes@hp.com)
 //               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //               Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +105,7 @@ void ShutdownPropertyOwner::initialize()
 }
 
 struct ConfigProperty* ShutdownPropertyOwner::_lookupConfigProperty(
-    const String& name)
+    const String& name) const
 {
     if (String::equalNoCase(_shutdownTimeout->propertyName, name))
     {
@@ -124,11 +125,7 @@ void ShutdownPropertyOwner::getPropertyInfo(
     Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
-
-    ShutdownPropertyOwner* const localThis =
-                           const_cast<ShutdownPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     propertyInfo.append(configProperty->propertyName);
     propertyInfo.append(configProperty->defaultValue);
@@ -157,10 +154,7 @@ Get default value of the specified property.
 */
 String ShutdownPropertyOwner::getDefaultValue(const String& name) const
 {
-    ShutdownPropertyOwner* const localThis =
-                           const_cast<ShutdownPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
     return configProperty->defaultValue;
 }
 
@@ -169,10 +163,7 @@ Get current value of the specified property.
 */
 String ShutdownPropertyOwner::getCurrentValue(const String& name) const
 {
-    ShutdownPropertyOwner* const localThis =
-                           const_cast<ShutdownPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
     return configProperty->currentValue;
 }
 
@@ -181,10 +172,7 @@ Get planned value of the specified property.
 */
 String ShutdownPropertyOwner::getPlannedValue(const String& name) const
 {
-    ShutdownPropertyOwner* const localThis =
-                           const_cast<ShutdownPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
     return configProperty->plannedValue;
 }
 
@@ -284,10 +272,7 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean ShutdownPropertyOwner::isDynamic(const String& name) const
 {
-    ShutdownPropertyOwner* const localThis =
-                           const_cast<ShutdownPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
     return (configProperty->dynamic==IS_DYNAMIC);
 }
 

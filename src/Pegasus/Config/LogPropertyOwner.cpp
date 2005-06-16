@@ -33,6 +33,7 @@
 //              Dave Rosckes (rosckes@us.ibm.com)
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -124,7 +125,7 @@ void LogPropertyOwner::initialize()
 }
 
 struct ConfigProperty* LogPropertyOwner::_lookupConfigProperty(
-    const String& name)
+    const String& name) const
 {
 #if !defined(PEGASUS_USE_SYSLOGS)
     if (String::equalNoCase(_logdir->propertyName, name))
@@ -152,10 +153,7 @@ void LogPropertyOwner::getPropertyInfo(
 {
     propertyInfo.clear();
 
-    LogPropertyOwner* const localThis =
-                         const_cast<LogPropertyOwner* const>(this);
-    struct ConfigProperty* configProperty = 
-                         localThis->_lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     propertyInfo.append(configProperty->propertyName);
     propertyInfo.append(configProperty->defaultValue);
@@ -184,10 +182,7 @@ Get default value of the specified property.
 */
 String LogPropertyOwner::getDefaultValue(const String& name) const
 {
-    LogPropertyOwner* const localThis =
-                            const_cast<LogPropertyOwner* const>(this);
-    struct ConfigProperty* configProperty = 
-                            localThis->_lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     return configProperty->defaultValue;
 }
@@ -197,10 +192,7 @@ Get current value of the specified property.
 */
 String LogPropertyOwner::getCurrentValue(const String& name) const
 {
-    LogPropertyOwner* const localThis = 
-                          const_cast<LogPropertyOwner* const>(this);
-    struct ConfigProperty* configProperty = 
-                          localThis->_lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     return configProperty->currentValue;
 }
@@ -210,10 +202,7 @@ Get planned value of the specified property.
 */
 String LogPropertyOwner::getPlannedValue(const String& name) const
 {
-    LogPropertyOwner* const localThis = 
-                             const_cast<LogPropertyOwner* const>(this);
-    struct ConfigProperty* configProperty = 
-                             localThis->_lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     return configProperty->plannedValue;
 }
@@ -314,10 +303,7 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean LogPropertyOwner::isDynamic(const String& name) const
 {
-    LogPropertyOwner* const localThis = 
-                              const_cast<LogPropertyOwner* const>(this);
-    struct ConfigProperty* configProperty = 
-                              localThis->_lookupConfigProperty(name);
+    struct ConfigProperty* configProperty = _lookupConfigProperty(name);
 
     return (configProperty->dynamic == IS_DYNAMIC);
 }

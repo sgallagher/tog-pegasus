@@ -31,6 +31,7 @@
 //
 // Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -156,7 +157,7 @@ void ProviderDirPropertyOwner::initialize()
 }
 
 struct ConfigProperty* ProviderDirPropertyOwner::_lookupConfigProperty(
-    const String& name)
+    const String& name) const
 {
     if (String::equalNoCase(_providerDir->propertyName, name))
     {
@@ -176,11 +177,7 @@ void ProviderDirPropertyOwner::getPropertyInfo(
     Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
-
-    ProviderDirPropertyOwner* const localThis = 
-                           const_cast<ProviderDirPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     propertyInfo.append(configProperty->propertyName);
     propertyInfo.append(configProperty->defaultValue);
@@ -210,10 +207,7 @@ Get default value of the specified property.
 */
 String ProviderDirPropertyOwner::getDefaultValue(const String& name) const
 {
-    ProviderDirPropertyOwner* const localThis = 
-                          const_cast<ProviderDirPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                          localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return configProperty->defaultValue;
 }
@@ -223,10 +217,7 @@ Get current value of the specified property.
 */
 String ProviderDirPropertyOwner::getCurrentValue(const String& name) const
 {
-    ProviderDirPropertyOwner* const localThis = 
-                          const_cast<ProviderDirPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                          localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return configProperty->currentValue;
 }
@@ -236,10 +227,7 @@ Get planned value of the specified property.
 */
 String ProviderDirPropertyOwner::getPlannedValue(const String& name) const
 {
-    ProviderDirPropertyOwner* const localThis = 
-                          const_cast<ProviderDirPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                          localThis->_lookupConfigProperty(name);
+   struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return configProperty->plannedValue;
 }
@@ -318,10 +306,7 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean ProviderDirPropertyOwner::isDynamic(const String& name) const
 {
-    ProviderDirPropertyOwner* const localThis = 
-                            const_cast<ProviderDirPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                            localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return (configProperty->dynamic==IS_DYNAMIC);
 }

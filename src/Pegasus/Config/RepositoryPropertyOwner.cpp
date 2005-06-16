@@ -34,6 +34,7 @@
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com), for PEP 164
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -125,7 +126,7 @@ void RepositoryPropertyOwner::initialize()
 }
 
 struct ConfigProperty* RepositoryPropertyOwner::_lookupConfigProperty(
-    const String& name)
+    const String& name) const
 {
     if (String::equalNoCase(
             _repositoryIsDefaultInstanceProvider->propertyName, name))
@@ -151,11 +152,7 @@ void RepositoryPropertyOwner::getPropertyInfo(
     Array<String>& propertyInfo) const
 {
     propertyInfo.clear();
-
-    RepositoryPropertyOwner* const localThis = 
-                        const_cast<RepositoryPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                        localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     propertyInfo.append(configProperty->propertyName);
     propertyInfo.append(configProperty->defaultValue);
@@ -184,10 +181,7 @@ Get default value of the specified property.
 */
 String RepositoryPropertyOwner::getDefaultValue(const String& name) const
 {
-    RepositoryPropertyOwner* const localThis =
-                           const_cast<RepositoryPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return configProperty->defaultValue;
 }
@@ -197,10 +191,7 @@ Get current value of the specified property.
 */
 String RepositoryPropertyOwner::getCurrentValue(const String& name) const
 {
-    RepositoryPropertyOwner* const localThis = 
-                            const_cast<RepositoryPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                            localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return configProperty->currentValue;
 }
@@ -210,10 +201,7 @@ Get planned value of the specified property.
 */
 String RepositoryPropertyOwner::getPlannedValue(const String& name) const
 {
-    RepositoryPropertyOwner* const localThis = 
-                           const_cast<RepositoryPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return configProperty->plannedValue;
 }
@@ -314,10 +302,7 @@ Checks to see if the specified property is dynamic or not.
 */
 Boolean RepositoryPropertyOwner::isDynamic(const String& name) const
 {
-    RepositoryPropertyOwner* const localThis = 
-                             const_cast<RepositoryPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                             localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return (configProperty->dynamic==IS_DYNAMIC);
 }

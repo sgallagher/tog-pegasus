@@ -31,6 +31,7 @@
 //
 // Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -88,10 +89,7 @@ void NormalizationPropertyOwner::initialize(void)
 void NormalizationPropertyOwner::getPropertyInfo(const String & name,
                          Array<String> & propertyInfo) const
 {
-    NormalizationPropertyOwner* const localThis = 
-                           const_cast<NormalizationPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                           localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     propertyInfo.clear();
 
@@ -121,30 +119,21 @@ void NormalizationPropertyOwner::getPropertyInfo(const String & name,
 
 String NormalizationPropertyOwner::getDefaultValue(const String & name) const
 {
-    NormalizationPropertyOwner* const localThis = 
-                     const_cast<NormalizationPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                     localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return(configProperty->defaultValue);
 }
 
 String NormalizationPropertyOwner::getCurrentValue(const String & name)const
 {
-    NormalizationPropertyOwner* const localThis = 
-                     const_cast<NormalizationPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                     localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return(configProperty->currentValue);
 }
 
 String NormalizationPropertyOwner::getPlannedValue(const String & name) const
 {
-    NormalizationPropertyOwner* const localThis = 
-                     const_cast<NormalizationPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                     localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return(configProperty->plannedValue);
 }
@@ -208,15 +197,12 @@ Boolean NormalizationPropertyOwner::isValid(const String & name,
 
 Boolean NormalizationPropertyOwner::isDynamic(const String & name) const
 {
-    NormalizationPropertyOwner* const localThis = 
-                       const_cast<NormalizationPropertyOwner* const>(this);
-    struct ConfigProperty * configProperty = 
-                       localThis->_lookupConfigProperty(name);
+    struct ConfigProperty * configProperty = _lookupConfigProperty(name);
 
     return(configProperty->dynamic == IS_DYNAMIC);
 }
 
-struct ConfigProperty * NormalizationPropertyOwner::_lookupConfigProperty(const String & name)
+struct ConfigProperty * NormalizationPropertyOwner::_lookupConfigProperty(const String & name) const
 {
     if(String::equalNoCase(name, _providerObjectNormalizationEnabled->propertyName))
     {

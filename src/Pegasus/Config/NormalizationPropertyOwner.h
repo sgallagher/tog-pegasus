@@ -31,6 +31,7 @@
 //
 // Modified By:  Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +167,7 @@ public:
     Boolean isDynamic(const String & name)const;
 
 private:
-    struct ConfigProperty * _lookupConfigProperty(const String & name);
+    struct ConfigProperty * _lookupConfigProperty(const String & name) const;
 
     AutoPtr<struct ConfigProperty> _providerObjectNormalizationEnabled;
     AutoPtr<struct ConfigProperty> _providerObjectNormalizationModuleExclusions;

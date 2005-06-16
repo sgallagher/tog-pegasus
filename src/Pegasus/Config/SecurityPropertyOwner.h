@@ -38,6 +38,7 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -200,7 +201,7 @@ public:
 
 private:
 
-    struct ConfigProperty* _lookupConfigProperty(const String& name);
+    struct ConfigProperty* _lookupConfigProperty(const String& name) const;
 
     /**
     The security properties owned by this class

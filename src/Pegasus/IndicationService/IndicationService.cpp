@@ -42,6 +42,7 @@
 //               Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //               David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//               Aruran, IBM (ashanmug@in.ibm.com) for Bug#3603
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2704,12 +2705,12 @@ void IndicationService::_handleNotifyProviderTerminationRequest
         //
         //  Get list of affected subscriptions
         //
-        //  _subscriptionTable->getProviderSubscriptions also updates the
+        //  _subscriptionTable->getAndUpdateProviderSubscriptions also updates the
         //  Active Subscriptions hash table, and implements each subscription's
         //  On Fatal Error policy, if necessary
         //
         providerSubscriptions.clear ();
-        providerSubscriptions = _subscriptionTable->getProviderSubscriptions
+        providerSubscriptions = _subscriptionTable->getAndUpdateProviderSubscriptions
             (providers [i]);
 
         if (providerSubscriptions.size () > 0)

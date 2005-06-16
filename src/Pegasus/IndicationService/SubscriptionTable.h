@@ -281,8 +281,8 @@ public:
 
         @return   list of CIMInstance subscriptions
      */
-    Array <CIMInstance> getProviderSubscriptions (
-        const CIMInstance & provider) const;
+    Array <CIMInstance> getAndUpdateProviderSubscriptions (
+        const CIMInstance & provider);
 
     /**
         Determines if the specified provider is in the list of providers 
@@ -374,7 +374,7 @@ private:
      */
     void _insertActiveSubscriptionsEntry (
         const CIMInstance & subscription,
-        const Array <ProviderClassList> & providers) const;
+        const Array <ProviderClassList> & providers);
 
     /**
         Removes an entry from the Active Subscriptions table.  The caller
@@ -383,7 +383,7 @@ private:
         @param   key                   the key of the entry to remove
      */
     void _removeActiveSubscriptionsEntry (
-        const String & key) const;
+        const String & key);
 
     /**
         Generates a unique String key for the Subscription Classes table from
@@ -437,7 +437,7 @@ private:
         Active Subscriptions information table.  Access to this table is
         controlled by the _activeSubscriptionsTableLock.
      */
-    mutable ActiveSubscriptionsTable _activeSubscriptionsTable;
+    ActiveSubscriptionsTable _activeSubscriptionsTable;
 
     /**
         A lock to control access to the _activeSubscriptionsTable.  Before

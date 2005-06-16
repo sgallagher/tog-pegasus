@@ -183,11 +183,11 @@ Array <CIMInstance> SubscriptionTable::getMatchingSubscriptions (
     return matchingSubscriptions;
 }
 
-Array <CIMInstance> SubscriptionTable::getProviderSubscriptions (
-    const CIMInstance & provider) const
+Array <CIMInstance> SubscriptionTable::getAndUpdateProviderSubscriptions (
+    const CIMInstance & provider)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
-        "SubscriptionTable::getProviderSubscriptions");
+        "SubscriptionTable::getAndUpdateProviderSubscriptions");
 
     Array <CIMInstance> providerSubscriptions;
 
@@ -414,7 +414,7 @@ Boolean SubscriptionTable::_lockedLookupActiveSubscriptionsEntry (
 
 void SubscriptionTable::_insertActiveSubscriptionsEntry (
     const CIMInstance & subscription,
-    const Array <ProviderClassList> & providers) const
+    const Array <ProviderClassList> & providers)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_insertActiveSubscriptionsEntry");
@@ -453,7 +453,7 @@ void SubscriptionTable::_insertActiveSubscriptionsEntry (
 }
 
 void SubscriptionTable::_removeActiveSubscriptionsEntry (
-    const String & key) const
+    const String & key)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "SubscriptionTable::_removeActiveSubscriptionsEntry");

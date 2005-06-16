@@ -343,17 +343,6 @@ String _getValueQualifier(const CIMConstProperty& instanceProperty,
                     // Test if the array size for the two values is the same.
                     if (va2.size() != va1.size())
                         error = "Size error on value Qualifier";
-                    else
-                    {
-                        // test if property value is legal size for this value qualifier.
-                        // This one can be nasty because we cannot guarantee that all enums are
-                        // Uint16
-                        propertyValue.get(localValue);
-                        if (localValue > va1.size())
-                        {
-                            error = "Invalid property value";
-                        }
-                    }
                 }
             }
         }
@@ -369,26 +358,61 @@ String _getValueQualifier(const CIMConstProperty& instanceProperty,
             + error + " " 
             + propertyName.getString());
     }
-    // find the value in the valueMap as a string.
-    // This one needs to understand the property type and doesn't now.
-    // convert the property to a string
-
-    char buffer[32];
-    sprintf(buffer, "%u", localValue);
-    String targetValueString = buffer;
-
-    // find this valueMap and get corresponding value
-    for (Uint32 i = 0 ; i < va1.size() ; i++)
+    // Need to find the values of the property in the ValueMap. If the
+    // property is an array, then all of the elements need to be converted
+    // and a concatenated string should be returned. If it is not an array
+    // then just the one value needs to be found in the ValueMap qualifier
+    // and returned.
+    if(propertyValue.isArray())
     {
-        if (targetValueString == va1[i])
+      // TBD: Need to handle generic property values
+      if(propertyValue.getType() == CIMTYPE_UINT16)
+      {
+        Array<Uint16> values;
+        propertyValue.get(values);
+        String convertedValues;
+        bool found = true;
+        for(Uint32 i = 0, size = values.size(); i < size && found; i++)
         {
-            // Return corresponding value in value qualifier
-            return(va2[i]);
+          if(i != 0)
+            convertedValues.append(Char16(','));
+
+          String currentValueString = CIMValue(values[i]).toString();
+          found = false;
+          for(Uint32 j = 0, qSize = va1.size(); j < qSize && !found; j++)
+          {
+            if(currentValueString == va1[j])
+            {
+              convertedValues.append(va2[j]);
+              found = true;
+            }
+          }
         }
+
+        if(found)
+        {
+          return convertedValues;
+        }
+      }
     }
-    // TODO: Should this be an exception since it means that the
-    // property value is not really legal?
-    return String::EMPTY;
+    else
+    {
+      String targetValueString = propertyValue.toString();
+
+      // find this valueMap and get corresponding value
+      for (Uint32 i = 0 ; i < va1.size() ; i++)
+      {
+          if (targetValueString == va1[i])
+          {
+              // Return corresponding value in value qualifier
+              return(va2[i]);
+          }
+      }
+    }
+    
+    throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED,
+      " Qualifier Value mapping error. Invalid property value " 
+      + propertyName.getString());
 }
 
 /** convert an array of strings to a CSV string.
@@ -977,23 +1001,23 @@ populateRegistrationData(const String &protocol,
 
         else if (propertyName.equal(authenticationMechanismsSupportedAttribute))
         {
-            Array<Uint16> authenticationMechanisms;
-            v1.get(authenticationMechanisms);
-            String authList = _arrayToString(authenticationMechanisms);
-
+            String thisValue = _getValueQualifier(thisProperty, commMechClass);
             populateTemplateField(templateInstance,
                                     authenticationMechanismsSupportedAttribute,
-                                    authList);
+                                    thisValue);
         }
         else if (propertyName.equal(authenticationMechanismDescriptionsAttribute))
         {
             Array<String> authenticationDescriptions;
             v1.get(authenticationDescriptions);
-            String authDesList = _arrayToString(authenticationDescriptions);
+            if(authenticationDescriptions.size() > 0)
+            {
+                String authDesList = _arrayToString(authenticationDescriptions);
 
-            populateTemplateField(templateInstance,
-                                    authenticationMechanismDescriptionsAttribute,
-                                    authDesList);
+                populateTemplateField(templateInstance,
+                    authenticationMechanismDescriptionsAttribute,
+                    authDesList);
+            }
         }
     }
 

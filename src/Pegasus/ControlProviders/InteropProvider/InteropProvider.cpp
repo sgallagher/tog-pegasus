@@ -962,7 +962,8 @@ CIMInstance InteropProvider::_buildInstancePGCIMXMLCommunicationMechanism(
     Array<String> authenticationDescriptions;
 
     //TODO - get from system.
-    authentications.append(3); authenticationDescriptions.append("Basic");
+    authentications.append(3);
+    //authenticationDescriptions.append("Basic");
 
     _setPropertyValue(instance, OM_AUTHENTICATIONMECHANISMSSUPPORTED, authentications);
 

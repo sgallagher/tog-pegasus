@@ -99,7 +99,7 @@ $Get_libraries:
 $ ! 
 $ ! Every option file starts with the following
 $ ! 
-$  libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "P_obj.platforms.vms]vms_crtl_init.obj"
+$  libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "obj.platforms.vms]vms_crtl_init.obj"
 $ ! 
 $ ! Write it to the option file
 $ ! 
@@ -122,7 +122,7 @@ $ ! Create the library file entry
 $ ! 
 $  if (first_lib .eqs. "yes")
 $   then
-$    libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "P_lib]" + "lib" + "''PegLib'" + "/lib"
+$    libnam = f$trnlnm("PEGASUS_VMSHOMEA") + "lib]" + "lib" + "''PegLib'" + "/lib"
 $    first_lib = "no"
 $  else
 $    libnam = "lib" + "''PegLib'" + "/lib"

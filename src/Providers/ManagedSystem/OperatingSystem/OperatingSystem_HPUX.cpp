@@ -808,20 +808,68 @@ Boolean OperatingSystem::getDistributed(Boolean& distributed)
 /**
    getMaxProcsPerUser method for HP-UX implementation of OS Provider
 
-   Gets the information from sysconf (the _SC_CHILD_MAX option)
+   Gets the information using kmtune.
   */
 Boolean OperatingSystem::getMaxProcsPerUser (Uint32& maxProcsPerUser)
 {
-    long ret;
+    FILE             * mtuneInfo;
+    char               mline[80];
+    struct utsname     unameInfo;
+    uint64_t           maxuprc = 0;
 
-    ret = sysconf (_SC_CHILD_MAX);
-    if (ret != -1)
+// Call uname and check for any errors.
+    if (uname(&unameInfo) < 0)
     {
-        maxProcsPerUser = ret;
+       return false;
+    }
+
+    if (strcmp(unameInfo.release,"B.11.00")==0)
+    {
+// Use a pipe to invoke kmtune (since don't have gettune on 11.0)
+		      if ((mtuneInfo = popen("/usr/sbin/kmtune"
+						      	   " -q maxuprc 2>/dev/null", "r")) != NULL)
+		      {
+// Now extract the value
+		          while (fgets(mline, 80, mtuneInfo))
+		          {
+			             sscanf(mline, "maxuprc %d", &maxProcsPerUser);
+		          }
+		          (void)pclose (mtuneInfo);
+		      }
+		      else
+		      {
+		          return false;
+		      }
     }
     else
     {
-       return false;
+// we may be compiling on a system without gettune, but
+// run-time would have checked version and only be here
+// if we expect to have the gettune system call in libc
+
+// if handle is NULL, findsym is supposed to check currently
+// loaded libraries (and we know libc should be loaded)
+
+// get the procedure pointer for gettune
+        int (*gettune_sym) (const char *, uint64_t *) = NULL;
+        shl_t handle = NULL;
+
+        if (shl_findsym(&handle,
+		       "gettune",
+		       TYPE_PROCEDURE,
+		  (void *)&gettune_sym) != 0)
+        {
+            return false;
+        }
+        if (gettune_sym == NULL)
+        {
+            return false;
+        }
+        if (gettune_sym("maxuprc", &maxuprc) != 0)
+        {
+            return false;  // fail if can't get info
+        }
+        maxProcsPerUser = maxuprc;
     }
     return true;
 }

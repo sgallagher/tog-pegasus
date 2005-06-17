@@ -1186,8 +1186,6 @@ Array<Uint16> ProviderRegistrationProvider::_sendDisableMessageToProviderManager
     MessageQueueService * _service = _getProviderManagerService();
     Uint32 _queueId = _service->getQueueId();
 
-    callback_data *cb_data = new callback_data(this);
-
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =
         new AsyncLegacyOperationStart (
@@ -1226,8 +1224,6 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
 {
     MessageQueueService * _service = _getProviderManagerService();
     Uint32 _queueId = _service->getQueueId();
-
-    callback_data *cb_data = new callback_data(this);
 
     // create request envelope
     AsyncLegacyOperationStart * asyncRequest =

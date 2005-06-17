@@ -36,7 +36,7 @@
 
 #include <cassert>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Array.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 
 #define PACKER_ASSERT assert

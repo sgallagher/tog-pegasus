@@ -129,6 +129,7 @@ public:
         CIMGetInstanceResponseMessage * response);
 
     virtual void deliver(const CIMInstance & cimInstance);
+    using SimpleInstanceResponseHandler::deliver;
     virtual void complete(void);
 
 protected:
@@ -151,6 +152,7 @@ public:
         CIMEnumerateInstancesResponseMessage * response);
 
     virtual void deliver(const CIMInstance & cimInstance);
+    using SimpleInstanceResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -170,6 +172,7 @@ public:
         CIMEnumerateInstanceNamesResponseMessage * response);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
+    using SimpleObjectPathResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -189,6 +192,7 @@ public:
         CIMCreateInstanceResponseMessage * response);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
+    using SimpleObjectPathResponseHandler::deliver;
     virtual void complete(void);
 
 protected:
@@ -230,6 +234,7 @@ public:
         CIMGetPropertyResponseMessage * response);
 
     virtual void deliver(const CIMValue & cimValue);
+    using SimpleValueResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -260,6 +265,7 @@ public:
         CIMExecQueryResponseMessage * response);
 
     virtual void deliver(const CIMInstance & cimInstance);
+    using SimpleInstance2ObjectResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -278,6 +284,7 @@ public:
         CIMAssociatorsResponseMessage * response);
 
     virtual void deliver(const CIMObject & cimObject);
+    using SimpleObjectResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -294,6 +301,7 @@ public:
         CIMAssociatorNamesResponseMessage * response);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
+    using SimpleObjectPathResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -310,6 +318,7 @@ public:
         CIMReferencesResponseMessage * response);
 
     virtual void deliver(const CIMObject & cimObject);
+    using SimpleObjectResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -326,6 +335,7 @@ public:
         CIMReferenceNamesResponseMessage * response);
 
     virtual void deliver(const CIMObjectPath & cimObjectPath);
+    using SimpleObjectPathResponseHandler::deliver;
 
 protected:
     virtual String getClass(void) const;
@@ -342,6 +352,7 @@ public:
         CIMInvokeMethodResponseMessage * response);
 
     virtual void deliverParamValue(const CIMParamValue & cimParamValue);
+    using SimpleMethodResultResponseHandler::deliverParamValue;
 
     virtual void deliver(const CIMValue & cimValue);
 

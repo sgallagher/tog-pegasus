@@ -35,6 +35,7 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2393
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -92,9 +93,9 @@ class  PEGASUS_COMMON_LINKAGE thread_data
       {
          PEGASUS_ASSERT(key != NULL);
          size_t keysize = strlen(key);
-         _key = new char[keysize + 1];
-         memcpy(_key, key, keysize);
-         _key[keysize] = 0x00;
+         _key.reset(new char[keysize + 1]);
+         memcpy(_key.get(), key, keysize);
+         _key.get()[keysize] = 0x00;
 
       }
 
@@ -102,9 +103,9 @@ class  PEGASUS_COMMON_LINKAGE thread_data
       {
          PEGASUS_ASSERT(key != NULL);
          size_t keysize = strlen(key);
-         _key = new char[keysize + 1];
-         memcpy(_key, key, keysize);
-         _key[keysize] = 0x00;
+         _key.reset(new char[keysize + 1]);
+         memcpy(_key.get(), key, keysize);
+         _key.get()[keysize] = 0x00;
          _data = ::operator new(_size);
 
       }
@@ -115,9 +116,9 @@ class  PEGASUS_COMMON_LINKAGE thread_data
          PEGASUS_ASSERT(data != NULL);
          size_t keysize = strlen(key);
 
-         _key = new char[keysize + 1];
-         memcpy(_key, key, keysize);
-         _key[keysize] = 0x00;
+         _key.reset(new char[keysize + 1]);
+         memcpy(_key.get(), key, keysize);
+         _key.get()[keysize] = 0x00;
          _data = ::operator new(_size);
          memcpy(_data, data, size);
       }
@@ -129,8 +130,6 @@ class  PEGASUS_COMMON_LINKAGE thread_data
             {
                _delete_func( _data );
             }
-         if( _key != NULL )
-            delete [] _key;
       }
 
       /**
@@ -203,7 +202,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 
       inline Boolean operator==(const thread_data& b) const
       {
-         return(operator==(b._key));
+         return(operator==(b._key.get()));
       }
 
    private:
@@ -211,7 +210,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
       thread_data();
       void *_data;
       size_t _size;
-      char *_key;
+      AutoArrayPtr<char> _key;
 
       friend class DQueue<thread_data>;
       friend class Thread;

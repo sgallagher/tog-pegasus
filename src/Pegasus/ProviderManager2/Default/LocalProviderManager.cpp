@@ -485,17 +485,36 @@ Provider* LocalProviderManager::_initProvider(
         provider->set(module, base, cimomHandle);
         provider->_quantum=0;
 
+        Boolean initializeError = false;
+
         try
         {
-            provider->initialize(*(provider->_cimom_handle));
+          provider->initialize(*(provider->_cimom_handle));
         }
         catch(...)
+        {
+          initializeError = true;
+        }
+
+        // The cleanup code executed when an exception occurs was previously
+        // included in the catch block above. Unloading the provider module
+        // from inside the catch block resulted in a crash when an exception
+        // was thrown from a provider's initialize() method. The issue is that
+        // when an exception is thrown, the program maintains internal
+        // pointers related to the code that threw the exception. In the case
+        // of an exception thrown from a provider during the initialize()
+        // method, those pointers point into the provider library, so when
+        // the LocalProviderManager unloads the library, the pointers into the
+        // library that the program was holding are invalid.
+        if (initializeError == true)
         {
             // delete the cimom handle
             delete provider->_cimom_handle;
 
             // set provider status to UNINITIALIZED
             provider->reset();
+
+            provider->_provider = 0;
 
             // unload provider module
             module->unloadModule();

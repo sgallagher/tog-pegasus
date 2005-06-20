@@ -50,6 +50,7 @@ DIRS = \
     HashTable \
     IPC \
     InstanceDecl \
+    IndicationFormatter \
     L10N \
     L10N/msg \
     Logger \

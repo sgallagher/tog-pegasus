@@ -195,7 +195,7 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 
       inline Boolean operator==(const void *key) const
       {
-         if ( ! strcmp(_key, reinterpret_cast<const char *>(key)))
+         if ( ! strcmp(_key.get(), reinterpret_cast<const char *>(key)))
             return(true);
          return(false);
       }

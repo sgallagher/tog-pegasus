@@ -1795,6 +1795,7 @@ void CIMRepository::modifyInstance(
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
+    WriteLock lock(_lock);
 
     //
     // Get paths of index and data files:

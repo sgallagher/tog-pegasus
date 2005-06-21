@@ -59,7 +59,8 @@ LanguageElementContainerRep::LanguageElementContainerRep(const LanguageElementCo
 
 LanguageElementContainerRep::~LanguageElementContainerRep(){}
 
-LanguageElementContainerRep LanguageElementContainerRep::operator=(LanguageElementContainerRep rhs){
+LanguageElementContainerRep& LanguageElementContainerRep::operator=(
+    const LanguageElementContainerRep& rhs){
 	if(&rhs != this)
 		container = rhs.getAllLanguageElements();
 	return *this;	

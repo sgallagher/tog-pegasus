@@ -53,65 +53,69 @@ const LanguageElement LanguageElement::EMPTY = LanguageElement();
 LanguageElement LanguageElement::EMPTY_REF = LanguageElement();
  
 LanguageElement::LanguageElement(){
-	_rep = new LanguageElementRep();
+    _rep = new LanguageElementRep();
 }
 
 LanguageElement::LanguageElement(String aLanguage, String aCountry, String aVariant, Real32 aQuality){
-	_rep = new LanguageElementRep(aLanguage, aCountry, aVariant, aQuality);
+    _rep = new LanguageElementRep(aLanguage, aCountry, aVariant, aQuality);
 } 
 
 LanguageElement::LanguageElement(String language_tag, Real32 aQuality){
-	_rep = new LanguageElementRep(language_tag, aQuality);
+    _rep = new LanguageElementRep(language_tag, aQuality);
 }  
 
 LanguageElement::LanguageElement(const LanguageElement &rhs){
-	_rep = new LanguageElementRep(*rhs._rep);
+    _rep = new LanguageElementRep(*rhs._rep);
 }
 
 LanguageElement::~LanguageElement(){
-	if(_rep) delete _rep;
+    if(_rep) delete _rep;
 }
 
-LanguageElement LanguageElement::operator=(const LanguageElement &rhs){
-	*_rep = *rhs._rep;
-	return *this;	
+LanguageElement& LanguageElement::operator=(const LanguageElement &rhs)
+{
+    if (&rhs != this)
+    {
+        *_rep = *rhs._rep;
+    }
+    return *this;
 }
 
 String LanguageElement::getLanguage() const {
-	return _rep->getLanguage();
+    return _rep->getLanguage();
 }
 
 String LanguageElement::getCountry() const {
-	return _rep->getCountry();
+    return _rep->getCountry();
 }
 
 String LanguageElement::getVariant() const {
-	return _rep->getVariant();
+    return _rep->getVariant();
 }
 
 String LanguageElement::getTag() const{
-	return _rep->getTag();	
+    return _rep->getTag();
 }
 
 Real32 LanguageElement::getQuality() const{
-	return _rep->getQuality();
+    return _rep->getQuality();
 }
 
 String LanguageElement::toString() const{
-	return _rep->toString();
+    return _rep->toString();
 }
 
 Boolean LanguageElement::operator==(const LanguageElement &rhs)const{
-	return _rep->operator==(*rhs._rep);
+    return _rep->operator==(*rhs._rep);
 }
 
 Boolean LanguageElement::operator!=(const LanguageElement &rhs)const{
-	return (*_rep != *rhs._rep);
+    return (*_rep != *rhs._rep);
 }
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& stream, LanguageElement le){
-		stream << le.getTag();
-		return stream;
+    stream << le.getTag();
+    return stream;
 }
 
 PEGASUS_NAMESPACE_END

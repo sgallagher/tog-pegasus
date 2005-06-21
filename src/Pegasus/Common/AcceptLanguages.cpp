@@ -125,7 +125,7 @@ PEGASUS_STD(ostream)& operator<<(
     return stream;
 }
 
-AcceptLanguages AcceptLanguages::operator=(const AcceptLanguages& rhs)
+AcceptLanguages& AcceptLanguages::operator=(const AcceptLanguages& rhs)
 {
     if (&rhs != this)
     {

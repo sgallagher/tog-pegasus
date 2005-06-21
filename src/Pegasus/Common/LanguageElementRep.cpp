@@ -87,7 +87,8 @@ LanguageElementRep::LanguageElementRep(const LanguageElementRep &rhs){
 
 LanguageElementRep::~LanguageElementRep(){}
 
-LanguageElementRep LanguageElementRep::operator=(LanguageElementRep &rhs){
+LanguageElementRep& LanguageElementRep::operator=(const LanguageElementRep &rhs)
+{
 	language = rhs.getLanguage();
 	country = rhs.getCountry();
 	variant = rhs.getVariant();

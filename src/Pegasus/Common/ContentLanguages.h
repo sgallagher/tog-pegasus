@@ -143,7 +143,7 @@ public:
 	 * Assignment 
 	 * @param rhs ContentLanguages
 	 */
-	ContentLanguages operator=(const ContentLanguages &rhs);
+	ContentLanguages& operator=(const ContentLanguages &rhs);
 
 	void buildLanguageElements(Array<String> values);
 

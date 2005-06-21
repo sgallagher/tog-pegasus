@@ -94,7 +94,8 @@ public:
 	 * Deep copy
 	 * @param rhs LanguageElementContainer
 	 */
-	LanguageElementContainerRep operator=(LanguageElementContainerRep rhs);
+	LanguageElementContainerRep& operator=(
+	    const LanguageElementContainerRep& rhs);
 
 	/** Gets an AcceptLanguageElement object at position index
 	 * @param index int position of AcceptLanguageElement

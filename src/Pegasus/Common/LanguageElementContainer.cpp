@@ -38,87 +38,89 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-	
+
 //////////////////////////////////////////////////////////////
 //
 // LanguageElementContainer::
 //
 //////////////////////////////////////////////////////////////
-		 
+ 
 const LanguageElementContainer LanguageElementContainer::EMPTY = LanguageElementContainer();
-	
+
 LanguageElementContainer::LanguageElementContainer(){
-	_rep = new LanguageElementContainerRep();
-}	
-		 
+    _rep = new LanguageElementContainerRep();
+}
+ 
 LanguageElementContainer::LanguageElementContainer(const Array<LanguageElement> &aContainer){
-	_rep = new LanguageElementContainerRep(aContainer);
+    _rep = new LanguageElementContainerRep(aContainer);
 }
  
 LanguageElementContainer::LanguageElementContainer(const LanguageElementContainer &rhs){
-	_rep = new LanguageElementContainerRep(*rhs._rep);
+    _rep = new LanguageElementContainerRep(*rhs._rep);
 }
 
 LanguageElementContainer::~LanguageElementContainer(){
-	if(_rep) delete _rep;
+    if(_rep) delete _rep;
 }
 
-LanguageElementContainer LanguageElementContainer::operator=(const LanguageElementContainer &rhs){
-	if (&rhs != this)
-		*_rep = *rhs._rep;
-	return *this;
+LanguageElementContainer& LanguageElementContainer::operator=(
+    const LanguageElementContainer &rhs)
+{
+    if (&rhs != this)
+        *_rep = *rhs._rep;
+    return *this;
 }
 
 LanguageElement LanguageElementContainer::getLanguageElement(Uint32 index) const{
-	return _rep->getLanguageElement(index);
+    return _rep->getLanguageElement(index);
 } 
 
 Array<LanguageElement> LanguageElementContainer::getAllLanguageElements() const{
-	return _rep->getAllLanguageElements();	
+    return _rep->getAllLanguageElements();
 }  
 
 String LanguageElementContainer::toString() const{
-	return _rep->toString();
+    return _rep->toString();
 } 
 
 Uint32 LanguageElementContainer::size() const{
-	return _rep->size();	
+    return _rep->size();
 }
 
 Boolean LanguageElementContainer::contains(LanguageElement element)const {
-	return _rep->contains(element);
+    return _rep->contains(element);
 }
 
 void LanguageElementContainer::itrStart(){
-	_rep->itrStart();
+    _rep->itrStart();
 }
 
 LanguageElement LanguageElementContainer::itrNext(){
-	return _rep->itrNext();
+    return _rep->itrNext();
 }
 
 void LanguageElementContainer::append(LanguageElement element){
-	_rep->append(element);
+    _rep->append(element);
 }
 
 void LanguageElementContainer::remove(Uint32 index){
-	_rep->remove(index);
+    _rep->remove(index);
 }
 
 Uint32 LanguageElementContainer::remove(const LanguageElement &element){
-	return _rep->remove(element);	
+    return _rep->remove(element);
 }
 
 void LanguageElementContainer::clear(){
-	_rep->clear();
+    _rep->clear();
 }
 
 Boolean LanguageElementContainer::operator==(const LanguageElementContainer &rhs)const{
-	return (*_rep == *rhs._rep);
+    return (*_rep == *rhs._rep);
 }
 
 Boolean LanguageElementContainer::operator!=(const LanguageElementContainer &rhs)const{
-	return (*_rep != *rhs._rep);
+    return (*_rep != *rhs._rep);
 }
 
 PEGASUS_NAMESPACE_END

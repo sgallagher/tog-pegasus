@@ -118,7 +118,7 @@ public:
 	/**
 	 * Assignment operator, deep copy
 	 */
-	LanguageElement operator=(const LanguageElement &rhs);
+	LanguageElement& operator=(const LanguageElement &rhs);
 	
 	/** Gets the language value
 	 * @return String - language

@@ -111,7 +111,7 @@ public:
 	 * Assignment operator, deep copy
 	 * @param rhs AcceptLanguageElement
 	 */
-	//AcceptLanguageElement operator=(AcceptLanguageElement rhs);
+	//AcceptLanguageElement& operator=(const AcceptLanguageElement& rhs);
 	
 	/**
 	 * Comparison based on the quality values ONLY, that is, the language tags of the elements are NOT 

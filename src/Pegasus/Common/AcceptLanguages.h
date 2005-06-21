@@ -109,7 +109,7 @@ public:
         Assignment
         @param rhs AcceptLanguages
      */
-    AcceptLanguages operator=(const AcceptLanguages& rhs);
+    AcceptLanguages& operator=(const AcceptLanguages& rhs);
 
     /**
         Accesses an AcceptLanguageElement at a specified index.

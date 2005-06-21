@@ -53,6 +53,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/resource.h>
+#if defined(PEGASUS_HAS_SIGNALS)
+# include <sys/wait.h>
+#endif
 #endif
 
 
@@ -313,6 +316,10 @@ PAMBasicAuthenticatorStandAlone::PAMBasicAuthenticatorStandAlone()
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticatorStandAlone::PAMBasicAuthenticatorStandAlone()");
 
+#if defined(PEGASUS_HAS_SIGNALS)
+    _pid = -1;
+#endif
+
     _createPAMStandalone();
 
     PEG_METHOD_EXIT();
@@ -323,6 +330,15 @@ PAMBasicAuthenticatorStandAlone::~PAMBasicAuthenticatorStandAlone()
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticatorStandAlone::~PAMBasicAuthenticatorStandAlone()");
+
+#if defined(PEGASUS_HAS_SIGNALS)
+    // Harvest the status of the previous standalone process, if any
+    if (_pid != -1)
+    {
+        waitpid(_pid, 0, WNOHANG);
+        _pid = -1;
+    }
+#endif
 
     PEG_METHOD_EXIT();
 }
@@ -447,6 +463,15 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
 {
     pid_t   pid;
 
+#if defined(PEGASUS_HAS_SIGNALS)
+    // Harvest the status of the previous standalone process, if any
+    if (_pid != -1)
+    {
+        waitpid(_pid, 0, WNOHANG);
+        _pid = -1;
+    }
+#endif
+
     continue_PAMauthentication = true;
     if (pipe(fd_1) < 0)   // Pipe to write to authentication proc
     {
@@ -457,7 +482,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
             //L10N TODO
             Logger::put(Logger::ERROR_LOG, "CIMServer",
                   Logger::SEVERE,
-                  "Error processing PAM Authtication request (pipe).");
+                  "Error processing PAM Authentication request (pipe).");
         }
     }
     if (continue_PAMauthentication)
@@ -493,6 +518,9 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
         {
             close(fd_1[0]);     // close read end on 1st pipe
             close(fd_2[1]);     // close write end on 2nd pipe
+#if defined(PEGASUS_HAS_SIGNALS)
+            _pid = pid;
+#endif
         }
         else                     // This is the CHILD side of the fork
         {

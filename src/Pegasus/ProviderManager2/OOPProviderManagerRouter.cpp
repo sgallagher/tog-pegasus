@@ -67,6 +67,10 @@
 #else
 # include <unistd.h>  // For fork(), exec(), and _exit()
 # include <errno.h>
+# include <sys/types.h>
+# if defined(PEGASUS_HAS_SIGNALS)
+#  include <sys/wait.h>
+# endif
 #endif
 
 #include "OOPProviderManagerRouter.h"
@@ -222,6 +226,13 @@ private:
         Pipe connection used to write requests to the Provider Agent.
      */
     AutoPtr<AnonymousPipe> _pipeToAgent;
+
+#if defined(PEGASUS_HAS_SIGNALS)
+    /**
+        Process ID of the active Provider Agent.
+     */
+    pid_t _pid;
+#endif
 
     /**
         The _outstandingRequestTable holds an entry for each request that has
@@ -538,6 +549,9 @@ void ProviderAgentContainer::_startAgentProcess()
             _exit(1);
         }
     }
+# if defined(PEGASUS_HAS_SIGNALS)
+    _pid = pid;
+# endif
 #endif
 
     //
@@ -658,9 +672,9 @@ void ProviderAgentContainer::_initialize()
     {
         _startAgentProcess();
 
-        _sendInitializationData();
-
         _isInitialized = true;
+
+        _sendInitializationData();
 
         // Start a thread to read and process responses from the Provider Agent
         while (!MessageQueueService::get_thread_pool()->allocate_and_awaken(
@@ -671,6 +685,31 @@ void ProviderAgentContainer::_initialize()
     }
     catch (...)
     {
+#if defined(PEGASUS_HAS_SIGNALS)
+        if (_isInitialized)
+        {
+            // Harvest the status of the agent process to prevent a zombie
+            Boolean keepWaiting = false;
+            do
+            {
+                pid_t status = waitpid(_pid, 0, 0);
+                if (status == -1)
+                {
+                    if (errno == EINTR)
+                    {
+                        keepWaiting = true;
+                    }
+                    else
+                    {
+                        Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                            "ProviderAgentContainer::_initialize(): "
+                                "waitpid failed; errno = %d.", errno);
+                    }
+                }
+            } while (keepWaiting);
+        }
+#endif
+
         _isInitialized = false;
         _pipeToAgent.reset();
         _pipeFromAgent.reset();
@@ -718,6 +757,28 @@ void ProviderAgentContainer::_uninitialize()
             AutoMutex lock(_numProviderProcessesMutex);
             _numProviderProcesses--;
         }
+
+#if defined(PEGASUS_HAS_SIGNALS)
+        // Harvest the status of the agent process to prevent a zombie
+        Boolean keepWaiting = false;
+        do
+        {
+            pid_t status = waitpid(_pid, 0, 0);
+            if (status == -1)
+            {
+                if (errno == EINTR)
+                {
+                    keepWaiting = true;
+                }
+                else
+                {
+                    Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                        "ProviderAgentContainer::_uninitialize(): "
+                            "waitpid failed; errno = %d.", errno);
+                }
+            }
+        } while (keepWaiting);
+#endif
 
         _isInitialized = false;
 

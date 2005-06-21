@@ -76,6 +76,13 @@ public:
 private:
     String        _realm;
 
+#if defined(PEGASUS_HAS_SIGNALS)
+    /**
+        Process ID of the active Provider Agent.
+     */
+    pid_t _pid;
+#endif
+
     Boolean _authenticateByPAM(
         const String& userName,
         const String& password);

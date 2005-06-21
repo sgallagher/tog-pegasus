@@ -951,10 +951,16 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
     FILE             * mtuneInfo;
     char               mline[80];
     struct utsname     unameInfo;
-    unsigned long long ret;
+    uint64_t           ret;
 
     if  (verbose)
       cout<<"Checking MaxProcsPerUser " << umaxproc << endl;
+
+// Call uname and check for any errors.
+    if (uname(&unameInfo) < 0)
+    {
+        return false;
+    }
 
     if (strcmp(unameInfo.release,"B.11.00")==0)
     {
@@ -965,7 +971,7 @@ Boolean OSTestClient::goodMaxProcessesPerUser (const Uint32& umaxproc,
 // Now extract the value
 		          while (fgets(mline, 80, mtuneInfo))
 		          {
-			             sscanf(mline, "maxuprc %d", &ret);
+			             sscanf(mline, "maxuprc %lld", &ret);
 		          }
 		          (void)pclose (mtuneInfo);
 		      }

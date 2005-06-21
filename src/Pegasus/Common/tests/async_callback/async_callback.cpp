@@ -35,7 +35,7 @@
 
 
 #include "async_callback.h"
-
+#include <Pegasus/Common/Tracer.h>
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
@@ -104,9 +104,10 @@ Boolean test_async_queue::messageOK (const Message * msg)
 void
 test_async_queue::_handle_async_request (AsyncRequest * rq)
 {
-  if (rq->getType () == async_messages::ASYNC_OP_START | rq->getType () ==
-      async_messages::ASYNC_LEGACY_OP_START)
-    {
+  if ((rq->getType () == async_messages::ASYNC_OP_START) | (rq->getType () ==
+      async_messages::ASYNC_LEGACY_OP_START))
+    {  
+     try {
       PEGASUS_ASSERT (_role == SERVER);
       Message *response_data =
         new Message (CIM_GET_INSTANCE_RESPONSE_MESSAGE);
@@ -115,6 +116,10 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
                             async_results::OK,
                             response_data);
       _complete_op_node (rq->op, 0, 0, async_results::ASYNC_COMPLETE);
+    } catch (const PEGASUS_STD(bad_alloc) &)
+	{
+		cerr <<" Out of memory!" << endl;
+	}
     }
   else if (rq->getType () == async_messages::CIMSERVICE_STOP)
     {
@@ -177,7 +182,7 @@ test_async_queue::async_handleSafeEnqueue (Message * msg,
 void
 test_async_queue::_handle_stop (CimServiceStop * stop)
 {
-
+  try { 
   AsyncReply *resp = new AsyncReply (async_messages::REPLY,
                                      stop->getKey (),
                                      stop->getRouting (),
@@ -188,6 +193,9 @@ test_async_queue::_handle_stop (CimServiceStop * stop)
                                      stop->block);
   _completeAsyncResponse (stop, resp, ASYNC_OPSTATE_COMPLETE, 0);
   _die_now = 1;
+  } catch (const PEGASUS_STD(bad_alloc) &) {
+	cerr << "Out of memory in _handle_stop.	Continuing tests .. " << endl;
+  }
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func (void *parm);
@@ -198,7 +206,14 @@ main (int argc, char **argv)
 {
   verbose = getenv ("PEGASUS_TEST_VERBOSE");
 
-
+#ifdef PEGASUS_DEBUG
+  if (verbose)
+  {
+    Tracer::setTraceLevel(4);
+    Tracer::setTraceComponents("DiscardedData");
+    Tracer::setTraceFile("async_callback.trc");
+  }
+#endif
   try
   {
     Thread client (client_func, (void *) 0, false);
@@ -234,7 +249,9 @@ client_func (void *parm)
   while (services.size () == 0)
     {
       client->find_services (String ("server"), 0, 0, &services);
-      pegasus_yield ();
+      // It is a good idea to yield to other threads. You should do this,
+      // but this test-case stresses situations in which does not happend.
+      //pegasus_yield ();
     }
 
   AtomicInt rq_count;
@@ -245,11 +262,9 @@ client_func (void *parm)
       // The problem on multi-processor machines is that if we make it continue on
       // sending the messages, and the MessageQueueService does not get to pickup
       // the messages, the machine can crawl to halt with about 300-400 threads
-      // and ever-continuing number of them created. So we stop at the magic number
-      // of 1100 messages. The extra 100 messages or so should be deleted when
-      // we delete the MessageQueueService
-      if (rq_count.value () < 1100)
-        {
+      // and ever-continuing number of them created. This is an evil stress test
+      // so lets leave it behind.
+        try {
           Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
 
           AsyncOpNode *op = client->get_op ();
@@ -265,9 +280,14 @@ client_func (void *parm)
                              test_async_queue::async_handleEnqueue,
                              client, (void *) 0);
 
-        }
+        } catch (const PEGASUS_STD(bad_alloc) &)
+	{
+		cerr <<" Out of memory! Continuing tests." << endl;
+	}
       rq_count++;
-      pegasus_yield ();
+      // You really ought to allow other threads to their job (like picking up
+      // all of these messages, but we  want to stress test unfair circumstances. 
+      //pegasus_yield ();
       if (verbose)
         {
           if (test_async_queue::msg_count.value () % 100 == 0)
@@ -276,8 +296,15 @@ client_func (void *parm)
         }
     }
   while (test_async_queue::msg_count.value () < 1000);
+
+  if (verbose)
+   cout << "Waiting until all messages are flushed. " << endl;
+  while (test_async_queue::msg_count.value() < rq_count.value())
+  {
+	pegasus_yield();
+  }
   test_async_queue::msg_count = 0;
-  rq_count = 0;
+  rq_count = 0; 
   if (verbose)
     cout << "testing fast safe async send " << endl;
   do
@@ -285,10 +312,8 @@ client_func (void *parm)
       // The problem on multi-processor machines is that if we make it continue on
       // sending the messages, and the MessageQueueService does not get to pickup
       // the messages, the machine can crawl to halt with about 300-400 threads
-      // and ever-continuing number of them created. So we stop at the magic number
-      // of 1100 messages.The extra 100 messages or so should be deleted when
-      // we delete the MessageQueueService.
-      if (rq_count.value () < 1100)
+      // and ever-continuing number of them created. 
+      try 
         {
           Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
 
@@ -296,9 +321,11 @@ client_func (void *parm)
                              services[0],
                              test_async_queue::async_handleSafeEnqueue,
                              client, (void *) NULL);
-        }
+        } catch (const PEGASUS_STD(bad_alloc) &) {
+		cerr <<" Out of memory! Continuing tests." << endl;
+	}
       rq_count++;
-      pegasus_yield ();
+      //pegasus_yield ();
       if (verbose)
         {
           if (test_async_queue::msg_count.value () % 100 == 0)
@@ -308,20 +335,28 @@ client_func (void *parm)
 
     }
   while (test_async_queue::msg_count.value () < 1000);
-
+  if (verbose)
+   cout << "Waiting until all messages are flushed. " << endl;
+  while (test_async_queue::msg_count.value() < rq_count.value())
+  {
+	pegasus_yield();
+  }
   if (verbose)
     cout << "sending stop to server " << endl;
-
-  CimServiceStop *stop = new CimServiceStop (client->get_next_xid (),
+  try {
+  	CimServiceStop *stop = new CimServiceStop (client->get_next_xid (),
                                              0,
                                              services[0],
                                              client->getQueueId (),
                                              true);
 
-  AsyncMessage *reply = client->SendWait (stop);
-  delete stop;
-  delete reply;
-
+  	AsyncMessage *reply = client->SendWait (stop);
+  	delete stop;
+  	delete reply;
+  } catch (const PEGASUS_STD(bad_alloc) &)
+  {
+	cerr <<" Out of memory! Continuing tests." << endl;
+  }
   // wait for the server to shut down 
   while (services.size () > 0)
     {

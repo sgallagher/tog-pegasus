@@ -27,11 +27,6 @@
 //
 //==============================================================================
 //
-// Author:       Viktor Mihajlovski <mihajlov@de.ibm.com>
-//
-// Modified By: David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CWS_FileUtils.h"

@@ -27,10 +27,6 @@
 //
 //==============================================================================
 //
-// Author:       Viktor Mihajlovski <mihajlov@de.ibm.com>
-//
-// Modified By:  Adrian Schuur <schuur@de.ibm.com>
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "cwsutil.h"  

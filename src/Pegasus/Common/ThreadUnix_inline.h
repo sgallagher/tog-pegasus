@@ -168,7 +168,13 @@ inline void Thread::thread_init(void)
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #define PEGASUS_THREAD_EXIT_NATIVE 
-inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
+inline void Thread::exit_self(void *return_code)
+{
+    // NOTE: pthread_exit exhibits unusual behavior on RHEL 3 U2, as
+    // documented in Bugzilla 3836.  Where feasible, it may be advantageous
+    // to avoid using this function.
+    pthread_exit(return_code);
+}
 #endif
 
 inline void Thread::detach(void)

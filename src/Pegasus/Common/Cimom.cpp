@@ -265,7 +265,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 
       }
    } // loop 
-   myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+
    return(0);
 }
 
@@ -714,7 +714,7 @@ void cimom::ioctl(AsyncIoctl *msg)
 	 // shutdown the AsyncDQueue
 	 service->_routed_ops.shutdown_queue();
 	 // exit the thread ! 
-	 myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
+	 _die++;
 	 return;
       }
 

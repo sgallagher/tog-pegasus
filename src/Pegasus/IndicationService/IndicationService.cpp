@@ -3185,20 +3185,12 @@ Boolean IndicationService::_canCreate (
 
         //
         //  If Namespace is included in a Filter or Handler reference property
-        //  value, validate that it is correct and, if correct, remove it
-        //  If incorrect, reject the create operation
+        //  value, validate that it is correct.
+        //  If incorrect, reject the create operation.
         //
         if (!(filterPath.getNameSpace ().isNull ()))
         {
-            if (filterPath.getNameSpace ().equal (nameSpace))
-            {
-                //
-                //  Remove namespace from subscription Filter property value
-                //
-                filterPath.setNameSpace (CIMNamespaceName ());
-                filterProperty.setValue (CIMValue (filterPath));
-            }
-            else
+            if (!filterPath.getNameSpace ().equal (nameSpace))
             {
                 //
                 //  Reject subscription creation
@@ -3218,15 +3210,7 @@ Boolean IndicationService::_canCreate (
 
         if (!(handlerPath.getNameSpace ().isNull ()))
         {
-            if (handlerPath.getNameSpace ().equal (nameSpace))
-            {
-                //
-                //  Remove namespace from subscription Handler property value
-                //
-                handlerPath.setNameSpace (CIMNamespaceName ());
-                handlerProperty.setValue (CIMValue (handlerPath));
-            }
-            else
+            if (!handlerPath.getNameSpace ().equal (nameSpace))
             {
                 //
                 //  Reject subscription creation

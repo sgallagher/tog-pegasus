@@ -56,7 +56,7 @@ inline ThreadStatus Thread::run(void)
         }
         else
         {
-            return PEGASUS_SETUP_FAILURE;
+            return PEGASUS_THREAD_SETUP_FAILURE;
         }
     }
     return PEGASUS_THREAD_OK;

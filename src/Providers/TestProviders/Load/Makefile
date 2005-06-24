@@ -192,6 +192,9 @@ unregisterproviders:
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m TestCMPIIndicationProviderModule
 	cimprovider -r -m TestCMPIMethodProviderModule
+	cimprovider -r -m TestCMPIFail_1ProviderModule
+	cimprovider -r -m TestCMPIFail_2ProviderModule
+	cimprovider -r -m TestCMPIFail_3ProviderModule 
 ifdef PEGASUS_ENABLE_EXECQUERY
 	cimprovider -r -m TestCMPIInstanceProviderModule
 endif

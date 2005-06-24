@@ -47,3 +47,14 @@ class TestCMPI_Method : TestCMPI_Parent
 	String returnString();
 	Uint32 returnUint32();
 };
+
+class TestCMPI_Fail_1: TestCMPI_Parent
+{
+};
+
+class TestCMPI_Fail_2: TestCMPI_Parent
+{
+};
+class TestCMPI_Fail_3: TestCMPI_Parent
+{
+};

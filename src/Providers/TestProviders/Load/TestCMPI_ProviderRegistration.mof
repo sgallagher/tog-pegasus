@@ -69,3 +69,113 @@ instance of PG_ProviderCapabilities
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
+
+// ===================================================================
+// Instance provider that fails loading. The provider returns a NULL pointer
+// when _CreateInstance function is called. (the entry point)
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Fail_1 provider";
+   Name = "TestCMPIFail_1ProviderModule";
+  // The library name on disk
+   Location = "cmpiTestFail_1Provider"; 
+   Vendor = "SBLIM";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIFail_1ProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIFail_1Provider";	
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIFail_1ProviderModule";
+   ProviderName = "TestCMPIFail_1Provider";
+   CapabilityID = "CMPI Test Instance Fail 1 Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_Fail_1";
+   Namespaces = { "test/TestProvider" };
+   ProviderType = { 2,3,4, 5}; //All the different types
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+
+// ===================================================================
+// Instance provider that fails loading. The provider has the symbolic 
+// name for the _CreateInstance function mistyped. 
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Fail_2 provider";
+   Name = "TestCMPIFail_2ProviderModule";
+  // The library name on disk
+   Location = "cmpiTestFail_2Provider"; 
+   Vendor = "SBLIM";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIFail_2ProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIFail_2Provider";	
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIFail_2ProviderModule";
+   ProviderName = "TestCMPIFail_2Provider";
+   CapabilityID = "CMPI Test Instance Fail 1 Provider";
+   // Name of the CIM Class as defined in the mof.
+
+   ClassName = "TestCMPI_Fail_2";
+   Namespaces = { "test/TestProvider" };
+   ProviderType = { 2 }; //Instance 
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};
+// ===================================================================
+// Instance provider that fails loading. The provider has two entry
+// functions - the _CreateInstance and _Generic_Create_Instance. They
+// cannot co-exist.
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Fail_3 provider";
+   Name = "TestCMPIFail_3ProviderModule";
+  // The library name on disk
+   Location = "cmpiTestFail_3Provider"; 
+   Vendor = "SBLIM";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIFail_3ProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIFail_3Provider";	
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIFail_3ProviderModule";
+   ProviderName = "TestCMPIFail_3Provider";
+   CapabilityID = "CMPI Test Instance Fail 1 Provider";
+   // Name of the CIM Class as defined in the mof.
+
+   ClassName = "TestCMPI_Fail_3";
+   Namespaces = { "test/TestProvider" };
+   ProviderType = { 2 }; //Instance 
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};

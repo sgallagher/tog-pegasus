@@ -123,7 +123,7 @@ PROV_LOG_OPEN (const char *file, const char *location)
   fd = fopen (path, "a+");
   if (fd == NULL)
     fd = stderr;
-
+  free (path);
 }
 
 /* ---------------------------------------------------------------------------*/
@@ -603,7 +603,7 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
             ("++++ Calling CMReturnData+Done on returnString operation");
           CMReturnData (rslt, (CMPIValue *) result, CMPI_chars);
           CMReturnDone (rslt);
-
+	  free(result);
         }
       else if (strncmp ("returnUint32", methodName, strlen ("returnUint32"))
                == 0)

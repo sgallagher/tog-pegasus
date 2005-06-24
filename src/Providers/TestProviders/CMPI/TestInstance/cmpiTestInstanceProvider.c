@@ -127,7 +127,7 @@ PROV_LOG_OPEN (const char *file, const char *location)
   fd = fopen (path, "a+");
   if (fd == NULL)
     fd = stderr;
-
+  free (path);
 }
 
 /* ---------------------------------------------------------------------------*/

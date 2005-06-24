@@ -63,6 +63,7 @@ CMPIProvider::CMPIProvider(const String & name,
 {
    _current_operations = 1;
    _currentSubscriptions = 0;
+   broker.hdl =0;
    if (mv) miVector=*mv;
    noUnload=false;
 }
@@ -74,13 +75,14 @@ CMPIProvider::CMPIProvider(CMPIProvider *pr)
    _current_operations = 1;
    _currentSubscriptions = 0;
    miVector=pr->miVector;
+   broker.hdl =0;
    _cimom_handle=new CIMOMHandle();
    noUnload=pr->noUnload;
 }
 
 CMPIProvider::~CMPIProvider(void)
 {
-
+    delete (CIMOMHandle*)broker.hdl;
 }
 
 CMPIProvider::Status CMPIProvider::getStatus(void)
@@ -113,7 +115,23 @@ CMPIProviderModule *CMPIProvider::getModule(void) const
 
 String CMPIProvider::getName(void) const
 {
-    return(_name);
+    return(_name.subString(1,PEG_NOT_FOUND));
+}
+void setError(ProviderVector &miVector,
+                String &error,
+		const String &realProviderName,
+                  const char *generic,
+                  const char *spec) 
+{
+
+   if (miVector.genericMode)
+           error.append(generic);
+   else
+      {
+           error.append(realProviderName);
+           error.append(spec);
+      }
+  error.append(", ");
 }
 
 void CMPIProvider::initialize(CIMOMHandle & cimom,
@@ -132,9 +150,10 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
         CMPI_ContextOnStack eCtx(opc);
         CMPI_ThreadContext thr(&broker,&eCtx);
 	    CMPIStatus rc = {CMPI_RC_OK, NULL};
+		String error = String::EMPTY;
+  	    String realProviderName(name);
 
         if (miVector.genericMode) {
-  	   String realProviderName(name);
 	   Uint32 idx = realProviderName.find(":");
 	   if (idx == PEG_NOT_FOUND) {
 	     realProviderName.remove(0,1);
@@ -165,13 +184,37 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
            if (miVector.miTypes & CMPI_MIType_Indication)
               miVector.indMI=miVector.createIndMI(&broker,&eCtx, &rc);
         }
+ 
+           if (miVector.miTypes & CMPI_MIType_Instance)
+              if (miVector.instMI == NULL || rc.rc != CMPI_RC_OK)
+			setError(miVector, error, realProviderName, _Generic_Create_InstanceMI, _Create_InstanceMI);
+           if (miVector.miTypes & CMPI_MIType_Association)
+              if (miVector.assocMI == NULL || rc.rc != CMPI_RC_OK)
+			setError(miVector, error, realProviderName, _Generic_Create_AssociationMI, _Create_AssociationMI);
+           if (miVector.miTypes & CMPI_MIType_Method) 
+              if (miVector.methMI == NULL || rc.rc != CMPI_RC_OK)
+			setError(miVector, error, realProviderName, _Generic_Create_MethodMI, _Create_MethodMI);
+           if (miVector.miTypes & CMPI_MIType_Property)
+			 if (miVector.propMI == NULL || rc.rc != CMPI_RC_OK)
+			setError(miVector, error, realProviderName, _Generic_Create_PropertyMI, _Create_PropertyMI);
+           if (miVector.miTypes & CMPI_MIType_Indication)
+              if (miVector.indMI == NULL || rc.rc != CMPI_RC_OK)
+			setError(miVector, error, realProviderName, _Generic_Create_IndicationMI, _Create_IndicationMI);
+
+		if (error.size() != 0) 
+		 {
+			delete (CIMOMHandle*)broker.hdl;
+			broker.hdl =0;
+		    	throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPIProvider.CANNOT_INIT_API",
+            			"ProviderInitFailure: Error initializing $0 the following API(s): $1",
+				realProviderName,
+				error.subString(0, error.size()-2)));
+		  }
 }
 
 void CMPIProvider::initialize(CIMOMHandle & cimom)
 {
-    String providername(_name);
-    // remove the first letter
-    // providername.remove(0,1);
+    String providername(getName());
 
     if(_status == UNINITIALIZED)
   {
@@ -228,7 +271,7 @@ Boolean CMPIProvider::tryTerminate(void)
       {
 	 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
 			  "Exception caught in CMPIProviderFacade::tryTerminate() for " +
-			  _name);
+			  getName());
 	 terminated = false;
 	 
       }
@@ -313,7 +356,7 @@ void CMPIProvider::terminate()
     {
 	      PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, 
 			       "Exception caught in CMPIProviderFacade::Terminate for " + 
-			       _name);
+			       getName());
       throw;
     }
   }

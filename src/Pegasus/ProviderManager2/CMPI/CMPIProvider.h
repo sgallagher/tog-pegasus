@@ -93,6 +93,18 @@ typedef CMPIPropertyMI*    (*CREATE_GEN_PROP_MI)(CMPIBroker*,CMPIContext*,const 
 typedef CMPIIndicationMI*  (*CREATE_GEN_IND_MI)(CMPIBroker*,CMPIContext*,const char*);
 #endif
 
+#define _Generic_Create_InstanceMI "_Generic_Create_InstanceMI"
+#define _Generic_Create_AssociationMI "_Generic_Create_AssociationMI"
+#define _Generic_Create_MethodMI "_Generic_Create_MethodMI"
+#define _Generic_Create_PropertyMI "_Generic_Create_PropertyMI"
+#define _Generic_Create_IndicationMI "_Generic_Create_IndicationMI"
+
+#define _Create_InstanceMI "_Create_InstanceMI"
+#define _Create_AssociationMI "_Create_AssociationMI"
+#define _Create_MethodMI "_Create_MethodMI"
+#define _Create_PropertyMI "_Create_PropertyMI"
+#define _Create_IndicationMI "_Create_IndicationMI"
+
 struct ProviderVector {
    int			miTypes;
    int			genericMode;
@@ -262,7 +274,6 @@ private:
     void set(CMPIProviderModule *&module,
             ProviderVector base,
             CIMOMHandle *&cimomHandle);
-
     friend class CMPILocalProviderManager;
     friend class CMPIProviderManager;
     friend class CMPI_RProviderManager;

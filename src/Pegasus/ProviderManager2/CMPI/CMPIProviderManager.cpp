@@ -2198,9 +2198,6 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
             (CIMName ("Name"))).getValue ().get (providerName);
 
 		Uint32 pos = _pInstances[i].findProperty("Name");
-        providerManager.unloadProvider(physicalName, _pInstances[i].getProperty(
-											_pInstances[i].findProperty("Name")
-										).getValue ().toString ());
 
         //
         //  Reset the indication provider's count of current
@@ -2210,12 +2207,19 @@ Message * CMPIProviderManager::handleDisableModuleRequest(const Message * messag
         {
             if (physicalName.size () > 0)
             {
+		try {
                 CMPIProvider::OpProviderHolder ph = providerManager.getProvider
                     (physicalName, providerName);
-
                 ph.GetProvider ().resetSubscriptions ();
+		} catch (const Exception &e) { 
+        		PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+            			 e.getMessage());
+		}
             }
         }
+        providerManager.unloadProvider(physicalName, _pInstances[i].getProperty(
+										_pInstances[i].findProperty("Name")
+										).getValue ().toString ());
     }
 
     CIMDisableModuleResponseMessage * response =

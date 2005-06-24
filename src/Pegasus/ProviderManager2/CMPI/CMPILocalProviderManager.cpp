@@ -43,6 +43,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
+#include <Pegasus/Common/MessageLoader.h>
+
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
@@ -134,7 +136,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
           {
 
             PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                              "Unloading CMPIProvider: " + pr->_name);
+                              "Unloading CMPIProvider: " + pr->getName());
 
             AutoMutex lock (_providerTableMutex);
             // The provider table must be locked before unloading. 
@@ -209,7 +211,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                           "_provider_ctrl::INSERT_PROVIDER");
 
         AutoMutex lock (_providerTableMutex);
-
+	
         if (false == _providers.insert (*(parms->providerName),
                                         *reinterpret_cast <
                                         CMPIProvider * *>(parm)))
@@ -362,14 +364,14 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                       // provider not unloaded -- we are respecting this!
                       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                         "Provider refused to unload: " +
-                                        unloadProviderArray[index]->_name);
+                                        unloadProviderArray[index]->getName());
                       continue;
                     }
 
                   // delete the cimom handle
                   PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                     "Destroying CMPIProvider's CIMOM Handle "
-                                    + provider->_name);
+                                    + provider->getName());
                   delete provider->_cimom_handle;
 
                   PEGASUS_ASSERT (provider->_module != 0);
@@ -467,7 +469,13 @@ getProvider (const String & fileName, const String & providerName)
   String
   lproviderName ("L");
   PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, "ProviderManager::getProvider");
+  if (fileName.size() == 0)
+  {
+        throw Exception(MessageLoaderParms("ProviderManager.CMPI.CMPILocalProviderManager.CANNOT_FIND_LIBRARY",
+            "Provider library $0 was not found.",
+            fileName));
 
+  }
   lproviderName.append (providerName);
   strings.fileName = &fileName;
   strings.providerName = &lproviderName;
@@ -515,7 +523,6 @@ CMPILocalProviderManager::unloadProvider (const String & fileName,
   strings.fileName = &fileName;
   strings.providerName = &lproviderName;
   strings.location = &String::EMPTY;
-
   _provider_ctrl (UNLOAD_PROVIDER, &strings, (void *) 0);
    
   strings.providerName = &rproviderName;
@@ -683,7 +690,7 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
   }                             // unlock the providerTable mutex
 
   Boolean deleteProvider = false;
-
+  String exceptionMsg = moduleFileName;
   {
     // lock the provider status mutex
     AutoMutex lock (provider->_statusMutex);
@@ -702,48 +709,68 @@ CMPILocalProviderManager::_initProvider (CMPIProvider * provider,
     {
       base = module->load (provider->_name);
     }
+    catch (const Exception &e)
+    {
+	  exceptionMsg = e.getMessage();
+      PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+                        "Exception caught Loading/Linking Provider Module " +
+                        moduleFileName+ " error is: "+exceptionMsg);
+	  deleteProvider =true;
+    }
     catch (...)
     {
       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "Exception caught Loading/Linking Provider Module " +
+                        "Unknown exception caught Loading/Linking Provider Module " +
                         moduleFileName);
-      PEG_METHOD_EXIT ();
-      throw;
+       exceptionMsg = moduleFileName;
     }
-
-    // initialize the provider
-    PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
-                      "Initializing Provider " + provider->_name);
-
-    CIMOMHandle *cimomHandle = new CIMOMHandle ();
-    provider->set (module, base, cimomHandle);
-    provider->_quantum = 0;
-
-    try
+    if (!deleteProvider)
     {
-      provider->initialize (*(provider->_cimom_handle));
-    }
-    catch (...)
-    {
+      // initialize the provider
+      PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                      "Initializing Provider " + provider->getName());
+
+      CIMOMHandle *cimomHandle = new CIMOMHandle ();
+      provider->set (module, base, cimomHandle);
+      provider->_quantum = 0;
+
+      try
+      {
+      	provider->initialize (*(provider->_cimom_handle));
+      }
+      catch (const Exception &e)
+      {
+     	PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+				"Problem initializing: " + e.getMessage());
+      	deleteProvider = true;
+	exceptionMsg = e.getMessage();
+      }
+      catch (...) 
+      {
+     	PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+				"Unknown problem initializing " + provider->getName());
+      	deleteProvider = true;
+	exceptionMsg = provider->getName();
+      }
+    }                             // unlock the provider status mutex
+  }
+  /* We wait until this moment to delete the provider b/c we need
+     be outside the scope for the AutoMutex for the provider. */
+  if (deleteProvider)
+  {
       // delete the cimom handle
       delete provider->_cimom_handle;
-
       // set provider status to UNINITIALIZED
       provider->reset ();
-      deleteProvider = true;
-
       // unload provider module
       module->unloadModule ();
-    }
-  }                             // unlock the provider status mutex
 
-  if (deleteProvider)
-    {
       AutoMutex lock (_providerTableMutex);
-      String name = provider->getName ();
-      _providers.remove (name);
+      _providers.remove (provider->_name);
       delete provider;
-      throw Exception ("Could not load " + name);
+
+      PEG_METHOD_EXIT ();
+      throw Exception(exceptionMsg);
     }
 
   PEG_METHOD_EXIT ();
@@ -761,18 +788,18 @@ CMPILocalProviderManager::_unloadProvider (CMPIProvider * provider)
   PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, "_unloadProvider");
 
   PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                    "Unloading Provider " + provider->_name);
+                    "Unloading Provider " + provider->getName());
 
   if (provider->_current_operations.value ())
     {
       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                         "Provider cannot be unloaded due to pending operations: "
-                        + provider->_name);
+                        + provider->getName());
     }
   else
     {
       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-                        "Terminating Provider " + provider->_name);
+                        "Terminating Provider " + provider->getName());
 
 
       // lock the provider mutex
@@ -786,13 +813,13 @@ CMPILocalProviderManager::_unloadProvider (CMPIProvider * provider)
       {
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL3,
                           "Error occured terminating CMPI provider " +
-                          provider->_name);
+                          provider->getName());
       }
 
       // delete the cimom handle
       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                         "Destroying CMPIProvider's CIMOM Handle " +
-                        provider->_name);
+                        provider->getName());
 
       delete provider->_cimom_handle;
       PEGASUS_ASSERT (provider->_module != 0);
@@ -832,7 +859,6 @@ CMPILocalProviderManager::_lookupProvider (const String & providerName)
     {
       // create provider
       pr = new CMPIProvider (providerName, 0, 0);
-
       // insert provider in provider table
       _providers.insert (providerName, pr);
 

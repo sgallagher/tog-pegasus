@@ -27,10 +27,6 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com
-//
-// Modified By: Robert Kieninger (kieningr@de.ibm.com) for Bugzilla 2320
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef _CMPIDT_H_

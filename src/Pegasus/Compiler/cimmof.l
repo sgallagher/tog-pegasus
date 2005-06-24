@@ -169,7 +169,7 @@ class                                 { return(TOK_CLASS); }
                                           char *t = yytext;
                                           while( *t ) *strbuf_p++ = *t++;
                                           }
-                                      else *strbuf_p++ = *(char*)&n;
+                                      else *strbuf_p++ = (char)n;
                                       yy_pop_state();     
                                       }
 <myHex>.                              { memcpy(strbuf_p,slashx,2);

@@ -57,6 +57,7 @@
 
 #include <Pegasus/Common/Array.h>
 
+#include <Pegasus/Common/FileSystem.h>
 
 
 PEGASUS_USING_PEGASUS;
@@ -469,20 +470,6 @@ void drive_MessageLoader(){
 
 #ifdef PEGASUS_HAS_ICU
 
-    // If PEGASUS_MSG_HOME is set then use that as the message home for this test.
-    // This will ignore any msg home defined for the platform (Constants.h)
-    // since this is a test environment, not a production environment.
-    const char* env = getenv("PEGASUS_MSG_HOME");
-    if (env != NULL)
-    {
-      MessageLoader::setPegasusMsgHome(env);
-    }
-
-    // If PEGASUS_USE_DEFAULT_MESSAGES env var is set then we need to make sure that it doesn't
-    // break this test.
-    // Reset _useDefaultMsg to make sure PEGASUS_USE_DEFAULT_MESSAGES is ignored.
-    MessageLoader::_useDefaultMsg = false;
-
     assert ( MessageLoader::getMessage(mlp) == "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 64,000" );
 
     // test for return content languages
@@ -588,22 +575,6 @@ void drive_MessageLoaderSubs()
     AcceptLanguages al("en_US");
 
     MessageLoader::_acceptlanguages.clear();
-
-#ifdef PEGASUS_HAS_ICU
-    // If PEGASUS_MSG_HOME is set then use that as the message home for this test.
-    // This will ignore any msg home defined for the platform (Constants.h)
-    // since this is a test environment, not a production environment.
-    const char* env = getenv("PEGASUS_MSG_HOME");
-    if (env != NULL)
-    {
-      MessageLoader::setPegasusMsgHome(env);
-    }
-
-    // If PEGASUS_USE_DEFAULT_MESSAGES env var is set then we need to make sure that it doesn't
-    // break this test.
-    // Reset _useDefaultMsg to make sure PEGASUS_USE_DEFAULT_MESSAGES is ignored.
-    MessageLoader::_useDefaultMsg = false;
-#endif
 
     //
     // Test Uint64 support.  ICU does not support Uint64, so there
@@ -723,27 +694,63 @@ void drive_MessageLoaderSubs()
 
 
 
-int main( int argc, char *argv[] ){
+int main( int argc, char *argv[] )
+{
 
+#ifdef PEGASUS_HAS_ICU
+    // If PEGASUS_MSG_HOME is set then use that as the message home for this test.
+    // This will ignore any msg home defined for the platform (Constants.h)
+    // since this is a test environment, not a production environment.
+    const char* env = getenv("PEGASUS_MSG_HOME");
+    if (env != NULL)
+    {
+      MessageLoader::setPegasusMsgHome(env);
+    }
+    else
+    {
+      // PEGASUS_MSG_HOME is not set.  Since we need the test messages,
+      // use PEGASUS_HOME as the message home.
+      env = getenv("PEGASUS_HOME");
+      if (env != NULL)
+      {
+        String msghome(env);
+        msghome.append("/msg");
+        MessageLoader::setPegasusMsgHome(msghome);
+      }
+      else
+      {
+        PEGASUS_STD(cout) << "Either PEGASUS_MSG_HOME or PEGASUS_HOME needs to set for this test!"
+                          << PEGASUS_STD(endl);
+        exit(-1);
+
+      }
+    }
+
+
+    // If PEGASUS_USE_DEFAULT_MESSAGES env var is set then we need to make sure that it doesn't
+    // break this test.
+    // Reset _useDefaultMsg to make sure PEGASUS_USE_DEFAULT_MESSAGES is ignored.
+    MessageLoader::_useDefaultMsg = false;
+#endif
 
 
     //BEGIN TESTS....
 
 
 
-        drive_LanguageParser();
+    drive_LanguageParser();
 
-        drive_AcceptLanguageElement();
+    drive_AcceptLanguageElement();
 
-        drive_ContentLanguageElement();
+    drive_ContentLanguageElement();
 
-        drive_AcceptLanguages();
+    drive_AcceptLanguages();
 
-        drive_ContentLanguages();
+    drive_ContentLanguages();
 
-        drive_MessageLoader();
+    drive_MessageLoader();
 
-        drive_MessageLoaderSubs();
+    drive_MessageLoaderSubs();
 
 
     //END TESTS....

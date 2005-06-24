@@ -64,8 +64,7 @@ PEGASUS_USING_PEGASUS;
 
 static String _serialNumber;
 static String _hostName;
-static String _model;
-static String _uuid = String::EMPTY;
+static Array<String> _model;
 static CIMDateTime _installDate;
 static String _primaryOwnerName;
 static String _primaryOwnerContact;
@@ -86,15 +85,15 @@ ComputerSystem::~ComputerSystem()
 
 Boolean ComputerSystem::getCaption(CIMProperty& p)
 {
-  // return model string for this property
-  p = CIMProperty(PROPERTY_CAPTION, _model);
+  // hardcoded
+  p = CIMProperty(PROPERTY_CAPTION, String(CAPTION));
   return true;
 }
 
 Boolean ComputerSystem::getDescription(CIMProperty& p)
 {
-  // return model string for this property
-  p = CIMProperty(PROPERTY_DESCRIPTION, _model);
+  // hardcoded
+  p = CIMProperty(PROPERTY_DESCRIPTION, String(DESCRIPTION));
   return true;
 }
 
@@ -169,9 +168,7 @@ Boolean ComputerSystem::getRoles(CIMProperty& p)
 Boolean ComputerSystem::getOtherIdentifyingInfo(CIMProperty& p)
 {
   // we will return model for this property
-  Array<String> s;
-  s.append(_model);
-  p = CIMProperty(PROPERTY_OTHER_IDENTIFYING_INFO,s);
+  p = CIMProperty(PROPERTY_OTHER_IDENTIFYING_INFO,_model);
   return true;
 }
 
@@ -311,9 +308,8 @@ Boolean ComputerSystem::getSerialNumber(CIMProperty& p)
 
 Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
-  // return UUID for this property
-  p = CIMProperty(PROPERTY_IDENTIFICATION_NUMBER, _uuid);
-  return true;
+  // Not supported
+  return false;
 }
 
 void ComputerSystem::initialize(void)
@@ -332,19 +328,10 @@ void ComputerSystem::initialize(void)
   if (he=gethostbyname(hn)) _hostName = he->h_name;
   else _hostName = hn;
 
-  size_t bufSize;
-
-  // get serial number using confstr  
-  bufSize = confstr(_CS_MACHINE_SERIAL, NULL, 0);
-  if (bufSize != 0)
-  {
-      char* serialNumber = new char[bufSize];
-      if (confstr(_CS_MACHINE_SERIAL, serialNumber, bufSize) != 0)
-      {
-          _serialNumber = String(serialNumber);
-      }
-      delete [] serialNumber;
-  }
+  // serialNumber
+  struct utsname u;
+  uname(&u);
+  _serialNumber = u.idnumber;
 
   // get model using command
   FILE *s = popen("/usr/bin/model","r");
@@ -353,19 +340,7 @@ void ComputerSystem::initialize(void)
   if (fgets(buf,100,s) == 0)
     throw CIMOperationFailedException("/usr/bin/model: no output");
   pclose(s);
-  _model = String(buf);
-
-  // get system UUID using confstr.  
-  bufSize = confstr(_CS_MACHINE_IDENT, NULL, 0);
-  if (bufSize != 0)
-  {
-      char* uuid = new char[bufSize];
-      if (confstr(_CS_MACHINE_IDENT, uuid, bufSize) != 0)
-      {
-          _uuid = String(uuid);
-      }
-      delete [] uuid;
-  }
+  _model.append(String(buf));
 
   // InstallDate
   /*

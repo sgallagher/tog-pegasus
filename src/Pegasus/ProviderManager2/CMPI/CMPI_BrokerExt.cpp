@@ -45,6 +45,7 @@
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/ProviderManager2/ProviderManager.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/AutoPtr.h>
 
 #if defined (CMPI_VER_85)
@@ -96,7 +97,18 @@ extern "C" {
 
       Thread *t=new Thread(start_driver,data.get(),detached==1);
       data.release();
-      t->run();
+      ThreadStatus rtn = PEGASUS_THREAD_OK;
+      while ( (rtn = t->run()) != PEGASUS_THREAD_OK)
+      {
+	if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+	 	pegasus_yield();
+	else
+	    {
+		PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
+                "Could not allocate thread for the provider");
+		delete t; t = 0;
+	    }		
+      }
       return (CMPI_THREAD_TYPE)t;
    }
 

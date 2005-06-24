@@ -37,7 +37,7 @@
 
 #include "ModuleController.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
-
+#include <Pegasus/Common/Tracer.h>
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_USING_STD;
@@ -823,9 +823,21 @@ void ModuleController::_blocking_thread_exec(
    void *parm)
 {
    AutoPtr<Semaphore> blocking_sem(new Semaphore(0));
-   while (!_thread_pool->allocate_and_awaken(parm, thread_func, blocking_sem.get()))
+   ThreadStatus rc = PEGASUS_THREAD_OK;
+   while ((rc=_thread_pool->allocate_and_awaken(parm, thread_func, blocking_sem.get())) != PEGASUS_THREAD_OK)
    {
-      pegasus_yield();
+      if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+      	pegasus_yield();
+      else
+      {
+ 	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            	"Not enough threads for the client's blocking thread function.");
+	// ATTN: There is no category for the 'ModuleController' trace.
+ 	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Could not allocate for %s a client's blocking thread.",
+                getQueueName());
+	break;
+      }
    }
    blocking_sem->wait();
 }
@@ -847,9 +859,21 @@ void ModuleController::_async_thread_exec(
    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *thread_func)(void *),
    void *parm)
 {
-   while (!_thread_pool->allocate_and_awaken(parm, thread_func))
+   ThreadStatus rc = PEGASUS_THREAD_OK;
+   while ((rc=_thread_pool->allocate_and_awaken(parm, thread_func)) != PEGASUS_THREAD_OK)
    {
-      pegasus_yield();
+      if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+      	pegasus_yield();
+      else
+      {
+ 	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            	"Not enough threads for the client's asynchronous thread function.");
+	// ATTN:There is no category for 'ModuleController' traceing.
+ 	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "Could not allocate for %s a client's asynchronous thread.",
+                getQueueName());
+	break;
+      }
    }
 }
 

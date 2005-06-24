@@ -52,7 +52,7 @@ typedef struct {
 
 extern "C" { void * _linkage(void * zosParm); }
                                                    
-inline Boolean Thread::run()
+inline ThreadStatus Thread::run()
 {
     zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
     zosParm->_start = _start;
@@ -66,21 +66,25 @@ inline Boolean Thread::run()
     int rc;
     rc = pthread_create((pthread_t *)&_handle.thid,
                         &_handle.thatt, &_linkage, zosParm);
-    if (rc == EAGAIN)
+   /* On Sun Solaris, the manpage states that 'ENOMEM' is the error
+      code returned when there is no insufficient memory, but the 
+      POSIX standard mentions EAGAIN as the proper return code, so
+      we checking for both. */ 
+    if ((rc == EAGAIN) || (rc==ENOMEM))
     {
         _handle.thid = 0;
-        return false;
+        return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
-        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
+	// The error code can be retrieved from  'errno'.
         _handle.thid = 0;
-        return true;
+	return PEGASUS_THREAD_SETUP_FAILURE;
     }
-    return true;
+    return PEGASUS_THREAD_OK;
 }
 #else // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-inline Boolean Thread::run()
+inline ThreadStatus Thread::run()
 {
     if (_is_detached)
     {
@@ -95,18 +99,24 @@ inline Boolean Thread::run()
     int rc;
     rc = pthread_create((pthread_t *)&_handle.thid,
                         &_handle.thatt, _start, this);
-    if (rc == EAGAIN)
+   /* On Linux distributions released prior 2005, the 
+      implementation of Native POSIX Thread Library 
+      returns ENOMEM instead of EAGAIN when there are no 
+      insufficient memory.  Hence we are checking for both. 
+
+      More details can be found : http://sources.redhat.com/bugzilla/show_bug.cgi?id=386
+    */
+    if ((rc == EAGAIN) || (rc == ENOMEM))
     {
         _handle.thid = 0;
-        return false;
+        return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
-        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
         _handle.thid = 0;
-        return true;
+	return PEGASUS_THREAD_SETUP_FAILURE;
     }
-    return true;
+    return PEGASUS_THREAD_OK;
 }
 #endif // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
 

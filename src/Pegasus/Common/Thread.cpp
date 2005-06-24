@@ -295,11 +295,13 @@ ThreadPool::ThreadPool(
 ThreadPool::~ThreadPool()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::~ThreadPool");
+
     try
     {
         // Set the dying flag so all thread know the destructor has been entered
         _dying++;
-
+       Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
+		"Cleaning up %d idle threads. ", _currentThreads.value());
         while (_currentThreads.value() > 0)
         {
             Thread* thread = _idleThreads.remove_first();
@@ -429,7 +431,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
                         e.getMessage());
             }
 #if !defined(PEGASUS_OS_LSB)
-            catch (exception& e)
+            catch (const exception& e)
             {
                 PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                     String("Exception from work in ThreadPool::_loop: ") +
@@ -482,7 +484,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void* parm)
     return((PEGASUS_THREAD_RETURN)0);
 }
 
-Boolean ThreadPool::allocate_and_awaken(
+ThreadStatus ThreadPool::allocate_and_awaken(
     void* parm,
     PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL* work)(void *),
     Semaphore* blocking)
@@ -499,8 +501,7 @@ Boolean ThreadPool::allocate_and_awaken(
         {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "ThreadPool::allocate_and_awaken: ThreadPool is dying(1).");
-            // ATTN: Error result has not yet been defined
-            return true;
+            return PEGASUS_THREAD_UNAVAILABLE;
         }
         struct timeval start;
         gettimeofday(&start, NULL);
@@ -523,12 +524,11 @@ Boolean ThreadPool::allocate_and_awaken(
             // necessarily imply that a failure has occurred.  However,
             // this label is being used temporarily to help isolate
             // the cause of client timeout problems.
-
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "ThreadPool::allocate_and_awaken: Insufficient resources: "
                     " pool = %s, running threads = %d, idle threads = %d",
                 _key, _runningThreads.count(), _idleThreads.count());
-            return false;
+            return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
         }
 
         // initialize the thread data with the work function and parameters
@@ -563,10 +563,10 @@ Boolean ThreadPool::allocate_and_awaken(
             "ThreadPool::allocate_and_awaken: Operation Failed.");
         PEG_METHOD_EXIT();
         // ATTN: Error result has not yet been defined
-        return true;
+        return PEGASUS_THREAD_SETUP_FAILURE;
     }
     PEG_METHOD_EXIT();
-    return true;
+    return PEGASUS_THREAD_OK;
 }
 
 // caller is responsible for only calling this routine during slack periods
@@ -704,8 +704,10 @@ Thread* ThreadPool::_initializeThread()
         sizeof(struct timeval), (void *)lastActivityTime);
     // thread will enter _loop() and sleep on sleep_sem until we signal it
 
-    if (!th->run())
+    if (th->run() != PEGASUS_THREAD_OK)
     {
+		Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
+			"Could not create thread. Error code is %d.", errno);
         delete th;
         return 0;
     }

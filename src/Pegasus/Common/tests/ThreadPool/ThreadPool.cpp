@@ -222,32 +222,36 @@ void testOverloadPool()
     {
         struct timeval deallocateWait = { 0, 1 };
         ThreadPool threadPool(0, "test overload", 0, 4, deallocateWait);
-        Boolean threadStarted;
+        ThreadStatus threadStarted;
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted);
+        assert(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted);
+        assert(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted);
+        assert(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted);
+        assert(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)300, funcSleepSpecifiedMilliseconds);
-        assert(!threadStarted);
-
-        while (!threadPool.allocate_and_awaken(
-            (void*)100, funcSleepSpecifiedMilliseconds))
+        assert(threadStarted == PEGASUS_THREAD_OK);
+        
+        ThreadStatus rc = PEGASUS_THREAD_OK;
+        while ( (rc =threadPool.allocate_and_awaken(
+            (void*)100, funcSleepSpecifiedMilliseconds)) != PEGASUS_THREAD_OK)
         {
+          if (rc ==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             pegasus_yield();
+          else
+           throw Exception("Could not allocate and awaken a thread."); 
         }
     }
     catch (const Exception& e)
@@ -274,10 +278,14 @@ void testHighWorkload()
 
         for (Uint32 i = 0; i < 50; i++)
         {
-            while (!threadPool->allocate_and_awaken(
-                &counter, funcIncrementCounter))
+	    ThreadStatus rc = PEGASUS_THREAD_OK;
+            while ( (rc =threadPool->allocate_and_awaken(
+                &counter, funcIncrementCounter)) != PEGASUS_THREAD_OK)
             {
-                pegasus_yield();
+		if (rc == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+                	pegasus_yield();
+	 	else
+			throw Exception("Coudl not allocate a thread for counter.");	
             }
         }
 
@@ -326,11 +334,14 @@ void testBlockingThread()
         struct timeval deallocateWait = { 5, 0 };
         ThreadPool threadPool(0, "test blocking", 0, 6, deallocateWait);
         Semaphore blocking(0);
-
-        while (!threadPool.allocate_and_awaken(
-            (void*)16, funcSleepSpecifiedMilliseconds, &blocking))
+	ThreadStatus rt = PEGASUS_THREAD_OK;
+        while ( (rt =threadPool.allocate_and_awaken(
+            (void*)16, funcSleepSpecifiedMilliseconds, &blocking)) != PEGASUS_THREAD_OK)
         {
+	  if (rt == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             pegasus_yield();
+	  else
+	   throw Exception("Could not allocate thread for funcSleepSpecifiedMilliseconds function.");
         }
 
         blocking.wait();

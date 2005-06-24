@@ -38,6 +38,7 @@
 #include <iostream>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -287,9 +288,14 @@ cimom::cimom()
    pegasus_gettimeofday(&_last_module_change);
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
-   while (!_routing_thread.run())
+   ThreadStatus tr = PEGASUS_THREAD_OK;
+   while ( (tr = _routing_thread.run()) != PEGASUS_THREAD_OK)
    {
-      pegasus_yield();
+      if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+        pegasus_yield();
+      else
+        throw Exception(MessageLoaderParms("Common.Cimom.NOT_ENOUGH_THREADS",
+			"Cannot allocate thread for Cimom class"));
    }
 
 }

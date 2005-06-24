@@ -118,7 +118,7 @@ en:table {
         *    Substitution {0} is a string containing the consumer name
         */  
         DynListener.ConsumerManager.CANNOT_INITIALIZE_CONSUMER: string {"PGL00107: Cannot initialize consumer {0}: Unknown Exception"}
-        
+       
         /**
         * @note  PGL00108:
          * DO NOT TRANSLATE "SSLContext"
@@ -167,6 +167,13 @@ en:table {
          
         DynListener.DynamicConsumer.INVALID_CONSUMER_INTERFACE: string {"PGL00120: Consumer provider interface is not valid."}
 
+	DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD: string {"PGL00120: Not enough threads for consumer worker routine."}
+	
+	DynListener.ListenerService.CANNOT_ALLOCATE_THREAD: string {"PGL10121: Not enough threads to start indication listener."}
+
+        Listener.CIMListenerIndicationDispatcher.CANNOT_ALLOCATE_THREAD: string {"PGL10122: Not enough threads to allocate a worker to deliver the event."}
+
+        Listener.CIMListener.CANNOT_ALLOCATE_THREAD: string {"PGL10123: Could not allocate a thread."}
         /**
         * @note DynListener.cimlistener.MENU.STANDARD:
         *    Do not translate the cimlistener command or options.  Just translate the text that explains the options.

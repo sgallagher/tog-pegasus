@@ -124,8 +124,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       MessageQueueService *service = list->next(0);
       while(service != NULL)
 	{
-	  int rtn;
-	  rtn = true;
+	  ThreadStatus rtn;
+	  rtn = PEGASUS_THREAD_OK;
           if (service->_incoming.count() > 0 
               && service->_die.value() == 0
               && service->_threads <= max_threads_per_svc_queue)
@@ -133,8 +133,20 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                                                         &_polling_sem);
           
 	  // if no more threads available, break from processing loop
-	  if (rtn == false)
+	  if (rtn != PEGASUS_THREAD_OK )
 	    {
+ 		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            		"Not enough threads to process this request. Skipping.");
+
+ 		Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+                       	"Could not allocate thread for %s. " \
+ 			"Queue has %d messages waiting and %s threads servicing." \
+ 			"Skipping the service for right now. ",
+                       	service->getQueueName(),
+                        service->_incoming.count(),
+ 			service->_threads.value());
+
+ 	      pegasus_yield();
 	      service = NULL;
 	    } 
 	  else
@@ -151,7 +163,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 	 // if system is busy there may not be a thread available to allocate 
 	 // so nothing will be done and that is OK. 
 
-         _thread_pool->allocate_and_awaken(service, kill_idle_threads, &_polling_sem);
+         if ( _thread_pool->allocate_and_awaken(service, kill_idle_threads, &_polling_sem) != PEGASUS_THREAD_OK)
+	 {
+ 		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            		"Not enough threads to kill idle threads. What an irony.");
+
+ 		Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+                       	"Could not allocate thread to kill idle threads." \
+ 			"Skipping. ");
+	 }
+
 	 
       }
    }
@@ -645,9 +666,14 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
           polling_routine,
           reinterpret_cast<void *>(&_polling_list),
           false);
-      while (!_polling_thread->run())
+      ThreadStatus tr = PEGASUS_THREAD_OK;
+      while ( (tr =_polling_thread->run()) != PEGASUS_THREAD_OK)
       {
-         pegasus_yield();
+	if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+           pegasus_yield();
+	else
+	   throw Exception(MessageLoaderParms("Common.MessageQueueService.NOT_ENOUGH_THREAD",
+			"Could not allocate thread for the polling thread."));
       }
    }
 // ATTN optimization remove the message checking altogether in the base

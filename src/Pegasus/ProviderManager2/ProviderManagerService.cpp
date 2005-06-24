@@ -193,12 +193,22 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
         request->op->processing();
 
         _incomingQueue.enqueue(request->op);
-
-         while (!_thread_pool->allocate_and_awaken(
-                     (void *)this, ProviderManagerService::handleCimOperation))
-         {
-             pegasus_yield();
-         }
+        ThreadStatus rtn = PEGASUS_THREAD_OK;
+	while (( rtn =_thread_pool->allocate_and_awaken(
+                     (void *)this, ProviderManagerService::handleCimOperation)) != PEGASUS_THREAD_OK)
+	{
+	   if (rtn==PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+               pegasus_yield();
+	   else
+	   {
+ 	       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            		"Not enough threads to service provider manager." );
+ 
+ 	       Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+                        "Could not allocate thread for %s.",
+                         getQueueName());
+	   }
+        }
     }
     else
     {
@@ -693,12 +703,12 @@ void ProviderManagerService::unloadIdleProviders()
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderManagerService::unloadIdleProviders");
-
+    ThreadStatus rtn = PEGASUS_THREAD_OK;
     // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
     _unloadIdleProvidersBusy++;
     if ((_unloadIdleProvidersBusy.value() == 1) &&
-        (_thread_pool->allocate_and_awaken(
-             (void*)this, ProviderManagerService::_unloadIdleProvidersHandler)))
+        ((rtn = _thread_pool->allocate_and_awaken(
+             (void*)this, ProviderManagerService::_unloadIdleProvidersHandler))==PEGASUS_THREAD_OK))
     {
         // _unloadIdleProvidersBusy is decremented in
         // _unloadIdleProvidersHandler
@@ -708,7 +718,15 @@ void ProviderManagerService::unloadIdleProviders()
         // If we fail to allocate a thread, don't retry now.
         _unloadIdleProvidersBusy--;
     }
-
+    if (rtn != PEGASUS_THREAD_OK) 
+    {
+	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"Not enough threads to unload idle providers.");
+ 
+	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+		"Could not allocate thread for %s to unload idle providers.", 
+		getQueueName());
+    }
     PEG_METHOD_EXIT();
 }
 

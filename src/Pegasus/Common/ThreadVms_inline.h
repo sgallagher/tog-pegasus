@@ -37,7 +37,7 @@
 #ifndef ThreadVms_inline_h
 #define ThreadVms_inline_h
 
-inline Boolean Thread::run()
+inline ThreadStatus Thread::run()
 {
     if (_is_detached)
     {
@@ -47,18 +47,25 @@ inline Boolean Thread::run()
     int rc;
     rc = pthread_create((pthread_t *)&_handle.thid,
                         &_handle.thatt, _start, this);
-    if (rc == EAGAIN)
+
+    /* On VMS the return code when there is inssuficient resources to create
+    a thread is ENOMEM. The POSIX standard defines that it should be EAGAIN,
+    hence we checking both values.
+
+    For more details:
+     http://aether.lbl.gov/htbin/helpgate/HELP/DECTHREADS/PTHREAD_ROUTINES/PTHREAD_CREATE/RETURN_VALUES
+    */
+    if ((rc == EAGAIN) || (rc==ENOMEM))
     {
         _handle.thid = 0;
-        return false;
+        return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
-        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
         _handle.thid = 0;
-        return true;
+	return PEGASUS_THREAD_SETUP_FAILURE;
     }
-    return true;
+    return PEGASUS_THREAD_OK;
 }
 
 

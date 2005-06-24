@@ -217,12 +217,22 @@ class  PEGASUS_COMMON_LINKAGE thread_data
 };
 
 
+enum ThreadStatus { 
+	PEGASUS_THREAD_OK = 1, /* No problems */
+	PEGASUS_THREAD_INSUFFICIENT_RESOURCES, /* Can't allocate a thread. Not enough
+				        memory. Try again later */
+	PEGASUS_THREAD_SETUP_FAILURE, /* Could not allocate into the thread specific 
+                                 data storage. */
+	PEGASUS_THREAD_UNAVAILABLE  /* Service is being destroyed and no new threads can
+                               be provided. */ 
+};
+
 ///////////////////////////////////////////////////////////////////////////
 
 class PEGASUS_COMMON_LINKAGE Thread
 {
-
    public:
+
       Thread( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start )(void *),
               void *parameter, Boolean detached );
 
@@ -230,12 +240,14 @@ class PEGASUS_COMMON_LINKAGE Thread
 
       /**
           Start the thread.
-          @return true if the thread is started successfully, false if the
-                  resources necessary to start the thread are not currently
-                  available.  ATTN: The result is undefined for any other
-                  type of failure.  (See Bugzilla 972)
+          @return PEGASUS_THREAD_OK if the thread is started successfully, 
+                  PEGASUS_THREAD_INSUFFICIENT_RESOURCES if the resources necessary 
+                  to start the thread are not currently available.  
+	          PEGASUS_THREAD_SETUP_FAILURE if the thread could not
+                  be create properly - check the 'errno' value for specific operating
+                  system return code.
        */
-      Boolean run();
+      ThreadStatus run();
 
       // get the user parameter
       inline void *get_parm() { return _thread_parm; }
@@ -505,13 +517,16 @@ public:
         @param blocking A pointer to an optional semaphore which, if
                         specified, is signaled after the thread finishes
                         executing the work function
-        @return true if the thread is started successfully, false if the
+        @return PEGASUS_THREAD_OK if the thread is started successfully, 
+		PEGASUS_THREAD_INSUFFICIENT_RESOURCES  if the
                 resources necessary to start the thread are not currently
-                available.  ATTN: The result is undefined for any other
-                type of thread creation failure.
+                available.  PEGASUS_THREAD_SETUP_FAILURE if the thread
+                could not be setup properly. PEGASUS_THREAD_UNAVAILABLE
+                if this service is shutting down and no more threads can
+                be allocated.
         @exception IPCException
      */
-    Boolean allocate_and_awaken(
+    ThreadStatus allocate_and_awaken(
         void* parm,
         PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL* work)(void *),
         Semaphore* blocking = 0);

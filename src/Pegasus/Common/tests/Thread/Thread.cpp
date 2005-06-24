@@ -112,7 +112,13 @@ int main(int argc, char **argv)
 		data->chars[0] = 'B';
 		data->chars[1] = 'E';
 		threads[i]->put_tsd( "test2", thread_data::default_delete, 2, data );
-		threads[i]->run();
+		if (threads[i]->run()!=PEGASUS_THREAD_OK)
+		{
+			cerr << "Not enough memory. Changing the amount of threads used." << endl;
+			max_threads = i;
+			delete threads[i];
+			break;
+		}
 	}
 	for( i = 0; i < max_threads; i++ )
 		threads[i]->join();

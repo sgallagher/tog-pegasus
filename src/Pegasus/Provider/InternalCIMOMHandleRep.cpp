@@ -444,15 +444,27 @@ Message* InternalCIMOMHandleRep::do_request(
         // ignore if not a CIMMessage
     }
 
+    // Make sure to delete the dispatch  if it does not get processed by _dispatch
     CIMOMHandleDispatch* dp =
         new CIMOMHandleDispatch(request, get_qid(), get_output_qid());
 
 #ifdef PEGASUS_OS_OS400
     memcpy(dp->os400PH, os400PH, 12);
 #endif
-
-    MessageQueueService::get_thread_pool()->allocate_and_awaken(dp, _dispatch);
-
+    ThreadStatus rtn = MessageQueueService::get_thread_pool()->allocate_and_awaken(dp, _dispatch);
+    if (rtn != PEGASUS_THREAD_OK) 
+    {
+	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"Not enough threads to create a worker to dispatch a request. ");
+ 
+	 Tracer::trace(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+			"Could not allocate thread for %s to dispatch a request.");
+	delete dp;
+    	PEG_METHOD_EXIT();
+	throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "Provider.CIMOMHandle.CANNOT_ALLOCATE_THREAD",
+	     "Could not create a worker for the dispatch request."));
+    }
     _request = request;
 
     CIMResponseMessage* response = 0;

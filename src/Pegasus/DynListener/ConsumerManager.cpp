@@ -343,9 +343,21 @@ void ConsumerManager::_initConsumer(const String& consumerName, DynamicConsumer*
         consumer->setShutdownSemaphore(semaphore);
 
         //start the worker thread
-        _thread_pool->allocate_and_awaken(consumer,
+        if (_thread_pool->allocate_and_awaken(consumer,
                                           _worker_routine,
-                                          semaphore);
+                                          semaphore) != PEGASUS_THREAD_OK)
+	{
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+		"Not enough threads for consumer.");
+ 
+	    Tracer::trace(TRC_LISTENER, Tracer::LEVEL2,
+		"Could not allocate thread for consumer.");
+
+	   consumer->setShutdownSemaphore(0);
+	   delete semaphore;
+           throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD",
+	   					"Not enough threads for consumer worker routine."));
+        }
 
         //load any outstanding requests
         Array<CIMInstance> outstandingIndications = _deserializeOutstandingIndications(consumerName);

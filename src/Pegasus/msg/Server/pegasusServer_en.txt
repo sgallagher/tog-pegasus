@@ -1190,6 +1190,10 @@ not be valid."}
         */
         Provider.CIMOMHandle.CAUGHT_EXCEPTION:string {"PGS03402:  Exception caught in CIMOMHandle."}
 
+	/**
+	* @note PGS03403
+	*/
+	Provider.CIMOMHandle.CANNOT_ALLOCATE_THREAD:string {"PGS03403: Could not create a worker for the dispatch request."}
 
         // ==========================================================
         // Messages for ProviderAdapter
@@ -2536,6 +2540,8 @@ not be valid."}
 
         Common.MessageQueueService.UNABLE_TO_REGISTER:string {"PGS08602: CIM base message queue service is unable to register with the CIMOM dispatcher."}
 
+        Common.MessageQueueService.NOT_ENOUGH_THREAD:string {"PGS08603: Could not allocate thread for the polling thread."}
+
 
         // ==========================================================
         // Messages for ModuleController
@@ -2547,6 +2553,19 @@ not be valid."}
         *    Substitution {0} is the name of the module (a string)
         */
         Common.ModuleController.MODULE:string {"PGS08800: Module {0}"}
+
+        // ==========================================================
+        // Messages for Cimom
+        //  Please use message prefix "PGS08900"
+        // ==========================================================
+
+        /**
+	* @note: PGS08900:
+	*   Please do not translate the word 'Cimom' as that is the name of
+        *  technical functional component.
+        */
+        Common.Cimom.NOT_ENOUGH_THREADS:string {"PGS08900: Cannot allocate thread for Cimom class"}
+
 
 
         // ==========================================================

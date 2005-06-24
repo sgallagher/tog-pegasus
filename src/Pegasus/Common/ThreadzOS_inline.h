@@ -46,7 +46,7 @@ typedef struct {
 
 extern "C" { void * _linkage(void * zosParm); };
                                                    
-inline Boolean Thread::run()
+inline ThreadStatus Thread::run()
 {
     zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
     zosParm->_start = _start;
@@ -63,15 +63,14 @@ inline Boolean Thread::run()
     if (rc == EAGAIN)
     {
         _handle.thid = 0;
-        return false;
+        return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
     }
     else if (rc != 0)
     {
-        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
         _handle.thid = 0;
-        return true;
+	return PEGASUS_THREAD_SETUP_FAILURE;
     }
-    return true;
+    return PEGASUS_THREAD_OK;
 }
 
 inline void Thread::cancel()

@@ -179,9 +179,21 @@ Boolean ListenerService::runListener()
     _acceptor->bind();
 
     //start listening thread
-    while (!_listening_thread->run())
+    ThreadStatus rtn = PEGASUS_THREAD_OK;
+    while ( (rtn = _listening_thread->run()) != PEGASUS_THREAD_OK)
     {
-        pegasus_yield();
+	if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+        	pegasus_yield();
+	else {
+		// We need to set _running to true so that we can shutdown the 
+		// rest of the classes
+		delete _listening_thread; _listening_thread = 0;
+    		_running = true;
+		shutdownListener();		
+        	throw Exception(MessageLoaderParms("DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
+                                           "Error: Cannot allocate thread."));
+	}
+	
     }
     
     if (_consumerManager->getEnableConsumerUnload())
@@ -190,9 +202,20 @@ Boolean ListenerService::runListener()
         _polling_thread = new Thread(_polling_routine , this, 0);
     
         //start polling thread
-        while (!_polling_thread->run())
+        while ( (rtn=_polling_thread->run()) != PEGASUS_THREAD_OK)
         {
+	   if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
             pegasus_yield();
+	   else
+	   {
+		/* We should delete them the objects, but there is a question
+                   of how to turn of the _listening_thread? */
+		delete _polling_thread; _polling_thread = 0;
+    		_running = true;
+		shutdownListener();		
+        	throw Exception(MessageLoaderParms("DynListener.ListenerService.CANNOT_ALLOCATE_THREAD",
+                                           "Error: Cannot allocate thread."));
+	    }
         }
     }
 

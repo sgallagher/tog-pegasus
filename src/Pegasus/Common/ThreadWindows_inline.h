@@ -38,7 +38,7 @@
 #ifndef ThreadWindows_inline_h
 #define ThreadWindows_inline_h
 
-inline Boolean Thread::run(void)
+inline ThreadStatus Thread::run(void)
 {
     // Note: A Win32 thread ID is not the same thing as a pthread ID.
     // Win32 threads have both a thread ID and a handle.  The handle
@@ -52,15 +52,14 @@ inline Boolean Thread::run(void)
     {
         if (errno == EAGAIN)
         {
-            return false;
+            return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
         }
         else
         {
-            // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
-            return true;
+            return PEGASUS_SETUP_FAILURE;
         }
     }
-    return true;
+    return PEGASUS_THREAD_OK;
 }
 
 inline void Thread::cancel(void)

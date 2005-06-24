@@ -129,8 +129,18 @@ void BinaryMessageHandler::_handle_async_request(AsyncRequest * request)
        
       PEG_TRACE_STRING(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL4,
 		       "Allocating pooled thread to handle binary message.");
-      _thread_pool->allocate_and_awaken(
-	 (void *)this, BinaryMessageHandler::handle_binary_message);
+      if (_thread_pool->allocate_and_awaken(
+	 (void *)this, BinaryMessageHandler::handle_binary_message)!=PEGASUS_THREAD_OK)
+	{
+ 	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+            	"Not enough threads to handle binary message.");
+ 
+	    Tracer::trace(TRC_BINARY_MSG_HANDLER, Tracer::LEVEL2,
+		"Could not allocate thread for %s. " \
+ 		"Queue has %d messages waiting. ",
+                getQueueName(),
+ 		_msg_q.count());
+	}	
    }
    else if(request->getType() == async_messages::CIMSERVICE_STOP)
    {

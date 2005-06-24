@@ -677,11 +677,22 @@ void ProviderAgentContainer::_initialize()
         _sendInitializationData();
 
         // Start a thread to read and process responses from the Provider Agent
-        while (!MessageQueueService::get_thread_pool()->allocate_and_awaken(
-                   this, _responseProcessor))
-        {
-            pegasus_yield();
-        }
+	ThreadStatus rtn = PEGASUS_THREAD_OK;
+	while ( ( rtn = MessageQueueService::get_thread_pool()->allocate_and_awaken(
+                   this, _responseProcessor)) != PEGASUS_THREAD_OK)
+	{
+		if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            	   pegasus_yield();
+		else
+        	{
+	    	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				"Not enough threads to process responses from the provider agent.");
+ 
+	    	     Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+				"Could not allocate thread to process responses from the provider agent.");
+		     break;
+        	}
+	}
     }
     catch (...)
     {

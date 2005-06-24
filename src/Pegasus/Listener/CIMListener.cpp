@@ -46,6 +46,7 @@
 #include <Pegasus/Common/Monitor.h>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/MessageLoader.h>
 
 #include <Pegasus/ExportServer/CIMExportResponseEncoder.h>
 #include <Pegasus/ExportServer/CIMExportRequestDecoder.h>
@@ -436,7 +437,16 @@ void CIMListenerRep::start()
         struct timeval deallocateWait = {15, 0};
         AutoPtr<ThreadPool> threadPool(new ThreadPool(0, "Listener", 0, 1, deallocateWait));
         AutoPtr<Semaphore> sem(new Semaphore(0));
-        threadPool->allocate_and_awaken(svc.get(), CIMListenerService::_listener_routine, sem.get());
+        if (threadPool->allocate_and_awaken(svc.get(), CIMListenerService::_listener_routine, sem.get()) != PEGASUS_THREAD_OK)
+    	{
+	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			"Not enough threads to start CIMListernerService.");
+ 
+	    Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
+			"Could not allocate thread for CIMListenerService::_listener_routine."); 
+	    throw Exception(MessageLoaderParms("Listener.CIMListener.CANNOT_ALLOCATE_THREAD",
+				"Could not allocate thread."));
+        }
         Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER, Logger::INFORMATION,
                         "CIMListener started");
 

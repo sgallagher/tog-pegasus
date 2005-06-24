@@ -192,7 +192,19 @@ void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
                                                                                      url,
                                                                                      instance,
                                                                                      contentLangs);
-		_thread_pool->allocate_and_awaken(event,deliver_routine);
+		ThreadStatus rtn = _thread_pool->allocate_and_awaken(event,deliver_routine);
+		
+    		if (rtn != PEGASUS_THREAD_OK) 
+    		{
+	    	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+				"Not enough threads to allocate a worker to deliver the event. ");
+ 
+	    	    Tracer::trace(TRC_SERVER, Tracer::LEVEL2,
+				"Could not allocate thread to deliver event. Instead using current thread.");
+		    delete event;
+		    throw Exception(MessageLoaderParms("Listener.CIMListenerIndicationDispatcher.CANNOT_ALLOCATE_THREAD",
+					"Not enough threads to allocate a worker to deliver the event."));
+    		}
 	}
 }
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CIMListenerIndicationDispatcherRep::deliver_routine(void *param)

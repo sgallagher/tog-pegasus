@@ -47,46 +47,46 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
-const CIMNamespaceName SOURCENAMESPACE = 
+const CIMNamespaceName SOURCENAMESPACE =
     CIMNamespaceName ("root/SampleProvider");
 
 Boolean verbose;
 
-void _createModuleInstance 
-    (CIMClient & client, 
+void _createModuleInstance
+    (CIMClient & client,
      const String & name,
      const String & location)
 {
     CIMInstance moduleInstance (PEGASUS_CLASSNAME_PROVIDERMODULE);
     moduleInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Vendor"), 
+    moduleInstance.addProperty (CIMProperty (CIMName ("Vendor"),
         String ("Hewlett-Packard Company")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("Version"), 
+    moduleInstance.addProperty (CIMProperty (CIMName ("Version"),
         String ("2.0")));
     moduleInstance.addProperty (CIMProperty (CIMName ("InterfaceType"),
         String ("C++Default")));
-    moduleInstance.addProperty (CIMProperty (CIMName ("InterfaceVersion"), 
+    moduleInstance.addProperty (CIMProperty (CIMName ("InterfaceVersion"),
         String ("2.2.0")));
     moduleInstance.addProperty (CIMProperty (CIMName ("Location"), location));
 
     CIMObjectPath path = client.createInstance (NAMESPACE, moduleInstance);
 }
 
-void _createProviderInstance 
-    (CIMClient & client, 
+void _createProviderInstance
+    (CIMClient & client,
      const String & name,
      const String & providerModuleName)
 {
     CIMInstance providerInstance (PEGASUS_CLASSNAME_PROVIDER);
     providerInstance.addProperty (CIMProperty (CIMName ("Name"), name));
-    providerInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"), 
+    providerInstance.addProperty (CIMProperty (CIMName ("ProviderModuleName"),
         providerModuleName));
 
     CIMObjectPath path = client.createInstance (NAMESPACE, providerInstance);
 }
 
-void _createCapabilityInstance 
-    (CIMClient & client, 
+void _createCapabilityInstance
+    (CIMClient & client,
      const String & providerModuleName,
      const String & providerName,
      const String & capabilityID,
@@ -102,9 +102,9 @@ void _createCapabilityInstance
         providerName));
     capabilityInstance.addProperty (CIMProperty (CIMName ("CapabilityID"),
         capabilityID));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("ClassName"), 
+    capabilityInstance.addProperty (CIMProperty (CIMName ("ClassName"),
         className));
-    capabilityInstance.addProperty (CIMProperty (CIMName ("Namespaces"), 
+    capabilityInstance.addProperty (CIMProperty (CIMName ("Namespaces"),
         namespaces));
     capabilityInstance.addProperty (CIMProperty (CIMName ("ProviderType"),
         providerTypes));
@@ -115,15 +115,15 @@ void _createCapabilityInstance
         {
             propertyNameStrings.append (supportedProperties [i].getString ());
         }
-        capabilityInstance.addProperty (CIMProperty 
+        capabilityInstance.addProperty (CIMProperty
             (CIMName ("supportedProperties"), propertyNameStrings));
     }
 
     CIMObjectPath path = client.createInstance (NAMESPACE, capabilityInstance);
 }
 
-void _modifyCapabilityInstance 
-    (CIMClient & client, 
+void _modifyCapabilityInstance
+    (CIMClient & client,
      const String & providerModuleName,
      const String & providerName,
      const String & capabilityID,
@@ -137,7 +137,7 @@ void _modifyCapabilityInstance
         {
             propertyNameStrings.append (supportedProperties [i].getString ());
         }
-        capabilityInstance.addProperty (CIMProperty 
+        capabilityInstance.addProperty (CIMProperty
             (CIMName ("SupportedProperties"), propertyNameStrings));
     }
 
@@ -145,9 +145,9 @@ void _modifyCapabilityInstance
     Array <CIMKeyBinding> keyBindings;
     keyBindings.append (CIMKeyBinding ("ProviderModuleName", providerModuleName,
         CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("ProviderName", providerName, 
+    keyBindings.append (CIMKeyBinding ("ProviderName", providerName,
         CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CapabilityID", capabilityID, 
+    keyBindings.append (CIMKeyBinding ("CapabilityID", capabilityID,
         CIMKeyBinding::STRING));
     path.setClassName (PEGASUS_CLASSNAME_PROVIDERCAPABILITIES);
     path.setKeyBindings (keyBindings);
@@ -168,7 +168,7 @@ void _addStringProperty
 {
     if (null)
     {
-        instance.addProperty (CIMProperty (CIMName (name), 
+        instance.addProperty (CIMProperty (CIMName (name),
             CIMValue (CIMTYPE_STRING, false)));
     }
     else
@@ -195,7 +195,7 @@ void _addUint16Property
 {
     if (null)
     {
-        instance.addProperty (CIMProperty (CIMName (name), 
+        instance.addProperty (CIMProperty (CIMName (name),
             CIMValue (CIMTYPE_UINT16, false)));
     }
     else
@@ -222,7 +222,7 @@ void _addUint32Property
 {
     if (null)
     {
-        instance.addProperty (CIMProperty (CIMName (name), 
+        instance.addProperty (CIMProperty (CIMName (name),
             CIMValue (CIMTYPE_UINT32, false)));
     }
     else
@@ -249,7 +249,7 @@ void _addUint64Property
 {
     if (null)
     {
-        instance.addProperty (CIMProperty (CIMName (name), 
+        instance.addProperty (CIMProperty (CIMName (name),
             CIMValue (CIMTYPE_UINT64, false)));
     }
     else
@@ -269,7 +269,8 @@ void _addUint64Property
 
 CIMObjectPath _buildFilterOrHandlerPath
     (const CIMName & className,
-     const String & name)
+     const String & name,
+     const CIMNamespaceName & namespaceName = CIMNamespaceName ())
 {
     CIMObjectPath path;
 
@@ -283,20 +284,23 @@ CIMObjectPath _buildFilterOrHandlerPath
     keyBindings.append (CIMKeyBinding ("Name", name, CIMKeyBinding::STRING));
     path.setClassName (className);
     path.setKeyBindings (keyBindings);
+    path.setNameSpace (namespaceName);
 
     return path;
 }
 
-CIMObjectPath _buildSubscriptionPath 
+CIMObjectPath _buildSubscriptionPath
     (const String & filterName,
      const CIMName & handlerClass,
-     const String & handlerName)
+     const String & handlerName,
+     const CIMNamespaceName & filterNS,
+     const CIMNamespaceName & handlerNS)
 {
-    CIMObjectPath filterPath = _buildFilterOrHandlerPath 
-        (PEGASUS_CLASSNAME_INDFILTER, filterName);
+    CIMObjectPath filterPath = _buildFilterOrHandlerPath
+        (PEGASUS_CLASSNAME_INDFILTER, filterName, filterNS);
 
-    CIMObjectPath handlerPath = _buildFilterOrHandlerPath (handlerClass, 
-        handlerName);
+    CIMObjectPath handlerPath = _buildFilterOrHandlerPath (handlerClass,
+        handlerName, handlerNS);
 
     Array<CIMKeyBinding> subscriptionKeyBindings;
     subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
@@ -307,6 +311,15 @@ CIMObjectPath _buildSubscriptionPath
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
 
     return subscriptionPath;
+}
+
+CIMObjectPath _buildSubscriptionPath
+    (const String & filterName,
+     const CIMName & handlerClass,
+     const String & handlerName)
+{
+    return _buildSubscriptionPath (filterName, handlerClass, handlerName,
+        CIMNamespaceName (), CIMNamespaceName ());
 }
 
 CIMInstance _buildSubscriptionInstance
@@ -340,19 +353,19 @@ void _checkFilterOrHandlerPath
         if (keyBindings [i].getName ().equal ("SystemCreationClassName"))
         {
             SCCNfound = true;
-            PEGASUS_ASSERT (keyBindings [i].getValue () == 
+            PEGASUS_ASSERT (keyBindings [i].getValue () ==
                 System::getSystemCreationClassName ());
         }
         else if (keyBindings [i].getName ().equal ("SystemName"))
         {
             SNfound = true;
-            PEGASUS_ASSERT (keyBindings [i].getValue () == 
+            PEGASUS_ASSERT (keyBindings [i].getValue () ==
                 System::getFullyQualifiedHostName ());
         }
         else if (keyBindings [i].getName ().equal ("CreationClassName"))
         {
             CCNfound = true;
-            PEGASUS_ASSERT (keyBindings [i].getValue () == 
+            PEGASUS_ASSERT (keyBindings [i].getValue () ==
                 className.getString ());
         }
         else if (keyBindings [i].getName ().equal ("Name"))
@@ -360,7 +373,7 @@ void _checkFilterOrHandlerPath
             Nfound = true;
             PEGASUS_ASSERT (keyBindings [i].getValue () == name);
         }
-        else 
+        else
         {
             PEGASUS_ASSERT (false);
         }
@@ -376,7 +389,9 @@ void _checkSubscriptionPath
     (const CIMObjectPath & path,
      const String & filterName,
      const CIMName & handlerClass,
-     const String & handlerName)
+     const String & handlerName,
+     const CIMNamespaceName & filterNS,
+     const CIMNamespaceName & handlerNS)
 {
     PEGASUS_ASSERT (path.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     Array <CIMKeyBinding> keyBindings = path.getKeyBindings ();
@@ -387,20 +402,20 @@ void _checkSubscriptionPath
         if (keyBindings [i].getName ().equal ("Filter"))
         {
             filterFound = true;
-            CIMObjectPath filterPath = _buildFilterOrHandlerPath 
-                (PEGASUS_CLASSNAME_INDFILTER, filterName);
-            PEGASUS_ASSERT (keyBindings [i].getValue () == 
+            CIMObjectPath filterPath = _buildFilterOrHandlerPath
+                (PEGASUS_CLASSNAME_INDFILTER, filterName, filterNS);
+            PEGASUS_ASSERT (keyBindings [i].getValue () ==
                 filterPath.toString ());
         }
         else if (keyBindings [i].getName ().equal ("Handler"))
         {
             handlerFound = true;
-            CIMObjectPath handlerPath = _buildFilterOrHandlerPath 
-                (handlerClass, handlerName);
-            PEGASUS_ASSERT (keyBindings [i].getValue () == 
+            CIMObjectPath handlerPath = _buildFilterOrHandlerPath
+                (handlerClass, handlerName, handlerNS);
+            PEGASUS_ASSERT (keyBindings [i].getValue () ==
                 handlerPath.toString ());
         }
-        else 
+        else
         {
             PEGASUS_ASSERT (false);
         }
@@ -408,6 +423,16 @@ void _checkSubscriptionPath
 
     PEGASUS_ASSERT (filterFound);
     PEGASUS_ASSERT (handlerFound);
+}
+
+void _checkSubscriptionPath
+    (const CIMObjectPath & path,
+     const String & filterName,
+     const CIMName & handlerClass,
+     const String & handlerName)
+{
+    _checkSubscriptionPath (path, filterName, handlerClass, handlerName,
+        CIMNamespaceName (), CIMNamespaceName ());
 }
 
 void _checkStringProperty
@@ -558,19 +583,31 @@ void _checkExceptionCode
     PEGASUS_ASSERT (e.getCode () == expectedCode);
 }
 
-void _deleteSubscriptionInstance 
-    (CIMClient & client, 
+void _deleteSubscriptionInstance
+    (CIMClient & client,
+     const String & filterName,
+     const CIMName & handlerClass,
+     const String & handlerName,
+     const CIMNamespaceName & filterNS,
+     const CIMNamespaceName & handlerNS)
+{
+    CIMObjectPath subscriptionPath = _buildSubscriptionPath
+        (filterName, handlerClass, handlerName, filterNS, handlerNS);
+    client.deleteInstance (NAMESPACE, subscriptionPath);
+}
+
+void _deleteSubscriptionInstance
+    (CIMClient & client,
      const String & filterName,
      const CIMName & handlerClass,
      const String & handlerName)
 {
-    CIMObjectPath subscriptionPath = _buildSubscriptionPath 
-        (filterName, handlerClass, handlerName);
-    client.deleteInstance (NAMESPACE, subscriptionPath);
+    _deleteSubscriptionInstance (client, filterName, handlerClass, handlerName,
+        CIMNamespaceName (), CIMNamespaceName ());
 }
 
-void _deleteHandlerInstance 
-    (CIMClient & client, 
+void _deleteHandlerInstance
+    (CIMClient & client,
      const CIMName & className,
      const String & name)
 {
@@ -578,17 +615,17 @@ void _deleteHandlerInstance
     client.deleteInstance (NAMESPACE, path);
 }
 
-void _deleteFilterInstance 
-    (CIMClient & client, 
+void _deleteFilterInstance
+    (CIMClient & client,
      const String & name)
 {
-    CIMObjectPath path = _buildFilterOrHandlerPath 
+    CIMObjectPath path = _buildFilterOrHandlerPath
         (PEGASUS_CLASSNAME_INDFILTER, name);
     client.deleteInstance (NAMESPACE, path);
 }
 
-void _deleteCapabilityInstance 
-    (CIMClient & client, 
+void _deleteCapabilityInstance
+    (CIMClient & client,
      const String & providerModuleName,
      const String & providerName,
      const String & capabilityID)
@@ -605,8 +642,8 @@ void _deleteCapabilityInstance
     client.deleteInstance (NAMESPACE, path);
 }
 
-void _deleteProviderInstance 
-    (CIMClient & client, 
+void _deleteProviderInstance
+    (CIMClient & client,
      const String & name,
      const String & providerModuleName)
 {
@@ -620,8 +657,8 @@ void _deleteProviderInstance
     client.deleteInstance (NAMESPACE, path);
 }
 
-void _deleteModuleInstance 
-    (CIMClient & client, 
+void _deleteModuleInstance
+    (CIMClient & client,
      const String & name)
 {
     Array<CIMKeyBinding> keyBindings;
@@ -634,9 +671,9 @@ void _deleteModuleInstance
 
 void _usage ()
 {
-    cerr 
+    cerr
         << "Usage: TestSubscription "
-        << "{register | test | unregister | cleanup }" 
+        << "{register | test | unregister | cleanup }"
         << endl;
 }
 
@@ -652,36 +689,36 @@ void _register (CIMClient & client)
         //
         //  Register the ProcessIndicationProvider
         //
-        _createModuleInstance (client, 
-            String ("ProcessIndicationProviderModule"), 
+        _createModuleInstance (client,
+            String ("ProcessIndicationProviderModule"),
             String ("ProcessIndicationProvider"));
-        _createProviderInstance (client, 
-            String ("ProcessIndicationProvider"), 
+        _createProviderInstance (client,
+            String ("ProcessIndicationProvider"),
             String ("ProcessIndicationProviderModule"));
-        _createCapabilityInstance (client, 
-            String ("ProcessIndicationProviderModule"), 
+        _createCapabilityInstance (client,
+            String ("ProcessIndicationProviderModule"),
             String ("ProcessIndicationProvider"),
             String ("ProcessIndicationProviderCapability"),
             String ("CIM_ProcessIndication"),
-            namespaces, 
+            namespaces,
             providerTypes,
             CIMPropertyList ());
 
         //
         //  Register the AlertIndicationProvider
         //
-        _createModuleInstance (client, 
-            String ("AlertIndicationProviderModule"), 
+        _createModuleInstance (client,
+            String ("AlertIndicationProviderModule"),
             String ("AlertIndicationProvider"));
-        _createProviderInstance (client, 
-            String ("AlertIndicationProvider"), 
+        _createProviderInstance (client,
+            String ("AlertIndicationProvider"),
             String ("AlertIndicationProviderModule"));
-        _createCapabilityInstance (client, 
-            String ("AlertIndicationProviderModule"), 
+        _createCapabilityInstance (client,
+            String ("AlertIndicationProviderModule"),
             String ("AlertIndicationProvider"),
             String ("AlertIndicationProviderCapability"),
             String ("CIM_AlertIndication"),
-            namespaces, 
+            namespaces,
             providerTypes,
             CIMPropertyList ());
     }
@@ -710,14 +747,14 @@ void _valid (CIMClient & client, String& qlang)
     //
     CIMInstance filter01 (PEGASUS_CLASSNAME_INDFILTER);
     query = "SELECT * FROM CIM_ProcessIndication";
-    _addStringProperty (filter01, "SystemCreationClassName", 
+    _addStringProperty (filter01, "SystemCreationClassName",
          System::getSystemCreationClassName ());
-    _addStringProperty (filter01, "SystemName", 
+    _addStringProperty (filter01, "SystemName",
          System::getFullyQualifiedHostName ());
-    _addStringProperty (filter01, "CreationClassName", 
+    _addStringProperty (filter01, "CreationClassName",
          PEGASUS_CLASSNAME_INDFILTER.getString ());
     _addStringProperty (filter01, "Name", "Filter01");
-    _addStringProperty (filter01, "SourceNamespace", 
+    _addStringProperty (filter01, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _addStringProperty (filter01, "Query", query);
     _addStringProperty (filter01, "QueryLanguage", qlang);
@@ -725,14 +762,14 @@ void _valid (CIMClient & client, String& qlang)
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Filter01");
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
     _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
@@ -740,17 +777,17 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Enumerate filters
     //
-    instances = client.enumerateInstances 
+    instances = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_INDFILTER);
     PEGASUS_ASSERT (instances.size () == 1);
-    _checkStringProperty (instances [0], "SystemCreationClassName", 
+    _checkStringProperty (instances [0], "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (instances [0], "SystemName", 
+    _checkStringProperty (instances [0], "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (instances [0], "CreationClassName", 
+    _checkStringProperty (instances [0], "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (instances [0], "Name", "Filter01");
-    _checkStringProperty (instances [0], "SourceNamespace", 
+    _checkStringProperty (instances [0], "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (instances [0], "Query", query);
     _checkStringProperty (instances [0], "QueryLanguage", qlang);
@@ -758,11 +795,11 @@ void _valid (CIMClient & client, String& qlang)
     paths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_INDFILTER);
     PEGASUS_ASSERT (paths.size () == 1);
-    _checkFilterOrHandlerPath (paths [0], PEGASUS_CLASSNAME_INDFILTER, 
+    _checkFilterOrHandlerPath (paths [0], PEGASUS_CLASSNAME_INDFILTER,
         "Filter01");
 
     //
-    //  Create filter that selects some properties from 
+    //  Create filter that selects some properties from
     //  CIM_ProcessIndication
     //
     CIMInstance filter02 (PEGASUS_CLASSNAME_INDFILTER);
@@ -772,20 +809,20 @@ void _valid (CIMClient & client, String& qlang)
     _addStringProperty (filter02, "Name", "Filter02");
     _addStringProperty (filter02, "Query", query);
     _addStringProperty (filter02, "QueryLanguage", qlang);
-    _addStringProperty (filter02, "SourceNamespace", 
+    _addStringProperty (filter02, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter02);
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter02");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Filter02");
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
     _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
@@ -798,20 +835,20 @@ void _valid (CIMClient & client, String& qlang)
     _addStringProperty (filter03, "Name", "Filter03");
     _addStringProperty (filter03, "Query", query);
     _addStringProperty (filter03, "QueryLanguage", qlang);
-    _addStringProperty (filter03, "SourceNamespace", 
+    _addStringProperty (filter03, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter03);
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter03");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Filter03");
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
     _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
@@ -827,20 +864,20 @@ void _valid (CIMClient & client, String& qlang)
     _addStringProperty (filter04, "Name", "Filter04");
     _addStringProperty (filter04, "Query", query);
     _addStringProperty (filter04, "QueryLanguage", qlang);
-    _addStringProperty (filter04, "SourceNamespace", 
+    _addStringProperty (filter04, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter04);
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter04");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Filter04");
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
     _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
@@ -859,20 +896,20 @@ void _valid (CIMClient & client, String& qlang)
     _addStringProperty (filter04a, "Name", "Filter04a");
     _addStringProperty (filter04a, "Query", query);
     _addStringProperty (filter04a, "QueryLanguage", "CIM:CQL");  // hardcode to CQL
-    _addStringProperty (filter04a, "SourceNamespace", 
+    _addStringProperty (filter04a, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter04a);
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter04a");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Filter04a");
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
     _checkStringProperty (retrievedInstance, "QueryLanguage", "CIM:CQL"); // hardcode to CQL
@@ -888,20 +925,20 @@ void _valid (CIMClient & client, String& qlang)
     _addStringProperty (filter05, "Name", "Filter05");
     _addStringProperty (filter05, "Query", query);
     _addStringProperty (filter05, "QueryLanguage", qlang);
-    _addStringProperty (filter05, "SourceNamespace", 
+    _addStringProperty (filter05, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter05);
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter05");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Filter05");
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
     _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
@@ -915,20 +952,20 @@ void _valid (CIMClient & client, String& qlang)
     _addStringProperty (filter06, "Name", "Filter06");
     _addStringProperty (filter06, "Query", query);
     _addStringProperty (filter06, "QueryLanguage", qlang);
-    _addStringProperty (filter06, "SourceNamespace", 
+    _addStringProperty (filter06, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter06);
 
     _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDFILTER, "Filter06");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Filter06");
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _checkStringProperty (retrievedInstance, "Query", query);
     _checkStringProperty (retrievedInstance, "QueryLanguage", qlang);
@@ -937,55 +974,55 @@ void _valid (CIMClient & client, String& qlang)
     //  Create persistent CIMXML handler
     //
     CIMInstance handler01 (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-    _addStringProperty (handler01, "SystemCreationClassName", 
+    _addStringProperty (handler01, "SystemCreationClassName",
          System::getSystemCreationClassName ());
-    _addStringProperty (handler01, "SystemName", 
+    _addStringProperty (handler01, "SystemName",
          System::getFullyQualifiedHostName ());
-    _addStringProperty (handler01, "CreationClassName", 
+    _addStringProperty (handler01, "CreationClassName",
          PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
     _addStringProperty (handler01, "Name", "Handler01");
     _addStringProperty (handler01, "Owner", "an owner");
     _addUint16Property (handler01, "PersistenceType", 2);
     _addStringProperty (handler01, "OtherPersistenceType", String::EMPTY, true);
-    _addStringProperty (handler01, "Destination", 
+    _addStringProperty (handler01, "Destination",
         "localhost/CIMListener/test1");
     path = client.createInstance (NAMESPACE, handler01);
 
-    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Handler01");
     _checkStringProperty (retrievedInstance, "Owner", "an owner");
     _checkUint16Property (retrievedInstance, "PersistenceType", 2);
-    _checkStringProperty (retrievedInstance, "OtherPersistenceType", 
+    _checkStringProperty (retrievedInstance, "OtherPersistenceType",
         String::EMPTY, true);
-    _checkStringProperty (retrievedInstance, "Destination", 
+    _checkStringProperty (retrievedInstance, "Destination",
         "localhost/CIMListener/test1");
 
     //
     //  Enumerate handlers
     //
-    instances = client.enumerateInstances 
+    instances = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     PEGASUS_ASSERT (instances.size () == 1);
-    _checkStringProperty (instances [0], "SystemCreationClassName", 
+    _checkStringProperty (instances [0], "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (instances [0], "SystemName", 
+    _checkStringProperty (instances [0], "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (instances [0], "CreationClassName", 
+    _checkStringProperty (instances [0], "CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
     _checkStringProperty (instances [0], "Name", "Handler01");
     _checkStringProperty (instances [0], "Owner", "an owner");
     _checkUint16Property (instances [0], "PersistenceType", 2);
-    _checkStringProperty (instances [0], "OtherPersistenceType", 
+    _checkStringProperty (instances [0], "OtherPersistenceType",
         String::EMPTY, true);
-    _checkStringProperty (instances [0], "Destination", 
+    _checkStringProperty (instances [0], "Destination",
         "localhost/CIMListener/test1");
 
     //
@@ -994,33 +1031,33 @@ void _valid (CIMClient & client, String& qlang)
     CIMInstance handler02 (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     _addStringProperty (handler02, "Name", "Handler02");
     _addUint16Property (handler02, "PersistenceType", 3);
-    _addStringProperty (handler02, "Destination", 
+    _addStringProperty (handler02, "Destination",
         "localhost/CIMListener/test2");
     path = client.createInstance (NAMESPACE, handler02);
 
-    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler02");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Handler02");
     _checkUint16Property (retrievedInstance, "PersistenceType", 3);
-    _checkStringProperty (retrievedInstance, "Destination", 
+    _checkStringProperty (retrievedInstance, "Destination",
         "localhost/CIMListener/test2");
 
     //
     //  Create persistent SNMP handler
     //
     CIMInstance handler03 (PEGASUS_CLASSNAME_INDHANDLER_SNMP);
-    _addStringProperty (handler03, "SystemCreationClassName", 
+    _addStringProperty (handler03, "SystemCreationClassName",
          System::getSystemCreationClassName ());
-    _addStringProperty (handler03, "SystemName", 
+    _addStringProperty (handler03, "SystemName",
          System::getFullyQualifiedHostName ());
-    _addStringProperty (handler03, "CreationClassName", 
+    _addStringProperty (handler03, "CreationClassName",
          PEGASUS_CLASSNAME_INDHANDLER_SNMP.getString ());
     _addStringProperty (handler03, "Name", "Handler03");
     _addStringProperty (handler03, "Owner", "an owner");
@@ -1034,19 +1071,19 @@ void _valid (CIMClient & client, String& qlang)
     _addStringProperty (handler03, "SNMPEngineID", "an ID");
     path = client.createInstance (NAMESPACE, handler03);
 
-    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_SNMP, 
+    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_INDHANDLER_SNMP,
         "Handler03");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_SNMP.getString ());
     _checkStringProperty (retrievedInstance, "Name", "Handler03");
     _checkStringProperty (retrievedInstance, "Owner", "an owner");
     _checkUint16Property (retrievedInstance, "PersistenceType", 2);
-    _checkStringProperty (retrievedInstance, "OtherPersistenceType", 
+    _checkStringProperty (retrievedInstance, "OtherPersistenceType",
         String::EMPTY, true);
     _checkStringProperty (retrievedInstance, "TargetHost", "localhost");
     _checkUint16Property (retrievedInstance, "TargetHostFormat", 2);
@@ -1058,19 +1095,19 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Enumerate handlers
     //
-    instances = client.enumerateInstances 
+    instances = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER_SNMP);
     PEGASUS_ASSERT (instances.size () == 1);
-    _checkStringProperty (instances [0], "SystemCreationClassName", 
+    _checkStringProperty (instances [0], "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (instances [0], "SystemName", 
+    _checkStringProperty (instances [0], "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (instances [0], "CreationClassName", 
+    _checkStringProperty (instances [0], "CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_SNMP.getString ());
     _checkStringProperty (instances [0], "Name", "Handler03");
     _checkStringProperty (instances [0], "Owner", "an owner");
     _checkUint16Property (instances [0], "PersistenceType", 2);
-    _checkStringProperty (instances [0], "OtherPersistenceType", 
+    _checkStringProperty (instances [0], "OtherPersistenceType",
         String::EMPTY, true);
     _checkStringProperty (instances [0], "TargetHost", "localhost");
     _checkUint16Property (instances [0], "TargetHostFormat", 2);
@@ -1083,54 +1120,54 @@ void _valid (CIMClient & client, String& qlang)
     //  Create persistent CIMXML listener destination
     //
     CIMInstance listenerdestination01 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
-    _addStringProperty (listenerdestination01, "SystemCreationClassName", 
+    _addStringProperty (listenerdestination01, "SystemCreationClassName",
          System::getSystemCreationClassName ());
-    _addStringProperty (listenerdestination01, "SystemName", 
+    _addStringProperty (listenerdestination01, "SystemName",
          System::getFullyQualifiedHostName ());
-    _addStringProperty (listenerdestination01, "CreationClassName", 
+    _addStringProperty (listenerdestination01, "CreationClassName",
          PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString ());
-    _addStringProperty (listenerdestination01, "Name", 
+    _addStringProperty (listenerdestination01, "Name",
         "ListenerDestination01");
     _addUint16Property (listenerdestination01, "PersistenceType", 2);
-    _addStringProperty (listenerdestination01, "OtherPersistenceType", 
+    _addStringProperty (listenerdestination01, "OtherPersistenceType",
         String::EMPTY, true);
-    _addStringProperty (listenerdestination01, "Destination", 
+    _addStringProperty (listenerdestination01, "Destination",
         "localhost/CIMListener/test3");
     path = client.createInstance (NAMESPACE, listenerdestination01);
 
-    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+    _checkFilterOrHandlerPath (path, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString ());
     _checkStringProperty (retrievedInstance, "Name", "ListenerDestination01");
     _checkUint16Property (retrievedInstance, "PersistenceType", 2);
-    _checkStringProperty (retrievedInstance, "OtherPersistenceType", 
+    _checkStringProperty (retrievedInstance, "OtherPersistenceType",
         String::EMPTY, true);
-    _checkStringProperty (retrievedInstance, "Destination", 
+    _checkStringProperty (retrievedInstance, "Destination",
         "localhost/CIMListener/test3");
 
     //
     //  Enumerate listener destinations
     //
-    instances = client.enumerateInstances 
+    instances = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
     PEGASUS_ASSERT (instances.size () == 1);
-    _checkStringProperty (instances [0], "SystemCreationClassName", 
+    _checkStringProperty (instances [0], "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (instances [0], "SystemName", 
+    _checkStringProperty (instances [0], "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (instances [0], "CreationClassName", 
+    _checkStringProperty (instances [0], "CreationClassName",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML.getString ());
     _checkStringProperty (instances [0], "Name", "ListenerDestination01");
     _checkUint16Property (instances [0], "PersistenceType", 2);
-    _checkStringProperty (instances [0], "OtherPersistenceType", 
+    _checkStringProperty (instances [0], "OtherPersistenceType",
         String::EMPTY, true);
-    _checkStringProperty (instances [0], "Destination", 
+    _checkStringProperty (instances [0], "Destination",
         "localhost/CIMListener/test3");
 
     //
@@ -1142,36 +1179,36 @@ void _valid (CIMClient & client, String& qlang)
          _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              "Handler01"));
     _addUint16Property (subscription01, "OnFatalErrorPolicy", 2);
-    _addStringProperty (subscription01, "OtherOnFatalErrorPolicy", 
+    _addStringProperty (subscription01, "OtherOnFatalErrorPolicy",
         String::EMPTY, true);
     _addUint64Property (subscription01, "FailureTriggerTimeInterval", 60);
     _addUint16Property (subscription01, "SubscriptionState", 2);
     _addStringProperty (subscription01, "OtherSubscriptionState", String::EMPTY,
         true);
-    _addUint64Property (subscription01, "SubscriptionDuration", 
+    _addUint64Property (subscription01, "SubscriptionDuration",
         PEGASUS_UINT64_LITERAL(60000000000));
     _addUint16Property (subscription01, "RepeatNotificationPolicy", 1);
-    _addStringProperty (subscription01, "OtherRepeatNotificationPolicy", 
+    _addStringProperty (subscription01, "OtherRepeatNotificationPolicy",
         "another policy");
     _addUint64Property (subscription01, "RepeatNotificationInterval", 60);
     _addUint64Property (subscription01, "RepeatNotificationGap", 30);
     _addUint16Property (subscription01, "RepeatNotificationCount", 5);
     path = client.createInstance (NAMESPACE, subscription01);
 
-    _checkSubscriptionPath (path, "Filter01", 
+    _checkSubscriptionPath (path, "Filter01",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
-    _checkStringProperty (retrievedInstance, "OtherOnFatalErrorPolicy", 
+    _checkStringProperty (retrievedInstance, "OtherOnFatalErrorPolicy",
         String::EMPTY, true);
     _checkUint64Property (retrievedInstance, "FailureTriggerTimeInterval", 60);
     _checkUint16Property (retrievedInstance, "SubscriptionState", 2);
-    _checkStringProperty (retrievedInstance, "OtherSubscriptionState", 
+    _checkStringProperty (retrievedInstance, "OtherSubscriptionState",
         String::EMPTY, true);
-    _checkUint64Property (retrievedInstance, "SubscriptionDuration", 
+    _checkUint64Property (retrievedInstance, "SubscriptionDuration",
         PEGASUS_UINT64_LITERAL(60000000000));
     _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 1);
-    _checkStringProperty (retrievedInstance, "OtherRepeatNotificationPolicy", 
+    _checkStringProperty (retrievedInstance, "OtherRepeatNotificationPolicy",
         "another policy");
     _checkUint64Property (retrievedInstance, "RepeatNotificationInterval", 60);
     _checkUint64Property (retrievedInstance, "RepeatNotificationGap", 30);
@@ -1180,20 +1217,20 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Enumerate subscriptions
     //
-    instances = client.enumerateInstances 
+    instances = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     PEGASUS_ASSERT (instances.size () == 1);
     _checkUint16Property (instances [0], "OnFatalErrorPolicy", 2);
-    _checkStringProperty (instances [0], "OtherOnFatalErrorPolicy", 
+    _checkStringProperty (instances [0], "OtherOnFatalErrorPolicy",
         String::EMPTY, true);
     _checkUint64Property (instances [0], "FailureTriggerTimeInterval", 60);
     _checkUint16Property (instances [0], "SubscriptionState", 2);
-    _checkStringProperty (instances [0], "OtherSubscriptionState", 
+    _checkStringProperty (instances [0], "OtherSubscriptionState",
         String::EMPTY, true);
-    _checkUint64Property (instances [0], "SubscriptionDuration", 
+    _checkUint64Property (instances [0], "SubscriptionDuration",
         PEGASUS_UINT64_LITERAL(60000000000));
     _checkUint16Property (instances [0], "RepeatNotificationPolicy", 1);
-    _checkStringProperty (instances [0], "OtherRepeatNotificationPolicy", 
+    _checkStringProperty (instances [0], "OtherRepeatNotificationPolicy",
         "another policy");
     _checkUint64Property (instances [0], "RepeatNotificationInterval", 60);
     _checkUint64Property (instances [0], "RepeatNotificationGap", 30);
@@ -1202,7 +1239,7 @@ void _valid (CIMClient & client, String& qlang)
     paths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     PEGASUS_ASSERT (paths.size () == 1);
-    _checkSubscriptionPath (path, "Filter01", 
+    _checkSubscriptionPath (path, "Filter01",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
 
     CIMInstance subscription02 = _buildSubscriptionInstance
@@ -1212,7 +1249,7 @@ void _valid (CIMClient & client, String& qlang)
             "Handler01"));
     path = client.createInstance (NAMESPACE, subscription02);
 
-    _checkSubscriptionPath (path, "Filter02", 
+    _checkSubscriptionPath (path, "Filter02",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1226,7 +1263,7 @@ void _valid (CIMClient & client, String& qlang)
             "Handler01"));
     path = client.createInstance (NAMESPACE, subscription03);
 
-    _checkSubscriptionPath (path, "Filter03", 
+    _checkSubscriptionPath (path, "Filter03",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1240,7 +1277,7 @@ void _valid (CIMClient & client, String& qlang)
             "Handler01"));
     path = client.createInstance (NAMESPACE, subscription04);
 
-    _checkSubscriptionPath (path, "Filter04", 
+    _checkSubscriptionPath (path, "Filter04",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1254,7 +1291,7 @@ void _valid (CIMClient & client, String& qlang)
             "Handler01"));
     path = client.createInstance (NAMESPACE, subscription05);
 
-    _checkSubscriptionPath (path, "Filter05", 
+    _checkSubscriptionPath (path, "Filter05",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1268,7 +1305,7 @@ void _valid (CIMClient & client, String& qlang)
             "Handler01"));
     path = client.createInstance (NAMESPACE, subscription06);
 
-    _checkSubscriptionPath (path, "Filter06", 
+    _checkSubscriptionPath (path, "Filter06",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1285,7 +1322,7 @@ void _valid (CIMClient & client, String& qlang)
             "Handler02"));
     path = client.createInstance (NAMESPACE, subscription07);
 
-    _checkSubscriptionPath (path, "Filter01", 
+    _checkSubscriptionPath (path, "Filter01",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1295,7 +1332,7 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Delete transient handler - referencing subscription must be deleted
     //
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler02");
     try
     {
@@ -1316,7 +1353,7 @@ void _valid (CIMClient & client, String& qlang)
             "Handler03"));
     path = client.createInstance (NAMESPACE, subscription08);
 
-    _checkSubscriptionPath (path, "Filter01", 
+    _checkSubscriptionPath (path, "Filter01",
         PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1333,7 +1370,7 @@ void _valid (CIMClient & client, String& qlang)
             "ListenerDestination01"));
     path = client.createInstance (NAMESPACE, subscription09);
 
-    _checkSubscriptionPath (path, "Filter01", 
+    _checkSubscriptionPath (path, "Filter01",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
     retrievedInstance = client.getInstance (NAMESPACE, path);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
@@ -1343,7 +1380,7 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Enumerate filters
     //
-    instances = client.enumerateInstances (NAMESPACE, 
+    instances = client.enumerateInstances (NAMESPACE,
         PEGASUS_CLASSNAME_INDFILTER);
 #ifndef PEGASUS_DISABLE_CQL
     PEGASUS_ASSERT (instances.size () == 7);
@@ -1352,7 +1389,7 @@ void _valid (CIMClient & client, String& qlang)
 #endif
 
 
-    paths = client.enumerateInstanceNames (NAMESPACE, 
+    paths = client.enumerateInstanceNames (NAMESPACE,
         PEGASUS_CLASSNAME_INDFILTER);
 #ifndef PEGASUS_DISABLE_CQL
     PEGASUS_ASSERT (paths.size () == 7);
@@ -1363,24 +1400,24 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Enumerate handlers and listener destinations
     //
-    Array <CIMInstance> handlers = client.enumerateInstances 
+    Array <CIMInstance> handlers = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER);
     PEGASUS_ASSERT (handlers.size () == 2);
 
-    Array <CIMInstance> listDests = client.enumerateInstances 
+    Array <CIMInstance> listDests = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_LSTNRDST);
     PEGASUS_ASSERT (listDests.size () == 3);
 
     Array <CIMObjectPath> cimxmlHandlerPaths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     PEGASUS_ASSERT (cimxmlHandlerPaths.size () == 1);
-    _checkFilterOrHandlerPath (cimxmlHandlerPaths [0], 
+    _checkFilterOrHandlerPath (cimxmlHandlerPaths [0],
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
 
     Array <CIMObjectPath> snmpHandlerPaths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_INDHANDLER_SNMP);
     PEGASUS_ASSERT (snmpHandlerPaths.size () == 1);
-    _checkFilterOrHandlerPath (snmpHandlerPaths [0], 
+    _checkFilterOrHandlerPath (snmpHandlerPaths [0],
         PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");
 
     Array <CIMObjectPath> handlerPaths = client.enumerateInstanceNames
@@ -1394,13 +1431,13 @@ void _valid (CIMClient & client, String& qlang)
     Array <CIMObjectPath> cimxmlListDestPaths = client.enumerateInstanceNames
         (NAMESPACE, PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
     PEGASUS_ASSERT (cimxmlListDestPaths.size () == 1);
-    _checkFilterOrHandlerPath (cimxmlListDestPaths [0], 
+    _checkFilterOrHandlerPath (cimxmlListDestPaths [0],
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
 
     //
     //  Enumerate subscriptions
     //
-    Array <CIMInstance> subscriptions = client.enumerateInstances 
+    Array <CIMInstance> subscriptions = client.enumerateInstances
         (NAMESPACE, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     PEGASUS_ASSERT (subscriptions.size () == 8);
 
@@ -1454,15 +1491,15 @@ void _valid (CIMClient & client, String& qlang)
     providerTypes.append (4);
     propertyNames.append (CIMName ("IndicationTime"));
     CIMPropertyList properties (propertyNames);
-    _createProviderInstance (client, 
-        String ("ProcessIndicationProvider2"), 
+    _createProviderInstance (client,
+        String ("ProcessIndicationProvider2"),
         String ("ProcessIndicationProviderModule"));
-    _createCapabilityInstance (client, 
-        String ("ProcessIndicationProviderModule"), 
+    _createCapabilityInstance (client,
+        String ("ProcessIndicationProviderModule"),
         String ("ProcessIndicationProvider2"),
         String ("ProcessIndicationProviderCapability2"),
         String ("CIM_ProcessIndication"),
-        namespaces, 
+        namespaces,
         providerTypes,
         properties);
 
@@ -1475,8 +1512,8 @@ void _valid (CIMClient & client, String& qlang)
     propertyNames.append (CIMName ("IndicationIdentifier"));
     properties.clear ();
     properties.set (propertyNames);
-    _modifyCapabilityInstance (client, 
-        String ("ProcessIndicationProviderModule"), 
+    _modifyCapabilityInstance (client,
+        String ("ProcessIndicationProviderModule"),
         String ("ProcessIndicationProvider2"),
         String ("ProcessIndicationProviderCapability2"),
         properties);
@@ -1490,21 +1527,21 @@ void _valid (CIMClient & client, String& qlang)
     propertyNames.append (CIMName ("IndicationIdentifier"));
     properties.clear ();
     properties.set (propertyNames);
-    _modifyCapabilityInstance (client, 
-        String ("ProcessIndicationProviderModule"), 
+    _modifyCapabilityInstance (client,
+        String ("ProcessIndicationProviderModule"),
         String ("ProcessIndicationProvider2"),
         String ("ProcessIndicationProviderCapability2"),
         properties);
 
     //
-    //  Delete the provider 
+    //  Delete the provider
     //
-    _deleteCapabilityInstance (client, 
-        "ProcessIndicationProviderModule", 
+    _deleteCapabilityInstance (client,
+        "ProcessIndicationProviderModule",
         "ProcessIndicationProvider2",
         "ProcessIndicationProviderCapability2");
-    _deleteProviderInstance (client, 
-        "ProcessIndicationProvider2", 
+    _deleteProviderInstance (client,
+        "ProcessIndicationProvider2",
         "ProcessIndicationProviderModule");
 
     //
@@ -1519,7 +1556,7 @@ void _valid (CIMClient & client, String& qlang)
     CIMInstance filter08 (PEGASUS_CLASSNAME_INDFILTER);
     query = "SELECT * FROM CIM_ProcessIndication";
     _addStringProperty (filter08, "Name", "Filter08");
-    _addStringProperty (filter08, "SourceNamespace", 
+    _addStringProperty (filter08, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _addStringProperty (filter08, "Query", query);
     _addStringProperty (filter08, "QueryLanguage", qlang);
@@ -1528,11 +1565,11 @@ void _valid (CIMClient & client, String& qlang)
     fPath.setNameSpace (NAMESPACE);
 
     CIMInstance listenerdestination02 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
-    _addStringProperty (listenerdestination02, "Name", 
+    _addStringProperty (listenerdestination02, "Name",
         "ListenerDestination02");
-    _addStringProperty (listenerdestination02, "Destination", 
+    _addStringProperty (listenerdestination02, "Destination",
         "localhost/CIMListener/test4");
-    hPath = client.createInstance 
+    hPath = client.createInstance
         (NAMESPACE, listenerdestination02);
     hPath.setHost (System::getFullyQualifiedHostName ());
     hPath.setNameSpace (NAMESPACE);
@@ -1540,17 +1577,19 @@ void _valid (CIMClient & client, String& qlang)
     CIMInstance subscription10 = _buildSubscriptionInstance
         (fPath, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath);
     sPath = client.createInstance (NAMESPACE, subscription10);
-    _checkSubscriptionPath (sPath, "Filter08", 
-        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02");
+    _checkSubscriptionPath (sPath, "Filter08",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02",
+        NAMESPACE, NAMESPACE);
 
-    _deleteSubscriptionInstance (client, "Filter08", 
-        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02");
+    _deleteSubscriptionInstance (client, "Filter08",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02",
+        NAMESPACE, NAMESPACE);
     _deleteFilterInstance (client, "Filter08");
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination02");
 
     //
-    //  Create Subscription with correct Namespace in Filter and Handler 
+    //  Create Subscription with correct Namespace in Filter and Handler
     //  reference property value
     //  Verify Namespace does not appear in Subscription instance name
     //  returned from Create Instance operation
@@ -1558,7 +1597,7 @@ void _valid (CIMClient & client, String& qlang)
     CIMInstance filter09 (PEGASUS_CLASSNAME_INDFILTER);
     query = "SELECT * FROM CIM_ProcessIndication";
     _addStringProperty (filter09, "Name", "Filter09");
-    _addStringProperty (filter09, "SourceNamespace", 
+    _addStringProperty (filter09, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _addStringProperty (filter09, "Query", query);
     _addStringProperty (filter09, "QueryLanguage", qlang);
@@ -1566,24 +1605,26 @@ void _valid (CIMClient & client, String& qlang)
     fPath.setNameSpace (NAMESPACE);
 
     CIMInstance listenerdestination03 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
-    _addStringProperty (listenerdestination03, "Name", 
+    _addStringProperty (listenerdestination03, "Name",
         "ListenerDestination03");
-    _addStringProperty (listenerdestination03, "Destination", 
+    _addStringProperty (listenerdestination03, "Destination",
         "localhost/CIMListener/test5");
-    hPath = client.createInstance 
+    hPath = client.createInstance
         (NAMESPACE, listenerdestination03);
     hPath.setNameSpace (NAMESPACE);
 
     CIMInstance subscription11 = _buildSubscriptionInstance
         (fPath, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath);
     sPath = client.createInstance (NAMESPACE, subscription11);
-    _checkSubscriptionPath (sPath, "Filter09", 
-        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03");
+    _checkSubscriptionPath (sPath, "Filter09",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03",
+        NAMESPACE, NAMESPACE);
 
-    _deleteSubscriptionInstance (client, "Filter09", 
-        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03");
+    _deleteSubscriptionInstance (client, "Filter09",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03",
+        NAMESPACE, NAMESPACE);
     _deleteFilterInstance (client, "Filter09");
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination03");
 }
 
@@ -1610,13 +1651,13 @@ void _default (CIMClient & client)
     _addStringProperty (filter, "QueryLanguage", "WQL");
     CIMObjectPath path = client.createInstance (NAMESPACE, filter);
     CIMInstance retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         NAMESPACE.getString ());
     _deleteFilterInstance (client, "Filter00");
     }
@@ -1637,13 +1678,13 @@ void _default (CIMClient & client)
     CIMObjectPath path = client.createInstance (NAMESPACE, filter);
 
     CIMInstance retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDFILTER.getString ());
-    _checkStringProperty (retrievedInstance, "SourceNamespace", 
+    _checkStringProperty (retrievedInstance, "SourceNamespace",
         NAMESPACE.getString ());
     _deleteFilterInstance (client, "Filter00");
     }
@@ -1657,18 +1698,18 @@ void _default (CIMClient & client)
     {
     CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     _addStringProperty (handler, "Name", "Handler00");
-    _addStringProperty (handler, "Destination", "localhost/CIMListener/test1", 
+    _addStringProperty (handler, "Destination", "localhost/CIMListener/test1",
         false);
     CIMObjectPath path = client.createInstance (NAMESPACE, handler);
     CIMInstance retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
     _checkUint16Property (retrievedInstance, "PersistenceType", 2);
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler00");
     }
 
@@ -1681,19 +1722,19 @@ void _default (CIMClient & client)
     {
     CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     _addStringProperty (handler, "Name", "Handler00");
-    _addStringProperty (handler, "Destination", "localhost/CIMListener/test1", 
+    _addStringProperty (handler, "Destination", "localhost/CIMListener/test1",
         false);
     _addUint16Property (handler, "PersistenceType", 0, true);
     CIMObjectPath path = client.createInstance (NAMESPACE, handler);
     CIMInstance retrievedInstance = client.getInstance (NAMESPACE, path);
-    _checkStringProperty (retrievedInstance, "SystemCreationClassName", 
+    _checkStringProperty (retrievedInstance, "SystemCreationClassName",
         System::getSystemCreationClassName ());
-    _checkStringProperty (retrievedInstance, "SystemName", 
+    _checkStringProperty (retrievedInstance, "SystemName",
         System::getFullyQualifiedHostName ());
-    _checkStringProperty (retrievedInstance, "CreationClassName", 
+    _checkStringProperty (retrievedInstance, "CreationClassName",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString ());
     _checkUint16Property (retrievedInstance, "PersistenceType", 2);
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler00");
     }
 
@@ -1705,7 +1746,7 @@ void _default (CIMClient & client)
     _addStringProperty (filter00, "Name", "Filter00");
     _addStringProperty (filter00, "Query", query);
     _addStringProperty (filter00, "QueryLanguage", "WQL");
-    _addStringProperty (filter00, "SourceNamespace", 
+    _addStringProperty (filter00, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     CIMObjectPath fPath = client.createInstance (NAMESPACE, filter00);
 
@@ -1728,7 +1769,7 @@ void _default (CIMClient & client)
     _checkUint16Property (retrievedInstance, "SubscriptionState", 2);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
     _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 2);
-    _deleteSubscriptionInstance (client, "Filter00", 
+    _deleteSubscriptionInstance (client, "Filter00",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
     }
 
@@ -1751,7 +1792,7 @@ void _default (CIMClient & client)
     _checkUint16Property (retrievedInstance, "SubscriptionState", 2);
     _checkUint16Property (retrievedInstance, "OnFatalErrorPolicy", 2);
     _checkUint16Property (retrievedInstance, "RepeatNotificationPolicy", 2);
-    _deleteSubscriptionInstance (client, "Filter00", 
+    _deleteSubscriptionInstance (client, "Filter00",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
     }
 
@@ -1777,7 +1818,7 @@ void _default (CIMClient & client)
     //  Delete filter and handler instances
     //
     _deleteFilterInstance (client, "Filter00");
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler00");
 }
 
@@ -1797,7 +1838,7 @@ void _errorQueries (CIMClient & client, String& qlang)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", qlang);
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1817,7 +1858,7 @@ void _errorQueries (CIMClient & client, String& qlang)
         {
           _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
         }
-#else        
+#else
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
 #endif
     }
@@ -1828,12 +1869,12 @@ void _errorQueries (CIMClient & client, String& qlang)
     try
     {
         CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = 
+        String query =
             "SELECT * FROM CIM_ProcessIndication, CIM_AlertIndication";
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", qlang);
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1844,20 +1885,20 @@ void _errorQueries (CIMClient & client, String& qlang)
     }
 
     //
-    //  Filter: Invalid query - Array property is not supported in the WQL 
+    //  Filter: Invalid query - Array property is not supported in the WQL
     //          WHERE clause.
     //          Note: CQL allows array properties in the WHERE clause.
     //
     try
     {
         CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = 
+        String query =
             "SELECT * FROM CIM_ProcessIndication "
             "WHERE CorrelatedIndications IS NOT NULL";
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL"); // hardcode to WQL
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1867,20 +1908,20 @@ void _errorQueries (CIMClient & client, String& qlang)
         _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
-    //          
+    //
     //  Filter: Invalid query - Property referenced in the WHERE clause not
     //          found in the indication class in the FROM clause
     //
     try
     {
         CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
-        String query = 
+        String query =
             "SELECT * FROM CIM_ProcessIndication "
             "WHERE AlertType = 3";
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", qlang);
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1890,8 +1931,8 @@ void _errorQueries (CIMClient & client, String& qlang)
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
-    //          
-    //  Filter: Invalid query - Property referenced in the SELECT clause 
+    //
+    //  Filter: Invalid query - Property referenced in the SELECT clause
     //          not found in the indication class in the FROM clause
     //
     try
@@ -1901,7 +1942,7 @@ void _errorQueries (CIMClient & client, String& qlang)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", qlang);
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1924,12 +1965,12 @@ void _error (CIMClient & client)
     {
         CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
         String query = "SELECT * FROM CIM_ProcessIndication";
-        _addStringProperty (filter, "SystemCreationClassName", "invalidName", 
+        _addStringProperty (filter, "SystemCreationClassName", "invalidName",
             false);
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1950,7 +1991,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage",  "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1967,12 +2008,12 @@ void _error (CIMClient & client)
     {
         CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
         String query = "SELECT * FROM CIM_ProcessIndication";
-        _addStringProperty (filter, "SystemCreationClassName", 
+        _addStringProperty (filter, "SystemCreationClassName",
             System::getSystemCreationClassName (), false, true);
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -1993,7 +2034,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2014,7 +2055,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2035,7 +2076,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2056,7 +2097,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2075,7 +2116,7 @@ void _error (CIMClient & client)
         String query = "SELECT * FROM CIM_ProcessIndication";
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2095,7 +2136,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", String::EMPTY, true);
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2115,7 +2156,7 @@ void _error (CIMClient & client)
         _addUint16Property (filter, "Name", 1);
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2135,7 +2176,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00", false, true);
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2172,7 +2213,7 @@ void _error (CIMClient & client)
         CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2191,7 +2232,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", String::EMPTY, true);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2210,7 +2251,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addUint16Property (filter, "Query", 1);
         _addStringProperty (filter, "QueryLanguage", "WQL");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2229,7 +2270,7 @@ void _error (CIMClient & client)
         String query = "SELECT * FROM CIM_ProcessIndication";
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2249,7 +2290,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", String::EMPTY, true);
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2269,7 +2310,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addStringProperty (filter, "QueryLanguage", "unknownQueryLanguage");
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2289,7 +2330,7 @@ void _error (CIMClient & client)
         _addStringProperty (filter, "Name", "Filter00");
         _addStringProperty (filter, "Query", query);
         _addUint16Property (filter, "QueryLanguage", 1);
-        _addStringProperty (filter, "SourceNamespace", 
+        _addStringProperty (filter, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         CIMObjectPath path = client.createInstance (NAMESPACE, filter);
         PEGASUS_ASSERT (false);
@@ -2299,7 +2340,7 @@ void _error (CIMClient & client)
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
-    //          
+    //
     //  Filter: Attempt to delete a filter referenced by a subscription
     //          A Filter referenced by a subscription may not be deleted
     //
@@ -2322,7 +2363,7 @@ void _error (CIMClient & client)
         _addStringProperty (handler, "SystemCreationClassName", "invalidName",
             false);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2340,7 +2381,7 @@ void _error (CIMClient & client)
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addUint16Property (handler, "SystemCreationClassName", 1);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2358,7 +2399,7 @@ void _error (CIMClient & client)
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "SystemName", "invalidName");
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2376,7 +2417,7 @@ void _error (CIMClient & client)
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addUint16Property (handler, "SystemName", 1);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2394,7 +2435,7 @@ void _error (CIMClient & client)
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "CreationClassName", "invalidName");
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2412,7 +2453,7 @@ void _error (CIMClient & client)
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addUint16Property (handler, "CreationClassName", 1);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2428,7 +2469,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2445,7 +2486,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", String::EMPTY, true);
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2462,7 +2503,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addUint16Property (handler, "Name", 1);
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2479,7 +2520,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addUint16Property (handler, "PersistenceType", 1);
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
@@ -2491,17 +2532,17 @@ void _error (CIMClient & client)
     }
 
     //
-    //  Handler: OtherPersistenceType property present, but PersistenceType 
+    //  Handler: OtherPersistenceType property present, but PersistenceType
     //           value not 1 (Other)
     //
     try
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addUint16Property (handler, "PersistenceType", 2);
-        _addStringProperty (handler, "OtherPersistenceType", "another type", 
+        _addStringProperty (handler, "OtherPersistenceType", "another type",
             false);
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
         PEGASUS_ASSERT (false);
@@ -2518,7 +2559,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addUint16Property (handler, "PersistenceType", 0);
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
@@ -2536,7 +2577,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addUint16Property (handler, "PersistenceType", 4);
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
@@ -2554,7 +2595,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addStringProperty (handler, "PersistenceType", "invalid");
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
@@ -2572,7 +2613,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addUint16Property (handler, "PersistenceType", 2, false, true);
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
@@ -2590,7 +2631,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addUint16Property (handler, "Owner", 1);
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
@@ -2608,7 +2649,7 @@ void _error (CIMClient & client)
     {
         CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
         _addStringProperty (handler, "Name", "Handler00");
-        _addStringProperty (handler, "Destination", 
+        _addStringProperty (handler, "Destination",
             "localhost/CIMListener/test1");
         _addStringProperty (handler, "Owner", "arrayOwner", false, true);
         CIMObjectPath path = client.createInstance (NAMESPACE, handler);
@@ -2894,13 +2935,13 @@ void _error (CIMClient & client)
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
     }
 
-    //          
+    //
     //  Handler: Attempt to delete a handler referenced by a subscription
     //           A Handler referenced by a subscription may not be deleted
     //
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
             "Handler01");
         PEGASUS_ASSERT (false);
     }
@@ -2909,7 +2950,7 @@ void _error (CIMClient & client)
         _checkExceptionCode (e, CIM_ERR_FAILED);
     }
 
-    //          
+    //
     //  Listener Destination: Attempt to delete a listener destination
     //      referenced by a subscription
     //      A Listener Destination referenced by a subscription may not be
@@ -2917,7 +2958,7 @@ void _error (CIMClient & client)
     //
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
             "ListenerDestination01");
         PEGASUS_ASSERT (false);
     }
@@ -2941,7 +2982,7 @@ void _error (CIMClient & client)
     CIMInstance filter10 (PEGASUS_CLASSNAME_INDFILTER);
     query = "SELECT * FROM CIM_ProcessIndication";
     _addStringProperty (filter10, "Name", "Filter10");
-    _addStringProperty (filter10, "SourceNamespace", 
+    _addStringProperty (filter10, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     _addStringProperty (filter10, "Query", query);
     _addStringProperty (filter10, "QueryLanguage", "WQL");
@@ -2950,11 +2991,11 @@ void _error (CIMClient & client)
     fPath.setNameSpace (NAMESPACE);
 
     CIMInstance listenerdestination04 (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
-    _addStringProperty (listenerdestination04, "Name", 
+    _addStringProperty (listenerdestination04, "Name",
         "ListenerDestination04");
-    _addStringProperty (listenerdestination04, "Destination", 
+    _addStringProperty (listenerdestination04, "Destination",
         "localhost/CIMListener/test6");
-    hPath = client.createInstance 
+    hPath = client.createInstance
         (NAMESPACE, listenerdestination04);
     hPath.setHost (System::getFullyQualifiedHostName ());
     hPath.setNameSpace (NAMESPACE);
@@ -2962,8 +3003,9 @@ void _error (CIMClient & client)
     CIMInstance subscription12 = _buildSubscriptionInstance
         (fPath, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath);
     sPath = client.createInstance (NAMESPACE, subscription12);
-    _checkSubscriptionPath (sPath, "Filter10", 
-        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");
+    _checkSubscriptionPath (sPath, "Filter10",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04",
+        NAMESPACE, NAMESPACE);
 
     //
     //  Filter: Attempt to delete a filter referenced by a subscription
@@ -2987,7 +3029,7 @@ void _error (CIMClient & client)
     //
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
             "ListenerDestination04");
         PEGASUS_ASSERT (false);
     }
@@ -2999,10 +3041,11 @@ void _error (CIMClient & client)
     //
     //  Once Subscription is deleted, Filter and Handler may also be deleted
     //
-    _deleteSubscriptionInstance (client, "Filter10", 
-        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");
+    _deleteSubscriptionInstance (client, "Filter10",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04",
+        NAMESPACE, NAMESPACE);
     _deleteFilterInstance (client, "Filter10");
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination04");
 
     //
@@ -3014,7 +3057,7 @@ void _error (CIMClient & client)
     _addStringProperty (filter00, "Name", "Filter00");
     _addStringProperty (filter00, "Query", query);
     _addStringProperty (filter00, "QueryLanguage", "WQL");
-    _addStringProperty (filter00, "SourceNamespace", 
+    _addStringProperty (filter00, "SourceNamespace",
         SOURCENAMESPACE.getString ());
     path = client.createInstance (NAMESPACE, filter00);
 
@@ -3063,7 +3106,7 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath 
+        CIMObjectPath fPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
         fPath.setHost ("somehost");
         fPath.setNameSpace (CIMNamespaceName ("root"));
@@ -3084,7 +3127,7 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath 
+        CIMObjectPath hPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
         hPath.setHost ("somehost");
         hPath.setNameSpace (CIMNamespaceName ("root"));
@@ -3104,13 +3147,13 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath 
+        CIMObjectPath fPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
         fPath.setHost ("ahost.region.acme.com");
         fPath.setNameSpace (NAMESPACE);
         CIMInstance subscription = _buildSubscriptionInstance
             (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-            _buildFilterOrHandlerPath 
+            _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3125,13 +3168,13 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath 
+        CIMObjectPath fPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
         fPath.setHost (System::getFullyQualifiedHostName ());
         fPath.setNameSpace (CIMNamespaceName ("root"));
         CIMInstance subscription = _buildSubscriptionInstance
             (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-            _buildFilterOrHandlerPath 
+            _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3146,12 +3189,12 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath fPath = _buildFilterOrHandlerPath 
+        CIMObjectPath fPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDFILTER, "Filter00");
         fPath.setNameSpace (CIMNamespaceName ("root"));
         CIMInstance subscription = _buildSubscriptionInstance
             (fPath, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-            _buildFilterOrHandlerPath 
+            _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00"));
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3166,13 +3209,13 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath 
+        CIMObjectPath hPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
         hPath.setHost ("ahost.region.acme.com");
         hPath.setNameSpace (NAMESPACE);
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath 
-            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"), 
+            (_buildFilterOrHandlerPath
+            (PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3187,7 +3230,7 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath 
+        CIMObjectPath hPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
         hPath.setHost (System::getFullyQualifiedHostName ());
         hPath.setNameSpace (CIMNamespaceName ("root"));
@@ -3208,11 +3251,11 @@ void _error (CIMClient & client)
     //
     try
     {
-        CIMObjectPath hPath = _buildFilterOrHandlerPath 
+        CIMObjectPath hPath = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
         hPath.setNameSpace (CIMNamespaceName ("root"));
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath 
+            (_buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDFILTER, "Filter00"),
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, hPath);
         path = client.createInstance (NAMESPACE, subscription);
@@ -3229,7 +3272,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3244,19 +3287,19 @@ void _error (CIMClient & client)
     }
 
     //
-    //  Subscription: OtherSubscriptionState property present, but 
+    //  Subscription: OtherSubscriptionState property present, but
     //                SubscriptionState value not 1
     //
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                  "Handler00"));
         _addUint16Property (subscription, "SubscriptionState", 2);
-        _addStringProperty (subscription, "OtherSubscriptionState", 
+        _addStringProperty (subscription, "OtherSubscriptionState",
             "another state");
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3272,7 +3315,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3292,7 +3335,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3312,13 +3355,13 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                  "Handler00"));
         _addUint16Property (subscription, "RepeatNotificationPolicy", 1);
-        _addStringProperty (subscription, "OtherRepeatNotificationPolicy", 
+        _addStringProperty (subscription, "OtherRepeatNotificationPolicy",
             String::EMPTY, true);
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3329,19 +3372,19 @@ void _error (CIMClient & client)
     }
 
     //
-    //  Subscription: OtherRepeatNotificationPolicy property present, but 
+    //  Subscription: OtherRepeatNotificationPolicy property present, but
     //                RepeatNotificationPolicy value not 1
     //
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                  "Handler00"));
         _addUint16Property (subscription, "RepeatNotificationPolicy", 2);
-        _addStringProperty (subscription, "OtherRepeatNotificationPolicy", 
+        _addStringProperty (subscription, "OtherRepeatNotificationPolicy",
             "another policy");
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3357,7 +3400,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3378,7 +3421,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3398,7 +3441,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3413,19 +3456,19 @@ void _error (CIMClient & client)
     }
 
     //
-    //  Subscription: OtherOnFatalErrorPolicy property present, but 
+    //  Subscription: OtherOnFatalErrorPolicy property present, but
     //                OnFatalErrorPolicy value not 1
     //
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                  "Handler00"));
         _addUint16Property (subscription, "OnFatalErrorPolicy", 2);
-        _addStringProperty (subscription, "OtherOnFatalErrorPolicy", 
+        _addStringProperty (subscription, "OtherOnFatalErrorPolicy",
             "another policy");
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3441,7 +3484,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3461,7 +3504,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3481,12 +3524,12 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
                  "Handler00"));
-        _addStringProperty (subscription, "FailureTriggerTimeInterval", 
+        _addStringProperty (subscription, "FailureTriggerTimeInterval",
             "incorrect type");
         path = client.createInstance (NAMESPACE, subscription);
         PEGASUS_ASSERT (false);
@@ -3506,12 +3549,12 @@ void _error (CIMClient & client)
         _addStringProperty (filter07, "Name", "Filter07");
         _addStringProperty (filter07, "Query", query);
         _addStringProperty (filter07, "QueryLanguage", "WQL");
-        _addStringProperty (filter07, "SourceNamespace", 
+        _addStringProperty (filter07, "SourceNamespace",
             SOURCENAMESPACE.getString ());
         path = client.createInstance (NAMESPACE, filter07);
 
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter07"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3530,7 +3573,7 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter07"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3541,9 +3584,9 @@ void _error (CIMClient & client)
         CIMInstance retrievedInstance = client.getInstance (NAMESPACE, path);
         _checkUint16Property (retrievedInstance, "SubscriptionState", 4);
         _checkUint64Property (retrievedInstance, "SubscriptionDuration", 60000);
-        _checkUint64Property (retrievedInstance, "SubscriptionTimeRemaining", 
+        _checkUint64Property (retrievedInstance, "SubscriptionTimeRemaining",
             60000);
-        _deleteSubscriptionInstance (client, "Filter07", 
+        _deleteSubscriptionInstance (client, "Filter07",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
     }
     catch (CIMException &)
@@ -3560,7 +3603,7 @@ void _error (CIMClient & client)
     {
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDFILTER);
         _addStringProperty (modifiedInstance, "QueryLanguage", "WQL2");
-        CIMObjectPath path = _buildFilterOrHandlerPath 
+        CIMObjectPath path = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDFILTER, "Filter01");
         modifiedInstance.setPath (path);
         Array <CIMName> propertyNames;
@@ -3577,9 +3620,9 @@ void _error (CIMClient & client)
     try
     {
         CIMInstance modifiedInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
-        _addStringProperty (modifiedInstance, "Destination", 
+        _addStringProperty (modifiedInstance, "Destination",
             "localhost/CIMListener/test9");
-        CIMObjectPath path = _buildFilterOrHandlerPath 
+        CIMObjectPath path = _buildFilterOrHandlerPath
             (PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
         modifiedInstance.setPath (path);
         Array <CIMName> propertyNames;
@@ -3644,7 +3687,7 @@ void _error (CIMClient & client)
         CIMObjectPath path = _buildSubscriptionPath ("Filter01",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
         modifiedInstance.setPath (path);
-        client.modifyInstance (NAMESPACE, modifiedInstance, false, 
+        client.modifyInstance (NAMESPACE, modifiedInstance, false,
             CIMPropertyList ());
     }
     catch (CIMException & e)
@@ -3681,7 +3724,7 @@ void _error (CIMClient & client)
         //  Create subscription with short SubscriptionDuration
         //
         CIMInstance subscription = _buildSubscriptionInstance
-            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
                  "Filter00"),
              PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
              _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
@@ -3709,7 +3752,7 @@ void _error (CIMClient & client)
     {
         _checkExceptionCode (e, CIM_ERR_FAILED);
     }
-    
+
     //
     //  Verify the expired subscription has been deleted
     //
@@ -3726,7 +3769,7 @@ void _error (CIMClient & client)
     //  Delete filter and handler instances
     //
     _deleteFilterInstance (client, "Filter00");
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler00");
 }
 
@@ -3735,31 +3778,31 @@ void _delete (CIMClient & client)
     //
     //  Delete subscription instances
     //
-    _deleteSubscriptionInstance (client, "Filter01", 
+    _deleteSubscriptionInstance (client, "Filter01",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
-    _deleteSubscriptionInstance (client, "Filter02", 
+    _deleteSubscriptionInstance (client, "Filter02",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
-    _deleteSubscriptionInstance (client, "Filter03", 
+    _deleteSubscriptionInstance (client, "Filter03",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
-    _deleteSubscriptionInstance (client, "Filter04", 
+    _deleteSubscriptionInstance (client, "Filter04",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
-    _deleteSubscriptionInstance (client, "Filter05", 
+    _deleteSubscriptionInstance (client, "Filter05",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
-    _deleteSubscriptionInstance (client, "Filter06", 
+    _deleteSubscriptionInstance (client, "Filter06",
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
-    _deleteSubscriptionInstance (client, "Filter01", 
+    _deleteSubscriptionInstance (client, "Filter01",
         PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");
-    _deleteSubscriptionInstance (client, "Filter01", 
+    _deleteSubscriptionInstance (client, "Filter01",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
 
     //
     //  Delete handler instances
     //
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
         "Handler01");
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_SNMP, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_SNMP,
         "Handler03");
-    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+    _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination01");
 
     //
@@ -3809,12 +3852,12 @@ void _test (CIMClient & client)
 
 //
 //  NOTE: the cleanup command line option is provided to clean up the
-//  repository in case the test fails and not all objects created by 
+//  repository in case the test fails and not all objects created by
 //  the test were deleted
 //  This method attempts to delete each object that could have been created by
 //  this test and that still exists in the repository
-//  Since the repository could contain none, any or all of the objects, any 
-//  exceptions thrown are ignored and this method continues to attempt to 
+//  Since the repository could contain none, any or all of the objects, any
+//  exceptions thrown are ignored and this method continues to attempt to
 //  delete the objects
 //
 void _cleanup (CIMClient & client)
@@ -3824,7 +3867,7 @@ void _cleanup (CIMClient & client)
     //
     try
     {
-        _deleteSubscriptionInstance (client, "Filter00", 
+        _deleteSubscriptionInstance (client, "Filter00",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler00");
     }
     catch (...)
@@ -3833,7 +3876,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter01", 
+        _deleteSubscriptionInstance (client, "Filter01",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     }
     catch (...)
@@ -3842,7 +3885,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter02", 
+        _deleteSubscriptionInstance (client, "Filter02",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     }
     catch (...)
@@ -3851,7 +3894,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter03", 
+        _deleteSubscriptionInstance (client, "Filter03",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     }
     catch (...)
@@ -3860,7 +3903,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter04", 
+        _deleteSubscriptionInstance (client, "Filter04",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     }
     catch (...)
@@ -3869,7 +3912,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter05", 
+        _deleteSubscriptionInstance (client, "Filter05",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     }
     catch (...)
@@ -3878,7 +3921,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter06", 
+        _deleteSubscriptionInstance (client, "Filter06",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler01");
     }
     catch (...)
@@ -3896,7 +3939,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter01", 
+        _deleteSubscriptionInstance (client, "Filter01",
             PEGASUS_CLASSNAME_INDHANDLER_CIMXML, "Handler02");
     }
     catch (...)
@@ -3905,7 +3948,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter01", 
+        _deleteSubscriptionInstance (client, "Filter01",
             PEGASUS_CLASSNAME_INDHANDLER_SNMP, "Handler03");
     }
     catch (...)
@@ -3914,7 +3957,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter01", 
+        _deleteSubscriptionInstance (client, "Filter01",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination01");
     }
     catch (...)
@@ -3923,8 +3966,9 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter08", 
-            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02");
+        _deleteSubscriptionInstance (client, "Filter08",
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02",
+            NAMESPACE, NAMESPACE);
     }
     catch (...)
     {
@@ -3932,8 +3976,9 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter09", 
-            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03");
+        _deleteSubscriptionInstance (client, "Filter09",
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03",
+            NAMESPACE, NAMESPACE);
     }
     catch (...)
     {
@@ -3941,8 +3986,9 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteSubscriptionInstance (client, "Filter10", 
-            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04");
+        _deleteSubscriptionInstance (client, "Filter10",
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04",
+            NAMESPACE, NAMESPACE);
     }
     catch (...)
     {
@@ -3953,7 +3999,7 @@ void _cleanup (CIMClient & client)
     //
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
             "Handler00");
     }
     catch (...)
@@ -3962,7 +4008,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
             "Handler01");
     }
     catch (...)
@@ -3971,7 +4017,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
             "Handler02");
     }
     catch (...)
@@ -3980,7 +4026,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_SNMP, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_INDHANDLER_SNMP,
             "Handler03");
     }
     catch (...)
@@ -3989,7 +4035,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
             "ListenerDestination01");
     }
     catch (...)
@@ -3998,7 +4044,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
             "ListenerDestination02");
     }
     catch (...)
@@ -4007,7 +4053,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
             "ListenerDestination03");
     }
     catch (...)
@@ -4016,7 +4062,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, 
+        _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
             "ListenerDestination04");
     }
     catch (...)
@@ -4127,8 +4173,8 @@ void _cleanup (CIMClient & client)
     //
     try
     {
-        _deleteCapabilityInstance (client, 
-            "AlertIndicationProviderModule", 
+        _deleteCapabilityInstance (client,
+            "AlertIndicationProviderModule",
             "AlertIndicationProvider",
             "AlertIndicationProviderCapability");
     }
@@ -4138,8 +4184,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteProviderInstance (client, 
-            "AlertIndicationProvider", 
+        _deleteProviderInstance (client,
+            "AlertIndicationProvider",
             "AlertIndicationProviderModule");
     }
     catch (...)
@@ -4148,7 +4194,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteModuleInstance (client, 
+        _deleteModuleInstance (client,
             "AlertIndicationProviderModule");
     }
     catch (...)
@@ -4157,8 +4203,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteCapabilityInstance (client, 
-            "ProcessIndicationProviderModule", 
+        _deleteCapabilityInstance (client,
+            "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             "ProcessIndicationProviderCapability");
     }
@@ -4168,8 +4214,8 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteProviderInstance (client, 
-            "ProcessIndicationProvider", 
+        _deleteProviderInstance (client,
+            "ProcessIndicationProvider",
             "ProcessIndicationProviderModule");
     }
     catch (...)
@@ -4178,7 +4224,7 @@ void _cleanup (CIMClient & client)
 
     try
     {
-        _deleteModuleInstance (client, 
+        _deleteModuleInstance (client,
             "ProcessIndicationProviderModule");
     }
     catch (...)
@@ -4192,24 +4238,24 @@ void _unregister (CIMClient & client)
 {
     try
     {
-        _deleteCapabilityInstance (client, 
-            "AlertIndicationProviderModule", 
+        _deleteCapabilityInstance (client,
+            "AlertIndicationProviderModule",
             "AlertIndicationProvider",
             "AlertIndicationProviderCapability");
-        _deleteProviderInstance (client, 
-            "AlertIndicationProvider", 
+        _deleteProviderInstance (client,
+            "AlertIndicationProvider",
             "AlertIndicationProviderModule");
-        _deleteModuleInstance (client, 
+        _deleteModuleInstance (client,
             "AlertIndicationProviderModule");
 
-        _deleteCapabilityInstance (client, 
-            "ProcessIndicationProviderModule", 
+        _deleteCapabilityInstance (client,
+            "ProcessIndicationProviderModule",
             "ProcessIndicationProvider",
             "ProcessIndicationProviderCapability");
-        _deleteProviderInstance (client, 
-            "ProcessIndicationProvider", 
+        _deleteProviderInstance (client,
+            "ProcessIndicationProvider",
             "ProcessIndicationProviderModule");
-        _deleteModuleInstance (client, 
+        _deleteModuleInstance (client,
             "ProcessIndicationProviderModule");
     }
     catch (Exception & e)
@@ -4258,7 +4304,7 @@ int main (int argc, char** argv)
         }
         //
         //  NOTE: the cleanup command line option is provided to clean up the
-        //  repository in case the test fails and not all objects created by 
+        //  repository in case the test fails and not all objects created by
         //  the test were deleted
         //
         else if (String::equalNoCase (opt, "cleanup"))
@@ -4271,7 +4317,7 @@ int main (int argc, char** argv)
         }
         else
         {
-            cerr << "Invalid option: " << opt 
+            cerr << "Invalid option: " << opt
                 << endl;
             _usage ();
             return -1;

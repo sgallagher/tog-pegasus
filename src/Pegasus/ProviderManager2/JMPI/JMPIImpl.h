@@ -55,17 +55,17 @@ PEGASUS_NAMESPACE_BEGIN
 #define Catch(jEnv) \
    catch(CIMException & e) { \
       JMPIjvm::cacheIDs(jEnv); \
-      jobject ev=jEnv->NewObject(classRefs[13],instanceMethodIDs[33],(jint)e.getCode(),jEnv->NewStringUTF(e.getMessage().getCString())); \
+      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)e.getCode(),jEnv->NewStringUTF(e.getMessage().getCString())); \
       jEnv->Throw((jthrowable)ev); \
    } \
    catch(Exception & e) { \
       JMPIjvm::cacheIDs(jEnv);\
-      jobject ev=jEnv->NewObject(classRefs[13],instanceMethodIDs[33],(jint)1,jEnv->NewStringUTF(e.getMessage().getCString())); \
+      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,jEnv->NewStringUTF(e.getMessage().getCString())); \
       jEnv->Throw((jthrowable)ev); \
    } \
    catch(...)  { \
       JMPIjvm::cacheIDs(jEnv); \
-      jobject ev=jEnv->NewObject(classRefs[13],instanceMethodIDs[33],(jint)1,"Exception: Unknown"); \
+      jobject ev=jEnv->NewObject(JMPIjvm::jv.CIMExceptionClassRef,JMPIjvm::jv.CIMExceptionNewISt,(jint)1,"Exception: Unknown"); \
       jEnv->Throw((jthrowable)ev); \
    }
 

@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,28 +27,20 @@
 #//
 #//==============================================================================
 include $(ROOT)/mak/test.mak
-
-HOSTNAME =
-PORT =
-HTTPMETHOD = -m M-POST
-HTTPVERSION = -v 1.1
-USER = -u guest
-PASSWORD = -w guest
-SSL =
+include $(ROOT)/test/config.mak
 
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-    DIFF = mu compare
+	DIFF = mu compare
+#	DIFF = diff -t -w -B -i -d -t
 else
-    DIFF = diff -w
+	DIFF = diff -w
 endif
-
-XMLREQUESTS = $(foreach i, $(XMLSCRIPTS), $i.xml)
-XMLRESPONSES = $(XMLREQUESTS:.xml=.rsp)
-
-WBEMEXECOPTIONS = $(HOSTNAME) $(PORT) $(HTTPMETHOD) $(HTTPVERSION) $(USER) $(PASSWORD) $(SSL) 
 
 %.rsp: %.xml
 	@ wbemexec $(WBEMEXECOPTIONS) $*.xml > $(TMP_DIR)/$*.rsp | cd .
+ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+	@ $(STRIPCRS) $(TMP_DIR)/$*.rsp
+endif
 	@ $(DIFF) $*rspgood.xml $(TMP_DIR)/$*.rsp
 	@ $(RM) $(TMP_DIR)/$*.rsp
 	@ $(ECHO) +++ $* passed successfully +++

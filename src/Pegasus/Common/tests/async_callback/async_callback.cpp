@@ -104,8 +104,8 @@ Boolean test_async_queue::messageOK (const Message * msg)
 void
 test_async_queue::_handle_async_request (AsyncRequest * rq)
 {
-  if ((rq->getType () == async_messages::ASYNC_OP_START) | (rq->getType () ==
-      async_messages::ASYNC_LEGACY_OP_START))
+  if ((rq->getType () == async_messages::ASYNC_OP_START) ||
+      (rq->getType () == async_messages::ASYNC_LEGACY_OP_START))
     {  
      try {
       PEGASUS_ASSERT (_role == SERVER);

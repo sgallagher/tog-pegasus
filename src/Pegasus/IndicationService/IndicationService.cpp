@@ -5897,6 +5897,7 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
                 response->cimException.getMessage ());
         }
 
+        delete response;
         delete asyncRequest;
         delete asyncReply;
     }  //  for each indication provider

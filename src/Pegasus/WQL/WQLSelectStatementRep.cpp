@@ -497,6 +497,12 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
 void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
     Boolean allowMissing)
 {
+  applyProjection((CIMObject&) ci, allowMissing);
+}
+
+void WQLSelectStatementRep::applyProjection(CIMObject& ci,
+    Boolean allowMissing)
+{
    if (_allProperties) return;
 
    for (int i=ci.getPropertyCount(); i!=0; i--)
@@ -539,21 +545,6 @@ void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
                throw QueryRuntimePropertyException(parms);
            }
        }
-   }
-}
-
-void WQLSelectStatementRep::applyProjection(CIMObject& ci,
-    Boolean allowMissing)
-{
-   if (_allProperties) return;
-
-   for (int i=ci.getPropertyCount(); i!=0; i--) {
-      CIMName pn=ci.getProperty(i-1).getName();
-      for (int ii=0,mm=_selectPropertyNames.size(); ii<mm; ii++) {
-         if (_selectPropertyNames[ii]==pn) break;
-         ci.removeProperty(i-1);
-         break;
-      }
    }
 }
 

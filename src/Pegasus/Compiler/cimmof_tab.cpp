@@ -2031,8 +2031,8 @@ yyreduce:
     {
         // convert somehow from alias to a CIM object name
         yyerror("'alias' is not yet supported (see bugzilla 14).");
-        YYABORT;
         delete yyvsp[0].strval;
+        YYABORT;
         ;}
     break;
 
@@ -2084,8 +2084,8 @@ yyreduce:
 #line 767 "cimmof.y"
     { 
               yyerror("'alias' is not yet supported (see bugzilla 14).");
-              YYABORT;
               yyval.strval = yyvsp[0].strval;
+              YYABORT;
               ;}
     break;
 

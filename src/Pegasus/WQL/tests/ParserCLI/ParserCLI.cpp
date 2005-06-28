@@ -43,6 +43,20 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+Boolean containsProperty(const CIMName& name, const Array<CIMName>& props)
+{
+  for (Uint32 i = 0; i < props.size(); i++)
+  {
+    if (props[i] == name)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+
 int main(int argc, char** argv)
 {
     Boolean verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
@@ -56,7 +70,7 @@ int main(int argc, char** argv)
 	cerr << "Usage: " << argv[0] << " <returnOptions> wql-text..." << endl;
     cerr << "return Options are keywords parseError or evalulateError" << endl;
     cerr << "They tell the call to reverse the error on the parse or evalutate tests" << endl;
-	exit(1);
+	return(1);
     }
     Boolean evaluateErrorTest = false;
     Boolean parseErrorTest = false;
@@ -116,7 +130,7 @@ int main(int argc, char** argv)
         else
         {
             cerr << "Parse Exception: " << e.getMessage() << endl;
-            exit(1);
+            return(1);
         }
     }
 
@@ -139,6 +153,141 @@ int main(int argc, char** argv)
     assert(source.addValue("SourceInstance", WQLOperand("SourceInstance", WQL_STRING_VALUE_TAG)));
     assert(source.addValue("PreviousInstance", WQLOperand("PreviousInstance", WQL_STRING_VALUE_TAG)));
     assert(source.addValue("OperationalStatus", WQLOperand("OperationalStatus", WQL_STRING_VALUE_TAG)));
+
+    //
+    // Create an instance
+    //
+
+    CIMInstance inst("ClassName");
+    inst.addProperty(CIMProperty(CIMName("v"), CIMValue())); 
+    inst.addProperty(CIMProperty(CIMName("w"), CIMValue(true)));
+    inst.addProperty(CIMProperty(CIMName("x"), CIMValue(10)));
+    inst.addProperty(CIMProperty(CIMName("y"), CIMValue(10.10)));
+    inst.addProperty(CIMProperty(CIMName("z"), CIMValue(String("Ten"))));
+    inst.addProperty(CIMProperty(CIMName("SourceInstance"), CIMValue(String("SourceInstance"))));
+    inst.addProperty(CIMProperty(CIMName("PreviousInstance"), CIMValue(String("PreviousInstance"))));
+    inst.addProperty(CIMProperty(CIMName("OperationalStatus"), CIMValue(String("OperationalStatus"))));
+
+    //
+    // Create an empty instance
+    //
+    CIMInstance emptyInst("ClassName");
+
+    //
+    // Create an empty object
+    //
+    CIMObject emptyObj = emptyInst;
+
+    //
+    // Apply projection (both overloads) with populated instance or object.
+    // Tests removal of extra properties.
+    //
+
+    try
+    {
+        Array<CIMName> selectList = statement.getSelectPropertyList().getPropertyNameArray();
+
+        CIMInstance projInst = inst.clone();
+        statement.applyProjection(projInst, false);  // do not allow missing props
+        if (statement.getAllProperties())
+        {
+            assert(projInst.getPropertyCount() == inst.getPropertyCount());
+        }
+        else
+        {
+            assert(projInst.getPropertyCount() == statement.getSelectPropertyNameCount());
+            for (Uint32 i = 0; i < projInst.getPropertyCount(); i++)
+            {
+                assert(containsProperty(projInst.getProperty(i).getName(), selectList));
+            }
+        }
+        
+        CIMObject projObj = inst.clone();
+        statement.applyProjection(projObj, false);  // do not allow missing props
+        if (statement.getAllProperties())
+        {
+            assert(projObj.getPropertyCount() == inst.getPropertyCount());
+        }
+        else
+        {
+            assert(projObj.getPropertyCount() == statement.getSelectPropertyNameCount());
+            for (Uint32 i = 0; i < projObj.getPropertyCount(); i++)
+            {
+                assert(containsProperty(projObj.getProperty(i).getName(), selectList));
+            }
+        }
+    }
+    catch (Exception& e)
+    {
+        cerr << "ApplyProjection Exception: " << e.getMessage() << endl;
+        return(1);
+    }
+
+    //
+    // Apply projection (both overloads) with empty instance or object.
+    // Tests checking for missing properties (allowMissing parameter).
+    //
+    if (!statement.getAllProperties())
+    {
+        Boolean gotExc = false;
+        try
+        {
+            statement.applyProjection(emptyInst, false);  // do not allow missing props
+            assert(false);
+        }
+        catch (QueryRuntimePropertyException&)
+        {
+            gotExc = true;  // this is expected due to missing props
+        }
+        catch (Exception& e)
+        {
+            cerr << "ApplyProjection Exception with empty instance, do not allow missing props: " 
+                 << e.getMessage() << endl;
+            return(1);
+        }
+        assert(gotExc);
+
+        try
+        {
+            statement.applyProjection(emptyInst, true);  // allow missing props
+        }    
+        catch (Exception& e)
+        {
+            cerr << "ApplyProjection Exception with empty instance, allow missing props: " 
+                 << e.getMessage() << endl;
+            return(1);
+        }
+
+        gotExc = false;
+        try
+        {
+            statement.applyProjection(emptyObj, false);  // do not allow missing props
+            assert(false);
+        }
+        catch (QueryRuntimePropertyException&)
+        {
+            gotExc = true;  // this is expected due to missing props
+        }
+        catch (Exception& e)
+        {
+            cerr << "ApplyProjection Exception with empty object, do not allow missing props: " 
+                 << e.getMessage() << endl;
+            return(1);
+        }
+        assert(gotExc);
+
+        try
+        {
+            statement.applyProjection(emptyObj, true);  // allow missing props
+        }
+        catch (Exception& e)
+        {
+            cerr << "ApplyProjection Exception with empty object, allow missing props: " 
+                 << e.getMessage() << endl;
+            return(1);
+        }
+    }
+    
     //
     // Evaluate the where clause:
     //
@@ -154,7 +303,7 @@ int main(int argc, char** argv)
         if (evaluateErrorTest)
         {
             cerr << "EvaluateWhereClause Exception: " << e.getMessage() << endl;
-            exit(1);
+            return(1);
         }
         else
         {

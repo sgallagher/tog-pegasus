@@ -428,138 +428,102 @@ void CIMServer::_init(void)
 
 CIMServer::~CIMServer ()
 {
-  PEG_METHOD_ENTER (TRC_SERVER, "CIMServer::~CIMServer()");
-  // The HTTPAcceptor depends on HTTPAuthenticationDelegator
+    PEG_METHOD_ENTER (TRC_SERVER, "CIMServer::~CIMServer()");
 
-  // Wait until the Shutdown provider request has cleared through the
-  // system. 
-  ShutdownService::getInstance (this)->waitUntilNoMoreRequests (false);
+    // Wait until the Shutdown provider request has cleared through the
+    // system. 
+    ShutdownService::getInstance(this)->waitUntilNoMoreRequests(false);
 
-  // Ok, shutdown all the MQSs. This shuts their communication channel.
-  ShutdownService::getInstance (this)->shutdownCimomServices ();
+    // Ok, shutdown all the MQSs. This shuts their communication channel.
+    ShutdownService::getInstance(this)->shutdownCimomServices();
 
-  // Start deleting the objects.
-  for (Uint32 i = 0, n = _acceptors.size (); i < n; i++)
+    // Start deleting the objects.
+    // The order is very important.
+
+    // The HTTPAcceptor depends on HTTPAuthenticationDelegator
+    for (Uint32 i = 0, n = _acceptors.size (); i < n; i++)
     {
-      HTTPAcceptor *p = _acceptors[i];
-      delete p;
-    }
-  // The order is very important.
-
-  // 13
-  if (_indicationService)
-    {
-      delete _indicationService;
+        HTTPAcceptor *p = _acceptors[i];
+        delete p;
     }
 
-  // 12
-  // HTTPAuthenticationDelegaor depends on 
-  // CIMRepository, CIMOperationRequestDecode and
-  // CIMExportRequestDecoder
-  if (_httpAuthenticatorDelegator)
+    // IndicationService depends on ProviderManagerService,
+    // IndicationHandlerService, and ProviderRegistrationManager, and thus
+    // should be deleted before the ProviderManagerService,
+    // IndicationHandlerService, and ProviderRegistrationManager are deleted.
+    delete _indicationService;
+
+    // HTTPAuthenticationDelegator depends on CIMRepository,
+    // CIMOperationRequestDecoder and CIMExportRequestDecoder
+    delete _httpAuthenticatorDelegator;
+
+    delete _cimExportRequestDecoder;
+
+    delete _cimExportResponseEncoder;
+
+    delete _cimExportRequestDispatcher;
+
+    // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer
+    // and CIMOperationResponseEncoder
+    delete _cimOperationRequestDecoder;
+
+    delete _cimOperationResponseEncoder;
+
+    // BinaryMessageHandler depends on CIMOperationRequestDispatcher
+    delete _binaryMessageHandler;
+
+    // CIMOperationRequestAuthorizer depends on
+    // CIMOperationRequestDispatcher
+    delete _cimOperationRequestAuthorizer;
+
+    // IndicationHandlerService uses CIMOperationRequestDispatcher
+    delete _handlerService;
+
+    // CIMOperationRequestDispatcher depends on 
+    // CIMRepository and ProviderRegistrationManager.
+    // CIMOperationRequestDispatcher keeps an internal list of control
+    // providers. Must delete this before ModuleController.
+    delete _cimOperationRequestDispatcher;
+
+    // ModuleController takes care of deleting all wrappers around
+    // the control providers.
+    delete _controlService;
+
+    // Find all of the control providers (module)
+    // Must delete CIMOperationRequestDispatcher _before_ deleting each
+    // of the control provider. The CIMOperationRequestDispatcher keeps
+    // its own table of the internal providers (pointers).
+    for (Uint32 i = 0, n = _controlProviders.size(); i < n; i++)
     {
-      delete _httpAuthenticatorDelegator;
-    }
-  // 11
-  if (_cimExportRequestDecoder)
-    {
-      delete _cimExportRequestDecoder;
-    }
-  // 10
-  if (_cimExportResponseEncoder)
-    {
-      delete _cimExportResponseEncoder;
-    }
-  // 9
-  if (_cimExportRequestDispatcher)
-    {
-      delete _cimExportRequestDispatcher;
-    }
-  // 8
-  // CIMOperationRequestDecoder depends on CIMOperationRequestAuthorizer
-  // and CIMOperationResponseEncoder
-  if (_cimOperationRequestDecoder)
-    {
-      delete _cimOperationRequestDecoder;
-    }
-  // 7
-  if (_cimOperationResponseEncoder)
-    {
-      delete _cimOperationResponseEncoder;
-    }
-  // BinaryMessageHandler depends on CIMOperationRequestDispatcher
-  if (_binaryMessageHandler)    //6
-    {
-      delete _binaryMessageHandler;
-    }
-  // CIMOperationRequestAuthorizer depends on
-  // CIMOperationRequestDispatcher
-  if (_cimOperationRequestAuthorizer)
-    {
-      delete _cimOperationRequestAuthorizer;
-    }
-  // IndicationHandlerService , 3. It uses CIMOperationRequestDispatcher
-  if (_handlerService)
-    {
-      delete _handlerService;
-    }
-  // CIMOperationRequestDispatcher depends on 
-  // CIMRepository and ProviderRegistrationManager
-  if (_cimOperationRequestDispatcher)
-    {
-      // Keeps an internal list of control providers. Must 
-      // delete this before ModuleController.
-      delete _cimOperationRequestDispatcher;
-    }
-  // ProviderManager depends on ProcviderRegistrationManager
-  // 5
-  if (_providerManager)
-    {
-      delete _providerManager;
-    }
-  // 4
-  if (_controlService)
-    {
-      // ModuleController takes care of deleting all wrappers around
-      // the control providers.
-      delete _controlService;
+        ProviderMessageFacade *p = _controlProviders[i];
+        // ~ProviderMessageFacade calls 'terminate' on the control providers.
+        delete p;
     }
 
-  // IndicationHandlerService, and ProviderRegistrationManager, and thus should be 
-  // deleted before the ProviderManagerService, IndicationHandlerService, and 
-  // ProviderRegistrationManager are deleted.
+    // The SSL control providers use the SSL context manager. 
+    delete _sslContextMgr;
 
-  if (_providerRegistrationManager)
-    {
-      delete _providerRegistrationManager;
-    }
-  // Find all of the control providers (module)
-  // Must delete CIMOperationRequestDispatcher _before_ deleting each
-  // of the control provider. The CIMOperationRequestDispatcher keeps
-  // its own table of the internal providers (pointers).
-  for (Uint32 i = 0, n = _controlProviders.size (); i < n; i++)
-    {
-      ProviderMessageFacade *p = _controlProviders[i];
-      // The ~ProviderMessageFacade calls 'terminate' on the control providers.
-      delete p;
-    }
-  // The SSL control providers used the SSL context manager. 
-  if (_sslContextMgr)
-    {
-      delete _sslContextMgr;
-      _sslContextMgr = 0;
-    }
-  // ConfigManager. Really weird way of doing it.
-  // Lastly the repository.
-  if (_repository)
-    {
-      delete _repository;
-    }
-  ConfigManager::destroy ();
-  UserManager::destroy();
-  ShutdownService::destroy();
+    // ProviderManagerService depends on ProviderRegistrationManager.
+    // Note that deleting the ProviderManagerService causes the
+    // DefaultProviderManager (if loaded) to get unloaded.  Dynamically
+    // unloading the DefaultProviderManager library affects (on HP-UX, at
+    // least) the statically loaded version of this library used by the
+    // ProviderMessageFacade wrapper for the control providers.  Deleting
+    // the ProviderManagerService after the control providers is a
+    // workaround for this problem.
+    delete _providerManager;
 
-  PEG_METHOD_EXIT ();
+    delete _providerRegistrationManager;
+
+    // Almost everybody uses the CIMRepository.
+    delete _repository;
+
+    // Destroy the singleton services
+    ConfigManager::destroy();
+    UserManager::destroy();
+    ShutdownService::destroy();
+
+    PEG_METHOD_EXIT ();
 }
 
 void CIMServer::addAcceptor(

@@ -658,9 +658,7 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         delete consumer1;
 
         cout << "+++++ Received indications == " << receivedIndicationCount.value() << endl;
-// Commenting out this assert() until issues with lost indications are resolved so the
-// nightly test can continue. See Bug 3480.
-//      assert((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value());
+        assert((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value());
 
         cout << "+++++ passed all tests in " << elapsedTime.getElapsed() << " seconds" << endl;
     }

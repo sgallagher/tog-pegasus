@@ -242,7 +242,7 @@ void testOverloadPool()
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)300, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted == PEGASUS_THREAD_OK);
+        assert(threadStarted == PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
         
         ThreadStatus rc = PEGASUS_THREAD_OK;
         while ( (rc =threadPool.allocate_and_awaken(

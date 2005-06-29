@@ -405,23 +405,43 @@ Boolean ProviderAgent::_readAndProcessRequest()
         // Start a new thread to process the request
         ProviderAgentRequest* agentRequest =
             new ProviderAgentRequest(this, request);
-	 ThreadStatus rtn = PEGASUS_THREAD_OK;
+        ThreadStatus rtn = PEGASUS_THREAD_OK;
 
-	while ( (rtn = _threadPool.allocate_and_awaken(
-                   agentRequest,
-                   ProviderAgent::_processRequestAndWriteResponse)) != PEGASUS_THREAD_OK)
-	{
-	   if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-            pegasus_yield();
-	   else
-           {
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			"Not enough threads to process agent request." );
+        while ((rtn = _threadPool.allocate_and_awaken(agentRequest,
+                   ProviderAgent::_processRequestAndWriteResponse)) !=
+               PEGASUS_THREAD_OK)
+        {
+            if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+            {
+                pegasus_yield();
+            }
+            else
+            {
+                Logger::put(
+                    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "Not enough threads to process agent request.");
  
-		Tracer::trace(TRC_PROVIDERAGENT, Tracer::LEVEL2,
-			"Could not allocate thread to process agent request.");
-           }
-	} 
+                Tracer::trace(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+                    "Could not allocate thread to process agent request.");
+
+                AutoPtr<CIMResponseMessage> response(request->buildResponse());
+                response->cimException = PEGASUS_CIM_EXCEPTION_L(
+                    CIM_ERR_FAILED,
+                    MessageLoaderParms(
+                        "ProviderManager.ProviderAgent.ProviderAgent."
+                            "THREAD_ALLOCATION_FAILED",
+                        "Failed to allocate a thread in cimprovagt \"$0\".",
+                        _agentId));
+
+                // Return response to CIM Server
+                _writeResponse(response.get());
+
+                delete agentRequest;
+                delete request;
+
+                break;
+            }
+        } 
     }
 
     PEG_METHOD_EXIT();
@@ -580,11 +600,11 @@ void ProviderAgent::_unloadIdleProviders()
     if (rtn != PEGASUS_THREAD_OK) 
     {
 
-	 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		"Not enough threads to unload idle providers.");
+         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+             "Not enough threads to unload idle providers.");
  
-	 Tracer::trace(TRC_PROVIDERAGENT, Tracer::LEVEL2,
-		"Could not allocate thread to unload idle providers." );
+         Tracer::trace(TRC_PROVIDERAGENT, Tracer::LEVEL2,
+             "Could not allocate thread to unload idle providers.");
     }
     PEG_METHOD_EXIT();
 }

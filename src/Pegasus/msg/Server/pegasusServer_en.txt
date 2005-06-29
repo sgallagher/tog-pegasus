@@ -4261,6 +4261,14 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.OOPProviderManagerRouter.MAX_PROVIDER_PROCESSES_REACHED:string {"PGS13604:  The maximum number of cimprovagt processes has been reached."}
 
+        /**
+        * @note  PGS13605
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        * @version 2.5
+        */
+        ProviderManager.OOPProviderManagerRouter.CIMPROVAGT_THREAD_ALLOCATION_FAILED:string {"PGS13605:  Failed to allocate thread for cimprovagt \"{0}\"."}
+
 
     // ==========================================================
         // Messages for ProviderManager.ProviderAgent.cimprovagt
@@ -4281,6 +4289,13 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate the word 'cimprovagt' since it is a command name.
         */
         ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR:string {"PGS13801:  cimprovagt \"{0}\" error.  Exiting."}
+
+        /**
+        * @note  PGS13802
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR:string {"PGS13802:  Failed to allocate a thread in cimprovagt \"{0}\"."}
 
 
     // ==========================================================

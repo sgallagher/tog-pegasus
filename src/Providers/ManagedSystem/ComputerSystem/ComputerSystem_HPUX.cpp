@@ -354,9 +354,10 @@ void ComputerSystem::initialize(void)
               _serialNumber.set(String(serialNumber));
           }
       }
-      catch(Exception e)
+      catch(...)
       {
           delete [] serialNumber;
+          throw;
       }
       delete [] serialNumber;
   }
@@ -382,9 +383,10 @@ void ComputerSystem::initialize(void)
               _uuid.set(String(uuid));
           }
       }
-      catch(Exception e)
+      catch(...)
       {
-	  delete [] uuid;
+          delete [] uuid;
+          throw;
       }
       delete [] uuid;
   }

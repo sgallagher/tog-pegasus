@@ -448,6 +448,57 @@ _CMTraceMessage (char **result)
   return 1;
 }
 
+CMPIInstance *
+_createInstance()
+{
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+  CMPIObjectPath *objPath = NULL;
+  CMPIObjectPath *fake_objPath  = NULL;
+  CMPIObjectPath *temp_objPath = NULL;
+  CMPIString *objName = NULL;
+  CMPIInstance *inst = NULL;
+
+  PROV_LOG("Calling CMNewObjectPath for %s", _ClassName );
+  objPath  = CMNewObjectPath (_broker, _Namespace, "TestCMPI_Instance", &rc);
+  CMAddKey (objPath, "ElementName", (CMPIValue *) "ObjPath", CMPI_chars);
+  PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+
+  PROV_LOG("Calling CMNewInstance ");
+  inst = CMNewInstance(_broker, objPath, &rc);
+  PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+
+  // Get the object path
+  PROV_LOG("Calling CMGetObjectPath");
+  temp_objPath = CMGetObjectPath(inst, &rc);
+  PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+
+  objName = CMObjectPathToString(temp_objPath, &rc);
+  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName), strCMPIStatus (rc));
+
+  // Create a new ObjectPath, in a different namespace.
+  PROV_LOG("Calling CMNewObjectPath for %s", "TestCMPI_Instance");
+  fake_objPath = CMNewObjectPath (_broker, "root/cimv2", "TestCMPI_Instance", &rc);  
+  CMAddKey (fake_objPath, "ElementName", (CMPIValue *) "Fake_ObjPath", CMPI_chars);
+
+  PROV_LOG ("---- (%s)", strCMPIStatus (rc));
+  
+  objName = CMObjectPathToString(fake_objPath, &rc);
+  PROV_LOG ("---- Object path: %s (rc:%s)", CMGetCharPtr(objName), strCMPIStatus (rc));
+
+  // Setting objPath to fake_ObjPath
+  PROV_LOG("Calling CMSetObjectPath with object path: %s", CMGetCharPtr(objName));
+  rc = CMSetObjectPath(inst, fake_objPath);
+  PROV_LOG ("---- (%s)", strCMPIStatus (rc));
+
+  // Please note that this instance now has this objectPath
+  PROV_LOG("Calling CMGetObjectPath");
+  temp_objPath = CMGetObjectPath(inst, &rc);
+  PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+  objName = CMObjectPathToString(temp_objPath, &rc);
+  PROV_LOG ("---- Object path is %s (rc:%s)", CMGetCharPtr(objName), strCMPIStatus (rc));
+
+  return inst;  
+}
           /* and many more soon to come */
 
 /* ---------------------------------------------------------------------------*/
@@ -488,9 +539,11 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIData data;
   CMPIString *argName = NULL;
+  CMPIInstance *instance = NULL;
   unsigned int arg_cnt = 0, index = 0;
   int oper_rc = 1;
   char *result = NULL;
+
 
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
 
@@ -614,6 +667,15 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           CMReturnData (rslt, (CMPIValue *) & oper_rc, CMPI_uint32);
           CMReturnDone (rslt);
         }
+      else if (strncmp ("returnInstance", methodName, strlen ("returnInstance"))
+               == 0)
+		{
+		  instance = _createInstance();
+          PROV_LOG
+            ("++++ Calling CMReturnData+Done on returnInstance operation");
+          CMReturnData (rslt, (CMPIValue *) & instance, CMPI_instance);
+          CMReturnDone (rslt);
+		}
       else
         {
           PROV_LOG ("++++ Could not find the %s operation", methodName);
@@ -621,7 +683,6 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
                                 CMPI_RC_ERR_NOT_FOUND, methodName);
         }
     }
-
   PROV_LOG ("--- %s CMPI InvokeMethod() exited", _ClassName);
   PROV_LOG_CLOSE();
   return rc;

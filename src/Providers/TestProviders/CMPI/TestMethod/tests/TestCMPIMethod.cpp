@@ -288,6 +288,36 @@ test03 (CIMClient & client)
   }
 }
 void
+test04 (CIMClient & client)
+{
+  CIMObjectPath instanceName;
+
+  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setClassName (CLASSNAME);
+
+  Array < CIMParamValue > inParams;
+  Array < CIMParamValue > outParams;
+
+  /*     [EmbeddedObject] String returnInstance(); */
+
+  CIMValue retValue = client.invokeMethod (PROVIDERNAMESPACE,
+					   instanceName,
+					   "returnInstance",
+					   inParams,
+					   outParams);
+
+  PEGASUS_ASSERT (retValue.getType () == CIMTYPE_OBJECT);
+  PEGASUS_ASSERT (!retValue.isArray ());
+  PEGASUS_ASSERT (!retValue.isNull ());
+
+  CIMObject result;
+  retValue.get (result);
+
+  CIMObjectPath objPath  = result.getPath();
+  PEGASUS_ASSERT (objPath.toString() == "TestCMPI_Instance");
+
+}
+void
 _test (CIMClient & client)
 {
   try
@@ -296,6 +326,7 @@ _test (CIMClient & client)
     test01 (client);
     test02 (client);
     test03 (client);
+    test04 (client);
   }
   catch (Exception & e)
   {

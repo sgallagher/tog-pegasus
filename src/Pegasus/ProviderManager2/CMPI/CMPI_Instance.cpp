@@ -225,10 +225,8 @@ extern "C" {
             }
             else 
               objPath.reset(new CIMObjectPath(clsRef));
-
             obj.reset(new CMPI_Object(objPath.get()));
             objPath.release();
-            obj->unlink();
             if (rc) CMSetStatus(rc,CMPI_RC_OK);
             return reinterpret_cast<CMPIObjectPath*> (obj.release()); 
       } catch(const PEGASUS_STD(bad_alloc)&) {
@@ -239,8 +237,18 @@ extern "C" {
 
    static CMPIStatus instSetObjectPath( CMPIInstance* eInst, const CMPIObjectPath *obj)
    {
-    /* IBMLR: Have not yet implemented this */
-     CMReturn ( CMPI_RC_ERR_NOT_SUPPORTED);
+      CIMInstance* inst=(CIMInstance*)eInst->hdl;
+      if ((inst==NULL) || (obj==NULL))  {
+        CMReturn ( CMPI_RC_ERR_INVALID_PARAMETER);
+      }
+     CIMObjectPath &ref = *(CIMObjectPath*)(obj->hdl);
+	try {
+    	inst->setPath(ref); 
+     } catch (const TypeMismatchException &e) {
+	   CMReturnWithString(CMPI_RC_ERR_FAILED,
+            reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
+	}
+    CMReturn ( CMPI_RC_OK);
    }
 
    static CMPIStatus instSetPropertyFilter(CMPIInstance* eInst,

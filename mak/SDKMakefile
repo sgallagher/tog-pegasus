@@ -149,7 +149,6 @@ SAMPLES_DIRS = \
    Providers/DefaultC++/MethodProvider \
    Providers/DefaultC++/SimpleDisplayConsumer \
    Providers/CMPI/FilesAndDirectories \
-   Providers/CMPI/FilesAndDirectories/tests \
    Providers/DefaultC++/AssociationProvider \
    Providers/Load \
    mak
@@ -194,7 +193,6 @@ PROVIDERSRCPATH1FILES = \
    DefaultC++/SimpleDisplayConsumer/Makefile \
    CMPI/Makefile \
    CMPI/FilesAndDirectories/Makefile \
-   CMPI/FilesAndDirectories/tests/Makefile \
    DefaultC++/AssociationProvider/Makefile
 
 PROVIDERSRCPATH2FILES = \
@@ -208,26 +206,11 @@ PROVIDERSRCPATH2FILES = \
 
 #CMPI provider.
 PROVIDERSRCPATH2FILES += \
-     CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml \
-     CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml \
-     CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml \
-     CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml \
-     CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml \
-     CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml \
-     CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml \
-     CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml \
-     CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml \
-     CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml \
-     CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml \
-     CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml \
-     CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml \
-     CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml \
      CMPI/FilesAndDirectories/cwssimdata.c \
      CMPI/FilesAndDirectories/cwsutil.h \
      CMPI/FilesAndDirectories/CWS_Directory.c \
      CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c \
      CMPI/FilesAndDirectories/cwsutil.c \
-     CMPI/FilesAndDirectories/cwstest.c \
      CMPI/FilesAndDirectories/CWS_FileUtils.c \
      CMPI/FilesAndDirectories/CWS_PlainFile.c \
      CMPI/FilesAndDirectories/CWS_FileUtils.h 

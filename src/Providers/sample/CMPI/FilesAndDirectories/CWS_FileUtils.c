@@ -79,13 +79,8 @@ char * FSName()
 }
 
 
-#ifdef CMPI_VER_100
 CMPIObjectPath *makePath( const CMPIBroker *broker, const char * classname,
 			 const char * Namespace, CWS_FILE *cwsf)
-#else
-CMPIObjectPath *makePath( CMPIBroker *broker, const char * classname,
-			 const char * Namespace, CWS_FILE *cwsf)
-#endif
 {
   CMPIObjectPath *op;
   op = CMNewObjectPath(broker,
@@ -103,13 +98,8 @@ CMPIObjectPath *makePath( CMPIBroker *broker, const char * classname,
   return op;
 }
 
-#ifdef CMPI_VER_100
 CMPIInstance   *makeInstance(const CMPIBroker *broker, const char * classname,
 			     const char * Namespace, CWS_FILE *cwsf)
-#else
-CMPIInstance   *makeInstance( CMPIBroker *broker, const char * classname,
-			     const char * Namespace, CWS_FILE *cwsf)
-#endif
 {
   CMPIInstance   *in = NULL;
   CMPIValue       val;
@@ -153,11 +143,7 @@ CMPIInstance   *makeInstance( CMPIBroker *broker, const char * classname,
   return in;
 }
 
-#ifdef CMPI_VER_100
 int makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf)
-#else
-int makeFileBuf( CMPIInstance *instance, CWS_FILE *cwsf)
-#endif
 {
   CMPIData dt;
   if (instance && cwsf) {

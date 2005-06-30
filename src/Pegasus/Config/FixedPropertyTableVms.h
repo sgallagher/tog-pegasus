@@ -63,8 +63,7 @@
     {"tempLocalAuthDir",    PEGASUS_LOCAL_AUTH_DIR},
     {"logdir",              "/wbem_var/opt/wbem/logs"},
     {"repositoryDir",       "/wbem_var/opt/wbem/repository"},
-//    {"providerDir",         "/wbem_var/opt/wbem/providers/lib"},
-    {"providerDir",         "sys$share:"},
+    {"providerDir",         "/wbem_opt/wbem/providers/lib"},
 #endif
 
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)

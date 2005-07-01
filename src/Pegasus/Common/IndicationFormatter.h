@@ -42,7 +42,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/Constants.h>
 
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 #include <unicode/locid.h>
 #include <unicode/datefmt.h>
 #include <unicode/unistr.h>
@@ -250,7 +250,7 @@ private:
 	const CIMInstance & indication,
         const ContentLanguages & contentLangs);
 
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)  
     /**
         Determines if a property value can be localized. 
         A property value can only be localized if the subscription

@@ -679,7 +679,7 @@ String IndicationFormatter::_formatDefaultIndicationText(
 
     Boolean canLocalize = false;
 
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
     Locale locale;
     canLocalize = _canLocalize(contentLangs, locale);
 #endif
@@ -706,7 +706,7 @@ String IndicationFormatter::_formatDefaultIndicationText(
             }
             else // value is not an array
             {
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 		if (canLocalize)
 		{
 		    if (type == CIMTYPE_DATETIME)
@@ -917,7 +917,7 @@ String IndicationFormatter::_getIndPropertyValue(
 
     Boolean canLocalize = false;
 
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
     Locale locale;
     canLocalize = _canLocalize(contentLangs, locale);
 #endif
@@ -946,7 +946,7 @@ String IndicationFormatter::_getIndPropertyValue(
                 }
                 else // value is not an array
                 {
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 		    if (canLocalize)
 		    {
                         if (type == CIMTYPE_DATETIME)
@@ -1401,7 +1401,7 @@ String IndicationFormatter::_getArrayValues(
 
 	    Boolean canLocalize = false;
 
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 	    Locale locale;
 	    canLocalize = _canLocalize(contentLangs, locale);
 #endif
@@ -1412,7 +1412,7 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 		    if (canLocalize)
 		    {
 			arrayValues.append(_localizeBooleanStr(
@@ -1436,7 +1436,7 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
                 if (canLocalize)
 		{
 		    arrayValues = _localizeBooleanStr(
@@ -1519,7 +1519,7 @@ String IndicationFormatter::_getArrayValues(
 
             Boolean canLocalize = false;
 
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 	    Locale locale;
 	    canLocalize = _canLocalize(contentLangs, locale);
 #endif
@@ -1530,7 +1530,7 @@ String IndicationFormatter::_getArrayValues(
                 arrayValues.append("[");
 		for (Uint32 i=0; i<arraySize; i++)
 		{
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
                     if (canLocalize)
 		    {
 			arrayValues.append(_localizeDateTime(
@@ -1554,7 +1554,7 @@ String IndicationFormatter::_getArrayValues(
 	    }
 	    else
 	    {
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 		if (canLocalize)
 		{
 		    arrayValues.append(_localizeDateTime(
@@ -1660,7 +1660,7 @@ String IndicationFormatter::_getBooleanStr(
     }
 }
 
-#ifdef PEGASUS_HAS_ICU
+#if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 
 Boolean IndicationFormatter::_canLocalize(
     const ContentLanguages & contentLangs,

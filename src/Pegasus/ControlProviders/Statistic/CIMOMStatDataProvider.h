@@ -107,7 +107,6 @@ public:
       CIMObjectPath _references[StatisticalData::NUMBER_OF_TYPES];
 	 //CIMDateTime toDateTime(Sint64 date);
 	  void checkObjectManager();
-      Mutex _mutex;  
       CIMOMHandle _cimom;
 
 };

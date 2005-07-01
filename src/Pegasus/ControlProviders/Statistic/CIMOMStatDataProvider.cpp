@@ -90,9 +90,6 @@ void CIMOMStatDataProvider::getInstance(
 	// begin processing the request
 	handler.processing();
 
-    //Make mutualy exclusive, only one thread at a time can exicute
-    AutoMutex autoMut(_mutex);
-
 	// instance index corresponds to reference index
 	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
 	{  //cout << "this is what we are looking at " << _references[i].toString() <<endl <<endl;
@@ -118,8 +115,6 @@ void CIMOMStatDataProvider::enumerateInstances(
 {
     // begin processing the request
 	handler.processing();
-
-    AutoMutex autoMut(_mutex);  
 
 	// instance index corresponds to reference index
 	for(Uint32 i = 0; i < StatisticalData::NUMBER_OF_TYPES; i++)
@@ -217,19 +212,7 @@ CIMInstance CIMOMStatDataProvider::getInstance(Uint16 type, CIMObjectPath cimRef
    requestedInstance.addProperty(CIMProperty("Caption",
       CIMValue(String("CIMOM performance statistics for CIM request"))));
 
-   CIMClass cimclass = _cimom.getClass(
-                                     OperationContext(),
-                                     cimRef.getNameSpace(),
-                                     cimRef.getClassName(),
-                                     false, true, false,
-                                     CIMPropertyList());
-
-  CIMObjectPath instanceName = requestedInstance.buildPath(cimclass);
-
-  instanceName.setNameSpace(cimRef.getNameSpace());
-  requestedInstance.setPath(instanceName);
-
-   
+   requestedInstance.setPath(_references[type]);
 
 //cout << "at the end of getinstance of CIMOMStat" << endl;
    return requestedInstance;

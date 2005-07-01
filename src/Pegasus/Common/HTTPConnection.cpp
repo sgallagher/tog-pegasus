@@ -280,13 +280,11 @@ void HTTPConnection::handleEnqueue(Message *message)
       return;
    }
 
-   Boolean LockAcquired = false;
-
-     if (pegasus_thread_self() != _connection_mut.get_owner())
-     {
-         _connection_mut.lock(pegasus_thread_self());  // Use lock_connection() ?
-         LockAcquired = true;
-     }
+   AutoMutex connectionLock(_connection_mut, false);
+   if (pegasus_thread_self() != _connection_mut.get_owner())
+   {
+      connectionLock.lock();
+   }
 
    switch (message->getType())
    {
@@ -316,10 +314,6 @@ void HTTPConnection::handleEnqueue(Message *message)
 
    delete message;
 
-   if (LockAcquired)
-   {
-     _connection_mut.unlock();  // Use unlock_connection() ?
-   }
    PEG_METHOD_EXIT();
 }
 

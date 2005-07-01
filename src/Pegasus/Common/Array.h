@@ -56,14 +56,6 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
-// Note: This explicit template instantiation exists solely to support
-// binary compatibility with a previous definition of the Sint8 type.
-# define PEGASUS_ARRAY_T char
-# include <Pegasus/Common/ArrayInter.h>
-# undef PEGASUS_ARRAY_T
-#endif
-
 #define PEGASUS_ARRAY_T Uint16
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
@@ -103,6 +95,14 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_ARRAY_T String
 #include <Pegasus/Common/ArrayInter.h>
 #undef PEGASUS_ARRAY_T
+
+#if defined(PEGASUS_USE_DEPRECATED_INTERFACES) || defined(PEGASUS_INTERNALONLY)
+// Note: This explicit template instantiation is needed to support
+// binary compatibility with a previous definition of the Sint8 type.
+# define PEGASUS_ARRAY_T char
+# include <Pegasus/Common/ArrayInter.h>
+# undef PEGASUS_ARRAY_T
+#endif
 
 PEGASUS_NAMESPACE_END
 

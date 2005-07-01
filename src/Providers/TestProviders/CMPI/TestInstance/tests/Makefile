@@ -45,11 +45,10 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 SOURCES = TestCMPIInstanceExecQuery.cpp
 
+PROGRAM = TestCMPIInstanceExecQuery
+
 include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
-
-
-PROGRAM = TestCMPIInstanceExecQuery
 
 LOGFILES = TestCMPIInstance
 

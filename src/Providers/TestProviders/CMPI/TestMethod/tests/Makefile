@@ -42,11 +42,10 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 SOURCES = TestCMPIMethod.cpp
 
+PROGRAM = TestCMPIMethod
+
 include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
-
-
-PROGRAM = TestCMPIMethod
 
 LOGFILES = TestCMPIMethod
 

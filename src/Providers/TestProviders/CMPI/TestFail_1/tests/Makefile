@@ -39,11 +39,10 @@ LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
 SOURCES = TestCMPI_Fail_1.cpp
 
+PROGRAM = TestCMPI_Fail_1
+
 include $(ROOT)/mak/program.mak
 include $(ROOT)/test/config.mak
-
-
-PROGRAM = TestCMPI_Fail_1
 
 tests:
 

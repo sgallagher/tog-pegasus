@@ -4290,13 +4290,6 @@ CIM server listening on HTTPS port {0}."}
         */
         ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR:string {"PGS13801:  cimprovagt \"{0}\" error.  Exiting."}
 
-        /**
-        * @note  PGS13802
-        *    Substitution {0} is a string ID for the cimprovagt process instance
-        *    Do not translate the word 'cimprovagt' since it is a command name.
-        */
-        ProviderManager.ProviderAgent.cimprovagt.CIMPROVAGT_ERROR:string {"PGS13802:  Failed to allocate a thread in cimprovagt \"{0}\"."}
-
 
     // ==========================================================
         // Messages for ProviderManager.ProviderAgent.ProviderAgent
@@ -4309,6 +4302,13 @@ CIM server listening on HTTPS port {0}."}
         *    Do not translate the word 'cimprovagt' since it is a command name.
         */
         ProviderManager.ProviderAgent.ProviderAgent.CIMSERVER_COMMUNICATION_FAILED:string {"PGS14000:  cimprovagt \"{0}\" communication with CIM server failed.  Exiting."}
+
+        /**
+        * @note  PGS14001
+        *    Substitution {0} is a string ID for the cimprovagt process instance
+        *    Do not translate the word 'cimprovagt' since it is a command name.
+        */
+        ProviderManager.ProviderAgent.ProviderAgent.THREAD_ALLOCATION_FAILED:string {"PGS14001:  Failed to allocate a thread in cimprovagt \"{0}\"."}
 
     // ==========================================================
         // Messages for Common.Monitor

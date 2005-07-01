@@ -32,6 +32,7 @@
 // Modified By:
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090,#2657
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3259
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,17 +63,11 @@ ThreadPool *MessageQueueService::get_thread_pool()
 //
 // MAX_THREADS_PER_SVC_QUEUE_LIMIT
 //
-// 5000 is seriously too high a number for the limit but since 
-// previously there was no limit at all this is intended to approximate
-// that behavior. In my testing on a unit processor system the system
-// behaved best with a low number 2 to 5 for the MAX_THREADS_PER_SVC_QUEUE.
-// When set to 1000 the system deadlocked with indications that were 
-// not delivered and apparently left sitting within the server in a queue.  
-//
 // JR Wunderlich Jun 6, 2005
 //
 
 #define MAX_THREADS_PER_SVC_QUEUE_LIMIT 5000 
+#define MAX_THREADS_PER_SVC_QUEUE_DEFAULT 5
 
 Uint32 max_threads_per_svc_queue;
 
@@ -219,7 +214,7 @@ MessageQueueService::MessageQueueService(
 
    if (max_threads_per_svc_queue == 0)
      {
-       max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_LIMIT;
+       max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_DEFAULT;
      }
 
    // cout << "MAX_THREADS_PER_SVC_QUEUE = " << MAX_THREADS_PER_SVC_QUEUE << endl;

@@ -281,9 +281,17 @@ endif
 ##
 ##      defaults to 0 (zero)
 ##
-##      if set to 0 (zero) the max threads per service queue is then
-##        set to MAX_THREADS_PER_SVC_QUEUE_LIMIT.
-##      if set larger than the MAX_THREADS_PER_SVC_QUEUE_LIMIT it is set to it.
+##      if set to 0 (zero) 
+##	 then the max threads per service queue is 
+##            set to MAX_THREADS_PER_SVC_QUEUE_DEFAULT.
+##      if set larger than MAX_THREADS_PER_SVC_QUEUE_LIMIT 
+##        then the max threads per service queue is
+##            set to MAX_THREADS_PER_SVC_QUEUE_LIMIT.
+##
+##	Label					Current value
+##	--------------------------------------  -------------
+##      MAX_THREADS_PER_SVC_QUEUE_LIMIT	        5000
+##      MAX_THREADS_PER_SVC_QUEUE_DEFAULT       5
 ##
 ##
 

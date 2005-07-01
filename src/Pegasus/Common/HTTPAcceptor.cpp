@@ -546,7 +546,7 @@ void HTTPAcceptor::closeConnectionSocket()
       if (_localConnection)
       {
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
-          PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+          PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
                         "HTTPAcceptor::closeConnectionSocket Unlinking local connection." );
          ::unlink(
              reinterpret_cast<struct sockaddr_un*>(_rep->address)->sun_path);

@@ -125,6 +125,7 @@ OperationAggregate::OperationAggregate(
     _totalReceivedComplete = 0;
     _totalReceivedExpected = 0;
     _totalReceivedErrors = 0;
+    _totalReceivedNotSupported = 0;
     _magicNumber = 12345;
     _aggregationSN = 0;
 }
@@ -216,9 +217,14 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
 {
     static const String func = "OperationAggregate::resequenceResponse: ";
     CIMStatusCode error = response.cimException.getCode();
-
+    bool notSupportedReceived = false;
     if (error != CIM_ERR_SUCCESS)
     {
+        if(error == CIM_ERR_NOT_SUPPORTED)
+        {
+            notSupportedReceived = true;
+            _totalReceivedNotSupported++;
+        }
         _totalReceivedErrors++;
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             String(func + "Response has error. "
@@ -280,11 +286,31 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
                 _totalReceivedErrors);
         }
 
+        // If all of the errors received were NOT_SUPPORTED and
+        // all of the responses were errors, then keep the last
+        // NOT_SUPPORTED error.
+        // The condition below is the oposite of that. If there was an error
+        // besides NOT_SUPPORTED, or a non-error response was received, and
+        // the last response was a NOT_SUPPORTED error, then clear the error
+        if((_totalReceivedErrors != _totalReceivedNotSupported ||
+          _totalReceivedErrors != _totalReceived) &&
+          notSupportedReceived)
+        {
+          response.cimException = CIMException();
+        }
+
         isComplete = true;
         _totalReceivedComplete = 0;
         _totalReceivedExpected = 0;
         _totalReceivedErrors = 0;
+        _totalReceivedNotSupported = 0;
         _totalReceived = 0;
+    }
+    else if(notSupportedReceived)
+    {
+    	// Clear the NOT_SUPPORTED exception
+    	// We ignore it unless it's the only response received
+        response.cimException = CIMException();
     }
 
     response.setComplete(isComplete);

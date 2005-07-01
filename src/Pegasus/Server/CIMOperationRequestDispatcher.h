@@ -232,6 +232,7 @@ private:
 		Uint32 _totalReceivedComplete;
 		Uint32 _totalReceivedExpected;
 		Uint32 _totalReceivedErrors;
+    Uint32 _totalReceivedNotSupported;
 };
 
 class PEGASUS_SERVER_LINKAGE CIMOperationRequestDispatcher : public MessageQueueService

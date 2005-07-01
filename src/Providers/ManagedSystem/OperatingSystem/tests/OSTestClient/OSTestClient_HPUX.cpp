@@ -150,10 +150,28 @@ Boolean OSTestClient::goodName(const String &name, Boolean verbose)
 Boolean OSTestClient::goodCaption(const String &cap, 
                                   Boolean verbose)
 {
+
+   struct utsname     unameInfo;
+   String _cap;
+
    if (verbose)
-      cout<<"Checking Caption " << cap << endl;
-   return (String::equalNoCase(cap, 
-     "The current Operating System"));
+       cout<<"Checking Caption " << cap << endl;
+
+   // Call uname and check for any errors.
+   if (uname(&unameInfo) < 0)
+   {
+       return false;
+   }
+
+   // append in _cap the system name and release.
+   _cap.assign(unameInfo.sysname);
+   _cap.append(" ");
+   _cap.append(unameInfo.release);
+
+  if (verbose)
+       cout<<" Should be  " << _cap << endl;
+
+   return (String::equalNoCase(cap,_cap)); 
 }
 
 /*
@@ -167,11 +185,8 @@ Boolean OSTestClient::goodDescription(const String &desc,
 {
    if (verbose)
       cout<<"Checking Description " << desc << endl;
-
-   return (String::equalNoCase(desc, 
-     "This instance reflects the Operating System on which the "
-     "CIMOM is executing (as distinguished from instances of "
-     "other installed operating systems that could be run)."));
+   return false;  // HP-UX doesn't implement this
+                  // thus it shouldn't be returned as a property
 }
 
 /*

@@ -135,29 +135,33 @@ Boolean OperatingSystem::getName(String& osName)
 /**
    getCaption method for HP-UX implementation of OS Provider
 
-   Uses a string constant for the Caption.
+   Uses uname system call and extracts information for the Caption.
   */
 Boolean OperatingSystem::getCaption(String& caption)
 {
+   struct utsname     unameInfo;
 
-   caption.assign("The current Operating System");
+   // Call uname and check for any errors.
+   if (uname(&unameInfo) < 0)
+   {
+       return false;
+   }
+
+   // append in caption the system name and release.
+   caption.assign(unameInfo.sysname);
+   caption.append(" ");
+   caption.append(unameInfo.release);
 
    return true;
 }
 
 /**
    getDescription method for HP-UX implementation of OS Provider
-
-   Uses a string constant for the Caption.
   */
 Boolean OperatingSystem::getDescription(String& description)
 {
-
-   description.assign("This instance reflects the Operating System"
-	" on which the CIMOM is executing (as distinguished from instances"
-        " of other installed operating systems that could be run).");
-
-   return true;
+// 01-jul-05: Implement getDescription for HP-UX.
+   return false;
 }
 
 /**

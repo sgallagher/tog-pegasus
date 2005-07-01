@@ -153,14 +153,14 @@ static const String httpStatusInternal = HTTP_STATUS_INTERNALSERVERERROR;
  */
 
 static void _throwEventFailure(const String &status, const String &detail,
-															 const char *func,
-															 const char *file , Uint32 line)
+    const char *func,
+    const char *file , Uint32 line)
 {
-	String message = status + httpDetailDelimiter + detail;
-  Tracer::trace(file, line, TRC_HTTP, Tracer::LEVEL2, message);
-	if (status == httpStatusInternal)
-		throw AssertionFailureException(file, line, message);
-  else throw Exception(message);
+    String message = status + httpDetailDelimiter + detail;
+    Tracer::trace(file, line, TRC_HTTP, Tracer::LEVEL2, message);
+    if (status == httpStatusInternal)
+        throw AssertionFailureException(file, line, message);
+    else throw Exception(message);
 }
 
 // throw a http exception. This is used for both client and server common code.
@@ -181,17 +181,17 @@ static char* _FindSeparator(const char* data, Uint32 size)
 
     while (p != end)
     {
-	if (*p == '\r')
-	{
-	    Uint32 n = end - p;
+        if (*p == '\r')
+        {
+            Uint32 n = end - p;
 
-	    if (n >= 2 && p[1] == '\n')
-		return (char*)p;
-	}
-	else if (*p == '\n')
-	    return (char*)p;
+            if (n >= 2 && p[1] == '\n')
+                return (char*)p;
+        }
+        else if (*p == '\n')
+            return (char*)p;
 
-	p++;
+        p++;
     }
 
     return 0;
@@ -218,98 +218,98 @@ HTTPConnection::HTTPConnection(
     MessageQueue* outputMessageQueue,
     Boolean exportConnection)
     :
-   Base(PEGASUS_QUEUENAME_HTTPCONNECTION),
-   _monitor(monitor),
-   _socket(socket),
-   _ownerMessageQueue(ownerMessageQueue),
-   _outputMessageQueue(outputMessageQueue),
-   _contentOffset(-1),
-   _contentLength(-1),
-   _connectionClosePending(false)
+    Base(PEGASUS_QUEUENAME_HTTPCONNECTION),
+    _monitor(monitor),
+    _socket(socket),
+    _ownerMessageQueue(ownerMessageQueue),
+    _outputMessageQueue(outputMessageQueue),
+    _contentOffset(-1),
+    _contentLength(-1),
+    _connectionClosePending(false)
 {
-   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
-   //Socket::disableBlocking(_socket);
-   _socket->disableBlocking();
-   _authInfo.reset(new AuthenticationInfo(true));
+    //Socket::disableBlocking(_socket);
+    _socket->disableBlocking();
+    _authInfo.reset(new AuthenticationInfo(true));
 
-   // Add SSL verification information to the authentication information
-   if (_socket->isSecure())
-   {
-       //
-       // Set the flag to indicate that the request was received on
-       // export Connection
-       //
-       if (exportConnection)
-       {
-          _authInfo->setExportConnection(exportConnection);
-       }
+    // Add SSL verification information to the authentication information
+    if (_socket->isSecure())
+    {
+        //
+        // Set the flag to indicate that the request was received on
+        // export Connection
+        //
+        if (exportConnection)
+        {
+           _authInfo->setExportConnection(exportConnection);
+        }
 
-       if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified())
-       {
-               _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
-               _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
-               _authInfo->setClientCertificate(_socket->getPeerCertificate());
-       }
+        if (_socket->isPeerVerificationEnabled() && _socket->isCertificateVerified())
+        {
+            _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+            _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
+            _authInfo->setClientCertificate(_socket->getPeerCertificate());
+        }
     }
 
-   _responsePending = false;
-   _connectionRequestCount = 0;
-   _transferEncodingChunkOffset = 0;
+    _responsePending = false;
+    _connectionRequestCount = 0;
+    _transferEncodingChunkOffset = 0;
 
-   PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 HTTPConnection::~HTTPConnection()
 {
-   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::~HTTPConnection");
 
-    _socket->close();
+     _socket->close();
 
-   PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 
 void HTTPConnection::handleEnqueue(Message *message)
 {
-   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::handleEnqueue");
 
-   if( ! message )
-   {
-      PEG_METHOD_EXIT();
-      return;
-   }
+    if( ! message )
+    {
+        PEG_METHOD_EXIT();
+        return;
+    }
 
-   AutoMutex connectionLock(_connection_mut, false);
-   if (pegasus_thread_self() != _connection_mut.get_owner())
-   {
-      connectionLock.lock();
-   }
+    AutoMutex connectionLock(_connection_mut, false);
+    if (pegasus_thread_self() != _connection_mut.get_owner())
+    {
+        connectionLock.lock();
+    }
 
-   switch (message->getType())
-   {
-		 case SOCKET_MESSAGE:
-		 {
-			 Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-										 "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
-			 SocketMessage* socketMessage = (SocketMessage*)message;
-			 if (socketMessage->events & SocketMessage::READ)
-				 _handleReadEvent();
-			 break;
-		 }
+    switch (message->getType())
+    {
+        case SOCKET_MESSAGE:
+        {
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                "HTTPConnection::handleEnqueue - SOCKET_MESSAGE");
+            SocketMessage* socketMessage = (SocketMessage*)message;
+            if (socketMessage->events & SocketMessage::READ)
+                _handleReadEvent();
+            break;
+        }
 
-		 case HTTP_MESSAGE:
-		 {
-			 Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-										 "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
+        case HTTP_MESSAGE:
+        {
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                "HTTPConnection::handleEnqueue - HTTP_MESSAGE");
 
-			 _handleWriteEvent(*message);
-			 break;
-		 }
+            _handleWriteEvent(*message);
+            break;
+        }
 
-     default:
-			 // ATTN: need unexpected message error!
-			 break;
+        default:
+            // ATTN: need unexpected message error!
+            break;
    } // switch
 
    delete message;
@@ -328,312 +328,312 @@ void HTTPConnection::handleEnqueue(Message *message)
 
 Boolean HTTPConnection::_handleWriteEvent(Message &message)
 {
-  static const char func[] = "HTTPConnection::_handleWriteEvent";
-	String httpStatus;
-	HTTPMessage& httpMessage = *(HTTPMessage*)&message;
-	Array<char>& buffer = httpMessage.message;
-	Boolean isFirst = message.isFirst();
-	Boolean isLast = message.isComplete();
-	Sint32 totalBytesWritten = 0;
-	Uint32 messageLength = buffer.size();
+    static const char func[] = "HTTPConnection::_handleWriteEvent";
+    String httpStatus;
+    HTTPMessage& httpMessage = *(HTTPMessage*)&message;
+    Array<char>& buffer = httpMessage.message;
+    Boolean isFirst = message.isFirst();
+    Boolean isLast = message.isComplete();
+    Sint32 totalBytesWritten = 0;
+    Uint32 messageLength = buffer.size();
 
-	try
-	{
+    try
+    {
         // delivery behavior:
-		// 1 handler.processing() : header + optional body?
-		// 2 handler.deliver()    : 1+ fully XML encoded object(s)
-		// 3 handler.complete()   : deliver() + isLast = true
+        // 1 handler.processing() : header + optional body?
+        // 2 handler.deliver()    : 1+ fully XML encoded object(s)
+        // 3 handler.complete()   : deliver() + isLast = true
 
-		Uint32 bytesRemaining = messageLength;
-		char *messageStart = (char *) buffer.getData();
-		Uint32 bytesToWrite = httpTcpBufferSize;
-		Uint32 messageIndex = message.getIndex();
-		Boolean isChunkResponse = false;
-		Boolean isChunkRequest = false;
-		Boolean isFirstException = false;
+        Uint32 bytesRemaining = messageLength;
+        char *messageStart = (char *) buffer.getData();
+        Uint32 bytesToWrite = httpTcpBufferSize;
+        Uint32 messageIndex = message.getIndex();
+        Boolean isChunkResponse = false;
+        Boolean isChunkRequest = false;
+        Boolean isFirstException = false;
 
-		if (_isClient() == false)
-		{
-			// for null termination
-			buffer.reserveCapacity(messageLength + 1);
-			messageStart = (char *) buffer.getData();
+        if (_isClient() == false)
+        {
+            // for null termination
+            buffer.reserveCapacity(messageLength + 1);
+            messageStart = (char *) buffer.getData();
             messageStart[messageLength] = 0;
 
-			if (isFirst == true)
-			{
-				_incomingBuffer.clear();
-				// tracks the message coming from above
-				_transferEncodingChunkOffset = 0;
-				_mpostPrefix.clear();
-				cimException = CIMException();
-				_responsePending = true;
-			}
-			else
-			{
-				// this is coming from our own internal code, therefore it is an
-				// internal error. somehow the chunks came out of order.
-				if (_transferEncodingChunkOffset+1 != messageIndex)
-					_throwEventFailure(httpStatusInternal, "chunk sequence mismatch");
-				_transferEncodingChunkOffset++;
-			}
+            if (isFirst == true)
+            {
+                _incomingBuffer.clear();
+                // tracks the message coming from above
+                _transferEncodingChunkOffset = 0;
+                _mpostPrefix.clear();
+                cimException = CIMException();
+                _responsePending = true;
+            }
+            else
+            {
+                // this is coming from our own internal code, therefore it is an
+                // internal error. somehow the chunks came out of order.
+                if (_transferEncodingChunkOffset+1 != messageIndex)
+                    _throwEventFailure(httpStatusInternal, "chunk sequence mismatch");
+                _transferEncodingChunkOffset++;
+            }
 
-			// save the first error
-			if (httpMessage.cimException.getCode() != CIM_ERR_SUCCESS)
-			{
-				httpStatus = httpMessage.cimException.getMessage();
-				if (cimException.getCode() == CIM_ERR_SUCCESS)
-				{
-					cimException = httpMessage.cimException;
-					// set language to first error language (overriding anything there)
-					contentLanguages = cimException.getContentLanguages();
-					isFirstException = true;
-				}
-			}
-			else if (cimException.getCode() == CIM_ERR_SUCCESS)
-			{
-				if (isFirst == true)
-					contentLanguages = httpMessage.contentLanguages;
-				else if (httpMessage.contentLanguages != contentLanguages)
-					contentLanguages = ContentLanguages::EMPTY;
-				else contentLanguages = httpMessage.contentLanguages;
-			}
-			// check to see if the client requested chunking OR trailers. trailers
-			// are tightly integrated with chunking, so it can also be used.
+            // save the first error
+            if (httpMessage.cimException.getCode() != CIM_ERR_SUCCESS)
+            {
+                httpStatus = httpMessage.cimException.getMessage();
+                if (cimException.getCode() == CIM_ERR_SUCCESS)
+                {
+                    cimException = httpMessage.cimException;
+                    // set language to first error language (overriding anything there)
+                    contentLanguages = cimException.getContentLanguages();
+                    isFirstException = true;
+                }
+            }
+            else if (cimException.getCode() == CIM_ERR_SUCCESS)
+            {
+                if (isFirst == true)
+                    contentLanguages = httpMessage.contentLanguages;
+                else if (httpMessage.contentLanguages != contentLanguages)
+                    contentLanguages = ContentLanguages::EMPTY;
+                else contentLanguages = httpMessage.contentLanguages;
+            }
+            // check to see if the client requested chunking OR trailers. trailers
+            // are tightly integrated with chunking, so it can also be used.
 
-			if (isChunkRequested() == true)
-			{
-				isChunkRequest = true;
-			}
-			else
-			{
-				// we are not sending chunks because the client did not request it
+            if (isChunkRequested() == true)
+            {
+                isChunkRequest = true;
+            }
+            else
+            {
+                // we are not sending chunks because the client did not request it
 
-				// save the entire FIRST error response for non-chunked error responses
-				// this will be used as the error message
+                // save the entire FIRST error response for non-chunked error responses
+                // this will be used as the error message
 
-				if (isFirstException == true)
-				{
-					// this shouldnt happen, but this is defensive ...
-					if (messageLength == 0)
-					{
-						CIMStatusCode code = httpMessage.cimException.getCode();
-						String httpDetail(cimStatusCodeToString(code));
-						char s[21];
-						sprintf(s, "%u", code);
-						String httpStatus(s);
-						Array<char> message = XmlWriter::formatHttpErrorRspMessage
-							(httpStatus, String(), httpDetail);
-						messageLength = message.size();
-						message.reserveCapacity(messageLength+1);
-						messageStart = (char *) message.getData();
-						messageStart[messageLength] = 0;
-					}
-					cimException = CIMException(cimException.getCode(),
-												String(messageStart, messageLength));
-				}
+                if (isFirstException == true)
+                {
+                    // this shouldnt happen, but this is defensive ...
+                    if (messageLength == 0)
+                    {
+                        CIMStatusCode code = httpMessage.cimException.getCode();
+                        String httpDetail(cimStatusCodeToString(code));
+                        char s[21];
+                        sprintf(s, "%u", code);
+                        String httpStatus(s);
+                        Array<char> message = XmlWriter::formatHttpErrorRspMessage
+                            (httpStatus, String(), httpDetail);
+                        messageLength = message.size();
+                        message.reserveCapacity(messageLength+1);
+                        messageStart = (char *) message.getData();
+                        messageStart[messageLength] = 0;
+                    }
+                    cimException = CIMException(cimException.getCode(),
+                        String(messageStart, messageLength));
+                }
 
-				if (isFirst == false)
-				{
-					// subsequent chunks from the server, just append
+                if (isFirst == false)
+                {
+                    // subsequent chunks from the server, just append
 
-					messageLength += _incomingBuffer.size();
-					_incomingBuffer.reserveCapacity(messageLength+1);
-					_incomingBuffer.appendArray(buffer);
-					buffer.clear();
-					// null terminate
-					messageStart = (char *) _incomingBuffer.getData();
-					messageStart[messageLength] = 0;
-					// put back in buffer, so the httpMessage parser can work below
-					_incomingBuffer.swap(buffer);
-				}
+                    messageLength += _incomingBuffer.size();
+                    _incomingBuffer.reserveCapacity(messageLength+1);
+                    _incomingBuffer.appendArray(buffer);
+                    buffer.clear();
+                    // null terminate
+                    messageStart = (char *) _incomingBuffer.getData();
+                    messageStart[messageLength] = 0;
+                    // put back in buffer, so the httpMessage parser can work below
+                    _incomingBuffer.swap(buffer);
+                }
 
-				if (isLast == false)
-				{
-					// this tells the send loop below to do nothing until we are at the
-					// last response
-					bytesRemaining = 0;
-				}
-				else
-				{
-					if (cimException.getCode() != CIM_ERR_SUCCESS)
-					{
-						buffer.clear();
-						// discard all data collected to this point
-						_incomingBuffer.clear();
-						String messageS = cimException.getMessage();
-						CString messageC = messageS.getCString();
-						messageStart = (char *) (const char *) messageC;
-						messageLength = messageS.size();
-						buffer.reserveCapacity(messageLength+1);
-						buffer.append(messageStart, messageLength);
-						// null terminate
-						messageStart = (char *) buffer.getData();
-						messageStart[messageLength] = 0;
-					}
-					bytesRemaining = messageLength;
-				}
+                if (isLast == false)
+                {
+                    // this tells the send loop below to do nothing until we are at the
+                    // last response
+                    bytesRemaining = 0;
+                }
+                else
+                {
+                    if (cimException.getCode() != CIM_ERR_SUCCESS)
+                    {
+                        buffer.clear();
+                        // discard all data collected to this point
+                        _incomingBuffer.clear();
+                        String messageS = cimException.getMessage();
+                        CString messageC = messageS.getCString();
+                        messageStart = (char *) (const char *) messageC;
+                        messageLength = messageS.size();
+                        buffer.reserveCapacity(messageLength+1);
+                        buffer.append(messageStart, messageLength);
+                        // null terminate
+                        messageStart = (char *) buffer.getData();
+                        messageStart[messageLength] = 0;
+                    }
+                    bytesRemaining = messageLength;
+                }
 
-			} // if not sending chunks
+            } // if not sending chunks
 
-			// We now need to adjust the contentLength line.
-			// If chunking was requested and this is the first chunk, then we need
-			// to enter this block so we can adjust the header and send to the client
-			// the first set of bytes right away.
-			// If chunking was NOT requested, we have to wait for the last chunk of
-			// the message to get (and set) the size of the content because we are
-			// going to send it the traditional (i.e non-chunked) way
+            // We now need to adjust the contentLength line.
+            // If chunking was requested and this is the first chunk, then we need
+            // to enter this block so we can adjust the header and send to the client
+            // the first set of bytes right away.
+            // If chunking was NOT requested, we have to wait for the last chunk of
+            // the message to get (and set) the size of the content because we are
+            // going to send it the traditional (i.e non-chunked) way
 
-			if (isChunkRequest == true && isFirst == true ||
-					isChunkRequest == false && isLast == true)
-			{
-				// need to find the end of the header
-				String startLine;
-				Array<HTTPHeader> headers;
-				Uint32 contentLength = 0;
+            if (isChunkRequest == true && isFirst == true ||
+                    isChunkRequest == false && isLast == true)
+            {
+                // need to find the end of the header
+                String startLine;
+                Array<HTTPHeader> headers;
+                Uint32 contentLength = 0;
 
-				// Note: this gets the content length from subtracting the header
-				// length from the messageLength, not by parsing the content length
-				// header field
+                // Note: this gets the content length from subtracting the header
+                // length from the messageLength, not by parsing the content length
+                // header field
 
-				httpMessage.parse(startLine, headers, contentLength);
-				Uint32 httpStatusCode = 0;
-				String httpVersion;
-				String reasonPhrase;
-				Boolean isValid = httpMessage.
-					parseStatusLine(startLine, httpVersion, httpStatusCode,reasonPhrase);
-				Uint32 headerLength = messageLength - contentLength;
-				char save = messageStart[headerLength];
-				messageStart[headerLength] = 0;
+                httpMessage.parse(startLine, headers, contentLength);
+                Uint32 httpStatusCode = 0;
+                String httpVersion;
+                String reasonPhrase;
+                Boolean isValid = httpMessage.
+                    parseStatusLine(startLine, httpVersion, httpStatusCode,reasonPhrase);
+                Uint32 headerLength = messageLength - contentLength;
+                char save = messageStart[headerLength];
+                messageStart[headerLength] = 0;
 
-				char *contentLengthStart =
-					strstr(messageStart, headerNameContentLength);
+                char *contentLengthStart =
+                    strstr(messageStart, headerNameContentLength);
 
-				char* contentLengthEnd = contentLengthStart ?
-					strstr(contentLengthStart, headerLineTerminator) : 0;
+                char* contentLengthEnd = contentLengthStart ?
+                    strstr(contentLengthStart, headerLineTerminator) : 0;
 
-				messageStart[headerLength] = save;
+                messageStart[headerLength] = save;
 
-				// the message may or may not have the content length specified
-				// depending on the type of request it is
+                // the message may or may not have the content length specified
+                // depending on the type of request it is
 
-				if (contentLengthStart)
-				{
-					// the message has the content length specified.
-					// If we are NOT sending a chunked response, then we need to overlay
-					// the contentLength number to reflect the actual byte count of the
-					// content (i.e message body). If we ARE sending a chunked response,
-					// then we will overlay the transferEncoding keyword name and value
-					// on top of the contentLength keyword and value.
+                if (contentLengthStart)
+                {
+                    // the message has the content length specified.
+                    // If we are NOT sending a chunked response, then we need to overlay
+                    // the contentLength number to reflect the actual byte count of the
+                    // content (i.e message body). If we ARE sending a chunked response,
+                    // then we will overlay the transferEncoding keyword name and value
+                    // on top of the contentLength keyword and value.
 
-					// Important note:
-					// for performance reasons, the contentLength and/or transferEncoding
-					// strings are being overlayed DIRECTLY inside the message buffer
-					// WITHOUT changing the actual length in bytes of the message.
-					// The XmlWriter has been modified to pad out the maximum number in
-					// zeros to accomodate any number. The maximum contentLength name and
-					// value is identical to the transferEncoding name and value and can
-					// be easily interchanged. By doing this, we do not have to piece
-					// together the header (and more importantly, the lengthy body)
-					// all over again!
-					// This is why the http line lengths are validated below
+                    // Important note:
+                    // for performance reasons, the contentLength and/or transferEncoding
+                    // strings are being overlayed DIRECTLY inside the message buffer
+                    // WITHOUT changing the actual length in bytes of the message.
+                    // The XmlWriter has been modified to pad out the maximum number in
+                    // zeros to accomodate any number. The maximum contentLength name and
+                    // value is identical to the transferEncoding name and value and can
+                    // be easily interchanged. By doing this, we do not have to piece
+                    // together the header (and more importantly, the lengthy body)
+                    // all over again!
+                    // This is why the http line lengths are validated below
 
-					Uint32 transferEncodingLineLengthExpected =
-						headerNameTransferEncodingLength +
-						headerNameTerminatorLength +
-						headerValueTransferEncodingChunkedLength;
+                    Uint32 transferEncodingLineLengthExpected =
+                        headerNameTransferEncodingLength +
+                        headerNameTerminatorLength +
+                        headerValueTransferEncodingChunkedLength;
 
-					Uint32 contentLengthLineLengthExpected =
-						headerNameContentLengthLength +
-						headerNameTerminatorLength + numberAsStringLength;
+                    Uint32 contentLengthLineLengthExpected =
+                        headerNameContentLengthLength +
+                        headerNameTerminatorLength + numberAsStringLength;
 
-					Uint32 contentLengthLineLengthFound =
-						contentLengthEnd - contentLengthStart;
+                    Uint32 contentLengthLineLengthFound =
+                        contentLengthEnd - contentLengthStart;
 
-					if (isValid == false || ! contentLengthEnd ||
-							contentLengthLineLengthFound !=
-							transferEncodingLineLengthExpected ||
-							transferEncodingLineLengthExpected !=
-							contentLengthLineLengthExpected)
-					{
-						// these should match up since this is coming directly from our
-						// code in XmlWriter! If not,some code changes have got out of sync
+                    if (isValid == false || ! contentLengthEnd ||
+                            contentLengthLineLengthFound !=
+                            transferEncodingLineLengthExpected ||
+                            transferEncodingLineLengthExpected !=
+                            contentLengthLineLengthExpected)
+                    {
+                        // these should match up since this is coming directly from our
+                        // code in XmlWriter! If not,some code changes have got out of sync
 
-						_throwEventFailure(httpStatusInternal,
-															 "content length was incorrectly formatted");
-					}
+                        _throwEventFailure(httpStatusInternal,
+                            "content length was incorrectly formatted");
+                    }
 
-					// we will be sending a chunk response if:
-					// 1. chunking has been requested AND
-					// 2. contentLength has been set
-					//    (meaning a non-bodyless message has come in) OR
-					// 3. this is not the last message
-					//  (meaning the data is coming in pieces and we should send chunked)
+                    // we will be sending a chunk response if:
+                    // 1. chunking has been requested AND
+                    // 2. contentLength has been set
+                    //    (meaning a non-bodyless message has come in) OR
+                    // 3. this is not the last message
+                    //  (meaning the data is coming in pieces and we should send chunked)
 
-					if (isChunkRequest == true &&	(contentLength > 0 || isLast == false))
-						isChunkResponse = true;
+                    if (isChunkRequest == true &&    (contentLength > 0 || isLast == false))
+                        isChunkResponse = true;
 
-					save = contentLengthStart[contentLengthLineLengthExpected];
-					contentLengthStart[contentLengthLineLengthExpected] = 0;
+                    save = contentLengthStart[contentLengthLineLengthExpected];
+                    contentLengthStart[contentLengthLineLengthExpected] = 0;
 
-					// overlay the contentLength value
-					if (isChunkResponse == false)
-					{
-						// overwrite the content length number with the actual byte count
-						char *contentLengthNumberStart = contentLengthStart +
-							headerNameContentLengthLength + headerNameTerminatorLength;
-						char format[6];
-						sprintf (format, "%%.%uu", numberAsStringLength);
-						// overwrite the bytes in buffer with the content encoding length
-						sprintf(contentLengthNumberStart, format, contentLength);
-						contentLengthStart[contentLengthLineLengthExpected] = save;
-					}
-					else
-					{
-						// overlay the contentLength name and value with the
-						// transferEncoding name and value
+                    // overlay the contentLength value
+                    if (isChunkResponse == false)
+                    {
+                        // overwrite the content length number with the actual byte count
+                        char *contentLengthNumberStart = contentLengthStart +
+                            headerNameContentLengthLength + headerNameTerminatorLength;
+                        char format[6];
+                        sprintf (format, "%%.%uu", numberAsStringLength);
+                        // overwrite the bytes in buffer with the content encoding length
+                        sprintf(contentLengthNumberStart, format, contentLength);
+                        contentLengthStart[contentLengthLineLengthExpected] = save;
+                    }
+                    else
+                    {
+                        // overlay the contentLength name and value with the
+                        // transferEncoding name and value
 
-						sprintf(contentLengthStart, "%s%s%s",headerNameTransferEncoding,
-										headerNameTerminator,headerValueTransferEncodingChunked);
-						bytesToWrite = messageLength - contentLength;
+                        sprintf(contentLengthStart, "%s%s%s",headerNameTransferEncoding,
+                            headerNameTerminator,headerValueTransferEncodingChunked);
+                        bytesToWrite = messageLength - contentLength;
 
-						contentLengthStart[contentLengthLineLengthExpected] = save;
-						String operationName = headerNameOperation;
-						// look for 2-digit prefix (if mpost was use)
-						HTTPMessage::lookupHeaderPrefix(headers, operationName,
-																						_mpostPrefix);
-					} // else chunk response is true
+                        contentLengthStart[contentLengthLineLengthExpected] = save;
+                        String operationName = headerNameOperation;
+                        // look for 2-digit prefix (if mpost was use)
+                        HTTPMessage::lookupHeaderPrefix(headers, operationName,
+                            _mpostPrefix);
+                    } // else chunk response is true
 
-				} // if content length was found
+                } // if content length was found
 
-				if (isChunkRequest == false)
-				{
-					if (isLast == true)
-					{
-						if (contentLanguages != ContentLanguages::EMPTY)
-						{
-							// we must insert the content-language into the header
-							Array<char> contentLanguagesString;
+                if (isChunkRequest == false)
+                {
+                    if (isLast == true)
+                    {
+                        if (contentLanguages != ContentLanguages::EMPTY)
+                        {
+                            // we must insert the content-language into the header
+                            Array<char> contentLanguagesString;
 
-							// this is the keyword:value(s) + header line terminator
-							contentLanguagesString << headerNameContentLanguage <<
-								headerNameTerminator <<
-								contentLanguages.toString().getCString() <<
-								headerLineTerminator;
+                            // this is the keyword:value(s) + header line terminator
+                            contentLanguagesString << headerNameContentLanguage <<
+                                headerNameTerminator <<
+                                contentLanguages.toString().getCString() <<
+                                headerLineTerminator;
 
-							Uint32 insertOffset = headerLength -	headerLineTerminatorLength;
-							messageLength = contentLanguagesString.size() + buffer.size();
-							buffer.reserveCapacity(messageLength+1);
-							messageLength = contentLanguagesString.size();
-							messageStart = (char *)contentLanguagesString.getData();
-							// insert the content language line before end of header
-							// note: this can be expensive on large payloads
-							buffer.insert(insertOffset, messageStart, messageLength);
-							messageLength = buffer.size();
-							// null terminate
-							messageStart = (char *) buffer.getData();
-							messageStart[messageLength] = 0;
-							bytesRemaining = messageLength;
-						} // if there were any content languages
+                            Uint32 insertOffset = headerLength - headerLineTerminatorLength;
+                            messageLength = contentLanguagesString.size() + buffer.size();
+                            buffer.reserveCapacity(messageLength+1);
+                            messageLength = contentLanguagesString.size();
+                            messageStart = (char *)contentLanguagesString.getData();
+                            // insert the content language line before end of header
+                            // note: this can be expensive on large payloads
+                            buffer.insert(insertOffset, messageStart, messageLength);
+                            messageLength = buffer.size();
+                            // null terminate
+                            messageStart = (char *) buffer.getData();
+                            messageStart[messageLength] = 0;
+                            bytesRemaining = messageLength;
+                        } // if there were any content languages
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
                         // The following is processing to wrap (encrypt) the response from the
@@ -651,12 +651,12 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
                             Boolean authrecExists = false;
                             String authorization = String::EMPTY;
-                            if (HTTPMessage::lookupHeader(headers, "WWW-Authenticate", 
+                            if (HTTPMessage::lookupHeader(headers, "WWW-Authenticate",
                                                           authorization, false))
                             {
                                 authrecExists = true;
-						    }
-			
+                            }
+
                             // The following is processing to wrap (encrypt) the response from the
                             // server when using kerberos authentications.
                             sa->wrapResponseMessage(buffer, contentLength, authrecExists);
@@ -668,225 +668,225 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             bytesRemaining = messageLength;
                         }  // endif kerberos security assoc exists
 #endif
-					} // if this is the last chunk
-					else bytesRemaining = 0;
-				} // if chunk request is false
-			} // if this is the first chunk containing the header
-			else
-			{
-				// if chunking was requested, then subsequent messages that are
-				// received need to turn response chunking on
+                    } // if this is the last chunk
+                    else bytesRemaining = 0;
+                } // if chunk request is false
+            } // if this is the first chunk containing the header
+            else
+            {
+                // if chunking was requested, then subsequent messages that are
+                // received need to turn response chunking on
 
-				if (isChunkRequest == true && messageIndex > 0)
-				{
-					isChunkResponse = true;
-					bytesToWrite = messageLength;
-				}
-			}
+                if (isChunkRequest == true && messageIndex > 0)
+                {
+                    isChunkResponse = true;
+                    bytesToWrite = messageLength;
+                }
+            }
 
-			// the data is sitting in buffer, but we want to cache it in
-			// _incomingBuffer because there may be more chunks to append
-			if (isChunkRequest == false)
-				_incomingBuffer.swap(buffer);
+            // the data is sitting in buffer, but we want to cache it in
+            // _incomingBuffer because there may be more chunks to append
+            if (isChunkRequest == false)
+                _incomingBuffer.swap(buffer);
 
-		} // if not a client
+        } // if not a client
 
-		// ATTN: convert over to asynchronous write scheme:
-		// Send response message to the client (use synchronous I/O for now:
-		_socket->enableBlocking();
-		SignalHandler::ignore(PEGASUS_SIGPIPE);
+        // ATTN: convert over to asynchronous write scheme:
+        // Send response message to the client (use synchronous I/O for now:
+        _socket->enableBlocking();
+        SignalHandler::ignore(PEGASUS_SIGPIPE);
 
-		// use the next four lines to test the SIGABRT handler
-		//getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
-		//getSigHandle()->activate(PEGASUS_SIGABRT);
-		//Thread t(sigabrt_generator, NULL, false);
-		//t.run();
+        // use the next four lines to test the SIGABRT handler
+        //getSigHandle()->registerHandler(PEGASUS_SIGABRT, sig_act);
+        //getSigHandle()->activate(PEGASUS_SIGABRT);
+        //Thread t(sigabrt_generator, NULL, false);
+        //t.run();
 
-		static const char errorSocket[] = "socket write error";
-		char *sendStart = messageStart;
-		Sint32 bytesWritten = 0;
+        static const char errorSocket[] = "socket write error";
+        char *sendStart = messageStart;
+        Sint32 bytesWritten = 0;
 
-		if (isFirst == true && isChunkResponse == true && bytesToWrite > 0)
-		{
-			// send the header first for chunked reponses.
+        if (isFirst == true && isChunkResponse == true && bytesToWrite > 0)
+        {
+            // send the header first for chunked reponses.
 
-			// dont include header terminator yet
-			Uint32 headerLength = bytesToWrite;
-			bytesToWrite -= headerLineTerminatorLength;
+            // dont include header terminator yet
+            Uint32 headerLength = bytesToWrite;
+            bytesToWrite -= headerLineTerminatorLength;
 
-			bytesWritten = _socket->write(sendStart, bytesToWrite);
-			if (bytesWritten < 0)
-				_throwEventFailure(httpStatusInternal, errorSocket);
-			totalBytesWritten += bytesWritten;
-			bytesRemaining -= bytesWritten;
+            bytesWritten = _socket->write(sendStart, bytesToWrite);
+            if (bytesWritten < 0)
+                _throwEventFailure(httpStatusInternal, errorSocket);
+            totalBytesWritten += bytesWritten;
+            bytesRemaining -= bytesWritten;
 
-			// put in trailer header.
-			Array<char> trailer;
-			trailer << headerNameTrailer << headerNameTerminator <<
-				_mpostPrefix << headerNameCode <<	headerValueSeparator <<
-				_mpostPrefix << headerNameDescription << headerValueSeparator <<
-				headerNameContentLanguage << headerLineTerminator;
-			sendStart = (char *) trailer.getData();
-			bytesToWrite = trailer.size();
-			bytesWritten = _socket->write(sendStart, bytesToWrite);
+            // put in trailer header.
+            Array<char> trailer;
+            trailer << headerNameTrailer << headerNameTerminator <<
+                _mpostPrefix << headerNameCode <<    headerValueSeparator <<
+                _mpostPrefix << headerNameDescription << headerValueSeparator <<
+                headerNameContentLanguage << headerLineTerminator;
+            sendStart = (char *) trailer.getData();
+            bytesToWrite = trailer.size();
+            bytesWritten = _socket->write(sendStart, bytesToWrite);
 
-			if (bytesWritten < 0)
-				_throwEventFailure(httpStatusInternal, errorSocket);
-			totalBytesWritten += bytesWritten;
-			// the trailer is outside the header buffer, so dont include in
-			// tracking variables
+            if (bytesWritten < 0)
+                _throwEventFailure(httpStatusInternal, errorSocket);
+            totalBytesWritten += bytesWritten;
+            // the trailer is outside the header buffer, so dont include in
+            // tracking variables
 
-			// now send header terminator
-			bytesToWrite = headerLineTerminatorLength;
-			sendStart = messageStart + headerLength - bytesToWrite;
-			bytesWritten = _socket->write(sendStart, bytesToWrite);
-			if (bytesWritten < 0)
-				_throwEventFailure(httpStatusInternal, errorSocket);
-			totalBytesWritten += bytesWritten;
-			bytesRemaining -= bytesWritten;
+            // now send header terminator
+            bytesToWrite = headerLineTerminatorLength;
+            sendStart = messageStart + headerLength - bytesToWrite;
+            bytesWritten = _socket->write(sendStart, bytesToWrite);
+            if (bytesWritten < 0)
+                _throwEventFailure(httpStatusInternal, errorSocket);
+            totalBytesWritten += bytesWritten;
+            bytesRemaining -= bytesWritten;
 
-			messageStart += headerLength;
-			messageLength -= headerLength;
-			sendStart = messageStart;
-			bytesWritten = 0;
-			bytesToWrite = bytesRemaining;
-		} // if first chunk of chunked response
+            messageStart += headerLength;
+            messageLength -= headerLength;
+            sendStart = messageStart;
+            bytesWritten = 0;
+            bytesToWrite = bytesRemaining;
+        } // if first chunk of chunked response
 
-		// room enough for hex string representing chunk length and terminator
-		char chunkLine[sizeof(Uint32)*2 + chunkLineTerminatorLength+1];
+        // room enough for hex string representing chunk length and terminator
+        char chunkLine[sizeof(Uint32)*2 + chunkLineTerminatorLength+1];
 
-		for (; bytesRemaining > 0; )
-		{
-			if (isChunkResponse == true)
-			{
-				// send chunk line containing hex string and chunk line terminator
-				sprintf(chunkLine, "%x%s", bytesToWrite, chunkLineTerminator);
-				sendStart = chunkLine;
-				Sint32 chunkBytesToWrite = strlen(sendStart);
-				bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
-				if (bytesWritten < 0)
-					_throwEventFailure(httpStatusInternal, errorSocket);
-				totalBytesWritten += bytesWritten;
-			}
+        for (; bytesRemaining > 0; )
+        {
+            if (isChunkResponse == true)
+            {
+                // send chunk line containing hex string and chunk line terminator
+                sprintf(chunkLine, "%x%s", bytesToWrite, chunkLineTerminator);
+                sendStart = chunkLine;
+                Sint32 chunkBytesToWrite = strlen(sendStart);
+                bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
+                if (bytesWritten < 0)
+                    _throwEventFailure(httpStatusInternal, errorSocket);
+                totalBytesWritten += bytesWritten;
+            }
 
-			// for chunking, we will send the entire chunk data in one send, but
-			// for non-chunking, we will send incrementally
-			else bytesToWrite = _Min(bytesRemaining, bytesToWrite);
+            // for chunking, we will send the entire chunk data in one send, but
+            // for non-chunking, we will send incrementally
+            else bytesToWrite = _Min(bytesRemaining, bytesToWrite);
 
-			// send non-chunked data
-			sendStart = messageStart + messageLength - bytesRemaining;
-			bytesWritten = _socket->write(sendStart, bytesToWrite);
-			if (bytesWritten < 0)
-				_throwEventFailure(httpStatusInternal, errorSocket);
-			totalBytesWritten += bytesWritten;
-			bytesRemaining -= bytesWritten;
+            // send non-chunked data
+            sendStart = messageStart + messageLength - bytesRemaining;
+            bytesWritten = _socket->write(sendStart, bytesToWrite);
+            if (bytesWritten < 0)
+                _throwEventFailure(httpStatusInternal, errorSocket);
+            totalBytesWritten += bytesWritten;
+            bytesRemaining -= bytesWritten;
 
-			if (isChunkResponse == true)
-			{
-				// send chunk terminator, on the last chunk, it is the chunk body
-				// terminator
-				Array<char> trailer;
-				trailer << chunkLineTerminator;
+            if (isChunkResponse == true)
+            {
+                // send chunk terminator, on the last chunk, it is the chunk body
+                // terminator
+                Array<char> trailer;
+                trailer << chunkLineTerminator;
 
-				// on the last chunk, attach the last chunk termination sequence:
-				// 0 + last chunk terminator + optional trailer + chunkBodyTerminator
+                // on the last chunk, attach the last chunk termination sequence:
+                // 0 + last chunk terminator + optional trailer + chunkBodyTerminator
 
-				if (isLast == true)
-				{
-					if (bytesRemaining > 0)
-						_throwEventFailure(httpStatusInternal,
-															 "more bytes after indicated last chunk");
-					trailer << "0" << chunkLineTerminator;
-					Uint32 httpStatus = cimException.getCode();
+                if (isLast == true)
+                {
+                    if (bytesRemaining > 0)
+                        _throwEventFailure(httpStatusInternal,
+                            "more bytes after indicated last chunk");
+                    trailer << "0" << chunkLineTerminator;
+                    Uint32 httpStatus = cimException.getCode();
 
-					if (httpStatus != 0)
-					{
-						char httpStatusP[11];
-						sprintf(httpStatusP, "%u",httpStatus);
+                    if (httpStatus != 0)
+                    {
+                        char httpStatusP[11];
+                        sprintf(httpStatusP, "%u",httpStatus);
 
-						trailer << _mpostPrefix << headerNameCode << headerNameTerminator
-										<< httpStatusP << headerLineTerminator;
-						const String& httpDescription = cimException.getMessage();
-						if (httpDescription.size() != 0)
-							trailer << _mpostPrefix << headerNameDescription <<
-								headerNameTerminator << httpDescription << headerLineTerminator;
-					}
+                        trailer << _mpostPrefix << headerNameCode << headerNameTerminator
+                            << httpStatusP << headerLineTerminator;
+                        const String& httpDescription = cimException.getMessage();
+                        if (httpDescription.size() != 0)
+                            trailer << _mpostPrefix << headerNameDescription <<
+                                headerNameTerminator << httpDescription << headerLineTerminator;
+                    }
 
-					// Add Content-Language to the trailer if requested
-					if (contentLanguages != ContentLanguages::EMPTY)
-					{
-						trailer << _mpostPrefix
-										<< headerNameContentLanguage << headerNameTerminator
-										<< contentLanguages.toString()
-										<< headerLineTerminator;
-					}
+                    // Add Content-Language to the trailer if requested
+                    if (contentLanguages != ContentLanguages::EMPTY)
+                    {
+                        trailer << _mpostPrefix
+                            << headerNameContentLanguage << headerNameTerminator
+                            << contentLanguages.toString()
+                            << headerLineTerminator;
+                    }
 
-					// now add chunkBodyTerminator
-					trailer << chunkBodyTerminator;
-				} // if isLast
+                    // now add chunkBodyTerminator
+                    trailer << chunkBodyTerminator;
+                } // if isLast
 
-				sendStart = (char *) trailer.getData();
-				Sint32 chunkBytesToWrite = (Sint32) trailer.size();
-				bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
-				if (bytesWritten < 0)
-					_throwEventFailure(httpStatusInternal, errorSocket);
-				totalBytesWritten += bytesWritten;
-			} // isChunkResponse == true
+                sendStart = (char *) trailer.getData();
+                Sint32 chunkBytesToWrite = (Sint32) trailer.size();
+                bytesWritten = _socket->write(sendStart, chunkBytesToWrite);
+                if (bytesWritten < 0)
+                    _throwEventFailure(httpStatusInternal, errorSocket);
+                totalBytesWritten += bytesWritten;
+            } // isChunkResponse == true
 
-		} // for all bytes in message
+        } // for all bytes in message
 
-	} // try
+    } // try
 
-	catch (Exception &e)
-	{
-		httpStatus = e.getMessage();
-	}
-	catch (...)
-	{
-		httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
-		String message("Unknown internal error");
-		Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
-	}
+    catch (Exception &e)
+    {
+        httpStatus = e.getMessage();
+    }
+    catch (...)
+    {
+        httpStatus = HTTP_STATUS_INTERNALSERVERERROR;
+        String message("Unknown internal error");
+        Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, message);
+    }
 
-	if (isLast == true)
-	{
-		_incomingBuffer.clear();
-		_transferEncodingTEValues.clear();
+    if (isLast == true)
+    {
+        _incomingBuffer.clear();
+        _transferEncodingTEValues.clear();
 
-		//
-		// decrement request count
-		//
+        //
+        // decrement request count
+        //
 
-		_requestCount--;
+        _requestCount--;
 
-		if (httpStatus.size() == 0)
-		{
-			static const char msg[] =
-				"A response has been sent (%d of %d bytes have been written).\n"
-				"There are %d requests pending within the CIM Server.\n"
-				"A total of %d requests have been processed on this connection.";
+        if (httpStatus.size() == 0)
+        {
+            static const char msg[] =
+                "A response has been sent (%d of %d bytes have been written).\n"
+                "There are %d requests pending within the CIM Server.\n"
+                "A total of %d requests have been processed on this connection.";
 
-			Tracer::trace(TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
-										messageLength, _requestCount.value(), _connectionRequestCount);
-		}
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
+                messageLength, _requestCount.value(), _connectionRequestCount);
+        }
 
-		//
-		// Since we are done writing, update the status of entry to IDLE
-		// and notify the Monitor.
-		//
-		if (_isClient() == false)
-		{
-			Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-										 "Now setting state to %d", _MonitorEntry::IDLE);
-			_monitor->setState (_entry_index, _MonitorEntry::IDLE);
-			_monitor->tickle();
-			_responsePending = false;
-			cimException = CIMException();
-		}
-	}
+        //
+        // Since we are done writing, update the status of entry to IDLE
+        // and notify the Monitor.
+        //
+        if (_isClient() == false)
+        {
+            Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+                "Now setting state to %d", _MonitorEntry::IDLE);
+            _monitor->setState (_entry_index, _MonitorEntry::IDLE);
+            _monitor->tickle();
+            _responsePending = false;
+            cimException = CIMException();
+        }
+    }
 
-	_socket->disableBlocking();
-	return httpStatus.size() == 0 ? false : true;
+    _socket->disableBlocking();
+    return httpStatus.size() == 0 ? false : true;
 
 }
 
@@ -920,8 +920,8 @@ Boolean _IsBodylessMessage(const char* line)
     // See bugzilla 1586
     const char* RESPONSE_CODES[] =
     {
-		"HTTP/1.1 3XX",
-		"HTTP/1.0 3XX",
+        "HTTP/1.1 3XX",
+        "HTTP/1.0 3XX",
         "HTTP/1.1 4XX",
         "HTTP/1.0 4XX",
         "HTTP/1.1 5XX",
@@ -933,10 +933,10 @@ Boolean _IsBodylessMessage(const char* line)
 
     for (Uint32 i = 0; i < METHOD_NAMES_SIZE; i++)
     {
-	    Uint32 n = strlen(METHOD_NAMES[i]);
+        Uint32 n = strlen(METHOD_NAMES[i]);
 
-	    if (strncmp(line, METHOD_NAMES[i], n) == 0 && isspace(line[n]))
-	        return true;
+        if (strncmp(line, METHOD_NAMES[i], n) == 0 && isspace(line[n]))
+            return true;
     }
 
     // Check for bodyless HTTP status code
@@ -944,9 +944,9 @@ Boolean _IsBodylessMessage(const char* line)
 
     for (Uint32 i = 0; i < RESPONSE_CODES_SIZE; i++)
     {
-	    Uint32 n = strlen(RESPONSE_CODES[i]);
+        Uint32 n = strlen(RESPONSE_CODES[i]);
 
-	    if (strncmp(line, RESPONSE_CODES[i], n - 2) == 0 && isspace(line[n]))
+        if (strncmp(line, RESPONSE_CODES[i], n - 2) == 0 && isspace(line[n]))
                 return true;
             }
 
@@ -980,10 +980,10 @@ Boolean _IsBodylessMessage(const char* line)
 
     for (Uint32 i = 0; i < METHOD_NAMES_SIZE; i++)
     {
-	Uint32 n = strlen(METHOD_NAMES[i]);
+        Uint32 n = strlen(METHOD_NAMES[i]);
 
-	if (strncmp(line, METHOD_NAMES[i], n) == 0 && isspace(line[n]))
-	    return true;
+        if (strncmp(line, METHOD_NAMES[i], n) == 0 && isspace(line[n]))
+            return true;
     }
 
     return false;
@@ -991,11 +991,11 @@ Boolean _IsBodylessMessage(const char* line)
 
 void HTTPConnection::_getContentLengthAndContentOffset()
 {
-  static const char func[] =
+    static const char func[] =
     "HTTPConnection::_getContentLengthAndContentOffset";
     Uint32 size = _incomingBuffer.size();
-		if (size == 0)
-			return;
+    if (size == 0)
+        return;
     char* data = (char*)_incomingBuffer.getData();
     char* line = (char*)data;
     char* sep;
@@ -1004,150 +1004,150 @@ void HTTPConnection::_getContentLengthAndContentOffset()
 
     while ((sep = _FindSeparator(line, size - (line - data))))
     {
-	char save = *sep;
-	*sep = '\0';
+        char save = *sep;
+        *sep = '\0';
 
-	// Did we find the double separator which terminates the headers?
+        // Did we find the double separator which terminates the headers?
 
-	if (line == sep)
-	{
-	    *sep = save;
-	    line = sep + ((save == '\r') ? 2 : 1);
-	    _contentOffset = line - _incomingBuffer.getData();
+        if (line == sep)
+        {
+            *sep = save;
+            line = sep + ((save == '\r') ? 2 : 1);
+            _contentOffset = line - _incomingBuffer.getData();
 
-	    // reserve space for entire non-chunked message
-	    if (_contentLength > 0)
-	    {
-	      Uint32 capacity = (Uint32)(_contentLength + _contentOffset + 1);
-	      _incomingBuffer.reserveCapacity(capacity);
-        data = (char *)_incomingBuffer.getData();
-        data[capacity-1] = 0;
-	    }
+            // reserve space for entire non-chunked message
+            if (_contentLength > 0)
+            {
+                Uint32 capacity = (Uint32)(_contentLength + _contentOffset + 1);
+                _incomingBuffer.reserveCapacity(capacity);
+                data = (char *)_incomingBuffer.getData();
+                data[capacity-1] = 0;
+            }
 
-	    break;
-	}
+            break;
+        }
 
-	// If this is one of the bodyless methods, then we can assume the
-	// message is complete when the "\r\n\r\n" is encountered.
+        // If this is one of the bodyless methods, then we can assume the
+        // message is complete when the "\r\n\r\n" is encountered.
 
-	if (lineNum == 0 && _IsBodylessMessage(line))
-	    bodylessMessage = true;
+        if (lineNum == 0 && _IsBodylessMessage(line))
+            bodylessMessage = true;
 
-	// Look for the content-length if not already found:
+        // Look for the content-length if not already found:
 
-	char* colon = strchr(line, ':');
+        char* colon = strchr(line, ':');
 
-	if (colon)
-	{
-	    *colon  = '\0';
+        if (colon)
+        {
+            *colon  = '\0';
 
-			// remove whitespace after colon before value
-			char *valueStart = colon + 1;
-			while(*valueStart == ' ' || *valueStart == '\t')
-				valueStart++;
+            // remove whitespace after colon before value
+            char *valueStart = colon + 1;
+            while(*valueStart == ' ' || *valueStart == '\t')
+                valueStart++;
 
-			// we found some non-whitespace token
-			if (valueStart != sep)
-			{
-				char *valueEnd = sep - 1;
+            // we found some non-whitespace token
+            if (valueStart != sep)
+            {
+                char *valueEnd = sep - 1;
 
-				// now remove whitespace from end of line back to last byte of value
-				while(*valueEnd == ' ' || *valueEnd == '\t')
-					valueEnd--;
+                // now remove whitespace from end of line back to last byte of value
+                while(*valueEnd == ' ' || *valueEnd == '\t')
+                    valueEnd--;
 
-				char valueSave = *(valueEnd+1);
+                char valueSave = *(valueEnd+1);
 
-				if (System::strcasecmp(line, headerNameContentLength) == 0)
-				{
-					if (_transferEncodingValues.size() == 0)
-						_contentLength = atoi(valueStart);
-					else _contentLength = -1;
-				}
-				else if (System::strcasecmp(line, headerNameTransferEncoding) == 0)
-				{
-					_transferEncodingValues.clear();
+                if (System::strcasecmp(line, headerNameContentLength) == 0)
+                {
+                    if (_transferEncodingValues.size() == 0)
+                        _contentLength = atoi(valueStart);
+                    else _contentLength = -1;
+                }
+                else if (System::strcasecmp(line, headerNameTransferEncoding) == 0)
+                {
+                    _transferEncodingValues.clear();
 
-					if (strcmp(valueStart,headerValueTransferEncodingChunked) == 0)
-						_transferEncodingValues.append(headerValueTransferEncodingChunked);
-					else if (strcmp(valueStart,headerValueTransferEncodingIdentity) == 0)
-						; // do nothing
-					else _throwEventFailure(HTTP_STATUS_NOTIMPLEMENTED,
-																	"unimplemented transfer-encoding value");
-					_contentLength = -1;
-				}
-				else if (System::strcasecmp(line, headerNameContentLanguage) == 0)
-				{
-					// note: if this is a chunked header, then this will be ignored later
-					String contentLanguagesString(valueStart, valueEnd-valueStart+1);
-					try
-					{
-						contentLanguages = ContentLanguages(contentLanguagesString);
-					}
-					catch(...)
-					{
-						Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
-													"HTTPConnection: ERROR: contentLanguages had parsing"
-													" failure. clearing languages. error data=%s",
-													(const char *)contentLanguagesString.getCString());
-						contentLanguages = ContentLanguages::EMPTY;
-					}
-				}
-				else if (System::strcasecmp(line, headerNameTransferTE) == 0)
-				{
-					_transferEncodingTEValues.clear();
-					static const char valueDelimiter = ',';
-					char *valuesStart = valueStart;
+                    if (strcmp(valueStart,headerValueTransferEncodingChunked) == 0)
+                        _transferEncodingValues.append(headerValueTransferEncodingChunked);
+                    else if (strcmp(valueStart,headerValueTransferEncodingIdentity) == 0)
+                        ; // do nothing
+                    else _throwEventFailure(HTTP_STATUS_NOTIMPLEMENTED,
+                                                                    "unimplemented transfer-encoding value");
+                    _contentLength = -1;
+                }
+                else if (System::strcasecmp(line, headerNameContentLanguage) == 0)
+                {
+                    // note: if this is a chunked header, then this will be ignored later
+                    String contentLanguagesString(valueStart, valueEnd-valueStart+1);
+                    try
+                    {
+                        contentLanguages = ContentLanguages(contentLanguagesString);
+                    }
+                    catch(...)
+                    {
+                        Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+                            "HTTPConnection: ERROR: contentLanguages had parsing"
+                                " failure. clearing languages. error data=%s",
+                            (const char *)contentLanguagesString.getCString());
+                        contentLanguages = ContentLanguages::EMPTY;
+                    }
+                }
+                else if (System::strcasecmp(line, headerNameTransferTE) == 0)
+                {
+                    _transferEncodingTEValues.clear();
+                    static const char valueDelimiter = ',';
+                    char *valuesStart = valueStart;
 
-					// now tokenize the values
-					while (*valuesStart)
-					{
-						// strip off whitepsace from the front
-						while(*valuesStart == ' ' || *valuesStart == '\t')
-							valuesStart++;
+                    // now tokenize the values
+                    while (*valuesStart)
+                    {
+                        // strip off whitepsace from the front
+                        while(*valuesStart == ' ' || *valuesStart == '\t')
+                            valuesStart++;
 
-						if (valuesStart == valueEnd)
-							break;
+                        if (valuesStart == valueEnd)
+                            break;
 
-						char *v = strchr(valuesStart, valueDelimiter);
-						if (v)
-						{
-							if (v == valuesStart)
-							{
-								valuesStart++;
-								continue;
-							}
-							v--;
-							// strip off whitespace from the end
-							while(*v == ' ' || *v == '\t')
-								v--;
-							v++;
-							*v = 0;
-						}
+                        char *v = strchr(valuesStart, valueDelimiter);
+                        if (v)
+                        {
+                            if (v == valuesStart)
+                            {
+                                valuesStart++;
+                                continue;
+                            }
+                            v--;
+                            // strip off whitespace from the end
+                            while(*v == ' ' || *v == '\t')
+                                v--;
+                            v++;
+                            *v = 0;
+                        }
 
-						_transferEncodingTEValues.append(valuesStart);
+                        _transferEncodingTEValues.append(valuesStart);
 
-						if (v)
-						{
-							*v = valueDelimiter;
-							valuesStart = v+1;
-						}
-						else break;
-					}
-				}
+                        if (v)
+                        {
+                            *v = valueDelimiter;
+                            valuesStart = v+1;
+                        }
+                        else break;
+                    }
+                }
 
-				*(valueEnd+1) = valueSave;
-			} // if some value tokens
+                *(valueEnd+1) = valueSave;
+            } // if some value tokens
 
-	    *colon = ':';
-	}
+            *colon = ':';
+        }
 
-	*sep = save;
-	line = sep + ((save == '\r') ? 2 : 1);
-	lineNum++;
+        *sep = save;
+        line = sep + ((save == '\r') ? 2 : 1);
+        lineNum++;
     }
 
     if (_contentOffset != -1 && bodylessMessage)
-	_contentLength = 0;
+        _contentLength = 0;
 }
 
 void HTTPConnection::_clearIncoming()
@@ -1155,84 +1155,84 @@ void HTTPConnection::_clearIncoming()
     _contentOffset = -1;
     _contentLength = -1;
     _incomingBuffer.clear();
-		_mpostPrefix.clear();
-		contentLanguages.clear();
+    _mpostPrefix.clear();
+    contentLanguages.clear();
 }
 
 void HTTPConnection::_closeConnection()
 {
-   // return - don't send the close connection message.
-   // let the monitor dispatch function do the cleanup.
-   PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
-   _connectionClosePending = true;
+    // return - don't send the close connection message.
+    // let the monitor dispatch function do the cleanup.
+    PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::_closeConnection");
+    _connectionClosePending = true;
 
-	 // NOTE: if there is a response pending while a close connection request
-	 // occurs, then this indicates potential activity on this connection apart
-	 // from this thread of execution (although this code here is locked, other
-	 // threads may be waiting on this one.)
-	 // The caller MUST check this value before attempting a delete of this
-	 // connnection, otherwise the delete may occur while other chunked responses
-	 // are waiting to be delivered through this connection.
-	 // This condition may happen on a client error/timeout/interrupt/disconnect
+    // NOTE: if there is a response pending while a close connection request
+    // occurs, then this indicates potential activity on this connection apart
+    // from this thread of execution (although this code here is locked, other
+    // threads may be waiting on this one.)
+    // The caller MUST check this value before attempting a delete of this
+    // connnection, otherwise the delete may occur while other chunked responses
+    // are waiting to be delivered through this connection.
+    // This condition may happen on a client error/timeout/interrupt/disconnect
 
-   if (_isClient() == false)
-   {
-		 if (_responsePending == true)
-		 {
-			 Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
-				 "HTTPConnection::_closeConnection - Close connection requested while "
-				 "responses are still expected on this connection. "
-				 "connection=0x%p, socket=%d\n", (void*)this, getSocket());
+    if (_isClient() == false)
+    {
+        if (_responsePending == true)
+        {
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+                "HTTPConnection::_closeConnection - Close connection requested while "
+                "responses are still expected on this connection. "
+                "connection=0x%p, socket=%d\n", (void*)this, getSocket());
 
-		 }
+        }
 
-		 // still set to DYING
-		 Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
-									 "Now setting state to %d", _MonitorEntry::DYING);
-		 _monitor->setState (_entry_index, _MonitorEntry::DYING);
-		 _monitor->tickle();
-	 }
+        // still set to DYING
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+            "Now setting state to %d", _MonitorEntry::DYING);
+        _monitor->setState (_entry_index, _MonitorEntry::DYING);
+        _monitor->tickle();
+    }
 
-   if (_connectionRequestCount == 0)
-   {
-       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-         "HTTPConnection::_closeConnection - Connection being closed without receiving any requests.");
-   }
+    if (_connectionRequestCount == 0)
+    {
+        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+            "HTTPConnection::_closeConnection - Connection being closed without receiving any requests.");
+    }
 
-   PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 
-//     Message* message= new CloseConnectionMessage(_socket->getSocket));
-//     message->dest = _ownerMessageQueue->getQueueId();
+//    Message* message= new CloseConnectionMessage(_socket->getSocket));
+//    message->dest = _ownerMessageQueue->getQueueId();
 //    SendForget(message);
 //    _ownerMessageQueue->enqueue(message);
 }
 
 Boolean HTTPConnection::isChunkRequested()
 {
-	Boolean answer = false;
-	if (_transferEncodingTEValues.size() > 0 &&
-			(Contains(_transferEncodingTEValues, String(headerValueTEchunked)) ||
-			 Contains(_transferEncodingTEValues, String(headerValueTEtrailers))))
-		answer = true;
+    Boolean answer = false;
+    if (_transferEncodingTEValues.size() > 0 &&
+        (Contains(_transferEncodingTEValues, String(headerValueTEchunked)) ||
+         Contains(_transferEncodingTEValues, String(headerValueTEtrailers))))
+        answer = true;
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
-	CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
+    CIMKerberosSecurityAssociation *sa = _authInfo->getSecurityAssociation();
 
-	if (sa)
-	{
-	    answer = false;
-	}
+    if (sa)
+    {
+        answer = false;
+    }
 #endif
 
-	return answer;
+    return answer;
 }
 
 // determine if the current code being executed is on the client side
 
 Boolean HTTPConnection::_isClient()
 {
-	return strcmp(get_owner().getQueueName(),
-								PEGASUS_QUEUENAME_HTTPCONNECTOR) == 0 ? true : false;
+    return strcmp(get_owner().getQueueName(),
+        PEGASUS_QUEUENAME_HTTPCONNECTOR) == 0 ? true : false;
 }
 
 /*
@@ -1248,328 +1248,328 @@ Boolean HTTPConnection::_isClient()
 
 void HTTPConnection::_handleReadEventTransferEncoding()
 {
-  static const char func[] = "HTTPConnection::_handleReadEventTransferEncoding";
-  PEG_METHOD_ENTER(TRC_HTTP, func);
-  Uint32 messageLength = _incomingBuffer.size();
-  Uint32 headerLength = (Uint32) _contentOffset;
+    static const char func[] = "HTTPConnection::_handleReadEventTransferEncoding";
+    PEG_METHOD_ENTER(TRC_HTTP, func);
+    Uint32 messageLength = _incomingBuffer.size();
+    Uint32 headerLength = (Uint32) _contentOffset;
 
-  // return immediately under these conditions:
+    // return immediately under these conditions:
 
-  // - Header terminator has not been reached yet (_contentOffset < 0)
-  // - This is a non-transfer encoded message because the content length
-	//   has been set from the given header value (_contentLength > 0)
-  //   (_contentLength == 0 means bodyless, so return too - section 4.3)
-  // - The message read in so far is <= to the header length
-  // - No transfer encoding has been declared in the header.
+    // - Header terminator has not been reached yet (_contentOffset < 0)
+    // - This is a non-transfer encoded message because the content length
+    //   has been set from the given header value (_contentLength > 0)
+    //   (_contentLength == 0 means bodyless, so return too - section 4.3)
+    // - The message read in so far is <= to the header length
+    // - No transfer encoding has been declared in the header.
 
-  if (_contentOffset < 0 || _contentLength >= 0 ||
-			messageLength <= headerLength || _transferEncodingValues.size() == 0)
-  {
-    PEG_METHOD_EXIT();
-    return;
-  }
-
-	// on the first chunk in the message, set the encoding offset to the content
-	// offset
-
-  if (_transferEncodingChunkOffset == 0)
-    _transferEncodingChunkOffset = (Uint32) _contentOffset;
-
-  char *headerStart = (char *) _incomingBuffer.getData();
-  char *messageStart = headerStart;
-
-  // loop thru the received data (so far) and strip out all chunked meta data.
-	// this logic assumes that the data read in may be only partial at any point
-	// during the parsing. the variable _transferEncodingChunkOffset represents
-	// the byte offset (from the start of the message) of the last NON completed
-	// chunk parsed within the message. Remember that the tcp reader has padded
-	// the buffer with a terminating null for easy string parsing.
-
-  for (;;)
-  {
-    // we have parsed the length, but not all bytes of chunk have been read
-		// in yet
-    if (_transferEncodingChunkOffset >= messageLength)
-      break;
-
-    // this is the length from _transferEncodingChunkOffset to the end
-    // of the message (so far). It represents the bytes that have not been
-    // processed yet
-
-    Uint32 remainderLength = messageLength - _transferEncodingChunkOffset;
-
-		// the start of the first fully non-parsed chunk of this interation
-    char *chunkLineStart = messageStart + _transferEncodingChunkOffset;
-    char *chunkLineEnd = chunkLineStart;
-
-    // Find the end of the hex string representing the data portion length of
-		// the current chunk. Note that we must hit at least one non-hexdigit
-		// (except null) to know we have read in the complete number
-
-    while (isxdigit(*chunkLineEnd))
-      chunkLineEnd++;
-
-    if (! *chunkLineEnd)
-      break;
-
-    // This is the parsed chunk length in hex. From here on, this many bytes
-		// plus the chunk terminator (AFTER this chunk line is done) must be
-		// read in to constitute a complete chunk in which
-		// _transferEncodingChunkOffset can be incremented to the next chunk
-
-    Uint32 chunkLengthParsed =
-      (Uint32) strtoul((const char *)chunkLineStart, 0, 16);
-
-		// this also covers strings stated even larger
-    if (chunkLengthParsed == PEG_NOT_FOUND)
-      _throwEventFailure(HTTP_STATUS_REQUEST_TOO_LARGE,
-												 "stated chunk length too large");
-
-		char *chunkExtensionStart = chunkLineEnd;
-    chunkLineEnd = strstr(chunkLineEnd, chunkLineTerminator);
-
-    // If we have not received the chunk line terminator yet, then return and
-    // wait for the next iteration. This is done because the hex length given
-		// only represents the non-meta data, not the chunk line itself.
-
-    if (!chunkLineEnd)
-      break;
-
-		// the token after the hex digit must be either the chunk line terminator
-		// or the chunk extension terminator. If not, the sender has sent an
-		// illegal chunked encoding syntax.
-
-		if (strncmp(chunkExtensionStart, chunkExtensionTerminator,
-								chunkExtensionTerminatorLength) != 0 &&
-				strncmp(chunkExtensionStart, chunkLineTerminator,
-								chunkLineTerminatorLength) != 0)
-			_throwEventFailure(HTTP_STATUS_BADREQUEST, "missing chunk extension");
-
-    chunkLineEnd += chunkLineTerminatorLength;
-    Uint32 chunkLineLength = chunkLineEnd - chunkLineStart;
-    Uint32 chunkMetaLength = chunkLineLength;
-    if (chunkLengthParsed > 0)
-      chunkMetaLength += chunkTerminatorLength;
-    Uint32 chunkTerminatorOffset = _transferEncodingChunkOffset +
-      chunkLineLength + chunkLengthParsed;
-
-    // The parsed length represents the non-meta data bytes which starts
-    // after the chunk line terminator has been received.
-    // If we dont have enough remainder bytes to process from the length parsed
-    // then return and wait for the next iteration.
-
-    if (chunkLengthParsed + chunkMetaLength > remainderLength)
-      break;
-
-		// at this point we have a complete chunk. proceed and strip out meta-data
-		// NOTE: any time "remove" is called on the buffer, many variables must be
-		// recomputed to reflect the data removed.
-
-    // remove the chunk length line
-    _incomingBuffer.remove(_transferEncodingChunkOffset, chunkLineLength);
-    messageLength = _incomingBuffer.size();
-		// always keep the byte after the last data byte null for easy string
-		// processing.
-    messageStart[messageLength] = 0;
-
-    // recalculate since we just removed the chunk length line
-    chunkTerminatorOffset -= chunkLineLength;
-
-		// is this the last chunk ?
-    if (chunkLengthParsed == 0)
+    if (_contentOffset < 0 || _contentLength >= 0 ||
+        messageLength <= headerLength || _transferEncodingValues.size() == 0)
     {
-      // We are at the last chunk. The only remaining data should be:
-      // 1. optional trailer first
-      // 2. message terminator (will remain on incoming buffer and passed up)
+        PEG_METHOD_EXIT();
+        return;
+    }
 
-      remainderLength -= chunkLineLength;
+    // on the first chunk in the message, set the encoding offset to the content
+    // offset
 
-			CIMStatusCode cimStatusCode = CIM_ERR_SUCCESS;
-			Uint32 httpStatusCode = HTTP_STATUSCODE_OK;
-			String httpStatus;
-			String cimErrorValue;
+    if (_transferEncodingChunkOffset == 0)
+        _transferEncodingChunkOffset = (Uint32) _contentOffset;
 
-			// is there an optional trailer ?
-      if (remainderLength > chunkBodyTerminatorLength)
-      {
-        Uint32 trailerLength =  remainderLength - chunkBodyTerminatorLength;
-        Uint32 trailerOffset = _transferEncodingChunkOffset;
-        char *trailerStart = messageStart + trailerOffset;
-        char *trailerTerminatorStart = trailerStart + trailerLength -
-					trailerTerminatorLength;
+    char *headerStart = (char *) _incomingBuffer.getData();
+    char *messageStart = headerStart;
 
-        // no trailer terminator before end of chunk body ?
-        if (strncmp(trailerTerminatorStart, trailerTerminator,
-										trailerTerminatorLength) != 0)
-          _throwEventFailure(HTTP_STATUS_BADREQUEST,
-														 "No chunk trailer terminator received");
+    // loop thru the received data (so far) and strip out all chunked meta data.
+    // this logic assumes that the data read in may be only partial at any point
+    // during the parsing. the variable _transferEncodingChunkOffset represents
+    // the byte offset (from the start of the message) of the last NON completed
+    // chunk parsed within the message. Remember that the tcp reader has padded
+    // the buffer with a terminating null for easy string parsing.
 
-				Array<char> trailer;
-				// add a dummy startLine so that the parser works
-				trailer << " " << headerLineTerminator;
+    for (;;)
+    {
+        // we have parsed the length, but not all bytes of chunk have been read
+        // in yet
+        if (_transferEncodingChunkOffset >= messageLength)
+            break;
 
-				char save = trailerStart[trailerLength];
-				trailerStart[trailerLength] = 0;
-				trailer << trailerStart;
-				trailerStart[trailerLength] = save;
+        // this is the length from _transferEncodingChunkOffset to the end
+        // of the message (so far). It represents the bytes that have not been
+        // processed yet
 
-        _incomingBuffer.remove(trailerOffset, trailerLength);
+        Uint32 remainderLength = messageLength - _transferEncodingChunkOffset;
+
+        // the start of the first fully non-parsed chunk of this interation
+        char *chunkLineStart = messageStart + _transferEncodingChunkOffset;
+        char *chunkLineEnd = chunkLineStart;
+
+        // Find the end of the hex string representing the data portion length of
+        // the current chunk. Note that we must hit at least one non-hexdigit
+        // (except null) to know we have read in the complete number
+
+        while (isxdigit(*chunkLineEnd))
+            chunkLineEnd++;
+
+        if (! *chunkLineEnd)
+            break;
+
+        // This is the parsed chunk length in hex. From here on, this many bytes
+        // plus the chunk terminator (AFTER this chunk line is done) must be
+        // read in to constitute a complete chunk in which
+        // _transferEncodingChunkOffset can be incremented to the next chunk
+
+        Uint32 chunkLengthParsed =
+            (Uint32) strtoul((const char *)chunkLineStart, 0, 16);
+
+        // this also covers strings stated even larger
+        if (chunkLengthParsed == PEG_NOT_FOUND)
+            _throwEventFailure(HTTP_STATUS_REQUEST_TOO_LARGE,
+                "stated chunk length too large");
+
+        char *chunkExtensionStart = chunkLineEnd;
+        chunkLineEnd = strstr(chunkLineEnd, chunkLineTerminator);
+
+        // If we have not received the chunk line terminator yet, then return and
+        // wait for the next iteration. This is done because the hex length given
+        // only represents the non-meta data, not the chunk line itself.
+
+        if (!chunkLineEnd)
+            break;
+
+        // the token after the hex digit must be either the chunk line terminator
+        // or the chunk extension terminator. If not, the sender has sent an
+        // illegal chunked encoding syntax.
+
+        if (strncmp(chunkExtensionStart, chunkExtensionTerminator,
+                chunkExtensionTerminatorLength) != 0 &&
+            strncmp(chunkExtensionStart, chunkLineTerminator,
+                chunkLineTerminatorLength) != 0)
+            _throwEventFailure(HTTP_STATUS_BADREQUEST, "missing chunk extension");
+
+        chunkLineEnd += chunkLineTerminatorLength;
+        Uint32 chunkLineLength = chunkLineEnd - chunkLineStart;
+        Uint32 chunkMetaLength = chunkLineLength;
+        if (chunkLengthParsed > 0)
+            chunkMetaLength += chunkTerminatorLength;
+        Uint32 chunkTerminatorOffset = _transferEncodingChunkOffset +
+            chunkLineLength + chunkLengthParsed;
+
+        // The parsed length represents the non-meta data bytes which starts
+        // after the chunk line terminator has been received.
+        // If we dont have enough remainder bytes to process from the length parsed
+        // then return and wait for the next iteration.
+
+        if (chunkLengthParsed + chunkMetaLength > remainderLength)
+            break;
+
+        // at this point we have a complete chunk. proceed and strip out meta-data
+        // NOTE: any time "remove" is called on the buffer, many variables must be
+        // recomputed to reflect the data removed.
+
+        // remove the chunk length line
+        _incomingBuffer.remove(_transferEncodingChunkOffset, chunkLineLength);
+        messageLength = _incomingBuffer.size();
+        // always keep the byte after the last data byte null for easy string
+        // processing.
+        messageStart[messageLength] = 0;
+
+        // recalculate since we just removed the chunk length line
+        chunkTerminatorOffset -= chunkLineLength;
+
+        // is this the last chunk ?
+        if (chunkLengthParsed == 0)
+        {
+            // We are at the last chunk. The only remaining data should be:
+            // 1. optional trailer first
+            // 2. message terminator (will remain on incoming buffer and passed up)
+
+            remainderLength -= chunkLineLength;
+
+            CIMStatusCode cimStatusCode = CIM_ERR_SUCCESS;
+            Uint32 httpStatusCode = HTTP_STATUSCODE_OK;
+            String httpStatus;
+            String cimErrorValue;
+
+            // is there an optional trailer ?
+            if (remainderLength > chunkBodyTerminatorLength)
+            {
+                Uint32 trailerLength = remainderLength - chunkBodyTerminatorLength;
+                Uint32 trailerOffset = _transferEncodingChunkOffset;
+                char *trailerStart = messageStart + trailerOffset;
+                char *trailerTerminatorStart = trailerStart + trailerLength -
+                    trailerTerminatorLength;
+
+                // no trailer terminator before end of chunk body ?
+                if (strncmp(trailerTerminatorStart, trailerTerminator,
+                        trailerTerminatorLength) != 0)
+                    _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                        "No chunk trailer terminator received");
+
+                Array<char> trailer;
+                // add a dummy startLine so that the parser works
+                trailer << " " << headerLineTerminator;
+
+                char save = trailerStart[trailerLength];
+                trailerStart[trailerLength] = 0;
+                trailer << trailerStart;
+                trailerStart[trailerLength] = save;
+
+                _incomingBuffer.remove(trailerOffset, trailerLength);
+                messageLength = _incomingBuffer.size();
+                messageStart[messageLength] = 0;
+                remainderLength -= trailerLength;
+
+                // parse the trailer looking for the code and description
+                String startLine;
+                Array<HTTPHeader> headers;
+                Uint32 contentLength = 0;
+                HTTPMessage httpTrailer(trailer);
+                httpTrailer.parse(startLine, headers, contentLength);
+
+                String cimErrorName = headerNameError;
+                // first look for cim error. this is an http level error
+                Boolean found = false;
+
+                found = httpTrailer.lookupHeader(headers, cimErrorName, cimErrorValue,
+                    true);
+
+                if (found == true)
+                {
+                    // we have a cim error. parse the header to get the original http
+                    // level error if any, otherwise, we have to make one up.
+
+                    Array<char> header(messageStart, headerLength);
+                    String startLine;
+                    Array<HTTPHeader> headers;
+                    Uint32 contentLength = 0;
+                    HTTPMessage httpHeader(header);
+                    httpHeader.parse(startLine, headers, contentLength);
+                    String httpVersion;
+                    Boolean isValid = httpHeader.
+                        parseStatusLine(startLine, httpVersion, httpStatusCode,httpStatus);
+                    if (isValid == false || httpStatusCode == 0 ||
+                            httpStatusCode == HTTP_STATUSCODE_OK)
+                    {
+                        // ATTN: make up our own http code if not given ?
+                        httpStatusCode = (Uint32) HTTP_STATUSCODE_BADREQUEST;
+                        httpStatus = HTTP_STATUS_BADREQUEST;
+                    }
+                }
+                else
+                {
+                    String codeName = headerNameCode;
+                    String codeValue;
+                    found = httpTrailer.lookupHeader(headers, codeName, codeValue,
+                        true);
+                    if (found == true && codeValue.size() > 0 &&
+                            (cimStatusCode = (CIMStatusCode)atoi(codeValue.getCString()))>0)
+                    {
+                        HTTPMessage::lookupHeaderPrefix(headers, codeName, _mpostPrefix);
+                        httpStatus = _mpostPrefix + codeName + headerNameTerminator +
+                            codeValue + headerLineTerminator;
+
+                        // look for cim status description
+                        String descriptionName = headerNameDescription;
+                        String descriptionValue;
+                        found = httpTrailer.lookupHeader(headers, descriptionName,
+                            descriptionValue,
+                            true);
+                        if (descriptionValue.size() == 0)
+                            descriptionValue = cimStatusCodeToString(cimStatusCode);
+
+                        httpStatus = httpStatus + _mpostPrefix + descriptionName +
+                            headerNameTerminator + descriptionValue + headerLineTerminator;
+
+                    } // if found a cim status code
+
+                    // Get Content-Language out of the trailer, if it is there
+                    String contentLanguagesString;
+                    found = httpTrailer.lookupHeader(headers,
+                        headerNameContentLanguage,
+                        contentLanguagesString,
+                        true);
+
+                    contentLanguages = ContentLanguages::EMPTY;
+                    if (found == true && contentLanguagesString.size() > 0)
+                    {
+                        try
+                        {
+                            contentLanguages = ContentLanguages(contentLanguagesString);
+                        }
+                        catch(...)
+                        {
+                            Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
+                                "HTTPConnection: ERROR: contentLanguages had parsing"
+                                    " failure. clearing languages. error data=%s",
+                                (const char *)contentLanguagesString.getCString());
+                            contentLanguages = ContentLanguages::EMPTY;
+                        }
+                    }
+
+                } // else not a cim error
+            } // if optional trailer present
+
+            char *chunkBodyTerminatorStart =
+                messageStart + _transferEncodingChunkOffset;
+
+            // look for chunk body terminator
+            if (remainderLength != chunkBodyTerminatorLength ||
+                strncmp(chunkBodyTerminatorStart, chunkBodyTerminator,
+                    chunkBodyTerminatorLength) != 0)
+                _throwEventFailure(HTTP_STATUS_BADREQUEST,
+                    "No chunk body terminator received");
+
+            // else the remainder is just the terminator, which we will leave
+            // on the incoming buffer and pass up
+            // (as if a non-transfer message arrived)
+
+            _transferEncodingChunkOffset = 0;
+            _contentLength = messageLength - headerLength;
+
+            if (httpStatusCode != HTTP_STATUSCODE_OK)
+            {
+                _handleReadEventFailure(httpStatus, cimErrorValue);
+            }
+            else if (cimStatusCode != CIM_ERR_SUCCESS)
+            {
+                // discard the XML payload data (body) according to cim operations spec
+                // and add code and description to the header so the next layer can
+                // interpret the error correctly
+
+                _incomingBuffer.remove(headerLength, _contentLength);
+                // remove the header line terminator
+                _incomingBuffer.remove(headerLength - headerLineTerminatorLength,
+                    headerLineTerminatorLength);
+                // append new status
+                _incomingBuffer.append(httpStatus.getCString(), httpStatus.size());
+
+                _incomingBuffer.append(headerLineTerminator, headerLineTerminatorLength);
+                // null terminate - the buffer is at least as long after removing
+                char *data = (char *)_incomingBuffer.getData();
+                data[_incomingBuffer.size()] = 0;
+                _contentLength = 0;
+                _contentOffset = 0;
+            }
+
+            break;
+        } // if last chunk
+
+        // we are NOT on the last chunk! validate that the offset where the chunk
+        // terminator was found matches what the parsed chunk length claimed.
+
+        if (strncmp(messageStart + chunkTerminatorOffset, chunkTerminator,
+                chunkTerminatorLength) != 0)
+            _throwEventFailure(HTTP_STATUS_BADREQUEST, "Bad chunk terminator");
+
+        // now remove the chunk terminator
+        _incomingBuffer.remove(chunkTerminatorOffset, chunkTerminatorLength);
         messageLength = _incomingBuffer.size();
         messageStart[messageLength] = 0;
-        remainderLength -= trailerLength;
 
-				// parse the trailer looking for the code and description
-				String startLine;
-				Array<HTTPHeader> headers;
-				Uint32 contentLength = 0;
-				HTTPMessage httpTrailer(trailer);
-				httpTrailer.parse(startLine, headers, contentLength);
+        // jump to the start of the next chunk (which may not have been read yet)
+        _transferEncodingChunkOffset = chunkTerminatorOffset;
+    } // for all remaining bytes containing chunks
 
-				String cimErrorName = headerNameError;
-				// first look for cim error. this is an http level error
-				Boolean found = false;
-
-				found = httpTrailer.lookupHeader(headers, cimErrorName, cimErrorValue,
-																				 true);
-
-				if (found == true)
-				{
-					// we have a cim error. parse the header to get the original http
-					// level error if any, otherwise, we have to make one up.
-
-					Array<char> header(messageStart, headerLength);
-					String startLine;
-					Array<HTTPHeader> headers;
-					Uint32 contentLength = 0;
-					HTTPMessage httpHeader(header);
-					httpHeader.parse(startLine, headers, contentLength);
-					String httpVersion;
-					Boolean isValid = httpHeader.
-						parseStatusLine(startLine, httpVersion, httpStatusCode,httpStatus);
-					if (isValid == false || httpStatusCode == 0 ||
-							httpStatusCode == HTTP_STATUSCODE_OK)
-					{
-						// ATTN: make up our own http code if not given ?
-						httpStatusCode = (Uint32) HTTP_STATUSCODE_BADREQUEST;
-						httpStatus = HTTP_STATUS_BADREQUEST;
-					}
-				}
-				else
-				{
-					String codeName = headerNameCode;
-					String codeValue;
-					found = httpTrailer.lookupHeader(headers, codeName, codeValue,
-																					 true);
-					if (found == true && codeValue.size() > 0 &&
-							(cimStatusCode = (CIMStatusCode)atoi(codeValue.getCString()))>0)
-					{
-						HTTPMessage::lookupHeaderPrefix(headers, codeName, _mpostPrefix);
-						httpStatus = _mpostPrefix + codeName + headerNameTerminator +
-							codeValue + headerLineTerminator;
-
-						// look for cim status description
-						String descriptionName = headerNameDescription;
-						String descriptionValue;
-						found = httpTrailer.lookupHeader(headers, descriptionName,
-																						 descriptionValue,
-																						 true);
-						if (descriptionValue.size() == 0)
-							descriptionValue = cimStatusCodeToString(cimStatusCode);
-
-						httpStatus = httpStatus + _mpostPrefix + descriptionName +
-							headerNameTerminator + descriptionValue + headerLineTerminator;
-
-					} // if found a cim status code
-
-					// Get Content-Language out of the trailer, if it is there
-					String contentLanguagesString;
-					found = httpTrailer.lookupHeader(headers,
-																					 headerNameContentLanguage,
-																					 contentLanguagesString,
-																					 true);
-
-					contentLanguages = ContentLanguages::EMPTY;
-					if (found == true && contentLanguagesString.size() > 0)
-					{
-						try
-						{
-							contentLanguages = ContentLanguages(contentLanguagesString);
-						}
-						catch(...)
-						{
-							Tracer::trace(TRC_HTTP, Tracer::LEVEL2,
-														"HTTPConnection: ERROR: contentLanguages had parsing"
-														" failure. clearing languages. error data=%s",
-														(const char *)contentLanguagesString.getCString());
-							contentLanguages = ContentLanguages::EMPTY;
-						}
-					}
-
-				} // else not a cim error
-			} // if optional trailer present
-
-      char *chunkBodyTerminatorStart =
-        messageStart + _transferEncodingChunkOffset;
-
-			// look for chunk body terminator
-      if (remainderLength != chunkBodyTerminatorLength ||
-          strncmp(chunkBodyTerminatorStart, chunkBodyTerminator,
-									chunkBodyTerminatorLength) != 0)
-        _throwEventFailure(HTTP_STATUS_BADREQUEST,
-													 "No chunk body terminator received");
-
-      // else the remainder is just the terminator, which we will leave
-      // on the incoming buffer and pass up
-			// (as if a non-transfer message arrived)
-
-      _transferEncodingChunkOffset = 0;
-      _contentLength = messageLength - headerLength;
-
-			if (httpStatusCode != HTTP_STATUSCODE_OK)
-			{
-				_handleReadEventFailure(httpStatus, cimErrorValue);
-			}
-			else if (cimStatusCode != CIM_ERR_SUCCESS)
-			{
-				// discard the XML payload data (body) according to cim operations spec
-				// and add code and description to the header so the next layer can
-				// interpret the error correctly
-
-				_incomingBuffer.remove(headerLength, _contentLength);
-				// remove the header line terminator
-				_incomingBuffer.remove(headerLength - headerLineTerminatorLength,
-															 headerLineTerminatorLength);
-				// append new status
-				_incomingBuffer.append(httpStatus.getCString(), httpStatus.size());
-
-				_incomingBuffer.append(headerLineTerminator, headerLineTerminatorLength);
-				// null terminate - the buffer is at least as long after removing
-				char *data = (char *)_incomingBuffer.getData();
-				data[_incomingBuffer.size()] = 0;
-				_contentLength = 0;
-				_contentOffset = 0;
-			}
-
-      break;
-    } // if last chunk
-
-    // we are NOT on the last chunk! validate that the offset where the chunk
-		// terminator was found matches what the parsed chunk length claimed.
-
-    if (strncmp(messageStart + chunkTerminatorOffset, chunkTerminator,
-                chunkTerminatorLength) != 0)
-      _throwEventFailure(HTTP_STATUS_BADREQUEST, "Bad chunk terminator");
-
-    // now remove the chunk terminator
-    _incomingBuffer.remove(chunkTerminatorOffset, chunkTerminatorLength);
-    messageLength = _incomingBuffer.size();
-    messageStart[messageLength] = 0;
-
-    // jump to the start of the next chunk (which may not have been read yet)
-    _transferEncodingChunkOffset = chunkTerminatorOffset;
-  } // for all remaining bytes containing chunks
-
-  PEG_METHOD_EXIT();
+    PEG_METHOD_EXIT();
 }
 
 /*
@@ -1580,65 +1580,51 @@ void HTTPConnection::_handleReadEventTransferEncoding()
  */
 
 void HTTPConnection::_handleReadEventFailure(String &httpStatusWithDetail,
-																						 String cimError)
+    String cimError)
 {
-	Uint32 delimiterFound = httpStatusWithDetail.find(httpDetailDelimiter);
-	String httpDetail;
-	String httpStatus;
+    Uint32 delimiterFound = httpStatusWithDetail.find(httpDetailDelimiter);
+    String httpDetail;
+    String httpStatus;
 
-	if (delimiterFound != PEG_NOT_FOUND)
-	{
-		httpDetail = httpStatus.subString(delimiterFound+1);
-		httpStatus = httpStatus.subString(0, delimiterFound);
-	}
+    if (delimiterFound != PEG_NOT_FOUND)
+    {
+        httpDetail = httpStatus.subString(delimiterFound+1);
+        httpStatus = httpStatus.subString(0, delimiterFound);
+    }
 
-	String combined = httpStatus + httpDetailDelimiter + httpDetail +
-		httpDetailDelimiter + cimError;
+    String combined = httpStatus + httpDetailDelimiter + httpDetail +
+        httpDetailDelimiter + cimError;
 
-  Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, combined);
-  _requestCount++;
-  Array<char> message;
-  message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,
-																								 httpDetail);
-  HTTPMessage* httpMessage = new HTTPMessage(message);
-  Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
-                      httpMessage->message.getData(),
-                      httpMessage->message.size());
+    Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, combined);
+    _requestCount++;
+    Array<char> message;
+    message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,
+        httpDetail);
+    HTTPMessage* httpMessage = new HTTPMessage(message);
+    Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
+        httpMessage->message.getData(),
+        httpMessage->message.size());
 
-	// this is common error code. If we are the server side, we want to send
-	// back the error to the client, but if we are the client side, then we
-	// simply want to queue up this error locally so the client app can receive
-	// the error. The client side's own message queue name will be the same
-	// as the connector name (the server would be acceptor)
+    // this is common error code. If we are the server side, we want to send
+    // back the error to the client, but if we are the client side, then we
+    // simply want to queue up this error locally so the client app can receive
+    // the error. The client side's own message queue name will be the same
+    // as the connector name (the server would be acceptor)
 
-	if (_isClient() == true)
-	{
-		httpMessage->dest = _outputMessageQueue->getQueueId();
+    if (_isClient() == true)
+    {
+        httpMessage->dest = _outputMessageQueue->getQueueId();
 
-#ifndef LOCK_CONNECTION_ENABLED
-	_outputMessageQueue->enqueue(httpMessage);
-#endif
+        _outputMessageQueue->enqueue(httpMessage);
 
-	_clearIncoming();
-
-#ifdef LOCK_CONNECTION_ENABLED
-	unlock_connection();
-	_outputMessageQueue->enqueue(httpMessage);
-  _clearIncoming();
-#endif
-
-	}
-	else
-	{
-		// else server side processing error - send back to client
-		handleEnqueue(httpMessage);
-
-#ifdef LOCK_CONNECTION_ENABLED
-		unlock_connection();
-#endif
-
-	}
-  _closeConnection();
+        _clearIncoming();
+    }
+    else
+    {
+        // else server side processing error - send back to client
+        handleEnqueue(httpMessage);
+    }
+    _closeConnection();
 }
 
 void HTTPConnection::_handleReadEvent()
@@ -1648,102 +1634,98 @@ void HTTPConnection::_handleReadEvent()
 
     // -- Append all data waiting on socket to incoming buffer:
 
-#ifdef LOCK_CONNECTION_ENABLED
-    lock_connection();
-#endif
-
     String httpStatus;
     Sint32 bytesRead = 0;
     Boolean incompleteSecureReadOccurred = false;
 
     for (;;)
     {
-      // save one for null
-      char buffer[httpTcpBufferSize+1];
-      buffer[sizeof(buffer)-1] = 0;
+        // save one for null
+        char buffer[httpTcpBufferSize+1];
+        buffer[sizeof(buffer)-1] = 0;
 
-      Sint32 n = _socket->read(buffer, sizeof(buffer)-1);
+        Sint32 n = _socket->read(buffer, sizeof(buffer)-1);
 
-      if (n <= 0)
-      {
-        if (_socket->isSecure() && bytesRead == 0)
+        if (n <= 0)
         {
-          // It is possible that SSL_read was not able to
-          // read the entire SSL record.  This could happen
-          // if the record was send in multiple packets
-          // over the network and only some of the packets
-          // are available.  Since SSL requires the entire
-          // record to successfully decrypt, the SSL_read
-          // operation will return "0 bytes" read.
-          // Once all the bytes of the SSL record have been read,
-          // SSL_read will return the entire record.
-          // The following test was added to allow
-          // handleReadEvent to distinguish between a
-          // disconnect and partial read of an SSL record.
-          //
-          incompleteSecureReadOccurred = !_socket->incompleteReadOccurred(n);
+            if (_socket->isSecure() && bytesRead == 0)
+            {
+                // It is possible that SSL_read was not able to
+                // read the entire SSL record.  This could happen
+                // if the record was send in multiple packets
+                // over the network and only some of the packets
+                // are available.  Since SSL requires the entire
+                // record to successfully decrypt, the SSL_read
+                // operation will return "0 bytes" read.
+                // Once all the bytes of the SSL record have been read,
+                // SSL_read will return the entire record.
+                // The following test was added to allow
+                // handleReadEvent to distinguish between a
+                // disconnect and partial read of an SSL record.
+                //
+                incompleteSecureReadOccurred = !_socket->incompleteReadOccurred(n);
 
+            }
+            break;
         }
-        break;
-      }
 
-      try
-      {
-        buffer[n] = 0;
-				// important: always keep message buffer null terminated for easy
-				// string parsing!
-        Uint32 size = _incomingBuffer.size() + n;
-        _incomingBuffer.reserveCapacity(size + 1);
-        _incomingBuffer.append(buffer, n);
-        // put a null on it. This is safe sice we have reserved an extra byte
-        char *data = (char *)_incomingBuffer.getData();
-        data[size] = 0;
-      }
+        try
+        {
+            buffer[n] = 0;
+            // important: always keep message buffer null terminated for easy
+            // string parsing!
+            Uint32 size = _incomingBuffer.size() + n;
+            _incomingBuffer.reserveCapacity(size + 1);
+            _incomingBuffer.append(buffer, n);
+            // put a null on it. This is safe sice we have reserved an extra byte
+            char *data = (char *)_incomingBuffer.getData();
+            data[size] = 0;
+        }
 
-      catch(...)
-      {
-				static const char detailP[] =
-					"Unable to append the request to the input buffer";
-				httpStatus =
-					HTTP_STATUS_REQUEST_TOO_LARGE + httpDetailDelimiter + detailP;
-        _handleReadEventFailure(httpStatus);
-        PEG_METHOD_EXIT();
-        return;
-      }
+        catch(...)
+        {
+            static const char detailP[] =
+                "Unable to append the request to the input buffer";
+            httpStatus =
+                HTTP_STATUS_REQUEST_TOO_LARGE + httpDetailDelimiter + detailP;
+            _handleReadEventFailure(httpStatus);
+            PEG_METHOD_EXIT();
+            return;
+        }
 
-	bytesRead += n;
+        bytesRead += n;
 #if defined (PEGASUS_OS_VMS)
         if (n < sizeof(buffer))
         {
-           //
-           // Read is smaller than the buffer size.
-           // No more to read, continue.
-           //
-           break;
+            //
+            // Read is smaller than the buffer size.
+            // No more to read, continue.
+            //
+            break;
         }
 #endif
     }
 
     Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-     "Total bytesRead = %d; Bytes read this iteration = %d",
-                _incomingBuffer.size(), bytesRead);
+        "Total bytesRead = %d; Bytes read this iteration = %d",
+        _incomingBuffer.size(), bytesRead);
 
     try
     {
-      if (_contentOffset == -1)
-        _getContentLengthAndContentOffset();
-      _handleReadEventTransferEncoding();
+        if (_contentOffset == -1)
+            _getContentLengthAndContentOffset();
+        _handleReadEventTransferEncoding();
     }
     catch(Exception &e)
     {
-      httpStatus = e.getMessage();
+        httpStatus = e.getMessage();
     }
 
     if (httpStatus.size() > 0)
     {
-      _handleReadEventFailure(httpStatus);
-      PEG_METHOD_EXIT();
-      return;
+        _handleReadEventFailure(httpStatus);
+        PEG_METHOD_EXIT();
+        return;
     }
 
     // -- See if the end of the message was reached (some peers signal end of
@@ -1752,29 +1734,28 @@ void HTTPConnection::_handleReadEvent()
     // -- at all).
 
     if ((bytesRead == 0 && !incompleteSecureReadOccurred) ||
-	_contentLength != -1 &&
-	(Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
+        _contentLength != -1 &&
+        (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
     {
-	HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
+        HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();
 
-				// add any content languages
-				message->contentLanguages = contentLanguages;
+        // add any content languages
+        message->contentLanguages = contentLanguages;
 
         //
         // increment request count
         //
         if (bytesRead > 0)
         {
-           _requestCount++;
-           _connectionRequestCount++;
+            _requestCount++;
+            _connectionRequestCount++;
         }
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-          "_requestCount = %d", _requestCount.value());
-	message->dest = _outputMessageQueue->getQueueId();
-//	SendForget(message);
+            "_requestCount = %d", _requestCount.value());
+        message->dest = _outputMessageQueue->getQueueId();
+//        SendForget(message);
 
-#ifndef LOCK_CONNECTION_ENABLED
         //
         // Set the entry status to BUSY.
         //
@@ -1785,45 +1766,24 @@ void HTTPConnection::_handleReadEvent()
             _monitor->setState (_entry_index, _MonitorEntry::BUSY);
             _monitor->tickle();
         }
-	_outputMessageQueue->enqueue(message);
-#endif
-	_clearIncoming();
+        _outputMessageQueue->enqueue(message);
+        _clearIncoming();
 
-#ifdef LOCK_CONNECTION_ENABLED
-        unlock_connection();
-
-	if (bytesRead > 0)
+        if (bytesRead == 0)
         {
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
+                "HTTPConnection::_handleReadEvent - bytesRead == 0 - Connection being closed.");
+            _closeConnection();
+
             //
-            // Set the entry status to BUSY.
+            // decrement request count
             //
-            if (_isClient() == false && !_connectionClosePending)
-            {
-                Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-                    "Now setting state to %d", _MonitorEntry::BUSY);
-                _monitor->setState (_entry_index, _MonitorEntry::BUSY);
-                _monitor->tickle();
-            }
-	   _outputMessageQueue->enqueue(message);
+            Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                "_requestCount = %d", _requestCount.value());
+
+            PEG_METHOD_EXIT();
+            return;
         }
-        else
-#else
-	if (bytesRead == 0)
-#endif
-	{
-	   Tracer::trace(TRC_HTTP, Tracer::LEVEL3,
-			 "HTTPConnection::_handleReadEvent - bytesRead == 0 - Connection being closed.");
-	   _closeConnection();
-
-	   //
-	   // decrement request count
-	   //
-	   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-			 "_requestCount = %d", _requestCount.value());
-
-	   PEG_METHOD_EXIT();
-	   return;
-	}
     }
     PEG_METHOD_EXIT();
 }
@@ -1835,44 +1795,44 @@ Uint32 HTTPConnection::getRequestCount()
 
 Boolean HTTPConnection::run(Uint32 milliseconds)
 {
-   Boolean handled_events = false;
-   int events = 0;
-   fd_set fdread; // , fdwrite;
-   struct timeval tv = { 0, 1 };
-      FD_ZERO(&fdread);
-      FD_SET(getSocket(), &fdread);
-      events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
+    Boolean handled_events = false;
+    int events = 0;
+    fd_set fdread; // , fdwrite;
+    struct timeval tv = { 0, 1 };
+    FD_ZERO(&fdread);
+    FD_SET(getSocket(), &fdread);
+    events = select(FD_SETSIZE, &fdread, NULL, NULL, &tv);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
-	 if(events == SOCKET_ERROR)
+    if(events == SOCKET_ERROR)
 #else
-	 if(events == -1)
+    if(events == -1)
 #endif
-	 {
-		 return false;
-	 }
+    {
+        return false;
+    }
 
-	 if (events)
-	 {
-		 events = 0;
-		 if( FD_ISSET(getSocket(), &fdread))
-		 {
-			 events |= SocketMessage::READ;
-			 Message *msg = new SocketMessage(getSocket(), events);
-			 try
-			 {
-	       handleEnqueue(msg);
-			 }
-			 catch(...)
-			 {
-				 Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-											 "HTTPConnection::run handleEnqueue(msg) failure");
-	       return true;
-	    }
-	    handled_events = true;
-          }
-       }
+    if (events)
+    {
+        events = 0;
+        if( FD_ISSET(getSocket(), &fdread))
+        {
+            events |= SocketMessage::READ;
+            Message *msg = new SocketMessage(getSocket(), events);
+            try
+            {
+                handleEnqueue(msg);
+            }
+            catch(...)
+            {
+                Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                    "HTTPConnection::run handleEnqueue(msg) failure");
+                return true;
+            }
+            handled_events = true;
+        }
+    }
 
-   return handled_events;
+    return handled_events;
 }
 
 PEGASUS_NAMESPACE_END

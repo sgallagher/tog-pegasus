@@ -66,6 +66,25 @@ wql_10_1:
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
 
+## use the cql_i_t and wql_i_t rule as follows:
+## 
+## make cql_i_t i=10 t=2 
+##        will run 10 iterations in 2 threads
+##
+## make wql_i_t i=20 t=3 
+##        will run 20 iterations in 3 threads
+##
+cql_i_t:
+	$(PROGRAM) setup cim:cql
+	$(PROGRAM) run $i $t
+	$(PROGRAM) cleanup
+
+wql_i_t: 
+	$(PROGRAM) setup wql
+	$(PROGRAM) run $i $t
+	$(PROGRAM) cleanup
+
+
 wql_10_10:
 	$(PROGRAM) setup wql
 	$(PROGRAM) run 10 10

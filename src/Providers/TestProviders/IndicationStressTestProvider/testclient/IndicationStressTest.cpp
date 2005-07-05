@@ -29,6 +29,8 @@
 //
 // Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
+// Modified By: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
@@ -205,6 +207,7 @@ void _sendTestIndication(CIMClient* client, const CIMName & methodName, Uint32 i
     //
     System::sleep (5);
 }
+
 
 void _sendTestIndicationNormal(CIMClient* client, Uint32 indicationSendCount)
 {
@@ -595,11 +598,20 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
             tmpClient = new CIMClient();
             clientConnections.append(tmpClient);
         }
+        // determine total number of indication send count
+        int Total_indicationSendCount = indicationSendCount * runClientThreadCount;
+        // calculate the timeout based on the total send count allowing
+        // 1/4 sec per transaction (rate of 4 transactions per second)
+        // allow 20 seconds of test overhead for very small tests 
+
+        int test_timeout = 20000+(Total_indicationSendCount/4)*1000;
+        cout << "++++ Estimated test duration = " <<
+          test_timeout/60000 << " minutes." << endl;
 
         // connect the clients
         for(Uint32 i = 0; i < runClientThreadCount; i++)
         {
-            clientConnections[i]->setTimeout(300000);
+            clientConnections[i]->setTimeout(test_timeout);
             clientConnections[i]->connectLocal();
         }
 
@@ -620,8 +632,6 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
             clientThreads[i]->join();
         }
 
-        elapsedTime.stop();
-
         // clean up
         for(Uint32 i=0; i< clientConnections.size(); i++)
         {
@@ -636,31 +646,50 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
 
         //
         //  Allow time for the indication to be received and forwarded
-        //  Wait up to 1/5 sec per transaction in 30 second intervals.
+        //  Wait up to 1/4 sec per transaction in SLEEP_SEC second intervals.
         //
-#define SLEEP_SEC 30
 
-        int sleep_nbr = 1 + (indicationSendCount * runClientThreadCount)/(5*SLEEP_SEC);
+#define SLEEP_SEC 1
+#define MSG_SEC 30
 
-        cout << "+++++ sleep_iterations = " << sleep_nbr << endl;
+        int sleep_nbr = 1 + Total_indicationSendCount/(4*SLEEP_SEC);
+
+        // cout << "+++++ sleep_iterations = " << sleep_nbr << endl;
 
         for (Uint32 i = 1; i <= sleep_nbr; i++)
         {
             System::sleep (SLEEP_SEC);
-            if ((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value())
+            if (Total_indicationSendCount == receivedIndicationCount.value())
                 break;
-            cout << "   received indications = " << receivedIndicationCount.value() << " sleeping " << SLEEP_SEC << " more secs..." << endl;
+            if (i % (MSG_SEC/SLEEP_SEC) == 1)
+              cout << "+++++     received indications = " 
+                   << receivedIndicationCount.value() 
+                   << " of " << Total_indicationSendCount 
+                   << " sent, waiting for more ...." << endl;
         }
+        elapsedTime.stop();
 
         cout << "+++++ Stopping the listener"  << endl;
         listener.stop();
         listener.removeConsumer(consumer1);
         delete consumer1;
+        cout << "+++++ TEST RESULTS: " << endl;
+        cout << "+++++     Number of send threads = "
+             << runClientThreadCount << endl;
+        cout << "+++++     Sent indications =       " 
+             << Total_indicationSendCount << endl;
+        cout << "+++++     Received indications =   " 
+             << receivedIndicationCount.value() << endl;
+        cout << "+++++     Elapsed time =           "
+             << elapsedTime.getElapsed()
+             << " seconds " << endl;
+        cout << "+++++     Rate =                   " 
+             << receivedIndicationCount.value()/elapsedTime.getElapsed()
+             << " indications per second." << endl;
 
-        cout << "+++++ Received indications == " << receivedIndicationCount.value() << endl;
         assert((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value());
 
-        cout << "+++++ passed all tests in " << elapsedTime.getElapsed() << " seconds" << endl;
+        cout << "+++++ passed all tests" << endl;
     }
     else if (String::equalNoCase (opt, "cleanup"))
     {

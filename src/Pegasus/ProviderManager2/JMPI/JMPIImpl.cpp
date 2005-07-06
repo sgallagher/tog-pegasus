@@ -1217,7 +1217,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1associatorNames
    return 0;
 }
 
-JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIM__1associators
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1associators
   (JNIEnv *jEnv, jobject jThs, jint jCh, jint jCop,
    jstring jAssocClass, jstring jResultClass, jstring jRole, jstring jResultRole,
    jboolean includeQualifiers, jboolean includeClassOrigin, jobjectArray jPl)

@@ -32,6 +32,7 @@
 // Modified By:	Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Robert Kieninger (kieningr@de.ibm.com) for Bugzilla 2320
 //              Josephine Eskaline Joyce(jojustin@in.ibm.com) for PEP#101
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3496
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +90,7 @@ class CMPIPropertyList {
       if (!propertyList.isNull()) {
         Array<CIMName> p=propertyList.getPropertyNameArray();
         pCount=p.size();
-        props=(char**)malloc((1+pCount)*sizeof(char*));
+        props = new char*[1+pCount];
         for (int i=0; i<pCount; i++) {
            props[i]=strdup(p[i].getString().getCString());
         }
@@ -101,7 +102,7 @@ class CMPIPropertyList {
       if (props) {
          for (int i=0; i<pCount; i++)
             free(props[i]);
-         free(props);
+         delete props;
       }
    }
     char  **getList()  {
@@ -1882,7 +1883,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         if (!propertyList.isNull()) {
            Array<CIMName> p=propertyList.getPropertyNameArray();
            int pCount=p.size();
-           eSelx->props=(const char**)malloc((1+pCount)*sizeof(char*));
+           eSelx->props = new const char*[1+pCount];
            for (int i=0; i<pCount; i++) {
               eSelx->props[i]=strdup(p[i].getString().getCString());
            }

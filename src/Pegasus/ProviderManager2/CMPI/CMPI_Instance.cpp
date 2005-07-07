@@ -32,6 +32,7 @@
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Vijay Eli, IBM, (vijayeli@in.ibm.com) bug#3495
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3496
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -275,7 +276,7 @@ extern "C" {
 
       for (s=0,i=0; propertyList[i]; i++,s++);
       for (i=0; keys[i]; i++,s++);
-      list=(char**)malloc((s+2)*sizeof(char*));
+      list = new char*[s+2];
       for (s=0,i=0; propertyList[i]; i++,s++) list[s]=strdup(propertyList[i]);
       for (i=0; keys[i]; i++,s++) list[s]=strdup(keys[i]);
       list[s]=NULL;

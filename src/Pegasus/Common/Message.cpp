@@ -223,13 +223,16 @@ static const char* _MESSAGE_TYPE_STRINGS[] =
     "CIM_SUBSCRIPTION_INIT_COMPLETE_RESPONSE_MESSAGE"
 };
 
+char s[128];
+
 const char* MessageTypeToString(Uint32 messageType)
 {
     if (messageType > DUMMY_MESSAGE && messageType < NUMBER_OF_MESSAGES )
 	return _MESSAGE_TYPE_STRINGS[messageType - 1];
     if(messageType == 0 )
        return "HEARTBEAT/REPLY" ;
-    return "Unknown message type";
+    sprintf (s, "Unknown message type ( %d ) ( 0x%04X )", messageType, messageType);
+    return s;
 }
 
 

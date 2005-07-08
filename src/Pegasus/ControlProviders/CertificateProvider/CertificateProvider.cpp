@@ -1162,16 +1162,16 @@ void CertificateProvider::invokeMethod(
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tcertificateContents:" + certificateContents);
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tuserName:" + userName);
             
-            //check for a valid username
-            if (!System::isSystemUser(userName.getCString()))
-            {
-                throw CIMException(CIM_ERR_INVALID_PARAMETER, "The user specified by userName is not a valid system user.");
-            }
-    
             //check for a valid truststore
             if (truststoreType != SERVER_TRUSTSTORE && truststoreType != EXPORT_TRUSTSTORE)
             {
                 throw CIMException(CIM_ERR_INVALID_PARAMETER, "The truststore specified by truststoreType is invalid.");
+            }
+
+            //check for a valid username
+            if (!System::isSystemUser(userName.getCString()))
+            {
+                throw CIMException(CIM_ERR_INVALID_PARAMETER, "The user specified by userName is not a valid system user.");
             }
     
             //read in the certificate contents

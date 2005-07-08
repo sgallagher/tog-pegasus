@@ -395,7 +395,7 @@ String System::getPassword(const char *prompt)
   errorcode = sys$qiow(0,		// Event flag 
 			ichan,		// Input channel 
 			IO$_READPROMPT | IO$M_NOECHO | IO$M_NOFILTR | IO$M_TRMNOECHO,
-					// Read with prompt, no echo, no translate, no termination char in buffer 
+					// Read with prompt, no echo, no translate, no termination character echo
 			&iostatus,	// I/O status block 
 			NULL,		// AST block (none) 
 			0,		// AST parameter 
@@ -436,6 +436,12 @@ String System::getPassword(const char *prompt)
   fputc (CR, stdout);
   fputc (LF, stdout);
 
+  // 
+  // Remove the termination character
+  // 
+
+  psize = strlen(buf);
+  buf[psize-1] = 0;
   return buf;
 }
 

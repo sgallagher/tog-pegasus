@@ -102,7 +102,7 @@ class CMPIPropertyList {
       if (props) {
          for (int i=0; i<pCount; i++)
             free(props[i]);
-         delete props;
+         delete [] props;
       }
    }
     char  **getList()  {

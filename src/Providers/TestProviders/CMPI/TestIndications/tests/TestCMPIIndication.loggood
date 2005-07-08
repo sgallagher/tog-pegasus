@@ -1,4 +1,8 @@
  --- TestCMPI_Indication CMPI ActivateFilter() called
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- CBAttachThread callled.
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
  ---- CMPI_RC_ERR_NOT_SUPPORTED
  -- #1.1 CMNewSelectExp
@@ -20,7 +24,8 @@
  -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- #4 Evaluate using instance
  ---- CMPI_RC_OK
- --- True
+ --- True, sending indication
+ ---- CMPI_RC_OK 
  -- #4.1 Evalute using accessor
  -- #4.2 instance_accessor
  -- Property: PropertyA
@@ -87,11 +92,16 @@
  --- False
  -- #7 GetCOD
  ---- CMPI_RC_ERR_NOT_SUPPORTED
- --- TestCMPI_Indication CMPI ActivateFilter() exited
- --- TestCMPI_Indication CMPI DeActivateFilter() called
- -- Query is [SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s']
- --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- CBDetachThread called
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited
  --- TestCMPI_Indication CMPI ActivateFilter() called
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- CBAttachThread callled.
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
  ---- CMPI_RC_ERR_NOT_SUPPORTED
  -- #1.1 CMNewSelectExp
@@ -123,7 +133,8 @@
  -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- #4 Evaluate using instance
  ---- CMPI_RC_OK
- --- True
+ --- True, sending indication
+ ---- CMPI_RC_OK 
  -- #4.1 Evalute using accessor
  -- #4.2 instance_accessor
  -- Property: PropertyA
@@ -135,7 +146,7 @@
  -- Property: s
  ----  (CMPI_RC_OK)
  ---- CMPI_RC_OK
- --- True
+ --- True, but not sending indication
  -- #5 CMGetSelExpString
  ---- CMPIString (CMPI_RC_OK)
  ---- CMPI_RC_OK
@@ -187,11 +198,16 @@
  --- False
  -- #7 GetCOD
  ---- CMPI_RC_ERR_NOT_SUPPORTED
- --- TestCMPI_Indication CMPI ActivateFilter() exited
- --- TestCMPI_Indication CMPI DeActivateFilter() called
- -- Query is [SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE PropertyA='PropertyA' OR PropertyB='Nothing' OR s='s']
- --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- CBDetachThread called
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited
  --- TestCMPI_Indication CMPI ActivateFilter() called
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- CBAttachThread callled.
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
  ---- CMPI_RC_ERR_NOT_SUPPORTED
  -- #1.1 CMNewSelectExp
@@ -228,7 +244,7 @@
  -- Property: PropertyB
  ----  (CMPI_RC_OK)
  ---- CMPI_RC_OK
- --- True
+ --- True, but not sending indication
  -- #5 CMGetSelExpString
  ---- CMPIString (CMPI_RC_OK)
  ---- CMPI_RC_OK
@@ -270,11 +286,16 @@
  --- False
  -- #7 GetCOD
  ---- CMPI_RC_ERR_NOT_SUPPORTED
- --- TestCMPI_Indication CMPI ActivateFilter() exited
- --- TestCMPI_Indication CMPI DeActivateFilter() called
- -- Query is [SELECT s FROM TestCMPI_Indication WHERE NOT (PropertyA='PropertyA' OR PropertyB='Nothing') AND PropertyA='AccessorPropertyA']
- --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- CBDetachThread called
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited
  --- TestCMPI_Indication CMPI ActivateFilter() called
+ --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- CBAttachThread callled.
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
  ---- CMPI_RC_ERR_NOT_SUPPORTED
  -- #1.1 CMNewSelectExp
@@ -296,7 +317,8 @@
  -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- #4 Evaluate using instance
  ---- CMPI_RC_OK
- --- True
+ --- True, sending indication
+ ---- CMPI_RC_OK 
  -- #4.1 Evalute using accessor
  -- #4.2 instance_accessor
  -- Property: s
@@ -305,7 +327,7 @@
  -- Property: n
  ----  (CMPI_RC_OK)
  ---- CMPI_RC_OK
- --- True
+ --- True, but not sending indication
  -- #5 CMGetSelExpString
  ---- CMPIString (CMPI_RC_OK)
  ---- CMPI_RC_OK
@@ -344,7 +366,8 @@
  --- False
  -- #7 GetCOD
  ---- CMPI_RC_ERR_NOT_SUPPORTED
- --- TestCMPI_Indication CMPI ActivateFilter() exited
- --- TestCMPI_Indication CMPI DeActivateFilter() called
- -- Query is [SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (n IS NULL)]
- --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- CBDetachThread called
+ ---- CMPI_RC_OK
+ --- TestCMPI_Indication CMPI thread(void *) exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI DisableIndication() exited

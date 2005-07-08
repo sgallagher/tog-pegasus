@@ -44,6 +44,15 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpi_cql.h>
+#include <Pegasus/Provider/CMPI/cmpios.h>
+
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+#include <time.h>
+#include <sys/timeb.h>
+#include <sys/types.h>
+#else
+#include <sys/time.h>
+#endif
 
 #define _IndClassName "TestCMPI_Indication"
 #define _Namespace    "test/TestProvider"
@@ -55,6 +64,12 @@ static const CMPIBroker *_broker;
 #else
 static CMPIBroker *_broker;
 #endif
+static CMPI_MUTEX_TYPE _mutex;
+static CMPI_COND_TYPE _cond;
+static char *_ns;
+static int _thread_runs = 0;
+static int _thread_active = 0;
+static CMPISelectExp *_se;
 
 unsigned char CMPI_true = 1;
 unsigned char CMPI_false = 0;
@@ -63,6 +78,21 @@ static FILE *fd = NULL;
 /* ---------------------------------------------------------------------------*/
 /* private declarations                                                       */
 /* ---------------------------------------------------------------------------*/
+#if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+
+struct timeval
+{
+	long int tv_sec;      
+	long int tv_usec;
+};
+
+void gettimeofday(struct timeval* t,void* timezone)
+{       struct _timeb timebuffer;
+        _ftime( &timebuffer );
+        t->tv_sec=timebuffer.time;
+        t->tv_usec=1000*timebuffer.millitm;
+}
+#endif
 
 void
 PROV_LOG (const char *fmt, ...)
@@ -85,7 +115,7 @@ void
 PROV_LOG_CLOSE ()
 {
   if (fd != stderr)
-  	fclose (fd);
+    fclose (fd);
   fd = stderr;
 }
 
@@ -421,118 +451,11 @@ instance_accessor (const char *name, void *param)
 }
 
 /* ---------------------------------------------------------------------------*/
-/*                       Indication Provider Interface                        */
+/*                       Thread function                                      */
 /* ---------------------------------------------------------------------------*/
 
-#ifdef CMPI_VER_100
-CMPIStatus
-TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
-                                             const CMPIContext * ctx,
-											 CMPIBoolean term)
-#else
-CMPIStatus
-TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
-                                             CMPIContext * ctx)
-#endif
-{
-  /*
-     PROV_LOG ("--- %s CMPI IndicationCleanup() called", _IndClassName);
-     PROV_LOG ("--- %s CMPI IndicationCleanup() exited", _IndClassName);
-   */
-  CMReturn (CMPI_RC_OK);
-}
-
-#ifdef CMPI_VER_100
-/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
-CMPIStatus
-TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
-                                           const CMPIContext * ctx,
-                                           const CMPISelectExp * se,
-                                           const char *ns,
-                                           const CMPIObjectPath * op,
-                                           const char *user)
-#else
-CMPIStatus
-TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
-                                           CMPIContext * ctx,
-                                           CMPIResult * rslt,
-                                           CMPISelectExp * se,
-                                           const char *ns,
-                                           CMPIObjectPath * op,
-                                           const char *user)
-#endif
-{
-  CMPIString *str = NULL;
-  CMPIStatus rc = { CMPI_RC_OK, NULL };
-
-  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
-
-  PROV_LOG ("--- %s CMPI AuthorizeFilter() called", _IndClassName);
-  /* we don't object */
-  if (strcmp (ns, _IndClassName) == 0)
-    {
-      PROV_LOG ("--- %s Correct class", _IndClassName);
-    }
-  else
-	{
-      CMReturn (CMPI_RC_ERR_INVALID_CLASS);		
-	}
-  PROV_LOG ("--- %s CMPI AuthorizeFilter() exited", _IndClassName);
-
-  PROV_LOG_CLOSE ();
-  CMReturn (CMPI_RC_OK);
-}
-
-#ifdef CMPI_VER_100
-/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
-CMPIStatus
-TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
-                                    const CMPIContext * ctx,
-                                    const CMPISelectExp * se,
-                                    const char *ns, 
-									const CMPIObjectPath * op)
-#else
-CMPIStatus
-TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
-                                    CMPIContext * ctx,
-                                    CMPIResult * rslt,
-                                    CMPISelectExp * se,
-                                    const char *ns, CMPIObjectPath * op)
-#endif
-{
-  CMPIString *str = NULL;
-  CMPIStatus rc = { CMPI_RC_OK, NULL };
-
-  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
-
-  PROV_LOG ("--- %s CMPI MustPoll() called", _IndClassName);
-
-  PROV_LOG ("--- %s CMPI MustPoll() exited", _IndClassName);
-
-  PROV_LOG_CLOSE ();
-  /* no polling */
-  CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
-}
-
-#ifdef CMPI_VER_100
-/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
-CMPIStatus
-TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
-                                          const CMPIContext * ctx,
-                                          const CMPISelectExp * se,
-                                          const char *ns,
-                                          const CMPIObjectPath * op,
-                                          CMPIBoolean firstActivation)
-#else
-CMPIStatus
-TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
-                                          CMPIContext * ctx,
-                                          CMPIResult * rslt,
-                                          CMPISelectExp * se,
-                                          const char *ns,
-                                          CMPIObjectPath * op,
-                                          CMPIBoolean firstActivation)
-#endif
+static CMPI_THREAD_RETURN CMPI_THREAD_CDECL
+thread (void *context)
 {
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -567,13 +490,31 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   CMPIPredOp pred_op;
   CMPIString *left_side = NULL;
   CMPIString *right_side = NULL;
+  CMPIContext *ctx;
 
-  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
+  // Get the CMPIContext and attach it to this thread.
+  ctx = (CMPIContext *) context;
+  rc = CBAttachThread (_broker, ctx);
 
-  PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
+  while (_thread_runs == 0)
+    {
+      // Wait until we get the message that we can start running
+      _broker->xft->lockMutex (_mutex);
+      // Wait until we get a condition change, which is happening only when
+      // _thread_runs is changed
+      _broker->xft->condWait (_cond, _mutex);
+      _broker->xft->unlockMutex (_mutex);
+    }
+  _thread_active = 1;
+
+  //PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
+  PROV_LOG ("--- CBAttachThread callled.");
+  PROV_LOG ("---- %s", strCMPIStatus (rc));
+
+  PROV_LOG ("--- %s CMPI thread(void *) running",_IndClassName);
 
   PROV_LOG ("-- #1 Clone");
-  clone = CMClone (se, &rc_Clone);
+  clone = CMClone (_se, &rc_Clone);
   PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
   if (clone)
     CMRelease (clone);
@@ -584,7 +525,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
      of completness this functionality is also used here. */
 
   PROV_LOG ("-- #1.1 CMNewSelectExp");
-  str = CMGetSelExpString (se, &rc);
+  str = CMGetSelExpString (_se, &rc);
   clone =
     //CMPI_CQL_NewSelectExp (_broker, CMGetCharPtr (str), "CIMxCQL",
     CMNewSelectExp (_broker, CMGetCharPtr (str), "CIM:CQL",
@@ -611,13 +552,15 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
                 }
               if (data.type == CMPI_string)
                 {
-                  PROV_LOG ("---- %s (string)", CMGetCharPtr (data.value.string));
+                  PROV_LOG ("---- %s (string)",
+                            CMGetCharPtr (data.value.string));
                 }
             }
         }
       else
         {
-          PROV_LOG ("--- #1.2 No projection list, meaning it is SELECT * .... ");
+          PROV_LOG
+            ("--- #1.2 No projection list, meaning it is SELECT * .... ");
         }
     }
 
@@ -638,7 +581,7 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
       PROV_LOG (" --- Class %s is not found in the %s namespace!",
                 _IndClassName, _Namespace);
       PROV_LOG (" --- Aborting!!! ");
-      CMReturn (CMPI_RC_ERR_NOT_FOUND);
+      goto exit;
     }
 
   type = CDGetType (_broker, inst, &rc_Inst);
@@ -671,11 +614,13 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
     }
 
   PROV_LOG ("-- #4 Evaluate using instance");
-  evalRes = CMEvaluateSelExp (se, inst, &rc_Eval);
+  evalRes = CMEvaluateSelExp (_se, inst, &rc_Eval);
   PROV_LOG ("---- %s", strCMPIStatus (rc_Eval));
   if (evalRes == CMPI_true)
     {
-      PROV_LOG ("--- True");
+      PROV_LOG ("--- True, sending indication");
+      rc_Eval = CBDeliverIndication (_broker, ctx, _Namespace, inst);
+      PROV_LOG ("---- %s ", strCMPIStatus (rc_Eval));
     }
   else
     {
@@ -684,18 +629,18 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
 
   PROV_LOG ("-- #4.1 Evalute using accessor");
   evalRes =
-    CMEvaluateSelExpUsingAccessor (se, instance_accessor, NULL, &rc_Eval);
+    CMEvaluateSelExpUsingAccessor (_se, instance_accessor, NULL, &rc_Eval);
   PROV_LOG ("---- %s", strCMPIStatus (rc_Eval));
   if (evalRes == CMPI_true)
     {
-      PROV_LOG ("--- True");
+      PROV_LOG ("--- True, but not sending indication");
     }
   else
     {
       PROV_LOG ("--- False");
     }
   PROV_LOG ("-- #5 CMGetSelExpString");
-  str = CMGetSelExpString (se, &rc);
+  str = CMGetSelExpString (_se, &rc);
   type = CDGetType (_broker, str, &rc_Inst);
   if (type != NULL)
     {
@@ -705,11 +650,11 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
 
   PROV_LOG ("---- %s", strCMPIStatus (rc));
   PROV_LOG ("-- #5.1 Query is [%s]", CMGetCharPtr (str));
-  PROV_LOG ("-- #5.2 Query is [%s]", ns);
+  PROV_LOG ("-- #5.2 Query is [%s]", _ns);
 
   PROV_LOG ("-- #6 Continue evaluating using GetDOC");
   {
-    cond = CMGetDoc (se, &rc);
+    cond = CMGetDoc (_se, &rc);
     PROV_LOG ("---- %s", strCMPIStatus (rc));
     if (cond != NULL)
       {
@@ -755,9 +700,9 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
                 PROV_LOG ("--- #6.5 Evaluate using predicate");
 #ifdef CMPI_VER_100
 // The CMEvaluatePredicate is gone in the CMPI 1.0 standard.
-			    evalRes = 
-				   CMEvaluatePredicateUsingAccessor(pred, instance_accessor, 
-													NULL, &rc_Pred);
+                evalRes =
+                  CMEvaluatePredicateUsingAccessor (pred, instance_accessor,
+                                                    NULL, &rc_Pred);
 #else
                 // One can also evaluate this specific predicate
                 evalRes =
@@ -781,18 +726,154 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
   }
   PROV_LOG ("-- #7 GetCOD");
   {
-    cond = CMGetCod (se, &rc);
+    cond = CMGetCod (_se, &rc);
     PROV_LOG ("---- %s", strCMPIStatus (rc));
     /* Currently this is not supported in Pegasus. */
     if (cond != NULL)
       {
       }
   }
-  PROV_LOG ("--- %s CMPI ActivateFilter() exited", _IndClassName);
+exit:
+  PROV_LOG ("--- CBDetachThread called");
+  rc = CBDetachThread (_broker, ctx);
+  PROV_LOG ("---- %s", strCMPIStatus (rc));
 
-  PROV_LOG_CLOSE ();
+  PROV_LOG ("--- %s CMPI thread(void *) exited", _IndClassName);
+
+  _thread_active = 0;
+  return (CMPI_THREAD_RETURN) 0;
+}
+
+/* ---------------------------------------------------------------------------*/
+/*                       Indication Provider Interface                        */
+/* ---------------------------------------------------------------------------*/
+
+#ifdef CMPI_VER_100
+CMPIStatus
+TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
+                                             const CMPIContext * ctx,
+                                             CMPIBoolean term)
+#else
+CMPIStatus
+TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
+                                             CMPIContext * ctx)
+#endif
+{
+/*
+   PROV_LOG ("--- %s CMPI IndicationCleanup() called", _IndClassName);
+   PROV_LOG ("--- %s CMPI IndicationCleanup() exited", _IndClassName);
+*/
+   CMReturn (CMPI_RC_OK);
+}
+
+#ifdef CMPI_VER_100
+/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
+CMPIStatus
+TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
+                                           const CMPIContext * ctx,
+                                           const CMPISelectExp * se,
+                                           const char *ns,
+                                           const CMPIObjectPath * op,
+                                           const char *user)
+#else
+CMPIStatus
+TestCMPIIndicationProviderAuthorizeFilter (CMPIIndicationMI * mi,
+                                           CMPIContext * ctx,
+                                           CMPIResult * rslt,
+                                           CMPISelectExp * se,
+                                           const char *ns,
+                                           CMPIObjectPath * op,
+                                           const char *user)
+#endif
+{
+  CMPIString *str = NULL;
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+  PROV_LOG ("--- %s CMPI AuthorizeFilter() called", _IndClassName);
+  /* we don't object */
+  if (strcmp (ns, _IndClassName) == 0)
+    {
+      PROV_LOG ("--- %s Correct class", _IndClassName);
+    }
+  else
+    {
+      CMReturn (CMPI_RC_ERR_INVALID_CLASS);
+    }
+  PROV_LOG ("--- %s CMPI AuthorizeFilter() exited", _IndClassName);
+
   CMReturn (CMPI_RC_OK);
 }
+
+#ifdef CMPI_VER_100
+/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
+CMPIStatus
+TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
+                                    const CMPIContext * ctx,
+                                    const CMPISelectExp * se,
+                                    const char *ns, const CMPIObjectPath * op)
+#else
+CMPIStatus
+TestCMPIIndicationProviderMustPoll (CMPIIndicationMI * mi,
+                                    CMPIContext * ctx,
+                                    CMPIResult * rslt,
+                                    CMPISelectExp * se,
+                                    const char *ns, CMPIObjectPath * op)
+#endif
+{
+  CMPIString *str = NULL;
+  CMPIStatus rc = { CMPI_RC_OK, NULL };
+
+
+  PROV_LOG ("--- %s CMPI MustPoll() called", _IndClassName);
+
+  PROV_LOG ("--- %s CMPI MustPoll() exited", _IndClassName);
+
+  /* no polling */
+  CMReturn (CMPI_RC_ERR_NOT_SUPPORTED);
+}
+
+#ifdef CMPI_VER_100
+/* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
+CMPIStatus
+TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
+                                          const CMPIContext * ctx,
+                                          const CMPISelectExp * se,
+                                          const char *ns,
+                                          const CMPIObjectPath * op,
+                                          CMPIBoolean firstActivation)
+#else
+CMPIStatus
+TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
+                                          CMPIContext * ctx,
+                                          CMPIResult * rslt,
+                                          CMPISelectExp * se,
+                                          const char *ns,
+                                          CMPIObjectPath * op,
+                                          CMPIBoolean firstActivation)
+#endif
+{
+  CMPIContext *context;
+  CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
+
+  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
+  PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
+  // We have to pass in the parameters some way. One way would be
+  // to do it via the void pointer to the thread, but for simplicity
+  // we are just using global values.
+  _se = (CMPISelectExp *) se;
+  _ns = strdup (ns);
+  // Initalize our mutex and condition. We use that to kick of thread
+  // processing when 'enableIndication' has been called.
+  _mutex = _broker->xft->newMutex (0);
+  _cond = _broker->xft->newCondition (0);
+  // Get a new CMPI_Context which the thread will use.
+  context = CBPrepareAttachThread (_broker, ctx);
+  _broker->xft->newThread (thread, context, 0);
+  PROV_LOG ("--- %s CMPI ActivateFilter() exited", _IndClassName);
+  CMReturn (CMPI_RC_OK);
+
+}
+
 #ifdef CMPI_VER_100
 /* Note: In the CMPI spec the CMPIResult parameter is not passed anymore. */
 CMPIStatus
@@ -802,7 +883,6 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
                                             const char *ns,
                                             const CMPIObjectPath * op,
                                             CMPIBoolean lastActivation)
-
 #else
 CMPIStatus
 TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
@@ -817,45 +897,86 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIString *str = NULL;
 
-  PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
-  PROV_LOG ("--- %s CMPI DeActivateFilter() called", _IndClassName);
-  str = CMGetSelExpString (se, &rc);
-  PROV_LOG ("-- Query is [%s]", CMGetCharPtr (str));
-  PROV_LOG ("--- %s CMPI DeActivateFilter() exited", _IndClassName);
+  struct timespec wait = { 0, 0 };
+  struct timeval t;
 
-  PROV_LOG_CLOSE ();
+  // We want to delay until the thread is finished.
+  //
+  while (_thread_active)
+    {
+      gettimeofday (&t, NULL);
+      // Set the time wait to 1 second.
+      wait.tv_sec = t.tv_sec + 1;
+      wait.tv_nsec = 0;
+
+      _broker->xft->lockMutex (_mutex);
+      // Wait 1 second has expired or the condition has changed.
+      _broker->xft->timedCondWait (_cond, _mutex, &wait);
+      _broker->xft->unlockMutex (_mutex);
+    }
+  // Release the internal data.
+  free (_ns);
+  _ns = NULL;
+  // Release the mutex and condition
+  _broker->xft->destroyMutex (_mutex);
+  _broker->xft->destroyCondition (_cond);
+  _mutex = NULL;
+  _cond = NULL;
   CMReturn (CMPI_RC_OK);
 }
 
 #ifdef CMPI_VER_100
 void
-TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi, const CMPIContext *ctx)
+TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi,
+                                             const CMPIContext * ctx)
 #else
 void
 TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi)
 #endif
 {
-  //PROV_LOG ("--- CMPI EnableIndication() called");
+  //PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
+  //PROV_LOG ("--- %s CMPI EnableIndication() exited", _IndClassName);
+  _broker->xft->lockMutex (_mutex);
+  _thread_runs = 1;
+  _broker->xft->signalCondition (_cond);
+  _broker->xft->unlockMutex (_mutex);
+  //PROV_LOG ("--- %s CMPI EnableIndication() exited", _IndClassName);
 }
 
 #ifdef CMPI_VER_100
 void
-TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi, const CMPIContext *ctx)
+TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi,
+                                              const CMPIContext * ctx)
 #else
 void
 TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
 #endif
 {
-  //PROV_LOG ("---  CMPI DisableIndication() called");
+  //PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
+  PROV_LOG ("--- %s CMPI DisableIndication() exited", _IndClassName);
+
+  //  Since DeActiveFilter is called before DisableIndications, and it
+  // deletes the mutex and condition, we better check it first.
+  if (_mutex)
+    {
+      _broker->xft->lockMutex (_mutex);
+      _thread_runs = 0;
+      _broker->xft->signalCondition (_cond);
+      _broker->xft->unlockMutex (_mutex);
+    }
+  PROV_LOG ("--- %s CMPI DisableIndication() exited", _IndClassName);
+
+  // In reality we should close in Cleanup function, but that function
+  // is only called during unloading, which might take a long time
+  // so we just do it here.
+  PROV_LOG_CLOSE ();
 }
 
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
 /* ---------------------------------------------------------------------------*/
-
 CMIndicationMIStub (TestCMPIIndicationProvider,
                     TestCMPIIndicationProvider, _broker, CMNoHook);
-
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */
 /* ---------------------------------------------------------------------------*/

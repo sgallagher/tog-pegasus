@@ -50,7 +50,6 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
-#include <Pegasus/Config/ConfigManager.h>
 #include "CIMExportRequestDecoder.h"
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>

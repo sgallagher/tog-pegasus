@@ -37,10 +37,7 @@ LOCAL_DEFINES = -DPEGASUS_EXPORT_SERVER_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegexportserver
 
 LIBRARIES = \
-    pegcommon \
-    pegconfig \
-    pegprovider
-
+    pegcommon
 
 PRE_DEPEND_INCLUDES = -I./depends
 

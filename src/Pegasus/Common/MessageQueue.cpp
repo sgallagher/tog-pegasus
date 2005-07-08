@@ -324,16 +324,6 @@ Message* MessageQueue::find(Uint32 type, Uint32 key)
     return 0;
 }
 
-void MessageQueue::lock()
-{
-    _mut.lock(pegasus_thread_self());
-}
-
-void MessageQueue::unlock()
-{
-    _mut.unlock();
-}
-
 const char* MessageQueue::getQueueName() const
 {
     return _name;

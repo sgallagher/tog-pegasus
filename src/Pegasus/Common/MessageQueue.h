@@ -203,14 +203,6 @@ public:
     void print(PEGASUS_STD(ostream)& os) const;
     #endif 
 
-    /** Lock this queue.
-    @exception IPCException Thrown if an IPC error occurs.
-    */
-    virtual void lock();
-
-    /** Unlock this queue. */
-    virtual void unlock();
-
     /** Provide a string name for this queue to be used by the print method.
      */
     const char* getQueueName() const;

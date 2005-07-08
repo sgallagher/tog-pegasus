@@ -121,9 +121,7 @@ LocalAuthFile::LocalAuthFile(const String& userName)
     //
     // get the configured temporary authentication file path
     //
-    ConfigManager* configManager = ConfigManager::getInstance();
-
-    _authFilePath = ConfigManager::getHomedPath(PEGASUS_LOCAL_AUTH_DIR);
+    _authFilePath = PEGASUS_LOCAL_AUTH_DIR;
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     System::makeDirectory((const char *)_authFilePath.getCString());

@@ -281,7 +281,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ListenerService::_polling_routine(voi
         try
         {
             //do a timed wait so we do can process a shutdown signal immediately
-            listenerService->_shutdownSem->time_wait(4000);
+            listenerService->_shutdownSem->time_wait(listenerService->_consumerManager->getIdleTimeout());
 
             if (listenerService->_dieNow)
             {

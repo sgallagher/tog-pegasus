@@ -429,6 +429,16 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     //
     // Create the certificate object
     //
+    if (exData->_peerCertificate != NULL)
+    {
+        //Delete an existing certificate object from a previous call.
+        //SSL validates the certificate chain starting with the root CA and working down to the peer certificate.
+        //With this strategy, we end up with the peer certificate as the last certificate stored in the SSLCallbackInfo
+        //so we can retrieve the correct certificate info and username.
+        delete exData->_peerCertificate;
+        exData->_peerCertificate = NULL;
+    } 	
+
     exData->_peerCertificate = new SSLCertificateInfo(subjectName, issuerName, version, serialNumber,
         notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
 

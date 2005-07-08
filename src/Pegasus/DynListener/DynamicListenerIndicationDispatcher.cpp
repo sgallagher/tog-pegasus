@@ -195,6 +195,14 @@ void DynamicListenerIndicationDispatcher::_handleIndicationRequest(CIMExportIndi
 
     String consumerName = url.subString(slash+1);
 
+    //check for a trailing slash, in the case that additional information is in the URL, i.e. /CIMListener/MyConsumer/9.44.169.132
+    Uint32 trailingSlash = consumerName.find('/');
+    if (trailingSlash != PEG_NOT_FOUND)
+    {
+        consumerName = consumerName.subString(0, trailingSlash);
+        PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "The consumer name with slash removed is!" + consumerName + "!");
+    }
+    
     //get consumer
     //this will throw an exception if it fails
     //gets deleted by the ConsumerManager

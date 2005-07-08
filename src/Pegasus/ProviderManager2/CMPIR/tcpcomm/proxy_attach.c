@@ -197,6 +197,15 @@ void remove_context ( unsigned long int id )
         CMPI_BrokerExt_Ftab->unlockMutex(__context_lock);
 }
 
+void cleanup_context ( void )
+{
+
+	TRACE_NORMAL(("cleaning up context facility" ));
+
+	CMPI_BrokerExt_Ftab->destroyMutex(__context_lock);
+	__context_lock = NULL;
+	
+}
 /****************************************************************************/
 
 /*** Local Variables:  ***/

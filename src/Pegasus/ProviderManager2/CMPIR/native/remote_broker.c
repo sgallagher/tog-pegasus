@@ -180,7 +180,7 @@ static CMPIContext * __remote_brokers_context = NULL;
 
 static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
 					 CONST CMPIContext * ctx,
-					 CMPIBoolean *term)
+					 CMPIBoolean term)
 #else
 static CMPIStatus __indication_cleanup ( CMPIIndicationMI * mi,
 					 CMPIContext * ctx)
@@ -485,7 +485,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 		__rb->instanceMI->ft->cleanup ( __rb->instanceMI,
 						__remote_brokers_context
 #ifdef CMPI_VER_100
-						,&term
+						,term
 #endif
 						);
 	}
@@ -495,7 +495,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 		__rb->associationMI->ft->cleanup ( __rb->associationMI,
 						   __remote_brokers_context
 #ifdef CMPI_VER_100
-						,&term
+						,term
 #endif
 						   );
 	}
@@ -505,7 +505,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 		__rb->methodMI->ft->cleanup ( __rb->methodMI,
 					      __remote_brokers_context
 #ifdef CMPI_VER_100
-						,&term
+						,term
 #endif
 					      );
 	}
@@ -515,7 +515,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 		__rb->propertyMI->ft->cleanup ( __rb->propertyMI,
 						__remote_brokers_context 
 #ifdef CMPI_VER_100
-						,&term
+						,term
 #endif
 						);
 	}
@@ -525,7 +525,7 @@ static void __cleanup_remote_broker ( struct __remote_broker * __rb )
 		__rb->indicationMI->ft->cleanup ( __rb->indicationMI,
 						  __remote_brokers_context 
 #ifdef CMPI_VER_100
-						,&term
+						,term
 #endif
 						  );
 	}

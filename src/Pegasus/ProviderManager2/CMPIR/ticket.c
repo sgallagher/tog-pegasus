@@ -159,7 +159,6 @@ int revoke_ticket ( comm_ticket * ticket )
 	comm_ticket ** tmp;
 
 	TRACE_NORMAL(("invalidating remote provider ticket."));
-
         INIT_LOCK(_tickets_lock);
         CMPI_BrokerExt_Ftab->lockMutex(_tickets_lock);
 	for ( tmp = &__tickets; *tmp != NULL; tmp = &( (*tmp)->next ) ) {
@@ -170,12 +169,12 @@ int revoke_ticket ( comm_ticket * ticket )
 			(*tmp)          = r->next;
 			free ( r );
 
-                        CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
+            CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
 			return 0;
 		}
 	}
 
-        CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
+    CMPI_BrokerExt_Ftab->unlockMutex(_tickets_lock);
 	return -1;
 }
 
@@ -197,7 +196,14 @@ int compare_ticket ( const comm_ticket * t1, const comm_ticket * t2 )
 		 t1->broker == t2->broker );
 }
 
+void cleanup_ticket ( void )
 
+{
+	TRACE_NORMAL(("cleaning up ticket facility."));
+
+	CMPI_BrokerExt_Ftab->destroyMutex(_tickets_lock);
+	_tickets_lock = NULL;
+}
 /*** Local Variables:  ***/
 /*** mode: C           ***/
 /*** c-basic-offset: 8 ***/

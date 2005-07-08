@@ -232,7 +232,6 @@ void unload_provider_comms ( void )
 {
 	provider_comm * tmp;
 	provider_comm * next;
-
 	TRACE_VERBOSE(("entered function."));
 	TRACE_NORMAL(("unloading remote communication layers"));
 
@@ -242,6 +241,10 @@ void unload_provider_comms ( void )
 	for ( tmp = __comm_layers; tmp != NULL; tmp = next ) {
 		TRACE_INFO(("unloading comm-layer: %s.", tmp->id));
 		next = tmp->next;
+	    	// IBMKR: Call the cleanup function of comm library.
+	    	tmp->terminate();
+		// IBMKR: free the library name.
+		free (tmp->id); tmp->id = 0;
 		unload_comm_library(tmp);
 	}
 
@@ -252,6 +255,12 @@ void unload_provider_comms ( void )
 }
 
 
+void cleanup_provider_comms ( void )
+{
+
+        CMPI_BrokerExt_Ftab->destroyMutex(__mutex);
+		__mutex = 0;
+}
 /****************************************************************************/
 
 /*** Local Variables:  ***/

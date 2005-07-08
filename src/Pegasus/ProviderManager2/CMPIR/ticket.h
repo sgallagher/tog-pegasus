@@ -78,7 +78,7 @@ CONST CMPIBroker * verify_ticket ( const comm_ticket * ticket );
 comm_ticket generate_ticket ( CONST CMPIBroker * broker );
 int revoke_ticket ( comm_ticket * ticket );
 int compare_ticket ( const comm_ticket *, const comm_ticket * );
-
+void cleanup_ticket ( void );
 
 #endif
 

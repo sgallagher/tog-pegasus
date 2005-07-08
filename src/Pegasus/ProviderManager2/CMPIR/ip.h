@@ -54,6 +54,8 @@ void accept_connections ( int port,
 			  void (* __connection_handler) ( int ),
 			  int multithreaded );
 int open_connection ( const char * address, int port );
+
+int close_connection( int port );
 void get_peer_address ( int socket, char * buf );
 
 #endif

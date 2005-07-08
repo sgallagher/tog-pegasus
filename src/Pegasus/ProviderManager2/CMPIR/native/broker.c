@@ -127,7 +127,7 @@ static CMPIDateTime * __beft_newDateTimeFromBinary ( CONST CMPIBroker * broker,
 
 
 static CMPIDateTime * __beft_newDateTimeFromChars ( CONST CMPIBroker * broker,
-						    char * string,
+						    CONST char * string,
 						    CMPIStatus * rc )
 {
 	TRACE_NORMAL(("Creating new native CMPIDateTime."));

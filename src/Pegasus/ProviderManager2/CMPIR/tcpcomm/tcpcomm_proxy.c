@@ -88,6 +88,15 @@ static void TCPCOMM_prepareAttachThread(int socket, CONST CMPIBroker * broker,
     CMAddContextEntry(ctx, RCMPI_CTX_ID, &ctx_id, CMPI_uint32);
     socketcomm_serialize_context(socket, (__sft), ctx);
 }
+static void TCPCOMM_attachThread(int socket, CONST CMPIBroker * broker,
+				   CONST CMPIContext * context)
+{
+    CMPIStatus rc;
+    CMPIData ctxid = CMGetContextEntry(context, RCMPI_CTX_ID, NULL);
+    CONST CMPIContext *ctx = get_context(ctxid.value.uint32);
+    rc = CBAttachThread(broker, ctx);
+    (__sft)->serialize_CMPIStatus(socket, &rc);
+}
 
 static void TCPCOMM_detachThread(int socket, CONST CMPIBroker * broker,
 				   CONST CMPIContext * context)
@@ -482,8 +491,8 @@ static void TCPCOMM_classPathIsA (int socket, CONST CMPIBroker * broker,
  */
 static struct socket_mb_function __mb_functions[] = {
     { "TCPCOMM_prepareAttachThread",    TCPCOMM_prepareAttachThread },
-    { "TCPCOMM_prepareAttachThread",    TCPCOMM_prepareAttachThread },
     { "TCPCOMM_detachThread",           TCPCOMM_detachThread },
+    { "TCPCOMM_attachThread",           TCPCOMM_attachThread},
     { "TCPCOMM_deliverIndication",      TCPCOMM_deliverIndication },
     { "TCPCOMM_enumInstanceNames",      TCPCOMM_enumInstanceNames },
     { "TCPCOMM_getInstance",            TCPCOMM_getInstance },
@@ -528,7 +537,6 @@ static void __dispatch_MB_function(struct accept_thread *athread)
     TRACE_NORMAL(("dispatching broker service function request."));
 
     CBAttachThread(athread->broker, athread->context);
-
     function =
 	__sft->deserialize_string(athread->socket, athread->broker);
 
@@ -551,10 +559,9 @@ static void __dispatch_MB_function(struct accept_thread *athread)
     }
 
     CBDetachThread(athread->broker, athread->context);
-
     close(athread->socket);
     free(athread);
-
+	
     TRACE_VERBOSE(("leaving function."));
 }
 
@@ -587,7 +594,7 @@ static void __handle_MB_call(int socket, CONST CMPIBroker * broker)
     athread->broker = broker;
     athread->context = CBPrepareAttachThread(broker, ctx);
 
-     CMPI_BrokerExt_Ftab->newThread((void*(*)(void*))__dispatch_MB_function,athread,1);
+    CMPI_BrokerExt_Ftab->newThread((void*(*)(void*))__dispatch_MB_function,athread,1);
 
     TRACE_VERBOSE(("leaving function."));
 }
@@ -690,9 +697,11 @@ CMPIString *connect_error(provider_address * addr)
  */
 static void __start_proxy_daemon(CMPIContext * ctx)
 {
-    if (ctx != NULL)
-	CBAttachThread(__init_broker, ctx);
+    if (ctx != NULL) {
+		CBAttachThread(__init_broker, ctx);
+	}
     accept_connections(CIMOM_LISTEN_PORT, __verify_MB_call, 0);
+    CBDetachThread(__init_broker, ctx);
 }
 
 
@@ -702,10 +711,12 @@ static void __start_proxy_daemon(CMPIContext * ctx)
  */
 static void __launch_proxy_daemon()
 {
-    CMPIContext *ctx = (__init_context && __init_broker) ?
-	CBPrepareAttachThread(__init_broker, __init_context) : NULL;
-
-//    printf("--- starting __start_proxy_daemon: %p\n",ctx);
+    CMPIContext *ctx = CBPrepareAttachThread(__init_broker, __init_context);
+    if (!(__init_context && __init_broker)) 
+	{
+		CMRelease(ctx);
+		ctx = NULL;
+	}
     CMPI_BrokerExt_Ftab->newThread((void*(*)(void*))__start_proxy_daemon,ctx,1);
 }
 
@@ -1310,6 +1321,16 @@ static CMPIStatus TCPCOMM_IndicationMI_deActivateFilter(provider_address * addr,
     };
 };
 
+static CMPIStatus
+TCPCOMM_cleanup() 
+{
+	CMPIStatus rc = {CMPI_RC_OK,NULL};
+
+    TRACE_NORMAL(("Closing connections."));
+	rc.rc = close_connection(CIMOM_LISTEN_PORT);
+	cleanup_context();
+	return rc;
+}
 
 //! Initializes this communication layer.
 /*!
@@ -1343,6 +1364,7 @@ provider_comm *CMPIRTCPComm_InitCommLayer(CONST CMPIBroker * broker,
         TCPCOMM_IndicationMI_mustPoll,
         TCPCOMM_IndicationMI_activateFilter,
         TCPCOMM_IndicationMI_deActivateFilter,
+		TCPCOMM_cleanup,
         NULL,
 	NULL
    };

@@ -79,7 +79,7 @@ struct linger __linger = {
 };
 
 extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
-
+static int _die = 0;
 /****************************************************************************/
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
@@ -187,6 +187,7 @@ void accept_connections ( int port,
 	int sin_len = sizeof ( sin );
 
 	int ru = 1;
+
 	setsockopt ( listen_socket,
 		     SOL_SOCKET,
 		     SO_REUSEADDR, (char *) &ru,
@@ -207,11 +208,15 @@ void accept_connections ( int port,
 		error_at_line ( -1, errno, __FILE__, __LINE__, "cannot listen on port %d", port );
 
 	}
-
+	_die = 0;
 	while ( ( in_socket = accept ( listen_socket,
 				       (struct sockaddr *) &sin,
-				       (size_t *) &sin_len ) ) != -1 ) {
+				       (size_t *) &sin_len ) ) > 0 ) {
 
+		if (_die == 1) {
+			close (in_socket);
+			break;
+		}
 		setsockopt ( in_socket,
 			     SOL_SOCKET,
 			     SO_LINGER,
@@ -225,9 +230,36 @@ void accept_connections ( int port,
 				(void *) in_socket,1);
 		} else __connection_handler ( in_socket );
 	}
+	if (in_socket < 0)
+		{
+			error_at_line ( -1, errno, __FILE__, __LINE__, "invalid socket descriptor (%d) ", in_socket);
+		}
+	close (listen_socket);
+	listen_socket = 0;
+    _die = 0;
 }
 
 
+int close_connection (int port ) 
+{
+	int socket = 0;
+
+	_die = 1;
+
+	// "tickle" the connection.
+	socket = open_connection("127.0.0.1", port);
+	if (socket)
+	{
+		close (socket);
+
+		while (_die == 1)
+		{
+			sleep(1);
+		}
+	}
+	return _die;
+	
+}
 void get_peer_address ( int socket, char * buf )
 {
 

@@ -68,7 +68,6 @@
 
 CMPIBrokerExtFT *CMPI_BrokerExt_Ftab=NULL;
 int nativeSide=0;
-
 #ifdef __GNUC__MULTI__
 
 //! Contains the entities to be passed to an enumerative remote MI request.
@@ -100,9 +99,23 @@ static CMPI_THREAD_TYPE spawn_enumerate_thread(provider_comm * comm,
 
 #endif
 
+void cleanup_if_last ( void )
+{
+	static int cleanup_count = 0;
+  
+	// If the counter has been called for all five cleanup
+	// functions: Instance, Association, Indication, Property,
+	// and Method..
+	if (++cleanup_count	>= 5) {
+		// then call all of underlaying cleanup functions.
+		cleanup_ticket();
+		cleanup_count = 0;
+ 	}
+}
+
 #ifdef CMPI_VER_100
 static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
-				       const CMPIContext * ctx, CMPIBoolean *term)
+				       const CMPIContext * ctx, CMPIBoolean term)
 #else
 static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
 				       CMPIContext * ctx)
@@ -119,6 +132,7 @@ static CMPIStatus __InstanceMI_cleanup(CMPIInstanceMI * cThis,
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not revoke ticket");
     };
+	cleanup_if_last();
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
@@ -184,6 +198,7 @@ static CMPIStatus __InstanceMI_enumInstances(CMPIInstanceMI * cThis,
 	    CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			      "comm-layer not found");
 	}
+    
 	if (rc.rc != CMPI_RC_OK) {
 	    tmp->destructor(tmp);
 	    return rc;
@@ -403,7 +418,7 @@ CMPIInstanceMI *_Generic_Create_InstanceMI(CMPIBroker * broker,
 
 #ifdef CMPI_VER_100
 static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
-					  const CMPIContext * ctx, CMPIBoolean *term)
+					  const CMPIContext * ctx, CMPIBoolean term)
 #else
 static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
 					  CMPIContext * ctx)
@@ -412,11 +427,16 @@ static CMPIStatus __AssociationMI_cleanup(CMPIAssociationMI * cThis,
     RemoteCMPIAssociationMI *rcThis = (RemoteCMPIAssociationMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
 		   rcThis->provider));
+
+    unload_provider_comms();
+	
     if (revoke_ticket(&rcThis->ticket)) {
 	TRACE_CRITICAL(("ticket could not be revoked."));
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not revoke ticket");
     };
+	cleanup_if_last();
+
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
@@ -629,7 +649,7 @@ CMPIAssociationMI *_Generic_Create_AssociationMI(CMPIBroker * broker,
 
 
 #ifdef CMPI_VER_100
-static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, const CMPIContext * ctx, CMPIBoolean *term)
+static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, const CMPIContext * ctx, CMPIBoolean term)
 #else
 static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, CMPIContext * ctx)
 #endif
@@ -637,11 +657,15 @@ static CMPIStatus __MethodMI_cleanup(CMPIMethodMI * cThis, CMPIContext * ctx)
     RemoteCMPIMethodMI *rcThis = (RemoteCMPIMethodMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
 		   rcThis->provider));
+
+    unload_provider_comms();
+
     if (revoke_ticket(&rcThis->ticket)) {
 	TRACE_CRITICAL(("ticket could not be revoked."));
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not revoke ticket");
     };
+	cleanup_if_last();
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
@@ -712,7 +736,7 @@ CMPIMethodMI *_Generic_Create_MethodMI(CMPIBroker * broker,
 #ifdef CMPI_VER_100
 static CMPIStatus __PropertyMI_cleanup(CMPIPropertyMI * cThis,
 				       const CMPIContext * ctx,
-				       CMPIBoolean *term)
+				       CMPIBoolean term)
 
 #else
 static CMPIStatus __PropertyMI_cleanup(CMPIPropertyMI * cThis,
@@ -722,11 +746,15 @@ static CMPIStatus __PropertyMI_cleanup(CMPIPropertyMI * cThis,
     RemoteCMPIPropertyMI *rcThis = (RemoteCMPIPropertyMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
 		   rcThis->provider));
+
+    unload_provider_comms();
+
     if (revoke_ticket(&rcThis->ticket)) {
 	TRACE_CRITICAL(("ticket could not be revoked."));
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not revoke ticket");
     };
+	cleanup_if_last();
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);
@@ -825,7 +853,7 @@ CMPIPropertyMI *_Generic_Create_PropertyMI(CMPIBroker * broker,
 
 #ifdef CMPI_VER_100
 static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
-					 const CMPIContext * ctx, CMPIBoolean *term)
+					 const CMPIContext * ctx, CMPIBoolean term)
 #else
 
 static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
@@ -835,11 +863,15 @@ static CMPIStatus __IndicationMI_cleanup(CMPIIndicationMI * cThis,
     RemoteCMPIIndicationMI *rcThis = (RemoteCMPIIndicationMI *) cThis;
     TRACE_NORMAL(("Cleaning up proxy provider handle for: %s",
 		   rcThis->provider));
+
+    unload_provider_comms();
+
     if (revoke_ticket(&rcThis->ticket)) {
 	TRACE_CRITICAL(("ticket could not be revoked."));
 	CMReturnWithChars(rcThis->broker, CMPI_RC_ERR_FAILED,
 			  "could not revoke ticket");
     };
+	cleanup_if_last();
     free(rcThis->provider);
     free(rcThis);
     CMReturn(CMPI_RC_OK);

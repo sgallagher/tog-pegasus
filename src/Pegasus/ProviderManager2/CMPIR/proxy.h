@@ -231,6 +231,8 @@ struct provider_comm {
 						 const char *,
 						 const CMPIObjectPath *,
 						 CMPIBoolean );
+  // IBMKR: General terminate function
+  CMPIStatus  (* terminate) ();
 
   struct provider_comm * next;
   void * handle;
@@ -381,7 +383,9 @@ struct provider_comm {
 						 CMPISelectExp *,
 						 const char *,
 						 CMPIBoolean );
-
+  // IBMKR: General terminate function
+  CMPIStatus  (* terminate) ();
+						
   struct provider_comm * next;
   void * handle;
 };
@@ -396,5 +400,5 @@ void unload_provider_comms ( void );
 unsigned long int save_context ( CONST CMPIContext * ctx );
 CONST CMPIContext * get_context ( unsigned long int id );
 void remove_context ( unsigned long int id );
-
+void cleanup_context ( void );
 #endif

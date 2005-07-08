@@ -1828,7 +1828,16 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
         }
 
         output.append("STATUS");
+#ifdef PEGASUS_OS_VMS
+        // 
+        // When outputing to a file using outPrintWriter,
+        // characters appear one per line.
+        // Use printf instead.
+        // 
+        printf("%s\n", output.getCString());
+#else
         outPrintWriter << output << endl;
+#endif
 
         for (Uint32 i =0; i < instances.size(); i++)
         {
@@ -1950,7 +1959,16 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
                 output.append(statusValue);
                 output.append(" ");
             }
+#ifdef PEGASUS_OS_VMS
+            // 
+            // When outputing to a file using outPrintWriter,
+            // characters appear one per line.
+            // Use printf instead.
+            // 
+            printf("%s\n", output.getCString());
+#else
             outPrintWriter << output << endl;
+#endif
         }
 
     }
@@ -1958,7 +1976,16 @@ void CIMProviderCommand::_printList(Array<String> & moduleNames,
     {
         for (Uint32 i=0; i < moduleNames.size(); i++)
         {
+#ifdef PEGASUS_OS_VMS
+            // 
+            // When outputing to a file using outPrintWriter,
+            // characters appear one per line.
+            // Use printf instead.
+            // 
+            printf("%s\n", moduleNames[i].getCString());
+#else
             outPrintWriter << moduleNames[i] << endl;
+#endif
         }
     }
 }

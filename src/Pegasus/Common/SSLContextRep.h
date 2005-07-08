@@ -52,6 +52,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class SSLCallbackInfoRep
+{
+public:
+    SSLCertificateVerifyFunction* verifyCertificateCallback;
+    SSLCertificateInfo* peerCertificate;
+    X509_STORE* crlStore;
+};
 
 class PEGASUS_COMMON_LINKAGE SSLContextRep
 {
@@ -105,6 +112,10 @@ public:
     String getCertPath() const;
 
     String getKeyPath() const;
+
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+	String getTrustStoreUserName() const;
+#endif
 
     String getCRLPath() const;
 

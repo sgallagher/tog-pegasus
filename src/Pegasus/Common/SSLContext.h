@@ -55,6 +55,7 @@ class CIMxmlIndicationHandler;
 class SSLCertificateInfo;
 class SSLCallback;
 class SSLContextManager;
+class SSLCallbackInfoRep;
 
 // Pegasus-defined SSL certificate verification callback
 typedef Boolean (SSLCertificateVerifyFunction) (SSLCertificateInfo &certInfo);
@@ -75,6 +76,10 @@ public:
     // index to the application-specific data in the SSL connection object
     static const int SSL_CALLBACK_INDEX;
 
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+    SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert);  
+#endif
+
     SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert,
                     X509_STORE* crlStore = NULL);  
 
@@ -82,11 +87,9 @@ public:
 
 private:
 
-    SSLCertificateVerifyFunction* verifyCertificateCallback;
+    SSLCallbackInfo();
 
-    SSLCertificateInfo* _peerCertificate;
-
-    X509_STORE* _crlStore;
+    SSLCallbackInfoRep* _rep;
 
     friend class SSLSocket;
 
@@ -340,6 +343,15 @@ public:
     */
     Boolean isPeerVerificationEnabled() const;
 
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+    /** In OpenPegasus 2.4 this method returned the username associated
+	with the truststore, if applicable. This method is currently deprecated
+	beginning in OpenPegasus 2.5, and will always return String::EMPTY.
+	@return String::EMPTY
+	*/
+	String getTrustStoreUserName() const;
+#endif
+
     /** Returns the verification callback associated with this context.  This may be NULL.
     @return the verification callback function 
     */
@@ -388,6 +400,31 @@ public:
         const String& crlPath,
         SSLCertificateVerifyFunction* verifyCert,
         const String& randomFile);
+
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+	/** Constructor for a SSLContextRep object. 
+    @param trustStore  trust store file path
+    @param certPath  server certificate file path
+    @param keyPath  server key file path
+    @param verifyCert  function pointer to a certificate verification
+    call back function.
+    @param trustStoreUserName In OpenPegasus 2.5 this parameter specified the user to 
+    associate the truststore with; this was basically a workaround to
+	providers that required a username. With the support provided in PEP 187,
+    this parameter is ignored beginning in release 2.5.
+    @param randomFile  file path of a random file that is used as a seed
+    for random number generation by OpenSSL.
+
+    @exception SSLException  exception indicating failure to create a context.
+    */
+    SSLContext(
+        const String& trustStore,
+        const String& certPath,
+        const String& keyPath,
+        SSLCertificateVerifyFunction* verifyCert,
+		String trustStoreUserName,
+        const String& randomFile);
+#endif
 
 private:
 

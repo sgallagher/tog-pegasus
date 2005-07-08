@@ -405,7 +405,7 @@ SSLCertificateInfo* SSLSocket::getPeerCertificate()
 { 
     if (_SSLCallbackInfo.get()) 
     {
-        return (_SSLCallbackInfo->_peerCertificate);
+        return (_SSLCallbackInfo->_rep->peerCertificate);
     }
 
     return NULL;

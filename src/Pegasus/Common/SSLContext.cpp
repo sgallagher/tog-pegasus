@@ -326,14 +326,14 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     // simply return the preverification error (or check the CRL)
     // We do not need to go through the additional steps.
     //
-    if (exData->verifyCertificateCallback == NULL)
+    if (exData->_rep->verifyCertificateCallback == NULL)
     {
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
                       "--->SSL: No verification callback specified");
 
-        if (exData->_crlStore != NULL) 
+        if (exData->_rep->crlStore != NULL) 
         {
-            revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_crlStore);
+            revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_rep->crlStore);
             Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
 
             if (revoked) //with the SSL callbacks '0' indicates failure
@@ -347,9 +347,9 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     //
     // Check to see if a CRL path is defined
     //
-    if (exData->_crlStore != NULL) 
+    if (exData->_rep->crlStore != NULL) 
     {
-        revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_crlStore);
+        revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_rep->crlStore);
         Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
 
         if (revoked) //with the SSL callbacks '0' indicates failure
@@ -429,17 +429,17 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     //
     // Create the certificate object
     //
-    if (exData->_peerCertificate != NULL)
+    if (exData->_rep->peerCertificate != NULL)
     {
         //Delete an existing certificate object from a previous call.
         //SSL validates the certificate chain starting with the root CA and working down to the peer certificate.
         //With this strategy, we end up with the peer certificate as the last certificate stored in the SSLCallbackInfo
         //so we can retrieve the correct certificate info and username.
-        delete exData->_peerCertificate;
-        exData->_peerCertificate = NULL;
+        delete exData->_rep->peerCertificate;
+        exData->_rep->peerCertificate = NULL;
     } 	
 
-    exData->_peerCertificate = new SSLCertificateInfo(subjectName, issuerName, version, serialNumber,
+    exData->_rep->peerCertificate = new SSLCertificateInfo(subjectName, issuerName, version, serialNumber,
         notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
 
     //
@@ -448,10 +448,10 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     // This is because OpenSSL retains the original default error in case we want to use it later.
     // To set the error, we could use X509_STORE_CTX_set_error(ctx, verifyError); but there is no real benefit to doing that here.
     //
-    if (exData->verifyCertificateCallback(*exData->_peerCertificate)) 
+    if (exData->_rep->verifyCertificateCallback(*exData->_rep->peerCertificate)) 
     {
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-            "--> SSL: verifyCertificateCallback() returned X509_V_OK");
+            "--> SSL: _rep->verifyCertificateCallback() returned X509_V_OK");
 
         PEG_METHOD_EXIT();
         return 1;
@@ -459,7 +459,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     else // verification failed, handshake will be immediately terminated
     {
         Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-            "--> SSL: verifyCertificateCallback() returned error %d", exData->_peerCertificate->getErrorCode());
+            "--> SSL: _rep->verifyCertificateCallback() returned error %d", exData->_rep->peerCertificate->getErrorCode());
       
         PEG_METHOD_EXIT();
         return 0; 
@@ -1115,6 +1115,13 @@ String SSLContextRep::getKeyPath() const
     return _keyPath;
 }
 
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+String SSLContextRep::getTrustStoreUserName() const 
+{ 
+    return String::EMPTY; 
+}
+#endif
+
 String SSLContextRep::getCRLPath() const
 {
     return _crlPath;
@@ -1171,6 +1178,10 @@ String SSLContextRep::getCertPath() const { return String::EMPTY; }
 
 String SSLContextRep::getKeyPath() const { return String::EMPTY; }
 
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+String SSLContextRep::getTrustStoreUserName() const { return String::EMPTY; }
+#endif
+
 String SSLContextRep::getCRLPath() const { return String::EMPTY; }
 
 X509_STORE* SSLContextRep::getCRLStore() const { return NULL; }
@@ -1224,6 +1235,19 @@ SSLContext::SSLContext(
     _rep = new SSLContextRep(trustStore, certPath, keyPath, crlPath, verifyCert, randomFile);
 }
 
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+SSLContext::SSLContext(
+    const String& trustStore,
+    const String& certPath,
+    const String& keyPath,
+    SSLCertificateVerifyFunction* verifyCert,
+    String trustStoreUserName,
+    const String& randomFile)
+{
+    _rep = new SSLContextRep(trustStore, certPath, keyPath, String::EMPTY, verifyCert, randomFile);
+}
+#endif
+
 SSLContext::SSLContext(const SSLContext& sslContext)
 {
     _rep = new SSLContextRep(*sslContext._rep);
@@ -1268,6 +1292,13 @@ Boolean SSLContext::isPeerVerificationEnabled() const
 {
     return (_rep->isPeerVerificationEnabled());
 }
+
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+String SSLContext::getTrustStoreUserName() const
+{
+	return (_rep->getTrustStoreUserName());
+}
+#endif
 
 SSLCertificateVerifyFunction* SSLContext::getSSLCertificateVerifyFunction() const
 {
@@ -1509,19 +1540,37 @@ String SSLCertificateInfo::toString() const
     return s;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// SSLCallbackInfo
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
+SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert)
+{
+    _rep = new SSLCallbackInfoRep();
+    _rep->verifyCertificateCallback = verifyCert;
+    _rep->crlStore = NULL;
+    _rep->peerCertificate = NULL;  
+}
+#endif
+
 SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert, X509_STORE* crlStore)
 {
-    verifyCertificateCallback = verifyCert;
-    _crlStore = crlStore;
-    _peerCertificate = NULL;  
+    _rep = new SSLCallbackInfoRep();
+    _rep->verifyCertificateCallback = verifyCert;
+    _rep->crlStore = crlStore;
+    _rep->peerCertificate = NULL;  
 }
 
 SSLCallbackInfo::~SSLCallbackInfo()
 {
-    if (_peerCertificate) 
+    if (_rep->peerCertificate) 
     {
-        delete _peerCertificate;
+        delete _rep->peerCertificate;
     }
+    delete _rep;
 }
 
 PEGASUS_NAMESPACE_END

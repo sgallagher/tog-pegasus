@@ -669,7 +669,6 @@ fi
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories
-%dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/Providers/Load
 %dir %attr(777,root ,root) /opt/tog-pegasus/samples/mak
@@ -704,7 +703,6 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/Makefile
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider/Makefile
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/InstanceProviderR.mof
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/MethodProviderR.mof
@@ -713,26 +711,11 @@ fi
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/CWS_FilesAndDirR.mof
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/AssociationProvider.mof
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/Load/AssociationProviderR.mof
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001rspgood.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001rspgood.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/AssocDirNames12001.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003rspgood.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/DeleteDirInstance10003.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/ReferenceDirNames12002rspgood.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/PlainFileMethodCall11001.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDirNames10000rspgood.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/GetDirInstance10002rspgood.xml
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/tests/EnumerateDir10001rspgood.xml
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwssimdata.c
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwsutil.h
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_Directory.c
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwsutil.c
-%attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/cwstest.c
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.c
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_PlainFile.c
 %attr(444,root ,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories/CWS_FileUtils.h

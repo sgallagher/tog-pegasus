@@ -37,10 +37,14 @@
 
 #if defined SIMULATED
  #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
- #define SILENT 1
 #else
  #define CWS_FILEROOT  "/"
+#endif
+
+#if defined CWS_DEBUG
  #define SILENT 0
+#else
+ #define SILENT 1
 #endif
 
 char * CSCreationClassName();

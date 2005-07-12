@@ -336,6 +336,13 @@ static CMPISelectExpFT selx_FT = {
 
 CMPISelectExpFT *CMPI_SelectExp_Ftab = &selx_FT;
 
+CMPI_SelectExp::~CMPI_SelectExp()
+{
+  delete wql_stmt;
+  delete cql_stmt;
+  delete wql_dnf;
+  delete cql_dnf;
+}
 CMPI_SelectExp::CMPI_SelectExp (const OperationContext & ct,
                                 QueryContext * context, String cond_,
                                 String lang_):

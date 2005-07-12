@@ -59,7 +59,7 @@ struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp {
    CMPI_SelectExp(const OperationContext& ct, QueryContext *context, String cond_, String lang_);
    CMPI_SelectExp(WQLSelectStatement*);
    CMPI_SelectExp(CQLSelectStatement*);
-
+   ~CMPI_SelectExp();
    CMPI_Object *next,*prev;
    const char **props;
    Array<CIMObjectPath> classNames;

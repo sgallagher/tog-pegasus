@@ -491,21 +491,31 @@ thread (void *context)
   CMPIString *left_side = NULL;
   CMPIString *right_side = NULL;
   CMPIContext *ctx;
+  struct timespec wait = { 0, 0 };
+  struct timeval t;
 
+  _thread_active = 1;
   // Get the CMPIContext and attach it to this thread.
   ctx = (CMPIContext *) context;
   rc = CBAttachThread (_broker, ctx);
 
+  // Have to wait until the thread is done. On the first
+  // run the value is zero, so we skip right through it.
+
   while (_thread_runs == 0)
     {
+      gettimeofday (&t, NULL);
+      // Set the time wait to 1 second.
+      wait.tv_sec = t.tv_sec + 1;
+      wait.tv_nsec = 0;
+
       // Wait until we get the message that we can start running
       _broker->xft->lockMutex (_mutex);
       // Wait until we get a condition change, which is happening only when
       // _thread_runs is changed
-      _broker->xft->condWait (_cond, _mutex);
+      _broker->xft->timedCondWait (_cond, _mutex, &wait);
       _broker->xft->unlockMutex (_mutex);
     }
-  _thread_active = 1;
 
   //PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
   PROV_LOG ("--- CBAttachThread callled.");
@@ -741,9 +751,36 @@ exit:
   PROV_LOG ("--- %s CMPI thread(void *) exited", _IndClassName);
 
   _thread_active = 0;
+  _thread_runs = 0;
   return (CMPI_THREAD_RETURN) 0;
 }
 
+/*
+ * Initialize function called by the stub macro function.
+ */
+void init() {
+  _mutex = _broker->xft->newMutex (0);
+  _cond = _broker->xft->newCondition (0);
+}
+void waitUntilThreadIsDone() {
+
+  struct timespec wait = { 0, 0 };
+  struct timeval t;
+  
+   while (_thread_runs == 1) {
+   	// Have to wait until the thread is started. On the first
+   	// run the value is zero, so we skip right through it.
+      gettimeofday (&t, NULL);
+      // Set the time wait to 1 second.
+      wait.tv_sec = t.tv_sec + 1;
+      wait.tv_nsec = 0;
+
+      _broker->xft->lockMutex (_mutex);
+      // Wait 1 second has expired or the condition has changed.
+      _broker->xft->timedCondWait (_cond, _mutex, &wait);
+      _broker->xft->unlockMutex (_mutex);
+  }
+}
 /* ---------------------------------------------------------------------------*/
 /*                       Indication Provider Interface                        */
 /* ---------------------------------------------------------------------------*/
@@ -759,10 +796,15 @@ TestCMPIIndicationProviderIndicationCleanup (CMPIIndicationMI * mi,
                                              CMPIContext * ctx)
 #endif
 {
-/*
-   PROV_LOG ("--- %s CMPI IndicationCleanup() called", _IndClassName);
-   PROV_LOG ("--- %s CMPI IndicationCleanup() exited", _IndClassName);
-*/
+
+   //PROV_LOG ("--- %s CMPI IndicationCleanup() called", _IndClassName);
+
+  // Release the mutex and condition
+  _broker->xft->destroyMutex (_mutex);
+  _broker->xft->destroyCondition (_cond);
+  _mutex = NULL;
+  _cond = NULL;
+   //PROV_LOG ("--- %s CMPI IndicationCleanup() exited", _IndClassName);
    CMReturn (CMPI_RC_OK);
 }
 
@@ -853,25 +895,27 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
 #endif
 {
   CMPIContext *context;
+
   CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
 
   PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
+
   // We have to pass in the parameters some way. One way would be
   // to do it via the void pointer to the thread, but for simplicity
   // we are just using global values.
   _se = (CMPISelectExp *) se;
   _ns = strdup (ns);
-  // Initalize our mutex and condition. We use that to kick of thread
-  // processing when 'enableIndication' has been called.
-  _mutex = _broker->xft->newMutex (0);
-  _cond = _broker->xft->newCondition (0);
+
   // Get a new CMPI_Context which the thread will use.
   context = CBPrepareAttachThread (_broker, ctx);
+  // Spawn of a new thread!
   _broker->xft->newThread (thread, context, 0);
+  // Wait until it finished (this is done purely for logging 
+  // purpose - the logging output is compared to with a template
+
   PROV_LOG ("--- %s CMPI ActivateFilter() exited", _IndClassName);
   CMReturn (CMPI_RC_OK);
-
 }
 
 #ifdef CMPI_VER_100
@@ -897,31 +941,12 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
   CMPIStatus rc = { CMPI_RC_OK, NULL };
   CMPIString *str = NULL;
 
-  struct timespec wait = { 0, 0 };
-  struct timeval t;
-
-  // We want to delay until the thread is finished.
-  //
-  while (_thread_active)
-    {
-      gettimeofday (&t, NULL);
-      // Set the time wait to 1 second.
-      wait.tv_sec = t.tv_sec + 1;
-      wait.tv_nsec = 0;
-
-      _broker->xft->lockMutex (_mutex);
-      // Wait 1 second has expired or the condition has changed.
-      _broker->xft->timedCondWait (_cond, _mutex, &wait);
-      _broker->xft->unlockMutex (_mutex);
-    }
+  waitUntilThreadIsDone();
+  PROV_LOG ("--- %s CMPI DeActivateFilter() entered", _IndClassName);
   // Release the internal data.
   free (_ns);
   _ns = NULL;
-  // Release the mutex and condition
-  _broker->xft->destroyMutex (_mutex);
-  _broker->xft->destroyCondition (_cond);
-  _mutex = NULL;
-  _cond = NULL;
+  PROV_LOG ("--- %s CMPI DeActivateFilter() exited", _IndClassName);
   CMReturn (CMPI_RC_OK);
 }
 
@@ -934,13 +959,13 @@ void
 TestCMPIIndicationProviderEnableIndications (CMPIIndicationMI * mi)
 #endif
 {
-  //PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
-  //PROV_LOG ("--- %s CMPI EnableIndication() exited", _IndClassName);
+  PROV_LOG ("--- %s CMPI EnableIndication() entered", _IndClassName);
   _broker->xft->lockMutex (_mutex);
   _thread_runs = 1;
-  _broker->xft->signalCondition (_cond);
   _broker->xft->unlockMutex (_mutex);
-  //PROV_LOG ("--- %s CMPI EnableIndication() exited", _IndClassName);
+
+  waitUntilThreadIsDone();
+  PROV_LOG ("--- %s CMPI EnableIndication() exited", _IndClassName);
 }
 
 #ifdef CMPI_VER_100
@@ -952,31 +977,22 @@ void
 TestCMPIIndicationProviderDisableIndications (CMPIIndicationMI * mi)
 #endif
 {
-  //PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
-  PROV_LOG ("--- %s CMPI DisableIndication() exited", _IndClassName);
+  PROV_LOG ("--- %s CMPI DisableIndication() entered", _IndClassName);
 
-  //  Since DeActiveFilter is called before DisableIndications, and it
-  // deletes the mutex and condition, we better check it first.
-  if (_mutex)
-    {
-      _broker->xft->lockMutex (_mutex);
-      _thread_runs = 0;
-      _broker->xft->signalCondition (_cond);
-      _broker->xft->unlockMutex (_mutex);
-    }
+  _thread_runs = 0;
+  waitUntilThreadIsDone();
   PROV_LOG ("--- %s CMPI DisableIndication() exited", _IndClassName);
-
-  // In reality we should close in Cleanup function, but that function
-  // is only called during unloading, which might take a long time
-  // so we just do it here.
   PROV_LOG_CLOSE ();
 }
 
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
 /* ---------------------------------------------------------------------------*/
+
+/* Note that we call 'init()' function
+*/
 CMIndicationMIStub (TestCMPIIndicationProvider,
-                    TestCMPIIndicationProvider, _broker, CMNoHook);
+                    TestCMPIIndicationProvider, _broker, init());
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */
 /* ---------------------------------------------------------------------------*/

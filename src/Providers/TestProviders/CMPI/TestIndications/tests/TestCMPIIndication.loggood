@@ -1,5 +1,6 @@
  --- TestCMPI_Indication CMPI ActivateFilter() called
  --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) running
@@ -95,10 +96,14 @@
  --- CBDetachThread called
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) exited
- --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI EnableIndication() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() entered
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI DisableIndication() entered
  --- TestCMPI_Indication CMPI DisableIndication() exited
  --- TestCMPI_Indication CMPI ActivateFilter() called
  --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) running
@@ -201,10 +206,14 @@
  --- CBDetachThread called
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) exited
- --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI EnableIndication() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() entered
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI DisableIndication() entered
  --- TestCMPI_Indication CMPI DisableIndication() exited
  --- TestCMPI_Indication CMPI ActivateFilter() called
  --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) running
@@ -289,10 +298,14 @@
  --- CBDetachThread called
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) exited
- --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI EnableIndication() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() entered
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI DisableIndication() entered
  --- TestCMPI_Indication CMPI DisableIndication() exited
  --- TestCMPI_Indication CMPI ActivateFilter() called
  --- TestCMPI_Indication CMPI ActivateFilter() exited
+ --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) running
@@ -369,5 +382,8 @@
  --- CBDetachThread called
  ---- CMPI_RC_OK
  --- TestCMPI_Indication CMPI thread(void *) exited
- --- TestCMPI_Indication CMPI DisableIndication() exited
+ --- TestCMPI_Indication CMPI EnableIndication() exited
+ --- TestCMPI_Indication CMPI DeActivateFilter() entered
+ --- TestCMPI_Indication CMPI DeActivateFilter() exited
+ --- TestCMPI_Indication CMPI DisableIndication() entered
  --- TestCMPI_Indication CMPI DisableIndication() exited

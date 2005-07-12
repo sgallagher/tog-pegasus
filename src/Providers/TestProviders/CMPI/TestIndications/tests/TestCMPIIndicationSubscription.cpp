@@ -763,8 +763,9 @@ main (int argc, char **argv)
   verbose = (getenv ("PEGASUS_TEST_VERBOSE")) ? true : false;
   CIMClient client;
   try
-  {
+  {   
     client.connectLocal ();
+    client.setTimeout(400000);
   }
   catch (Exception & e)
   {
@@ -779,10 +780,10 @@ main (int argc, char **argv)
     }
 
   else
-    {
+    {	
       const char *opt = argv[1];
-
       if (String::equalNoCase (opt, "test"))
+
 	{
 	  _test (client);
 	}

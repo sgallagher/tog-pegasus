@@ -51,6 +51,7 @@ void SimpleDisplayConsumer::initialize(CIMOMHandle& handle)
 
 void SimpleDisplayConsumer::terminate()
 {
+    delete this;
 }
 
 //

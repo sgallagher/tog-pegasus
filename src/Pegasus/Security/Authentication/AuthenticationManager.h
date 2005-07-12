@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +84,13 @@ public:
         const String& authHeader,
         AuthenticationInfo* authInfo);
 
+    /** Validates whether the user is a valid user for requests
+        from HTTP connections.
+        @param  userName  name of the user
+        @return true on successful validation, false otherwise
+    */
+    Boolean validateUserForHttpAuth (const String& userName);
+
     /** Constructs the Pegasus Local authentication challenge header.
         @param authHeader String containing the Authorization header
         @param authInfo reference to AuthenticationInfo object that holds the
@@ -102,6 +110,7 @@ public:
 #else
     String getHttpAuthResponseHeader();
 #endif
+
 private:
 
     Boolean _parseLocalAuthHeader(

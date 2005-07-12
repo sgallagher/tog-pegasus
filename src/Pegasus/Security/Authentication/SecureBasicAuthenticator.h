@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,6 +66,13 @@ public:
     Boolean authenticate(
         const String& userName, 
         const String& password);
+
+    /**
+        Verify whether the user is valid.
+        @param userName String containing the user name
+        @return true on successful validation, false otherwise
+    */
+    Boolean validateUser(const String& userName);
 
     /** Construct and return the HTTP Basic authentication challenge header
         @return A string containing the authentication challenge header.

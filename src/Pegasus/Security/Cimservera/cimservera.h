@@ -31,6 +31,8 @@
 //
 //         Parts of this code originated within PAMBasicAuthenticator.
 //
+// Modified By: Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com) 
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #ifndef Pegasus_Cimservera_h
@@ -43,6 +45,18 @@ PEGASUS_NAMESPACE_BEGIN
 class Cimservera
 {
 public:
+
+    // Indicates that an authentication operation be performed.
+    static const char OPERATION_PAM_AUTHENTICATION;
+
+    // Indicates that an account management operation be performed.
+    static const char OPERATION_PAM_ACCT_MGMT;
+
+    // Indicates that authentication/account management operation was successful.
+    static const char PAM_OPERATION_SUCCESS;
+
+    // Indicates that authentication/account management operation failed.
+    static const char PAM_OPERATION_FAILURE;
 
     /** constructor. */ 
     Cimservera();
@@ -73,9 +87,14 @@ public:
         const String& userName,
         const String& password);
 
+    /** 
+        Verify PAM account management for the requesting user.
+        @param userName String containing the user name
+        @return true on successful authentication, false otherwise
+    */
+    static Boolean performAcctMgmt (const String& userName);
 
 private:
-
 };
 
 

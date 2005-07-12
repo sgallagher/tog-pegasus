@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,6 +105,21 @@ Boolean PAMBasicAuthenticator::authenticate(
     return (authenticated);
 }
 
+Boolean PAMBasicAuthenticator::validateUser(
+    const String& userName)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMBasicAuthenticator::validateUser()");
+
+    //FUTURE: PAM authentication is not implemented on non Unix platforms,
+    //hence this function return false as default indicating validation failure.
+
+    Boolean authenticated = false;
+
+    PEG_METHOD_EXIT();
+
+    return (authenticated);
+}
 
 //
 // Create authentication response header

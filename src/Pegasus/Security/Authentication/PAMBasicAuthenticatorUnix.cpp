@@ -40,6 +40,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/Signal.h>
 
 #if defined (PEGASUS_OS_HPUX)
 #include <prot.h>
@@ -218,6 +219,104 @@ Boolean PAMBasicAuthenticator::_authenticateByPAM(
     return (authenticated);
 }
 
+Boolean PAMBasicAuthenticator::validateUser(const String& userName)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMBasicAuthenticator::validateUser()");
+
+    Boolean authenticated = false;
+
+#if !defined(PEGASUS_USE_PAM_STANDALONE_PROC)
+    struct pam_conv pconv;
+    pam_handle_t *phandle;
+    char *name;
+    APP_DATA mydata;
+
+    const char *service = "wbem";
+    pconv.conv = PAMBasicAuthenticator::pamValidateUserCallback;
+    pconv.appdata_ptr = &mydata;
+
+    //
+    // Call pam_start since you need to before making any other PAM calls
+    //
+    if ( pam_start(service,
+     (const char *)userName.getCString(), &pconv, &phandle) != PAM_SUCCESS)
+    {
+        PEG_METHOD_EXIT();
+        return (authenticated);
+    }
+
+    //
+    // Call pam_acct_mgmt, to check if the user account is valid. This includes
+    // checking for account expiration, as well as verifying access
+    // hour restrictions.
+    //
+    if ( pam_acct_mgmt(phandle, 0) == PAM_SUCCESS )
+    {
+        authenticated = true;
+    }
+
+    //
+    //Call pam_end to end our PAM work
+    //
+    pam_end(phandle, 0);
+
+#else
+    //
+    // Mutex to Serialize Authentication calls.
+    //
+    Tracer::trace(TRC_AUTHENTICATION, Tracer::LEVEL4,
+           "Authentication Mutex lock.");
+    AutoMutex lock(_authSerializeMutex);
+    authenticated = _pamBasicAuthenticatorStandAlone.validateUser(
+            userName);
+#endif
+
+    PEG_METHOD_EXIT();
+    return (authenticated);
+
+}
+
+Sint32 PAMBasicAuthenticator::pamValidateUserCallback( Sint32 num_msg,
+#if defined (PEGASUS_OS_LINUX)
+        const struct pam_message **msg,
+#else
+        struct pam_message **msg,
+#endif
+        struct pam_response **resp,
+        void *appdata_ptr)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMBasicAuthenticator::pamValidateUserCallback()");
+
+    //
+    // Allocate the response buffers
+    //
+    if ( num_msg > 0 )
+    {
+        //
+        // Since resp->resp needs to be initialized in all possible scenarios,
+        // use calloc for memory allocation.
+        //
+        *resp =
+          (struct pam_response *)calloc(num_msg, sizeof(struct pam_response));
+
+        if ( *resp == NULL )
+        {
+            PEG_METHOD_EXIT();
+            return PAM_BUF_ERR;
+        }
+    }
+    else
+    {
+        PEG_METHOD_EXIT();
+        return PAM_CONV_ERR;
+    }
+
+    PEG_METHOD_EXIT();
+    return PAM_SUCCESS;
+}
+
 //
 // Create authentication response header
 //
@@ -310,6 +409,12 @@ int     fd_1[2], fd_2[2];
 Boolean continue_PAMauthentication;
 Boolean printed_err_since_success=false;
 
+const String PAMBasicAuthenticatorStandAlone::PAM_OPERATION_SUCCESS = "T";
+
+const String PAMBasicAuthenticatorStandAlone::OPERATION_PAM_AUTHENTICATION = "A";
+
+const String PAMBasicAuthenticatorStandAlone::OPERATION_PAM_ACCT_MGMT = "M";
+
 /* constructor. */
 PAMBasicAuthenticatorStandAlone::PAMBasicAuthenticatorStandAlone()
 {
@@ -321,6 +426,8 @@ PAMBasicAuthenticatorStandAlone::PAMBasicAuthenticatorStandAlone()
 #endif
 
     _createPAMStandalone();
+
+    SignalHandler::ignore(PEGASUS_SIGPIPE);
 
     PEG_METHOD_EXIT();
 }
@@ -350,114 +457,168 @@ Boolean PAMBasicAuthenticatorStandAlone::authenticate(
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
         "PAMBasicAuthenticatorStandAlone::authenticate()");
 
-    Boolean authenticated;
-    char    auth_reply[10];
-    char    line[BUFFERLEN];
-    int     n, ret_code;
+    Boolean authenticated = false;
 
-    try
+    // Send over the username ...
+    if (continue_PAMauthentication)
     {
-            // Callout to stand-alone process replaces above call...
-
-            // Send over the username ...
-            CString copy_of_userName=userName.getCString();
-            n = strlen(copy_of_userName);
-            sprintf(line, "%4u%s", n, (const char*)copy_of_userName);
-            n = strlen(line);
-            ret_code = write(fd_1[1], line, n);
-            if (ret_code != n)
-            {
-                continue_PAMauthentication = false;
-                if (printed_err_since_success == false)
-                {
-                    printed_err_since_success = true;
-                    Logger::put(Logger::ERROR_LOG, "CIMServer",
-                       Logger::SEVERE,
-                       "Error processing PAM Authentication request (write).");
-                }
-                //
-                // on EPIPE, try restarting the authentication process
-                //
-                if (errno == EPIPE)
-                {
-                  close(fd_1[1]);   // Close to keep used fd number down
-                  close(fd_2[0]);   // Close to keep used fd number down
-                  _createPAMStandalone();
-                  ret_code = write(fd_1[1], line, n);
-                  if (ret_code != n)
-                  {
-                    continue_PAMauthentication = false;
-                    if (printed_err_since_success == false)
-                    {
-                      printed_err_since_success = true;
-                      //L10N TODO
-                      Logger::put(Logger::ERROR_LOG, "CIMServer",
-                        Logger::SEVERE,
-                        "Error processing PAM Authentication request (write).");
-                    }
-                  }
-                }  //  if (errno == EPIPE)
-            } // if (ret_code != n) from 1st write
-
-            // Send over the password ... */
-            if (continue_PAMauthentication)
-            {
-                CString copy_of_password = password.getCString();
-                n = strlen(copy_of_password);
-                sprintf(line, "%4u%s", n, (const char*)copy_of_password);
-                n = strlen(line);
-                if (write(fd_1[1], line, n) != n) {
-                    continue_PAMauthentication = false;
-                    if (printed_err_since_success == false)
-                    {
-                      printed_err_since_success = true;
-                      //L10N TODO
-                      Logger::put(Logger::ERROR_LOG, "CIMServer",
-                        Logger::SEVERE,
-                        "Error processing PAM Authentication request (write).");
-                    }
-                }
-            }
-
-            // Now read back the PAM Authentication status value (T/F)
-            if (continue_PAMauthentication)
-            {
-                n = read(fd_2[0], auth_reply, 2);  /* read back the reply */
-
-                if (n < 0)
-                {
-                    continue_PAMauthentication = false;
-                    if (printed_err_since_success == false)
-                    {
-                      printed_err_since_success = true;
-                      //L10N TODO
-                      Logger::put(Logger::ERROR_LOG, "CIMServer",
-                        Logger::SEVERE,
-                        "Error processing PAM Authentication request (read).");
-                    }
-                }
-                else
-                {
-                    auth_reply[n] = '\0';
-                }
-            }
-
-            authenticated = false;
-            if ((continue_PAMauthentication) && (auth_reply[0] == 'T'))
-            {
-                authenticated = true;
-                printed_err_since_success = false;
-            }
+        //
+        // On a broken connection, try restarting the authentication process 
+        // and resend username.
+        //
+        if (_writeString (userName) == 
+                PAMBasicAuthenticatorStandAlone::BROKEN_CONNECTION)
+        {
+            _restartProcess();
+            _writeString (userName);
+        }
     }
-    catch (...)
+
+    // Send over the password ...
+    if (continue_PAMauthentication)
     {
-         throw;
+        _writeString (password);
+    }
+
+    // Send over the operation code.
+    if (continue_PAMauthentication)
+    {
+        _writeString (OPERATION_PAM_AUTHENTICATION);
+    }
+
+    // Now read back the PAM Authentication status value (T/F)
+    if (continue_PAMauthentication)
+    {
+        if (_readString() == PAM_OPERATION_SUCCESS)
+        {
+            authenticated = true;
+            printed_err_since_success = false;
+        }
     }
 
     PEG_METHOD_EXIT();
     return (authenticated);
 }
 
+Boolean PAMBasicAuthenticatorStandAlone::validateUser(
+    const String& userName)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "PAMBasicAuthenticatorStandAlone::validateUser()");
+
+    Boolean authenticated = false;
+
+    // Send over the username ...
+    if (continue_PAMauthentication)
+    {
+        //
+        // On a broken connection, try restarting the authentication process 
+        // and resend username.
+        //
+        if (_writeString (userName) == 
+                PAMBasicAuthenticatorStandAlone::BROKEN_CONNECTION)
+        {
+            _restartProcess();
+            _writeString(userName);
+        }
+    }
+
+    // Send over the password ...
+    if (continue_PAMauthentication)
+    {
+        _writeString(String::EMPTY);
+    }
+
+    // Send over the operation code.
+    if (continue_PAMauthentication)
+    {
+        _writeString (OPERATION_PAM_ACCT_MGMT);
+    }
+
+    // Now read back the PAM Authentication status value (T/F)
+    if (continue_PAMauthentication)
+    {
+        if (_readString() == PAM_OPERATION_SUCCESS)
+        {
+            authenticated = true;
+            printed_err_since_success = false;
+        }
+    }
+
+    PEG_METHOD_EXIT();
+    return (authenticated);
+}
+
+PAMBasicAuthenticatorStandAlone::_Status 
+         PAMBasicAuthenticatorStandAlone::_writeString(const String& text)
+{
+    char    	line[BUFFERLEN];
+    int     	n, ret_code;
+    PAMBasicAuthenticatorStandAlone::_Status  	status = 
+                        PAMBasicAuthenticatorStandAlone::SUCCESS;
+
+    CString copy_of_text=text.getCString();
+    n = strlen(copy_of_text);
+
+    sprintf(line, "%4u%s", n, (const char*)copy_of_text);
+    n = strlen(line);
+
+    continue_PAMauthentication = true;
+    ret_code = write(fd_1[1], line, n);
+
+    if (ret_code != n)
+    {
+        continue_PAMauthentication = false;
+        status = PAMBasicAuthenticatorStandAlone::OTHER_ERROR;
+
+        if (errno == EPIPE)
+        {
+            status = PAMBasicAuthenticatorStandAlone::BROKEN_CONNECTION;
+        }
+        if (printed_err_since_success == false)
+        {
+            printed_err_since_success = true;
+            Logger::put(Logger::ERROR_LOG, "CIMServer",
+                        Logger::SEVERE,
+                       "Error processing PAM Authentication request (write).");
+        }
+    }
+
+    return status;
+}
+
+
+void PAMBasicAuthenticatorStandAlone::_restartProcess(void)
+{
+    _createPAMStandalone();
+}
+
+String PAMBasicAuthenticatorStandAlone::_readString()
+{
+    char authReply[10]; 
+
+    authReply[0] = '\0';
+    Uint32 n = read(fd_2[0], authReply, 2);  /* read back the reply */
+
+    if (n < 0)
+    {
+        continue_PAMauthentication = false;
+        if (printed_err_since_success == false)
+        {
+            printed_err_since_success = true;
+            //L10N TODO
+            Logger::put(Logger::ERROR_LOG, "CIMServer",
+              Logger::SEVERE,
+             "Error processing PAM Authentication request (read).");
+        }
+    }
+    else
+    {
+        authReply[n] = '\0';
+    }
+
+    return (String(authReply));
+}
 
 void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
 {
@@ -500,6 +661,7 @@ void PAMBasicAuthenticatorStandAlone::_createPAMStandalone()
             }
         }
     }
+  
     if (continue_PAMauthentication)
     {
         if ((pid = fork()) < 0)

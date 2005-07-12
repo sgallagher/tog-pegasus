@@ -35,7 +35,8 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_SECURITY_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARIES = \
-    pegcommon
+    pegcommon \
+    pegauthentication
 
 PRE_DEPEND_INCLUDES = -I./depends
 

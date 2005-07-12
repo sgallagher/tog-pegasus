@@ -31,6 +31,7 @@
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
 //                Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//              Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -252,6 +253,14 @@ Boolean AuthenticationManager::performPegasusAuthentication
     PEG_METHOD_EXIT();
 
     return ( authenticated );
+}
+
+//
+// Validate user.
+//
+Boolean AuthenticationManager::validateUserForHttpAuth (const String& userName)
+{
+    return _httpAuthHandler->validateUser(userName);
 }
 
 //

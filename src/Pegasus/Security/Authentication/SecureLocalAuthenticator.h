@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,6 +69,13 @@ public:
         const String& userName, 
         const String& secretReceived, 
         const String& secretKept);
+
+    /**
+        Verify whether the user is valid.
+        @param userName String containing the user name
+        @return true on successful validation, false otherwise
+    */
+    Boolean validateUser(const String& userName);
 
     /** Construct and return the Peagaus Local authentication challenge header
         @param authType String containing the authentication type

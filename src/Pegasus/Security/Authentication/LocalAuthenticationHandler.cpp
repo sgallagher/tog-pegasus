@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -123,6 +124,11 @@ Boolean LocalAuthenticationHandler::authenticate(
     PEG_METHOD_EXIT();
 
     return ( authenticated );
+}
+
+Boolean LocalAuthenticationHandler::validateUser(const String& userName)
+{
+    return _localAuthenticator->validateUser(userName);
 }
 
 String LocalAuthenticationHandler::getAuthResponseHeader(

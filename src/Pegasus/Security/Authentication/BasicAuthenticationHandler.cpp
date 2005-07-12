@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By: Jair Santos, Hewlett-Packard Company(jair.santos@hp.com)
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -146,6 +147,11 @@ Boolean BasicAuthenticationHandler::authenticate(
     PEG_METHOD_EXIT();
 
     return (authenticated);
+}
+
+Boolean BasicAuthenticationHandler::validateUser(const String& userName)
+{
+    return _basicAuthenticator->validateUser(userName);
 }
 
 String BasicAuthenticationHandler::getAuthResponseHeader(

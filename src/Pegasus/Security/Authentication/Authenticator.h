@@ -31,6 +31,7 @@
 //
 // Modified By:
 //              Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +80,13 @@ public:
         const String& authType = String::EMPTY,
         const String& userName = String::EMPTY,
         AuthenticationInfo* authInfo = 0) = 0;
+
+    /**
+        Verify whether the user is valid.
+        @param userName String containing the user name
+        @return true on successful validation, false otherwise
+    */
+    virtual Boolean validateUser(const String& userName) = 0;
 };
 
 PEGASUS_NAMESPACE_END

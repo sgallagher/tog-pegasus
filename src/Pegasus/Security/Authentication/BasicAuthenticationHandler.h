@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -81,6 +82,8 @@ public:
         const String& authType = String::EMPTY,
         const String& userName = String::EMPTY,
         AuthenticationInfo* authInfo = 0);
+
+    Boolean validateUser(const String& userName);
 
 private:
 

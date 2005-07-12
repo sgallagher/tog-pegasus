@@ -117,7 +117,10 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
       AutoPtr<AuthenticationManager> _authenticationManager; //PEP101
 
 private:
-	CIMRepository* _repository;
+
+      Boolean _validateUser(const String& userName, Uint32 queueId);
+
+       CIMRepository* _repository;
 };
 
 PEGASUS_NAMESPACE_END

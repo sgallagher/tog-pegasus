@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -70,6 +71,13 @@ public:
         @return A string containing the authentication challenge header.
     */
     virtual String getAuthResponseHeader() = 0;
+
+    /**
+        Verify whether the user is valid.
+        @param userName String containing the user name
+        @return true on successful validation, false otherwise
+    */
+    virtual Boolean validateUser(const String& userName) = 0;
 };
 
 

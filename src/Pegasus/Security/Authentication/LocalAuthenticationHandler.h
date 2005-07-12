@@ -30,6 +30,7 @@
 // Author: Nag Boranna, Hewlett-Packard Company(nagaraja_boranna@hp.com)
 //
 // Modified By:  Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//            Sushma Fernandes, Hewlett-Packard Company(sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -82,6 +83,13 @@ public:
         const String& authType = String::EMPTY, 
         const String& userName = String::EMPTY, 
         AuthenticationInfo* authInfo = 0);    
+
+    /**
+        Verify whether the user is valid.
+        @param userName String containing the user name
+        @return true on successful validation, false otherwise
+    */
+    Boolean validateUser(const String& userName);
 
 private:
 

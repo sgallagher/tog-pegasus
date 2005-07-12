@@ -112,6 +112,23 @@ Boolean SecureLocalAuthenticator::authenticate
     return (authenticated);
 }
 
+
+Boolean SecureLocalAuthenticator::validateUser (const String& userName)
+{
+    PEG_METHOD_ENTER(TRC_AUTHENTICATION,
+        "SecureLocalAuthenticator::validateUser()");
+
+    Boolean authenticated = false;
+
+    if (System::isSystemUser(userName.getCString()))
+    {
+        authenticated = true;
+    }
+
+    PEG_METHOD_EXIT();
+    return (authenticated);
+}
+
 //
 // Create authentication response header
 //

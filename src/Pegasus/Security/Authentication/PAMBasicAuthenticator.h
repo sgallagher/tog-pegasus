@@ -73,8 +73,23 @@ public:
         const String& userName,
         const String& password);
 
+    /** Verify PAM account management for the requesting user.
+        @param userName String containing the user name
+        @return true on successful authentication, false otherwise
+    */
+    Boolean validateUser(const String& userName);
+
 private:
     String        _realm;
+
+    // Indicates that an authentication operation must be performed.
+    static const String OPERATION_PAM_AUTHENTICATION;
+
+    // Indicates that an account management operation must be performed.
+    static const String OPERATION_PAM_ACCT_MGMT;
+
+    // Indicates that authentication/account management operation was successful.
+    static const String PAM_OPERATION_SUCCESS;
 
 #if defined(PEGASUS_HAS_SIGNALS)
     /**
@@ -88,6 +103,35 @@ private:
         const String& password);
 
     void _createPAMStandalone();
+
+    //
+    // Indicates the status of a write operation.
+    //
+    enum _Status 
+    {
+        BROKEN_CONNECTION, // If the conntection is broken
+        OTHER_ERROR, // Any other error
+        SUCCESS
+    };
+
+    //
+    // Sends a text string to the Stand Alone PAM Process.
+    // @param text String to be sent
+    // @return the status of the write operation
+    //         
+    //
+    _Status _writeString(const String& text);
+
+    //
+    // Read a response string from the Stand Alone Process. 
+    // @return reply from the PAM process
+    // 
+    String _readString();
+
+    //
+    // Restarts PAM Stand Alone Process
+    //
+    void _restartProcess(void);
 };
 
 #endif /* if defined(PEGASUS_USE_PAM_STANDALONE_PROC) */
@@ -114,6 +158,12 @@ public:
         const String& userName, 
         const String& password);
 
+    /** Verify whether the user is valid.
+        @param userName String containing the user name
+        @return true on successful validation, false otherwise
+    */
+    Boolean validateUser( const String& userName);
+
     /** Construct and return the HTTP Basic authentication challenge header
         @return A string containing the authentication challenge header.
     */
@@ -123,7 +173,7 @@ public:
         @param num_msg int containing the message count
         @param msg pointer to a pam_message structure
         @param resp pointer to a pam_respone structure
-        @param appdata_prt application data pointer
+        @param appdata_ptr application data pointer
         @return PAM_SUCCESS on successful execution, a PAM error code otherwise
     */
     static Sint32 PAMCallback(
@@ -135,6 +185,27 @@ public:
         struct pam_message **msg,
 #endif
         struct pam_response **resp, 
+        void *appdata_ptr);
+
+   /**  PAM AcctMgmt Call back function, the pointer to this function
+        is passed to the PAM module.
+
+        @param num_msg int containing the message count
+        @param msg pointer to a pam_message structure
+        @param resp pointer to a pam_respone structure
+        @param appdata_ptr application data pointer
+
+        @return PAM_SUCCESS on successful execution, a PAM error code otherwise
+    */
+    static Sint32 pamValidateUserCallback(
+        Sint32 num_msg,
+#if defined (PEGASUS_OS_LINUX) 
+
+        const struct pam_message **msg,
+#else
+        struct pam_message **msg,
+#endif
+        struct pam_response **resp,
         void *appdata_ptr);
 
 private:

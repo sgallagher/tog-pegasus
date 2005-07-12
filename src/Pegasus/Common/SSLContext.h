@@ -88,6 +88,8 @@ public:
 private:
 
     SSLCallbackInfo();
+    SSLCallbackInfo(const SSLCallbackInfo& sslCallbackInfo);
+    SSLCallbackInfo& operator=(const SSLCallbackInfo& sslCallbackInfo);
 
     SSLCallbackInfoRep* _rep;
 
@@ -269,6 +271,7 @@ private:
         const Uint32 respCode);
 
     SSLCertificateInfo();
+    SSLCertificateInfo& operator=(const SSLCertificateInfo& sslCertificateInfo);
 
     SSLCertificateInfoRep* _rep;
 
@@ -429,6 +432,7 @@ public:
 private:
 
     SSLContext();
+    SSLContext& operator=(const SSLContext& sslContext);
 
     SSLContextRep* _rep;
 

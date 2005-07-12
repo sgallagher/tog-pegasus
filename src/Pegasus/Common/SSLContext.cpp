@@ -1546,7 +1546,6 @@ String SSLCertificateInfo::toString() const
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef PEGASUS_USE_DEPRECATED_INTERFACES
 SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert)
 {
     _rep = new SSLCallbackInfoRep();
@@ -1554,7 +1553,6 @@ SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert)
     _rep->crlStore = NULL;
     _rep->peerCertificate = NULL;  
 }
-#endif
 
 SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert, X509_STORE* crlStore)
 {

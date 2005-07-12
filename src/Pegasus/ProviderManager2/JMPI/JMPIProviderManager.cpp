@@ -66,6 +66,8 @@ int JMPIProviderManager::trace=0;
 #else
 #define DDD(x)
 #endif
+#define JMPI_LOCALONLY false
+#define JMPI_DEEPINHERITANCE true
 
 #include "Convert.h"
 
@@ -617,11 +619,12 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
+            // Modified for Bugzilla# 3679
             jobject jciRet = env->CallObjectMethod((jobject)pr.jProvider,
                                                    id,
                                                    jop,
                                                    jcimClass,
-                                                   true);
+                                                   JMPI_LOCALONLY);
 
             JMPIjvm::checkException(env);
 
@@ -839,12 +842,13 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
+            // Modified for Bugzilla# 3679
             jobject jVec = env->CallObjectMethod((jobject)pr.jProvider,
                                                  id,
                                                  jcop,
-                                                 false,
+                                                 JMPI_DEEPINHERITANCE,
                                                  jcc,
-                                                 true);
+                                                 JMPI_LOCALONLY);
 
             JMPIjvm::checkException(env);
 

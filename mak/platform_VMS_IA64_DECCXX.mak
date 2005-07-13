@@ -45,6 +45,7 @@ BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
 
+LFLAGS = /map=$(BIN_VMSDIRA)]$(PROGRAM)
 CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL/nowarn
 #CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/names=as_is
@@ -54,7 +55,7 @@ CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]
 CCFLAGS = /debug/noopt/nowarn/show=include/lis=$(OBJ_VMSDIRA)]
 #CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]/be_dump="-mGLOB_show_limit_info"
 
-LFLAGS = /debug/map=$(BIN_VMSDIRA)]$(PROGRAM)
+LFLAGS += /debug
 endif
 
 SYS_LIBS =+sys$share:sys$lib_c/lib

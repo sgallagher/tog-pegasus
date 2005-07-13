@@ -271,6 +271,41 @@ Boolean SubscriptionRepository::getActiveSubscriptions (
     return invalidInstance;
 }
 
+Array <CIMInstance> SubscriptionRepository::getAllSubscriptions () const
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "SubscriptionRepository::getAllSubscriptions");
+
+    Array <CIMNamespaceName> nameSpaceNames;
+    Array <CIMInstance> subscriptions;
+    Array <CIMInstance> allSubscriptions;
+
+    //
+    //  Get list of namespaces in repository
+    //
+    nameSpaceNames = _repository->enumerateNameSpaces ();
+
+    //
+    //  Get all subscriptions from each namespace in the repository
+    //
+    for (Uint32 i = 0; i < nameSpaceNames.size (); i++)
+    {
+        //
+        //  Get all subscriptions in current namespace
+        //
+        subscriptions = getSubscriptions (nameSpaceNames [i]);
+
+        //
+        //  Append subscriptions in current namespace to list of all
+        //  subscriptions
+        //
+        allSubscriptions.appendArray (subscriptions);
+    }
+
+    PEG_METHOD_EXIT ();
+    return allSubscriptions;
+}
+
 Array <CIMInstance> SubscriptionRepository::getSubscriptions (
     const CIMNamespaceName & nameSpace) const
 {
@@ -286,6 +321,21 @@ Array <CIMInstance> SubscriptionRepository::getSubscriptions (
     {
         subscriptions = _repository->enumerateInstances
             (nameSpace, PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+
+        //
+        //  Process each subscription
+        //
+        for (Uint32 i = 0; i < subscriptions.size (); i++)
+        {
+            //
+            //  CIMInstances returned from repository do not include
+            //  namespace
+            //  Set namespace here
+            //
+            CIMObjectPath instanceName = subscriptions [i].getPath ();
+            instanceName.setNameSpace (nameSpace);
+            subscriptions [i].setPath (instanceName);
+        }
     }
     catch (const CIMException& e)
     {
@@ -444,9 +494,9 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
     Array <CIMInstance> deletedSubscriptions;
 
     //
-    //  Get existing subscriptions in the namespace
+    //  Get all subscriptions in all namespaces
     //
-    subscriptions = getSubscriptions (nameSpace);
+    subscriptions = getAllSubscriptions ();
 
     //
     //  Check each subscription for a reference to the specified instance
@@ -462,45 +512,66 @@ Array <CIMInstance> SubscriptionRepository::deleteReferencingSubscriptions (
         propValue.get (ref);
 
         //
-        //  Remove Host and Namespace from reference property value, if
-        //  present, before comparing
+        //  If the Handler reference property value includes namespace, check
+        //  if it is the namespace of the Handler being deleted.
+        //  If the Handler reference property value does not include namespace,
+        //  check if the current subscription namespace is the namespace of the
+        //  Handler being deleted.
         //
-        CIMObjectPath href ("", CIMNamespaceName (),
-            ref.getClassName (), ref.getKeyBindings ());
-
-        //
-        //  If the current subscription references the specified instance,
-        //  delete it
-        //
-        if (handler == href)
+        CIMNamespaceName handlerNS = ref.getNameSpace ();
+        if (((handlerNS.isNull ()) &&
+            (subscriptions[i].getPath ().getNameSpace () == nameSpace))
+            || (handlerNS == nameSpace))
         {
             //
-            //  Delete referencing subscription instance from repository
+            //  Remove Host and Namespace from reference property value, if
+            //  present, before comparing
             //
-            try
-            {
-                //
-                //  Namespace and host must not be set in path passed to
-                //  repository
-                //
-                CIMObjectPath path ("", CIMNamespaceName (),
-                    subscriptions [i].getPath ().getClassName (),
-                    subscriptions [i].getPath ().getKeyBindings ());
-                _repository->deleteInstance (nameSpace, path);
-            }
-            catch (Exception & exception)
-            {
-                //
-                //  Deletion of referencing subscription failed
-                //
-                PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
-                    Tracer::LEVEL2,
-                    "Exception caught in deleting referencing subscription (" +
-                    subscriptions [i].getPath ().toString () + "): " +
-                    exception.getMessage ());
-            }
+            CIMObjectPath href ("", CIMNamespaceName (),
+                ref.getClassName (), ref.getKeyBindings ());
 
-            deletedSubscriptions.append (subscriptions [i]);
+            //
+            //  Remove Host and Namespace from reference of handler instance to
+            //  be deleted, if present, before comparing
+            //
+            CIMObjectPath iref ("", CIMNamespaceName (),
+                handler.getClassName (), handler.getKeyBindings ());
+
+            //
+            //  If the current subscription references the specified instance,
+            //  delete it
+            //
+            if (iref == href)
+            {
+                //
+                //  Delete referencing subscription instance from repository
+                //
+                try
+                {
+                    //
+                    //  Namespace and host must not be set in path passed to
+                    //  repository
+                    //
+                    CIMObjectPath path ("", CIMNamespaceName (),
+                        subscriptions [i].getPath ().getClassName (),
+                        subscriptions [i].getPath ().getKeyBindings ());
+                    _repository->deleteInstance
+                        (subscriptions [i].getPath ().getNameSpace (), path);
+                }
+                catch (Exception & exception)
+                {
+                    //
+                    //  Deletion of referencing subscription failed
+                    //
+                    PEG_TRACE_STRING (TRC_INDICATION_SERVICE_INTERNAL,
+                        Tracer::LEVEL2,
+                        "Exception caught deleting referencing subscription (" +
+                        subscriptions [i].getPath ().toString () + "): " +
+                        exception.getMessage ());
+                }
+ 
+                deletedSubscriptions.append (subscriptions [i]);
+            }
         }
     }
 
@@ -517,6 +588,7 @@ CIMInstance SubscriptionRepository::getHandler (
     CIMValue handlerValue;
     CIMObjectPath handlerRef;
     CIMInstance handlerInstance;
+    CIMNamespaceName nameSpaceName;
 
     //
     //  Get Handler reference from subscription instance
@@ -527,13 +599,23 @@ CIMInstance SubscriptionRepository::getHandler (
     handlerValue.get (handlerRef);
 
     //
+    //  Get handler namespace - if not set in Handler reference property value,
+    //  namespace is the namespace of the subscription
+    //
+    nameSpaceName = handlerRef.getNameSpace ();
+    if (nameSpaceName.isNull ())
+    {
+        nameSpaceName = subscription.getPath ().getNameSpace ();
+    }
+
+    //
     //  Get Handler instance from the repository
     //
     try
     {
         handlerInstance = _repository->getInstance
-            (subscription.getPath ().getNameSpace (), handlerRef,
-             false, false, false, CIMPropertyList ());
+            (nameSpaceName, handlerRef, false, false, false,
+            CIMPropertyList ());
     }
     catch (const Exception & exception)
     {
@@ -548,7 +630,7 @@ CIMInstance SubscriptionRepository::getHandler (
     //
     //  Set namespace in path in CIMInstance
     //
-    handlerRef.setNameSpace (subscription.getPath ().getNameSpace ());
+    handlerRef.setNameSpace (nameSpaceName);
     handlerInstance.setPath (handlerRef);
 
     PEG_METHOD_EXIT ();
@@ -602,7 +684,6 @@ Boolean SubscriptionRepository::isTransient (
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
-    const CIMNamespaceName & nameSpaceName,
     String & query,
     CIMNamespaceName & sourceNameSpace,
     String & queryLanguage)
@@ -613,11 +694,22 @@ void SubscriptionRepository::getFilterProperties (
     CIMValue filterValue;
     CIMObjectPath filterReference;
     CIMInstance filterInstance;
+    CIMNamespaceName nameSpaceName;
 
     filterValue = subscription.getProperty (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
 
     filterValue.get (filterReference);
+
+    //
+    //  Get filter namespace - if not set in Filter reference property value,
+    //  namespace is the namespace of the subscription
+    //
+    nameSpaceName = filterReference.getNameSpace ();
+    if (nameSpaceName.isNull ())
+    {
+        nameSpaceName = subscription.getPath ().getNameSpace ();
+    }
 
     try
     {
@@ -649,7 +741,6 @@ void SubscriptionRepository::getFilterProperties (
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
-    const CIMNamespaceName & nameSpaceName,
     String & query,
     CIMNamespaceName & sourceNameSpace)
 {
@@ -659,11 +750,22 @@ void SubscriptionRepository::getFilterProperties (
     CIMValue filterValue;
     CIMObjectPath filterReference;
     CIMInstance filterInstance;
+    CIMNamespaceName nameSpaceName;
 
     filterValue = subscription.getProperty (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
 
     filterValue.get (filterReference);
+
+    //
+    //  Get filter namespace - if not set in Filter reference property value,
+    //  namespace is the namespace of the subscription
+    //
+    nameSpaceName = filterReference.getNameSpace ();
+    if (nameSpaceName.isNull ())
+    {
+        nameSpaceName = subscription.getPath ().getNameSpace ();
+    }
 
     try
     {
@@ -691,7 +793,6 @@ void SubscriptionRepository::getFilterProperties (
 
 void SubscriptionRepository::getFilterProperties (
     const CIMInstance & subscription,
-    const CIMNamespaceName & nameSpaceName,
     String & query)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -700,11 +801,22 @@ void SubscriptionRepository::getFilterProperties (
     CIMValue filterValue;
     CIMObjectPath filterReference;
     CIMInstance filterInstance;
+    CIMNamespaceName nameSpaceName;
 
     filterValue = subscription.getProperty (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
 
     filterValue.get (filterReference);
+
+    //
+    //  Get filter namespace - if not set in Filter reference property value,
+    //  namespace is the namespace of the subscription
+    //
+    nameSpaceName = filterReference.getNameSpace ();
+    if (nameSpaceName.isNull ())
+    {
+        nameSpaceName = subscription.getPath ().getNameSpace ();
+    }
 
     try
     {

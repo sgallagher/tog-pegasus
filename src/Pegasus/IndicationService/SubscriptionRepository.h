@@ -27,10 +27,10 @@
 //
 //==============================================================================
 //
-// Author: Carol Ann Krug Graves, Hewlett-Packard Company 
+// Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By:  
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +54,7 @@ PEGASUS_NAMESPACE_BEGIN
 /**
 
     The SubscriptionRepository class manages Subscription, Filter, and
-    Handler instances in the Repository.  
+    Handler instances in the Repository.
 
     @author  Hewlett-Packard Company
 
@@ -76,7 +76,7 @@ public:
     ~SubscriptionRepository (void);
 
     /**
-        Adds a Filter, Handler or Subscription instance in the repository.  
+        Adds a Filter, Handler or Subscription instance in the repository.
         Adds or sets properties as necessary.
 
         @param   instance              instance to be added
@@ -84,7 +84,7 @@ public:
         @param   userName              user issuing request
         @param   acceptLanguages       acceptLanguages of request
         @param   contentLanguages      contentLanguages of request
-        @param   enabled               indicates instance is a subscription 
+        @param   enabled               indicates instance is a subscription
                                          instance and is enabled
 
         @return  the CIMObjectPath for the instance
@@ -99,7 +99,7 @@ public:
 
     /**
         Retrieves list of enabled subscription instances in all namespaces from
-        the repository.  If an invalid instance is found, it is skipped, and 
+        the repository.  If an invalid instance is found, it is skipped, and
         processing of remaining valid subscriptions continues.
 
         @param   activeSubscriptions  the returned subscription instances
@@ -109,6 +109,14 @@ public:
      */
     Boolean getActiveSubscriptions (
         Array <CIMInstance> & activeSubscriptions) const;
+
+    /**
+        Retrieves list of all subscription instances (including inactive
+        disabled subscriptions) in all namespaces from the repository.
+
+        @return  List of all subscriptions
+     */
+    Array <CIMInstance> getAllSubscriptions () const;
 
     /**
         Retrieves list of subscriptions in the specified namespace.
@@ -139,10 +147,10 @@ public:
         Uint16 & state) const;
 
     /**
-        Deletes the specified subscription.  
+        Deletes the specified subscription.
 
-        Note: If the specified subscription cannot be successfully retrieved, 
-        it may have already been deleted by another thread.  In that case, an 
+        Note: If the specified subscription cannot be successfully retrieved,
+        it may have already been deleted by another thread.  In that case, an
         uninitialized CIMInstance is returned.
 
         @param   subscription          the subscription object path
@@ -153,9 +161,11 @@ public:
         CIMObjectPath & subscription);
 
     /**
-        Deletes subscriptions referencing the specified handler.
+        Deletes subscriptions referencing the specified handler.  All namespaces
+        are searched for subscriptions that reference the handler to be deleted.
 
-        @param   nameSpace             the name space
+        @param   nameSpace             the name space of the handler being
+                                           deleted
         @param   referenceProperty     the name of the reference property in the
                                            subscription instance
         @param   handler               the handler reference
@@ -196,7 +206,6 @@ public:
         and query language properties for the specified subscription instance.
 
         @param   subscription      Input subscription instance
-        @param   nameSpaceName     Input namespace name
         @param   query             Output query for the filter
         @param   sourceNameSpace   Output source namespace for the filter
                                        subscription
@@ -205,7 +214,6 @@ public:
      */
     void getFilterProperties (
         const CIMInstance & subscription,
-        const CIMNamespaceName & nameSpaceName,
         String & query,
         CIMNamespaceName & sourceNameSpace,
         String & queryLanguage);
@@ -215,32 +223,28 @@ public:
         properties for the specified subscription instance.
 
         @param   subscription      Input subscription instance
-        @param   nameSpaceName     Input namespace name
         @param   query             Output query for the filter
         @param   sourceNameSpace   Output source namespace for the filter
                                        subscription
      */
     void getFilterProperties (
         const CIMInstance & subscription,
-        const CIMNamespaceName & nameSpaceName,
         String & query,
         CIMNamespaceName & sourceNameSpace);
 
     /**
-        Retrieves the value of the filter query property 
+        Retrieves the value of the filter query property
         for the specified subscription instance.
 
         @param   subscription      Input subscription instance
-        @param   nameSpaceName     Input namespace name
         @param   query             Output query for the filter
      */
     void getFilterProperties (
         const CIMInstance & subscription,
-        const CIMNamespaceName & nameSpaceName,
         String & query);
 
     /**
-        Validates that the specified class is a subclass of the Indication 
+        Validates that the specified class is a subclass of the Indication
         class.
 
         @param   indicationClassName   the class name to be validated
@@ -271,7 +275,7 @@ public:
         longer be served.
         If the subscription's policy is Disable, the Subscription State is
         set to Disabled.
-        If the subscription's policy is Remove, the subscription instance is 
+        If the subscription's policy is Remove, the subscription instance is
         deleted.
 
         @param   subscription          the subscription instance

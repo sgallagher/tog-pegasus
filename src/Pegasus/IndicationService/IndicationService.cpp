@@ -489,7 +489,7 @@ void IndicationService::_initialize (void)
             {
                CIMObjectPath path = activeSubscriptions [i].getPath ();
                 _deleteExpiredSubscription (path);
-               //If subscription is expired delete the subscription
+               // If subscription is expired delete the subscription
                // and continue on to the next one.
                continue;
             }
@@ -508,10 +508,9 @@ void IndicationService::_initialize (void)
 
         CIMNamespaceName sourceNameSpace;
         Array <CIMName> indicationSubclasses;
-        _getCreateParams
-            (activeSubscriptions [i].getPath ().getNameSpace (),
-            activeSubscriptions [i], indicationSubclasses, indicationProviders,
-            propertyList, sourceNameSpace, condition, query, queryLanguage);
+        _getCreateParams (activeSubscriptions [i], indicationSubclasses,
+            indicationProviders, propertyList, sourceNameSpace, condition,
+            query, queryLanguage);
 
         if (indicationProviders.size () == 0)
         {
@@ -640,7 +639,8 @@ void IndicationService::_initialize (void)
                 //
                 Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                     Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
-                    logString);
+                    logString,
+                    activeSubscriptions[i].getPath().getNameSpace().getString());
             }
         }
         else
@@ -698,7 +698,8 @@ void IndicationService::_initialize (void)
 
             Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING, _MSG_NO_PROVIDER_KEY, _MSG_NO_PROVIDER,
-                logString);
+                logString,
+                noProviderSubscriptions[i].getPath().getNameSpace().getString());
         }
     }
 
@@ -874,10 +875,9 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
                 if ((subscriptionState == _STATE_ENABLED) ||
                     (subscriptionState == _STATE_ENABLEDDEGRADED))
                 {
-                    _getCreateParams (request->nameSpace, instance,
-                        indicationSubclasses, indicationProviders,
-                        requiredProperties, sourceNameSpace, condition,
-                        query, queryLanguage);
+                    _getCreateParams (instance, indicationSubclasses,
+                        indicationProviders, requiredProperties,
+                        sourceNameSpace, condition, query, queryLanguage);
 
                     if (indicationProviders.size () == 0)
                     {
@@ -1340,6 +1340,12 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
         if (_canModify (request, instanceReference, instance, modifiedInstance))
         {
             //
+            //  Set path in instance
+            //
+            instanceReference.setNameSpace (request->nameSpace);
+            instance.setPath (instanceReference);
+
+            //
             //  Check for expired subscription
             //
             try
@@ -1349,7 +1355,6 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                   //
                   //  Delete the subscription instance
                   //
-                  instanceReference.setNameSpace (request->nameSpace);
                   _deleteExpiredSubscription (instanceReference);
 
                   PEG_METHOD_EXIT ();
@@ -1546,10 +1551,9 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     //  Subscription was previously not enabled but is now to
                     //  be enabled
                     //
-                    _getCreateParams (request->nameSpace, instance,
-                        indicationSubclasses, indicationProviders,
-                        requiredProperties, sourceNameSpace, condition,
-                        query, queryLanguage);
+                    _getCreateParams (instance, indicationSubclasses,
+                        indicationProviders, requiredProperties,
+                        sourceNameSpace, condition, query, queryLanguage);
 
                     if (indicationProviders.size () == 0)
                     {
@@ -1646,8 +1650,8 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     Array <ProviderClassList> indicationProviders;
                     instanceReference.setNameSpace (request->nameSpace);
                     instance.setPath (instanceReference);
-                    indicationProviders = _getDeleteParams (request->nameSpace,
-                        instance, indicationSubclasses, sourceNameSpace);
+                    indicationProviders = _getDeleteParams (instance,
+                        indicationSubclasses, sourceNameSpace);
 
                     //
                     //  Send Delete requests
@@ -1775,8 +1779,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
 
             if (request->instanceName.getClassName ().equal
                 (PEGASUS_CLASSNAME_INDSUBSCRIPTION) ||
-        request->instanceName.getClassName ().equal
-        (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+                request->instanceName.getClassName ().equal
+                (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
             {
                 //
                 //  If subscription is active, send delete requests to providers
@@ -1800,8 +1804,8 @@ void IndicationService::_handleDeleteInstanceRequest (const Message* message)
                     subscriptionInstance.setPath (instanceReference);
 
                     indicationProviders = _getDeleteParams
-                        (request->nameSpace, subscriptionInstance,
-                        indicationSubclasses, sourceNamespaceName);
+                        (subscriptionInstance, indicationSubclasses,
+                        sourceNamespaceName);
 
                     if (indicationProviders.size () > 0)
                     {
@@ -2049,7 +2053,6 @@ void IndicationService::_handleProcessIndicationRequest (const Message* message)
             CIMNamespaceName sourceNamespace;
             _subscriptionRepository->getFilterProperties (
                 matchedSubscriptions[i],
-                matchedSubscriptions[i].getPath ().getNameSpace (),
                 filterQuery,
                 sourceNamespace,
                 queryLanguage);
@@ -2363,9 +2366,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         {
             CIMNamespaceName sourceNameSpace;
             Array <CIMName> indicationSubclasses;
-            _getCreateParams
-                (newSubscriptions [i].getPath ().getNameSpace (),
-                newSubscriptions [i], indicationSubclasses,
+            _getCreateParams (newSubscriptions [i], indicationSubclasses,
                 requiredProperties, sourceNameSpace, condition,
                 query, queryLanguage);
 
@@ -2489,7 +2490,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 
             Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING, _MSG_PROVIDER_NOW_SERVING_KEY,
-                _MSG_PROVIDER_NOW_SERVING, logString1, logString2);
+                _MSG_PROVIDER_NOW_SERVING, logString1, logString2,
+                newSubscriptions [j].getPath ().getNameSpace ().getString ());
         }
     }
 
@@ -2552,11 +2554,9 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 {
                     CIMNamespaceName sourceNameSpace;
                     Array <CIMName> indicationSubclasses;
-                    _getCreateParams
-                        (formerSubscriptions [i].getPath ().getNameSpace (),
-                        formerSubscriptions [i], indicationSubclasses,
-                        requiredProperties, sourceNameSpace, condition,
-                        query, queryLanguage);
+                    _getCreateParams (formerSubscriptions [i],
+                        indicationSubclasses, requiredProperties,
+                        sourceNameSpace, condition, query, queryLanguage);
 
                     //
                     //  If class list contains only the class name from the
@@ -2672,7 +2672,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
 
             Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
-                _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2);
+                _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2,
+                formerSubscriptions[j].getPath().getNameSpace().getString());
         }
     }
 
@@ -2759,7 +2760,8 @@ void IndicationService::_handleNotifyProviderTerminationRequest
 
                 Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                     Logger::WARNING, _MSG_PROVIDER_NO_LONGER_SERVING_KEY,
-                    _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2);
+                    _MSG_PROVIDER_NO_LONGER_SERVING, logString1, logString2,
+                    providerSubscriptions[j].getPath().getNameSpace().getString());
             }
         }
     }
@@ -2924,10 +2926,9 @@ void IndicationService::_handleNotifyProviderEnableRequest
             CIMNamespaceName sourceNameSpace;
             Array <CIMName> indicationSubclasses;
             CIMInstance instance = subscriptions [s];
-            _getCreateParams
-                (instance.getPath ().getNameSpace (), instance,
-                 indicationSubclasses, requiredProperties, sourceNameSpace,
-                 condition, query, queryLanguage);
+            _getCreateParams (instance, indicationSubclasses,
+                requiredProperties, sourceNameSpace, condition, query,
+                queryLanguage);
 
             //
             //  NOTE: These Create requests are not associated with a
@@ -3036,8 +3037,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
                         Logger::put_l (Logger::STANDARD_LOG,
                             System::CIMSERVER, Logger::WARNING,
                             _MSG_PROVIDER_NOW_SERVING_KEY,
-                            _MSG_PROVIDER_NOW_SERVING, logString1,
-                            logString2);
+                            _MSG_PROVIDER_NOW_SERVING, logString1, logString2,
+                            subscriptions[s].getPath().getNameSpace().getString());
                     }
                 }
             }  //  if any provider accepted the create subscription request
@@ -3098,8 +3099,19 @@ Boolean IndicationService::_canCreate (
         CIMValue filterValue = filterProperty.getValue ();
         CIMObjectPath filterPath;
         filterValue.get (filterPath);
+
+        //
+        //  Get Filter namespace - if not set in Filter reference property
+        //  value, namespace is the namespace of the subscription
+        //
+        CIMNamespaceName filterNS = filterPath.getNameSpace ();
+        if (filterNS.isNull ())
+        {
+            filterNS = nameSpace;
+        }
+
         CIMInstance filterInstance =
-            _subscriptionRepository->getInstance (nameSpace, filterPath,
+            _subscriptionRepository->getInstance (filterNS, filterPath,
             true, false, false, CIMPropertyList ());
 
         CIMProperty handlerProperty = instance.getProperty
@@ -3107,15 +3119,26 @@ Boolean IndicationService::_canCreate (
         CIMValue handlerValue = handlerProperty.getValue ();
         CIMObjectPath handlerPath;
         handlerValue.get (handlerPath);
+
+        //
+        //  Get Handler namespace - if not set in Handler reference property
+        //  value, namespace is the namespace of the subscription
+        //
+        CIMNamespaceName handlerNS = handlerPath.getNameSpace ();
+        if (handlerNS.isNull ())
+        {
+            handlerNS = nameSpace;
+        }
+
         CIMInstance handlerInstance =
-            _subscriptionRepository->getInstance (nameSpace, handlerPath,
+            _subscriptionRepository->getInstance (handlerNS, handlerPath,
             true, false, false, CIMPropertyList ());
 
         //
         //  Currently, the Indication Service requires that a Subscription
         //  instance and the Filter and Handler instances to which it refers
-        //  all be created in the same Namespace and on the same Host.
-        //  Developers are recommended NOT to include Host or Namespace in the
+        //  all be created on the same Host.
+        //  Developers are recommended NOT to include Host in the
         //  Filter or Handler reference property values.
         //
 
@@ -3149,7 +3172,7 @@ Boolean IndicationService::_canCreate (
                 PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
                     MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                    exceptionStr, 
+                    exceptionStr,
                     origFilterPath.toString(), _PROPERTY_FILTER.getString()));
             }
         }
@@ -3178,52 +3201,7 @@ Boolean IndicationService::_canCreate (
                 PEG_METHOD_EXIT ();
                 throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
                     MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                    exceptionStr, 
-                    origHandlerPath.toString(), _PROPERTY_HANDLER.getString()));
-            }
-        }
-
-        //
-        //  If Namespace is included in a Filter or Handler reference property
-        //  value, validate that it is correct.
-        //  If incorrect, reject the create operation.
-        //
-        if (!(filterPath.getNameSpace ().isNull ()))
-        {
-            if (!filterPath.getNameSpace ().equal (nameSpace))
-            {
-                //
-                //  Reject subscription creation
-                //
-                String exceptionStr = _MSG_INVALID_VALUE;
-                exceptionStr.append ("$0");
-                exceptionStr.append (_MSG_FOR_PROPERTY);
-                exceptionStr.append ("$1");
-
-                PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                    exceptionStr, 
-                    origFilterPath.toString(), _PROPERTY_FILTER.getString()));
-            }
-        }
-
-        if (!(handlerPath.getNameSpace ().isNull ()))
-        {
-            if (!handlerPath.getNameSpace ().equal (nameSpace))
-            {
-                //
-                //  Reject subscription creation
-                //
-                String exceptionStr = _MSG_INVALID_VALUE;
-                exceptionStr.append ("$0");
-                exceptionStr.append (_MSG_FOR_PROPERTY);
-                exceptionStr.append ("$1");
-
-                PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
-                    MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
-                    exceptionStr, 
+                    exceptionStr,
                     origHandlerPath.toString(), _PROPERTY_HANDLER.getString()));
             }
         }
@@ -3276,30 +3254,30 @@ Boolean IndicationService::_canCreate (
         _checkProperty (instance, _PROPERTY_REPEATNOTIFICATIONCOUNT,
             CIMTYPE_UINT16);
 
-    if (instance.getClassName ().equal (
-        PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
-    {
-        Array<String> textFormatParams;
-        CIMValue textFormatParamsValue;
-        CIMClass indicationClass;
+        if (instance.getClassName ().equal (
+            PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+        {
+            Array<String> textFormatParams;
+            CIMValue textFormatParamsValue;
+            CIMClass indicationClass;
 
-        // get TextFormatParameters from instance
-        Uint32 textFormatParamsPos =
-        instance.findProperty(_PROPERTY_TEXTFORMATPARAMETERS);
+            // get TextFormatParameters from instance
+            Uint32 textFormatParamsPos =
+            instance.findProperty(_PROPERTY_TEXTFORMATPARAMETERS);
 
             if (textFormatParamsPos != PEG_NOT_FOUND)
-        {
-        textFormatParamsValue = instance.getProperty(
-            textFormatParamsPos).getValue();
+            {
+                textFormatParamsValue = instance.getProperty(
+                    textFormatParamsPos).getValue();
 
                 if (!textFormatParamsValue.isNull())
-        {
-            textFormatParamsValue.get(textFormatParams);
-        }
-        }
+                {
+                    textFormatParamsValue.get(textFormatParams);
+                }
+            }
 
-        // get indication class
-        indicationClass = _getIndicationClass (instance);
+            // get indication class
+            indicationClass = _getIndicationClass (instance);
 
             String textFormatStr;
             CIMValue textFormatValue;
@@ -3311,47 +3289,46 @@ Boolean IndicationService::_canCreate (
             if (textFormatPos != PEG_NOT_FOUND)
             {
                 textFormatValue = instance.getProperty(
-            textFormatPos).getValue();
+                    textFormatPos).getValue();
 
 #if defined(PEGASUS_ENABLE_SYSTEM_LOG_HANDLER) || \
     defined(PEGASUS_ENABLE_EMAIL_HANDLER)
-            // if the value of textFormat is not null
+                // if the value of textFormat is not null
                 if (!(textFormatValue.isNull()) &&
-                (textFormatValue.getType() == CIMTYPE_STRING) &&
-                !(textFormatValue.isArray()))
-            {
-                textFormatValue.get(textFormatStr);
+                    (textFormatValue.getType() == CIMTYPE_STRING) &&
+                    !(textFormatValue.isArray()))
+                {
+                    textFormatValue.get(textFormatStr);
 
-                // Validates the syntax and the provided type for the
-                // property TextFormat
-                IndicationFormatter::validateTextFormat (
-                textFormatStr, indicationClass,
-                textFormatParams);
+                    // Validates the syntax and the provided type for the
+                    // property TextFormat
+                    IndicationFormatter::validateTextFormat (
+                        textFormatStr, indicationClass,
+                        textFormatParams);
 
-                // Validates the property names in TextFormatParameters
-                CIMNamespaceName sourceNameSpace;
+                    // Validates the property names in TextFormatParameters
+                    CIMNamespaceName sourceNameSpace;
                     String query;
-                String queryLanguage;
-                CIMPropertyList propertyList;
+                    String queryLanguage;
+                    CIMPropertyList propertyList;
 
-                //  Get filter properties
-                _subscriptionRepository->getFilterProperties (instance,
-                instance.getPath().getNameSpace(), query,
-                sourceNameSpace, queryLanguage);
+                    //  Get filter properties
+                    _subscriptionRepository->getFilterProperties (instance,
+                        query, sourceNameSpace, queryLanguage);
 
                     //  Build the query expression from the filter query
-                QueryExpression queryExpression = _getQueryExpression(query,
-                queryLanguage, sourceNameSpace);
+                    QueryExpression queryExpression = _getQueryExpression(query,
+                        queryLanguage, sourceNameSpace);
 
-                 // the select clause projection
-                 propertyList = queryExpression.getPropertyList();
+                    // the select clause projection
+                    propertyList = queryExpression.getPropertyList();
 
-                IndicationFormatter::validateTextFormatParameters(
-                propertyList, indicationClass, textFormatParams);
-        }
+                    IndicationFormatter::validateTextFormatParameters(
+                    propertyList, indicationClass, textFormatParams);
+                }
 #endif
             }
-    }
+        }
     }
     else  // Filter or Handler
     {
@@ -4398,10 +4375,10 @@ Boolean IndicationService::_canDelete (
         }
 
         //
-        //  Get all the subscriptions in the same namespace from the repository
+        //  Get all the subscriptions from the repository
         //
         Array <CIMInstance> subscriptions =
-            _subscriptionRepository->getSubscriptions (nameSpace);
+            _subscriptionRepository->getAllSubscriptions ();
 
         CIMValue propValue;
 
@@ -4422,21 +4399,45 @@ Boolean IndicationService::_canDelete (
             propValue.get (ref);
 
             //
-            //  Remove Host and Namespace from reference property value, if 
-            //  present, before comparing
+            //  If the Filter or Handler reference property value includes
+            //  namespace, check if it is the namespace of the Filter or Handler
+            //  being deleted.
+            //  If the Filter or Handler reference property value does not
+            //  include namespace, check if the current subscription namespace
+            //  is the namespace of the Filter or Handler being deleted.
             //
-            CIMObjectPath path ("", CIMNamespaceName (),
-                ref.getClassName (), ref.getKeyBindings ());
-
-            //
-            //  If the current subscription Filter or Handler is the instance
-            //  to be deleted, it may not be deleted
-            //
-            if (instanceReference == path)
+            CIMNamespaceName instanceNS = ref.getNameSpace ();
+            if (((instanceNS.isNull ()) && 
+                (subscriptions[i].getPath ().getNameSpace () == nameSpace)) 
+                || (instanceNS == nameSpace))
             {
-                PEG_METHOD_EXIT ();
-                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
-                    MessageLoaderParms(_MSG_REFERENCED_KEY, _MSG_REFERENCED));
+
+                //
+                //  Remove Host and Namespace from reference property value, if
+                //  present, before comparing
+                //
+                CIMObjectPath path ("", CIMNamespaceName (),
+                    ref.getClassName (), ref.getKeyBindings ());
+
+                //
+                //  Remove Host and Namespace from reference of instance to be
+                //  deleted, if present, before comparing
+                //
+                CIMObjectPath iref ("", CIMNamespaceName (),
+                    instanceReference.getClassName (),
+                    instanceReference.getKeyBindings ());
+
+                //
+                //  If the current subscription Filter or Handler is the
+                //  instance to be deleted, it may not be deleted
+                //
+                if (iref == path)
+                {
+                    PEG_METHOD_EXIT ();
+                    throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                        MessageLoaderParms
+                            (_MSG_REFERENCED_KEY, _MSG_REFERENCED));
+                }
             }
         }
     }
@@ -4481,9 +4482,7 @@ Array <CIMInstance> IndicationService::_getMatchingSubscriptions (
             //  Get filter properties
             //
             _subscriptionRepository->getFilterProperties
-                (subscriptions [i],
-                subscriptions [i].getPath ().getNameSpace (),
-                filterQuery, sourceNameSpace,
+                (subscriptions [i], filterQuery, sourceNameSpace,
                  queryLanguage);
 
             QueryExpression queryExpr = _getQueryExpression(filterQuery,
@@ -4637,8 +4636,7 @@ void IndicationService::_getModifiedSubscriptions (
         //
         //  Get filter properties
         //
-        _subscriptionRepository->getFilterProperties (newList [n],
-            newList [n].getPath ().getNameSpace (), filterQuery,
+        _subscriptionRepository->getFilterProperties (newList [n], filterQuery,
             sourceNameSpace, queryLanguage);
         QueryExpression queryExpression = _getQueryExpression(filterQuery,
                                                               queryLanguage,
@@ -4698,8 +4696,7 @@ void IndicationService::_getModifiedSubscriptions (
         //
         //  Get filter properties
         //
-        _subscriptionRepository->getFilterProperties (bothList [b],
-            bothList [b].getPath ().getNameSpace (), filterQuery,
+        _subscriptionRepository->getFilterProperties (bothList [b], filterQuery,
             sourceNameSpace, queryLanguage);
         QueryExpression queryExpression = _getQueryExpression(filterQuery,
                                                               queryLanguage,
@@ -5140,13 +5137,8 @@ void IndicationService::_deleteReferencingSubscriptions (
         Array <CIMName> indicationSubclasses;
         CIMNamespaceName sourceNamespaceName;
 
-        CIMObjectPath path = deletedSubscriptions [i].getPath ();
-        path.setNameSpace (nameSpace);
-        deletedSubscriptions [i].setPath (path);
-
-        indicationProviders = _getDeleteParams (nameSpace,
-            deletedSubscriptions [i], indicationSubclasses,
-            sourceNamespaceName);
+        indicationProviders = _getDeleteParams (deletedSubscriptions [i],
+            indicationSubclasses, sourceNamespaceName);
 
         //
         //  Send Delete requests
@@ -5177,10 +5169,6 @@ void IndicationService::_deleteReferencingSubscriptions (
         }
 // l10n end
 
-        CIMObjectPath instanceName =
-            deletedSubscriptions [i].getPath ();
-        instanceName.setNameSpace (nameSpace);
-        deletedSubscriptions [i].setPath (instanceName);
 // l10n
         _sendAsyncDeleteRequests (indicationProviders, sourceNamespaceName,
             deletedSubscriptions [i],
@@ -5264,8 +5252,7 @@ void IndicationService::_deleteExpiredSubscription (
 
             subscriptionInstance.setPath (subscription);
 
-            indicationProviders = _getDeleteParams
-                (subscription.getNameSpace (), subscriptionInstance,
+            indicationProviders = _getDeleteParams (subscriptionInstance,
                 indicationSubclasses, sourceNamespaceName);
 
             //
@@ -5460,7 +5447,6 @@ void IndicationService::_setTimeRemaining (
 }
 
 void IndicationService::_getCreateParams (
-    const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance,
     Array <CIMName> & indicationSubclasses,
     Array <ProviderClassList> & indicationProviders,
@@ -5481,8 +5467,8 @@ void IndicationService::_getCreateParams (
     //
     //  Get filter properties
     //
-    _subscriptionRepository->getFilterProperties (subscriptionInstance,
-        nameSpaceName, query, sourceNameSpace, queryLanguage);
+    _subscriptionRepository->getFilterProperties (subscriptionInstance, query,
+        sourceNameSpace, queryLanguage);
 
     //
     //  Build the query expression from the filter query
@@ -5522,7 +5508,6 @@ void IndicationService::_getCreateParams (
 }
 
 void IndicationService::_getCreateParams (
-    const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance,
     Array <CIMName> & indicationSubclasses,
     CIMPropertyList & propertyList,
@@ -5541,8 +5526,8 @@ void IndicationService::_getCreateParams (
     //
     //  Get filter properties
     //
-    _subscriptionRepository->getFilterProperties (subscriptionInstance,
-        nameSpaceName, query, sourceNameSpace, queryLanguage);
+    _subscriptionRepository->getFilterProperties (subscriptionInstance, query,
+        sourceNameSpace, queryLanguage);
     QueryExpression queryExpression = _getQueryExpression(query,
                                                          queryLanguage,
                                                          sourceNameSpace);
@@ -5573,7 +5558,6 @@ void IndicationService::_getCreateParams (
 }
 
 Array <ProviderClassList> IndicationService::_getDeleteParams (
-    const CIMNamespaceName & nameSpaceName,
     const CIMInstance & subscriptionInstance,
     Array <CIMName> & indicationSubclasses,
     CIMNamespaceName & sourceNameSpace)
@@ -5590,7 +5574,7 @@ Array <ProviderClassList> IndicationService::_getDeleteParams (
     //  Get filter properties
     //
     _subscriptionRepository->getFilterProperties (subscriptionInstance,
-        nameSpaceName, filterQuery, sourceNameSpace, queryLanguage);
+        filterQuery, sourceNameSpace, queryLanguage);
     QueryExpression queryExpression = _getQueryExpression(filterQuery,
                                                          queryLanguage,
                                                          sourceNameSpace);
@@ -6933,18 +6917,33 @@ String IndicationService::_getSubscriptionLogString
     (CIMInstance & subscription)
 {
     //
-    //  Get Subscription Filter Name and Handler Name
+    //  Get Subscription Filter namespace and Name, and Handler namespace and
+    //  Name
     //
     String logString;
     CIMValue filterValue;
     CIMObjectPath filterPath;
+    CIMNamespaceName filterNS;
     Array <CIMKeyBinding> filterKeyBindings;
     CIMValue handlerValue;
     CIMObjectPath handlerPath;
+    CIMNamespaceName handlerNS;
     Array <CIMKeyBinding> handlerKeyBindings;
     filterValue = subscription.getProperty (subscription.findProperty
         (_PROPERTY_FILTER)).getValue ();
     filterValue.get (filterPath);
+
+    //
+    //  Get Filter namespace - if not set in Filter reference property
+    //  value, namespace is the namespace of the subscription
+    //
+    filterNS = filterPath.getNameSpace ();
+    if (filterNS.isNull ())
+    {
+        filterNS = subscription.getPath ().getNameSpace ();
+    }
+    logString.append (filterNS.getString ());
+    logString.append (" ");
     filterKeyBindings = filterPath.getKeyBindings ();
     for (Uint32 i = 0; i < filterKeyBindings.size (); i++)
     {
@@ -6959,6 +6958,18 @@ String IndicationService::_getSubscriptionLogString
         (subscription.findProperty
         (_PROPERTY_HANDLER)).getValue ();
     handlerValue.get (handlerPath);
+
+    //
+    //  Get Handler namespace - if not set in Handler reference property
+    //  value, namespace is the namespace of the subscription
+    //
+    handlerNS = handlerPath.getNameSpace ();
+    if (handlerNS.isNull ())
+    {
+        handlerNS = subscription.getPath ().getNameSpace ();
+    }
+    logString.append (handlerNS.getString ());
+    logString.append (" ");
     handlerKeyBindings = handlerPath.getKeyBindings ();
     for (Uint32 j = 0; j < handlerKeyBindings.size (); j++)
     {
@@ -6996,9 +7007,8 @@ CIMClass IndicationService::_getIndicationClass (
     CIMClass indicationClass;
 
     //  Get filter properties
-    _subscriptionRepository->getFilterProperties (subscriptionInstance,
-        subscriptionInstance.getPath().getNameSpace(), query,
-    sourceNameSpace, queryLanguage);
+    _subscriptionRepository->getFilterProperties (subscriptionInstance, query,
+        sourceNameSpace, queryLanguage);
 
     //  Build the query expression from the filter query
     QueryExpression queryExpression = _getQueryExpression(query,

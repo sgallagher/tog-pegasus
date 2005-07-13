@@ -43,7 +43,7 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/AcceptLanguages.h> // l10n  
+#include <Pegasus/Common/AcceptLanguages.h> // l10n
 #include <Pegasus/Common/ContentLanguages.h> // l10n
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
@@ -83,7 +83,7 @@ public:
 
     void handleEnqueue(Message* message);
 
-    virtual void handleEnqueue(void); 
+    virtual void handleEnqueue(void);
 
     virtual void _handle_async_request(AsyncRequest *req);
 
@@ -130,7 +130,7 @@ private:
     /**
         Asynchronous callback function for _handleProcessIndicationRequest.
         The response from the Handler is checked, and if it is not success, the
-        subscription's On Fatal Error Policy is implemented.  
+        subscription's On Fatal Error Policy is implemented.
 
         @param  operation            shared data structure that controls message
                                          processing
@@ -146,41 +146,41 @@ private:
 	Notifies the Indication Service that a change in provider registration
 	has occurred.  The Indication Service retrieves the subscriptions
 	affected by the registration change, sends the appropriate Create,
-        Modify, and/or Delete requests to the provider, and sends an alert to 
-        handler instances of subscriptions that are no longer served by the 
+        Modify, and/or Delete requests to the provider, and sends an alert to
+        handler instances of subscriptions that are no longer served by the
         provider.
     */
     void _handleNotifyProviderRegistrationRequest(const Message * message);
 
     /**
-        Notifies the Indication Service that a provider has been disabled.  
+        Notifies the Indication Service that a provider has been disabled.
         The Indication Service retrieves the subscriptions served by the
-        disabled provider, and logs a message for each subscription that is no 
+        disabled provider, and logs a message for each subscription that is no
         longer served by the provider.
      */
     void _handleNotifyProviderTerminationRequest(const Message * message);
 
     /**
-        Notifies the Indication Service that a provider has been enabled.  
-        The Indication Service retrieves the subscriptions that can be served 
-        by the enabled provider, sends Create Subscription and Enable 
-        Indications requests to the provider, and logs a message for each 
+        Notifies the Indication Service that a provider has been enabled.
+        The Indication Service retrieves the subscriptions that can be served
+        by the enabled provider, sends Create Subscription and Enable
+        Indications requests to the provider, and logs a message for each
         subscription that is now served by the provider.
      */
     void _handleNotifyProviderEnableRequest (const Message * message);
 
     /**
-        Determines if it is legal to create an instance. 
-        Checks for existence of all key and required properties.  Checks that 
-        properties that MUST NOT exist (based on values of other properties), 
-        do not exist.  For any property that has a default value, if it does 
+        Determines if it is legal to create an instance.
+        Checks for existence of all key and required properties.  Checks that
+        properties that MUST NOT exist (based on values of other properties),
+        do not exist.  For any property that has a default value, if it does
         not exist, adds the property with the default value.
 
         @param   instance              instance to be created
         @param   nameSpace             namespace for instance to be created
 
         @exception   CIM_ERR_INVALID_PARAMETER  if instance is invalid
-        @exception   CIM_ERR_NOT_SUPPORTED      if the specified class is not 
+        @exception   CIM_ERR_NOT_SUPPORTED      if the specified class is not
                                                 supported
 
         @return  True, if the instance can be created;
@@ -192,14 +192,14 @@ private:
 
     /**
         Validates the specified required property in the instance.
-        If the property does not exist, or has a null value, or is not of the 
+        If the property does not exist, or has a null value, or is not of the
         expected type, an exception is thrown, using the specified message.
 
-        This function is called by the _canCreate function, and is used to 
+        This function is called by the _canCreate function, and is used to
         validate the  Filter and Handler properties in Subscription instances,
-        the Name, Query and Query Language properties in 
-        Filter instances, the Name and Destination 
-        properties in CIMXML Handler instances, and the Name, 
+        the Name, Query and Query Language properties in
+        Filter instances, the Name and Destination
+        properties in CIMXML Handler instances, and the Name,
         Trap Destination, and SNMP Version properties in SNMP Mapper instances.
 
         @param   instance              instance to be validated
@@ -220,24 +220,24 @@ private:
 	const Boolean isArray = false);
 
     /**
-        Validates the specified Uint16 (non-array) property and its 
+        Validates the specified Uint16 (non-array) property and its
         corresponding String (non-array) Other___ property in the instance.
         If the property does not exist, it is added with the default value.
         If the property exists, but its value is NULL, its value is set to
         the default value.
         If the value of the property is Other, but the corresponding Other___
         property either does not exist, has a value of NULL, or is not of the
-        correct type, an exception is thrown.  
+        correct type, an exception is thrown.
         If the value of the property is not Other, but the corresponding
         Other___ property exists and has a non-NULL value, an exception is
         thrown.
-        If the value of the property is not a supported value, an exception is 
+        If the value of the property is not a supported value, an exception is
         thrown.
-        This function is called by the _canCreate function, and is used to 
-        validate the following pairs of properties in Subscription or Handler 
-        instances: Subscription State, Other Subscription State, Repeat 
-        Notification Policy, Other Repeat Notification Policy, On Fatal Error 
-        Policy, Other On Fatal Error Policy, Persistence Type, Other 
+        This function is called by the _canCreate function, and is used to
+        validate the following pairs of properties in Subscription or Handler
+        instances: Subscription State, Other Subscription State, Repeat
+        Notification Policy, Other Repeat Notification Policy, On Fatal Error
+        Policy, Other On Fatal Error Policy, Persistence Type, Other
         Persistence Type.
 
         @param   instance              instance to be validated
@@ -265,20 +265,20 @@ private:
         If the property does not exist, it is added with the default value.
         If the property exists, but its value is NULL, its value is set to
         the default value.
-        This function is called by the _canCreate function, and is used to 
+        This function is called by the _canCreate function, and is used to
         validate the Source Namespace property in Filter instances.
-        This function is also called by the _initOrValidateStringProperty 
-        function to validate the CreationClassName, SystemName, and 
+        This function is also called by the _initOrValidateStringProperty
+        function to validate the CreationClassName, SystemName, and
         SystemCreationClassName key properties in Filter and Handler instances.
 
         Note: currently all properties validated by this function are of type
-        String.  To use this function in the future with properties of other 
-        types, a type parameter would need to be added, and the default value 
+        String.  To use this function in the future with properties of other
+        types, a type parameter would need to be added, and the default value
         would need to be passed as a CIMValue instead of a String.
 
         Note: currently all properties validated by this function are non-array
         properties.  To use this function in the future with both array and
-        non-array properties, a Boolean isArray parameter would need to be 
+        non-array properties, a Boolean isArray parameter would need to be
         added.
 
         @param   instance              instance to be validated
@@ -297,21 +297,21 @@ private:
         If the property does not exist, it is added with the default value.
         If the property exists, but its value is NULL, its value is set to
         the default value.
-        If the property exists and has a non-NULL value, its value is validated 
-        against the default (expected) value.  If the value is invalid, an 
+        If the property exists and has a non-NULL value, its value is validated
+        against the default (expected) value.  If the value is invalid, an
         exception is thrown.
-        This function is called by the _canCreate function, and is used to 
+        This function is called by the _canCreate function, and is used to
         validate the Creation Class Name, System Name and System Creation Class
         Name properties in Filter and Handler instances.
 
         Note: currently all properties validated by this function are of type
-        String.  To use this function in the future with properties of other 
-        types, a type parameter would need to be added, and the default value 
+        String.  To use this function in the future with properties of other
+        types, a type parameter would need to be added, and the default value
         would need to be passed as a CIMValue instead of a String.
 
         Note: currently all properties validated by this function are non-array
         properties.  To use this function in the future with both array and
-        non-array properties, a Boolean isArray parameter would need to be 
+        non-array properties, a Boolean isArray parameter would need to be
         added.
 
         @param   instance              instance to be validated
@@ -329,17 +329,17 @@ private:
         Validates the specified property in the instance.
         If the property exists and its value is not NULL, but it is not of
         the correct type, an exception is thrown.
-        This function is called by the _canCreate function.  It is used to 
-        validate the FailureTriggerTimeInterval, TimeOfLastStateChange, 
+        This function is called by the _canCreate function.  It is used to
+        validate the FailureTriggerTimeInterval, TimeOfLastStateChange,
         SubscriptionDuration, SubscriptionStartTime, SubscriptionTimeRemaining,
         RepeatNotificationInterval, RepeatNotificationGap, and
         RepeatNotificationCount properties in Subscription instances, the Owner
-        property in Handler instances, and the PortNumber, SNMPSecurityName, 
+        property in Handler instances, and the PortNumber, SNMPSecurityName,
         and SNMPEngineID properties in SNMP Mapper Handler instances.
 
         Note: currently all properties validated by this function are non-array
         properties.  To use this function in the future with both array and
-        non-array properties, a Boolean isArray parameter would need to be 
+        non-array properties, a Boolean isArray parameter would need to be
         added.
 
         @param   instance              instance to be validated
@@ -357,8 +357,8 @@ private:
 
     /**
         Determines if the user is authorized to modify the instance, and if the
-        specified modification is supported.  Currently, the only modification 
-        supported is of the Subscription State property of the Subscription 
+        specified modification is supported.  Currently, the only modification
+        supported is of the Subscription State property of the Subscription
         class.
 
         @param   request               modification request
@@ -382,11 +382,11 @@ private:
         CIMInstance & modifiedInstance);
 
     /**
-        Determines if the user is authorized to delete the instance, and if it 
-        is legal to delete the instance.  If authorized, Subscription instances 
-        may always be deleted.  Filter and non-transient Handler instances may 
-        only be deleted if they are not being referenced by any Subscription 
-        instances. If the instance to be deleted is a transient Handler, any 
+        Determines if the user is authorized to delete the instance, and if it
+        is legal to delete the instance.  If authorized, Subscription instances
+        may always be deleted.  Filter and non-transient Handler instances may
+        only be deleted if they are not being referenced by any Subscription
+        instances. If the instance to be deleted is a transient Handler, any
         referencing Subscriptions are also deleted.
 
         @param   instanceReference     reference for instance to be deleted
@@ -411,9 +411,9 @@ private:
         where the subscription indication class matches or is a superclass
         of the supported class, and the properties required to process the
         subscription are all contained in the list of supported properties.
-        If the checkProvider parameter value is True, a subscription is only 
-        included in the list returned if the specified provider accepted the 
-        subscription.  If the checkProvider parameter value is False, the 
+        If the checkProvider parameter value is True, a subscription is only
+        included in the list returned if the specified provider accepted the
+        subscription.  If the checkProvider parameter value is False, the
         provider parameter is not used (ignored).
 
         @param   supportedClass       the supported class
@@ -436,19 +436,19 @@ private:
         Retrieves lists of enabled subscription instances in all namespaces
         that are either newly supported or previously supported, based on the
         supported class, the supported namespaces before and after modification,
-        and the supported properties before and after modification.  For 
-        subscriptions based on the supported class, the newSubscriptions list 
-        returned contains the subscriptions for which the properties required 
-        to process the subscription are all contained in the new list of 
-        supported properties, but are not all contained in the old list of 
+        and the supported properties before and after modification.  For
+        subscriptions based on the supported class, the newSubscriptions list
+        returned contains the subscriptions for which the properties required
+        to process the subscription are all contained in the new list of
+        supported properties, but are not all contained in the old list of
         supported properties, and/or the filter source namespace is contained in
-        the new list if supported namespaces, but is not contained in the old 
-        list of supported namespaces.  The formerSubscriptions list returned 
+        the new list if supported namespaces, but is not contained in the old
+        list of supported namespaces.  The formerSubscriptions list returned
         contains the subscriptions for which the properties required to process
-        the subscription are not all contained in the new list of supported 
-        properties, but are all contained in the old list of supported 
-        properties, and/or the filter source namespace is not contained in the 
-        new list if supported namespaces, but is contained in the old list of 
+        the subscription are not all contained in the new list of supported
+        properties, but are all contained in the old list of supported
+        properties, and/or the filter source namespace is not contained in the
+        new list if supported namespaces, but is contained in the old list of
         supported namespaces.
 
         @param   supportedClass       the supported class
@@ -524,21 +524,21 @@ private:
         @return  list of ProviderClassList structs
      */
     Array <ProviderClassList> _getIndicationProviders (
-        const QueryExpression & queryExpression,                                               
+        const QueryExpression & queryExpression,
         const CIMNamespaceName & nameSpace,
         const CIMName & indicationClassName,
         const Array <CIMName> & indicationSubclasses) const;
 
     /**
-        Retrieves the list of required properties (all the properties 
-        referenced in the WHERE clause) for the specified filter query 
+        Retrieves the list of required properties (all the properties
+        referenced in the WHERE clause) for the specified filter query
         expression.
 
         @param   queryExpression       the query expression
         @param   nameSpaceName         the namespace
         @param   indicationClassName   the indication class name
 
-        @return  CIMPropertyList of required properties for the filter query 
+        @return  CIMPropertyList of required properties for the filter query
                  expression
      */
     CIMPropertyList _getPropertyList (
@@ -547,11 +547,11 @@ private:
         const CIMName & indicationClassName) const;
 
     /**
-        Checks if the property list includes all properties in the specified 
+        Checks if the property list includes all properties in the specified
         class.  If so, a NULL CIMPropertyList is returned.  Otherwise, a
-        CIMPropertyList containing the properties is returned.  The list of 
-        property names in the specified indication class is also returned in 
-        the indicationClassProperties parameter.  
+        CIMPropertyList containing the properties is returned.  The list of
+        property names in the specified indication class is also returned in
+        the indicationClassProperties parameter.
 
         @param   propertyList                the list of property names
         @param   nameSpaceName               the namespace
@@ -559,7 +559,7 @@ private:
         @param   indicationClassProperties   the list of property names in the
                                                specified indication class
 
-        @return  CIMPropertyList of properties referenced by the filter query 
+        @return  CIMPropertyList of properties referenced by the filter query
                  select statement
      */
     CIMPropertyList _checkPropertyList (
@@ -580,9 +580,11 @@ private:
         const String & filterQuery) const;
 
     /**
-        Deletes subscriptions referencing the specified handler.
+        Deletes subscriptions referencing the specified handler.  All namespaces
+        are searched for subscriptions that reference the handler to be deleted.
 
-        @param   nameSpace             the name space
+        @param   nameSpace             the name space of the handler being
+                                           deleted
         @param   referenceProperty     the name of the reference property in the
                                            subscription instance
         @param   handler               the handler reference
@@ -608,7 +610,7 @@ private:
         const CIMInstance & instance) const;
 
     /**
-        Deletes specified subscription 
+        Deletes specified subscription
 
         @param   subscription          the subscription reference
      */
@@ -618,15 +620,15 @@ private:
     /**
         Gets the Subscription Time Remaining property
 
-        Calculates time remaining from Subscription Start Time, Subscription 
+        Calculates time remaining from Subscription Start Time, Subscription
         Duration, and current date time.  If the subscription has a non-null
-        Duration, the Time Remaining is set, and True is returned.  If the 
-        subscription does not have a non-null Duration, it has no expiration 
-        date, and the time remaining is unlimited.  In this case, the Time 
+        Duration, the Time Remaining is set, and True is returned.  If the
+        subscription does not have a non-null Duration, it has no expiration
+        date, and the time remaining is unlimited.  In this case, the Time
         Remaining is not set and False is returned.
-      
+
         NOTE: It is assumed that the instance passed to this function is a
-        Subscription instance, and that the Start Time property exists and 
+        Subscription instance, and that the Start Time property exists and
         has a value
 
         @param   instance              Input the subscription instance
@@ -642,9 +644,9 @@ private:
     /**
         Sets the Subscription Time Remaining property
 
-        Calculates time remaining from Subscription Start Time, Subscription 
+        Calculates time remaining from Subscription Start Time, Subscription
         Duration, and current date time
-      
+
         NOTE: It is assumed that the instance passed to this function is a
         Subscription instance, and that the Subscription Duration and
         Start Time properties exist
@@ -657,12 +659,11 @@ private:
     /**
         Gets the parameter values required to Create or Modify the subscription
         request.
-        If no indication providers are found, condition and queryLanguage are 
+        If no indication providers are found, condition and queryLanguage are
         set to empty string.
 
-        @param   nameSpaceName         Input namespace name (of subscription)
         @param   subscriptionInstance  Input subscription instance
-        @param   indicationSubclasses  Output list of subclasses of indication 
+        @param   indicationSubclasses  Output list of subclasses of indication
                                            class in filter query
         @param   indicationProviders   Output list of providers with associated
                                            classes
@@ -675,7 +676,6 @@ private:
                                            query is expressed
      */
     void _getCreateParams (
-        const CIMNamespaceName & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         Array <CIMName> & indicationSubclasses,
         Array <ProviderClassList> & indicationProviders,
@@ -689,9 +689,8 @@ private:
         Gets the parameter values required to Create or Modify the subscription
         request.
 
-        @param   nameSpaceName         Input namespace name (of subscription)
         @param   subscriptionInstance  Input subscription instance
-        @param   indicationSubclasses  Output list of subclasses of indication 
+        @param   indicationSubclasses  Output list of subclasses of indication
                                            class in filter query
         @param   propertyList          Output list of properties required by the
                                            subscription
@@ -702,7 +701,6 @@ private:
                                            query is expressed
      */
     void _getCreateParams (
-        const CIMNamespaceName & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         Array <CIMName> & indicationSubclasses,
         CIMPropertyList & propertyList,
@@ -714,16 +712,14 @@ private:
     /**
         Gets the parameter values required to Delete the subscription request.
 
-        @param   nameSpaceName         Input namespace name
         @param   subscriptionInstance  Input subscription instance
-        @param   indicationSubclasses  Output list of subclasses of indication 
+        @param   indicationSubclasses  Output list of subclasses of indication
                                            class in filter query
         @param   sourceNameSpace       Output source namespace for filter query
 
         @return  List of providers with associated classes to Delete
      */
     Array <ProviderClassList> _getDeleteParams (
-        const CIMNamespaceName & nameSpaceName,
         const CIMInstance & subscriptionInstance,
         Array <CIMName> & indicationSubclasses,
         CIMNamespaceName & sourceNameSpace);
@@ -731,19 +727,19 @@ private:
     /**
         Sends Create subscription request for the specified subscription
         to each provider in the list.  The requests are sent using SendAsync,
-        and the responses are aggregated in the callback methods.  Create 
-        Subscription requests are sent to the indication providers using 
-        SendAsync in the following cases: (1) on creation of an enabled 
-        subscription instance, and (2) on modification of a subscription 
-        instance, when the state changes to enabled.  In cases (1) and (2), 
-        there is an original Create Instance or Modify Instance request to 
+        and the responses are aggregated in the callback methods.  Create
+        Subscription requests are sent to the indication providers using
+        SendAsync in the following cases: (1) on creation of an enabled
+        subscription instance, and (2) on modification of a subscription
+        instance, when the state changes to enabled.  In cases (1) and (2),
+        there is an original Create Instance or Modify Instance request to
         which the Indication Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
-                                           monitored, from the SourceNamespace 
-                                           property of the CIM_IndicationFilter 
-                                           instance for the specified 
+                                           monitored, from the SourceNamespace
+                                           property of the CIM_IndicationFilter
+                                           instance for the specified
                                            subscription
         @param   propertyList          the properties referenced by the
                                            subscription
@@ -757,7 +753,7 @@ private:
         @param   contentLangs          the language of the subscription
         @param   origRequest           the original request (Create
                                            Instance, Modify Instance)
-        @param   indicationSubclasses  the indication subclasses for the 
+        @param   indicationSubclasses  the indication subclasses for the
                                            subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
@@ -783,12 +779,12 @@ private:
         to each provider in the list.  The requests are sent using SendWait,
         so no callback methods are required.  Create Subscription requests are
         sent to the indication providers using SendWait in the following cases:
-        (1) on notification of a provider registration change newly enabling 
-        the provider to serve the subscription, (2) on notification that a 
-        provider has been enabled and may now serve the subscription, and 
+        (1) on notification of a provider registration change newly enabling
+        the provider to serve the subscription, (2) on notification that a
+        provider has been enabled and may now serve the subscription, and
         (3) on initialization, for each enabled subscription retrieved from the
         repository.  In cases (1) and (2), there is an original Notify Provider
-        Registration or Notify Provider Enable request to which the Indication 
+        Registration or Notify Provider Enable request to which the Indication
         Service must respond.  In case (3), there is no original request and no
         response is required.
 
@@ -830,12 +826,12 @@ private:
         Sends Modify subscription request for the specified subscription
         to each provider in the list.   The requests are sent using SendWait,
         so no callback methods are required.  Modify Subscription requests must
-        be sent to the indication providers on notification of a provider 
-        registration change, when the provider was formerly serving the 
-        subscription, and is still serving the subscription, in the following 
-        cases: (1) the provider is newly serving an additional indication 
+        be sent to the indication providers on notification of a provider
+        registration change, when the provider was formerly serving the
+        subscription, and is still serving the subscription, in the following
+        cases: (1) the provider is newly serving an additional indication
         subclass specified by the subscription, or (2) the provider is
-        no longer serving an indication subclass specified by the subscription 
+        no longer serving an indication subclass specified by the subscription
         (but is still serving at least one of the indication subclasses).
         In cases (1) and (2), there is an original Notify Provider Registration
         request to which the Indication Service must respond.
@@ -844,8 +840,8 @@ private:
         @param   nameSpace             the nameSpace name of the resource being
                                            monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
-                                           instance for the specified 
-                                           subscription 
+                                           instance for the specified
+                                           subscription
         @param   propertyList          the properties referenced by the
                                            subscription
         @param   condition             the condition part of the filter query
@@ -855,7 +851,7 @@ private:
         @param   subscription          the subscription to be modified
         @param   acceptLangs           the language of the response, and
                                            future indications
-        @param   contentLangs          the language of the subscription    
+        @param   contentLangs          the language of the subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
      */
@@ -868,36 +864,36 @@ private:
         const String & queryLanguage,
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,
-        const ContentLanguages & contentLangs,  
+        const ContentLanguages & contentLangs,
         const String & userName,
         const String & authType = String::EMPTY);
 
     /**
         Sends Delete subscription request for the specified subscription
         to each provider in the list.  The requests are sent using SendAsync,
-        and the responses are aggregated in the callback methods.  Delete 
-        Subscription requests are sent to the indication providers using 
-        SendAsync in the following cases: (1) on deletion of an enabled 
-        subscription instance, (2) on modification of a subscription instance, 
-        when the state changes to disabled, (3) on deletion of an expired 
-        subscription, and (4) on deletion of a subscription referencing a 
-        deleted transient handler.  In cases (1) and (2), there is an original 
-        Delete Instance or Modify Instance request to which the Indication 
+        and the responses are aggregated in the callback methods.  Delete
+        Subscription requests are sent to the indication providers using
+        SendAsync in the following cases: (1) on deletion of an enabled
+        subscription instance, (2) on modification of a subscription instance,
+        when the state changes to disabled, (3) on deletion of an expired
+        subscription, and (4) on deletion of a subscription referencing a
+        deleted transient handler.  In cases (1) and (2), there is an original
+        Delete Instance or Modify Instance request to which the Indication
         Service must respond.  In cases (3) and (4), there is no orginal request
         and no response is required.
 
         @param   indicationProviders   list of providers with associated classes
-        @param   nameSpace             the nameSpace name of the resource being 
+        @param   nameSpace             the nameSpace name of the resource being
                                            monitored, from the SourceNamespace
                                            property of the CIM_IndicationFilter
-                                           instance for the specified 
-                                           subscription 
+                                           instance for the specified
+                                           subscription
         @param   subscription          the subscription to be modified
         @param   acceptLangs           the language of the response
-        @param   contentLangs          the language of the subscription    
-        @param   origRequest           the original request (Delete Instance, 
+        @param   contentLangs          the language of the subscription
+        @param   origRequest           the original request (Delete Instance,
                                            Modify Instance)
-        @param   indicationSubclasses  the indication subclasses for the 
+        @param   indicationSubclasses  the indication subclasses for the
                                            subscription
         @param   userName              the userName for authentication
         @param   authType              the authentication type
@@ -907,7 +903,7 @@ private:
         const CIMNamespaceName & nameSpace,
         const CIMInstance & subscription,
         const AcceptLanguages & acceptLangs,
-        const ContentLanguages & contentLangs,  
+        const ContentLanguages & contentLangs,
         const CIMRequestMessage * origRequest,
         const Array <CIMName> & indicationSubclasses,
         const String & userName,
@@ -917,11 +913,11 @@ private:
         Sends Delete subscription request for the specified subscription
         to each provider in the list.  The requests are sent using SendWait,
         so no callback methods are required.  Delete Subscription requests are
-        sent to the indication providers using SendWait in the following case: 
-        (1) on notification of a provider registration change newly preventing 
-        the provider from serving the subscription.  In case (1), there is an 
-        original Notify Provider Registration request to which the Indication 
-        Service must respond.  
+        sent to the indication providers using SendWait in the following case:
+        (1) on notification of a provider registration change newly preventing
+        the provider from serving the subscription.  In case (1), there is an
+        original Notify Provider Registration request to which the Indication
+        Service must respond.
 
         @param   indicationProviders   list of providers with associated classes
         @param   nameSpace             the nameSpace name of the resource being
@@ -946,8 +942,8 @@ private:
 
     /**
         Collects responses from providers for aggregation as they are received,
-        and stores them in the IndicationOperationAggregate instance.  Calls 
-        _handleOperationResponseAggregation to process the responses, once all 
+        and stores them in the IndicationOperationAggregate instance.  Calls
+        _handleOperationResponseAggregation to process the responses, once all
         expected responses have been received.
 
         @param  operation            shared data structure that controls message
@@ -961,42 +957,42 @@ private:
         void * userParameter);
 
     /**
-        Calls the appropriate function to processes responses from providers, 
+        Calls the appropriate function to processes responses from providers,
         based on the type of request sent to providers, once all responses have
-        been received.  
+        been received.
 
-        @param   operationAggregate    the operation aggregate instance 
+        @param   operationAggregate    the operation aggregate instance
      */
     void _handleOperationResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
 
     /**
-        Processes create subscription responses from providers, once all have 
-        been received.  Takes the appropriate action, based on the type of the 
-        original request, if any, and the responses received.  Sends the 
+        Processes create subscription responses from providers, once all have
+        been received.  Takes the appropriate action, based on the type of the
+        original request, if any, and the responses received.  Sends the
         response to the original request, if required.
 
-        @param   operationAggregate    the operation aggregate instance 
+        @param   operationAggregate    the operation aggregate instance
      */
     void _handleCreateResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
 
     /**
-        Processes modify subscription responses from providers, once all have 
+        Processes modify subscription responses from providers, once all have
         been received.  Updates the subscription hash tables.
 
-        @param   operationAggregate    the operation aggregate instance 
+        @param   operationAggregate    the operation aggregate instance
      */
     void _handleModifyResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
 
     /**
-        Processes delete subscription responses from providers, once all have 
-        been received.  Updates the subscription hash tables appropriately, 
-        based on the type of the original request, if any.  Sends the response 
+        Processes delete subscription responses from providers, once all have
+        been received.  Updates the subscription hash tables appropriately,
+        based on the type of the original request, if any.  Sends the response
         to the original request, if required.
 
-        @param   operationAggregate    the operation aggregate instance 
+        @param   operationAggregate    the operation aggregate instance
      */
     void _handleDeleteResponseAggregation (
         IndicationOperationAggregate * operationAggregate);
@@ -1015,12 +1011,12 @@ private:
         const Array <CIMInstance> & subscriptions);
 
 #if 0
-     /** 
+     /**
 	  Asynchronous completion routine for _sendAlerts
       */
 
-      static void _sendAlertsCallBack(AsyncOpNode *operation, 
-				      MessageQueue *callback_destination, 
+      static void _sendAlertsCallBack(AsyncOpNode *operation,
+				      MessageQueue *callback_destination,
 				      void *parameter);
 
     /**
@@ -1035,16 +1031,16 @@ private:
         const Array <CIMInstance> & subscriptions,
         /* const */ CIMInstance & alertInstance);
 #endif
-      
+
     /**
-        Sends a Subscription Init Complete request to the Provider 
+        Sends a Subscription Init Complete request to the Provider
         Manager Service.
      */
     void _sendSubscriptionInitComplete ();
 
     /**
         Gets the value of the Creator property from the specified Subscription
-        instance.  If this function returns False, the value of the creator 
+        instance.  If this function returns False, the value of the creator
         parameter is unchanged.
 
         @param   instance              subscription instance
@@ -1075,7 +1071,7 @@ private:
 
         @param   userName                String
 
-        @return  True, if authentication is not enabled or the 
+        @return  True, if authentication is not enabled or the
                        user is a privileged system user;
                  False, if authentication is enabled and the
                        user is not privileged
@@ -1085,11 +1081,11 @@ private:
 
     /**
         Updates the propertyList, in preparation for calling the Repository.
-        If the propertyList is not null, the Creator property must be added to 
-        the list.  Also, if the request is for the Subscription class, the 
-        value of the Time Remaining property need only be calculated if it is 
-        requested.  In that case, the Subscription Duration and Start Time 
-        properties must be added to the list if not already there. 
+        If the propertyList is not null, the Creator property must be added to
+        the list.  Also, if the request is for the Subscription class, the
+        value of the Time Remaining property need only be calculated if it is
+        requested.  In that case, the Subscription Duration and Start Time
+        properties must be added to the list if not already there.
 
         @param   className             class name for the request
         @param   propertyList          list of properties requested
@@ -1108,7 +1104,7 @@ private:
          Boolean & durationAdded);
 
     /**
-        Gets a String containing the comma-separated Subscription Filter Name 
+        Gets a String containing the comma-separated Subscription Filter Name
         and Handler Name, for use in a log message to identify the subscription.
 
         @param   subscription          subscription instance
@@ -1128,7 +1124,7 @@ private:
      */
     ProviderRegistrationManager * _providerRegManager;
 
-    /** 
+    /**
         Pointer to CIMRepository, for use in building QueryExpression.
      */
     CIMRepository* _cimRepository;
@@ -1151,7 +1147,7 @@ private:
     Boolean _enableSubscriptionsForNonprivilegedUsers;
 
     /**
-	Gets the indication class specified by the subscription filter query. 
+	Gets the indication class specified by the subscription filter query.
 
 	@param instance     the subscription instance
 
@@ -1163,13 +1159,13 @@ private:
     /**
         Arrays of valid and supported property values
 
-        Notes: 
+        Notes:
         Valid values are defined by the CIM Event Schema MOF
         Supported values are a subset of the valid values
         Some valid values, as defined in the MOF, are not currently supported
             by the Pegasus IndicationService
 
-        Supported Values 
+        Supported Values
         SubscriptionState: Enabled, Disabled
         RepeatNotificationPolicy: Unknown, Other, None, Suppress, Delay
         OnFatalErrorPolicy: Ignore, Disable, Remove

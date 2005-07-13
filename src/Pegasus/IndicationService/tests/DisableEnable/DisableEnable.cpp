@@ -41,6 +41,9 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/SampleProvider");
+const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("root/cimv2");
+const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("test/TestProvider");
 const CIMNamespaceName SOURCENAMESPACE = 
     CIMNamespaceName ("root/SampleProvider");
 
@@ -119,7 +122,8 @@ void _createCapabilityInstance
 void _createHandlerInstance 
     (CIMClient & client, 
      const String & name,
-     const String & destination)
+     const String & destination,
+     const CIMNamespaceName & handlerNS)
 {
     CIMInstance handlerInstance (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     handlerInstance.addProperty (CIMProperty (CIMName 
@@ -132,14 +136,15 @@ void _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("Destination"),
         destination));
 
-    CIMObjectPath path = client.createInstance (NAMESPACE, handlerInstance);
+    CIMObjectPath path = client.createInstance (handlerNS, handlerInstance);
 }
 
 void _createFilterInstance 
     (CIMClient & client, 
      const String & name,
      const String & query,
-     const String & qlang)
+     const String & qlang,
+     const CIMNamespaceName & filterNS)
 {
     CIMInstance filterInstance (PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty (CIMProperty (CIMName 
@@ -155,13 +160,14 @@ void _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCENAMESPACE.getString ()));
 
-    CIMObjectPath path = client.createInstance (NAMESPACE, filterInstance);
+    CIMObjectPath path = client.createInstance (filterNS, filterInstance);
 }
 
 void _createSubscriptionInstance 
     (CIMClient & client,
      const CIMObjectPath & filterPath,
-     const CIMObjectPath & handlerPath)
+     const CIMObjectPath & handlerPath,
+     const CIMNamespaceName & subscriptionNS)
 {
     CIMInstance subscriptionInstance (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
     subscriptionInstance.addProperty (CIMProperty (CIMName ("Filter"),
@@ -171,7 +177,7 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (NAMESPACE, 
+    CIMObjectPath path = client.createInstance (subscriptionNS, 
         subscriptionInstance);
 }
 
@@ -219,7 +225,10 @@ void _modifyCapabilityInstance
 void _deleteSubscriptionInstance 
     (CIMClient & client, 
      const String & filterName,
-     const String & handlerName)
+     const String & handlerName,
+     const CIMNamespaceName & filterNS,
+     const CIMNamespaceName & handlerNS,
+     const CIMNamespaceName & subscriptionNS)
 {
     Array<CIMKeyBinding> filterKeyBindings;
     filterKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
@@ -230,7 +239,7 @@ void _deleteSubscriptionInstance
         PEGASUS_CLASSNAME_INDFILTER.getString (), CIMKeyBinding::STRING));
     filterKeyBindings.append (CIMKeyBinding ("Name", filterName,
         CIMKeyBinding::STRING));
-    CIMObjectPath filterPath ("", CIMNamespaceName (),
+    CIMObjectPath filterPath ("", filterNS,
         PEGASUS_CLASSNAME_INDFILTER, filterKeyBindings);
 
     Array<CIMKeyBinding> handlerKeyBindings;
@@ -243,7 +252,7 @@ void _deleteSubscriptionInstance
         CIMKeyBinding::STRING));
     handlerKeyBindings.append (CIMKeyBinding ("Name", handlerName,
         CIMKeyBinding::STRING));
-    CIMObjectPath handlerPath ("", CIMNamespaceName (),
+    CIMObjectPath handlerPath ("", handlerNS,
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handlerKeyBindings);
 
     Array<CIMKeyBinding> subscriptionKeyBindings;
@@ -253,12 +262,22 @@ void _deleteSubscriptionInstance
         handlerPath.toString (), CIMKeyBinding::REFERENCE));
     CIMObjectPath subscriptionPath ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
-    client.deleteInstance (NAMESPACE, subscriptionPath);
+    client.deleteInstance (subscriptionNS, subscriptionPath);
+}
+
+void _deleteSubscriptionInstance 
+    (CIMClient & client, 
+     const String & filterName,
+     const String & handlerName)
+{
+    _deleteSubscriptionInstance (client, filterName, handlerName,
+        CIMNamespaceName (), CIMNamespaceName (), NAMESPACE);
 }
 
 void _deleteHandlerInstance 
     (CIMClient & client, 
-     const String & name)
+     const String & name,
+     const CIMNamespaceName & handlerNS)
 {
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
@@ -272,12 +291,13 @@ void _deleteHandlerInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDHANDLER_CIMXML, keyBindings);
-    client.deleteInstance (NAMESPACE, path);
+    client.deleteInstance (handlerNS, path);
 }
 
 void _deleteFilterInstance 
     (CIMClient & client, 
-     const String & name)
+     const String & name,
+     const CIMNamespaceName & filterNS)
 {
     Array<CIMKeyBinding> keyBindings;
     keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
@@ -290,7 +310,7 @@ void _deleteFilterInstance
         CIMKeyBinding::STRING));
     CIMObjectPath path ("", CIMNamespaceName (),
         PEGASUS_CLASSNAME_INDFILTER, keyBindings);
-    client.deleteInstance (NAMESPACE, path);
+    client.deleteInstance (filterNS, path);
 }
 
 void _deleteCapabilityInstance 
@@ -340,7 +360,8 @@ void _deleteModuleInstance
 
 CIMObjectPath _buildFilterOrHandlerPath
     (const CIMName & className,
-     const String & name)
+     const String & name,
+     const CIMNamespaceName & namespaceName = CIMNamespaceName ())
 {
     CIMObjectPath path;
 
@@ -354,6 +375,7 @@ CIMObjectPath _buildFilterOrHandlerPath
     keyBindings.append (CIMKeyBinding ("Name", name, CIMKeyBinding::STRING));
     path.setClassName (className);
     path.setKeyBindings (keyBindings);
+    path.setNameSpace (namespaceName);
 
     return path;
 }
@@ -389,9 +411,15 @@ void _setup (CIMClient & client, String& qlang)
             supportedProperties);
         _createFilterInstance (client, String ("DEFilter01"),
             String ("SELECT IndicationTime FROM cim_processindication"),
-            qlang);
+            qlang, NAMESPACE);
+        _createFilterInstance (client, String ("DEFilter02"),
+            String ("SELECT IndicationTime, IndicationIdentifier "
+                    "FROM CIM_ProcessIndication"),
+            qlang, NAMESPACE1);
         _createHandlerInstance (client, String ("DEHandler01"), 
-            String ("localhost/CIMListener/test1"));
+            String ("localhost/CIMListener/test1"), NAMESPACE);
+        _createHandlerInstance (client, String ("DEHandler02"), 
+            String ("localhost/CIMListener/test1"), NAMESPACE2);
     }
     catch (Exception & e)
     {
@@ -412,7 +440,7 @@ void _create (CIMClient & client)
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
                 String ("DEFilter01")),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                String ("DEHandler01")));
+                String ("DEHandler01")), NAMESPACE);
     }
     catch (Exception & e)
     {
@@ -429,15 +457,11 @@ void _create2 (CIMClient & client, String& qlang)
 {
     try
     {
-        _createFilterInstance (client, String ("DEFilter02"),
-            String ("SELECT IndicationTime, IndicationIdentifier FROM CIM_ProcessIndication"),
-            qlang);
-
         _createSubscriptionInstance (client, 
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER, 
-                String ("DEFilter02")),
+                String ("DEFilter02"), NAMESPACE1),
             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
-                String ("DEHandler01")));
+                String ("DEHandler02"), NAMESPACE2), NAMESPACE3);
     }
     catch (Exception & e)
     {
@@ -473,8 +497,7 @@ void _delete2 (CIMClient & client)
     try
     {
         _deleteSubscriptionInstance (client, String ("DEFilter02"),
-            String ("DEHandler01"));
-        _deleteFilterInstance (client, String ("DEFilter02"));
+            String ("DEHandler02"), NAMESPACE1, NAMESPACE2, NAMESPACE3);
     }
     catch (Exception & e)
     {
@@ -491,8 +514,10 @@ void _cleanup (CIMClient & client)
 {
     try
     {
-        _deleteHandlerInstance (client, String ("DEHandler01"));
-        _deleteFilterInstance (client, String ("DEFilter01"));
+        _deleteHandlerInstance (client, String ("DEHandler01"), NAMESPACE);
+        _deleteHandlerInstance (client, String ("DEHandler02"), NAMESPACE2);
+        _deleteFilterInstance (client, String ("DEFilter01"), NAMESPACE);
+        _deleteFilterInstance (client, String ("DEFilter02"), NAMESPACE1);
         _deleteCapabilityInstance (client, 
             String ("ProcessIndicationProviderModule"), 
             String ("ProcessIndicationProvider"),

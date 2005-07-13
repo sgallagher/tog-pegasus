@@ -3405,25 +3405,28 @@ CIM server listening on HTTPS port {0}."}
 
         /**
         * @note  PGS10213:
-        *    Substitution {0} is a string containing the provider object path in string form
-        *    Substitution {1} is a string containing the subscription object path in string form
+        *    Substitution {0} is a string containing the provider object path information (Provider Name property value)
+        *    Substitution {1} is a string containing the subscription object path information (Filter and Handler namespace and Name property value)
+        *    Substitution {2} is a string containing the namespace of the subscription
         */
-        IndicationService.IndicationService._MSG_PROVIDER_NO_LONGER_SERVING:string {"PGS10213: Provider ({0}) is no longer serving subscription ({1})."}
+        IndicationService.IndicationService._MSG_PROVIDER_NO_LONGER_SERVING:string {"PGS10213: Provider ({0}) is no longer serving subscription ({1}) in namespace {2}."}
 
 
         /**
         * @note  PGS10214:
-        *    Substitution {0} is a string containing the provider object path in string form
-        *    Substitution {1} is a string containing the subscription object path in string form
+        *    Substitution {0} is a string containing the provider object path information (Provider Name property value)
+        *    Substitution {1} is a string containing the subscription object path information (Filter and Handler namespace and Name property value)
+        *    Substitution {2} is a string containing the subscription namespace
         */
-        IndicationService.IndicationService._MSG_PROVIDER_NOW_SERVING:string {"PGS10214: Provider ({0}) is now serving subscription ({1})."}
+        IndicationService.IndicationService._MSG_PROVIDER_NOW_SERVING:string {"PGS10214: Provider ({0}) is now serving subscription ({1}) in namespace {2}."}
 
 
         /**
         * @note  PGS10215:
-        *    Substitution {0} is a string containing the subscription object path in string form
+        *    Substitution {0} is a string containing the subscription object path information (Filter and Handler namespace and Name property value)
+        *    Substitution {1} is a string containing the subscription namespace
         */
-        IndicationService.IndicationService._MSG_NO_PROVIDER:string {"PGS10215: Subscription ({0}) has no provider."}
+        IndicationService.IndicationService._MSG_NO_PROVIDER:string {"PGS10215: Subscription ({0}) in namespace {1} has no provider."}
 
         /**
         * @note  PGS10216:

@@ -113,5 +113,75 @@ ifndef PEGASUS_DISABLE_CQL
 	@$(PROGRAM) sendFail cim:cql
 	@$(ECHO) "TestDisableEnable2 cleanup cim:cql"
 	@$(PROGRAM) cleanup cim:cql
-	@$(ECHO) "+++++ TestDisableEnable2 passed all tests"
 endif
+	@$(ECHO) "TestDisableEnable2 setup2 wql"
+	@$(PROGRAM) setup2 wql
+	@$(ECHO) "TestDisableEnable2 sendFail wql"
+	@$(PROGRAM) sendFail wql
+	@$(ECHO) "TestDisableEnable2 create2 wql"
+	@$(PROGRAM) create2 wql
+	@$(ECHO) "TestDisableEnable2 sendSucceed wql"
+	@$(PROGRAM) sendSucceed wql
+	cimprovider -d -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendBlock wql"
+	@$(PROGRAM) sendBlock wql
+	@$(ECHO) "TestDisableEnable2 delete2 wql"
+	@$(PROGRAM) delete2 wql
+	@$(ECHO) "TestDisableEnable2 sendBlock wql"
+	@$(PROGRAM) sendBlock wql
+	cimprovider -e -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendFail wql"
+	@$(PROGRAM) sendFail wql
+	@$(ECHO) "TestDisableEnable2 create2 wql"
+	@$(PROGRAM) create2 wql
+	@$(ECHO) "TestDisableEnable2 sendSucceed wql"
+	@$(PROGRAM) sendSucceed wql
+	cimprovider -d -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendBlock wql"
+	@$(PROGRAM) sendBlock wql
+	cimprovider -e -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendSucceed wql"
+	@$(PROGRAM) sendSucceed wql
+	@$(ECHO) "TestDisableEnable2 delete2 wql"
+	@$(PROGRAM) delete2 wql
+	@$(ECHO) "TestDisableEnable2 sendFail wql"
+	@$(PROGRAM) sendFail wql
+	@$(ECHO) "TestDisableEnable2 cleanup2 wql"
+	@$(PROGRAM) cleanup2 wql
+ifndef PEGASUS_DISABLE_CQL
+	@$(ECHO) "TestDisableEnable2 setup2 cim:cql"
+	@$(PROGRAM) setup2 cim:cql
+	@$(ECHO) "TestDisableEnable2 sendFail cim:cql"
+	@$(PROGRAM) sendFail cim:cql
+	@$(ECHO) "TestDisableEnable2 create2 cim:cql"
+	@$(PROGRAM) create2 cim:cql
+	@$(ECHO) "TestDisableEnable2 sendSucceed cim:cql"
+	@$(PROGRAM) sendSucceed cim:cql
+	cimprovider -d -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendBlock cim:cql"
+	@$(PROGRAM) sendBlock cim:cql
+	@$(ECHO) "TestDisableEnable2 delete2 cim:cql"
+	@$(PROGRAM) delete2 cim:cql
+	@$(ECHO) "TestDisableEnable2 sendBlock cim:cql"
+	@$(PROGRAM) sendBlock cim:cql
+	cimprovider -e -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendFail cim:cql"
+	@$(PROGRAM) sendFail cim:cql
+	@$(ECHO) "TestDisableEnable2 create2 cim:cql"
+	@$(PROGRAM) create2 cim:cql
+	@$(ECHO) "TestDisableEnable2 sendSucceed cim:cql"
+	@$(PROGRAM) sendSucceed cim:cql
+	cimprovider -d -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendBlock cim:cql"
+	@$(PROGRAM) sendBlock cim:cql
+	cimprovider -e -m RT_IndicationProviderModule
+	@$(ECHO) "TestDisableEnable2 sendSucceed cim:cql"
+	@$(PROGRAM) sendSucceed cim:cql
+	@$(ECHO) "TestDisableEnable2 delete2 cim:cql"
+	@$(PROGRAM) delete2 cim:cql
+	@$(ECHO) "TestDisableEnable2 sendFail cim:cql"
+	@$(PROGRAM) sendFail cim:cql
+	@$(ECHO) "TestDisableEnable2 cleanup2 cim:cql"
+	@$(PROGRAM) cleanup2 cim:cql
+endif
+	@$(ECHO) "+++++ TestDisableEnable2 passed all tests"

@@ -42,8 +42,12 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
+const CIMNamespaceName NAMESPACE1 = CIMNamespaceName ("root/SampleProvider");
+const CIMNamespaceName NAMESPACE2 = CIMNamespaceName ("root/cimv2");
+const CIMNamespaceName NAMESPACE3 = CIMNamespaceName ("test/TestProvider");
 
-CIMObjectPath CreateHandler1Instance (CIMClient& client)
+CIMObjectPath CreateHandler1Instance (CIMClient& client,
+    const CIMNamespaceName & handlerNS)
 {
     CIMInstance handlerInstance(PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
     handlerInstance.addProperty(CIMProperty (CIMName("SystemCreationClassName"),
@@ -57,14 +61,16 @@ CIMObjectPath CreateHandler1Instance (CIMClient& client)
     handlerInstance.addProperty(CIMProperty(CIMName ("Destination"),
         String("localhost/CIMListener/Pegasus_SimpleDisplayConsumer")));
 
-    CIMObjectPath Ref = client.createInstance(NAMESPACE, handlerInstance);
+    CIMObjectPath Ref = client.createInstance(handlerNS, handlerInstance);
+    Ref.setNameSpace (handlerNS);
     return (Ref);
 }
 
 CIMObjectPath CreateFilterInstance (CIMClient& client,
                                     const String query,
                                     const String qlang,
-                                    const String name)
+                                    const String name,
+                                    const CIMNamespaceName & filterNS)
 {
     CIMInstance filterInstance(PEGASUS_CLASSNAME_INDFILTER);
     filterInstance.addProperty(CIMProperty (CIMName ("SystemCreationClassName"),
@@ -82,13 +88,15 @@ CIMObjectPath CreateFilterInstance (CIMClient& client,
     filterInstance.addProperty (CIMProperty(CIMName ("SourceNamespace"),
         String("root/SampleProvider")));
 
-    CIMObjectPath Ref = client.createInstance(NAMESPACE, filterInstance);
+    CIMObjectPath Ref = client.createInstance(filterNS, filterInstance);
+    Ref.setNameSpace (filterNS);
     return (Ref);
 }
 
 CIMObjectPath CreateSbscriptionInstance (CIMClient& client,
     const CIMObjectPath handlerRef, 
-    const CIMObjectPath filterRef)
+    const CIMObjectPath filterRef,
+    const CIMNamespaceName & subscriptionNS)
 {
     CIMInstance subscriptionInstance
         (PEGASUS_CLASSNAME_INDSUBSCRIPTION);
@@ -99,7 +107,9 @@ CIMObjectPath CreateSbscriptionInstance (CIMClient& client,
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath Ref = client.createInstance(NAMESPACE, subscriptionInstance);
+    CIMObjectPath Ref = client.createInstance(subscriptionNS,
+        subscriptionInstance);
+    Ref.setNameSpace (subscriptionNS);
     return (Ref);
 }
 
@@ -124,20 +134,22 @@ void generateIndication(CIMClient& client)
 	outParams);
 }
 
-void DeleteInstance (CIMClient& client, const CIMObjectPath Ref)
+void DeleteInstance (CIMClient& client, const CIMObjectPath Ref,
+    const CIMNamespaceName & instanceNS)
 {
-    client.deleteInstance(NAMESPACE, Ref);
+    client.deleteInstance(instanceNS, Ref);
 }
 
 int _test(CIMClient& client, String& qlang, String& query1, String& query2)
 {
-    CIMObjectPath Handler1Ref; 
+    CIMObjectPath Handler1Ref, Handler2Ref; 
     CIMObjectPath Filter1Ref, Filter2Ref;
     CIMObjectPath Subscription1Ref, Subscription2Ref;
 
     try
     {
-        Handler1Ref = CreateHandler1Instance (client);
+        Handler1Ref = CreateHandler1Instance (client, NAMESPACE);
+        Handler2Ref = CreateHandler1Instance (client, NAMESPACE2);
     }
     catch (Exception& e)
     {
@@ -154,8 +166,10 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     {
       String name1 = "TestFilter01";
       String name2 = "TestFilter02";
-      Filter1Ref = CreateFilterInstance (client, query1, qlang, name1);
-      Filter2Ref = CreateFilterInstance (client, query2, qlang, name2);
+      Filter1Ref = CreateFilterInstance (client, query1, qlang, name1,
+          NAMESPACE);
+      Filter2Ref = CreateFilterInstance (client, query2, qlang, name2,
+          NAMESPACE1);
     }
     catch (Exception& e)
     {
@@ -172,9 +186,11 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
     try
     {
         Subscription1Ref = 
-          CreateSbscriptionInstance (client, Handler1Ref, Filter1Ref);
+          CreateSbscriptionInstance (client, Handler1Ref, Filter1Ref,
+              NAMESPACE);
         Subscription2Ref = 
-          CreateSbscriptionInstance (client, Handler1Ref, Filter2Ref);
+          CreateSbscriptionInstance (client, Handler1Ref, Filter2Ref,
+              NAMESPACE3);
     }
     catch (Exception& e)
     {
@@ -234,11 +250,12 @@ int _test(CIMClient& client, String& qlang, String& query1, String& query2)
 
     try
     {
-      DeleteInstance (client, Subscription1Ref);
-      DeleteInstance (client, Subscription2Ref);
-      DeleteInstance (client, Filter1Ref);
-      DeleteInstance (client, Filter2Ref);
-      DeleteInstance (client, Handler1Ref);
+      DeleteInstance (client, Subscription1Ref, NAMESPACE);
+      DeleteInstance (client, Subscription2Ref, NAMESPACE3);
+      DeleteInstance (client, Filter1Ref, NAMESPACE);
+      DeleteInstance (client, Filter2Ref, NAMESPACE1);
+      DeleteInstance (client, Handler1Ref, NAMESPACE);
+      DeleteInstance (client, Handler2Ref, NAMESPACE2);
     }
     catch (Exception& e)
     {

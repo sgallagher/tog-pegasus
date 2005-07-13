@@ -137,18 +137,18 @@ static const char _MSG_INVALID_INSTANCES_KEY [] =
     "IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCES_IGNORED";
 
 static const char _MSG_PROVIDER_NO_LONGER_SERVING [] =
-    "Provider ($0) is no longer serving subscription ($1)";
+    "Provider ($0) is no longer serving subscription ($1) in namespace $2";
 
 static const char _MSG_PROVIDER_NO_LONGER_SERVING_KEY [] =
     "IndicationService.IndicationService._MSG_PROVIDER_NO_LONGER_SERVING";
 
 static const char _MSG_PROVIDER_NOW_SERVING [] =
-    "Provider ($0) is now serving subscription ($1)";
+    "Provider ($0) is now serving subscription ($1) in namespace $2";
 
 static const char _MSG_PROVIDER_NOW_SERVING_KEY [] =
     "IndicationService.IndicationService._MSG_PROVIDER_NOW_SERVING";
 
-static const char _MSG_NO_PROVIDER [] = "Subscription ($0) has no provider";
+static const char _MSG_NO_PROVIDER [] = "Subscription ($0) in namespace $1 has no provider";
 
 static const char _MSG_NO_PROVIDER_KEY [] =
     "IndicationService.IndicationService._MSG_NO_PROVIDER";

@@ -55,20 +55,20 @@ String ProviderManager::_resolvePhysicalName(String physicalName)
     String fileName = FileSystem::buildLibraryFileName(physicalName);
 
 #if defined(PEGASUS_OS_VMS)
-    String temp;
+    String temp, temp2;
 
-    temp =  fileName + String(".exe");
+    temp =  String("/") + fileName + String(".exe");
 
-    temp = FileSystem::getAbsoluteFileName(
+    temp2 = FileSystem::getAbsoluteFileName(
                            ConfigManager::getInstance()->getCurrentValue("providerDir"),
                          temp);
-    if (temp == String::EMPTY)
+    if (temp2 == String::EMPTY)
     {
-      return temp;
+      return temp2;
     }
     else
     {
-      return fileName;
+      return (ConfigManager::getInstance()->getCurrentValue("providerDir") + temp);
     }
 #else
 #ifndef PEGASUS_OS_OS400

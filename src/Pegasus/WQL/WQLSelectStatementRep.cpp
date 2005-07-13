@@ -494,58 +494,77 @@ Boolean WQLSelectStatementRep::evaluateWhereClause(
     return stack.top();
 }
 
+template<class T>
+inline void wqlSelectStatementApplyProjection(
+    T& object,
+    Boolean allowMissing,
+    const Array<CIMName>& selectPropertyNames)
+{
+    for (int i=object.getPropertyCount(); i!=0; i--)
+    {
+        CIMName pn=object.getProperty(i-1).getName();
+        Boolean foundInSel = false;
+        for (int ii=0,mm=selectPropertyNames.size(); ii<mm; ii++)
+        {
+            if (selectPropertyNames[ii]==pn)
+            {
+               foundInSel = true;
+               break;
+            }
+        }
+
+        if (!foundInSel)
+        {
+            object.removeProperty(i-1);
+        }
+    }
+
+    //check for properties on select list missing from the instance
+    if (!allowMissing)
+    {
+        Boolean foundInInst;
+        for (Uint32 i=0; i < selectPropertyNames.size(); i++)
+        {
+            foundInInst = false;
+            CIMName sn=selectPropertyNames[i];
+            for (Uint32 j = object.getPropertyCount(); j != 0; j--)
+            {
+                CIMName in = object.getProperty(j-1).getName();
+                if (sn == in) foundInInst = true;
+            }
+
+            if(!foundInInst)
+            {
+                MessageLoaderParms parms
+                    ("WQL.WQLSelectStatementRep.MISSING_PROPERTY_ON_INSTANCE",
+                    "A property in the Select list is missing from the "
+                    "instance");
+                throw QueryRuntimePropertyException(parms);
+            }
+        }
+    }
+}
+
 void WQLSelectStatementRep::applyProjection(CIMInstance& ci,
     Boolean allowMissing)
 {
-  applyProjection((CIMObject&) ci, allowMissing);
+    if (_allProperties)
+    {
+        return;
+    }
+
+    wqlSelectStatementApplyProjection(ci, allowMissing, _selectPropertyNames);
 }
 
 void WQLSelectStatementRep::applyProjection(CIMObject& ci,
     Boolean allowMissing)
 {
-   if (_allProperties) return;
+    if (_allProperties)
+    {
+        return;
+    }
 
-   for (int i=ci.getPropertyCount(); i!=0; i--)
-   {
-      CIMName pn=ci.getProperty(i-1).getName();
-      Boolean foundInSel = false;
-      for (int ii=0,mm=_selectPropertyNames.size(); ii<mm; ii++)
-      {
-         if (_selectPropertyNames[ii]==pn)
-         {
-           foundInSel = true;
-           break;
-         }
-      }
-
-      if (!foundInSel)
-        ci.removeProperty(i-1);
-   }
-
-   //check for properties on select list missing from the instance
-   if (!allowMissing)
-   {
-       Boolean foundInInst;
-       for (Uint32 i=0; i < _selectPropertyNames.size(); i++)
-       {
-           foundInInst = false;
-           CIMName sn=_selectPropertyNames[i];
-           for (Uint32 j = ci.getPropertyCount(); j != 0; j--)
-           {
-               CIMName in = ci.getProperty(j-1).getName();
-               if (sn == in) foundInInst = true;
-           }
-
-           if(!foundInInst)
-           {
-               MessageLoaderParms parms
-                   ("WQL.WQLSelectStatementRep.MISSING_PROPERTY_ON_INSTANCE",
-                   "A property in the Select list is missing from the "
-                   "instance");
-               throw QueryRuntimePropertyException(parms);
-           }
-       }
-   }
+    wqlSelectStatementApplyProjection(ci, allowMissing, _selectPropertyNames);
 }
 
 void WQLSelectStatementRep::print() const

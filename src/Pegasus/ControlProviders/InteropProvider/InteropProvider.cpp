@@ -107,7 +107,6 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/XmlWriter.h>
-#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/HashTable.h>
 
@@ -501,17 +500,37 @@ String _getHostAddress(String & hostName, Uint32  namespaceType)
 
   return ipAddress;
 }
-
+ /** Fills in the CIMOperation functional profiles and corresponding description
+     array.  This function is closely linked to compile and configuration
+     features in the CIM Server to determine if certain features are 
+     enabled and/or compiled.  Definitions correspond to the DMTF SLP template
+     version 1.0.
+     @param Array<Uint16> profiles provides an array for the profiles
+     @return Array<String> with the corresponding profile text descriptions
+*/
  Array<String> _getFunctionalProfiles(Array<Uint16> & profiles)
  {
      Array<String> profileDescriptions;
+     // Note that zero and 1 are unknown and other. Not used by us
+     // 2 - 5 are not optional in Pegasus
      profiles.append(2); profileDescriptions.append("Basic Read");
      profiles.append(3); profileDescriptions.append("Basic Write");
      profiles.append(4); profileDescriptions.append("Schema Manipulation");
      profiles.append(5); profileDescriptions.append("Instance Manipulation");
-     profiles.append(6); profileDescriptions.append("Association Traversal");
+
+     ConfigManager* configManager = ConfigManager::getInstance();
+     if (String::equal(configManager->getCurrentValue("enableAssociationTraversal"), "true"))
+     {
+         profiles.append(6); profileDescriptions.append("Association Traversal");
+     }
+#ifndef PEGASUS_DISABLE_EXECQUERY
+     profiles.append(7); profileDescriptions.append("Query Execution");
+#endif
      profiles.append(8); profileDescriptions.append("Qualifier Declaration");
-     profiles.append(9); profileDescriptions.append("Indications");
+     if (String::equal(configManager->getCurrentValue("enableIndicationService"), "true"))
+     {
+         profiles.append(9); profileDescriptions.append("Indications");
+     }
      return(profileDescriptions);
  }
 

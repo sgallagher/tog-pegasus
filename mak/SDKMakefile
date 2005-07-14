@@ -50,6 +50,8 @@ INCLUDE_SRCPATH = $(PEGASUS_ROOT)/src
 
 HTML_SRCPATH = $(PEGASUS_HOME)/html
 
+DOC_SRCPATH1 = $(PEGASUS_ROOT)/doc
+
 CLIENT_SRCPATH1 = $(PEGASUS_ROOT)/src/SDK/samples
 CLIENT_SRCPATH2 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Clients
 CLIENT_SRCPATH3 = $(PEGASUS_ROOT)/src/Clients
@@ -153,6 +155,8 @@ SAMPLES_DIRS = \
    Providers/Load \
    mak
 
+DOCSRCPATH1FILES = \
+   SecurityGuidelinesForDevelopers.html
 
 CLIENTSRCPATH1FILES = \
    Makefile \
@@ -245,6 +249,7 @@ stageSDK:
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageINCLUDE
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageHTML
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageSAMPLES
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageDOCS
 
 stageINCLUDE:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)
@@ -288,6 +293,9 @@ createConfigFile:
 	@$(ECHO) "CIM_SCHEMA_VER = $(CIM_SCHEMA_VER)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(ECHO) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
 	@$(CAT)  $(PEGASUS_ROOT)/src/SDK/samples/mak/config.mak >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+
+stageDOCS:
+	@$(foreach i, $(DOCSRCPATH1FILES), $(COPY) $(DOC_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
 
 stageSAMPLES:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
@@ -356,6 +364,9 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# SDK Documentation"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(DOCSRCPATH1FILES), \
+              $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_DOC_DIR)/$(i)" \
+                         >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) "%attr(-,$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 

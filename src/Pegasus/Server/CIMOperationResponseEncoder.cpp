@@ -66,10 +66,6 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 
-#ifdef PEGASUS_CCOVER
-# include <ccover.h>
-#endif
-
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
@@ -272,10 +268,6 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	
 	queue->enqueue(httpMessage.release());
 	
-#ifdef PEGASUS_CCOVER
-	cov_write();
-#endif
-
 	PEG_METHOD_EXIT();	
 }
 

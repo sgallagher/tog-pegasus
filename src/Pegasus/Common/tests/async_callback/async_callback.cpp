@@ -299,7 +299,7 @@ client_func (void *parm)
 
   if (verbose)
    cout << "Waiting until all messages are flushed. " << endl;
-  while (test_async_queue::msg_count.value() < rq_count.value())
+  while (test_async_queue::msg_count.value() != rq_count.value())
   {
 	pegasus_yield();
   }
@@ -337,7 +337,7 @@ client_func (void *parm)
   while (test_async_queue::msg_count.value () < 1000);
   if (verbose)
    cout << "Waiting until all messages are flushed. " << endl;
-  while (test_async_queue::msg_count.value() < rq_count.value())
+  while (test_async_queue::msg_count.value() != rq_count.value())
   {
 	pegasus_yield();
   }

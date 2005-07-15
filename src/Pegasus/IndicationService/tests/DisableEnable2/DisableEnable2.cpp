@@ -319,12 +319,12 @@ void _setup2 (CIMClient & client, String& qlang)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "setup failed: " << e.getMessage ()
+        PEGASUS_STD (cerr) << "setup2 failed: " << e.getMessage ()
                            << PEGASUS_STD (endl);
         exit (-1);
     }
 
-    PEGASUS_STD (cout) << "+++++ setup completed successfully"
+    PEGASUS_STD (cout) << "+++++ setup2 completed successfully"
                        << PEGASUS_STD (endl);
 }
 
@@ -383,12 +383,12 @@ void _create2 (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "create failed: " << e.getMessage ()
+        PEGASUS_STD (cerr) << "create2 failed: " << e.getMessage ()
                            << PEGASUS_STD (endl);
         exit (-1);
     }
 
-    PEGASUS_STD (cout) << "+++++ create completed successfully"
+    PEGASUS_STD (cout) << "+++++ create2 completed successfully"
                        << PEGASUS_STD (endl);
 }
 
@@ -470,12 +470,12 @@ void _delete2 (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "delete failed: " << e.getMessage ()
+        PEGASUS_STD (cerr) << "delete2 failed: " << e.getMessage ()
                            << PEGASUS_STD (endl);
         exit (-1);
     }
 
-    PEGASUS_STD (cout) << "+++++ delete completed successfully"
+    PEGASUS_STD (cout) << "+++++ delete2 completed successfully"
                        << PEGASUS_STD (endl);
 }
 
@@ -506,12 +506,12 @@ void _cleanup2 (CIMClient & client)
     }
     catch (Exception & e)
     {
-        PEGASUS_STD (cerr) << "cleanup failed: " << e.getMessage ()
+        PEGASUS_STD (cerr) << "cleanup2 failed: " << e.getMessage ()
                            << PEGASUS_STD (endl);
         exit (-1);
     }
 
-    PEGASUS_STD (cout) << "+++++ cleanup completed successfully"
+    PEGASUS_STD (cout) << "+++++ cleanup2 completed successfully"
                        << PEGASUS_STD (endl);
 }
 

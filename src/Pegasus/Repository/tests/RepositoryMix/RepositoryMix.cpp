@@ -250,7 +250,7 @@ void TestCreateInstance5()
     r->createInstance(NS, inst1);
 }
 
-void TestEnumerateInstance(const int num)
+void TestEnumerateInstance(Uint32 num)
 {
   if (verbose) cout << ProgName << "-TestEnumerateInstance()" << endl;
 
@@ -272,7 +272,7 @@ void TestEnumerateInstance(const int num)
 
 }
 
-void TestEnumerateInstances(const int num)
+void TestEnumerateInstances(Uint32 num)
 {
   if (verbose) cout << ProgName << "-TestEnumerateInstances()" << endl;
     // -- Enumerate instances:
@@ -298,7 +298,7 @@ void TestEnumerateInstances(const int num)
 }
 
 
-void TestEnumerateInstancesForClass(const int num)
+void TestEnumerateInstancesForClass(Uint32 num)
 {
   if (verbose) cout << ProgName << "-TestEnumerateInstancesForClass()" << endl;
 

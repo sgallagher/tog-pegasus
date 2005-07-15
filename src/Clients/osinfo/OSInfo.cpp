@@ -889,13 +889,13 @@ void OSInfoCommand::gatherProperties(CIMInstance &inst, Boolean cimFormat)
                     "%" PEGASUS_64BIT_CONVERSION_WIDTH "u days,")), days);
 
             // for other values, want to display the 0s
-            sprintf(hourString, (hours == 1 ? "1 hr," : "%lu hrs,"), hours);
+            sprintf(hourString, (hours == 1 ? "1 hr," : "%u hrs,"), hours);
 
             sprintf(minuteString,
-                (minutes == 1 ? "1 min," : "%lu mins,"), minutes);
+                (minutes == 1 ? "1 min," : "%u mins,"), minutes);
 
             sprintf(secondString,
-                (seconds == 1 ? "1 sec" : "%lu secs"), seconds);
+                (seconds == 1 ? "1 sec" : "%u secs"), seconds);
 
             sprintf(uptime,
                 "%" PEGASUS_64BIT_CONVERSION_WIDTH "u seconds = %s %s %s %s",

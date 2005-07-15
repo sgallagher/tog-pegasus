@@ -179,6 +179,9 @@ PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimconfig.8 \
    cimserver.8
 
+PEGASUS_DOC_FILES = \
+   Admin_Guide_Release.pdf
+
 CIM29_MOF_FILES = \
    Application_AppRuntime.mof \
    Application_BIOS.mof \
@@ -536,6 +539,12 @@ setpermissions_PegasusUnixManPageDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANUSER_DIR)/$(i);)
 	$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_MANADMIN_DIR)/$(i);)
 
+stage_PegasusDocFiles: FORCE
+	$(foreach i, $(PEGASUS_DOC_FILES), $(COPY) $(ROOT)/doc/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
+
+setpermissions_PegasusDocFiles: FORCE
+	$(foreach i, $(PEGASUS_DOC_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr__r__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
+
 copyCIMSchemaFiles: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)
 	$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), $(COPY) $(ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i);)
@@ -624,7 +633,8 @@ stage_PegasusFiles: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusUserCmdsDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusVarDataDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusRepositoryDirectories
-	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusUnixManPageDirectoryFiles 
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusUnixManPageDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusDocFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusMOFDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusSSLFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusSystemFiles
@@ -637,7 +647,8 @@ setpermissions_PegasusFiles: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusUserCmdsDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusVarDataDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusRepositoryDirectories
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusUnixManPageDirectoryFiles 
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusUnixManPageDirectoryFiles
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusDocFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusMOFDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusSSLFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusSystemFiles
@@ -763,6 +774,8 @@ _append_PreambleToSpecFile: FORCE
 	@$(ECHO-E) "%global PEGASUS_PREV_REPOSITORY_DIR $(PEGASUS_PREV_REPOSITORY_DIR)" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_SBIN_DIR $(PEGASUS_SBIN_DIR)" >> \
+                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_DOC_DIR $(PEGASUS_DOC_DIR)" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_RPM_ROOT \044RPM_BUILD_DIR/\044RPM_PACKAGE_NAME-\044RPM_PACKAGE_VERSION" >> \
@@ -985,6 +998,8 @@ _append_filesSectionToSpecFile: FORCE
                    $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MANUSER_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), \
                    $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MANADMIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
+	@$(foreach i, $(PEGASUS_DOC_FILES), \
+                   $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_DOC_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), \
                    $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 

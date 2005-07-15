@@ -76,6 +76,7 @@ sources.
 %global PEGASUS_REPOSITORY_DIR /var/opt/tog-pegasus/repository
 %global PEGASUS_PREV_REPOSITORY_DIR /var/opt/tog-pegasus/prev_repository
 %global PEGASUS_SBIN_DIR /opt/tog-pegasus/sbin
+%global PEGASUS_DOC_DIR /opt/tog-pegasus/share/doc
 
 %global PEGASUS_RPM_ROOT $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
@@ -380,6 +381,7 @@ fi
 %doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimauth.8
 %doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimconfig.8
 %doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimserver.8
+%doc %attr(444,root,root) /opt/tog-pegasus/share/doc/Admin_Guide_Release.pdf
 
 %attr(444,root,root) /opt/tog-pegasus/mof/CIM29/Application_AppRuntime.mof
 %attr(444,root,root) /opt/tog-pegasus/mof/CIM29/Application_BIOS.mof

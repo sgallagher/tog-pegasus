@@ -51,6 +51,10 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+#define DDD(X)   if (_cmpi_trace) X;
+
+extern int _cmpi_trace;
+
 extern "C"
 {
 
@@ -88,10 +92,19 @@ extern "C"
         {
           WQLParser::parse (sx->cond, *stmt);
         }
+        catch (const Exception &e) 
+	{
+	   DDD(cout<<"### exception: _check_WQL - msg: "<<e.getMessage()<<endl);
+           if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_INVALID_QUERY,
+            	(CMPIString*)string2CMPIString(e.getMessage()));
+           delete stmt;
+	   return false;
+	}
         catch (...)
         {
+	  DDD(cout<<"### exception: _check_WQL - ... " <<endl);
           delete stmt;
-          CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+          if (rc) CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
           return false;
         }
         /* Only set it for success */
@@ -101,7 +114,7 @@ extern "C"
   }
   static CMPIBoolean _check_CQL (CMPI_SelectExp * sx, CMPIStatus * rc)
   {
-
+    Boolean fail = false;
     if (sx->cql_stmt == NULL)
       {
         /* The constructor should set this to a valid pointer. */
@@ -118,13 +131,24 @@ extern "C"
 
           selectStatement->validate ();
         }
+        catch (const Exception &e) 
+ 	{
+	    DDD(cout<<"### exception: _check_CQL - msg: "<<e.getMessage()<<endl);
+            if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_INVALID_QUERY,
+            		(CMPIString*)string2CMPIString(e.getMessage()));
+            fail = true;
+        }
         catch (...)
         {
+	  DDD(cout<<"### exception: _check_CQL - ... " <<endl);
+          if (rc) CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
+	  fail = true;
+        }
+	if (fail) 
+	{
           delete selectStatement;
-          CMSetStatus (rc, CMPI_RC_ERR_INVALID_QUERY);
           return false;
         }
-
         sx->cql_stmt = selectStatement;
       }
     return true;
@@ -157,10 +181,17 @@ extern "C"
             try
             {
               return sx->wql_stmt->evaluate (*(CIMInstance *) inst->hdl);
-            }
+            } catch (const Exception &e)
+	    {	
+	        DDD(cout<<"### exception: selxEvaluate - msg: "<<e.getMessage()<<endl);
+                if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
+            		(CMPIString*)string2CMPIString(e.getMessage()));
+                return false;
+	    }
             catch (...)
             {
-              CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+	      DDD(cout<<"### exception: selxEvaluate - ... " <<endl);
+              if (rc) CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
             }
           }
@@ -177,9 +208,17 @@ extern "C"
             {
               return sx->cql_stmt->evaluate (*instance);
             }
+            catch (const Exception &e) 
+            {
+	        DDD(cout<<"### exception: selxEvaluate - msg: "<<e.getMessage()<<endl);
+                if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
+            		(CMPIString*)string2CMPIString(e.getMessage()));
+		return false;
+            }
             catch (...)
             {
-              CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+	      DDD(cout<<"### exception: selxEvaluate - ... " <<endl);
+              if (rc) CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
             }
           }
@@ -216,8 +255,16 @@ extern "C"
                 CMSetStatus (rc, CMPI_RC_OK);
               return sx->wql_stmt->evaluateWhereClause (&ips);
             }
+	    catch (const Exception &e) 
+            {
+	        DDD(cout<<"### exception: selxEvaluateUsingAccessor - msg: "<<e.getMessage()<<endl);
+                if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
+            		(CMPIString*)string2CMPIString(e.getMessage()));
+		return false;
+            }
             catch (...)
             {
+	      DDD(cout<<"### exception: selxEvaluateUsingAccessor - ..." << endl);
               if (rc)
                 CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
@@ -239,8 +286,16 @@ extern "C"
                 CMSetStatus (rc, CMPI_RC_OK);
               return sx->cql_stmt->evaluate (ips.getInstance ());
             }
+            catch (const Exception &e)
+            {
+	        DDD(cout<<"### exception: selxEvaluateUsingAccessor - msg: "<<e.getMessage()<<endl);
+                if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
+            		(CMPIString*)string2CMPIString(e.getMessage()));
+		return false;
+	    }
             catch (...)
             {
+	      DDD(cout<<"### exception: selxEvaluateUsingAccessor - ..." << endl);
               if (rc)
                 CMSetStatus (rc, CMPI_RC_ERR_FAILED);
               return false;
@@ -296,19 +351,21 @@ extern "C"
               CQLParser::parse (sx->cond, selectStatement);
               dnf = new CMPI_Cql2Dnf (selectStatement);
             }
-            catch (const Exception &)
+            catch (const Exception &e)
             {
-              if (dnf)
-                delete dnf;
-              if (rc)
-                CMSetStatus (rc, CMPI_RC_ERR_FAILED);
+		 DDD(cout<<"### exception: selxGetDOC - msg: "<<e.getMessage()<<endl);
+
+         	if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
+            		(CMPIString*)string2CMPIString(e.getMessage()));
+                if (dnf)
+                  delete dnf;
+	       return NULL;
             }
             sx->cql_dnf = dnf;
             sx->tableau = sx->cql_dnf->getTableau ();
           }
         sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
       }
-
     if (sc)
       {
         if (rc)

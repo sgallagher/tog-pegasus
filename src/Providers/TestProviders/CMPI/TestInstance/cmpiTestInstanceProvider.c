@@ -358,13 +358,13 @@ strCMPIValue (CMPIValue value)
 /* ---------------------------------------------------------------------------*/
 
 CMPIObjectPath *
-make_ObjectPath (const char *ns, const char *class)
+make_ObjectPath (const CMPIBroker *broker, const char *ns, const char *class)
 {
   CMPIObjectPath *objPath = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
   PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
-  objPath = CMNewObjectPath (_broker, ns, class, &rc);
+  objPath = CMNewObjectPath (broker, ns, class, &rc);
   //assert ( rc.rc == CMPI_RC_OK);
   PROV_LOG ("----- %s", strCMPIStatus (rc));
   CMAddKey (objPath, "ElementName", (CMPIValue *) class, CMPI_chars);
@@ -526,7 +526,7 @@ TestCMPIInstanceProviderEnumInstanceNames (CMPIInstanceMI * mi,
 
   PROV_LOG ("--- %s CMPI EnumInstanceNames() called", _ClassName);
 
-  op = make_ObjectPath (CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
+  op = make_ObjectPath (_broker, CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
 
   /* Just one key */
   CMAddKey (op, "ElementName", (CMPIValue *) _ClassName, CMPI_chars);
@@ -563,7 +563,7 @@ TestCMPIInstanceProviderEnumInstances (CMPIInstanceMI * mi,
   PROV_LOG_OPEN (_ClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI EnumInstances() called", _ClassName);
 
-  op = make_ObjectPath (CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
+  op = make_ObjectPath (_broker, CMGetCharPtr (CMGetNameSpace (ref, &rc)), _ClassName);
 
   PROV_LOG (" New Object Path [%s]",
             CMGetCharPtr (CMGetNameSpace (ref, &rc)));
@@ -747,7 +747,7 @@ TestCMPIInstanceProviderExecQuery (CMPIInstanceMI * mi,
   PROV_LOG ("-- #1 MakeObjectPath");
   // Create instance
 
-  objPath = make_ObjectPath (_Namespace, _ClassName);
+  objPath = make_ObjectPath (_broker, _Namespace, _ClassName);
 
 
   inst = make_Instance (objPath);

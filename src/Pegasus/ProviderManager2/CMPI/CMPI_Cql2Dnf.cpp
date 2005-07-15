@@ -54,6 +54,13 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_ARRAY_T CMPI_TableauRow
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
+
+
+#define DDD(X)   if (_cmpi_trace) X;
+
+extern int _cmpi_trace;
+
+
 //
 // Routine to map the CQL data to String
 //
@@ -212,8 +219,7 @@ CMPI_Cql2Dnf::_populateTableau ()
 
   _tableau.reserveCapacity (pred_Array.size ());
 
-  //cerr << "Expression:  " <<  cqs.toString() << endl;
-  //cerr << cqs.getQuery() << endl;
+  DDD(cout << "Expression:  " <<  cqs.toString() << endl);
 
   CMPI_TableauRow tr;
   CQLValue dummy ("");

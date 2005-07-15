@@ -66,10 +66,8 @@ static CMPIBroker *_broker;
 #endif
 static CMPI_MUTEX_TYPE _mutex;
 static CMPI_COND_TYPE _cond;
-static char *_ns;
 static int _thread_runs = 0;
 static int _thread_active = 0;
-static CMPISelectExp *_se;
 
 unsigned char CMPI_true = 1;
 unsigned char CMPI_false = 0;
@@ -387,13 +385,13 @@ strCMPIValue (CMPIValue value)
 /* ---------------------------------------------------------------------------*/
 
 CMPIObjectPath *
-make_ObjectPath (const char *ns, const char *clss)
+make_ObjectPath (const CMPIBroker *broker, const char *ns, const char *clss)
 {
   CMPIObjectPath *objPath = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
 
   PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
-  objPath = CMNewObjectPath (_broker, ns, clss, &rc);
+  objPath = CMNewObjectPath (broker, ns, clss, &rc);
 
   PROV_LOG ("----- %s", strCMPIStatus (rc));
 
@@ -405,11 +403,12 @@ make_ObjectPath (const char *ns, const char *clss)
 /* ---------------------------------------------------------------------------*/
 
 CMPIData
-instance_accessor (const char *name, void *param)
+instance_accessor ( const char *name, void *param)
 {
 
   CMPIData data = { 0, CMPI_null, {0} };
   CMPIStatus rc = { CMPI_RC_OK, NULL };
+  CMPIBroker *broker = (CMPIBroker *) param;
 
   PROV_LOG ("-- #4.2 instance_accessor");
   PROV_LOG ("-- Property: %s", name);
@@ -419,13 +418,13 @@ instance_accessor (const char *name, void *param)
     {
       data.type = CMPI_string;
       data.state = CMPI_goodValue;
-      data.value.string = CMNewString (_broker, "AccessorPropertyA", &rc);
+      data.value.string = CMNewString (broker, "AccessorPropertyA", &rc);
     }
   if (strcmp ("PropertyB", name) == 0)
     {
       data.type = CMPI_string;
       data.state = CMPI_goodValue;
-      data.value.string = CMNewString (_broker, "AccessorPropertyB", &rc);
+      data.value.string = CMNewString (broker, "AccessorPropertyB", &rc);
     }
   if (strcmp ("n", name) == 0)
     {
@@ -443,7 +442,7 @@ instance_accessor (const char *name, void *param)
     {
       data.type = CMPI_string;
       data.state = CMPI_goodValue;
-      data.value.string = CMNewString (_broker, "s", &rc);
+      data.value.string = CMNewString (broker, "s", &rc);
     }
 
   PROV_LOG ("----  (%s)", strCMPIStatus (rc));
@@ -455,7 +454,7 @@ instance_accessor (const char *name, void *param)
 /* ---------------------------------------------------------------------------*/
 
 static CMPI_THREAD_RETURN CMPI_THREAD_CDECL
-thread (void *context)
+thread (void *args)
 {
   CMPIString *str = NULL;
   CMPIStatus rc = { CMPI_RC_OK, NULL };
@@ -490,42 +489,42 @@ thread (void *context)
   CMPIPredOp pred_op;
   CMPIString *left_side = NULL;
   CMPIString *right_side = NULL;
+  /* Thread specific data, passed in via arguments. This could also
+     be passed via thread specific data.. */
+  void **arguments = (void **) args;
   CMPIContext *ctx;
-  struct timespec wait = { 0, 0 };
-  struct timeval t;
+  CMPISelectExp *se;
+  char *ns;
+  CMPIBroker *broker;
+
+ // Copy over the CMPISelectExp, CMPIContext, CMPIBroker and the ns from the argument. 
+  se = (CMPISelectExp *)arguments[0];
+  ctx = (CMPIContext *)arguments[1];
+  broker = (CMPIBroker *)arguments[2];
+  ns = (char *)arguments[3];
+
+  free(arguments);
 
   _thread_active = 1;
   // Get the CMPIContext and attach it to this thread.
-  ctx = (CMPIContext *) context;
-  rc = CBAttachThread (_broker, ctx);
+  rc = CBAttachThread (broker, ctx);
 
-  // Have to wait until the thread is done. On the first
-  // run the value is zero, so we skip right through it.
-
+  // Wait until we get the green signal.
   while (_thread_runs == 0)
     {
-      gettimeofday (&t, NULL);
-      // Set the time wait to 1 second.
-      wait.tv_sec = t.tv_sec + 1;
-      wait.tv_nsec = 0;
-
-      // Wait until we get the message that we can start running
-      _broker->xft->lockMutex (_mutex);
-      // Wait until we get a condition change, which is happening only when
-      // _thread_runs is changed
-      _broker->xft->timedCondWait (_cond, _mutex, &wait);
-      _broker->xft->unlockMutex (_mutex);
+	broker->xft->threadSleep(1000);
     }
 
   //PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
   PROV_LOG ("--- CBAttachThread callled.");
-  PROV_LOG ("---- %s", strCMPIStatus (rc));
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc), (rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
 
   PROV_LOG ("--- %s CMPI thread(void *) running",_IndClassName);
 
+
   PROV_LOG ("-- #1 Clone");
-  clone = CMClone (_se, &rc_Clone);
-  PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
+  clone = CMClone (se, &rc_Clone);
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Clone), (rc_Clone.msg == 0) ? "" : CMGetCharPtr(rc_Clone.msg));
   if (clone)
     CMRelease (clone);
 
@@ -535,26 +534,26 @@ thread (void *context)
      of completness this functionality is also used here. */
 
   PROV_LOG ("-- #1.1 CMNewSelectExp");
-  str = CMGetSelExpString (_se, &rc);
+  str = CMGetSelExpString (se, &rc);
   clone =
-    //CMPI_CQL_NewSelectExp (_broker, CMGetCharPtr (str), "CIMxCQL",
-    CMNewSelectExp (_broker, CMGetCharPtr (str), "CIM:CQL",
+    //CMPI_CQL_NewSelectExp (broker, CMGetCharPtr (str), "CIMxCQL",
+    CMNewSelectExp (broker, CMGetCharPtr (str), "CIM:CQL",
                     &projection, &rc_Clone);
 
-  PROV_LOG ("---- %s", strCMPIStatus (rc_Clone));
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Clone), (rc_Clone.msg == 0) ? "" : CMGetCharPtr(rc_Clone.msg));
   if (clone)
     {
       if (projection)
         {
           PROV_LOG ("--- #1.2 Projection list is: ");
           cnt = CMGetArrayCount (projection, &rc_Array);
-          PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
+          PROV_LOG ("---- %s, [%s]", strCMPIStatus (rc_Array),(rc_Array.msg == 0) ? "" : CMGetCharPtr(rc_Array.msg));
           PROV_LOG ("--- #1.3 CMGetArrayCount, %d", cnt);
           for (idx = 0; idx < cnt; idx++)
             {
               PROV_LOG ("--- #1.4 CMGetArrayElementAt");
               data = CMGetArrayElementAt (projection, idx, &rc_Array);
-              PROV_LOG ("---- %s", strCMPIStatus (rc_Array));
+              PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Array), (rc_Array.msg == 0) ? "" : CMGetCharPtr(rc_Array.msg));
               PROV_LOG ("---- type is : %d", data.type);
               if (data.type == CMPI_chars)
                 {
@@ -573,18 +572,23 @@ thread (void *context)
             ("--- #1.2 No projection list, meaning it is SELECT * .... ");
         }
     }
+  // This is how an indication provider would work.
+  //  Create an objectpath + instance and use CMEvaluateSelExp
+  //  OR
+  //  use CMEvaluateSelExpUsingAccessor and pass in the function that would
+  // provide the properties values.
 
   PROV_LOG ("-- #2 MakeObjectPath");
   // Create instance
 
-  objPath = make_ObjectPath (_Namespace, _IndClassName);
-  type = CDGetType (_broker, objPath, &rc_Inst);
-  PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
+  objPath = make_ObjectPath (broker, _Namespace, _IndClassName);
+  type = CDGetType (broker, objPath, &rc_Inst);
+  PROV_LOG ("---- %s (%s) [%s]", CMGetCharPtr (type), strCMPIStatus (rc_Inst),(rc_Inst.msg == 0) ? "" : CMGetCharPtr(rc_Inst.msg));
   CMRelease (type);
 
   PROV_LOG ("-- #3 Instance");
-  inst = CMNewInstance (_broker, objPath, &rc_Inst);
-  PROV_LOG ("---- %s", strCMPIStatus (rc_Inst));
+  inst = CMNewInstance (broker, objPath, &rc_Inst);
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Inst), (rc_Inst.msg == 0) ? "" : CMGetCharPtr(rc_Inst.msg));
 
   if (rc_Inst.rc == CMPI_RC_ERR_NOT_FOUND)
     {
@@ -594,10 +598,10 @@ thread (void *context)
       goto exit;
     }
 
-  type = CDGetType (_broker, inst, &rc_Inst);
+  type = CDGetType (broker, inst, &rc_Inst);
   if (type)
     {
-      PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
+      PROV_LOG ("---- %s (%s) [%s]", CMGetCharPtr (type), strCMPIStatus (rc_Inst),(rc_Inst.msg == 0) ? "" : CMGetCharPtr(rc_Inst.msg));
       CMRelease (type);
     }
 
@@ -624,13 +628,13 @@ thread (void *context)
     }
 
   PROV_LOG ("-- #4 Evaluate using instance");
-  evalRes = CMEvaluateSelExp (_se, inst, &rc_Eval);
-  PROV_LOG ("---- %s", strCMPIStatus (rc_Eval));
+  evalRes = CMEvaluateSelExp (se, inst, &rc_Eval);
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Eval), (rc_Eval.msg == 0) ? "" : CMGetCharPtr(rc_Eval.msg));
   if (evalRes == CMPI_true)
     {
       PROV_LOG ("--- True, sending indication");
-      rc_Eval = CBDeliverIndication (_broker, ctx, _Namespace, inst);
-      PROV_LOG ("---- %s ", strCMPIStatus (rc_Eval));
+      rc_Eval = CBDeliverIndication (broker, ctx, _Namespace, inst);
+      PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Eval), (rc_Eval.msg == 0) ? "" : CMGetCharPtr(rc_Eval.msg));
     }
   else
     {
@@ -639,8 +643,8 @@ thread (void *context)
 
   PROV_LOG ("-- #4.1 Evalute using accessor");
   evalRes =
-    CMEvaluateSelExpUsingAccessor (_se, instance_accessor, NULL, &rc_Eval);
-  PROV_LOG ("---- %s", strCMPIStatus (rc_Eval));
+    CMEvaluateSelExpUsingAccessor (se, instance_accessor, broker, &rc_Eval);
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Eval), (rc_Eval.msg == 0) ? "" : CMGetCharPtr(rc_Eval.msg));
   if (evalRes == CMPI_true)
     {
       PROV_LOG ("--- True, but not sending indication");
@@ -649,29 +653,31 @@ thread (void *context)
     {
       PROV_LOG ("--- False");
     }
+
   PROV_LOG ("-- #5 CMGetSelExpString");
-  str = CMGetSelExpString (_se, &rc);
-  type = CDGetType (_broker, str, &rc_Inst);
+  str = CMGetSelExpString (se, &rc);
+  type = CDGetType (broker, str, &rc_Inst);
   if (type != NULL)
     {
-      PROV_LOG ("---- %s (%s)", CMGetCharPtr (type), strCMPIStatus (rc_Inst));
+      PROV_LOG ("---- %s (%s) [%s]", CMGetCharPtr (type), strCMPIStatus (rc_Inst), (rc_Inst.msg == 0) ? "" : CMGetCharPtr(rc_Inst.msg));
       CMRelease (type);
     }
 
-  PROV_LOG ("---- %s", strCMPIStatus (rc));
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc), (rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
   PROV_LOG ("-- #5.1 Query is [%s]", CMGetCharPtr (str));
-  PROV_LOG ("-- #5.2 Query is [%s]", _ns);
+  PROV_LOG ("-- #5.2 Query is [%s]", ns);
+
 
   PROV_LOG ("-- #6 Continue evaluating using GetDOC");
   {
-    cond = CMGetDoc (_se, &rc);
-    PROV_LOG ("---- %s", strCMPIStatus (rc));
+    cond = CMGetDoc (se, &rc);
+    PROV_LOG ("---- %s [%s]", strCMPIStatus (rc), (rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
     if (cond != NULL)
       {
 
         PROV_LOG ("--- #6.1 CMGetSubCondCountAndType ");
         cnt = CMGetSubCondCountAndType (cond, &sub_type, &rc);
-        PROV_LOG ("---- %s", strCMPIStatus (rc));
+        PROV_LOG ("---- %s %s", strCMPIStatus (rc), (rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
 
 
         PROV_LOG ("---- Number of disjunctives: %d, Type: %X", cnt, sub_type);
@@ -681,11 +687,11 @@ thread (void *context)
           {
             PROV_LOG ("--- #6.2 CMGetSubCondAt @ %d ", idx);
             subcnd = CMGetSubCondAt (cond, idx, &rc);
-            PROV_LOG ("---- %s", strCMPIStatus (rc));
+            PROV_LOG ("---- %s [%s]", strCMPIStatus (rc),(rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
 
             PROV_LOG ("--- #6.3 CMGetPredicateCount");
             pred_cnt = CMGetPredicateCount (subcnd, &rc);
-            PROV_LOG ("---- %s", strCMPIStatus (rc));
+            PROV_LOG ("---- %s [%s]", strCMPIStatus (rc), (rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
             PROV_LOG ("---- Number of predicates in the conjuctives: %d",
                       pred_cnt);
 
@@ -695,12 +701,12 @@ thread (void *context)
                 PROV_LOG ("--- #6.4 CMGetPredicateAt, %d", pred_idx);
                 pred = CMGetPredicateAt (subcnd, pred_idx, &rc);
 
-                PROV_LOG ("---- %s", strCMPIStatus (rc));
+                PROV_LOG ("---- %s [%s]", strCMPIStatus (rc),(rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
                 PROV_LOG ("--- #6.4 CMGetPredicateData");
                 rc = CMGetPredicateData (pred,
                                          &pred_type,
                                          &pred_op, &left_side, &right_side);
-                PROV_LOG ("---- %s", strCMPIStatus (rc));
+                PROV_LOG ("---- %s [%s]", strCMPIStatus (rc),(rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
 
                 PROV_LOG ("----- Type: %s , CMPIPredOp: %s, LS: %s, RS: %s",
                           strCMPIType (pred_type), strCMPIPredOp (pred_op),
@@ -719,7 +725,7 @@ thread (void *context)
                   CMEvaluatePredicate (pred, "PredicateEvaluation",
                                        CMPI_chars, &rc_Pred);
 #endif
-                PROV_LOG ("---- %s", strCMPIStatus (rc_Pred));
+                PROV_LOG ("---- %s [%s]", strCMPIStatus (rc_Pred), (rc_Pred.msg == 0) ? "" : CMGetCharPtr(rc_Pred.msg));
 
                 if (evalRes == CMPI_true)
                   {
@@ -736,8 +742,8 @@ thread (void *context)
   }
   PROV_LOG ("-- #7 GetCOD");
   {
-    cond = CMGetCod (_se, &rc);
-    PROV_LOG ("---- %s", strCMPIStatus (rc));
+    cond = CMGetCod (se, &rc);
+    PROV_LOG ("---- %s [%s]", strCMPIStatus (rc), (rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
     /* Currently this is not supported in Pegasus. */
     if (cond != NULL)
       {
@@ -745,8 +751,9 @@ thread (void *context)
   }
 exit:
   PROV_LOG ("--- CBDetachThread called");
-  rc = CBDetachThread (_broker, ctx);
-  PROV_LOG ("---- %s", strCMPIStatus (rc));
+  rc = CBDetachThread (broker, ctx);
+  free (ns);
+  PROV_LOG ("---- %s [%s]", strCMPIStatus (rc), (rc.msg == 0) ? "" : CMGetCharPtr(rc.msg));
 
   PROV_LOG ("--- %s CMPI thread(void *) exited", _IndClassName);
 
@@ -774,7 +781,6 @@ void waitUntilThreadIsDone() {
       // Set the time wait to 1 second.
       wait.tv_sec = t.tv_sec + 1;
       wait.tv_nsec = 0;
-
       _broker->xft->lockMutex (_mutex);
       // Wait 1 second has expired or the condition has changed.
       _broker->xft->timedCondWait (_cond, _mutex, &wait);
@@ -895,24 +901,26 @@ TestCMPIIndicationProviderActivateFilter (CMPIIndicationMI * mi,
 #endif
 {
   CMPIContext *context;
+  //void  **arguments[4];
 
+  const void **arguments = (const void **) malloc (4 * sizeof (char *));
   CMPIStatus rc_Clone = { CMPI_RC_OK, NULL };
 
   PROV_LOG_OPEN (_IndClassName, _ProviderLocation);
   PROV_LOG ("--- %s CMPI ActivateFilter() called", _IndClassName);
 
-  // We have to pass in the parameters some way. One way would be
-  // to do it via the void pointer to the thread, but for simplicity
-  // we are just using global values.
-  _se = (CMPISelectExp *) se;
-  _ns = strdup (ns);
-
   // Get a new CMPI_Context which the thread will use.
   context = CBPrepareAttachThread (_broker, ctx);
+
+  // We have to pass in the parameters some way. We are passing the
+  // addresses of them  via the void pointer to the thread. 
+  // This could also be achieved via passing it thread-specific data.
+  arguments[0] = se; 
+  arguments[1] = context; 
+  arguments[2] = _broker; 
+  arguments[3] = strdup(ns);
   // Spawn of a new thread!
-  _broker->xft->newThread (thread, context, 0);
-  // Wait until it finished (this is done purely for logging 
-  // purpose - the logging output is compared to with a template
+  _broker->xft->newThread (thread, (void *)arguments, 0);
 
   PROV_LOG ("--- %s CMPI ActivateFilter() exited", _IndClassName);
   CMReturn (CMPI_RC_OK);
@@ -943,9 +951,6 @@ TestCMPIIndicationProviderDeActivateFilter (CMPIIndicationMI * mi,
 
   waitUntilThreadIsDone();
   PROV_LOG ("--- %s CMPI DeActivateFilter() entered", _IndClassName);
-  // Release the internal data.
-  free (_ns);
-  _ns = NULL;
   PROV_LOG ("--- %s CMPI DeActivateFilter() exited", _IndClassName);
   CMReturn (CMPI_RC_OK);
 }

@@ -2,20 +2,20 @@
  --- TestCMPI_Indication CMPI ActivateFilter() exited
  --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  -- #1.1 CMNewSelectExp
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #1.2 No projection list, meaning it is SELECT * .... 
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
+ ---- CMPIObjectPath (CMPI_RC_OK) []
  -- #3 Instance
- ---- CMPI_RC_OK
- ---- CMPIInstance (CMPI_RC_OK)
+ ---- CMPI_RC_OK []
+ ---- CMPIInstance (CMPI_RC_OK) []
  - CMGetPropertyCount: 6
  -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
  -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
@@ -24,9 +24,9 @@
  -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- #4 Evaluate using instance
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- True, sending indication
- ---- CMPI_RC_OK 
+ ---- CMPI_RC_OK []
  -- #4.1 Evalute using accessor
  -- #4.2 instance_accessor
  -- Property: PropertyA
@@ -37,64 +37,64 @@
  -- #4.2 instance_accessor
  -- Property: s
  ----  (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- False
  -- #5 CMGetSelExpString
- ---- CMPIString (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPIString (CMPI_RC_OK) []
+ ---- CMPI_RC_OK []
  -- #5.1 Query is [SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s']
  -- #5.2 Query is [TestCMPI_Indication]
  -- #6 Continue evaluating using GetDOC
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.1 CMGetSubCondCountAndType 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK 
  ---- Number of disjunctives: 2, Type: 0
  --- #6.2 CMGetSubCondAt @ 0 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 2
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.4 CMGetPredicateAt, 1
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.2 CMGetSubCondAt @ 1 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 2
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.4 CMGetPredicateAt, 1
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  -- #7 GetCOD
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- CBDetachThread called
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) exited
  --- TestCMPI_Indication CMPI EnableIndication() exited
  --- TestCMPI_Indication CMPI DeActivateFilter() entered
@@ -105,30 +105,30 @@
  --- TestCMPI_Indication CMPI ActivateFilter() exited
  --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  -- #1.1 CMNewSelectExp
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #1.2 Projection list is: 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK, []
  --- #1.3 CMGetArrayCount, 2
  --- #1.4 CMGetArrayElementAt
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- type is : 5632
  ---- PropertyA (string)
  --- #1.4 CMGetArrayElementAt
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- type is : 5632
  ---- PropertyB (string)
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
+ ---- CMPIObjectPath (CMPI_RC_OK) []
  -- #3 Instance
- ---- CMPI_RC_OK
- ---- CMPIInstance (CMPI_RC_OK)
+ ---- CMPI_RC_OK []
+ ---- CMPIInstance (CMPI_RC_OK) []
  - CMGetPropertyCount: 6
  -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
  -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
@@ -137,9 +137,9 @@
  -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- #4 Evaluate using instance
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- True, sending indication
- ---- CMPI_RC_OK 
+ ---- CMPI_RC_OK []
  -- #4.1 Evalute using accessor
  -- #4.2 instance_accessor
  -- Property: PropertyA
@@ -150,61 +150,61 @@
  -- #4.2 instance_accessor
  -- Property: s
  ----  (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- True, but not sending indication
  -- #5 CMGetSelExpString
- ---- CMPIString (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPIString (CMPI_RC_OK) []
+ ---- CMPI_RC_OK []
  -- #5.1 Query is [SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE PropertyA='PropertyA' OR PropertyB='Nothing' OR s='s']
  -- #5.2 Query is [TestCMPI_Indication]
  -- #6 Continue evaluating using GetDOC
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.1 CMGetSubCondCountAndType 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK 
  ---- Number of disjunctives: 3, Type: 0
  --- #6.2 CMGetSubCondAt @ 0 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 1
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.2 CMGetSubCondAt @ 1 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 1
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.2 CMGetSubCondAt @ 2 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 1
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.s, RS: 's'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  -- #7 GetCOD
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- CBDetachThread called
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) exited
  --- TestCMPI_Indication CMPI EnableIndication() exited
  --- TestCMPI_Indication CMPI DeActivateFilter() entered
@@ -215,26 +215,26 @@
  --- TestCMPI_Indication CMPI ActivateFilter() exited
  --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  -- #1.1 CMNewSelectExp
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #1.2 Projection list is: 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK, []
  --- #1.3 CMGetArrayCount, 1
  --- #1.4 CMGetArrayElementAt
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- type is : 5632
  ---- s (string)
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
+ ---- CMPIObjectPath (CMPI_RC_OK) []
  -- #3 Instance
- ---- CMPI_RC_OK
- ---- CMPIInstance (CMPI_RC_OK)
+ ---- CMPI_RC_OK []
+ ---- CMPIInstance (CMPI_RC_OK) []
  - CMGetPropertyCount: 6
  -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
  -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
@@ -243,7 +243,7 @@
  -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- #4 Evaluate using instance
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- False
  -- #4.1 Evalute using accessor
  -- #4.2 instance_accessor
@@ -252,51 +252,51 @@
  -- #4.2 instance_accessor
  -- Property: PropertyB
  ----  (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- True, but not sending indication
  -- #5 CMGetSelExpString
- ---- CMPIString (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPIString (CMPI_RC_OK) []
+ ---- CMPI_RC_OK []
  -- #5.1 Query is [SELECT s FROM TestCMPI_Indication WHERE NOT (PropertyA='PropertyA' OR PropertyB='Nothing') AND PropertyA='AccessorPropertyA']
  -- #5.2 Query is [TestCMPI_Indication]
  -- #6 Continue evaluating using GetDOC
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.1 CMGetSubCondCountAndType 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK 
  ---- Number of disjunctives: 1, Type: 0
  --- #6.2 CMGetSubCondAt @ 0 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 3
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyA, RS: 'PropertyA'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.4 CMGetPredicateAt, 1
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.PropertyB, RS: 'Nothing'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.4 CMGetPredicateAt, 2
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_string , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.PropertyA, RS: 'AccessorPropertyA'
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  -- #7 GetCOD
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- CBDetachThread called
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) exited
  --- TestCMPI_Indication CMPI EnableIndication() exited
  --- TestCMPI_Indication CMPI DeActivateFilter() entered
@@ -307,20 +307,20 @@
  --- TestCMPI_Indication CMPI ActivateFilter() exited
  --- TestCMPI_Indication CMPI EnableIndication() entered
  --- CBAttachThread callled.
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) running
  -- #1 Clone
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  -- #1.1 CMNewSelectExp
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #1.2 No projection list, meaning it is SELECT * .... 
  -- #2 MakeObjectPath
  --- make_ObjectPath: CMNewObjectPath
  ----- CMPI_RC_OK
- ---- CMPIObjectPath (CMPI_RC_OK)
+ ---- CMPIObjectPath (CMPI_RC_OK) []
  -- #3 Instance
- ---- CMPI_RC_OK
- ---- CMPIInstance (CMPI_RC_OK)
+ ---- CMPI_RC_OK []
+ ---- CMPIInstance (CMPI_RC_OK) []
  - CMGetPropertyCount: 6
  -- 0: PropertyA(CMPI_string: CMPI_goodValue: PropertyA) [CMPI_RC_OK]
  -- 1: PropertyB(CMPI_string: CMPI_goodValue: PropertyB) [CMPI_RC_OK]
@@ -329,9 +329,9 @@
  -- 4: f(CMPI_real64: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- 5: d(CMPI_dateTime: CMPI_nullValue: No value) [CMPI_RC_OK]
  -- #4 Evaluate using instance
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- True, sending indication
- ---- CMPI_RC_OK 
+ ---- CMPI_RC_OK []
  -- #4.1 Evalute using accessor
  -- #4.2 instance_accessor
  -- Property: s
@@ -339,48 +339,48 @@
  -- #4.2 instance_accessor
  -- Property: n
  ----  (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- True, but not sending indication
  -- #5 CMGetSelExpString
- ---- CMPIString (CMPI_RC_OK)
- ---- CMPI_RC_OK
+ ---- CMPIString (CMPI_RC_OK) []
+ ---- CMPI_RC_OK []
  -- #5.1 Query is [SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (n IS NULL)]
  -- #5.2 Query is [TestCMPI_Indication]
  -- #6 Continue evaluating using GetDOC
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.1 CMGetSubCondCountAndType 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK 
  ---- Number of disjunctives: 2, Type: 0
  --- #6.2 CMGetSubCondAt @ 0 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 1
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_SIMPLE , CMPIPredOp:  CMPI_PredOp_NotEquals , LS: TestCMPI_Indication.s, RS: NULL_VALUE
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  --- #6.2 CMGetSubCondAt @ 1 
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.3 CMGetPredicateCount
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ---- Number of predicates in the conjuctives: 1
  --- #6.4 CMGetPredicateAt, 0
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- #6.4 CMGetPredicateData
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  ----- Type: CMPI_SIMPLE , CMPIPredOp:  CMPI_PredOp_Equals , LS: TestCMPI_Indication.n, RS: NULL_VALUE
  --- #6.5 Evaluate using predicate
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- False
  -- #7 GetCOD
- ---- CMPI_RC_ERR_NOT_SUPPORTED
+ ---- CMPI_RC_ERR_NOT_SUPPORTED []
  --- CBDetachThread called
- ---- CMPI_RC_OK
+ ---- CMPI_RC_OK []
  --- TestCMPI_Indication CMPI thread(void *) exited
  --- TestCMPI_Indication CMPI EnableIndication() exited
  --- TestCMPI_Indication CMPI DeActivateFilter() entered

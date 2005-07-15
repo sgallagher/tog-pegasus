@@ -376,7 +376,7 @@ Boolean DynamicConsumer::isIdle()
     struct timeval timeout = {0,0};
     getIdleTimer(&timeout);
 
-    if ((now.tv_sec - timeout.tv_sec) > (DEFAULT_IDLE_TIMEOUT))  //seconds
+    if (Uint32(now.tv_sec - timeout.tv_sec) > (DEFAULT_IDLE_TIMEOUT)) //seconds
     {
         PEG_METHOD_EXIT();
         return true;

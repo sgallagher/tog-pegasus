@@ -1022,7 +1022,7 @@ Boolean  parseProcStat(char* inputFileString, peg_proc_t* P) {
     sscanf(inputFileString, "%d (%15c", &P->pst_pid, P->pst_ucomm); /* ucomm[16] in kernel */
     num = sscanf(tmp + 2,			/* skip space after ')' too */
        "%c "
-       "%d %d %d %d %lu "
+       "%d %d %d %d %d "
        "%lu %lu %lu %lu %lu %lu %lu "
        "%ld %ld %ld %ld %ld %ld "
        "%lu %lu ",

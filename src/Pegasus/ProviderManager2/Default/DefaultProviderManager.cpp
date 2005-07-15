@@ -2490,6 +2490,15 @@ Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * 
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();
+    // And remove all of the response handlers that might have not been
+    // explicitly stopped.
+    try {  
+       for (IndicationResponseTable::Iterator i = _responseTable.start(); i !=  0; i++)  
+       {  
+          EnableIndicationsResponseHandler *handler  = i.value();  
+          delete handler;  
+       }  
+    } catch (... ) { } 
 
     PEG_METHOD_EXIT();
 

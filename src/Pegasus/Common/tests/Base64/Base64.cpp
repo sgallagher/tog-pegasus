@@ -91,7 +91,7 @@ int main(int argc, char** argv)
         assert(out.size() == 3);
         // The result should be all zeros.
         for (Uint32 i = 0; i < out.size(); i++)
-            if (out[i] != 0xFF) //char 255
+            if (out[i] != char(0xFF)) //char 255
             {
                 if(verbose)
                  cout << "Decode error " << static_cast<int>(out[i]) << endl;

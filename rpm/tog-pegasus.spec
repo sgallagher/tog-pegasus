@@ -671,8 +671,9 @@ fi
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/InstanceProvider
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/MethodProvider
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/SimpleDisplayConsumer
-%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/DefaultC++/AssociationProvider
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/CMPI
+%dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/CMPI/FilesAndDirectories
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/Providers/Load
 %dir %attr(777,root,root) /opt/tog-pegasus/samples/mak
 %attr(444,root,root) /opt/tog-pegasus/samples/Makefile

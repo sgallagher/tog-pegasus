@@ -150,8 +150,9 @@ SAMPLES_DIRS = \
    Providers/DefaultC++/InstanceProvider \
    Providers/DefaultC++/MethodProvider \
    Providers/DefaultC++/SimpleDisplayConsumer \
-   Providers/CMPI/FilesAndDirectories \
    Providers/DefaultC++/AssociationProvider \
+   Providers/CMPI \
+   Providers/CMPI/FilesAndDirectories \
    Providers/Load \
    mak
 

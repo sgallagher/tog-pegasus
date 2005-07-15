@@ -56,6 +56,17 @@ extern "C"
 
   static CMPIStatus selxRelease (CMPISelectExp * eSx)
   {
+ 	CMPI_SelectExp *se = (CMPI_SelectExp*)eSx;
+        if (!se->persistent) {
+		// Do not call unlinkAndDelete - b/c the CMPI_Object::unlinkAndDelete
+		// casts the structure to a CMPI_Object and deletes it. But this is a
+                // CMPI_SelectExp structure so not all of the variables get deleted. Hence
+                // we delete them here.
+         	//((CMPI_Object*)se)->unlinkAndDelete();
+         	((CMPI_Object*)se)->unlink();
+	 	delete se;
+        }
+
     CMReturn (CMPI_RC_OK);
   }
 
@@ -349,8 +360,11 @@ CMPI_SelectExp::CMPI_SelectExp (const OperationContext & ct,
 ctx (ct),
 cond (cond_),
 lang (lang_),
-_context (context)
+_context (context),
+persistent(true)
 {
+  // We do NOT add ourselves to the CMPI_Object as this is a persitent object.
+  // Look at the other construtors.
   props = NULL;
   ft = CMPI_SelectExp_Ftab;
   wql_dnf = NULL;
@@ -361,9 +375,10 @@ _context (context)
 }
 
 CMPI_SelectExp::CMPI_SelectExp (WQLSelectStatement * st):ctx (OperationContext ()),
-wql_stmt (st)
+wql_stmt (st), persistent(false)
 {
-  CMPI_ThreadContext::addObject ((CMPI_Object *) this);
+  // Adding the object to the garbage collector.
+  CMPI_ThreadContext::addObject ((CMPI_Object *)this);
   hdl = NULL;
   ft = CMPI_SelectExp_Ftab;
   props = NULL;
@@ -377,9 +392,10 @@ wql_stmt (st)
 }
 
 CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st):ctx (OperationContext ()),
-cql_stmt (st)
+cql_stmt (st), persistent(false)
 {
-  CMPI_ThreadContext::addObject ((CMPI_Object *) this);
+  // Adding the object to the garbage collector.
+  CMPI_ThreadContext::addObject ((CMPI_Object *)this);
   hdl = NULL;
   ft = CMPI_SelectExp_Ftab;
   props = NULL;
@@ -392,5 +408,4 @@ cql_stmt (st)
   lang = CALL_SIGN_CQL;
   classNames = st->getClassPathList ();
 }
-
 PEGASUS_NAMESPACE_END

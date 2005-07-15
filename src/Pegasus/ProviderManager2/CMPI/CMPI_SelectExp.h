@@ -72,6 +72,7 @@ struct PEGASUS_CMPIPM_LINKAGE CMPI_SelectExp : CMPISelectExp {
    WQLSelectStatement *wql_stmt;
    CQLSelectStatement *cql_stmt;
    QueryContext *_context;
+   Boolean persistent;
 };
 
 PEGASUS_NAMESPACE_END

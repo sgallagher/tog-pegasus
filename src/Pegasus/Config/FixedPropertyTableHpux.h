@@ -57,7 +57,7 @@
 #endif
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
-    {"traceFilePath",       "/var/opt/wbem/cimserver.trc"},
+    {"traceFilePath",       "/var/opt/wbem/trace/cimserver.trc"},
 #ifndef PEGASUS_USE_SYSLOGS
     {"logdir",              "/var/opt/wbem/logs"},
 #endif

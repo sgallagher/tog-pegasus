@@ -371,6 +371,8 @@ fi
 
 %dir %attr(555,root,root) /opt/tog-pegasus/mof/Pegasus
 
+%dir %attr(1777,root ,root) /var/opt/tog-pegasus/cache/trace
+
 %attr(-,root,root) /var/opt/tog-pegasus/repository
 
 %doc %attr(444,root,root) /opt/tog-pegasus/license.txt

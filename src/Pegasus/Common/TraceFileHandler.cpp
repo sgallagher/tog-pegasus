@@ -145,9 +145,22 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
     if (!fileHandle)
     {
         // Unable to open file, log a message
-        Logger::put_l(Logger::DEBUG_LOG, "Tracer", Logger::WARNING,
+        Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, Logger::WARNING,
             "Common.TraceFileHandler.FAILED_TO_OPEN_FILE",
             "Failed to open file $0", fileName);
+        return 0;
+    }
+
+    //
+    // Verify that the file has the correct owner
+    //
+    if (!System::verifyFileOwnership(fileName))
+    {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+           "Common.TraceFileHandler.UNEXPECTED_FILE_OWNER",
+           "File $0 is not owned by user $1.", fileName,
+           System::getEffectiveUserName());
+        fclose(fileHandle);
         return 0;
     }
 
@@ -162,22 +175,9 @@ FILE* TraceFileHandler::_openFile(const char* fileName)
             String(fileName), (_S_IREAD|_S_IWRITE)) )
 #endif
     {
-        Logger::put_l(Logger::DEBUG_LOG, "Tracer", Logger::WARNING,
+        Logger::put_l(Logger::DEBUG_LOG, System::CIMSERVER, Logger::WARNING,
            "Common.TraceFileHandler.FAILED_TO_SET_FILE_PERMISSIONS",
            "Failed to set permissions on file $0", fileName);
-        fclose(fileHandle);
-        return 0;
-    }
-
-    //
-    // Verify that the file has the correct owner
-    //
-    if (!System::verifyFileOwnership(fileName))
-    {
-        Logger::put_l(Logger::ERROR_LOG, "Tracer", Logger::WARNING,
-           "Common.TraceFileHandler.UNEXPECTED_FILE_OWNER",
-           "File $0 is not owned by user $1.", fileName,
-           System::getEffectiveUserName());
         fclose(fileHandle);
         return 0;
     }

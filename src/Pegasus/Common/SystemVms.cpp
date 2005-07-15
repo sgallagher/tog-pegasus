@@ -753,7 +753,10 @@ Boolean System::verifyFileOwnership(const char *path)
   {
     return false;
   }
-  return (st.st_uid == geteuid());
+
+  return ((st.st_uid == geteuid()) &&    // Verify the file owner
+          S_ISREG(st.st_mode) &&         // Verify it is a regular file
+          (st.st_nlink == 1));           // Verify it is not a hard link
 }
 
 void System::syslog(const String & ident, Uint32 severity, const char *message)

@@ -45,7 +45,7 @@
     {"enableBinaryRepository", "false"},
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB)
-    {"traceFilePath",       "/var/opt/tog-pegasus/cache/cimserver.trc"},
+    {"traceFilePath",       "/var/opt/tog-pegasus/cache/trace/cimserver.trc"},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",              "/var/opt/tog-pegasus/log"},
 #endif

@@ -98,6 +98,7 @@ ifeq ($(OS),HPUX)
 
     Prwxr_xr_x = 755
     Prwxrwxrwx = 777
+    Prwxrwxrwt = 1777
     Pr_xr__r__ = 744
     Pr__r__r__ = 444
     Pr________ = 400
@@ -166,6 +167,7 @@ ifeq ($(OS),linux)
     LIB_LINK_SUFFIX = .so
 
     Prwxrwxrwx = 777
+    Prwxrwxrwt = 1777
     Prwxr_xr_x = 755
     Pr_xr__r__ = 744
     Pr__r__r__ = 444

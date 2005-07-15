@@ -292,8 +292,8 @@ public:
     */
     static Boolean changeFilePermissions(const char* path, mode_t mode);
 
-    /** Checks whether the specified file is owned by the effective user for
-        the current process.
+    /** Checks whether the specified file is a regular file owned by the
+        effective user for the current process.
         @param path Path of the file to check.
         @return True if the file is owned by the effective user for the
         current process, false otherwise.

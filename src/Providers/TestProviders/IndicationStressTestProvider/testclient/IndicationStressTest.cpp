@@ -222,6 +222,7 @@ void MyIndicationConsumer::consumeIndication(
   if (seqNumIndex == PEG_NOT_FOUND)
     {
       cout << "+++++ ERROR: Indication Stress Test Consumer - indication seq number NOT FOUND" << endl;
+      errorsEncountered++;
     }
   else if ((long)uniqueID > MAX_UNIQUE_IDS)
     {

@@ -60,6 +60,19 @@ const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("test/TestProvider")
 const String INDICATION_NAME = String ("IndicationStressTestClass");
 AtomicInt receivedIndicationCount = 0;
 
+#define MAX_UNIQUE_IDS 10000
+int seqNumPrevious[MAX_UNIQUE_IDS];
+AtomicInt seqNumberErrors = 0;
+int seqNumberErrorsDisplay = 0;
+int indicationSendCountTotal = 0;
+Uint64 sendRecvDeltaTimeTotal = 0;
+int sendRecvDeltaTimeCnt = 0;
+int sendRecvDeltaTimeMax = 0;
+int sendRecvDeltaTimeMin = 0x7fffffff;
+
+AtomicInt errorsEncountered = 0;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Thread Parameters Class
@@ -97,6 +110,9 @@ private:
 MyIndicationConsumer::MyIndicationConsumer(String name)
 {
     this->name = name;
+    for (int i=0; i < MAX_UNIQUE_IDS; i++)
+      seqNumPrevious[i] = 1;
+
 //  cout << "Constructing MyIndicationConsumer" << endl;
 }
 
@@ -105,14 +121,174 @@ MyIndicationConsumer::~MyIndicationConsumer()
 //  cout << "Destructing MyIndicationConsumer" << endl;
 }
 
+Boolean maxUniqueIDMsgIssued = false;
+
 void MyIndicationConsumer::consumeIndication(
                          const OperationContext & context,
                          const String & url,
                          const CIMInstance& indicationInstance)
 {
-    // Increment the count of indications received
-    receivedIndicationCount++;
-    assert(indicationInstance.getClassName().getString() == INDICATION_NAME);
+  //
+  // Increment the count of indications received
+  //
+  receivedIndicationCount++;
+  assert(indicationInstance.getClassName().getString() == INDICATION_NAME);
+  if (receivedIndicationCount.value() % 200 == 0)
+    cout << "+++++     received indications = " 
+         << receivedIndicationCount.value() 
+         << " of " << indicationSendCountTotal 
+         << " sent, waiting for more ..." << endl;
+
+  // cout << "IndicationStressTest consumer - recvd indication = " << ((CIMObject)indicationInstance).toString() << endl;
+
+  //
+  // Get the date and time from the indication
+  // Compare it to the current date
+  // calculate the time it took to be delivered.
+  // add it to the total delivery time to calculate the average 
+  //      indication delivery time for the test.
+  // Update the min and max delta times.
+  //
+
+  // 
+  // Calculate the time diference between when sent and received (now)
+  //
+
+  Uint32 indicationTimeIndex = indicationInstance.findProperty("IndicationTime");
+  
+
+  if (indicationTimeIndex == PEG_NOT_FOUND)
+    {
+      cout << "+++++ ERROR: Indication Stress Test Consumer - indicationTime NOT FOUND" << endl;
+      errorsEncountered++;
+      return;
+    }
+
+
+  CIMConstProperty indicationTime_property = indicationInstance.getProperty(indicationTimeIndex);
+  // cout << "indicationTime = " << indicationTime_property.getValue().toString() << endl;
+
+  CIMDateTime indicationTime;
+  indicationTime_property.getValue().get(indicationTime);
+
+  CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+  Sint64 sendRecvDeltaTime = CIMDateTime::getDifference(indicationTime, currentDateTime);
+
+  // cout << "sendRecvDeltaTime = " << (long)(sendRecvDeltaTime/1000) << " milli-seconds" << endl;
+
+  sendRecvDeltaTimeTotal += sendRecvDeltaTime;
+  sendRecvDeltaTimeCnt++;
+
+  if (sendRecvDeltaTime > sendRecvDeltaTimeMax)
+    sendRecvDeltaTimeMax = sendRecvDeltaTime;
+
+  if (sendRecvDeltaTime < sendRecvDeltaTimeMin)
+    sendRecvDeltaTimeMin = sendRecvDeltaTime;
+
+  //
+  // Get the unique ID
+  // 
+  // This is sort of a Thread ID except that the unique ID keeps incrementing
+  // across tests runs as long as the server continues to run) 
+  //
+
+  Uint32 uniqueIDIndex = indicationInstance.findProperty("IndicationIdentifier");
+  
+
+  if (uniqueIDIndex == PEG_NOT_FOUND)
+    {
+      cout << "+++++ ERROR: Indication Stress Test Consumer - indication Unique id NOT FOUND" << endl;
+      errorsEncountered++;
+      return;
+    }
+
+
+  CIMConstProperty uniqueID_property = indicationInstance.getProperty(uniqueIDIndex);
+  // cout << "uniqueID = " << uniqueID_property.getValue().toString() << endl;
+
+  String uniqueID_string;
+  int uniqueID = 0;
+  uniqueID_property.getValue().get(uniqueID_string);
+  uniqueID = atoi (uniqueID_string.getCString());
+  
+  // cout << "uniqueID = " << uniqueID << endl;
+
+  //
+  // Get the seq number
+  //
+
+  Uint32 seqNumIndex = indicationInstance.findProperty ("IndicationSequenceNumber");
+
+  if (seqNumIndex == PEG_NOT_FOUND)
+    {
+      cout << "+++++ ERROR: Indication Stress Test Consumer - indication seq number NOT FOUND" << endl;
+    }
+  else if ((long)uniqueID > MAX_UNIQUE_IDS)
+    {
+      if (!maxUniqueIDMsgIssued)
+        {
+          maxUniqueIDMsgIssued = true;
+          cout << endl;
+          cout << "+++++ ERROR: Indication Stress TestConsumer - recvd uniqueID ( "
+               << (long)uniqueID << " ) GT MAX_UNIQUE_IDS ( " << MAX_UNIQUE_IDS << " )"
+               << endl;
+          cout << "+++++        To correct: Stop and start the server, this resets the uniqueID generated by the provider." 
+               << endl;
+          cout << "+++++        Sequence number checking is not completly enabled without this" << endl << endl;
+          errorsEncountered++;
+        }
+      
+    }
+  else
+    {
+      CIMConstProperty seqNum_property = indicationInstance.getProperty(seqNumIndex);
+      // cout << "seqNum = " << (seqNum_property.getValue()).toString() << endl;
+
+      Uint64 seqNumRecvd;
+      seqNum_property.getValue().get(seqNumRecvd);
+      // cout << "seqNumRecvd = " << (long)seqNumRecvd << endl;
+
+      //
+      // See if seqNumRecvd less than previous received matches seqNumPrevious
+      //
+      // The method used to determine the out of order count is 
+      // (received < previous) received. 
+      //
+      // The other choice would would be (received != expected) where expected
+      // is the previous received +1. 
+      // 
+      // The (actual < previous) was chosen as giving results that  
+      // are more representative of the ordering problems.
+      // 
+      // Consider these indication sequences:
+      //
+      //     A: 1,3,4,2,5
+      //     B: 1,4,3,2,5
+      //
+      // The "out of sequence" counts for "(actual != expected)" are A=3, B=2, 
+      // while "(actual < previous)" gives A=1, B=2.
+      //
+      // Thanks to Roger Kump at HP for suggesting the actual < previous method.
+      //
+      // JR Wunderlich 7/14/2005
+      //
+
+      if (seqNumRecvd < seqNumPrevious[uniqueID])
+        {
+          seqNumberErrors++;
+          if (seqNumberErrorsDisplay)
+            {
+              cout << "+++++ ERROR: Indication Stress Test Consumer"
+                   << "- Sequence error "
+                   << " previous = " << seqNumPrevious[uniqueID]
+                   << " received = " << (long) seqNumRecvd << endl;
+            }
+        }
+      seqNumPrevious[uniqueID] = seqNumRecvd;  
+    }
+
+  
+  return;
 
 }
 
@@ -599,19 +775,23 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
             clientConnections.append(tmpClient);
         }
         // determine total number of indication send count
-        int Total_indicationSendCount = indicationSendCount * runClientThreadCount;
+        indicationSendCountTotal = indicationSendCount * runClientThreadCount;
+
+
         // calculate the timeout based on the total send count allowing
-        // 1/4 sec per transaction (rate of 4 transactions per second)
+        // using the MSG_PER_SEC rate 
         // allow 20 seconds of test overhead for very small tests 
 
-        int test_timeout = 20000+(Total_indicationSendCount/4)*1000;
+#define MSG_PER_SEC 4
+
+        int testTimeout = 20000+(indicationSendCountTotal/MSG_PER_SEC)*1000;
         cout << "++++ Estimated test duration = " <<
-          test_timeout/60000 << " minutes." << endl;
+          testTimeout/60000 << " minutes." << endl;
 
         // connect the clients
         for(Uint32 i = 0; i < runClientThreadCount; i++)
         {
-            clientConnections[i]->setTimeout(test_timeout);
+            clientConnections[i]->setTimeout(testTimeout);
             clientConnections[i]->connectLocal();
         }
 
@@ -646,25 +826,26 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
 
         //
         //  Allow time for the indication to be received and forwarded
-        //  Wait up to 1/4 sec per transaction in SLEEP_SEC second intervals.
+        //  Wait in SLEEP_SEC second intervals.
+        //  Put msg out every MSG_SEC intervals
         //
 
 #define SLEEP_SEC 1
 #define MSG_SEC 30
 
-        int sleep_nbr = 1 + Total_indicationSendCount/(4*SLEEP_SEC);
+        int sleep_nbr = 1 + indicationSendCountTotal/(MSG_PER_SEC*SLEEP_SEC);
 
         // cout << "+++++ sleep_iterations = " << sleep_nbr << endl;
 
         for (Uint32 i = 1; i <= sleep_nbr; i++)
         {
             System::sleep (SLEEP_SEC);
-            if (Total_indicationSendCount == receivedIndicationCount.value())
+            if (indicationSendCountTotal == receivedIndicationCount.value())
                 break;
             if (i % (MSG_SEC/SLEEP_SEC) == 1)
               cout << "+++++     received indications = " 
                    << receivedIndicationCount.value() 
-                   << " of " << Total_indicationSendCount 
+                   << " of " << indicationSendCountTotal 
                    << " sent, waiting for more ...." << endl;
         }
         elapsedTime.stop();
@@ -674,22 +855,46 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         listener.removeConsumer(consumer1);
         delete consumer1;
         cout << "+++++ TEST RESULTS: " << endl;
-        cout << "+++++     Number of send threads = "
+        cout << "+++++     Number of send threads =    "
              << runClientThreadCount << endl;
-        cout << "+++++     Sent indications =       " 
-             << Total_indicationSendCount << endl;
-        cout << "+++++     Received indications =   " 
+        cout << "+++++     Sent indications =          " 
+             << indicationSendCountTotal << endl;
+        cout << "+++++     Received indications =      " 
              << receivedIndicationCount.value() << endl;
-        cout << "+++++     Elapsed time =           "
+        cout << "+++++     Out of Sequence =           "
+             << seqNumberErrors.value() << endl;
+        cout << "+++++     Avg. Send-Recv Delta time = "
+             << (long)(sendRecvDeltaTimeTotal/1000)/sendRecvDeltaTimeCnt
+             << " milli-seconds" << endl;
+        cout << "+++++     Min. Send-Recv Delta time = "
+             << sendRecvDeltaTimeMin/1000
+             << " milli-seconds" << endl;
+        cout << "+++++     Max. Send-Recv Delta time = "
+             << sendRecvDeltaTimeMax/1000
+             << " milli-seconds" << endl;
+        cout << "+++++     Elapsed time =              "
              << elapsedTime.getElapsed()
-             << " seconds " << endl;
-        cout << "+++++     Rate =                   " 
+             << " seconds, or  " 
+             << elapsedTime.getElapsed()/60
+             << " minutes." << endl;
+        cout << "+++++     Rate =                      " 
              << receivedIndicationCount.value()/elapsedTime.getElapsed()
              << " indications per second." << endl;
 
+        // assert that all indications sent have been received.
         assert((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value());
 
-        cout << "+++++ passed all tests" << endl;
+        // if error encountered then fail the test.
+        if (errorsEncountered.value())
+          {
+          cout << "+++++ test failed" << endl;
+          return (-1);
+          }
+        else
+          {
+          cout << "+++++ passed all tests" << endl;
+          }
+        
     }
     else if (String::equalNoCase (opt, "cleanup"))
     {

@@ -52,8 +52,16 @@ static Uint32 _nextUID = 0;
 static Uint32 _numSubscriptions = 0;
 static CIMOMHandle _cimom;
 
+static CIMObjectPath path;
+static Array <String> correlatedIndications;
+
+
 IndicationStressTestProvider::IndicationStressTestProvider (void) throw ()
 {
+  // Set the destination of indications for all threads once
+
+            path.setNameSpace("test/TestProvider");
+            path.setClassName("IndicationStressTestClass");
 }
 
 IndicationStressTestProvider::~IndicationStressTestProvider (void) throw ()
@@ -113,6 +121,34 @@ void IndicationStressTestProvider::deleteSubscription (
         _enabled = false;
 }
 
+void SendIndication(int seqNum, char *UIDbuffer)
+{
+  CIMInstance indicationInstance (CIMName ("IndicationStressTestClass"));
+
+  indicationInstance.setPath(path);
+
+  indicationInstance.addProperty
+    (CIMProperty ("IndicationIdentifier",String(UIDbuffer)));
+
+  indicationInstance.addProperty
+    (CIMProperty ("CorrelatedIndications", correlatedIndications));
+
+  CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+
+  indicationInstance.addProperty
+    (CIMProperty ("IndicationTime", currentDateTime));
+
+  indicationInstance.addProperty
+    (CIMProperty ("IndicationSequenceNumber", CIMValue(Uint64(seqNum))));
+
+  // cout << "IndicationStressTestProvider instance = " << ((CIMObject)indicationInstance).toString() << endl;
+
+  _indication_handler->deliver (indicationInstance);
+
+  return;
+}
+
+
 void IndicationStressTestProvider::invokeMethod(
         const OperationContext & context,
         const CIMObjectPath & objectReference,
@@ -123,6 +159,7 @@ void IndicationStressTestProvider::invokeMethod(
         Boolean sendIndication = false;
         Uint32 indicationSendCount;
         CIMIndication indicationInstance;
+        char UIDbuffer[32];
 
         handler.processing();
 
@@ -130,35 +167,19 @@ void IndicationStressTestProvider::invokeMethod(
 
         if (_enabled)
         {
-            CIMInstance theIndication (CIMName ("IndicationStressTestClass"));
-            indicationInstance = theIndication;
-
-            CIMObjectPath path;
-            path.setNameSpace("test/TestProvider");
-            path.setClassName("IndicationStressTestClass");
-            indicationInstance.setPath(path);
-
-            char buffer[32];
-            sprintf(buffer, "%d", _nextUID++);
-            indicationInstance.addProperty
-                (CIMProperty ("IndicationIdentifier",String(buffer)));
-
-            Array <String> correlatedIndications;
-            indicationInstance.addProperty
-                    (CIMProperty ("CorrelatedIndications", correlatedIndications));
-
-            CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-            indicationInstance.addProperty
-                    (CIMProperty ("IndicationTime", currentDateTime));
-
             handler.deliver( CIMValue( 0 ) );
         }
         handler.complete();
 
         if (indicationSendCount > 0)
-            for (Uint32 i = 0; i < indicationSendCount; i++)
-            {
-                _indication_handler->deliver (indicationInstance);
-            }
+          {
+            sprintf(UIDbuffer, "%d", _nextUID++);
+
+            for (Uint32 seqNum = 1; seqNum < indicationSendCount+1; seqNum++)
+              {
+                SendIndication(seqNum, UIDbuffer);               
+              }
+          }
 }
+
 

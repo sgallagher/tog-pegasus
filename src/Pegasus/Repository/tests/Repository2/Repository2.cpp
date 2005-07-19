@@ -57,27 +57,35 @@ void TestNameSpaces(CIMRepository_Mode mode)
     r.createNameSpace(CIMNamespaceName ("namespace0"));
     r.createNameSpace(CIMNamespaceName ("namespace1"));
     r.createNameSpace(CIMNamespaceName ("namespace2"));
+    r.createNameSpace(CIMNamespaceName ("namespace2/subnamespace"));
+    r.createNameSpace(CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
 
     Array<CIMNamespaceName> nameSpaces;
     nameSpaces = r.enumerateNameSpaces();
     BubbleSort(nameSpaces);
 
-    assert(nameSpaces.size() == 4);
+    assert(nameSpaces.size() == 6);
     assert(nameSpaces[0] == CIMNamespaceName ("namespace0"));
     assert(nameSpaces[1] == CIMNamespaceName ("namespace1"));
     assert(nameSpaces[2] == CIMNamespaceName ("namespace2"));
-    assert(nameSpaces[3] == CIMNamespaceName ("root"));
+    assert(nameSpaces[3] == CIMNamespaceName ("namespace2/subnamespace"));
+    assert(nameSpaces[4] == CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
+    assert(nameSpaces[5] == CIMNamespaceName ("root"));
 
     r.deleteNameSpace(CIMNamespaceName ("namespace0"));
     r.deleteNameSpace(CIMNamespaceName ("namespace1"));
 
     nameSpaces = r.enumerateNameSpaces();
-    assert(nameSpaces.size() == 2);
+    assert(nameSpaces.size() == 4);
     BubbleSort(nameSpaces);
     assert(nameSpaces[0] == CIMNamespaceName ("namespace2"));
-    assert(nameSpaces[1] == CIMNamespaceName ("root"));
+    assert(nameSpaces[1] == CIMNamespaceName ("namespace2/subnamespace"));
+    assert(nameSpaces[2] == CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
+    assert(nameSpaces[3] == CIMNamespaceName ("root"));
 
     r.deleteNameSpace(CIMNamespaceName ("namespace2"));
+    r.deleteNameSpace(CIMNamespaceName ("namespace2/subnamespace"));
+    r.deleteNameSpace(CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
     nameSpaces = r.enumerateNameSpaces();
     assert(nameSpaces.size() == 1);
     assert(nameSpaces[0] == CIMNamespaceName ("root"));

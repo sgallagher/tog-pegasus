@@ -34,7 +34,15 @@
 //                 (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
+/*
+    Test basic CIMRepository class functions including:
+    Create namespace
+    delete namespace
+    failure of delete of non-existant namespaced
+    delete non-empty namespace (should fail)
+    putting classes into namespace
+    
+*/
 #include <Pegasus/Common/Config.h>
 #include <cassert>
 #include <Pegasus/Repository/CIMRepository.h>
@@ -165,6 +173,9 @@ void test02(CIMRepository_Mode mode)
 		PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
     }
 
+    // Test to assure that delete of non-existant namespace
+    // causes exception.
+    Boolean testFailed=false;
     try
     {
         // delete a non-empty namespace
@@ -172,8 +183,9 @@ void test02(CIMRepository_Mode mode)
     }
     catch (NonEmptyNameSpace& e)
     {
-        // expected exception 
+        testFailed=true; 
     }
+    assert(testFailed);
 
 //    ATTN:2.0:ENHANCE:DEFERRED:getProviderName() is not supported.
 //    String providerName = r.getProviderName();
@@ -254,8 +266,7 @@ int main(int argc, char** argv)
 
       test01(mode);
       test02(mode);
-      // test03(mode);
-
+      test03(mode);
     }
     catch (Exception& e)
     {

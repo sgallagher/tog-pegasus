@@ -34,6 +34,37 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1502
 //
 //%/////////////////////////////////////////////////////////////////////////////
+/*
+    This test exercies the methods in NameSapcemanager.h.  It defines a repository
+    puts namespaces in the repository manipulates them and then deletes the
+    namespaces through the namespacemanager interface.  The method it tests includes:
+    constructor
+    NamespaceAttributes - Incomplete testing at this point
+    createNamespace
+    get
+    nameSpaceExists
+    createClass
+    deleteNameSpace
+    getNameSpaceNames
+    modifyNameSpace
+    getClassFilePath
+
+    The functions it DOES NOT test today includes:
+    isRemoteNameSpace
+    getQualifierFilePath
+    getInstanceDataFileBase
+    deleteClassName
+    getQualifiersRoot
+    getAssocClassPath
+    getAssocInstancePath
+    checkModify
+    getSubClassNames
+    GetSuperClassNames
+    classHasInstances
+    classExists
+    Note: Many of these untested functions are adequately tested through their
+    use by higher level functions in CIMRepository.
+*/
 
 #include <Pegasus/Common/Config.h>
 #include <cassert>
@@ -56,7 +87,8 @@ void test01()
     NameSpaceManager nsm (repositoryRoot);
     NameSpaceManager::NameSpaceAttributes nsa;
     nsa.insert("shareable","true");
-    //nsm.print (cout);
+    if (verbose)
+        nsm.print (cout);
 
    _nameSpaceNames.append(CIMNamespaceName("aa"));
    _nameSpaceNames.append(CIMNamespaceName("aa/bb"));
@@ -75,6 +107,8 @@ void test01()
             dir.append((const char*)_nameSpaceNames [j].getString().getCString());
 
             FileSystem::removeDirectoryHier (dir);
+            if (verbose)
+                cout << "Directory Hiearchy= " << dir << endl;
 
             // Create a namespace
            nsm.createNameSpace (_nameSpaceNames[j], nsa);
@@ -83,7 +117,8 @@ void test01()
 
     Array<CIMNamespaceName> nameSpaceNames;
     nsm.getNameSpaceNames(nameSpaceNames);
-
+    if (verbose)
+        nsm.print(cout);
     assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES);
     BubbleSort(nameSpaceNames);
 
@@ -97,12 +132,31 @@ void test01()
     nsm.getNameSpaceNames(nameSpaceNames);
     assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
 
+    // Create and delete a class to test these functions
     String outPath;
-    nsm.createClass (CIMNamespaceName("aa/bb"), "MyClass", CIMName(), outPath);
-    String classFilePath = nsm.getClassFilePath(CIMNamespaceName("aa/bb"), "MyClass",NameSpaceRead);
+    nsm.createClass(CIMNamespaceName("aa/bb"), "MyClass", CIMName(), outPath);
+    String classFilePath = nsm.getClassFilePath(CIMNamespaceName("aa/bb"),
+        "MyClass",NameSpaceRead);
     String cfp (repositoryRoot);
     cfp.append("/aa#bb/classes/MyClass.#");
     assert (classFilePath == cfp);
+
+    for (Uint32 j = 0; j < _nameSpaceNames.size(); j++)
+    {
+        if (!_nameSpaceNames[j].equal(CIMNamespaceName("root")))
+        {
+            if(nsm.nameSpaceExists(_nameSpaceNames[j]))
+                nsm.deleteNameSpace(CIMNamespaceName(_nameSpaceNames[j]));
+        }
+    }
+    nsm.getNameSpaceNames(nameSpaceNames);
+    // Only the root namespace should be left.
+    assert(nameSpaceNames.size() == 1);
+    assert(nameSpaceNames[0].equal(CIMNamespaceName("root")));
+    // confirm we can delete root
+    nsm.deleteNameSpace(nameSpaceNames[0]);
+    nsm.getNameSpaceNames(nameSpaceNames);
+    assert(nameSpaceNames.size() == 0);
 }
 
 int main(int argc, char** argv)

@@ -75,9 +75,11 @@ public class CIMValue
      _finalize(cInst);
    }
 
-   CIMValue(int v) {
+   // This constructor should be public as well.
+   public CIMValue(int v) {
       cInst=v;
    }
+
    public CIMValue(Object o) {
 
      cInst=-1;

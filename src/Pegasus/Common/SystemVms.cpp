@@ -749,7 +749,7 @@ Boolean System::verifyFileOwnership(const char *path)
 {
   struct stat st;
 
-  if (stat(path, &st) != 0)
+  if (lstat(path, &st) != 0)
   {
     return false;
   }

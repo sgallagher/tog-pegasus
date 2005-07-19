@@ -1178,7 +1178,7 @@ Boolean System::verifyFileOwnership(const char* path)
         return false;
     }
 #else
-    if (stat(path, &st) != 0)
+    if (lstat(path, &st) != 0)
     {
         return false;
     }

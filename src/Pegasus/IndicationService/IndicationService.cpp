@@ -3610,7 +3610,7 @@ Boolean IndicationService::_canCreate (
                 //
                 _checkProperty (instance,
             PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC,
-                    CIMTYPE_STRING);
+                    CIMTYPE_STRING, true);
             }
         }
 
@@ -4114,7 +4114,8 @@ String IndicationService::_initOrValidateStringProperty (
 void IndicationService::_checkProperty (
     CIMInstance & instance,
     const CIMName & propertyName,
-    const CIMType expectedType)
+    const CIMType expectedType,
+    const Boolean isArray)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
         "IndicationService::_checkProperty");
@@ -4133,7 +4134,8 @@ void IndicationService::_checkProperty (
         //
         if (!theValue.isNull ())
         {
-            if ((theValue.getType () != expectedType) || (theValue.isArray ()))
+            if ((theValue.getType () != expectedType) || 
+                (theValue.isArray () != isArray))
             {
                 //
                 //  Property exists and is not null, but is not of correct type

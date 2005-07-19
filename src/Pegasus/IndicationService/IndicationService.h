@@ -33,6 +33,7 @@
 //                   (carolann_graves@hp.com)
 //               Ben Heilbronn, Hewlett-Packard Company (ben_heilbronn@hp.com)
 //               Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//               Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -345,6 +346,8 @@ private:
         @param   instance              instance to be validated
         @param   propertyName          name of property to be validated
         @param   expectedType          expected CIMType for property
+        @param   isArray               indicates whether the validated
+                                       property is array
 
         @exception   CIM_ERR_INVALID_PARAMETER  if property exists and is not
                                                 null but is not of the correct
@@ -353,7 +356,8 @@ private:
     void _checkProperty (
         CIMInstance & instance,
         const CIMName & propertyName,
-        const CIMType expectedType);
+        const CIMType expectedType,
+        const Boolean isArray = false);
 
     /**
         Determines if the user is authorized to modify the instance, and if the

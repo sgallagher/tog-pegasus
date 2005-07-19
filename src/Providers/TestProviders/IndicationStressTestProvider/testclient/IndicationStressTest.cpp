@@ -61,10 +61,10 @@ const String INDICATION_NAME = String ("IndicationStressTestClass");
 AtomicInt receivedIndicationCount = 0;
 
 #define MAX_UNIQUE_IDS 10000
-int seqNumPrevious[MAX_UNIQUE_IDS];
+Uint64 seqNumPrevious[MAX_UNIQUE_IDS];
 AtomicInt seqNumberErrors = 0;
-int seqNumberErrorsDisplay = 0;
-int indicationSendCountTotal = 0;
+Uint32 seqNumberErrorsDisplay = 0;
+Uint32 indicationSendCountTotal = 0;
 Uint64 sendRecvDeltaTimeTotal = 0;
 int sendRecvDeltaTimeCnt = 0;
 int sendRecvDeltaTimeMax = 0;
@@ -82,8 +82,8 @@ AtomicInt errorsEncountered = 0;
 class T_Parms{
    public:
     AutoPtr<CIMClient> client;
-    int indicationSendCount;
-    int uniqueID;
+    Uint32 indicationSendCount;
+    Uint32 uniqueID;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ private:
 MyIndicationConsumer::MyIndicationConsumer(String name)
 {
     this->name = name;
-    for (int i=0; i < MAX_UNIQUE_IDS; i++)
+    for (Uint32 i=0; i < MAX_UNIQUE_IDS; i++)
       seqNumPrevious[i] = 1;
 
 //  cout << "Constructing MyIndicationConsumer" << endl;
@@ -207,7 +207,7 @@ void MyIndicationConsumer::consumeIndication(
   // cout << "uniqueID = " << uniqueID_property.getValue().toString() << endl;
 
   String uniqueID_string;
-  int uniqueID = 0;
+  Uint32 uniqueID = 0;
   uniqueID_property.getValue().get(uniqueID_string);
   uniqueID = atoi (uniqueID_string.getCString());
   
@@ -281,8 +281,8 @@ void MyIndicationConsumer::consumeIndication(
             {
               cout << "+++++ ERROR: Indication Stress Test Consumer"
                    << "- Sequence error "
-                   << " previous = " << seqNumPrevious[uniqueID]
-                   << " received = " << (long) seqNumRecvd << endl;
+                   << " previous = " << (unsigned long) seqNumPrevious[uniqueID]
+                   << " received = " << (unsigned long) seqNumRecvd << endl;
             }
         }
       seqNumPrevious[uniqueID] = seqNumRecvd;  
@@ -644,7 +644,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeTests(void *parm)
     T_Parms *parms = (T_Parms *)my_thread->get_parm();
     CIMClient *client = parms->client.get();
     Uint32 indicationSendCount = parms->indicationSendCount;
-    int id = parms->uniqueID;
+    Uint32 id = parms->uniqueID;
     char id_[4];
     memset(id_,0x00,sizeof(id_));
     sprintf(id_,"%i",id);
@@ -670,7 +670,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeTests(void *parm)
     return(0);
 }
 
-Thread * _runTestThreads(CIMClient *client, Uint32 indicationSendCount, int uniqueID)
+Thread * _runTestThreads(
+    CIMClient* client,
+    Uint32 indicationSendCount,
+    Uint32 uniqueID)
 {
     // package parameters, create thread and run...
     AutoPtr<T_Parms> parms(new T_Parms());
@@ -785,7 +788,7 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
 
 #define MSG_PER_SEC 4
 
-        int testTimeout = 20000+(indicationSendCountTotal/MSG_PER_SEC)*1000;
+        Uint32 testTimeout = 20000+(indicationSendCountTotal/MSG_PER_SEC)*1000;
         cout << "++++ Estimated test duration = " <<
           testTimeout/60000 << " minutes." << endl;
 
@@ -834,7 +837,7 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
 #define SLEEP_SEC 1
 #define MSG_SEC 30
 
-        int sleep_nbr = 1 + indicationSendCountTotal/(MSG_PER_SEC*SLEEP_SEC);
+        Uint32 sleep_nbr = 1 + indicationSendCountTotal/(MSG_PER_SEC*SLEEP_SEC);
 
         // cout << "+++++ sleep_iterations = " << sleep_nbr << endl;
 

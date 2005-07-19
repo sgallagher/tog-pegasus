@@ -301,6 +301,43 @@ else
   DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=0
 endif
 
+##############################################################################
+## 
+## PEGASUS_INDICATIONS_Q_THRESHOLD
+##
+## Controls if indications providers are stalled if the indications
+## service queue is too large.
+##
+##      defaults to 0 (zero)
+##
+## 	It can be set to any positive value.
+##
+## If set to zero (0) providers are never stalled. This implies that the
+## indications service queue may become as large as neccesary to hold all
+## the indicaitons generated.
+##
+## If set to any value then providers are stalled  by forcing them to sleep
+## when they try to deliver an indication and the indications service queue
+## exceeds this value. They are resumed when the queue count falls 10 percent
+## below this value. 
+##
+## Stall and resume log entries are made to inform the administrator
+## the condition has occured.
+##
+## WARNING: This also affects the Out of Process Providers (OOP Providers)
+##    The OOP Providers use two one way pipes for communication.
+##    By stalling the Provider this prevents the pipe from being read
+##    which will cause the pipe to fill up and the remote side will block.
+##    OOP Prividers mix indications and operations on these two pipes.
+##    This means the operations will also be blocked as a side effect of
+##    the indications being stalled.
+##    
+##
+
+ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
+  DEFINES += -DPEGASUS_INDICATIONS_Q_THRESHOLD=$(PEGASUS_INDICATIONS_Q_THRESHOLD)
+endif
+
 
 # Setup the conditional compile for client displays.
 #

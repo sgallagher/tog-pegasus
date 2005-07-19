@@ -38,6 +38,7 @@
 //              Amit K Arora (amita@in.ibm.com) for PEP-101
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Seema Gupta (gseema@in.ibm.com for PEP135)
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -876,6 +877,73 @@ void ProviderManagerService::indicationCallback(
         _indicationServiceQueueId);
 
     providerManagerService->SendForget(asyncRequest);
+
+
+
+
+#ifdef PEGASUS_INDICATIONS_Q_THRESHOLD
+
+    // See Comments in config.mak asociated with 
+    //  PEGASUS_INDICATIONS_Q_THRESHOLD
+    //
+    // if INDICATIONS_Q_STALL THRESHOLD is gt 0
+    // then if there are over INDICATIONS_Q_STALL_THRESHOLD
+    //           indications in the queue 
+    //      then force this provider to sleep until the queue count
+    //      is lower than INDICATIONS_Q_RESUME_THRESHOLD
+
+static Mutex   indicationThresholdReportedLock;
+static Boolean indicationThresholdReported = false;
+
+#define INDICATIONS_Q_STALL_THRESHOLD PEGASUS_INDICATIONS_Q_THRESHOLD
+#define INDICATIONS_Q_RESUME_THRESHOLD (int)(PEGASUS_INDICATIONS_Q_THRESHOLD*.90)
+#define INDICATIONS_Q_STALL_DURATION 250 // milli-seconds
+
+    MessageQueue * indicationsQueue = MessageQueue::lookup(_indicationServiceQueueId);
+
+    if (((MessageQueueService *)indicationsQueue)->getIncomingCount() > INDICATIONS_Q_STALL_THRESHOLD)
+      {
+        AutoMutex indicationThresholdReportedAutoMutex(indicationThresholdReportedLock);
+        if (!indicationThresholdReported)
+          {
+            indicationThresholdReported = true;
+            indicationThresholdReportedAutoMutex.unlock();
+
+            // make log entry to record que max exceeded 
+
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+               "Indication generation stalled: maximum queue count ($0) exceeded.",
+                INDICATIONS_Q_STALL_THRESHOLD);
+          }
+        else 
+          {
+            indicationThresholdReportedAutoMutex.unlock();
+          }
+
+        while (((MessageQueueService *)indicationsQueue)->getIncomingCount() > INDICATIONS_Q_RESUME_THRESHOLD)
+          {
+            pegasus_sleep(INDICATIONS_Q_STALL_DURATION);
+          }
+
+        AutoMutex indicationThresholdReportedAutoMutex1(indicationThresholdReportedLock);
+        //        indicationThresholdReportedLock.lock(pegasus_thread_self());
+        if(indicationThresholdReported)
+          {
+            indicationThresholdReported = false;
+            indicationThresholdReportedAutoMutex1.unlock();
+           
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::INFORMATION,
+                  "Indication generation resumed: current queue count = $0", 
+                  ((MessageQueueService *)indicationsQueue)->getIncomingCount() );
+
+          }
+        else
+          {
+            indicationThresholdReportedAutoMutex1.unlock();
+          }
+      }  
+#endif /* INDICATIONS_Q_STALL_THRESHOLD */
+
 }
 
 PEGASUS_NAMESPACE_END

@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -125,6 +126,7 @@ public:
     Uint32 _mask;
     AtomicInt _die;
 	AtomicInt _threads;
+        Uint32 getIncomingCount() {return _incoming.count(); }
 
 protected:
     virtual Boolean accept_async(AsyncOpNode *op);

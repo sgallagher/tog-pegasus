@@ -598,7 +598,7 @@ String PAMBasicAuthenticatorStandAlone::_readString()
     char authReply[10]; 
 
     authReply[0] = '\0';
-    Uint32 n = read(fd_2[0], authReply, 2);  /* read back the reply */
+    int n = read(fd_2[0], authReply, 2);  /* read back the reply */
 
     if (n < 0)
     {

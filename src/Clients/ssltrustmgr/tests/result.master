@@ -13,7 +13,7 @@ Result: CIM_ComputerSystem
 Attempt to add the same certificate, this should get a duplication error
 Failed to add certificate.
 Specified certificate already exist.
-CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "PG_SSLCertificate.IssuerName="/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=JohnDoeSelfSigned/emailAddress=TestCertificate",SerialNumber="0",TruststoreType=2"
+CIM_ERR_ALREADY_EXISTS: Operation cannot be carried out because an object already exists: "PG_SSLCertificate.IssuerName="/C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1",SerialNumber="0",TruststoreType=2"
 
 Delete the self-signed certificate from the truststore
 Certificate removed successfully.
@@ -98,7 +98,7 @@ Result: CIM_ComputerSystem
 
 Remove the CA CRL that we just removed, this should get a DNE error
 Failed to remove CRL.
-CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "File does not exist dec26b41.r0."
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "File does not exist 2ef780db.r0."
 
 Remove the CA certificate from the truststore to clean everything up, this should succeed
 Certificate removed successfully.

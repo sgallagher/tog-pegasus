@@ -3,7 +3,6 @@ CALIFORNIA
 Fairfax
 OpenGroup
 OpenPegasus
-JohnDoeSelfSigned
-TestCertificate
+TestUnderCA3
 .
 

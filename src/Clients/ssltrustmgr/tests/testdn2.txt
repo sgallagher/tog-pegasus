@@ -3,7 +3,6 @@ FLORIDA
 Miami
 OpenGroup
 OpenPegasus
-JaneDoeUnderCA
-TestCertificate2
+TestUnderCA1
 .
 

@@ -3,7 +3,6 @@ TEXAS
 Dallas
 OpenGroup
 OpenPegasus
-UnderTheCA
-TestCertificate3
+TestUnderCA2
 .
 

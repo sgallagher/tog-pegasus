@@ -3,7 +3,6 @@ VIRGINIA
 Fairfax
 OpenGroup
 OpenPegasus
-JohnDoeSelfSigned
-TestCertificate
+TestSelfSigned1
 .
 

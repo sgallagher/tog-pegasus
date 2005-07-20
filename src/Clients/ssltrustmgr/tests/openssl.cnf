@@ -56,7 +56,7 @@ stateOrProvinceName     = optional
 organizationName        = optional
 organizationalUnitName  = optional
 commonName              = supplied
-emailAddress            = optional
+#emailAddress            = optional
 
 # For the 'anything' policy
 # At this point in time, you must list all acceptable 'object'
@@ -68,7 +68,7 @@ localityName            = optional
 organizationName        = optional
 organizationalUnitName  = optional
 commonName              = supplied
-emailAddress            = optional
+#emailAddress            = optional
 
 ####################################################################
 [ req ]
@@ -93,8 +93,8 @@ organizationalUnitName          = Organizational Unit Name (eg, section)
 commonName                      = Common Name (eg, your website's domain name)
 commonName_max                  = 64
 
-emailAddress                    = Email Address
-emailAddress_max                = 40
+#emailAddress                    = Email Address
+#emailAddress_max                = 40
 
 [ req_attributes ]
 challengePassword               = A challenge password

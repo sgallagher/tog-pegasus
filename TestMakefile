@@ -112,12 +112,12 @@ repositoryServer:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
 
 prestarttests:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
-	$(SLEEP) 5
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+#	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+#	$(SLEEP) 5
+#	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+#	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+#	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
+#	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests -f Makefile test_setup
 
 poststarttestsclean:
@@ -132,6 +132,7 @@ poststarttests: poststarttestsclean
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 
 tests: $(TESTS)
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

@@ -51,7 +51,7 @@ PEGASUS_USING_STD;
 
 int main(int argc, char** argv)
 {
-    if (argc != 3)
+    if (argc < 3)
     {
         PEGASUS_STD(cout) << "Wrong number of arguments" << PEGASUS_STD(endl);
         exit(1);
@@ -59,10 +59,16 @@ int main(int argc, char** argv)
 
     String certpath = argv[1];
     String keypath = argv[2];
+	String randFile = String::EMPTY;
+
+	if (argc == 4)
+	{
+		randFile = argv[3];
+	}
 
     try
     {
-        SSLContext ctx(String::EMPTY, certpath, keypath, 0, String::EMPTY);
+        SSLContext ctx(String::EMPTY, certpath, keypath, 0, randFile);
     
         PEGASUS_STD(cout)<< "TestCertClient::Connecting to 127.0.0.1:5989" << PEGASUS_STD(endl);
     

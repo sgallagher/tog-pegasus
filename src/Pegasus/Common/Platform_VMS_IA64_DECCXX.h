@@ -37,6 +37,8 @@
 #define Pegasus_Platform_VMS_IA64_DECCXX_h
 
 #include <stdlib>
+#include <stdio.h>
+#include <stddef>
 #include "ConfigVms.h"
 
 #if (__INITIAL_POINTER_SIZE==64)

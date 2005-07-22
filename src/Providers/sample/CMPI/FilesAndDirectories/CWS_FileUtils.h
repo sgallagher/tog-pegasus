@@ -38,7 +38,7 @@
 #if defined SIMULATED
  #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
 #else
- #define CWS_FILEROOT  "/"
+ #define CWS_FILEROOT  "/tmp"
 #endif
 
 #if defined CWS_DEBUG

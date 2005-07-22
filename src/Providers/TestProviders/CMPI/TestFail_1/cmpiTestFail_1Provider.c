@@ -44,31 +44,31 @@
 
 
 
-CMPIInstanceMI* 
+CMPI_EXTERN_C CMPIInstanceMI* 
 TestCMPIFail_1Provider_Create_InstanceMI(const CMPIBroker* brkr,const CMPIContext *ctx, CMPIStatus *rc) 
 { 
 	return NULL;
 }
 
-CMPIAssociationMI* 
+CMPI_EXTERN_C CMPIAssociationMI* 
 TestCMPIFail_1Provider_Create_AssociationMI(const CMPIBroker* brkr,const CMPIContext *ctx,  CMPIStatus *rc) 
 {
 	return NULL;
 }
 
-CMPIMethodMI* 
+CMPI_EXTERN_C CMPIMethodMI* 
 TestCMPIFail_1Provider_Create_MethodMI(const CMPIBroker* brkr, const CMPIContext *ctx,  CMPIStatus *rc)
 {
 	return NULL;
 }
 
-CMPIPropertyMI* 
+CMPI_EXTERN_C CMPIPropertyMI* 
 TestCMPIFail_1Provider_Create_PropertyMI(const CMPIBroker* brkr,const CMPIContext *ctx,  CMPIStatus *rc) 
 {
 	return NULL;
 }
 
-CMPIIndicationMI* 
+CMPI_EXTERN_C CMPIIndicationMI* 
 TestCMPIFail_1Provider_Create_IndicationMI(const CMPIBroker* brkr,const CMPIContext *ctx,CMPIStatus *rc) 
 {
 	return NULL;

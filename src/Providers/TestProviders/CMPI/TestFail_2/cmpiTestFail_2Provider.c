@@ -48,7 +48,7 @@
 // We pick an invalid one:
 // TestCMPIInstance_Fail1PRovider_Create_instanceMI
 
-CMPIInstanceMI* TestCMPI_Fail2PRovider_Create_instanceMI(const CMPIBroker* brkr,const CMPIContext *ctx, CMPIStatus *rc) 
+CMPI_EXTERN_C CMPIInstanceMI* TestCMPI_Fail2PRovider_Create_instanceMI(const CMPIBroker* brkr,const CMPIContext *ctx, CMPIStatus *rc) 
 { 
 	return NULL;
 }

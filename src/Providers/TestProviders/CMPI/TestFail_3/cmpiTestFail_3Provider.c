@@ -45,13 +45,13 @@
 
 
 
-CMPIInstanceMI* 
+CMPI_EXTERN_C CMPIInstanceMI* 
 TestCMPIFail_3Provider_Create_InstanceMI(const CMPIBroker* brkr,const CMPIContext *ctx,  CMPIStatus *rc) 
 {
 	return NULL;
 }
 
-CMPIInstanceMI* 
+CMPI_EXTERN_C CMPIInstanceMI* 
 _Generic_Create_InstanceMI(const CMPIBroker* brkr,const CMPIContext *ctx, const char *name, CMPIStatus *rc) 
 {
 	return NULL;

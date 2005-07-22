@@ -40,8 +40,6 @@ PEGASUS_USING_PEGASUS;
 
 static IndicationResponseHandler * _handler = 0; 
 static Boolean _enabled = false;
-static Uint32 _nextUID = 0;
-static Uint32 _numSubscriptions = 0;
 
 void _generateIndication (
     IndicationResponseHandler * handler,
@@ -76,7 +74,7 @@ void _generateIndication (
 {
     if (_enabled)
     {
-	CIMInstance indicationInstance (CIMName("RT_TestIndication"));
+        CIMInstance indicationInstance (CIMName("RT_TestIndication"));
 
         CIMObjectPath path ;
         path.setNameSpace("root/SampleProvider");
@@ -84,17 +82,18 @@ void _generateIndication (
 
         indicationInstance.setPath(path);
 
-        char buffer[32];
-        sprintf(buffer, "%d", _nextUID++);
+        char buffer [32];  // Should need 21 chars max
+        sprintf (buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u",
+            CIMDateTime::getCurrentDateTime ().toMicroSeconds ());
         indicationInstance.addProperty
             (CIMProperty ("IndicationIdentifier",String(buffer)));
 
-	CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
-	indicationInstance.addProperty
+        CIMDateTime currentDateTime = CIMDateTime::getCurrentDateTime ();
+        indicationInstance.addProperty
             (CIMProperty ("IndicationTime", currentDateTime));
 
-	Array<String> correlatedIndications; 
-	indicationInstance.addProperty
+        Array<String> correlatedIndications; 
+        indicationInstance.addProperty
             (CIMProperty ("CorrelatedIndications", correlatedIndications));
 
         indicationInstance.addProperty
@@ -119,7 +118,6 @@ void IndicationProvider::createSubscription (
     const CIMPropertyList & propertyList,
     const Uint16 repeatNotificationPolicy)
 {
-    _numSubscriptions++;
 }
 
 void IndicationProvider::modifySubscription (
@@ -136,10 +134,6 @@ void IndicationProvider::deleteSubscription (
     const CIMObjectPath & subscriptionName,
     const Array <CIMObjectPath> & classNames)
 {
-    _numSubscriptions--;
-
-    if (_numSubscriptions == 0)
-        _enabled = false;
 }
 
 void IndicationProvider::invokeMethod(
@@ -149,28 +143,28 @@ void IndicationProvider::invokeMethod(
         const Array<CIMParamValue> & inParameters,
         MethodResultResponseHandler & handler)
 {
-        Boolean sendIndication = false;
-        handler.processing();
+    Boolean sendIndication = false;
+    handler.processing();
 
-        if (objectReference.getClassName().equal ("RT_TestIndication") &&
-	    _enabled)
-        {                
-            if(methodName.equal("SendTestIndication"))
-            {
-                sendIndication = true;
-                handler.deliver( CIMValue( 0 ) );
-             }
-        }
-
-        else
+    if (objectReference.getClassName().equal ("RT_TestIndication") &&
+        _enabled)
+    {                
+        if(methodName.equal("SendTestIndication"))
         {
-             handler.deliver( CIMValue( 1 ) );
-	     PEGASUS_STD(cout) << "Provider is not enabled." << PEGASUS_STD(endl);
+            sendIndication = true;
+            handler.deliver( CIMValue( 0 ) );
         }
+    }
 
-        handler.complete();
+    else
+    {
+        handler.deliver( CIMValue( 1 ) );
+        PEGASUS_STD(cout) << "Provider is not enabled." << PEGASUS_STD(endl);
+    }
 
-        if (sendIndication)
-           _generateIndication(_handler,"generateIndication");
+    handler.complete();
+
+    if (sendIndication)
+        _generateIndication(_handler,"generateIndication");
 }
 

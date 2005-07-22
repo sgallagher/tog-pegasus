@@ -67,6 +67,7 @@ static void set_coe(void)
   set ("DECC$FILE_OWNER_UNIX", TRUE);
   set ("DECC$FILE_PERMISSION_UNIX", TRUE);
   set ("DECC$READDIR_DROPDOTNOTYPE", TRUE);
+  set ("DECC$FILENAME_UNIX_ONLY", FALSE);
   set ("DECC$UMASK", 027);
 }
 

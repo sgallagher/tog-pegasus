@@ -84,6 +84,10 @@ TraceFileHandler::~TraceFileHandler ()
     if (_fileHandle)
     {
         fclose(_fileHandle);
+    //
+    // Clear out the pointer just in case.
+    //
+        _fileHandle = 0;
     }
     if (_fileName)
     {
@@ -122,7 +126,17 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     {
 	return 1;
     }
-
+    //
+    // Check if a file is already open, if so close it.
+    //
+    if (_fileHandle)
+    {
+        fclose(_fileHandle);
+    //
+    // Clear out the pointer just in case.
+    //
+        _fileHandle = 0;
+    }
     _fileHandle = _openFile(fileName);
     if (!_fileHandle)
     {
@@ -141,7 +155,12 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
 
 FILE* TraceFileHandler::_openFile(const char* fileName)
 {
+#ifdef PEGASUS_OS_VMS
+//    FILE* fileHandle = fopen(fileName,"a+", "shr=get,put,upd");
+    FILE* fileHandle = fopen(fileName,"w", "shr=get,put,upd");
+#else
     FILE* fileHandle = fopen(fileName,"a+");
+#endif
     if (!fileHandle)
     {
         // Unable to open file, log a message

@@ -167,6 +167,10 @@ void ProviderAgent::run()
                         "No active providers.  Exiting.");
                     _terminating = true;
                 }
+                else
+                {
+                    _threadPool.cleanupIdleThreads();
+                }
             }
             catch (...)
             {

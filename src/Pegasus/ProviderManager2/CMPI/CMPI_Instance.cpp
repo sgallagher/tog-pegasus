@@ -51,6 +51,8 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+extern int _cmpi_trace;
+
 extern "C" {
 
    static CMPIStatus instRelease(CMPIInstance* eInst) {
@@ -175,23 +177,23 @@ extern "C" {
             cp.setValue(v);
          }
          catch (const TypeMismatchException &) {
-#ifdef PEGASUS_DEBUG
+	     if (_cmpi_trace) {
            cerr<<"-+- TypeMisMatch exception for: "<<name<<endl;
-           if (getenv("CMPI_CHECKTYPES")!=NULL) {
+           if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL) {
                cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
                abort();
-            }
-#endif
+             }
+		    }
             CMReturn(CMPI_RC_ERR_TYPE_MISMATCH);
          }
          catch (const Exception &e) {
-#ifdef PEGASUS_DEBUG
-            cerr<<"-+- "<<e.getMessage()<<" exception for: "<<name<<endl;
-            if (getenv("CMPI_CHECKTYPES")!=NULL) {
-               cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
-               abort();
+		    if (_cmpi_trace) {
+              cerr<<"-+- "<<e.getMessage()<<" exception for: "<<name<<endl;
+              if (getenv("PEGASUS_CMPI_CHECKTYPES")!=NULL) {
+                 cerr<<"-+- Aborting because of CMPI_CHECKTYPES"<<endl;
+                 abort();
+               }
             }
-#endif
             CMReturnWithString(CMPI_RC_ERR_FAILED,
             reinterpret_cast<CMPIString*>(new CMPI_Object(e.getMessage())));
          }

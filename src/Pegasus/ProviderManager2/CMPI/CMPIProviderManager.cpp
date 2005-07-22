@@ -113,9 +113,10 @@ class CMPIPropertyList {
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
    mode=m;
-   if (getenv("CMPI_TRACE")) _cmpi_trace=1;
+   if (getenv("PEGASUS_CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
    _subscriptionInitComplete = false;
+   DDD(cerr << "-- CMPI Provider Manager activated" << endl);
 }
 
 CMPIProviderManager::~CMPIProviderManager(void)

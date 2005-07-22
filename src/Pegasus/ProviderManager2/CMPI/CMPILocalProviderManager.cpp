@@ -53,6 +53,10 @@
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
+#define DDD(X)   if (_cmpi_trace) X;
+
+extern int _cmpi_trace;
+
 #undef IDLE_LIMIT
 #define IDLE_LIMIT 50
   CMPILocalProviderManager::CMPILocalProviderManager (void):
@@ -435,14 +439,9 @@ getRemoteProvider (const String & location, const String & providerName)
   {
     ccode = _provider_ctrl (GET_PROVIDER, &strings, &ph);
   }
-#ifdef PEGASUS_DEBUG
   catch (const Exception & e)
   {
-    cerr << "--- loading proxy: " << e.getMessage () << endl;
-#else
-  catch (const Exception &)
-  {
-#endif
+    DDD(cerr << "--- loading proxy: " << e.getMessage () << endl);
     PEG_METHOD_EXIT ();
     throw;
   }
@@ -485,14 +484,9 @@ getProvider (const String & fileName, const String & providerName)
   {
     ccode = _provider_ctrl (GET_PROVIDER, &strings, &ph);
   }
-#ifdef PEGASUS_DEBUG
   catch (const Exception & e)
   {
-    cerr << "--- loading proxy: " << e.getMessage () << endl;
-#else
-  catch (const Exception &)
-  {
-#endif
+    DDD(cerr << "--- loading proxy: " << e.getMessage () << endl);
     PEG_METHOD_EXIT ();
     throw;
   }

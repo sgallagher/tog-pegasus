@@ -67,6 +67,9 @@
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
+#define DDD(X)   if (_cmpi_trace) X;
+
+extern int _cmpi_trace;
 
 #ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
    #define lloonngg __int64
@@ -571,9 +574,7 @@ extern "C" {
                CMPIStatus* rc, unsigned int count, ...) {
 
       MessageLoaderParms parms(msgId,defMsg);
-#ifdef PEGASUS_DEBUG
-      cerr<<"::: mbEncGetMessage() count: "<<count<<endl;
-#endif
+      DDD(cout<<"--- mbEncGetMessage() count: "<<count<<endl);
       int err=0;
       if (rc) rc->rc=CMPI_RC_OK;
 

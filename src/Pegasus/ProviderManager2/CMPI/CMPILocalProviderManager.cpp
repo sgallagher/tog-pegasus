@@ -372,6 +372,12 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                       continue;
                     }
 
+                  // delete from _provider table
+                  if (!_providers.remove (provider->_name))
+                  {
+                     PEGASUS_ASSERT (0);
+                  }
+
                   // delete the cimom handle
                   PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                     "Destroying CMPIProvider's CIMOM Handle "
@@ -390,8 +396,6 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
                   // set provider status to UNINITIALIZED
                   provider->reset ();
 
-                  // Lastly, delete from _provider table
-                  _providers.remove (provider->getName ());
                   delete provider;
                 }
             }

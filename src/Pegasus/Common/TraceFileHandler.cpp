@@ -84,10 +84,6 @@ TraceFileHandler::~TraceFileHandler ()
     if (_fileHandle)
     {
         fclose(_fileHandle);
-    //
-    // Clear out the pointer just in case.
-    //
-        _fileHandle = 0;
     }
     if (_fileName)
     {
@@ -125,17 +121,6 @@ Uint32 TraceFileHandler::setFileName(const char* fileName)
     if (!isValidFilePath(fileName))
     {
 	return 1;
-    }
-    //
-    // Check if a file is already open, if so close it.
-    //
-    if (_fileHandle)
-    {
-        fclose(_fileHandle);
-    //
-    // Clear out the pointer just in case.
-    //
-        _fileHandle = 0;
     }
     _fileHandle = _openFile(fileName);
     if (!_fileHandle)

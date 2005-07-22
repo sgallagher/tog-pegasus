@@ -129,7 +129,7 @@ PROV_LOG_OPEN (const char *file, const char *location)
   size_t loc_len = strlen (location);
   size_t ext_len = strlen (_LogExtension);
 
-  env = getenv ("PEGASUS_ROOT");
+  env = PEGASUS_ROOT;
   if (env)
     env_len = strlen (env);
 

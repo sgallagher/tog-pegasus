@@ -30,9 +30,10 @@ ROOT = ../../../../..
 
 DIR = Providers/TestProviders/CMPI/TestIndications
 
-LOCAL_DEFINES = -DPEGASUS_USE_EXPERIMENTAL
 
 include $(ROOT)/mak/config.mak
+
+LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc

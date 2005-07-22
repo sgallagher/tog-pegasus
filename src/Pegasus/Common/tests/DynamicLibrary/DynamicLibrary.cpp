@@ -49,8 +49,8 @@ static const String INVALID_FILE_NAME = "BADDynLib.dll";
 static const String VALID_FILE_NAME = "libDynLib.dylib";
 static const String INVALID_FILE_NAME = "libBADDynLib.dylib";
 #elif defined(PEGASUS_OS_VMS)
-static const String VALID_FILE_NAME = "TestDynLib";
-static const String INVALID_FILE_NAME = "BADTestDynLib";
+static const String VALID_FILE_NAME = "/wbem_opt/wbem/providers/lib/libTestDynLib.exe";
+static const String INVALID_FILE_NAME = "/wbem_opt/wbem/providers/lib/libBADTestDynLib.exe";
 #else
 static const String VALID_FILE_NAME = "libDynLib.so";
 static const String INVALID_FILE_NAME = "libBADDynLib.so";

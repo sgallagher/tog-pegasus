@@ -167,13 +167,13 @@ en:table {
          
         DynListener.DynamicConsumer.INVALID_CONSUMER_INTERFACE: string {"PGL00120: Consumer provider interface is not valid."}
 
-	DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD: string {"PGL00120: Not enough threads for consumer worker routine."}
+	DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD: string {"PGL00121: Not enough threads for consumer worker routine."}
 	
-	DynListener.ListenerService.CANNOT_ALLOCATE_THREAD: string {"PGL10121: Not enough threads to start indication listener."}
+	DynListener.ListenerService.CANNOT_ALLOCATE_THREAD: string {"PGL10122: Not enough threads to start indication listener."}
 
-        Listener.CIMListenerIndicationDispatcher.CANNOT_ALLOCATE_THREAD: string {"PGL10122: Not enough threads to allocate a worker to deliver the event."}
+        Listener.CIMListenerIndicationDispatcher.CANNOT_ALLOCATE_THREAD: string {"PGL10123: Not enough threads to allocate a worker to deliver the event."}
 
-        Listener.CIMListener.CANNOT_ALLOCATE_THREAD: string {"PGL10123: Could not allocate a thread."}
+        Listener.CIMListener.CANNOT_ALLOCATE_THREAD: string {"PGL10124: Could not allocate a thread."}
         /**
         * @note DynListener.cimlistener.MENU.STANDARD:
         *    Do not translate the cimlistener command or options.  Just translate the text that explains the options.

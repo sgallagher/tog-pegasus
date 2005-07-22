@@ -467,6 +467,104 @@ void IndicationService::_initialize (void)
     _supportedPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
 
     //
+    //  Set arrays of names of supported properties for each class
+    //
+    //  Currently, all properties in these classes in CIM 2.5 through CIM 2.9
+    //  final schemas are supported.  If support for a new class is added, a new
+    //  list of names of supported properties for the class must be added as a
+    //  private member to the IndicationService class, and the array values
+    //  must be appended here.  When support for a new property is added, the
+    //  property name must be appended to the appropriate array(s) here.
+    //
+    _supportedSubscriptionProperties.append (_PROPERTY_FILTER);
+    _supportedSubscriptionProperties.append (_PROPERTY_HANDLER);
+    _supportedSubscriptionProperties.append (_PROPERTY_ONFATALERRORPOLICY);
+    _supportedSubscriptionProperties.append (_PROPERTY_OTHERONFATALERRORPOLICY);
+    _supportedSubscriptionProperties.append
+        (_PROPERTY_FAILURETRIGGERTIMEINTERVAL);
+    _supportedSubscriptionProperties.append (_PROPERTY_STATE);
+    _supportedSubscriptionProperties.append (_PROPERTY_OTHERSTATE);
+    _supportedSubscriptionProperties.append (_PROPERTY_LASTCHANGE);
+    _supportedSubscriptionProperties.append (_PROPERTY_DURATION);
+    _supportedSubscriptionProperties.append (_PROPERTY_STARTTIME);
+    _supportedSubscriptionProperties.append (_PROPERTY_TIMEREMAINING);
+    _supportedSubscriptionProperties.append
+        (_PROPERTY_REPEATNOTIFICATIONPOLICY);
+    _supportedSubscriptionProperties.append
+        (_PROPERTY_OTHERREPEATNOTIFICATIONPOLICY);
+    _supportedSubscriptionProperties.append
+        (_PROPERTY_REPEATNOTIFICATIONINTERVAL);
+    _supportedSubscriptionProperties.append (_PROPERTY_REPEATNOTIFICATIONGAP);
+    _supportedSubscriptionProperties.append (_PROPERTY_REPEATNOTIFICATIONCOUNT);
+
+    _supportedFormattedSubscriptionProperties =
+        _supportedSubscriptionProperties;
+    _supportedFormattedSubscriptionProperties.append
+        (_PROPERTY_TEXTFORMATOWNINGENTITY);
+    _supportedFormattedSubscriptionProperties.append
+        (_PROPERTY_TEXTFORMATID);
+    _supportedFormattedSubscriptionProperties.append
+        (_PROPERTY_TEXTFORMAT);
+    _supportedFormattedSubscriptionProperties.append
+        (_PROPERTY_TEXTFORMATPARAMETERS);
+
+    _supportedFilterProperties.append (_PROPERTY_CAPTION);
+    _supportedFilterProperties.append (_PROPERTY_DESCRIPTION);
+    _supportedFilterProperties.append (_PROPERTY_ELEMENTNAME);
+    _supportedFilterProperties.append (_PROPERTY_SYSTEMCREATIONCLASSNAME);
+    _supportedFilterProperties.append (_PROPERTY_SYSTEMNAME);
+    _supportedFilterProperties.append (_PROPERTY_CREATIONCLASSNAME);
+    _supportedFilterProperties.append (_PROPERTY_NAME);
+    _supportedFilterProperties.append (_PROPERTY_SOURCENAMESPACE);
+    _supportedFilterProperties.append (_PROPERTY_QUERY);
+    _supportedFilterProperties.append (_PROPERTY_QUERYLANGUAGE);
+
+    Array <CIMName> commonListenerDestinationProperties;
+    commonListenerDestinationProperties.append (_PROPERTY_CAPTION);
+    commonListenerDestinationProperties.append (_PROPERTY_DESCRIPTION);
+    commonListenerDestinationProperties.append (_PROPERTY_ELEMENTNAME);
+    commonListenerDestinationProperties.append
+        (_PROPERTY_SYSTEMCREATIONCLASSNAME);
+    commonListenerDestinationProperties.append (_PROPERTY_SYSTEMNAME);
+    commonListenerDestinationProperties.append (_PROPERTY_CREATIONCLASSNAME);
+    commonListenerDestinationProperties.append (_PROPERTY_NAME);
+    commonListenerDestinationProperties.append (_PROPERTY_PERSISTENCETYPE);
+    commonListenerDestinationProperties.append (_PROPERTY_OTHERPERSISTENCETYPE);
+
+    _supportedCIMXMLHandlerProperties = commonListenerDestinationProperties;
+    _supportedCIMXMLHandlerProperties.append (_PROPERTY_OWNER);
+    _supportedCIMXMLHandlerProperties.append
+        (PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
+
+    _supportedCIMXMLListenerDestinationProperties =
+        commonListenerDestinationProperties;
+    _supportedCIMXMLListenerDestinationProperties.append
+        (PEGASUS_PROPERTYNAME_LSTNRDST_DESTINATION);
+
+    _supportedSNMPHandlerProperties = commonListenerDestinationProperties;
+    _supportedSNMPHandlerProperties.append (_PROPERTY_OWNER);
+    _supportedSNMPHandlerProperties.append
+        (PEGASUS_PROPERTYNAME_LSTNRDST_TARGETHOST);
+    _supportedSNMPHandlerProperties.append (_PROPERTY_TARGETHOSTFORMAT);
+    _supportedSNMPHandlerProperties.append (_PROPERTY_OTHERTARGETHOSTFORMAT);
+    _supportedSNMPHandlerProperties.append (_PROPERTY_PORTNUMBER);
+    _supportedSNMPHandlerProperties.append (_PROPERTY_SNMPVERSION);
+    _supportedSNMPHandlerProperties.append (_PROPERTY_SNMPSECURITYNAME);
+    _supportedSNMPHandlerProperties.append (_PROPERTY_SNMPENGINEID);
+
+    _supportedSyslogListenerDestinationProperties =
+        commonListenerDestinationProperties;
+
+    _supportedEmailListenerDestinationProperties =
+        commonListenerDestinationProperties;
+    _supportedEmailListenerDestinationProperties.append
+        (PEGASUS_PROPERTYNAME_LSTNRDST_MAILTO);
+    _supportedEmailListenerDestinationProperties.append
+        (PEGASUS_PROPERTYNAME_LSTNRDST_MAILCC);
+    _supportedEmailListenerDestinationProperties.append
+        (PEGASUS_PROPERTYNAME_LSTNRDST_MAILSUBJECT);
+
+    //
     //  Get existing active subscriptions from each namespace in the repository
     //
     invalidInstance = _subscriptionRepository->getActiveSubscriptions
@@ -3071,6 +3169,12 @@ Boolean IndicationService::_canCreate (
     // class?
 
     //
+    //  Validate that all properties in the instance are supported properties,
+    //  and reject create if an unknown, unsupported property is found
+    //
+    _checkSupportedProperties (instance);
+
+    //
     //  Check all required properties exist
     //  For a property that has a default value, if it does not exist or is
     //  null, add or set property with default value
@@ -4109,8 +4213,6 @@ String IndicationService::_initOrValidateStringProperty (
     return result;
 }
 
-
-
 void IndicationService::_checkProperty (
     CIMInstance & instance,
     const CIMName & propertyName,
@@ -4172,6 +4274,80 @@ void IndicationService::_checkProperty (
                             propertyName.getString ()));
                 }
             }
+        }
+    }
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_checkSupportedProperties (
+    const CIMInstance & instance)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_checkSupportedProperties");
+
+    CIMName className = instance.getClassName ();
+    Array <CIMName> emptyArray;
+    Array <CIMName> & supportedProperties = emptyArray;
+
+    //
+    //  Get list of supported properties for the class
+    //
+    if (className.equal (PEGASUS_CLASSNAME_INDSUBSCRIPTION))
+    {
+        supportedProperties = _supportedSubscriptionProperties;
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_FORMATTEDINDSUBSCRIPTION))
+    {
+        supportedProperties = _supportedFormattedSubscriptionProperties;
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_INDFILTER))
+    {
+        supportedProperties = _supportedFilterProperties;
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_CIMXML))
+    {
+        supportedProperties = _supportedCIMXMLHandlerProperties;
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_CIMXML))
+    {
+        supportedProperties = _supportedCIMXMLListenerDestinationProperties;
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_INDHANDLER_SNMP))
+    {
+        supportedProperties = _supportedSNMPHandlerProperties;
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_SYSTEM_LOG))
+    {
+        supportedProperties = _supportedSyslogListenerDestinationProperties;
+    }
+    else if (className.equal (PEGASUS_CLASSNAME_LSTNRDST_EMAIL))
+    {
+        supportedProperties = _supportedEmailListenerDestinationProperties;
+    }
+    else
+    {
+        PEGASUS_ASSERT (false);
+    }
+
+    //
+    //  Check if each property in the instance is in the list of supported,
+    //  known properties for its class
+    //
+    for (Uint32 i = 0; i < instance.getPropertyCount (); i++)
+    {
+        if (!ContainsCIMName (supportedProperties,
+            instance.getProperty (i).getName ()))
+        {
+            //
+            //  Throw an exception if an unknown, unsupported property was found
+            //
+            PEG_METHOD_EXIT ();
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+                MessageLoaderParms (_MSG_PROPERTY_NOT_SUPPORTED_KEY,
+                    _MSG_PROPERTY_NOT_SUPPORTED, 
+                    instance.getProperty (i).getName ().getString (),
+                    className.getString ()));
         }
     }
 

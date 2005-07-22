@@ -2516,6 +2516,27 @@ void _error (CIMClient & client)
     }
 
     //
+    //  Filter: Unsupported property
+    //
+    try
+    {
+        CIMInstance filter (PEGASUS_CLASSNAME_INDFILTER);
+        String query = "SELECT * FROM CIM_ProcessIndication";
+        _addStringProperty (filter, "Name", "Filter00");
+        _addStringProperty (filter, "Query", query);
+        _addStringProperty (filter, "QueryLanguage", "WQL");
+        _addStringProperty (filter, "SourceNamespace",
+            SOURCENAMESPACE.getString ());
+        _addUint16Property (filter, "Unsupported", 1);
+        CIMObjectPath path = client.createInstance (NAMESPACE, filter);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
     //  Filter: Attempt to delete a filter referenced by a subscription
     //          A Filter referenced by a subscription may not be deleted
     //
@@ -2883,6 +2904,24 @@ void _error (CIMClient & client)
     }
 
     //
+    //  CIMXML Handler: Unsupported property
+    //
+    try
+    {
+        CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_CIMXML);
+        _addStringProperty (handler, "Name", "Handler00");
+        _addStringProperty (handler, "Destination",
+            "localhost/CIMListener/test1");
+        _addStringProperty (handler, "Unsupported", "unknown");
+        CIMObjectPath path = client.createInstance (NAMESPACE, handler);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
     //  SNMP Handler: Missing required TargetHost property
     //
     try
@@ -3111,6 +3150,26 @@ void _error (CIMClient & client)
     }
 
     //
+    //  SNMP Handler: Unsupported property
+    //
+    try
+    {
+        CIMInstance handler (PEGASUS_CLASSNAME_INDHANDLER_SNMP);
+        _addStringProperty (handler, "Name", "Handler00");
+        _addStringProperty (handler, "TargetHost", "localhost");
+        _addUint16Property (handler, "TargetHostFormat", 2);
+        _addUint16Property (handler, "SNMPVersion", 3);
+        _addUint32Property (handler, "Unsupported", 162);
+        CIMObjectPath path = client.createInstance (NAMESPACE, handler);
+
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
+    }
+
+    //
     //  Handler: Attempt to delete a handler referenced by a subscription
     //           A Handler referenced by a subscription may not be deleted
     //
@@ -3123,6 +3182,24 @@ void _error (CIMClient & client)
     catch (CIMException & e)
     {
         _checkExceptionCode (e, CIM_ERR_FAILED);
+    }
+
+    //
+    //  Listener Destination: Unsupported property
+    //
+    try
+    {
+        CIMInstance handler (PEGASUS_CLASSNAME_LSTNRDST_CIMXML);
+        _addStringProperty (handler, "Name", "Handler00");
+        _addStringProperty (handler, "Destination",
+            "localhost/CIMListener/test1");
+        _addStringProperty (handler, "Owner", "an owner");
+        CIMObjectPath path = client.createInstance (NAMESPACE, handler);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //
@@ -3800,6 +3877,27 @@ void _error (CIMClient & client)
     catch (CIMException & e)
     {
         _checkExceptionCode (e, CIM_ERR_INVALID_PARAMETER);
+    }
+
+    //
+    //  Subscription: Unsupported property
+    //
+    try
+    {
+        CIMInstance subscription = _buildSubscriptionInstance
+            (_buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDFILTER,
+                 "Filter00"),
+             PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+             _buildFilterOrHandlerPath (PEGASUS_CLASSNAME_INDHANDLER_CIMXML,
+                 "Handler00"));
+        _addUint16Property (subscription, "SubscriptionState", 1);
+        _addUint64Property (subscription, "Unsupported", 60);
+        path = client.createInstance (NAMESPACE, subscription);
+        PEGASUS_ASSERT (false);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_NOT_SUPPORTED);
     }
 
     //

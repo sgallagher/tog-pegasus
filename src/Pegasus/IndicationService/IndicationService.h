@@ -360,6 +360,18 @@ private:
         const Boolean isArray = false);
 
     /**
+        Validates that all properties in the instance are supported properties,
+        and throws an exception if an unknown, unsupported property is found.
+
+        @param   instance              instance to be validated
+
+        @exception   CIM_ERR_NOT_SUPPORTED      if instance includes an unknown,
+                                                unsupported property
+     */
+    void _checkSupportedProperties (
+        const CIMInstance & instance);
+
+    /**
         Determines if the user is authorized to modify the instance, and if the
         specified modification is supported.  Currently, the only modification
         supported is of the Subscription State property of the Subscription
@@ -1184,6 +1196,17 @@ private:
     Array <Uint16> _supportedErrorPolicies;
     Array <Uint16> _supportedPersistenceTypes;
 
+    /**
+        Arrays of names of supported properties for each class
+     */
+    Array <CIMName> _supportedSubscriptionProperties;
+    Array <CIMName> _supportedFormattedSubscriptionProperties;
+    Array <CIMName> _supportedFilterProperties;
+    Array <CIMName> _supportedCIMXMLHandlerProperties;
+    Array <CIMName> _supportedCIMXMLListenerDestinationProperties;
+    Array <CIMName> _supportedSNMPHandlerProperties;
+    Array <CIMName> _supportedSyslogListenerDestinationProperties;
+    Array <CIMName> _supportedEmailListenerDestinationProperties;
 };
 
 PEGASUS_NAMESPACE_END

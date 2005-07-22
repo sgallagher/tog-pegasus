@@ -232,6 +232,34 @@ static const CIMName _PROPERTY_REPEATNOTIFICATIONCOUNT =
     CIMName ("RepeatNotificationCount");
 
 /**
+    The name of the TextFormatOwningEntity property for Formatted Indication
+    Subscription class
+*/
+static const CIMName _PROPERTY_TEXTFORMATOWNINGENTITY =
+    CIMName ("TextFormatOwningEntity");
+
+/**
+    The name of the TextFormatID property for Formatted Indication
+    Subscription class
+*/
+static const CIMName _PROPERTY_TEXTFORMATID = CIMName ("TextFormatID");
+
+/**
+    The name of the Caption property for Managed Element class
+ */
+static const CIMName _PROPERTY_CAPTION = CIMName ("Caption");
+
+/**
+    The name of the Description property for Managed Element class
+ */
+static const CIMName _PROPERTY_DESCRIPTION = CIMName ("Description");
+
+/**
+    The name of the ElementName property for Managed Element class
+ */
+static const CIMName _PROPERTY_ELEMENTNAME = CIMName ("ElementName");
+
+/**
     The name of the Query property for indication filter class
  */
 static const CIMName _PROPERTY_QUERY = CIMName ("Query");
@@ -293,6 +321,13 @@ static const CIMName _PROPERTY_OWNER = CIMName ("Owner");
     Handler subclass
  */
 static const CIMName _PROPERTY_TARGETHOSTFORMAT = CIMName ("TargetHostFormat");
+
+/**
+    The name of the OtherTargetHostFormat property for SNMP Mapper Indication 
+    Handler subclass
+ */
+static const CIMName _PROPERTY_OTHERTARGETHOSTFORMAT =
+    CIMName ("OtherTargetHostFormat");
 
 /**
     The name of the SNMP Version property for SNMP Mapper Indication Handler 

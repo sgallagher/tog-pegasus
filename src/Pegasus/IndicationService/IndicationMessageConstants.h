@@ -177,6 +177,12 @@ static const char _MSG_SELECT_PROPERTY_NOT_FOUND [] =
 static const char _MSG_SELECT_PROPERTY_NOT_FOUND_KEY [] =
     "IndicationService.IndicationService._MSG_SELECT_PROPERTY_NOT_FOUND";
 
+static const char _MSG_PROPERTY_NOT_SUPPORTED [] =
+    "Property $0 is not supported in class $1";
+
+static const char _MSG_PROPERTY_NOT_SUPPORTED_KEY [] =
+    "IndicationService.IndicationService._MSG_PROPERTY_NOT_SUPPORTED";
+
 PEGASUS_NAMESPACE_END
 
 #endif  /* Pegasus_IndicationMessageConstants_h */

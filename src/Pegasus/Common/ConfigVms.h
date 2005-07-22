@@ -36,33 +36,13 @@
 #ifndef Pegasus_ConfigVms_h
 #define Pegasus_ConfigVms_h
 
-#include <stddef>
-#include <stdio.h>
-
-#pragma message disable codcauunr
-#pragma message disable unscomzer
-#pragma message disable unrintunr
+//#pragma message disable codcauunr
+//#pragma message disable unscomzer
+//#pragma message disable unrintunr
+#pragma message disable labelnotreach
 #pragma message disable longextern
 #pragma message disable missingreturn
 
-#ifndef PEGASUS_OS_VMS
-#define PEGASUS_OS_VMS
-#endif
-
-#define PEGASUS_EXPORT /* empty */
-#define PEGASUS_IMPORT /* empty */
-#define PEGASUS_IOS_BINARY /* empty */
-#define PEGASUS_OR_IOS_BINARY /* empty */
-#define PEGASUS_COMMON_LINKAGE /* empty */
-#define PEGASUS_REPOSITORY_LINKAGE /* empty */
-#define PEGASUS_PROTOCOL_LINKAGE /* empty */
-#define PEGASUS_SERVER_LINKAGE /* empty */
-#define PEGASUS_COMPILER_LINKAGE /* empty */
-#define PEGASUS_GETOOPT_LINKAGE /* empty */
-#define PEGASUS_PROVIDER_LINKAGE /* empty */
-#define PEGASUS_CMDLINE_LINKAGE /* empty */
-#define PEGASUS_HANDLER_LINKAGE /* empty */
-#define PEGASUS_CIMOM_LINKAGE /* empty */
 #define PegasusCreateProvider PEGASUSCREATEPROVIDER
 #define PegasusCreateProviderAdapter PEGASUSCREATEPROVIDERADAPTER
 #define PegasusCreateProviderManager PEGASUSCREATEPROVIDERMANAGER

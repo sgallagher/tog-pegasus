@@ -891,8 +891,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     PEG_METHOD_EXIT();
 }
 
-Boolean HTTPAuthenticatorDelegator::_validateUser( const String& userName,
-                                                    const Uint32 queueId)
+Boolean HTTPAuthenticatorDelegator::_validateUser(
+    const String& userName,
+    Uint32 queueId)
 {
     Boolean authenticated = false;
 

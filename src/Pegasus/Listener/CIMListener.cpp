@@ -198,8 +198,6 @@ void CIMListenerService::bind()
     { // Bind to the port
       _acceptor->bind();
 
-      PEGASUS_STD(cout) << "Listening on HTTP port " << _portNumber << PEGASUS_STD(endl);
-
       //listener.addAcceptor(false, portNumberHttp, false);
       Logger::put(Logger::STANDARD_LOG, System::CIMLISTENER, Logger::INFORMATION,
                         "Listening on HTTP port $0.", _portNumber);
@@ -449,8 +447,6 @@ void CIMListenerRep::start()
         }
         Logger::put(Logger::STANDARD_LOG,System::CIMLISTENER, Logger::INFORMATION,
                         "CIMListener started");
-
-        PEGASUS_STD(cerr) << "CIMlistener started" << PEGASUS_STD(endl);
 
         _svc = svc.release();
         _thread_pool = threadPool.release();

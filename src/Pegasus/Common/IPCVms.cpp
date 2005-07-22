@@ -616,14 +616,6 @@ Semaphore::~Semaphore()
   pthread_mutex_destroy(&_semaphore.mutex);
 }
 
-static void semaphore_cleanup(void *arg)
-{
-  //cast back to proper type and unlock mutex
-
-  PEGASUS_SEM_HANDLE *s = (PEGASUS_SEM_HANDLE *) arg;
-  pthread_mutex_unlock(&s->mutex);
-}
-
 // block until this semaphore is in a signalled state or
 // throw an exception if the wait fails
 
@@ -669,9 +661,41 @@ void Semaphore::try_wait()
 
 void Semaphore::time_wait(Uint32 milliseconds)
 {
-// not implemented
+  // Acquire mutex to enter critical section.
 
-  throw(WaitFailed(_semaphore.owner));
+  pthread_mutex_lock (&_semaphore.mutex);
+
+  // Keep track of the number of waiters so that <sema_post> works correctly.
+
+  _semaphore.waiters++;
+
+  struct timeval now = {0,0};
+  struct timespec waittime = {0,0};
+  int retcode = 0;
+  gettimeofday(&now, NULL);
+  waittime.tv_sec = now.tv_sec;
+  waittime.tv_nsec = now.tv_usec + (milliseconds * 1000);  // microseconds
+  waittime.tv_sec += (waittime.tv_nsec / 1000000);  // roll overflow into
+  waittime.tv_nsec = (waittime.tv_nsec % 1000000);  // the "seconds" part
+  waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
+
+  // We are in a sense also sending a signal - as in the Semaphore is released
+  // after the time has elapsed.
+
+  int old_count =_count;
+
+  retcode = pthread_cond_timedwait(&_semaphore.cond, &_semaphore.mutex, &waittime) ;
+
+  if (_count != old_count)
+  {
+    _count=old_count;
+  }
+
+  // Decrement the waiters count.
+
+  _semaphore.waiters--;
+
+  pthread_mutex_unlock (&_semaphore.mutex);
 }
 
 // increment the count of the semaphore

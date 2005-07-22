@@ -72,7 +72,7 @@ response->endServer();\
 #define STAT_BYTESSENT \
 Uint16 statType = (response->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
   response->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE:response->getType() - 1;\
-StatisticalData::current()->addToValue(message.size(), statType, StatisticalData::BYTES_SENT);
+StatisticalData::current()->addToValue(message.size(), statType, StatisticalData::PEGASUS_STATDATA_BYTES_SENT);
 
 
 
@@ -108,7 +108,7 @@ response->setEndProviderTime(request->getEndProviderTime());
 Uint16 statType = (request->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
     request->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE: request->getType()-1;\
 StatisticalData::current()->requSize = contentLength; \
-StatisticalData::current()->addToValue(contentLength, statType, StatisticalData::BYTES_READ);
+StatisticalData::current()->addToValue(contentLength, statType, StatisticalData::PEGASUS_STATDATA_BYTES_READ);
 
 
 
@@ -167,10 +167,10 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
       };
 
       enum StatDataType{
-         SERVER,
-         PROVIDER,
-         BYTES_SENT,
-         BYTES_READ
+         PEGASUS_STATDATA_SERVER,
+         PEGASUS_STATDATA_PROVIDER,
+         PEGASUS_STATDATA_BYTES_SENT,
+         PEGASUS_STATDATA_BYTES_READ
       };
 
       static const Uint32 length;

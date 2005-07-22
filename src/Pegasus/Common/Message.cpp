@@ -410,10 +410,10 @@ void Message::endServer()
      _servTi =  _totTi-_provTi;
 
     StatisticalData::current()->addToValue((_servTi*1000),
-        statType, StatisticalData::SERVER );
+        statType, StatisticalData::PEGASUS_STATDATA_SERVER );
 
     StatisticalData::current()->addToValue((_provTi*1000),
-        statType, StatisticalData::PROVIDER );
+        statType, StatisticalData::PEGASUS_STATDATA_PROVIDER );
 
 }
 

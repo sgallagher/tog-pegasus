@@ -109,7 +109,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
         AutoMutex autoMut(_mutex);
         switch (t)
         {
-            case SERVER:
+            case PEGASUS_STATDATA_SERVER:
                 numCalls[type] += 1;
                 cimomTime[type] += value;
                 Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
@@ -120,7 +120,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
                     (const char *)requestName[type].getCString(), type,
                     numCalls[type], value, cimomTime[type]);
                 break;
-            case PROVIDER:
+            case PEGASUS_STATDATA_PROVIDER:
                 providerTime[type] += value;
                 Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
                     "StatData: PROVIDER: %s(%d): count = %"
@@ -130,7 +130,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
                     (const char *)requestName[type].getCString(), type,
                     numCalls[type], value, providerTime[type]);
                 break;
-        case BYTES_SENT:
+        case PEGASUS_STATDATA_BYTES_SENT:
                 responseSize[type] += value;
                 Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
                     "StatData: BYTES_SENT: %s(%d): count = %"
@@ -140,7 +140,7 @@ void StatisticalData::addToValue(Sint64 value, Uint16 type, Uint32 t)
                     (const char *)requestName[type].getCString(), type,
                     numCalls[type], value, responseSize[type]);
                 break;
-        case BYTES_READ:
+        case PEGASUS_STATDATA_BYTES_READ:
                 requestSize[type] += value;
                 Tracer::trace(TRC_STATISTICAL_DATA, Tracer::LEVEL2,
                     "StatData: BYTES_READ: %s(%d): count = %"

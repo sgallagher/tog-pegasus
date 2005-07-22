@@ -74,7 +74,11 @@ PasswordFile::PasswordFile (const String& fileName)
 
     _passwordFile       = fileName;
 
+#ifdef PEGASUS_OS_VMS
+    _passwordBackupFile = fileName + "_bak";
+#else
     _passwordBackupFile = fileName + ".bak";
+#endif
 
     try
     {

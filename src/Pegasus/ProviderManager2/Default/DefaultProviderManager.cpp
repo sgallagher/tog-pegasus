@@ -382,6 +382,8 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -486,6 +488,8 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
 
     PEG_METHOD_EXIT();
 
+     STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -585,6 +589,8 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
     }
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -687,6 +693,8 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
     }
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -793,6 +801,8 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -892,6 +902,8 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
     }
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1107,6 +1119,8 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1211,6 +1225,8 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
     }
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1323,6 +1339,8 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1429,6 +1447,8 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1531,6 +1551,8 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
     }
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1638,6 +1660,8 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
     }
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }

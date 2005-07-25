@@ -84,7 +84,7 @@ _forceShutdown(true)
                   idleTimeout);
 
 
-	//ATTN: Bugzilla 3765 - Uncomment when OptionManager has a reset capability
+    //ATTN: Bugzilla 3765 - Uncomment when OptionManager has a reset capability
     //_optionMgr.registerOptions(optionsTable, NUM_OPTIONS);
 
     struct timeval deallocateWait = {15, 0};
@@ -209,8 +209,8 @@ String ConsumerManager::_getConsumerLibraryName(const String & consumerName)
         try
         {
             //Bugzilla 3765 - Change this to use a member var when OptionManager has a reset option
-			OptionManager _optionMgr;
-			_optionMgr.registerOptions(optionsTable, NUM_OPTIONS); //comment this line out later
+            OptionManager _optionMgr;
+            _optionMgr.registerOptions(optionsTable, NUM_OPTIONS); //comment this line out later
             _optionMgr.mergeFile(configFile);
             _optionMgr.checkRequiredOptions();
 
@@ -346,18 +346,22 @@ void ConsumerManager::_initConsumer(const String& consumerName, DynamicConsumer*
         if (_thread_pool->allocate_and_awaken(consumer,
                                           _worker_routine,
                                           semaphore) != PEGASUS_THREAD_OK)
-	{
-	    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-		"Not enough threads for consumer.");
+    {
+        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "Not enough threads for consumer.");
  
-	    Tracer::trace(TRC_LISTENER, Tracer::LEVEL2,
-		"Could not allocate thread for consumer.");
+        Tracer::trace(TRC_LISTENER, Tracer::LEVEL2,
+        "Could not allocate thread for consumer.");
 
-	   consumer->setShutdownSemaphore(0);
-	   delete semaphore;
+       consumer->setShutdownSemaphore(0);
+       delete semaphore;
            throw Exception(MessageLoaderParms("DynListener.ConsumerManager.CANNOT_ALLOCATE_THREAD",
-	   					"Not enough threads for consumer worker routine."));
+                        "Not enough threads for consumer worker routine."));
         }
+
+        //wait until the listening thread has started.  Otherwise, there is a miniscule chance that the first event will be enqueued
+        //before the consumer is waiting for it and the first indication after loading the consumer will be lost
+        consumer->waitForEventThread();
 
         //load any outstanding requests
         Array<CIMInstance> outstandingIndications = _deserializeOutstandingIndications(consumerName);
@@ -865,6 +869,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ConsumerManager::_worker_routine(void
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL2, "_worker_routine::entering loop for " + name);
 
     PEGASUS_STD(cout) << "Worker thread started for consumer : " << name << endl;
+
+    myself->_listeningSemaphore->signal();
 
     while (true)
     {

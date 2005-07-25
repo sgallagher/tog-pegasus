@@ -130,6 +130,8 @@ public:
 
     Boolean isLoaded(void) const;
 
+    void waitForEventThread(void);
+
     Boolean isIdle(void);
 
     virtual void getIdleTimer(struct timeval *);
@@ -186,6 +188,10 @@ private:
     // This allows for a simulated "WaitForMultipleObjects"
     Semaphore* _check_queue;
 
+    //Signals that the event thread is listening and can now be signalled.
+    //This eliminates any synchronization issues that may occur when the first event comes in or if shutdown is called
+    //right as the consumer thread is being started
+    Semaphore* _listeningSemaphore;
 
     //ATTN: For now, we must store the shutdown semaphore on the consumer, in order to be able to gracefully
     //unload it during a normal shutdown OR an idle shutdown.  Pegasus's ThreadPool does not provide

@@ -49,10 +49,6 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 
-//idle default
-static const Uint32 DEFAULT_IDLE_TIMEOUT = 8; //seconds
-
-
 DynamicConsumer::DynamicConsumer(): Base(0)
 {
 }
@@ -68,6 +64,7 @@ _no_unload(0)
 {
     _check_queue = new Semaphore(0);
     _shutdownSemaphore = new Semaphore(0);
+    _listeningSemaphore = new Semaphore(0);
 }
 
 //ATTN: For migration from old listener -- do we want to support it?
@@ -84,6 +81,7 @@ _no_unload(0)
 {
     _check_queue = new Semaphore(0);
     _shutdownSemaphore = new Semaphore(0);
+    _listeningSemaphore = new Semaphore(0);
 }
 
 DynamicConsumer::~DynamicConsumer(void)
@@ -105,6 +103,11 @@ DynamicConsumer::~DynamicConsumer(void)
     if (_shutdownSemaphore)
     {
         delete _shutdownSemaphore;
+    }
+
+    if (_listeningSemaphore)
+    {
+        delete _listeningSemaphore;
     }
 }
 
@@ -376,7 +379,7 @@ Boolean DynamicConsumer::isIdle()
     struct timeval timeout = {0,0};
     getIdleTimer(&timeout);
 
-    if (Uint32(now.tv_sec - timeout.tv_sec) > (DEFAULT_IDLE_TIMEOUT)) //seconds
+    if (!_current_operations.value())
     {
         PEG_METHOD_EXIT();
         return true;
@@ -384,6 +387,14 @@ Boolean DynamicConsumer::isIdle()
 
     PEG_METHOD_EXIT();
     return false;
+}
+
+/** This method waits until the event thread is ready to accept incoming indications.  Otherwise, there is a miniscule chance that 
+ * the first event will be enqueued before the consumer is waiting for it and the first indication after loading the consumer will be lost.
+ */ 
+void DynamicConsumer::waitForEventThread()
+{
+    _listeningSemaphore->wait();
 }
 
 /** This method is called when the consumer is initialized for the first time.

@@ -53,6 +53,7 @@ ifeq ($(OS),win32)
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) -start
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -stop
     SLEEP = mu sleep
+    WINDOWS_ONLY_SLEEP = mu sleep 10
     REMOVE_PEGASUS_DIRECTORY = mu rmdirhier pegasus
     MUEXE = mu.exe
     RM = mu rm
@@ -65,6 +66,8 @@ ifeq ($(OS),win32)
     CHOWN =
     CHGRP =
     CURRENT_USER=Administrator
+else
+    WINDOWS_ONLY_SLEEP =
 endif
 
 ifeq ($(OS),HPUX)
@@ -380,6 +383,7 @@ mkdirhier_IgnoreError: CMDSFORCE
 
 runTestSuite: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
+	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
 	$(CIMSERVER_STOP_SERVICE)
 

@@ -113,8 +113,10 @@ class CMPIPropertyList {
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
    mode=m;
+#ifdef PEGASUS_DEBUG
    if (getenv("PEGASUS_CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
+#endif
    _subscriptionInitComplete = false;
    DDD(cerr << "-- CMPI Provider Manager activated" << endl);
 }

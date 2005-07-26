@@ -41,6 +41,7 @@
 //              Josephine Eskaline Joyce, IBM <jojustin@in.ibm.com) for Bug#2108
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1121,12 +1122,21 @@ Message* CIMClientRep::_doRequest(
             PEGASUS_ASSERT(getCount() == 0);
 
             //
+            // Reconnect to reset the connection
+            // if Server response contained a Connection: Close Header
+            //
+            if(response->getCloseConnect() == true){
+                _reconnect();
+            }
+
+            //
             //  Future:  If M-POST is used and HTTP response is 501 Not
             //  Implemented or 510 Not Extended, retry with POST method
             //
 
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {
+
                 Exception* clientException =
                     ((ClientExceptionMessage*)response)->clientException;
                 delete response;

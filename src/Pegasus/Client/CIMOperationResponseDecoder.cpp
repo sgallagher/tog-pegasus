@@ -41,6 +41,7 @@
 //              Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //              Willis White, IBM (whiwill@us.ibm.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -78,6 +79,7 @@ CIMOperationResponseDecoder::CIMOperationResponseDecoder(
     _authenticator(authenticator),
     _showInput(showInput)
 {
+
 }
 
 CIMOperationResponseDecoder::~CIMOperationResponseDecoder()
@@ -123,10 +125,12 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     ClientPerfDataStore* dataStore = ClientPerfDataStore::Instance();
     TimeValue networkEndTime = TimeValue::getCurrentTime();
 
-    String startLine;
+    String  connectClose;
+    String  startLine;
     Array<HTTPHeader> headers;
-    char* content;
-    Uint32 contentLength;
+    char*   content;
+    Uint32  contentLength;
+    Boolean cimReconnect=false;
 
     if (httpMessage->message.size() == 0)
     {
@@ -148,8 +152,20 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         return;
     }
 
+
     httpMessage->parse(startLine, headers, contentLength);
 
+    //
+    // Check for Connection: Close 
+    //
+    if(HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
+    {
+        if (String::equalNoCase(connectClose, "Close"))
+        {
+            //reconnect and then resend next request.
+            cimReconnect=true;
+        }
+    }
     //
     // Get the status line info
     //
@@ -174,6 +190,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
+      
+        response->setCloseConnect(cimReconnect);
 
         _outputQueue->enqueue(response);
         return;
@@ -236,6 +254,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
+        response->setCloseConnect(cimReconnect);
         _outputQueue->enqueue(response);
         return;
     }
@@ -270,6 +289,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         ClientExceptionMessage * response =
             new ClientExceptionMessage(httpError);
 
+        response->setCloseConnect(cimReconnect);
         _outputQueue->enqueue(response);
         return;
     }
@@ -295,6 +315,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
+
+        response->setCloseConnect(cimReconnect);
 
         _outputQueue->enqueue(response);
         return;
@@ -334,6 +356,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(malformedHTTPException);
 
+            response->setCloseConnect(cimReconnect);
+
             _outputQueue->enqueue(response);
             return;
         }
@@ -348,6 +372,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
                 ("Missing Content-Type HTTP header; ");
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
+
+        response->setCloseConnect(cimReconnect);
 
         _outputQueue->enqueue(response);
         return;
@@ -386,6 +412,9 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         cimStatusException->setContentLanguages(httpMessage->contentLanguages);
         ClientExceptionMessage * response =
             new ClientExceptionMessage(cimStatusException);
+  
+        response->setCloseConnect(cimReconnect);
+
         _outputQueue->enqueue(response);
         return;
     }
@@ -432,6 +461,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
         ClientExceptionMessage * response =
             new ClientExceptionMessage(malformedHTTPException);
 
+        response->setCloseConnect(cimReconnect);
+
         _outputQueue->enqueue(response);
         return;
     }
@@ -439,11 +470,13 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     dataStore->setResponseSize(contentLength);
     dataStore->setEndNetworkTime(networkEndTime);
     //dataStore->print();
-    _handleMethodResponse(content, httpMessage->contentLanguages);  // l10n
+    _handleMethodResponse(content, httpMessage->contentLanguages,cimReconnect);  // l10n
 }
 
-void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
-    const ContentLanguages& contentLanguages) //l10n
+void CIMOperationResponseDecoder::_handleMethodResponse(
+    char* content,
+    const ContentLanguages& contentLanguages,
+    Boolean cimReconnect) //l10n
 {
     Message* response = 0;
 
@@ -512,6 +545,8 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
 
             ClientExceptionMessage * response =
                 new ClientExceptionMessage(responseException);
+
+            response->setCloseConnect(cimReconnect);
 
             _outputQueue->enqueue(response);
             return;
@@ -637,6 +672,7 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
             response = _decodeInvokeMethodResponse(
                 parser, messageId, iMethodResponseName, isEmptyTag);
 
+
             //
             // Handle end tag:
             //
@@ -709,6 +745,9 @@ void CIMOperationResponseDecoder::_handleMethodResponse(char* content,
         ;    // l10n TODO - error back to client here
     }
 // l10n end
+
+    response->setCloseConnect(cimReconnect);
+
 
     _outputQueue->enqueue(response);
 }

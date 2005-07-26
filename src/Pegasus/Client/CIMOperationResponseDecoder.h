@@ -33,6 +33,7 @@
 //              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Willis White, IBM (whiwill@us.ibm.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,8 +105,9 @@ private:
 	HTTPMessage* message);
 
     void _handleMethodResponse(
-	char* content,
-	const ContentLanguages& contentLanguages);
+        char* content,
+        const ContentLanguages& contentLanguages,
+        Boolean reconnect);
 
     CIMCreateClassResponseMessage* _decodeCreateClassResponse(
         XmlParser& parser,

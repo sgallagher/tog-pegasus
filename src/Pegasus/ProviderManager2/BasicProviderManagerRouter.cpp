@@ -35,6 +35,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2619, #2685,#3354
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -363,10 +364,9 @@ Message* BasicProviderManagerRouter::processMessage(Message * message)
     }
 
     // preserve message key
-    response->setKey(request->getKey());
-
     // set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
+    // set closeConnect
+   ((CIMResponseMessage *)response)->syncAttributes(request);
 
     PEG_METHOD_EXIT();
     return response;

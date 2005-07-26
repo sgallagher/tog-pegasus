@@ -37,6 +37,7 @@
 //				Seema Gupta (gseema@in.ibm.com for PEP135)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,14 +77,16 @@ CIMExportRequestDecoder::~CIMExportRequestDecoder()
 }
 
 void CIMExportRequestDecoder::sendResponse(
-   Uint32 queueId, 
-   Array<char>& message)
+    Uint32 queueId, 
+    Array<char>& message,
+    Boolean closeConnect)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
    if (queue)
    {
       HTTPMessage* httpMessage = new HTTPMessage(message);
+      httpMessage->setCloseConnect(closeConnect);
       queue->enqueue(httpMessage);
    }
 }
@@ -93,7 +96,8 @@ void CIMExportRequestDecoder::sendEMethodError(
    HttpMethod httpMethod,
    const String& messageId,
    const String& eMethodName,
-   const CIMException& cimException) 
+   const CIMException& cimException,
+   Boolean closeConnect) 
 {
     Array<char> message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
@@ -102,14 +106,15 @@ void CIMExportRequestDecoder::sendEMethodError(
         httpMethod,
         cimException);
 
-    sendResponse(queueId, message);
+    sendResponse(queueId, message,closeConnect);
 }
 
 void CIMExportRequestDecoder::sendHttpError(
    Uint32 queueId,
    const String& status,
    const String& cimError,
-   const String& messageBody)
+   const String& messageBody,
+   Boolean closeConnect)
 {
     Array<char> message;
     message = XmlWriter::formatHttpErrorRspMessage(
@@ -117,7 +122,7 @@ void CIMExportRequestDecoder::sendHttpError(
         cimError,
         messageBody);
 
-    sendResponse(queueId, message);
+    sendResponse(queueId, message,closeConnect);
 }
 
 void CIMExportRequestDecoder::handleEnqueue(Message *message)
@@ -188,6 +193,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       userName = httpMessage->authInfo->getAuthenticatedUser();
    }
 
+   Boolean closeConnect = httpMessage->getCloseConnect();
+   Tracer::trace(
+       TRC_HTTP,
+       Tracer::LEVEL3,
+       "CIMOperationRequestDecoder::handleHTTPMessage()- httpMessage->getCloseConnect() returned %d",httpMessage->getCloseConnect());
+
    // Parse the HTTP message:
 
    String startLine;
@@ -226,9 +237,11 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    if( methodName != "M-POST" && methodName != "POST" )
     {
        sendHttpError(
-          queueId,
-          HTTP_STATUS_NOTIMPLEMENTED,
-          "Only POST and M-POST are implemented" );
+           queueId,
+           HTTP_STATUS_NOTIMPLEMENTED,
+           "Only POST and M-POST are implemented",
+           String::EMPTY,
+           closeConnect);
        return;
    }
    //</bug>
@@ -240,9 +253,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    if( (httpMethod == HTTP_METHOD_M_POST) &&
         (httpVersion == "HTTP/1.0") )
    {
-       sendHttpError(queueId,
-		HTTP_STATUS_BADREQUEST,
-		"M-POST method is not valid with version 1.0" );
+       sendHttpError(
+           queueId,
+           HTTP_STATUS_BADREQUEST,
+           "M-POST method is not valid with version 1.0",
+           String::EMPTY,
+           closeConnect);
        return;
    }
    //</bug>
@@ -275,7 +291,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
             "ExportServer.CIMExportRequestDecoder.MISSING_HOST_HEADER",
             "HTTP request message lacks a Host header field.");
          String msg(MessageLoader::getMessage(parms));
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "", msg);
+         sendHttpError(
+             queueId,
+             HTTP_STATUS_BADREQUEST,
+             "",
+             msg,
+             closeConnect);
          return;
       }
    }
@@ -291,9 +312,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // PEGASUS_ASSERT(exportHeaderFound);
    if (!exportHeaderFound) 
    {
-	sendHttpError(queueId,
-                    HTTP_STATUS_BADREQUEST,
-                    "Export header not found");
+	sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            "Export header not found",
+            String::EMPTY,
+            closeConnect);
         return;
    }
    // </bug>
@@ -307,9 +331,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       //     status "400 Bad Request". The CIM Server MUST include a
       //     CIMError header in the response with a value of
       //     unsupported-operation.
-      sendHttpError(queueId,
-                    HTTP_STATUS_BADREQUEST,
-                    "unsupported-operation");
+      sendHttpError(
+          queueId,
+          HTTP_STATUS_BADREQUEST,
+          "unsupported-operation",
+          String::EMPTY,
+          closeConnect);
       return;
    }
 
@@ -325,9 +352,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       //     CIMExportBatch header is present, but the Listener does not
       //     support Multiple Exports, then it MUST fail the request and
       //     return a status of "501 Not Implemented".
-      sendHttpError(queueId,
-                    HTTP_STATUS_NOTIMPLEMENTED,
-                    "multiple-requests-unsupported");
+      sendHttpError(
+          queueId,
+          HTTP_STATUS_NOTIMPLEMENTED,
+          "multiple-requests-unsupported",
+          String::EMPTY,
+          closeConnect);
       return;
    }
 
@@ -346,7 +376,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
       if (cimExportMethod == String::EMPTY)
       {
          // This is not a valid value, and we use EMPTY to mean "absent"
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch");
+         sendHttpError(
+             queueId, 
+             HTTP_STATUS_BADREQUEST, 
+             "header-mismatch",
+             String::EMPTY,
+             closeConnect);
          return;
       }
    }
@@ -392,9 +427,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 	Thread::clearLanguages();
 	MessageLoaderParms msgParms("ExportServer.CIMExportRequestDecoder.REQUEST_NOT_VALID","request-not-valid");
 	String msg(MessageLoader::getMessage(msgParms));
-		sendHttpError(queueId, HTTP_STATUS_BADREQUEST, 
-					msg,
-                    e.getMessage());		         	
+	sendHttpError(
+            queueId, 
+            HTTP_STATUS_BADREQUEST, 
+            msg,
+            e.getMessage(),
+            closeConnect);		         	
        	return;
    }        
 // l10n end   
@@ -423,8 +461,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
   	     String::equalNoCase(cimContentType, "text/xml; charset=\"utf-8\"") ||
 	     contentTypeHeaderFound))
    {
-	sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch",
-                       "CIMContentType value syntax error.");
+	sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            "header-mismatch",
+            "CIMContentType value syntax error.",
+            closeConnect);
        return; 
    }
    // Validating content falls within UTF8
@@ -436,8 +478,12 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
        {
 	   if (!(isUTF8((char *)&content[count])))
 	   {
-	       sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
-                       "Invalid UTF-8 character detected.");
+	       sendHttpError(
+                   queueId,
+                   HTTP_STATUS_BADREQUEST,
+                   "request-not-valid",
+                   "Invalid UTF-8 character detected.",
+                   closeConnect);
 	       return; 
 	   }
 	   UTF8_NEXT(content,count);
@@ -447,22 +493,31 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // If it is a method call, then dispatch it to be handled:
 
 // l10n
-   handleMethodRequest(queueId, httpMethod, content, requestUri, 
-                       cimProtocolVersion, cimExportMethod, userName,
-                       acceptLanguages, contentLanguages);
+   handleMethodRequest(
+       queueId,
+       httpMethod,
+       content,
+       requestUri, 
+       cimProtocolVersion,
+       cimExportMethod,
+       userName,
+       acceptLanguages,
+       contentLanguages,
+       closeConnect);
 }
 
 
 void CIMExportRequestDecoder::handleMethodRequest(
-   Uint32 queueId,
-   HttpMethod httpMethod,
-   char* content,
-   const String& requestUri,
-   const String& cimProtocolVersionInHeader,
-   const String& cimExportMethodInHeader,
-   const String& userName,
-	const AcceptLanguages& httpAcceptLanguages, // l10n
-	const ContentLanguages& httpContentLanguages)	 
+    Uint32 queueId,
+    HttpMethod httpMethod,
+    char* content,
+    const String& requestUri,
+    const String& cimProtocolVersionInHeader,
+    const String& cimExportMethodInHeader,
+    const String& userName,
+    const AcceptLanguages& httpAcceptLanguages, // l10n
+    const ContentLanguages& httpContentLanguages,
+    Boolean closeConnect)	 
 {
 // l10n
 	// Set the Accept-Language into the thread for this service.
@@ -475,9 +530,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
    //
    if (_serverTerminating)
    {
-      sendHttpError(queueId, HTTP_STATUS_SERVICEUNAVAILABLE,
-                    String::EMPTY,
-                    "CIM Listener is shutting down.");
+      sendHttpError(
+          queueId,
+          HTTP_STATUS_SERVICEUNAVAILABLE,
+          String::EMPTY,
+          "CIM Listener is shutting down.",
+          closeConnect);
       return;
    }
 
@@ -510,9 +568,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       if (strcmp(cimVersion, "2.0") != 0)
       {
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-cim-version");
+         sendHttpError(
+             queueId,
+             HTTP_STATUS_NOTIMPLEMENTED,
+             "unsupported-cim-version",
+             String::EMPTY,
+             closeConnect);
          return;
       }
 
@@ -539,9 +600,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       if (!dtdVersionAccepted)
       {
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-dtd-version");
+         sendHttpError(
+             queueId,
+             HTTP_STATUS_NOTIMPLEMENTED,
+             "unsupported-dtd-version",
+             String::EMPTY,
+             closeConnect);
          return;
       }
 
@@ -568,9 +632,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
 
       if (!String::equalNoCase(protocolVersion, cimProtocolVersionInHeader))
       {
-         sendHttpError(queueId,
-                       HTTP_STATUS_BADREQUEST,
-                       "header-mismatch");
+         sendHttpError(
+             queueId,
+             HTTP_STATUS_BADREQUEST,
+             "header-mismatch",
+             String::EMPTY,
+             closeConnect);
          return;
       }
 
@@ -600,9 +667,13 @@ void CIMExportRequestDecoder::handleMethodRequest(
       if (!protocolVersionAccepted)
       {
          // See Specification for CIM Operations over HTTP section 4.3
-         sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED,
-                       "unsupported-protocol-version");
+         sendHttpError(
+             queueId,
+             HTTP_STATUS_NOTIMPLEMENTED,
+             "unsupported-protocol-version",
+             String::EMPTY,
+             closeConnect);
+                       
          return;
       }
 
@@ -610,7 +681,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
       {
          // We wouldn't have gotten here if CIMExportBatch header was
          // specified, so this must be indicative of a header mismatch
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch");
+         sendHttpError(
+             queueId, 
+             HTTP_STATUS_BADREQUEST,
+             "header-mismatch",
+             String::EMPTY,
+             closeConnect);
          return;
          // Future: When MULTIEXPREQ is supported, must ensure CIMExportMethod
          // header is absent, and CIMExportBatch header is present.
@@ -672,7 +748,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
       if (!String::equalNoCase(cimExportMethodName, cimExportMethodInHeader))
       {
          // ATTN-RK-P3-20020404: How to decode cimExportMethodInHeader?
-         sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "header-mismatch");
+         sendHttpError(
+             queueId, 
+             HTTP_STATUS_BADREQUEST,
+             "header-mismatch",
+             String::EMPTY,
+             closeConnect);
          return;
       }
 	
@@ -704,11 +785,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
       catch (CIMException& e)
       {
          sendEMethodError(
-            queueId,
-            httpMethod,
-            messageId,
-            cimExportMethodName,
-            e);
+             queueId,
+             httpMethod,
+             messageId,
+             cimExportMethodName,
+             e,
+             closeConnect);
 
          return;
       }
@@ -734,8 +816,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
 		   "CIMExportRequestDecoder::handleMethodRequest - XmlValidationError exception has occurred. Message: $0",e.getMessage());
 
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
-                    e.getMessage());
+      sendHttpError(
+          queueId,
+          HTTP_STATUS_BADREQUEST,
+          "request-not-valid",
+          e.getMessage(),
+          closeConnect);
       return;
    }
    catch (XmlSemanticError& e)
@@ -743,8 +829,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
 		   "CIMExportRequestDecoder::handleMethodRequest - XmlSemanticError exception has occurred. Message: $0",e.getMessage());
       // ATTN-RK-P2-20020404: Is this the correct response for these errors?
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-valid",
-                    e.getMessage());
+      sendHttpError(
+          queueId,
+          HTTP_STATUS_BADREQUEST,
+          "request-not-valid",
+          e.getMessage(),
+          closeConnect);
       return;
    }
    catch (XmlException& e)
@@ -752,8 +842,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
 		   "CIMExportRequestDecoder::handleMethodRequest - XmlException has occurred. Message: $0",e.getMessage());
 
-      sendHttpError(queueId, HTTP_STATUS_BADREQUEST, "request-not-well-formed",
-                    e.getMessage());
+      sendHttpError(
+          queueId, 
+          HTTP_STATUS_BADREQUEST,
+          "request-not-well-formed",
+          e.getMessage(),
+          closeConnect);
       return;
    }
    catch (Exception& e)
@@ -761,8 +855,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Don't know why I got this exception.  Seems like a bad thing.
       // Any exceptions we're expecting should be caught separately and
       // dealt with appropriately.  This is a last resort.
-      sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR, String::EMPTY,
-                    e.getMessage());
+      sendHttpError(
+          queueId,
+          HTTP_STATUS_INTERNALSERVERERROR,
+          String::EMPTY,
+          e.getMessage(),
+          closeConnect);
       return;
    }
    catch (...)
@@ -770,7 +868,12 @@ void CIMExportRequestDecoder::handleMethodRequest(
       // Don't know why I got whatever this is.  Seems like a bad thing.
       // Any exceptions we're expecting should be caught separately and
       // dealt with appropriately.  This is a last resort.
-      sendHttpError(queueId, HTTP_STATUS_INTERNALSERVERERROR);
+      sendHttpError(
+          queueId, 
+          HTTP_STATUS_INTERNALSERVERERROR,
+          String::EMPTY,
+          String::EMPTY,
+          closeConnect);
       return;
    }
 
@@ -794,6 +897,8 @@ void CIMExportRequestDecoder::handleMethodRequest(
 		;	// l10n TODO - error back to client here	
 	}
 // l10n end	
+
+   request->setCloseConnect(closeConnect);
 
    _outputQueue->enqueue(request.release());
 }

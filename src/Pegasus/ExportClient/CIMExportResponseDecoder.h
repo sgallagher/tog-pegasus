@@ -36,6 +36,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +105,8 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportResponseDecoder :  public MessageQu
          HTTPMessage* message);
 
       void _handleMethodResponse(
-         char* content);
+         char* content,
+         Boolean cimReconnect);
 
       CIMExportIndicationResponseMessage* _decodeExportIndicationResponse(
          XmlParser& parser,

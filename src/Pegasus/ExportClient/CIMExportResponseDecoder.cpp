@@ -36,6 +36,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -130,6 +131,8 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    Array<HTTPHeader> headers;
    char* content;
    Uint32 contentLength;
+   String  connectClose;
+   Boolean cimReconnect=false;
 
    if (httpMessage->message.size() == 0)
    {
@@ -156,6 +159,18 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
    }
 
    httpMessage->parse(startLine, headers, contentLength);
+    //
+    // Check for Connection: Close
+    //
+    if(HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
+    {
+        if (String::equalNoCase(connectClose, "Close"))
+        {
+            //reconnect and then resend next request.
+            cimReconnect=true;
+        }
+    }
+
 
     //
     // Get the status line info
@@ -186,6 +201,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
       malformedHTTPException.release();
 
+      response->setCloseConnect(cimReconnect);
       _outputQueue->enqueue(response.release());
       PEG_METHOD_EXIT();
       return;
@@ -201,6 +217,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
           //
 
           Message* reqMessage = _authenticator->getRequestMessage();
+
           _encoderQueue->enqueue(reqMessage);
 
           PEG_METHOD_EXIT();
@@ -230,6 +247,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         malformedHTTPException.release();
 
+        response->setCloseConnect(cimReconnect);
         _outputQueue->enqueue(response.release());
         PEG_METHOD_EXIT();
         return;
@@ -268,6 +286,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         httpError.release();
 
+        response->setCloseConnect(cimReconnect);
         _outputQueue->enqueue(response.release());
         PEG_METHOD_EXIT();
         return;
@@ -299,6 +318,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
       malformedHTTPException.release();
 
+      response->setCloseConnect(cimReconnect);
       _outputQueue->enqueue(response.release());
       PEG_METHOD_EXIT();
       return;
@@ -320,6 +340,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
         malformedHTTPException.release();
 
+        response->setCloseConnect(cimReconnect);
         _outputQueue->enqueue(response.release());
       PEG_METHOD_EXIT();
       return;
@@ -364,16 +385,17 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
       malformedHTTPException.release();
 
+      response->setCloseConnect(cimReconnect);
       _outputQueue->enqueue(response.release());
       PEG_METHOD_EXIT();
       return;
    }
 
-   _handleMethodResponse(content);
+   _handleMethodResponse(content,cimReconnect);
    PEG_METHOD_EXIT();
 }
 
-void CIMExportResponseDecoder::_handleMethodResponse(char* content)
+void CIMExportResponseDecoder::_handleMethodResponse(char* content,Boolean cimReconnect)
 {
    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportResponseDecoder::_handleMethodResponse()");
    AutoPtr<Message> response;
@@ -448,6 +470,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 
          responseException.release();
 
+         response->setCloseConnect(cimReconnect);
          _outputQueue->enqueue(response.release());
          PEG_METHOD_EXIT();
 	 return;
@@ -538,6 +561,7 @@ void CIMExportResponseDecoder::_handleMethodResponse(char* content)
 // l10n
 // 	Note: Ignore any ContentLanguage set in the export response
 
+    response->setCloseConnect(cimReconnect);
     _outputQueue->enqueue(response.release());
     PEG_METHOD_EXIT();
 }

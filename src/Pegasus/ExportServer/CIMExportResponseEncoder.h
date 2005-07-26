@@ -30,6 +30,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,25 +56,31 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportResponseEncoder
       
       ~CIMExportResponseEncoder();
       
-      void sendResponse(Uint32 queueId, Array<char>& message);
+      void sendResponse(
+          Uint32 queueId,
+          Array<char>& message,
+          Boolean closeConnect);
       
       void sendEMethodError(
-	 Uint32 queueId, 
-         HttpMethod httpMethod,
-	 const String& messageId,
-	 const String& methodName,
-	 const CIMException& cimException);
+          Uint32 queueId, 
+          HttpMethod httpMethod,
+          const String& messageId,
+          const String& methodName,
+          const CIMException& cimException,
+          Boolean closeConnect);
 
       void sendEMethodError(
-	 CIMResponseMessage* response,
-	 const String& cimMethodName);
+          CIMResponseMessage* response,
+          const String& cimMethodName,
+          Boolean closeConnect);
 
       virtual void handleEnqueue(Message *);
 
       virtual void handleEnqueue();
 
       void encodeExportIndicationResponse(
-	 CIMExportIndicationResponseMessage* response);
+          CIMExportIndicationResponseMessage* response);
+
 };
 
 PEGASUS_NAMESPACE_END

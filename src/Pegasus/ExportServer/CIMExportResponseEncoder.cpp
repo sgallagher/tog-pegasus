@@ -32,6 +32,7 @@
 // Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +66,8 @@ CIMExportResponseEncoder::~CIMExportResponseEncoder()
 
 void CIMExportResponseEncoder::sendResponse(
    Uint32 queueId, 
-   Array<char>& message)
+   Array<char>& message,
+   Boolean closeConnect)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -75,6 +77,8 @@ void CIMExportResponseEncoder::sendResponse(
 
       Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2,
          httpMessage->message.getData(), httpMessage->message.size());
+
+       httpMessage->setCloseConnect(closeConnect);
 
       queue->enqueue(httpMessage);
    }
@@ -86,11 +90,12 @@ void CIMExportResponseEncoder::sendResponse(
 }
 
 void CIMExportResponseEncoder::sendEMethodError(
-   Uint32 queueId, 
-   HttpMethod httpMethod,
-   const String& messageId,
-   const String& eMethodName,
-   const CIMException& cimException) 
+    Uint32 queueId, 
+    HttpMethod httpMethod,
+    const String& messageId,
+    const String& eMethodName,
+    const CIMException& cimException,
+    Boolean closeConnect) 
 {
     Array<char> message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
@@ -99,28 +104,31 @@ void CIMExportResponseEncoder::sendEMethodError(
         httpMethod,
         cimException);
 
-    sendResponse(queueId, message);
+    sendResponse(queueId, message,closeConnect);
 }
 
 void CIMExportResponseEncoder::sendEMethodError(
-   CIMResponseMessage* response,
-   const String& cimMethodName)
+    CIMResponseMessage* response,
+    const String& cimMethodName,
+    Boolean closeConnect)
 {
    Uint32 queueId = response->queueIds.top();
    response->queueIds.pop();
 
    sendEMethodError(
-      queueId,
-      response->getHttpMethod(),
-      response->messageId, 
-      cimMethodName, 
-      response->cimException);
+       queueId,
+       response->getHttpMethod(),
+       response->messageId, 
+       cimMethodName, 
+       response->cimException,
+       closeConnect);
 }
 
 void CIMExportResponseEncoder::handleEnqueue(Message *message)
 {
    if (!message)
       return;
+
 
    switch (message->getType())
    {
@@ -142,13 +150,22 @@ void CIMExportResponseEncoder::handleEnqueue()
 }
 
 void CIMExportResponseEncoder::encodeExportIndicationResponse(
-   CIMExportIndicationResponseMessage* response)
+    CIMExportIndicationResponseMessage* response)
 {
+
+   Boolean closeConnect = response->getCloseConnect();
+   Tracer::trace(
+       TRC_HTTP,
+       Tracer::LEVEL3,
+       "CIMExportResponseEncoder::handleEnqueue()- response>getCloseConnect() returned %d",
+       response->getCloseConnect());
+
    if (response->cimException.getCode() != CIM_ERR_SUCCESS)
    {
-      sendEMethodError(response, "ExportIndication");
+      sendEMethodError(response, "ExportIndication",closeConnect);
       return;
    }
+
 
    Array<char> body;
     
@@ -162,7 +179,7 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
       ContentLanguages::EMPTY,
       body);
 
-   sendResponse(response->queueIds.top(), message);
+   sendResponse(response->queueIds.top(), message,closeConnect);
 }
 
 PEGASUS_NAMESPACE_END

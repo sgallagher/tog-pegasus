@@ -38,6 +38,7 @@
 //				Seema Gupta (gseema@in.ibm.com) for PEP135
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -375,6 +376,15 @@ Message* CIMExportClient::_doRequest(
             //  Future:  If M-POST is used and HTTP response is 501 Not
             //  Implemented or 510 Not Extended, retry with POST method
             //
+            //
+
+            // Reconnect to reset the connection
+            // if Server response contained a Connection: Close Header
+            //
+            if(response->getCloseConnect() == true){
+                   _reconnect();
+            }
+
 
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {

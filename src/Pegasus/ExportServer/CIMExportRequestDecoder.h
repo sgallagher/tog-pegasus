@@ -35,6 +35,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              David Dillard, VERITAS SOftware Corp.
 //                  (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,21 +70,24 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
       ~CIMExportRequestDecoder();
 
       void sendResponse(
-	 Uint32 queueId, 
-	 Array<char>& message);
+          Uint32 queueId, 
+          Array<char>& message,
+          Boolean closeConnect);
 
       void sendEMethodError(
-	 Uint32 queueId, 
-         HttpMethod httpMethod,
-	 const String& messageId,
-	 const String& methodName,
-	 const CIMException& cimException);
+          Uint32 queueId, 
+          HttpMethod httpMethod,
+          const String& messageId,
+          const String& methodName,
+          const CIMException& cimException,
+          Boolean closeConnect);
 
       void sendHttpError(
-	 Uint32 queueId,
-	 const String& status,
-	 const String& cimError = String::EMPTY,
-	 const String& messageBody = String::EMPTY);
+          Uint32 queueId,
+          const String& status,
+          const String& cimError = String::EMPTY,
+          const String& messageBody = String::EMPTY,
+          Boolean closeConnect = false);
 
       virtual void handleEnqueue(Message *);
 
@@ -93,15 +97,16 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
 // l10n
       void handleMethodRequest(
-	 Uint32 queueId,
-         HttpMethod httpMethod,
-	 char* content,
-	 const String& requestUri,
-	 const String& cimProtocolVersionInHeader,
-	 const String& cimExportMethodInHeader,
-	 const String& userName,
-	 const AcceptLanguages& httpAcceptLanguages,
-	 const ContentLanguages& httpContentLanguages);	 
+          Uint32 queueId,
+          HttpMethod httpMethod,
+          char* content,
+          const String& requestUri,
+          const String& cimProtocolVersionInHeader,
+          const String& cimExportMethodInHeader,
+          const String& userName,
+          const AcceptLanguages& httpAcceptLanguages,
+          const ContentLanguages& httpContentLanguages,
+          Boolean closeConnect);	 
 
       CIMExportIndicationRequestMessage* decodeExportIndicationRequest(
 	 Uint32 queueId,
@@ -123,6 +128,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
       // Flag to indicate whether or not the CIMServer is shutting down.
       Boolean _serverTerminating;
+
 };
 
 PEGASUS_NAMESPACE_END

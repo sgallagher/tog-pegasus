@@ -34,6 +34,7 @@
 //                (carolann_graves@hp.com)
 //              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //              Vijay Eli, IBM (vijayeli@in.ibm.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -211,6 +212,15 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
             CIMExportIndicationResponseMessage* response =
                 _handleExportIndicationRequest(
                     (CIMExportIndicationRequestMessage*) message);
+
+            Tracer::trace(
+                TRC_HTTP,
+                Tracer::LEVEL3,
+                "_CIMExportRequestDispatcher::handleEnqueue(message) - message->getCloseConnect() returned %d",
+                message->getCloseConnect());
+
+            response->setCloseConnect(message->getCloseConnect());
+
             SendForget(response);
 	    break;
         }
@@ -221,7 +231,6 @@ void CIMExportRequestDispatcher::handleEnqueue(Message* message)
                     "message type '%u'", message->getType());
             break;
     }
-
     delete message;
 
     PEG_METHOD_EXIT();

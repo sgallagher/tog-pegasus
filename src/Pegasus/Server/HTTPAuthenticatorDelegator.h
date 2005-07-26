@@ -34,6 +34,7 @@
 //              Heather Sterling, IBM (hsterl@us.ibm.com) for PEP#187
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veriats.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,24 +92,28 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
    private:
 
       void _sendResponse( 
-	 Uint32 queueId, 
-	 Array<char>& message); 
+         Uint32 queueId, 
+         Array<char>& message,
+         Boolean closeConnect); 
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
       void _sendSuccess( 
-	 Uint32 queueId, 
-	 const String& authResponse);
+         Uint32 queueId, 
+         const String& authResponse,
+         Boolean closeConnect); 
 #endif 
 
       void _sendChallenge(
-	 Uint32 queueId,
-	 const String& authResponse);
+         Uint32 queueId,
+         const String& authResponse,
+         Boolean closeConnect); 
 
       void _sendHttpError(
          Uint32 queueId,
          const String& status,
          const String& cimError = String::EMPTY,
-         const String& pegasusError = String::EMPTY);
+         const String& pegasusError = String::EMPTY,
+         Boolean closeConnect = false); 
 
       Uint32 _operationMessageQueueId;
 
@@ -120,7 +125,7 @@ private:
 
       Boolean _validateUser(const String& userName, Uint32 queueId);
 
-       CIMRepository* _repository;
+      CIMRepository* _repository;
 };
 
 PEGASUS_NAMESPACE_END

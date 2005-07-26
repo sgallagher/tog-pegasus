@@ -35,6 +35,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +92,8 @@ void HTTPAuthenticatorDelegator::enqueue(Message* message)
 
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
-    Array<char>& message)
+    Array<char>& message,
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendResponse");
@@ -102,6 +104,8 @@ void HTTPAuthenticatorDelegator::_sendResponse(
     {
         HTTPMessage* httpMessage = new HTTPMessage(message);
 	httpMessage->dest = queue->getQueueId();
+    
+        httpMessage->setCloseConnect(closeConnect);
 
         queue->enqueue(httpMessage);
     }
@@ -112,7 +116,8 @@ void HTTPAuthenticatorDelegator::_sendResponse(
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 void HTTPAuthenticatorDelegator::_sendSuccess(
     Uint32 queueId,
-    const String& authResponse)
+    const String& authResponse,
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendSuccess");
@@ -124,7 +129,7 @@ void HTTPAuthenticatorDelegator::_sendSuccess(
     Array<char> message;
     XmlWriter::appendOKResponseHeader(message, authResponse);
 
-    _sendResponse(queueId, message);
+    _sendResponse(queueId, message,closeConnect);
 
     PEG_METHOD_EXIT();
 }
@@ -132,7 +137,8 @@ void HTTPAuthenticatorDelegator::_sendSuccess(
 
 void HTTPAuthenticatorDelegator::_sendChallenge(
     Uint32 queueId,
-    const String& authResponse)
+    const String& authResponse,
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendChallenge");
@@ -144,7 +150,7 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     Array<char> message;
     XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
-    _sendResponse(queueId, message);
+    _sendResponse(queueId, message,closeConnect);
 
     PEG_METHOD_EXIT();
 }
@@ -154,7 +160,8 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
     Uint32 queueId,
     const String& status,
     const String& cimError,
-    const String& pegasusError)
+    const String& pegasusError,
+    Boolean closeConnect)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendHttpError");
@@ -169,7 +176,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
         cimError,
         pegasusError);
 
-    _sendResponse(queueId, message);
+    _sendResponse(queueId, message,closeConnect);
 
     PEG_METHOD_EXIT();
 }
@@ -198,6 +205,9 @@ void HTTPAuthenticatorDelegator::handleEnqueue(Message *message)
 
     if (deleteMessage)
     {
+        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
+                    "Deleting Message in HTTPAuthenticator::handleEnqueue");
+
         delete message;
     }
 
@@ -245,8 +255,25 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     String startLine;
     Array<HTTPHeader> headers;
     Uint32 contentLength;
+    String connectClose;
+    Boolean closeConnect = false;
 
     httpMessage->parse(startLine, headers, contentLength);
+    
+    //
+    // Check for Connection: Close
+    //
+    if(HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
+    {
+       if (String::equalNoCase(connectClose, "Close"))
+       {
+            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
+                    "Header in HTTP Message Contains a Connection: Close");
+            closeConnect = true;
+            httpMessage->setCloseConnect(closeConnect);
+       }
+    }
+
 
     //
     // Check if the request was received on the export connection.
@@ -274,10 +301,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             String msg(MessageLoader::getMessage(msgParms));
 
             PEG_METHOD_EXIT();
-            _sendHttpError(queueId,
-                       HTTP_STATUS_FORBIDDEN,
-                       String::EMPTY,
-                       msg);
+            _sendHttpError(
+                queueId,
+                HTTP_STATUS_FORBIDDEN,
+                String::EMPTY,
+                msg,
+                closeConnect);
         }
 
         //
@@ -323,7 +352,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 //
                 PEGASUS_ASSERT(0);
                 PEG_METHOD_EXIT();
-                _sendHttpError(queueId, HTTP_STATUS_BADREQUEST);
+                _sendHttpError(
+                    queueId, 
+                    HTTP_STATUS_BADREQUEST,
+                    String::EMPTY,
+                    String::EMPTY,
+                    closeConnect);
             }
             PEG_METHOD_EXIT();
             return;
@@ -367,10 +401,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE", 
                                                 "The certificate used for authentication is not valid.");
 					String msg(MessageLoader::getMessage(msgParms));
-					_sendHttpError(queueId,
-								   HTTP_STATUS_UNAUTHORIZED,
-								   String::EMPTY,
-								   msg);
+                                        _sendHttpError(
+                                            queueId,
+                                            HTTP_STATUS_UNAUTHORIZED,
+                                            String::EMPTY,
+                                            msg,
+                                            closeConnect);
 					PEG_METHOD_EXIT();
 					return;
 				}
@@ -443,10 +479,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                                 "The certificate used for authentication is not valid.");
 					String msg(MessageLoader::getMessage(msgParms));
                     PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
-					_sendHttpError(queueId,
-								   HTTP_STATUS_UNAUTHORIZED,
-								   String::EMPTY,
-								   msg);
+                                       _sendHttpError(
+                                            queueId,
+                                            HTTP_STATUS_UNAUTHORIZED,
+                                            String::EMPTY,
+                                            msg,
+                                            closeConnect);
 					PEG_METHOD_EXIT();
 					return;
 				}
@@ -458,15 +496,16 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 				{
 					value.get(userName);
 
-                                       //
-                                       // Validate user information
-                                       //
+                                        //
+                                        // Validate user information
+                                        //
 
-                                   if (!_validateUser(userName, queueId))
-                                   {
-                                        PEG_METHOD_EXIT();
-                                        return;                                                                        
-                                   }
+                                        if (!_validateUser(userName, queueId))
+                                        {
+                                            PEG_METHOD_EXIT();
+                                            return;
+                                        }
+  
 					httpMessage->authInfo->setAuthenticatedUser(userName);
 
 					PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "User name for certificate is " + userName);
@@ -479,12 +518,14 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 								"HTTPAuthenticatorDelegator - Bailing, no username is registered to this certificate.");
 					MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME",
                                                 "No username is registered to this certificate.");
-                    String msg(MessageLoader::getMessage(msgParms));
-                    PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
-                    _sendHttpError(queueId,
-                                   HTTP_STATUS_UNAUTHORIZED,
-                                   String::EMPTY,
-                                   msg);
+                                        String msg(MessageLoader::getMessage(msgParms));
+                                        PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
+                                        _sendHttpError(
+                                            queueId,
+                                            HTTP_STATUS_UNAUTHORIZED,
+                                            String::EMPTY,
+                                            msg,
+                                            closeConnect);
 					PEG_METHOD_EXIT();
 					return;
 				}
@@ -506,11 +547,19 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                                     return;
                                 }
 
-                httpMessage->authInfo->setAuthenticatedUser(trustStoreUserName);
 
-                PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "User name for certificate is " + trustStoreUserName);
-				Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-				     		"HTTPAuthenticatorDelegator - The trusted client certificate is registered to $0.", trustStoreUserName);
+                                httpMessage->authInfo->setAuthenticatedUser(trustStoreUserName);
+
+                                PEG_TRACE_STRING(
+                                    TRC_HTTP,
+                                    Tracer::LEVEL3,
+                                    "User name for certificate is " + trustStoreUserName);
+                                Logger::put(
+                                    Logger::STANDARD_LOG,
+                                    System::CIMSERVER,
+                                    Logger::TRACE,
+                                    "HTTPAuthenticatorDelegator - The trusted client certificate is registered to $0.",
+                                    trustStoreUserName);
 
 			}
 		}
@@ -555,9 +604,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.REQUEST_NOT_VALID","request-not-valid");
 	String msg(MessageLoader::getMessage(msgParms));
 
-                _sendHttpError(queueId, HTTP_STATUS_BADREQUEST,
-                                        msg,
-                            e.getMessage());
+        _sendHttpError(
+            queueId, 
+            HTTP_STATUS_BADREQUEST,
+            msg,
+            e.getMessage(),
+            closeConnect);
         PEG_METHOD_EXIT();
         return;
    }
@@ -589,8 +641,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     if (methodName != "M-POST" && methodName != "POST")
     {
         // Only POST and M-POST are implemented by this server
-        _sendHttpError(queueId,
-                       HTTP_STATUS_NOTIMPLEMENTED);
+        _sendHttpError(
+            queueId,
+            HTTP_STATUS_NOTIMPLEMENTED,
+            String::EMPTY,
+            String::EMPTY,
+            closeConnect);
     }
     else if ((httpMethod == HTTP_METHOD_M_POST) &&
              (httpVersion == "HTTP/1.0"))
@@ -598,8 +654,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         //  M-POST method is not valid with version 1.0
         //
-        _sendHttpError(queueId,
-                       HTTP_STATUS_BADREQUEST);
+        _sendHttpError(
+            queueId,
+            HTTP_STATUS_BADREQUEST,
+            String::EMPTY,
+            String::EMPTY,
+            closeConnect);
     }
     else
     {
@@ -644,16 +704,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                     if (!String::equal(authResp, String::EMPTY))
                     {
-                        _sendChallenge(queueId, authResp);
+                        _sendChallenge(queueId, authResp,closeConnect);
                     }
                     else
                     {
 			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
 		        String msg(MessageLoader::getMessage(msgParms));
-                        _sendHttpError(queueId,
-                                       HTTP_STATUS_BADREQUEST,
-                                       String::EMPTY,
-                                       msg);
+                        _sendHttpError(
+                            queueId,
+                            HTTP_STATUS_BADREQUEST,
+                            String::EMPTY,
+                            msg,
+                            closeConnect);
                     }
 
                     PEG_METHOD_EXIT();
@@ -662,8 +724,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
             catch (const CannotOpenFile &)
             {
-                _sendHttpError(queueId,
-                               HTTP_STATUS_INTERNALSERVERERROR);
+                _sendHttpError(
+                    queueId,
+                    HTTP_STATUS_INTERNALSERVERERROR,
+                    String::EMPTY,
+                    String::EMPTY,
+                    closeConnect);
                 PEG_METHOD_EXIT();
                 return;
                 
@@ -714,16 +780,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 #endif
                     if (!String::equal(authResp, String::EMPTY))
                     {
-                        _sendChallenge(queueId, authResp);
+                        _sendChallenge(queueId, authResp,closeConnect);
                     }
                     else
                     {
 			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
                         String msg(MessageLoader::getMessage(msgParms));
-                        _sendHttpError(queueId,
-                                       HTTP_STATUS_BADREQUEST,
-                                       String::EMPTY,
-                                       msg);
+                        _sendHttpError(
+                            queueId,
+                            HTTP_STATUS_BADREQUEST,
+                            String::EMPTY,
+                            msg,
+                            closeConnect);
                     }
 
                     PEG_METHOD_EXIT();
@@ -749,22 +817,27 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 		{
 			MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
                         String msg(MessageLoader::getMessage(msgParms));
-		    _sendHttpError(queueId,
-				   HTTP_STATUS_BADREQUEST,
-				   String::EMPTY,
-				   msg);
+                        _sendHttpError(
+                            queueId,
+                            HTTP_STATUS_BADREQUEST,
+                            String::EMPTY,
+                            msg,
+                            closeConnect);
 		}
 		else
 		{
 		    if (sendAction == 1)  // Send success
 		    {
-			_sendSuccess(queueId,
-				     String(httpMessage->message.getData(), httpMessage->message.size()));
+                        _sendSuccess(
+                            queueId,
+                            String(
+                                httpMessage->message.getData(),httpMessage->message.size()), 
+                            closeConnect);
 		    }
 
 		    if (sendAction == 2)  // Send response
 		    {
-			_sendResponse(queueId, httpMessage->message);
+			_sendResponse(queueId, httpMessage->message,closeConnect);
 		    }
 		}
 
@@ -804,8 +877,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 		   catch(const bad_alloc &)
 		     {
 		       delete httpMessage;
-                       _sendHttpError(queueId,
-                                      HTTP_STATUS_REQUEST_TOO_LARGE);
+                       _sendHttpError(
+                           queueId,
+                           HTTP_STATUS_REQUEST_TOO_LARGE,
+                           String::EMPTY,
+                           String::EMPTY,
+                           closeConnect);
 		       PEG_METHOD_EXIT();
 		       deleteMessage = false;
 		       return;
@@ -856,8 +933,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 // without the CIMError header since this request must not be
                 // processed as a CIM request.
 
-                _sendHttpError(queueId,
-                               HTTP_STATUS_BADREQUEST);
+                _sendHttpError(
+                    queueId,
+                    HTTP_STATUS_BADREQUEST,
+                    String::EMPTY,
+                    String::EMPTY,
+                    closeConnect);
                 PEG_METHOD_EXIT();
                 return;
             } // bad request
@@ -874,16 +955,18 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
             if (!String::equal(authResp, String::EMPTY))
             {
-                _sendChallenge(queueId, authResp);
+                _sendChallenge(queueId, authResp,closeConnect);
             }
             else
             {
 		MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.AUTHORIZATION_HEADER_ERROR","Authorization header error");
                 String msg(MessageLoader::getMessage(msgParms));
-                _sendHttpError(queueId,
-                               HTTP_STATUS_BADREQUEST,
-                               String::EMPTY,
-                               msg);
+                _sendHttpError(
+                    queueId,
+                    HTTP_STATUS_BADREQUEST,
+                    String::EMPTY,
+                    msg,
+                    closeConnect);
             }
         }
     } // M-POST and POST processing

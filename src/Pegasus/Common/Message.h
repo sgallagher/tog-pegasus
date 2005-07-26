@@ -38,6 +38,7 @@
 //				Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //		
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -131,13 +132,14 @@ class PEGASUS_COMMON_LINKAGE Message
 	 Uint32 destination = 0,
 	 Uint32 key = getNextKey(),
 	 Uint32 routing_code = 0,
-	 Uint32 mask = message_mask::type_legacy )
+	 Uint32 mask = message_mask::type_legacy)
 	 :
 	 _type(type),
 	 _key(key),
 	 _routing_code(routing_code),
 	 _mask(mask),
          _httpMethod (HTTP_METHOD__POST),
+         _close_connect(false),
 	_last_thread_id(pegasus_thread_self()),
 	 _next(0),
 	 _prev(0),
@@ -170,6 +172,11 @@ class PEGASUS_COMMON_LINKAGE Message
 
 
       virtual ~Message();
+      Boolean getCloseConnect() const { return _close_connect; }
+      void setCloseConnect(Boolean close_connect)
+      {
+          _close_connect = close_connect;
+      }
 
       Uint32 getType() const { return _type; }
 
@@ -341,6 +348,8 @@ class PEGASUS_COMMON_LINKAGE Message
 	  TimeValue _providerTime;
 	  TimeValue _serverTime;	
       TimeValue _totalTime;
+      Boolean   _close_connect;  
+
 //
 
       // << Tue Jul  1 11:02:35 2003 mdd >> pep_88 and helper for i18n and l10n

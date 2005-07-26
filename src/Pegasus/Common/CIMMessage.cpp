@@ -33,6 +33,7 @@
 //              Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,7 @@ void CIMResponseMessage::syncAttributes(CIMRequestMessage* request)
     setRouting(request->getRouting());
     setMask(request->getMask());
     setHttpMethod(request->getHttpMethod());
+    setCloseConnect(request->getCloseConnect());
 }
 
 CIMResponseMessage* CIMGetClassRequestMessage::buildResponse()

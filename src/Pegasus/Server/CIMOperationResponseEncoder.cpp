@@ -45,6 +45,7 @@
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //              David Dillard, VERITAS Software Corp.
 //                 (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +104,13 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 
 	Uint32 queueId = response->queueIds.top();
 	response->queueIds.pop();
+
+        Boolean closeConnect = response->getCloseConnect();
+        Tracer::trace(
+            TRC_HTTP,
+            Tracer::LEVEL3,
+            "CIMOperationResponseEncoder::sendResponse()- response->getCloseConnect() returned %d",
+            closeConnect);
 
 	MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -257,15 +265,21 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 		httpMessage->contentLanguages = contentLanguage;
 	}
 
-	Tracer::traceBuffer(TRC_XML_IO, Tracer::LEVEL2, 
-											httpMessage->message.getData(),
-											httpMessage->message.size());
+        Tracer::traceBuffer(
+            TRC_XML_IO,
+            Tracer::LEVEL2,
+            httpMessage->message.getData(),
+            httpMessage->message.size());
 	
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-							"CIMOperationResponseEncoder::sendResponse - QueueId: $0  "
-							"XML content: $1",queueId,
-							String(message.getData(), message.size()));
+        Logger::put(
+            Logger::STANDARD_LOG,
+            System::CIMSERVER,
+            Logger::TRACE,
+            "CIMOperationResponseEncoder::sendResponse - QueueId: $0  "
+            "XML content: $1",queueId,
+            String(message.getData(), message.size()));
 	
+        httpMessage->setCloseConnect(closeConnect);
 	queue->enqueue(httpMessage.release());
 	
 	PEG_METHOD_EXIT();	
@@ -281,6 +295,13 @@ void CIMOperationResponseEncoder::handleEnqueue(Message *message)
       PEG_METHOD_EXIT();
       return;
    }
+
+   Tracer::trace(
+       TRC_HTTP,
+       Tracer::LEVEL3,
+       "CIMOperationResponseEncoder::handleEnque()- message->getCloseConnect() returned %d",
+       message->getCloseConnect());
+
    
    switch (message->getType())
    {

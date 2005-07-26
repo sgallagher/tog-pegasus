@@ -49,6 +49,7 @@
 //      Amit K Arora, IBM (amita@in.ibm.com), for PEP#193
 //      David Dillard, VERITAS Software Corp.
 //          (david.dillard@veritas.com)
+//      John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2045,15 +2046,14 @@ void CIMOperationRequestDispatcher::_enqueueResponse(
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDispatcher::_enqueueResponse");
 
-   // Use the same key as used in the request:
-
-   response->setKey(request->getKey());
    response->dest = request->queueIds.top();
-
-   //
-   //  Set HTTP method in response from request
-   //
-   response->setHttpMethod (request->getHttpMethod ());
+   // Use the same key,setHTTPMethod and closeConnect as used in the request:
+   response->syncAttributes(request);
+   Tracer::trace(
+       TRC_HTTP,
+       Tracer::LEVEL3,
+       "_CIMOperationRequestDispatcher::_enqueueResponse - request->getCloseConnect() returned %d",
+       request->getCloseConnect());
 
    if( true == Base::_enqueueResponse(request, response))
    {

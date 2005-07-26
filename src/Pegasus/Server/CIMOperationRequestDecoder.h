@@ -39,6 +39,7 @@
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -71,28 +72,32 @@ class CIMOperationRequestDecoder : public MessageQueueService
       ~CIMOperationRequestDecoder();
 
       void sendResponse(
-	 Uint32 queueId, 
-	 Array<char>& message);
+         Uint32 queueId, 
+         Array<char>& message,
+         Boolean closeConnect = false);
 
       void sendIMethodError(
-	 Uint32 queueId, 
+         Uint32 queueId, 
          HttpMethod httpMethod,
-	 const String& messageId,
-	 const String& methodName,
-	 const CIMException& cimException);
+         const String& messageId,
+         const String& methodName,
+         const CIMException& cimException,
+         Boolean closeConnect = false);
 
       void sendMethodError(
-	 Uint32 queueId, 
+         Uint32 queueId, 
          HttpMethod httpMethod,
-	 const String& messageId,
-	 const String& methodName,
-	 const CIMException& cimException);
+         const String& messageId,
+         const String& methodName,
+         const CIMException& cimException,
+         Boolean closeConnect = false);
 
       void sendHttpError(
-	 Uint32 queueId, 
-	 const String& status,
-	 const String& cimError = String::EMPTY,
-	 const String& messageBody = String::EMPTY);
+         Uint32 queueId, 
+         const String& status,
+         const String& cimError = String::EMPTY,
+         const String& messageBody = String::EMPTY,
+         Boolean closeConnect = false);
 
       virtual void handleEnqueue(Message *);
 
@@ -102,17 +107,18 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
 // l10n
       void handleMethodCall(
-	 Uint32 queueId,
+         Uint32 queueId,
          HttpMethod httpMethod,
-	 char* content,
+         char* content,
          Uint32 contentLength,
-	 const String& cimProtocolVersionInHeader,
-	 const String& cimMethodInHeader,
-	 const String& cimObjectInHeader,
-	 String authType,
-	 String userName,
-	 const AcceptLanguages& httpAcceptLanguages,
-	 const ContentLanguages& httpContentLanguages);
+         const String& cimProtocolVersionInHeader,
+         const String& cimMethodInHeader,
+         const String& cimObjectInHeader,
+         String authType,
+         String userName,
+         const AcceptLanguages& httpAcceptLanguages,
+         const ContentLanguages& httpContentLanguages,
+         Boolean closeConnect);
 
       CIMCreateClassRequestMessage* decodeCreateClassRequest(
 	 Uint32 queueId,
@@ -323,6 +329,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       // Flag to indicate whether or not the CIMServer is shutting down.
       Boolean _serverTerminating;
+
 };
 
 PEGASUS_NAMESPACE_END

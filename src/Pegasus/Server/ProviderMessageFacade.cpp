@@ -43,6 +43,7 @@
 //				 Seema Gupta (gseema@in.ibm.com) for PEP135
 //				 Seema Gupta (gseema@in.ibm.com) for Bug#1441
 //               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3766
+//               John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -171,9 +172,9 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
     //delete message;
 
     //
-    //  Set HTTP method in response from request
+    //  Set HTTP method, Key, closeConnect in response from request
     //
-    response->setHttpMethod (message->getHttpMethod ());
+    ((CIMResponseMessage *)response)->syncAttributes((CIMRequestMessage*)message);
 
     return(response);
 }

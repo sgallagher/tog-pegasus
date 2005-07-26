@@ -44,6 +44,7 @@
 //         David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//         John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -876,10 +877,20 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
         //
         if (_isClient() == false)
         {
-            Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
-                "Now setting state to %d", _MonitorEntry::IDLE);
-            _monitor->setState (_entry_index, _MonitorEntry::IDLE);
-            _monitor->tickle();
+            // Check for message to close
+            if(message.getCloseConnect()== true)
+            {
+                Tracer::trace(
+                    TRC_HTTP,
+                    Tracer::LEVEL3,
+                    "HTTPConnection::_handleWriteEvent - Connection: Close in client message.");
+                    _closeConnection();
+            }else {
+                Tracer::trace (TRC_HTTP, Tracer::LEVEL2,
+                    "Now setting state to %d", _MonitorEntry::IDLE);
+                _monitor->setState (_entry_index, _MonitorEntry::IDLE);
+                _monitor->tickle();
+            }
             _responsePending = false;
             cimException = CIMException();
         }

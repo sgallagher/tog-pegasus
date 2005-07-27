@@ -751,6 +751,16 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     }
     CDEBUG("Namespaces found. Count= " << CIMNamespaceInstances.size());
 
+    // Determine if there are any classInfo attributes available.
+    Boolean classInfoFound = false;
+    for (Uint32 i = 0 ; i < CIMNamespaceInstances.size() ; i++)
+    {
+        if (_getPropertyValueString(CIMNamespaceInstances[i], CIMName(classinfoAttribute), String::EMPTY) != String::EMPTY)
+        {
+            classInfoFound = true;
+            break;
+        }
+    }
     // Extract the namespace names and class info from the objects.
     for (Uint32 i = 0 ; i < CIMNamespaceInstances.size() ; i++)
     {
@@ -758,7 +768,12 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
         if (temp != String::EMPTY)
         {
             _appendCSV(names, temp);
-            _appendCSV(classInfo, _getPropertyValueString(CIMNamespaceInstances[i], CIMName(classinfoAttribute), String::EMPTY));
+            // Append to ClassInfo only if there is at least one valid classinfo property provided
+            if (classInfoFound)
+            {
+                // Insert either the Class info or a "" indicating none at this position.
+                _appendCSV(classInfo, _getPropertyValueString(CIMNamespaceInstances[i], CIMName(classinfoAttribute), "\"\""));
+            }
         }
         else
             CDEBUG("Must log error here if property not found");
@@ -1034,7 +1049,10 @@ Boolean SLPProvider::populateRegistrationData(
 
     populateTemplateField(templateInstance, namespaceAttribute, nameSpaceList);
 
-    populateTemplateField(templateInstance, classinfoAttribute, classInfoList);
+    if (classInfoList.size() != 0)
+    {
+        populateTemplateField(templateInstance, classinfoAttribute, classInfoList);
+    }
 
     // set the current time into the instance
     templateInstance.addProperty(CIMProperty(CIMName("registeredTime"), CIMDateTime::getCurrentDateTime()));

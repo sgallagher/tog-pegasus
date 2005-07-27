@@ -456,6 +456,12 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #define PG_PROVMODULE_USERCTXT_PRIVILEGED 4
 #define PG_PROVMODULE_USERCTXT_CIMSERVER 5
 
+// Standard Pegasus Global Prefix.
+// This prefix is used as the basis for pegasus defined classes
+// and in identity creation that would require a standard
+// Pegasus prefix
+#define PEGASUS_INSTANCEID_GLOBAL_PREFIX "PG"
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Constants_h */

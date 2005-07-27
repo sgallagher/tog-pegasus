@@ -315,8 +315,11 @@ void PG_TestPropertyTypes::modifyInstance(
 	const CIMPropertyList & propertyList,
 	ResponseHandler & handler)
 {
-	// ATTN: This provider does not yet support partial modification
-	if (!propertyList.isNull())
+        // This provider only allows partial instance modification for the
+        // PropertyUint8 property.
+        if (!(propertyList.isNull() ||
+              ((propertyList.size() == 1) &&
+               (propertyList[0].equal("PropertyUint8")))))
 	{
 	    throw CIMException(CIM_ERR_NOT_SUPPORTED);
 	}

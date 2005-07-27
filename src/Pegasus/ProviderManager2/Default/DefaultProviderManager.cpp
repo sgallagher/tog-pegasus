@@ -229,17 +229,10 @@ Message * DefaultProviderManager::handleInitializeProviderRequest(
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMInitializeProviderResponseMessage * response =
-        new CIMInitializeProviderResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
+    CIMInitializeProviderResponseMessage* response =
+        dynamic_cast<CIMInitializeProviderResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
 
     OperationResponseHandler handler(request, response);
 
@@ -289,20 +282,10 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMGetInstanceResponseMessage * response =
-        new CIMGetInstanceResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        CIMInstance());
-
+    CIMGetInstanceResponseMessage* response =
+        dynamic_cast<CIMGetInstanceResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
 
     // create a handler for this request
     GetInstanceResponseHandler handler(request, response);
@@ -396,20 +379,10 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMEnumerateInstancesResponseMessage * response =
-        new CIMEnumerateInstancesResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        Array<CIMInstance>());
-
+    CIMEnumerateInstancesResponseMessage* response =
+        dynamic_cast<CIMEnumerateInstancesResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     EnumerateInstancesResponseHandler handler(request, response);
@@ -502,20 +475,10 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMEnumerateInstanceNamesResponseMessage * response =
-        new CIMEnumerateInstanceNamesResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        Array<CIMObjectPath>());
-
+    CIMEnumerateInstanceNamesResponseMessage* response =
+        dynamic_cast<CIMEnumerateInstanceNamesResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());;
 
     // create a handler for this request
     EnumerateInstanceNamesResponseHandler handler(request, response);
@@ -605,20 +568,10 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
     PEGASUS_ASSERT(request != 0);
 
     // create response message
-    CIMCreateInstanceResponseMessage * response =
-        new CIMCreateInstanceResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        CIMObjectPath());
-
+    CIMCreateInstanceResponseMessage* response =
+        dynamic_cast<CIMCreateInstanceResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     CreateInstanceResponseHandler handler(request, response);
@@ -709,19 +662,10 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
     PEGASUS_ASSERT(request != 0);
 
     // create response message
-    CIMModifyInstanceResponseMessage * response =
-        new CIMModifyInstanceResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMModifyInstanceResponseMessage* response =
+        dynamic_cast<CIMModifyInstanceResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     ModifyInstanceResponseHandler handler(request, response);
@@ -816,19 +760,10 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
     PEGASUS_ASSERT(request != 0);
 
     // create response message
-    CIMDeleteInstanceResponseMessage * response =
-        new CIMDeleteInstanceResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMDeleteInstanceResponseMessage* response =
+        dynamic_cast<CIMDeleteInstanceResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     DeleteInstanceResponseHandler handler(request, response);
@@ -917,20 +852,10 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMExecQueryResponseMessage * response =
-        new CIMExecQueryResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        Array<CIMObject>());
-
+    CIMExecQueryResponseMessage* response =
+        dynamic_cast<CIMExecQueryResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     ExecQueryResponseHandler handler(request, response);
@@ -1026,17 +951,10 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMAssociatorsResponseMessage * response =
-        new CIMAssociatorsResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        Array<CIMObject>());
-
+    CIMAssociatorsResponseMessage* response =
+        dynamic_cast<CIMAssociatorsResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
 
     // create a handler for this request
     AssociatorsResponseHandler handler(request, response);
@@ -1133,20 +1051,10 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMAssociatorNamesResponseMessage * response =
-        new CIMAssociatorNamesResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        Array<CIMObjectPath>());
-
+    CIMAssociatorNamesResponseMessage* response =
+        dynamic_cast<CIMAssociatorNamesResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
 
     // create a handler for this request
     AssociatorNamesResponseHandler handler(request, response);
@@ -1240,20 +1148,10 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMReferencesResponseMessage * response =
-        new CIMReferencesResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        Array<CIMObject>());
-
+    CIMReferencesResponseMessage* response =
+        dynamic_cast<CIMReferencesResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     ReferencesResponseHandler handler(request, response);
@@ -1353,18 +1251,10 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMReferenceNamesResponseMessage * response =
-        new CIMReferenceNamesResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        Array<CIMObjectPath>());
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
+    CIMReferenceNamesResponseMessage* response =
+        dynamic_cast<CIMReferenceNamesResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
 
     // create a handler for this request
     ReferenceNamesResponseHandler handler(request, response);
@@ -1462,20 +1352,10 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
     PEGASUS_ASSERT(request != 0);
 
     // create response message
-    CIMGetPropertyResponseMessage * response =
-        new CIMGetPropertyResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        CIMValue());
-
+    CIMGetPropertyResponseMessage* response =
+        dynamic_cast<CIMGetPropertyResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
 
     GetPropertyResponseHandler handler(request, response);
 
@@ -1567,22 +1447,10 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
     PEGASUS_ASSERT(request != 0);
 
     // create response message
-    //l10n
-    CIMSetPropertyResponseMessage * response =
-        new CIMSetPropertyResponseMessage(
-        request->messageId,
-        PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms(
-        "ProviderManager.DefaultProviderManager.NOT_IMPLEMENTED",
-        "not implemented")),
-        request->queueIds.copyAndPop());
-
+    CIMSetPropertyResponseMessage* response = 
+        dynamic_cast<CIMSetPropertyResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
 
     SetPropertyResponseHandler handler(request, response);
 
@@ -1676,22 +1544,10 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
     PEGASUS_ASSERT(request != 0);
 
     // create response message
-    CIMInvokeMethodResponseMessage * response =
-        new CIMInvokeMethodResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop(),
-        CIMValue(),
-        Array<CIMParamValue>(),
-        request->methodName);
-
+    CIMInvokeMethodResponseMessage* response =
+        dynamic_cast<CIMInvokeMethodResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // propagate message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // create a handler for this request
     InvokeMethodResponseHandler handler(request, response);
@@ -1785,19 +1641,10 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMCreateSubscriptionResponseMessage * response =
-        new CIMCreateSubscriptionResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMCreateSubscriptionResponseMessage* response =
+        dynamic_cast<CIMCreateSubscriptionResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     OperationResponseHandler handler(request, response);
 
@@ -1939,19 +1786,10 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMModifySubscriptionResponseMessage * response =
-        new CIMModifySubscriptionResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMModifySubscriptionResponseMessage* response =
+        dynamic_cast<CIMModifySubscriptionResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     OperationResponseHandler handler(request, response);
 
@@ -2070,19 +1908,10 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMDeleteSubscriptionResponseMessage * response =
-        new CIMDeleteSubscriptionResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMDeleteSubscriptionResponseMessage* response =
+        dynamic_cast<CIMDeleteSubscriptionResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod(request->getHttpMethod());
 
     OperationResponseHandler handler(request, response);
 
@@ -2226,19 +2055,10 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMExportIndicationResponseMessage * response =
-        new CIMExportIndicationResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMExportIndicationResponseMessage* response =
+        dynamic_cast<CIMExportIndicationResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     OperationResponseHandler handler(request, response);
 
@@ -2442,18 +2262,12 @@ Message * DefaultProviderManager::handleDisableModuleRequest(const Message * mes
         operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
     }
 
-    CIMDisableModuleResponseMessage * response =
-        new CIMDisableModuleResponseMessage(
-            request->messageId,
-            CIMException(),
-            request->queueIds.copyAndPop(),
-            operationalStatus);
+    CIMDisableModuleResponseMessage* response =
+        dynamic_cast<CIMDisableModuleResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
 
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
+    response->operationalStatus = operationalStatus;
 
     PEG_METHOD_EXIT();
 
@@ -2472,18 +2286,12 @@ Message * DefaultProviderManager::handleEnableModuleRequest(const Message * mess
     Array<Uint16> operationalStatus;
     operationalStatus.append(CIM_MSE_OPSTATUS_VALUE_OK);
 
-    CIMEnableModuleResponseMessage * response =
-        new CIMEnableModuleResponseMessage(
-            request->messageId,
-            CIMException(),
-            request->queueIds.copyAndPop(),
-            operationalStatus);
+    CIMEnableModuleResponseMessage* response =
+        dynamic_cast<CIMEnableModuleResponseMessage*>(
+            request->buildResponse());
+    PEGASUS_ASSERT(response != 0);
 
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
+    response->operationalStatus = operationalStatus;
 
     PEG_METHOD_EXIT();
     return(response);
@@ -2498,19 +2306,10 @@ Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * 
 
     PEGASUS_ASSERT(request != 0);
 
-    CIMStopAllProvidersResponseMessage * response =
-        new CIMStopAllProvidersResponseMessage(
-        request->messageId,
-        CIMException(),
-        request->queueIds.copyAndPop());
-
+    CIMStopAllProvidersResponseMessage* response =
+        dynamic_cast<CIMStopAllProvidersResponseMessage*>(
+            request->buildResponse());
     PEGASUS_ASSERT(response != 0);
-
-    // preserve message key
-    response->setKey(request->getKey());
-
-    //  Set HTTP method in response from request
-    response->setHttpMethod (request->getHttpMethod ());
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();

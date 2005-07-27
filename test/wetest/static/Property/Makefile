@@ -35,6 +35,8 @@ XMLSCRIPTS = \
    GetProperty82000 \
    GetProperty82100 \
    SetProperty82200 \
+   SetProperty82201 \
+   SetProperty82202 \
    SetProperty82300
 
 include $(ROOT)/test/configend.mak

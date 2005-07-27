@@ -137,8 +137,7 @@ PEGASUS_NAMESPACE_BEGIN
 //**************************************************************************
 
 const char * thisProvider = "InteropProvider";
-// The following should be moved to somewhere like constants.
-static const String PegasusInstanceIDGlobalPrefix = "PEG";
+
 
 /**
     The constants representing the class names we process
@@ -534,20 +533,15 @@ String _getHostAddress(String & hostName, Uint32  namespaceType)
      return(profileDescriptions);
  }
 
-/*  get the prefix that will be part of the cimom identification
-    This can be either the default PEG or if the environment
-    variable PEGASUS_TRADEMARK_PREFIX is defined this is used.
-    NOTE: getting from the environment variable is a hack until
-    we can come up with a better source.
+/*  get the prefix that will be part of the cimom identification.
+    This prefix is obtained from the Pegasus Constants.h
     @return String containing the unique name for the CIMOM ID
 */
 
 String getTrademarkCIMOMIDPrefix()
 {
 
-    char * trademark;
-    trademark = getenv("PEGASUS_TRADEMARK_PREFIX");
-    return((trademark)? trademark : PegasusInstanceIDGlobalPrefix);
+    return(PEGASUS_INSTANCEID_GLOBAL_PREFIX);
 }
 /** Builds the UUID string for this CIMOM.
 **/

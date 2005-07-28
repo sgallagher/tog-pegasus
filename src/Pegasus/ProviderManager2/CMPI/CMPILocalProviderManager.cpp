@@ -151,6 +151,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
           }
 	    else {
 			// No need to have a memory leak.
+			_providers.remove(pr->_name);
 			delete pr;
 		}
         break;

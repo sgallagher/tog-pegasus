@@ -419,6 +419,8 @@ void ProviderManagerService::handleCimRequest(
                     "ProviderManager.ProviderManagerService.PROVIDER_BLOCKED",
                     "provider blocked."));
             response = cimResponse;
+
+             STAT_COPYDISPATCHER
         }
         else
         {

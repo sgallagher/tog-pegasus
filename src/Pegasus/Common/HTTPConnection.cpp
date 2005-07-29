@@ -464,7 +464,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         String messageS = cimException.getMessage();
                         CString messageC = messageS.getCString();
                         messageStart = (char *) (const char *) messageC;
-                        messageLength = messageS.size();
+                        messageLength = strlen(messageStart);
                         buffer.reserveCapacity(messageLength+1);
                         buffer.append(messageStart, messageLength);
                         // null terminate

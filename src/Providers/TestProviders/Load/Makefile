@@ -195,6 +195,7 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m TestCMPIFail_1ProviderModule
 	cimprovider -r -m TestCMPIFail_2ProviderModule
 	cimprovider -r -m TestCMPIFail_3ProviderModule 
+	cimprovider -r -m TestCMPIFail_4ProviderModule 
 ifdef PEGASUS_ENABLE_EXECQUERY
 	cimprovider -r -m TestCMPIInstanceProviderModule
 endif

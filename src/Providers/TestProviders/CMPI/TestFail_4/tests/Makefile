@@ -26,54 +26,11 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Recurse the directories defined in DIRS
-# This makefile simply recurses all of the toplevel provider directories
 
-ROOT = ../../..
-
+ROOT = ../../../../../../
 include $(ROOT)/mak/config.mak
+include $(ROOT)/test/config.mak
 
-#Directories to recurse
-DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient
+XMLSCRIPTS = EnumerateInstance_Fail_4
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
-	CMPI/TestIndications \
-	CMPI/TestIndications/tests \
-	CMPI/TestMethod \
-	CMPI/TestMethod/tests \
-	CMPI/TestFail_1 \
-	CMPI/TestFail_1/tests \
-	CMPI/TestFail_2 \
-	CMPI/TestFail_2/tests\
-	CMPI/TestFail_3 \
-	CMPI/TestFail_3/tests \
-	CMPI/TestFail_4 \
-	CMPI/TestFail_4/tests
-
-
-
-ifdef PEGASUS_ENABLE_EXECQUERY
-DIRS += \
-	CMPI/TestInstance \
-	CMPI/TestInstance/tests
-endif
-endif
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/test/configend.mak

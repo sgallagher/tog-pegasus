@@ -179,3 +179,39 @@ instance of PG_ProviderCapabilities
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
+// ===================================================================
+// Instance provider that returns an error for every Instance API
+// class.
+// ===================================================================
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test Fail_4 provider";
+   Name = "TestCMPIFail_4ProviderModule";
+  // The library name on disk
+   Location = "cmpiTestFail_4Provider"; 
+   Vendor = "SBLIM";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIFail_4ProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIFail_4Provider";	
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIFail_4ProviderModule";
+   ProviderName = "TestCMPIFail_4Provider";
+   CapabilityID = "CMPI Test Instance Fail 1 Provider";
+   // Name of the CIM Class as defined in the mof.
+
+   ClassName = "TestCMPI_Fail_4";
+   Namespaces = { "test/TestProvider" };
+   ProviderType = { 2 }; //Instance 
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};

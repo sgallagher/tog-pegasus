@@ -547,6 +547,13 @@ void shutdownCIMOM(Uint32 timeoutValue)
         }
     }
 
+    // Make sure the cimserver has time to actually shut down
+    Uint32 maxWaitTime = timeoutValue;
+    while ((maxWaitTime-- > 0) && _cimServerProcess->isCIMServerRunning())
+    {
+        System::sleep(1);
+    }
+
     return;
 }
 

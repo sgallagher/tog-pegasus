@@ -273,6 +273,7 @@ void _addUint64Property
 CIMObjectPath _buildFilterOrHandlerPath
     (const CIMName & className,
      const String & name,
+     const String & host,
      const CIMNamespaceName & namespaceName = CIMNamespaceName ())
 {
     CIMObjectPath path;
@@ -288,22 +289,33 @@ CIMObjectPath _buildFilterOrHandlerPath
     path.setClassName (className);
     path.setKeyBindings (keyBindings);
     path.setNameSpace (namespaceName);
+    path.setHost (host);
 
     return path;
+}
+
+CIMObjectPath _buildFilterOrHandlerPath
+    (const CIMName & className,
+     const String & name)
+{
+    return _buildFilterOrHandlerPath (className, name, String::EMPTY,
+        CIMNamespaceName ());
 }
 
 CIMObjectPath _buildSubscriptionPath
     (const String & filterName,
      const CIMName & handlerClass,
      const String & handlerName,
+     const String & filterHost,
+     const String & handlerHost,
      const CIMNamespaceName & filterNS,
      const CIMNamespaceName & handlerNS)
 {
     CIMObjectPath filterPath = _buildFilterOrHandlerPath
-        (PEGASUS_CLASSNAME_INDFILTER, filterName, filterNS);
+        (PEGASUS_CLASSNAME_INDFILTER, filterName, filterHost, filterNS);
 
     CIMObjectPath handlerPath = _buildFilterOrHandlerPath (handlerClass,
-        handlerName, handlerNS);
+        handlerName, handlerHost, handlerNS);
 
     Array<CIMKeyBinding> subscriptionKeyBindings;
     subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
@@ -322,7 +334,7 @@ CIMObjectPath _buildSubscriptionPath
      const String & handlerName)
 {
     return _buildSubscriptionPath (filterName, handlerClass, handlerName,
-        CIMNamespaceName (), CIMNamespaceName ());
+        String::EMPTY, String::EMPTY, CIMNamespaceName (), CIMNamespaceName ());
 }
 
 CIMInstance _buildSubscriptionInstance
@@ -393,6 +405,8 @@ void _checkSubscriptionPath
      const String & filterName,
      const CIMName & handlerClass,
      const String & handlerName,
+     const String & filterHost,
+     const String & handlerHost,
      const CIMNamespaceName & filterNS,
      const CIMNamespaceName & handlerNS)
 {
@@ -406,7 +420,7 @@ void _checkSubscriptionPath
         {
             filterFound = true;
             CIMObjectPath filterPath = _buildFilterOrHandlerPath
-                (PEGASUS_CLASSNAME_INDFILTER, filterName, filterNS);
+                (PEGASUS_CLASSNAME_INDFILTER, filterName, filterHost, filterNS);
             PEGASUS_ASSERT (keyBindings [i].getValue () ==
                 filterPath.toString ());
         }
@@ -414,7 +428,7 @@ void _checkSubscriptionPath
         {
             handlerFound = true;
             CIMObjectPath handlerPath = _buildFilterOrHandlerPath
-                (handlerClass, handlerName, handlerNS);
+                (handlerClass, handlerName, handlerHost, handlerNS);
             PEGASUS_ASSERT (keyBindings [i].getValue () ==
                 handlerPath.toString ());
         }
@@ -435,7 +449,7 @@ void _checkSubscriptionPath
      const String & handlerName)
 {
     _checkSubscriptionPath (path, filterName, handlerClass, handlerName,
-        CIMNamespaceName (), CIMNamespaceName ());
+        String::EMPTY, String::EMPTY, CIMNamespaceName (), CIMNamespaceName ());
 }
 
 void _checkStringProperty
@@ -591,12 +605,15 @@ void _deleteSubscriptionInstance
      const String & filterName,
      const CIMName & handlerClass,
      const String & handlerName,
+     const String & filterHost,
+     const String & handlerHost,
      const CIMNamespaceName & filterNS,
      const CIMNamespaceName & handlerNS,
      const CIMNamespaceName & subscriptionNS)
 {
     CIMObjectPath subscriptionPath = _buildSubscriptionPath
-        (filterName, handlerClass, handlerName, filterNS, handlerNS);
+        (filterName, handlerClass, handlerName, filterHost, handlerHost,
+        filterNS, handlerNS);
     client.deleteInstance (subscriptionNS, subscriptionPath);
 }
 
@@ -607,6 +624,7 @@ void _deleteSubscriptionInstance
      const String & handlerName)
 {
     _deleteSubscriptionInstance (client, filterName, handlerClass, handlerName,
+        String::EMPTY, String::EMPTY,
         CIMNamespaceName (), CIMNamespaceName (), NAMESPACE);
 }
 
@@ -1569,7 +1587,7 @@ void _valid (CIMClient & client, String& qlang)
     //
     //  Create Subscription with correct Host and Namespace in Filter and
     //  Handler reference property value
-    //  Verify Host and Namespace do not appear in Subscription instance name
+    //  Verify Host and Namespace appear in Subscription instance name
     //  returned from Create Instance operation
     //
     CIMObjectPath fPath;
@@ -1601,10 +1619,14 @@ void _valid (CIMClient & client, String& qlang)
     sPath = client.createInstance (NAMESPACE, subscription10);
     _checkSubscriptionPath (sPath, "Filter08",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02",
+        System::getFullyQualifiedHostName (),
+        System::getFullyQualifiedHostName (),
         NAMESPACE, NAMESPACE);
 
     _deleteSubscriptionInstance (client, "Filter08",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02",
+        System::getFullyQualifiedHostName (),
+        System::getFullyQualifiedHostName (),
         NAMESPACE, NAMESPACE, NAMESPACE);
     _deleteFilterInstance (client, "Filter08");
     _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
@@ -1640,11 +1662,11 @@ void _valid (CIMClient & client, String& qlang)
     sPath = client.createInstance (NAMESPACE, subscription11);
     _checkSubscriptionPath (sPath, "Filter09",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03",
-        NAMESPACE, NAMESPACE);
+        String::EMPTY, String::EMPTY, NAMESPACE, NAMESPACE);
 
     _deleteSubscriptionInstance (client, "Filter09",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03",
-        NAMESPACE, NAMESPACE, NAMESPACE);
+        String::EMPTY, String::EMPTY, NAMESPACE, NAMESPACE, NAMESPACE);
     _deleteFilterInstance (client, "Filter09");
     _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination03");
@@ -1675,7 +1697,7 @@ void _valid (CIMClient & client, String& qlang)
     sPath = client.createInstance (NAMESPACE3, subscription13);
     _checkSubscriptionPath (sPath, "Filter11",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
-        NAMESPACE1, NAMESPACE2);
+        String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2);
 
     //
     //  Create a second filter in different namespace
@@ -1722,7 +1744,7 @@ void _valid (CIMClient & client, String& qlang)
 
     _checkSubscriptionPath (sPath, "Filter11",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
-        NAMESPACE1, NAMESPACE2);
+        String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2);
 
     //
     //  Create another transient CIMXML listener destination in a different
@@ -1746,7 +1768,7 @@ void _valid (CIMClient & client, String& qlang)
 
     _checkSubscriptionPath (sPath2, "Filter11",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
-        NAMESPACE1, NAMESPACE3);
+        String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE3);
 
     //
     //  Delete transient handler - referencing subscription must be deleted
@@ -1792,12 +1814,12 @@ void _valid (CIMClient & client, String& qlang)
 
     _deleteSubscriptionInstance (client, "Filter11",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
-        NAMESPACE1, NAMESPACE3, NAMESPACE2);
+        String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE3, NAMESPACE2);
     _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination06", NAMESPACE3);
     _deleteSubscriptionInstance (client, "Filter11",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
-        NAMESPACE1, NAMESPACE2, NAMESPACE3);
+        String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2, NAMESPACE3);
     _deleteFilterInstance (client, "Filter11", NAMESPACE1);
     _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination05", NAMESPACE2);
@@ -3223,7 +3245,7 @@ void _error (CIMClient & client)
     //  Create Filter, Listener Destination, Subscription for testing
     //  Create Subscription with correct Host and Namespace in Filter and
     //  Handler reference property value
-    //  Verify Host and Namespace do not appear in Subscription instance name
+    //  Verify Host and Namespace appear in Subscription instance name
     //  returned from Create Instance operation
     //
     String query;
@@ -3256,6 +3278,8 @@ void _error (CIMClient & client)
     sPath = client.createInstance (NAMESPACE, subscription12);
     _checkSubscriptionPath (sPath, "Filter10",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04",
+        System::getFullyQualifiedHostName (),
+        System::getFullyQualifiedHostName (),
         NAMESPACE, NAMESPACE);
 
     //
@@ -3294,6 +3318,8 @@ void _error (CIMClient & client)
     //
     _deleteSubscriptionInstance (client, "Filter10",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04",
+        System::getFullyQualifiedHostName (),
+        System::getFullyQualifiedHostName (),
         NAMESPACE, NAMESPACE, NAMESPACE);
     _deleteFilterInstance (client, "Filter10");
     _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
@@ -3326,7 +3352,7 @@ void _error (CIMClient & client)
     sPath = client.createInstance (NAMESPACE3, subscription15);
     _checkSubscriptionPath (sPath, "Filter12",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination07",
-        NAMESPACE1, NAMESPACE2);
+        String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2);
 
     //
     //  Filter: Attempt to delete a filter referenced by a subscription
@@ -3383,7 +3409,7 @@ void _error (CIMClient & client)
     //
     _deleteSubscriptionInstance (client, "Filter12",
         PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination07",
-        NAMESPACE1, NAMESPACE2, NAMESPACE3);
+        String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2, NAMESPACE3);
     _deleteFilterInstance (client, "Filter12", NAMESPACE1);
     _deleteHandlerInstance (client, PEGASUS_CLASSNAME_LSTNRDST_CIMXML,
         "ListenerDestination07", NAMESPACE2);
@@ -4335,6 +4361,8 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter08",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination02",
+            System::getFullyQualifiedHostName (),
+            System::getFullyQualifiedHostName (),
             NAMESPACE, NAMESPACE, NAMESPACE);
     }
     catch (...)
@@ -4345,7 +4373,7 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter09",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination03",
-            NAMESPACE, NAMESPACE, NAMESPACE);
+            String::EMPTY, String::EMPTY, NAMESPACE, NAMESPACE, NAMESPACE);
     }
     catch (...)
     {
@@ -4355,6 +4383,8 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter10",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination04",
+            System::getFullyQualifiedHostName (),
+            System::getFullyQualifiedHostName (),
             NAMESPACE, NAMESPACE, NAMESPACE);
     }
     catch (...)
@@ -4365,7 +4395,7 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter11",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
-            NAMESPACE1, NAMESPACE2, NAMESPACE3);
+            String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2, NAMESPACE3);
     }
     catch (...)
     {
@@ -4375,7 +4405,7 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter11",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination07",
-            NAMESPACE1, NAMESPACE2, NAMESPACE3);
+            String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2, NAMESPACE3);
     }
     catch (...)
     {
@@ -4385,7 +4415,7 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter12",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
-            NAMESPACE1, NAMESPACE2, NAMESPACE3);
+            String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2, NAMESPACE3);
     }
     catch (...)
     {
@@ -4395,7 +4425,7 @@ void _cleanup (CIMClient & client)
     {
         _deleteSubscriptionInstance (client, "Filter12",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
-            NAMESPACE1, NAMESPACE3, NAMESPACE2);
+            String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE3, NAMESPACE2);
     }
     catch (...)
     {

@@ -3248,22 +3248,13 @@ Boolean IndicationService::_canCreate (
 
         //
         //  If Host is included in a Filter or Handler reference property
-        //  value, attempt to validate that it is correct and if correct,
-        //  remove it.
+        //  value, attempt to validate that it is correct.
         //  If Host cannot be validated, reject the create operation.
         //
         CIMObjectPath origFilterPath = filterPath;
         if (filterPath.getHost () != String::EMPTY)
         {
-            if (System::sameHost (filterPath.getHost ()))
-            {
-                //
-                //  Remove Host from subscription Filter property value
-                //
-                filterPath.setHost (String::EMPTY);
-                filterProperty.setValue (CIMValue (filterPath));
-            }
-            else
+            if (!System::sameHost (filterPath.getHost ()))
             {
                 //
                 //  Reject subscription creation
@@ -3284,15 +3275,7 @@ Boolean IndicationService::_canCreate (
         CIMObjectPath origHandlerPath = handlerPath;
         if (handlerPath.getHost () != String::EMPTY)
         {
-            if (System::sameHost (handlerPath.getHost ()))
-            {
-                //
-                //  Remove Host from subscription Filter property value
-                //
-                handlerPath.setHost (String::EMPTY);
-                handlerProperty.setValue (CIMValue (handlerPath));
-            }
-            else
+            if (!System::sameHost (handlerPath.getHost ()))
             {
                 //
                 //  Reject subscription creation

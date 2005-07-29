@@ -44,12 +44,31 @@ include $(ROOT)/mak/program.mak
 # values in ParserCLI. the values of w,x,y,z are preset and the
 # end result must be true.   Thus, for example w is always TRUE
 
-TESTLIST = test1 test2 test2a test3 test4 test5 test6 test6not test7
+#
+# Normal test behaviour - The test are first parsed and then evaluated.
+#     If either the parse or the evaluation fails then the test fails. 
+#
+#
+# Keywords to modify te normal test behaviour:
+#
+#      parseError    - indicates a parse error is expected
+#                      The test will fail if the parse passes.
+#
+#      evaluateError - indicates an evaluate error is expected
+#                      The test will fail if the evaluation passes.
+#
+#      noEvaluate    - indicates the test should be parsed only and 
+#                      not evaluated. 
+#                       - This should be used for SNIA extensions only.
+#                       - test6noEval is simply to test the test. 
+#
+
+TESTLIST = test1 test2 test2a test3 test4 test5 test6 test6not test6noEval test7
 
 ifdef PEGASUS_SNIA_EXTENSIONS
-    TESTLIST += test8 test9
+    TESTLIST += test8 test9 test10
 else
-    TESTLIST += test8not test9not
+    TESTLIST += test8not test9not test10not
 endif
 
 test1:
@@ -84,6 +103,9 @@ test6:
 test6not:
 	@ $(PROGRAM) "evaluateError" "SELECT w,x,y,z FROM ClassName WHERE w = FALSE"
 
+test6noEval:
+	@ $(PROGRAM) "noEvaluate" "SELECT w,x,y,z FROM ClassName WHERE w = FALSE"
+
 test7:
 	@ $(PROGRAM) "SELECT * FROM ClassName WHERE v IS NULL"
 
@@ -99,7 +121,11 @@ test9:
 test9not:
 	@ $(PROGRAM) "parseError" "SELECT * FROM CIM_InstCreation WHERE SourceInstance.OperationalStatus <> PreviousInstance.OperationalStatus"
 
-#SELECT * FROM CIM_InstModification WHERE SourceInstance ISA CIM_EthernetPort AND SourceInstance.OperationalStatus <> PreviousInstance.OperationalStatus
+test10:
+	@ $(PROGRAM) "noEvaluate" "SELECT * FROM CIM_InstModification WHERE SourceInstance ISA CIM_EthernetPort AND SourceInstance.OperationalStatus <> PreviousInstance.OperationalStatus"
+
+test10not:
+	@ $(PROGRAM) "parseError" "SELECT * FROM CIM_InstModification WHERE SourceInstance ISA CIM_EthernetPort AND SourceInstance.OperationalStatus <> PreviousInstance.OperationalStatus"
 
 tests: $(TESTLIST)
 

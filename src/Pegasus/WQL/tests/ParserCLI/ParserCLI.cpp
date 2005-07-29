@@ -31,6 +31,8 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
+//              Karl Schopmeyer
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +70,13 @@ int main(int argc, char** argv)
     if (argc < 2)
     {
 	cerr << "Usage: " << argv[0] << " <returnOptions> wql-text..." << endl;
-    cerr << "return Options are keywords parseError or evalulateError" << endl;
+    cerr << "return Options are keywords parseError, noEvaluate or evalulateError" << endl;
     cerr << "They tell the call to reverse the error on the parse or evalutate tests" << endl;
 	return(1);
     }
     Boolean evaluateErrorTest = false;
     Boolean parseErrorTest = false;
+    Boolean ignoreEvaluation = false;
 
     if (!strcmp(argv[1],"evaluateError"))
     {
@@ -88,13 +91,21 @@ int main(int argc, char** argv)
             {cout << "Negative  parse test" << endl;}
         parseErrorTest = true;
     }
+
+
+    if (!strcmp(argv[1], "noEvaluate"))
+    {
+        if (verbose)
+            {cout << "Negative  parse test" << endl;}
+        ignoreEvaluation = true;
+    }
     // 
     // Append all arguments together to from a single string:
     //
 
     Array<char> text;
     int startArray = 1;
-    if (parseErrorTest || evaluateErrorTest)
+    if (parseErrorTest || evaluateErrorTest || ignoreEvaluation)
         startArray++;
 
     for (int i = startArray; i < argc; i++)
@@ -291,26 +302,27 @@ int main(int argc, char** argv)
     //
     // Evaluate the where clause:
     //
-
-    try
+    if (!ignoreEvaluation)
     {
-        Boolean returnValue;
-        returnValue = (statement.evaluateWhereClause(&source) == true);
-        assert(returnValue || evaluateErrorTest);
-    }
-    catch (Exception& e)
-    {
-        if (evaluateErrorTest)
+        try
         {
-            cerr << "EvaluateWhereClause Exception: " << e.getMessage() << endl;
-            return(1);
+            Boolean returnValue;
+            returnValue = (statement.evaluateWhereClause(&source) == true);
+            assert(returnValue || evaluateErrorTest);
         }
-        else
+        catch (Exception& e)
         {
-            cout << argv[0] <<" +++++ passed all tests" << endl;
-            return 0;
+            if (evaluateErrorTest)
+            {
+                cerr << "EvaluateWhereClause Exception: " << e.getMessage() << endl;
+                exit(1);
+            }
+            else
+            {
+                cout << argv[0] <<" +++++ passed all tests" << endl;
+                return 0;
+            }
         }
-
     }
 
     cout << argv[0] <<" +++++ passed all tests" << endl;

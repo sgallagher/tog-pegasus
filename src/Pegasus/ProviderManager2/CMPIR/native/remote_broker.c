@@ -861,7 +861,7 @@ void cleanup_remote_brokers ( long timeout,
 		wait.tv_nsec = 0;
 
 	    CMPI_BrokerExt_Ftab->lockMutex(m);
-        CMPI_BrokerExt_Ftab->timedCondWait( c, m, &wait );
+        rc = CMPI_BrokerExt_Ftab->timedCondWait( c, m, &wait );
 	    CMPI_BrokerExt_Ftab->unlockMutex(m);
 
 	} while (  rc );

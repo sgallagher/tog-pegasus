@@ -62,7 +62,7 @@ PEGASUS_USING_STD;
 // Macro puts out message and then does assert error out.
 #define TERMINATE(X) {PEGASUS_STD(cout) << "TestInterop " << X << PEGASUS_STD(endl); assert(false);}
 #define CDEBUG(X)
-//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest " << X << PEGASUS_STD(endl)
+//#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest(" << __LINE__ << ")" << X << PEGASUS_STD(endl)
 
 #include <cstring>
 #include <stdcxx/stream/strstream>
@@ -211,7 +211,8 @@ public:
 
     Boolean _namespaceCreatePG_Namespace(const CIMNamespaceName& name);
 
-    Boolean _namespaceCreateCIM_Namespace(const CIMNamespaceName& name);
+    Boolean _namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
+                            const CIMNamespaceName& targetNamespace);
 
     Boolean _testPGNamespace(const CIMNamespaceName& name,
                             Boolean shared,
@@ -397,14 +398,12 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
     // Get every instance to confirm that it is gettable
     for (Uint32 i = 0 ; i < paths.size() ; i++)
     {
-        cout << "InstancePath= " << paths[i].toString() << endl;
         CIMInstance instance = _client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
                                           paths[i],
                                           localOnly,
                                           includeQualifiers,
                                           includeClassOrigin,
                                           propertyList);
-        cout << "Return" << endl;
         for (Uint32 j = 0; instances.size() ; j++)
         {
             if (instance.getPath() == instances[j].getPath())
@@ -485,7 +484,7 @@ Boolean InteropTest::testEnumerateOptions(
     for (Uint32 i = 0 ; i < instance.getPropertyCount() ; i++)
     {
 
-        CDEBUG("testEnumerations 1a" << " prpertycount= " << instance.getProperty(i).getName().getString());
+        CDEBUG("testEnumerations 1a" << " propertycount= " << instance.getProperty(i).getName().getString());
         nameList.append(instance.getProperty(i).getName());
     }
 
@@ -1055,7 +1054,14 @@ Boolean InteropTest::_namespaceCreate__Namespace(const CIMNamespaceName& parent,
     return(true);
 }
 
-/** Create a single namespace using CIM_Namespace
+/** Create a single namespace using PG_Namespace. Creates the namespace with
+    the name defined in the call by creating a new instance of PG_Namespace.
+    @param name - CIMNamespaceName of namespace to create.
+    @param CIMNamespaceName ns is optional parameter that defines the name 
+    of the CIMServer namespace to be used as the target for the instance
+    create.  This option is only used to test for ability to create namespaces
+    in other than the defined interop namespace.
+    @return - true if creeate. False if not created or if it already exists.
 */
 Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
 {
@@ -1098,7 +1104,6 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     instance.removeProperty(pos);
     instance.addProperty(p);
 
-    CDEBUG("Creating instance for " << localName << " in namespace " << InteropNamespace);
     if (verbose)
     {
         cout << "Show instance used to do namespace create: " << endl;
@@ -1111,8 +1116,9 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     }
     catch(Exception& e)
     {
-        // ATTN: Temp bypass to do checkin.
-        cerr << "Error during Creation of " << name.getString() << ": " << e.getMessage()
+        cerr << "Error during Creation of " << name.getString()
+            << " in Namespace " << InteropNamespace
+            << ": " << e.getMessage()
             << " Instance Creation error" << endl;
         return(false);
     }
@@ -1120,13 +1126,23 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name)
     return(true);
 }
 
-/** Create a single namespace using CIM_Namespace
+/** Create a single namespace using CIM_Namespace.
+    @param name CIMNamespaceName of namespace to create
+    @param target CIMNamespaceName of namespace in which we issue
+    the command to create the namespace.  This paramater is primarily
+    to test if we can issue this operation in namespaces other than the
+    interop namespace.
 */
-Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name)
+Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name,
+                           const CIMNamespaceName& targetNamespace)
 {
     // Does this namespace exist.
     if (_existsNew(name))
+    {
+        cout << "Namespace " << name.getString() << 
+            " already Exists in _namespacCreateCIM_Namespace function." << endl;
         return(false);
+    }
 
     //Now build the new namespace name instance.  Note that we need to get the
     // collection of keys that are required. Easy way was to simply
@@ -1143,7 +1159,6 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name)
     CIMInstance instance = instances[0];
 
     CIMInstance newInstance(CIM_NAMESPACE_CLASSNAME);
-
 
     for (Uint32 i = 0 ; i < instance.getQualifierCount() ; i++)
     {
@@ -1187,7 +1202,6 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name)
     instance.removeProperty(pos);
     instance.addProperty(p);
 
-    CDEBUG("Creating instance for " << localName << " in namespace " << InteropNamespace);
     if (verbose)
     {
         cout << "Show instance used to do namespace create: " << endl;
@@ -1196,29 +1210,36 @@ Boolean InteropTest::_namespaceCreateCIM_Namespace(const CIMNamespaceName& name)
     try
     {
            CIMObjectPath path;
-           path = _client.createInstance(InteropNamespace, instance);
+           path = _client.createInstance(targetNamespace, instance);
+    }
+    catch(CIMException& e)
+    {
+        if ((e.getCode() != CIM_ERR_INVALID_CLASS) && (e.getCode() != CIM_ERR_NOT_SUPPORTED))
+        {
+            cerr << "CIMException during Creation of " << name.getString()
+                << " in namespace " << targetNamespace
+                << ": " << e.getMessage()
+                << " CIM_Namespace Instance Creation error" << endl;
+        }
+        return(false);
     }
     catch(Exception& e)
     {
-        cerr << "Error during Creation of " << name.getString() << ": " << e.getMessage()
-            << " Instance Creation error" << endl;
+        cerr << "Exception during Creation of " << name.getString() 
+            << ": " << e.getMessage()
+            << " CIM_Namespace Instance Creation error" << endl;
         return(false);
     }
 
     return(true);
 }
-//ATTN: This test is not done and therefore always returns true.
-// 28 Sept 2004. KS.
 Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
     Boolean shared, Boolean updatesAllowed, const String& parent)
 {
-    //ATTN: Build the get and test properties.
-
-
     // get the instance
     // We only get PG Namespaces because these characteristics would
     // not exist for any CIMNamespace.
-    // TODO: There should NOT be and CIMNamespaces so we should be able
+    // TODO: There should NOT be any CIMNamespaces so we should be able
     // to enumerate at that level successfully.
     Array<CIMObjectPath> paths =  _getPGNamespaceInstanceNames();
     CIMInstance instance;
@@ -1238,8 +1259,7 @@ Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
                             false,                  //lo
                             true,                   //includeQualifiers
                             true,                   //includeClassOrigin
-
-                CIMPropertyList());
+                            CIMPropertyList());
         }
         //
         // Match the properties in the instance against the method inputs.
@@ -1292,14 +1312,20 @@ Boolean InteropTest::_testPGNamespace(const CIMNamespaceName& name,
     return(true);
 }
 
-/** Create a single namespace using PG_Namespace
+/** Create a single namespace using PG_Namespace. Creates namespace with the
+    options for shareable, updatesAllowed, and parent.  This allows testing
+    of creation of shared namespaces
 */
 Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     const Boolean shareable, const Boolean updatesAllowed, const String& parent)
 {
     // Does this namespace exist.
     if (_existsNew(name))
+    {
+        cout << "Namespace " << name.getString() << 
+            " already Exists in _namespacCreatePG_Namespace function." << endl;
         return(false);
+    }
 
     //Now build the new namespace name instance.  Note that we need to get the
     // collection of keys that are required. Easy way was to simply
@@ -1382,8 +1408,8 @@ Boolean InteropTest::_namespaceCreatePG_Namespace(const CIMNamespaceName& name,
     }
     catch(Exception& e)
     {
-        // ATTN: Temp bypass to do checkin.
-        cerr << "Error during Creation of " << name.getString() << ": " << e.getMessage()
+        cerr << "Error during Creation of " << name.getString() 
+            << ": " << e.getMessage()
             << " Instance Creation error" << endl;
         return(false);
     }
@@ -1487,17 +1513,20 @@ void InteropTest::testNameSpacesManagement()
         cout << "Error exit, Invalid namespace returned" << endl;
     }
 
-    if(verbose)
-    {
-        _showNamespaceList(nameListNew, "From CIM_Namespace");
-
-        _showNamespaceList(nameListOld, "From __Namespace");
+    BubbleSort(nameListNew);
+    BubbleSort(nameListOld);
+    if(verbose) {
+        _showNamespaceList(nameListNew, "Using CIM_Namespace");
+        _showNamespaceList(nameListOld, "Using __Namespace");
     }
 
     assert(nameListNew.size() == nameListOld.size());
 
     // Add assertion that they have the same items in the list
-
+    for (Uint32 i = 0 ; i < nameListNew.size() ; i++) 
+    {
+        assert(nameListNew[i] == nameListOld[i]);
+    }
     // Create a new namespace with new functions
 
     CIMNamespaceName testNameNew = CIMNamespaceName("root/junk/interoptest/newtype");
@@ -1507,13 +1536,22 @@ void InteropTest::testNameSpacesManagement()
 
     // Create the namespace with the PG_Namespace class
     // Note that this is an assertion and, in fact, we should probably remove the names
-    // to clean up the repository after the test TODO
+    // to clean up the repository after the test. If they do exist here. TODO
+
+    // Clean up the names we will use just to be sure.
+    if (_existsNew(testNameNew)) {
+        _namespaceDeleteCIM_Namespace(testNameNew);
+    }
+
+    if (_existsNew(testNameOldComplete)) {
+        _namespaceDeleteCIM_Namespace(testNameOldComplete);
+    }
 
     assert( ! _existsNew(testNameNew));
 
     assert( ! _existsNew(testNameOldComplete));
 
-    CDEBUG("Now Create New Namespace with PG_Namespace. Namespace name = " << testNameNew.getString() << ".");
+    CDEBUG("Create New Namespace with PG_Namespace. Namespace name = " << testNameNew.getString() << ".");
 
     _namespaceCreatePG_Namespace(CIMNamespaceName(testNameNew));
 
@@ -1543,7 +1581,7 @@ void InteropTest::testNameSpacesManagement()
 
     CDEBUG("Now Create New Namespace with CIM_Namespace. Namespace name = " << testNameNew.getString() << ".");
 
-    _namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew));
+    assert(_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), InteropNamespace));
 
     if (verbose)
         _showNamespaceList(nameListNew, "CIM_Namespace response after add. with PG_Namespace");
@@ -1558,7 +1596,7 @@ void InteropTest::testNameSpacesManagement()
     //
     // Create namespace with __Namespace
     //
-    CDEBUG("Creating Old = " << testNameOldTail.getString());
+    CDEBUG("Creating with __Namespace appending " << testNameOldTail.getString() << " to " << testNameOldRoot.getString());
     _namespaceCreate__Namespace(CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
 
     assert(_existsNew(testNameOldComplete));
@@ -1595,13 +1633,38 @@ void InteropTest::testNameSpacesManagement()
     if(_existsNew(CIMNamespaceName(testNameOldComplete)))
         cerr << "Problem deleting namespace" << endl;
 
-    // Finally test to be sure that we have the same count of namespaces
+    //
+    // Test to be sure we cannot create new namespaces anywhere but in the
+    // Interop namespace
+    //
+    Array<CIMNamespaceName> namespaceList = _getNamespacesNew();
+    for (Uint32 i = 0 ; i < namespaceList.size() ; i++)
+    {
+        // The get class test is here simply as a means to assure that no 
+        // instances exist in the any namespace except the interop namespace
+        if (!(namespaceList[i] == InteropNamespace)) 
+        {
+            // Error if we can successfully create namespace.
+            if (_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), namespaceList[i]))
+            {
+                cout << "Error, Created new CIM_Namespace " << testNameNew.getString() 
+                    << " instance in " << namespaceList[i].getString() << endl;
+                TERMINATE("Failed test by creating new namespace outside of Interop namespace");
+            }
+        }
+    }
+    // Test to be sure that we have the same count of namespaces
     //as when we started.  Should also check to be sure it is exactly the
     //same set of namespaces.
-
-    Array<CIMNamespaceName> nameListTemp = _getNamespacesNew();
-
-    assert(nameListTemp.size() == nameListNew.size());
+    Array<CIMNamespaceName> finalNamespaceList = _getNamespacesNew();
+    if (finalNamespaceList.size() !=  nameListNew.size())
+    {
+        BubbleSort(finalNamespaceList);
+        BubbleSort(nameListNew);
+        _showNamespaceList(nameListNew, " Namespaces Before Namespace test");
+        _showNamespaceList(finalNamespaceList, " Namespaces After Namespace test");
+        TERMINATE("Error. Did not clean all namespaces");
+    }
 
     if (verbose)
         cout << "Basic Namespace Tests passed" << endl;
@@ -1628,7 +1691,7 @@ void InteropTest::testSharedNameSpacesManagement()
         _namespaceCreatePG_Namespace(testNameShared, false, false, testNameSharable.getString());
 
         // create a namespace with the previous sharable as parent.
-        _namespaceCreateCIM_Namespace(testNameNotShared);
+        assert(_namespaceCreateCIM_Namespace(testNameNotShared, InteropNamespace));
         // Confirm that both exist
         assert(_existsNew(testNameSharable));
         assert(_existsNew(testNameShared));
@@ -1657,6 +1720,8 @@ void InteropTest::testSharedNameSpacesManagement()
         {
             cout << "SharedNamespace sizes " << nameListBefore.size() 
                 << " " << nameListAfter.size() << endl;
+            BubbleSort(nameListBefore);
+            BubbleSort(nameListAfter);
             _showNamespaceList(nameListBefore, "Before");
             _showNamespaceList(nameListAfter, "After");
             assert(nameListBefore.size() == nameListAfter.size());
@@ -1712,6 +1777,8 @@ CIMObjectPath InteropTest::getObjMgrPath()
 //****************************************************************
 void InteropTest::testObjectManagerClass()
 {
+    if (verbose)
+        cout << "testOjectManagerClass() test Start." << endl;
     try
     {
 
@@ -1810,6 +1877,58 @@ void InteropTest::testObjectManagerClass()
     {
         TERMINATE(" CIM_ObjectManager Caught General Exception:");
     }
+
+    // 
+    //  Test to be sure we cannot get instances of this class from another 
+    //  namespace
+    //
+    Boolean errFound = false;
+        Array<CIMNamespaceName> namespaceList = _getNamespacesNew();
+
+        // for all namespaces not PG_interop, try to get CIM_ObjectManager
+        // results should always be zero.
+        for (Uint32 i = 0 ; i < namespaceList.size() ; i++)
+        {
+            // for all namespaces except interop, try to enumerate
+            // instances of cimobjectmanager.
+            if (namespaceList[i] != InteropNamespace) 
+            {
+                try
+                {
+                Array <CIMObjectPath> paths = _client.enumerateInstanceNames(
+                        namespaceList[i],
+                        CIM_OBJECTMANAGER_CLASSNAME);
+                assert(paths.size() == 0);
+                }
+                // Catch block for this enum test.  We test class not exist.
+                catch(CIMException& e)
+                {
+                    if ((e.getCode() != CIM_ERR_INVALID_CLASS) && (e.getCode() != CIM_ERR_NOT_SUPPORTED)) 
+                    {
+                        cout << " CIMException " << e.getMessage()
+                            << "namespace " << namespaceList[i].getString()
+                            << "EnumerateInstances of CIMObjectManager "
+                            << endl;
+                        errFound = true;
+                    }
+                }
+                catch(Exception& e)
+                {
+                    errFound= true;
+                    cout << "Exception in look for cimobject manager in strange places " <<
+                            e.getMessage() << endl;
+                }
+                catch(...)
+                {
+                    errFound = true;
+                    cout << "Exception in look for cimobject manager in strange places" << endl;
+                }
+            }
+        }
+        if (errFound)
+        {
+            TERMINATE("Error: CImObjectManager instance should not exist other than PG_Interop namespace");
+        }
     if (verbose)
         cout << "ObjectManagerClass Tests passed" << endl;
 }

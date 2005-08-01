@@ -69,7 +69,8 @@
 //      CIM_NamespaceInManager
 //      ...
 //      Interop forces all creates to the PEGASUS_NAMESPACENAME_INTEROP 
-//      namespace.
+//      namespace. There is a test on each operation that returns 
+//      the Invalid Class CIMDError
 //      This is a control provider and as such uses the Tracer functions
 //      for data and function traces.  Since we do not expect high volume
 //      use we added a number of traces to help diagnostics.
@@ -266,35 +267,17 @@ InteropProvider::InteropProvider(CIMRepository* repository)
     // do it's inalization work. This fix sets StatisticalData::CopyGSD, enabling the 
     //statistical gathering function.
 
-
      Boolean InstancesExists = true;
      Array<CIMInstance> instance;
 
      try
-     {
-         instance = repository->enumerateInstances(CIMNamespaceName("root/cimv2"), 
-                                                   CIMName ("CIM_ObjectManager"));
+     { 
+         instance = repository->enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP, 
+                                                   CIM_OBJECTMANAGER_CLASSNAME);
      }
      catch(Exception e)
      {
-       InstancesExists = false;
-     }
-
-     /* When Bug 3696 is fixed the following try block will replace the try block above. But for
-        now if no instances of the CIM_ObjectManager class are found in the root/cimv2 name space
-        the root/PG_InterOp name space will be checked
-     */
-     if(!InstancesExists)
-     {
-         try
-         { 
-             instance = repository->enumerateInstances(CIMNamespaceName("root/PG_InterOp"), 
-                                                       CIMName ("CIM_ObjectManager"));
-         }
-         catch(Exception e)
-         {
-             InstancesExists = false;
-         }
+         InstancesExists = false;
      }
 
      if(instance.size() > 0 && InstancesExists)
@@ -319,7 +302,6 @@ InteropProvider::InteropProvider(CIMRepository* repository)
             }                 
         }  
     }
-    //******************************************* end of temporary fix
     PEG_METHOD_EXIT();
  }
 
@@ -344,7 +326,31 @@ static String _toStringPropertyList(const CIMPropertyList& pl)
     return(tmp);
 }
 
-
+/** Determines if the namespace is allowable for this operation.
+    This provider is designed to accept either all namespaces or
+    limit itself to just one for operations.  In all cases, it
+    will provide the required answers and use the correct namespace
+    for any persistent information.  However, it may be configured
+    to either accept input operations from any namespace or simply
+    from one (normally the interop namespace).
+    @ objectReference for the operation.  This must include the
+    namespace and class name for the operation.
+    @return Returns normally if the namespace test is passed. Otherwise
+    it generates a CIMException (CIM_ERR_NOT_SUPPORTED)
+    @exception CIMException(CIM_ERR_NOT_SUPPORTED)
+*/
+void _isNamespaceAllowed(const CIMObjectPath & path)
+{
+    // To allow use of all namespaces, uncomment the following line
+    // return;
+    if (path.getNameSpace().getString() != PEGASUS_NAMESPACENAME_INTEROP)
+    {
+            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+                          path.getClassName().getString());
+    }
+    else
+        return;
+}
 /* set the hostname and namespace fields into the cimobjectpath
    of the defined instance
 */
@@ -1898,10 +1904,10 @@ void InteropProvider::createInstance(
             thisProvider,
             (const char *) instanceReference.toString().getCString());
 
-        handler.processing();
+        // test for legal namespace for this provider. Exception if not
+        _isNamespaceAllowed(instanceReference);
 
-        // operation namespace needed internally to get class.
-        // KS_TEMP _operationNamespace = instanceReference.getNameSpace();
+        handler.processing();
 
         // Verify that ClassName is correct and get value
         targetClass classEnum  = _verifyValidClassInput(instanceReference.getClassName());
@@ -2063,7 +2069,9 @@ void InteropProvider::deleteInstance(
             thisProvider,
             (const char *) instanceName.toString().getCString());
 
-        // KS_TEMP _operationNamespace = instanceName.getNameSpace();
+        // test for legal namespace for this provider. Exception if not
+        _isNamespaceAllowed(instanceName);
+
         handler.processing();
         // Verify that ClassName is correct and get value
         targetClass classEnum  = _verifyValidClassInput(instanceName.getClassName());
@@ -2203,8 +2211,11 @@ void InteropProvider::getInstance(
     const CIMPropertyList & propertyList,
     InstanceResponseHandler & handler)
 {
+    // test for legal namespace for this provider. Exception if not
+    _isNamespaceAllowed(instanceName);
+
     handler.processing();
-    
+
     CIMInstance myInstance = localGetInstance(
                     context,
                     instanceName,
@@ -2232,8 +2243,6 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
     const Boolean includeQualifiers,
     const Boolean includeClassOrigin,
     const CIMPropertyList& propertyList)
-{
-
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::localEnumerateInstances()");
 
@@ -2244,7 +2253,6 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
             (const char *)_showBool(includeQualifiers).getCString(),
             (const char*) _showBool(includeClassOrigin).getCString(),
             (const char *)_showPropertyList(propertyList).getCString());
-
 
         // Verify that ClassName is correct and get value
         targetClass classEnum  = _verifyValidClassInput(ref.getClassName());
@@ -2315,7 +2323,6 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
         return(instances);
         PEG_METHOD_EXIT();
     }
-}
 
 //***************************************************************************
 //                EnumerateInstances - External Operation call
@@ -2330,6 +2337,9 @@ void InteropProvider::enumerateInstances(
     InstanceResponseHandler & handler)
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::enumerateInstances()");
+
+        // test for legal namespace for this provider. Exception if not
+        _isNamespaceAllowed(ref);
 
         handler.processing();
 
@@ -2435,6 +2445,9 @@ void InteropProvider::modifyInstance(const OperationContext & context,
         (const char *) _showBool(includeQualifiers).getCString(),
         (const char *) _showPropertyList(propertyList).getCString());
 
+    // test for legal namespace for this provider. Exception if not
+    _isNamespaceAllowed(instanceReference);
+
     // ATTN: KS 31 August 2004. This must test for privileged user.
 
     CIMName className =  instanceReference.getClassName();
@@ -2503,6 +2516,9 @@ void InteropProvider::enumerateInstanceNames(
             "%s enumerateInstanceNames. classReference= %s",
             thisProvider,
             (const char *) classReference.toString().getCString());
+
+        // test for legal namespace for this provider. Exception if not
+        _isNamespaceAllowed(classReference);
 
         targetClass classEnum  = 
                 _verifyValidClassInput(classReference.getClassName());
@@ -2616,6 +2632,10 @@ void InteropProvider::associators(
         (const char *)_showBool(includeQualifiers).getCString(),
         (const char*) _showBool(includeClassOrigin).getCString(),
         (const char *)_showPropertyList(propertyList).getCString());
+
+    // test for legal namespace for this provider. Exception if not
+    _isNamespaceAllowed(objectName);
+
     handler.processing();
     // Get references for this object. Note that this
     // uses the associationClass as resultClass.
@@ -2683,6 +2703,9 @@ void InteropProvider::associatorNames(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::associatorNames()");
 	//throw CIMNotSupportedException("AssociationProvider::associatorNames");
+
+    // test for legal namespace for this provider. Exception if not
+    _isNamespaceAllowed(objectName);
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole",
@@ -2795,6 +2818,9 @@ void InteropProvider::references(
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::references()");
 
+    // test for legal namespace for this provider. Exception if not
+    _isNamespaceAllowed(objectName);
+
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
@@ -2828,6 +2854,10 @@ void InteropProvider::referenceNames(
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::referenceNames()");
+
+    // test for legal namespace for this provider. Exception if not
+    _isNamespaceAllowed(objectName);
+
     CDEBUG("::referenceNames(): object= " << objectName.toString() << " result Class= " << resultClass.getString());
 
     // operation namespace needed internally to get class.

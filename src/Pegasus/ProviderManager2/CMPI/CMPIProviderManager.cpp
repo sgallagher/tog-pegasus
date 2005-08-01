@@ -113,10 +113,10 @@ class CMPIPropertyList {
 CMPIProviderManager::CMPIProviderManager(Mode m)
 {
    mode=m;
-#ifdef PEGASUS_DEBUG
+   #ifdef PEGASUS_DEBUG
    if (getenv("PEGASUS_CMPI_TRACE")) _cmpi_trace=1;
    else _cmpi_trace=0;
-#endif
+   #endif
    _subscriptionInitComplete = false;
    DDD(cerr << "-- CMPI Provider Manager activated" << endl);
 }
@@ -443,6 +443,8 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -563,6 +565,8 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -671,6 +675,8 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -786,6 +792,8 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -904,6 +912,8 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1014,6 +1024,8 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1139,6 +1151,8 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
     HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1271,6 +1285,8 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1396,6 +1412,8 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1524,6 +1542,8 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1645,6 +1665,8 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
     HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1769,6 +1791,8 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
     HandlerCatch(handler);
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }

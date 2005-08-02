@@ -521,16 +521,19 @@ public:
                 expectHostSegment = false;
                 hostSegmentIsNumeric = true; // assume all-numeric host segment
 
-                if (!isalnum(hostname[i]))
+                if (!(isalnum(hostname[i]) || (hostname[i] == '_')))
                 {
                     return false;
                 }
 
-                while (isalnum(hostname[i]) || (hostname[i] == '-'))
+                while (isalnum(hostname[i]) || (hostname[i] == '-') ||
+                       (hostname[i] == '_'))
                 {
                     // If a non-digit is encountered, set "all-numeric"
                     // flag to false
-                    if (isalpha(hostname[i]) || (hostname[i] == '-')) {
+                    if (isalpha(hostname[i]) || (hostname[i] == '-') ||
+                        (hostname[i] == '_'))
+                    {
                         hostSegmentIsNumeric = false;
                     }
                     i++;

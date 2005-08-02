@@ -1,0 +1,9 @@
+#pragma locale("en_US")
+
+[Version ("2.5.0")]
+class IndicationStressTestClass : CIM_Indication
+{
+  uint64 IndicationSequenceNumber;
+  [Static]
+  uint32 SendTestIndicationNormal(uint32 indicationSendCount);
+};

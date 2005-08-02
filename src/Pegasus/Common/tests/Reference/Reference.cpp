@@ -200,6 +200,16 @@ void test01()
      CIMObjectPath h17("//u812/root/cimv25:"
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
+     // Test cases for '_' character in hostnames
+     CIMObjectPath h18("//_atp:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h19("//a_tp/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h20("//atp_:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h21("//atp_-9:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h22(
+         "//_a_t_p_-9.ustA-1-a.org:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h23("//_/root/cimv25:_TennisPlayer");
+     CIMObjectPath h24("//_______/root/cimv25:_TennisPlayer");
+
      // try IPAddress as hostname which should be good
      CIMObjectPath h_ip0("//192.168.1.80:77/root/cimv25:"
                          "TennisPlayer.first=\"Chris\",last=\"Evert\"");

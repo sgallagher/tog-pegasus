@@ -105,9 +105,9 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
     if(execute == true)
 	cu->execute();
 }
-		
-#endif
 
+#endif
+		
 
 //thread_data *Thread::put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)
 
@@ -546,7 +546,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       
       try 
       {
-	 sleep_sem->wait();
+	 sleep_sem->wait(false);
       }
       catch (WaitInterrupted &e)
       {

@@ -81,8 +81,6 @@ Boolean Thread::_key_initialized = false;
 Boolean Thread::_key_error = false;
 
 
-// for non-native implementations
-#ifndef PEGASUS_THREAD_CLEANUP_NATIVE
 void Thread::cleanup_push( void (*routine)(void *), void *parm) throw(IPCException)
 {
     AutoPtr<cleanup_handler> cu(new cleanup_handler(routine, parm));
@@ -105,8 +103,6 @@ void Thread::cleanup_pop(Boolean execute) throw(IPCException)
     if(execute == true)
 	cu->execute();
 }
-
-#endif
 		
 
 //thread_data *Thread::put_tsd(const Sint8 *key, void (*delete_func)(void *), Uint32 size, void *value) throw(IPCException)

@@ -247,7 +247,11 @@ CIMValue::CIMValue(const CIMObjectPath& x)
 CIMValue::CIMValue(const CIMObject& x)
 {
     _rep = new CIMValueRep();
+    AutoPtr<CIMValueRep> rep(_rep);
+
     set(x);
+
+    rep.release();
 }
 
 CIMValue::CIMValue(const Array<Boolean>& x)
@@ -343,7 +347,11 @@ CIMValue::CIMValue(const Array<CIMObjectPath>& x)
 CIMValue::CIMValue(const Array<CIMObject>& x)
 {
     _rep = new CIMValueRep();
+    AutoPtr<CIMValueRep> rep(_rep);
+
     set(x);
+
+    rep.release();
 }
 
 CIMValue::CIMValue(const CIMValue& x)

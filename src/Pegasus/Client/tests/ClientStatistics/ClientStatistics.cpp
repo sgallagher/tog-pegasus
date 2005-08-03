@@ -42,9 +42,6 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-const String NAMESPACE = "root/cimv2";
-
-
 class CliStat : public ClientOpPerformanceDataHandler
 {
 public:
@@ -89,7 +86,8 @@ public:
 int main(int argc, char** argv)
 {
    cout << "++++++testing Client Performance Statistics " << endl;
-  String nameSpace = "root/cimv2";
+  const String interopNameSpace = "root/PG_Interop";
+  const String nameSpace = "root/cimv2";
     try{
 // connecting to server
 	   CIMClient client;
@@ -108,7 +106,7 @@ int main(int argc, char** argv)
    */
    try
    {
-      instances = client.enumerateInstanceNames(nameSpace, cN);
+      instances = client.enumerateInstanceNames(interopNameSpace, cN);
    }
    catch (Exception& e)
    { cerr << "Exception : " << e.getMessage() << endl;
@@ -120,8 +118,9 @@ int main(int argc, char** argv)
    /* ModifyInstance
    */
    CIMName gathStatName ("GatherStatisticalData");
+   cout << "namespace " << interopNameSpace << endl;
    try {
-       CIMInstance inst  = client.getInstance(nameSpace, instances[0], true, false, false, CIMPropertyList());
+       CIMInstance inst  = client.getInstance(interopNameSpace, instances[0], true, false, false, CIMPropertyList());
        Uint32 prop_num = inst.findProperty(gathStatName);
        CIMProperty prop = CIMProperty(inst.getProperty(prop_num));
        CIMValue prop_value = CIMValue();
@@ -129,7 +128,7 @@ int main(int argc, char** argv)
        prop.setValue(prop_value);
        inst.removeProperty(prop_num);
        inst.addProperty(prop);
-       client.modifyInstance(nameSpace, inst, false);
+       client.modifyInstance(interopNameSpace, inst, false);
 	}
    catch (Exception& e)
    {

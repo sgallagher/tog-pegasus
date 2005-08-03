@@ -207,9 +207,14 @@ void test01()
                       "TennisPlayer.first=\"Chris\",last=\"Evert\"");
      
      // Hostname with '_' character support checks, see bug#2556.
-     CIMObjectPath h18("//a_tp:9999/_root/_cimv25:_TennisPlayer");
-     CIMObjectPath h19("//atp_:9999/_root/_cimv25:_TennisPlayer");
-     CIMObjectPath h20("//a_t_p_-9:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h18("//_atp:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h19("//a_tp/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h20("//atp_:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h21("//atp_-9:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h22(
+         "//_a_t_p_-9.ustA-1-a.org:9999/_root/_cimv25:_TennisPlayer");
+     CIMObjectPath h23("//_/root/cimv25:_TennisPlayer");
+     CIMObjectPath h24("//_______/root/cimv25:_TennisPlayer");
 
      // try IPAddress as hostname which should be good
      CIMObjectPath h_ip0("//192.168.1.80:77/root/cimv25:"
@@ -217,18 +222,7 @@ void test01()
      CIMObjectPath h_ip1("//192.168.0.255/root/cimv25:"
                          "TennisPlayer.first=\"Chris\",last=\"Evert\"");
 
-     // Now, try some bad object paths.
      Boolean errorDetected = false;
-     try
-     {
-        // first character in hostname is '_' char. 
-        CIMObjectPath h5("//_a_t_p_-9:9999/_root/_cimv25:_TennisPlayer");
-     } catch (const Exception&)
-     {
-        errorDetected = true;
-     }
-     assert(errorDetected);
-
      errorDetected = false;
      try
      {

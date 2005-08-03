@@ -535,7 +535,8 @@ public:
                 expectHostSegment = false;
                 hostSegmentIsNumeric = true; // assume all-numeric host segment
 
-                if (!(isascii(hostname[i]) && isalnum(hostname[i])))
+                if (!(isascii(hostname[i]) &&
+                      (isalnum(hostname[i]) || (hostname[i] == '_'))))
                 {
                     return false;
                 }

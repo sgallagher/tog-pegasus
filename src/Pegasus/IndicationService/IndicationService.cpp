@@ -2654,6 +2654,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
     Array <CIMInstance> capabilities = request->capInstances;
 
     CIMException cimException;
+    Array <CIMInstance> subscriptions;
+    Array <ProviderClassList> indicationProviders;
 
     //
     //  Get class name, namespace names, and property list
@@ -2665,7 +2667,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
         CIMName className;
         Array <CIMNamespaceName> namespaceNames;
         CIMPropertyList propertyList;
-        Array <CIMInstance> subscriptions;
+        Array <CIMInstance> currentSubscriptions;
 
         try
         {
@@ -2732,143 +2734,185 @@ void IndicationService::_handleNotifyProviderEnableRequest
         //
         //  Get matching subscriptions
         //
-        subscriptions = _getMatchingSubscriptions (className, namespaceNames,
-            propertyList);
+        currentSubscriptions = _getMatchingSubscriptions
+            (className, namespaceNames, propertyList);
 
-        if (subscriptions.size () > 0)
+        for (Uint32 c = 0; c < currentSubscriptions.size (); c++)
         {
-            //
-            //  Construct provider class list from input provider and class name
-            //
-            Array <ProviderClassList> indicationProviders;
-            ProviderClassList indicationProvider;
-            indicationProvider.provider = provider;
-            indicationProvider.providerModule = providerModule;
-            indicationProvider.classList.append (className);
-            indicationProviders.append (indicationProvider);
+            Boolean inList = false;
 
-            CIMPropertyList requiredProperties;
-            String condition;
-            String query;
-            String queryLanguage;
-
-            for (Uint32 s = 0; s < subscriptions.size (); s++)
+            for (Uint32 m = 0; m < subscriptions.size (); m++)
             {
-                CIMNamespaceName sourceNameSpace;
-                Array <CIMName> indicationSubclasses;
-                CIMInstance instance = subscriptions [s];
-                _getCreateParams
-                    (instance.getPath ().getNameSpace (), instance,
-                     indicationSubclasses, requiredProperties, sourceNameSpace,
-                     condition, query, queryLanguage);
-
                 //
-                //  NOTE: These Create requests are not associated with a
-                //  user request, so there is no associated authType or userName
-                //  The Creator from the subscription instance is used for
-                //  userName, and authType is not set
+                //  If the current subscription is already in the list of
+                //  matching subscriptions, add the current class to the
+                //  indication provider class list for the subscription
                 //
-                //  NOTE: the subscriptions in the subscriptions list came from
-                //  the IndicationService's internal hash tables, and thus
-                //  each instance is known to have a valid Creator property
-                //
-                String creator = instance.getProperty (instance.findProperty
-                    (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue
-                    ().toString ();
-
-                String acceptLangs = String::EMPTY;
-                Uint32 propIndex = instance.findProperty
-                    (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
-                if (propIndex != PEG_NOT_FOUND)
+                if (currentSubscriptions [c].identical (subscriptions [m]))
                 {
-                    instance.getProperty (propIndex).getValue ().get
-                        (acceptLangs);
+                    inList = true;
+                    indicationProviders [m].classList.append (className);
+                    break;
                 }
-                String contentLangs = String::EMPTY;
-                propIndex = instance.findProperty
-                    (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
-                if (propIndex != PEG_NOT_FOUND)
-                {
-                    instance.getProperty (propIndex).getValue ().get
-                        (contentLangs);
-                }
+            }
 
+            if (!inList)
+            {
                 //
-                //  Send Create requests
+                //  If the current subscription is not already in the list of
+                //  matching subscriptions, add it to the list and add the
+                //  indication provider class list for the subscription
                 //
-                Uint32 accepted = _sendWaitCreateRequests (indicationProviders,
-                    sourceNameSpace, requiredProperties, condition,
-                    query, queryLanguage, instance,
-                    AcceptLanguages (acceptLangs),
-                    ContentLanguages (contentLangs),
-                    creator);
+                subscriptions.append (currentSubscriptions [c]);
+                ProviderClassList indicationProvider;
+                indicationProvider.provider = provider;
+                indicationProvider.providerModule = providerModule;
+                indicationProvider.classList.append (className);
+                indicationProviders.append (indicationProvider);
+            }
+        }
+    }  //  for each capability instance
 
-                if (accepted > 0)
+    if (subscriptions.size () > 0)
+    {
+        CIMPropertyList requiredProperties;
+        String condition;
+        String query;
+        String queryLanguage;
+
+        //
+        //  Get Provider Name
+        //
+        String logString1 = getProviderLogString (provider);
+
+        for (Uint32 s = 0; s < subscriptions.size (); s++)
+        {
+            CIMNamespaceName sourceNameSpace;
+            Array <CIMName> indicationSubclasses;
+            CIMInstance instance = subscriptions [s];
+
+            _getCreateParams
+                (instance.getPath ().getNameSpace (), instance,
+                 indicationSubclasses, requiredProperties, sourceNameSpace,
+                 condition, query, queryLanguage);
+
+            //
+            //  NOTE: These Create requests are not associated with a
+            //  user request, so there is no associated authType or userName
+            //  The Creator from the subscription instance is used for
+            //  userName, and authType is not set
+            //
+            //  NOTE: the subscriptions in the subscriptions list came from
+            //  the IndicationService's internal hash tables, and thus
+            //  each instance is known to have a valid Creator property
+            //
+            String creator = instance.getProperty (instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue
+                ().toString ();
+
+            String acceptLangs = String::EMPTY;
+            Uint32 propIndex = instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                instance.getProperty (propIndex).getValue ().get
+                    (acceptLangs);
+            }
+            String contentLangs = String::EMPTY;
+            propIndex = instance.findProperty
+                (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
+            if (propIndex != PEG_NOT_FOUND)
+            {
+                instance.getProperty (propIndex).getValue ().get
+                    (contentLangs);
+            }
+
+            //
+            //  Send Create requests
+            //
+            Array <ProviderClassList> currentIndicationProviders;
+            currentIndicationProviders.append (indicationProviders [s]);
+            Array <ProviderClassList> acceptedProviders;
+            Uint32 accepted = _sendWaitCreateRequests
+                (currentIndicationProviders,
+                sourceNameSpace, requiredProperties, condition,
+                query, queryLanguage, instance,
+                AcceptLanguages (acceptLangs),
+                ContentLanguages (contentLangs),
+                creator);
+
+            if (accepted > 0)
+            {
+                //
+                //  Get Subscription entry from Active Subscriptions table
+                //
+                ActiveSubscriptionsTableEntry tableValue;
+                if (_subscriptionTable->getSubscriptionEntry
+                    (instance.getPath (), tableValue))
                 {
                     //
-                    //  Get Subscription entry from Active Subscriptions table
+                    //  Look for the provider in the subscription's list
                     //
-                    ActiveSubscriptionsTableEntry tableValue;
-                    if (_subscriptionTable->getSubscriptionEntry
-                        (instance.getPath (), tableValue))
+                    Uint32 providerIndex = 
+                        _subscriptionTable->providerInList
+                            (indicationProviders [s].provider, tableValue);
+                    if (providerIndex != PEG_NOT_FOUND)
                     {
                         //
-                        //  Look for the provider in the subscription's list
+                        //  Provider is already in the list for this 
+                        //  subscription; add class to provider class list
                         //
-                        Uint32 providerIndex = 
-                            _subscriptionTable->providerInList
-                                (indicationProvider.provider, tableValue);
-                        if (providerIndex != PEG_NOT_FOUND)
+                        for (Uint32 cn = 0;
+                             cn < indicationProviders [s].classList.size ();
+                             cn++)
                         {
-                            //
-                            //  Provider is already in the list for this 
-                            //  subscription; add class to provider class list
-                            //
                             _subscriptionTable->updateClasses 
                                 (instance.getPath (), 
-                                indicationProvider.provider, className);
+                                indicationProviders [s].provider,
+                                indicationProviders [s].classList [cn]);
                         }
-                        else
+                    }
+                    else
+                    {
+                        //
+                        //  Provider is not yet in the list for this 
+                        //  subscription; add provider to the list
+                        //
+                        Array <ProviderClassList> enableProviders = 
+                            _subscriptionTable->updateProviders
+                            (instance.getPath (), indicationProviders [s],
+                            true);
+
+                        if (enableProviders.size () > 0)
                         {
-                            //
-                            //  Provider is not yet in the list for this 
-                            //  subscription; add provider to the list
-                            //
-                            Array <ProviderClassList> enableProviders = 
-                                _subscriptionTable->updateProviders
-                                (instance.getPath (), indicationProvider, true);
-
-                            if (enableProviders.size () > 0)
-                            {
-                                _sendWaitEnable (enableProviders);
-                            }
-
-                            //
-                            //  NOTE: When a provider that was previously not 
-                            //  serving a subscription now serves the 
-                            //  subscription due to a provider being enabled, a
-                            //  log message is sent, even if there were 
-                            //  previously other providers serving the 
-                            //  subscription
-                            //
-            
-                            //
-                            //  Get Provider Name, Subscription Filter Name and
-                            //  Handler Name
-                            //
-                            String logString1 = getProviderLogString (provider);
-                            String logString2 = _getSubscriptionLogString
-                                (subscriptions [s]);
-            
-                            //
-                            //  Log a message for each subscription
-                            //
-                            Logger::put_l (Logger::STANDARD_LOG, 
-                                System::CIMSERVER,
-                                Logger::WARNING, _MSG_PROVIDER_NOW_SERVING_KEY,
-                                _MSG_PROVIDER_NOW_SERVING, logString1, 
-                                logString2);
+                            _sendWaitEnable (enableProviders);
                         }
+
+                        //
+                        //  NOTE: When a provider that was previously not 
+                        //  serving a subscription now serves the 
+                        //  subscription due to a provider being enabled, a
+                        //  log message is sent, even if there were 
+                        //  previously other providers serving the 
+                        //  subscription
+                        //
+            
+                        //
+                        //  Get Provider Name, Subscription Filter Name and
+                        //  Handler Name
+                        //
+                        String logString1 = getProviderLogString (provider);
+                        String logString2 = _getSubscriptionLogString
+                            (subscriptions [s]);
+            
+                        //
+                        //  Log a message for each subscription
+                        //
+                        Logger::put_l (Logger::STANDARD_LOG, 
+                            System::CIMSERVER,
+                            Logger::WARNING, _MSG_PROVIDER_NOW_SERVING_KEY,
+                            _MSG_PROVIDER_NOW_SERVING, logString1, 
+                            logString2);
                     }
                 }
             }

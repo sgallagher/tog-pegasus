@@ -405,18 +405,23 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
     //
     // find and delete the specified connection
     //
+
+    Uint32 index = PEG_NOT_FOUND;
     for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
     {
         if (currentConnection == _rep->connections[i])
         {
-	   Sint32 socket = _rep->connections[i]->getSocket();
-	   _monitor->unsolicitSocketMessages(socket);
-	   _rep->connections.remove(i);
-
-            Socket::close(socket);
-            return;
+            index = i;
+            break;
         }
-    }
+     }
+
+    PEGASUS_ASSERT(index != PEG_NOT_FOUND);
+
+    Sint32 socket = currentConnection->getSocket();
+    _monitor->unsolicitSocketMessages(socket);
+    _rep->connections.remove(index);
+    delete currentConnection;
 }
 
 void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)

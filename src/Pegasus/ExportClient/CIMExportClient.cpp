@@ -1,59 +1,100 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
+//              Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
+//
+//              Dan Gorey (djgorey@us.ibm.com)
+//				Seema Gupta (gseema@in.ibm.com) for PEP135
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
+#include <Pegasus/Common/HTTPConnection.h>
+#include <Pegasus/Common/Destroyer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/TimeValue.h>
-#include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/PegasusVersion.h>
 
+#include "CIMExportRequestEncoder.h"
+#include "CIMExportResponseDecoder.h"
 #include "CIMExportClient.h"
 
+// l10n
+#include <Pegasus/Common/MessageLoader.h>
+
+#include <iostream>
 
 PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
 CIMExportClient::CIMExportClient(
-    Monitor* monitor,
-    HTTPConnector* httpConnector,
-    Uint32 timeoutMilliseconds)
-    :
-    ExportClient(PEGASUS_QUEUENAME_EXPORTCLIENT,
-        httpConnector,
-        timeoutMilliseconds,
-        monitor)
+   Monitor* monitor,
+   HTTPConnector* httpConnector,
+   Uint32 timeoutMilliseconds)
+   : 
+   MessageQueue(PEGASUS_QUEUENAME_EXPORTCLIENT),
+   _monitor(monitor),
+   _httpConnector(httpConnector),
+   _httpConnection(0),
+   _timeoutMilliseconds(timeoutMilliseconds),
+   _connected(false),
+   _responseDecoder(0),
+   _requestEncoder(0)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::CIMExportClient()");
     PEG_METHOD_EXIT();
 }
+
+CIMExportClient::CIMExportClient(
+   monitor_2* monitor2,
+   HTTPConnector2* httpConnector2,
+   Uint32 timeoutMilliseconds)
+   :
+   MessageQueue(PEGASUS_QUEUENAME_EXPORTCLIENT),
+   _monitor2(monitor2),
+   _httpConnector2(httpConnector2),
+   _httpConnection2(0),
+   _timeoutMilliseconds(timeoutMilliseconds),
+   _connected(false),
+   _responseDecoder(0),
+   _requestEncoder(0)
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::CIMExportClient()");
+    PEG_METHOD_EXIT();
+}  
 
 CIMExportClient::~CIMExportClient()
 {
@@ -64,110 +105,261 @@ CIMExportClient::~CIMExportClient()
     PEG_METHOD_EXIT();
 }
 
-void CIMExportClient::exportIndication(
-    const String& url,
-    const CIMInstance& instanceName,
-    const ContentLanguageList& contentLanguages)
+void CIMExportClient::_connect()
 {
-    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::exportIndication()");
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_connect()");
+
+   // Create response decoder:
+    
+   _responseDecoder = new CIMExportResponseDecoder(
+      this, _requestEncoder, &_authenticator);
+    
+   // Attempt to establish a connection:
+    
+   try
+   {
+   #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
+      _httpConnection = _httpConnector->connect(_connectHost, 
+                 _connectPortNumber, 
+                 _connectSSLContext.get(),
+                 _responseDecoder);
+   #else
+       _httpConnection2 = _httpConnector2->connect(_connectHost,
+                 _connectPortNumber,
+                 _connectSSLContext.get(),
+                 _responseDecoder);
+   #endif
+   }
+   catch (CannotCreateSocketException& e)
+   {
+        delete _responseDecoder;
+        PEG_METHOD_EXIT();
+        throw e;
+   }
+   catch (CannotConnectException& e)
+   {
+        delete _responseDecoder;
+        PEG_METHOD_EXIT();
+        throw e;
+   }
+   catch (InvalidLocatorException& e)
+   {
+        delete _responseDecoder;
+        PEG_METHOD_EXIT();
+        throw e;
+   }
+    
+   // Create request encoder:
+    
+   String connectHost = _connectHost;
+   if (connectHost.size())
+   {
+       char portStr[32];
+       sprintf(portStr, ":%u", _connectPortNumber);
+       connectHost.append(portStr);
+   }
+
+   #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
+   _requestEncoder = new CIMExportRequestEncoder(
+      _httpConnection, connectHost, &_authenticator);
+   #else
+   _requestEncoder = new CIMExportRequestEncoder(
+      _httpConnection2, connectHost, &_authenticator);
+   #endif
+
+   _responseDecoder->setEncoderQueue(_requestEncoder);    
+
+   _connected = true;
+
+   PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::_disconnect()
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_disconnect()");
+
+    if (_connected)
+    {
+        //
+        // destroy response decoder
+        //
+        if (_responseDecoder)
+        {
+            delete _responseDecoder;
+            _responseDecoder = 0;
+        }
+
+        //
+        // Close the connection
+        //
+        if (_httpConnector)
+        {
+            _httpConnector->disconnect(_httpConnection);
+            _httpConnection = 0;
+        }else if (_httpConnector2) {
+            _httpConnector2->disconnect(_httpConnection2);
+            delete _httpConnection2;
+            _httpConnection2 = 0;
+        }
+          
+
+        //
+        // destroy request encoder
+        //
+        if (_requestEncoder)
+        {
+            delete _requestEncoder;
+            _requestEncoder = 0;
+        }
+
+        _connected = false;
+    }
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::_reconnect()
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_reconnect()");
+    _disconnect();
+    _authenticator.setRequestMessage(0);
+    _connect();
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber)
+{
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::connect()");
+   // If already connected, bail out!
+    
+   if (_connected)
+   {
+      PEG_METHOD_EXIT();
+      throw AlreadyConnectedException();
+   }
+    
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clear();
+
+    _connectSSLContext.reset(0);
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
+
+    _connect();
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::connect(
+    const String& host,
+    const Uint32 portNumber,
+    const SSLContext& sslContext)
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::connect()");
+
+    // If already connected, bail out!
+
+    if (_connected)
+    {
+       PEG_METHOD_EXIT();
+       throw AlreadyConnectedException();
+    }
+
+    //
+    // If the host is empty, set hostName to "localhost"
+    //
+    String hostName = host;
+    if (host == String::EMPTY)
+    {
+        hostName = "localhost";
+    }
+
+    //
+    // Set authentication information
+    //
+    _authenticator.clear();
+
+    _connectSSLContext.reset(new SSLContext(sslContext));
+    _connectHost = hostName;
+    _connectPortNumber = portNumber;
 
     try
     {
-        // encode request
-        CIMRequestMessage* request = new CIMExportIndicationRequestMessage(
-            String::EMPTY,
-            url,
-            instanceName,
-            QueueIdStack(),
-            String::EMPTY,
-            String::EMPTY);
-
-        request->operationContext.set
-            (ContentLanguageListContainer(contentLanguages));
-
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
-            "Exporting %s Indication for destination %s:%d%s",
-            (const char*)(instanceName.getClassName().getString().
-            getCString()),
-            (const char*)(_connectHost.getCString()), _connectPortNumber,
-            (const char*)(url.getCString())));
-
-        Message* message = _doRequest(request,
-            CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);
-
-        PEG_TRACE ((TRC_INDICATION_GENERATION, Tracer::LEVEL4,
-            "%s Indication for destination %s:%d%s exported successfully",
-            (const char*)(instanceName.getClassName().getString().
-            getCString()),
-            (const char*)(_connectHost.getCString()), _connectPortNumber,
-            (const char*)(url.getCString())));
-
-        CIMExportIndicationResponseMessage* response =
-            (CIMExportIndicationResponseMessage*)message;
-
-        AutoPtr<CIMExportIndicationResponseMessage> ap(response);
+        _connect();
     }
-    catch (const Exception& e)
+    catch (Exception&)
     {
-        PEG_TRACE((TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to export indication: %s",
-            (const char*)e.getMessage().getCString()));
-        throw;
-    }
-    catch (...)
-    {
-        PEG_TRACE_CSTRING (TRC_DISCARDED_DATA, Tracer::LEVEL1,
-            "Failed to export indication");
+        _connectSSLContext.reset();
+        PEG_METHOD_EXIT();
         throw;
     }
     PEG_METHOD_EXIT();
 }
 
+void CIMExportClient::disconnect()
+{
+    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::disconnect()");
+    _disconnect();
+    _authenticator.clear();
+    _connectSSLContext.reset();
+    PEG_METHOD_EXIT();
+}
+
+void CIMExportClient::exportIndication(
+   const String& url,
+   const CIMInstance& instanceName,
+   const ContentLanguages& contentLanguages)
+{
+   PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::exportIndication()");
+
+   // encode request
+// l10n  
+   CIMRequestMessage* request = new CIMExportIndicationRequestMessage(
+      String::EMPTY,
+      url,
+      instanceName,
+      QueueIdStack(),
+      String::EMPTY,
+      String::EMPTY);
+
+   request->operationContext.set(ContentLanguageListContainer(contentLanguages));
+
+   Message* message = _doRequest(request,
+      CIM_EXPORT_INDICATION_RESPONSE_MESSAGE);
+
+   CIMExportIndicationResponseMessage* response = 
+      (CIMExportIndicationResponseMessage*)message;
+    
+   Destroyer<CIMExportIndicationResponseMessage> destroyer(response);
+
+   PEG_METHOD_EXIT();
+}
+
 Message* CIMExportClient::_doRequest(
-    CIMRequestMessage* pRequest,
-    MessageType expectedResponseMessageType)
+    CIMRequestMessage * request,
+    const Uint32 expectedResponseMessageType
+)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::_doRequest()");
 
-    AutoPtr<CIMRequestMessage> request(pRequest);
-
-    if (!_connected && !_doReconnect)
+    if (!_connected)
     {
-        PEG_METHOD_EXIT();
-        throw NotConnectedException();
+       delete request;
+       PEG_METHOD_EXIT();
+       throw NotConnectedException();
     }
     
-    if (_connected && _httpConnection->needsReconnect())
-    {
-        _disconnect(true);
-        _doReconnect = true;
-    }
-
-    if (_doReconnect)
-    {
-        try
-        {
-            _connect();
-            _doReconnect = false;
-        }
-        catch (const Exception& e)
-        {
-            PEG_TRACE((TRC_EXPORT_CLIENT, Tracer::LEVEL1,
-                "Failed to connect to indication listener: %s",
-                (const char*)e.getMessage().getCString()));
-            PEG_METHOD_EXIT();
-            throw;
-        }
-        catch (...)
-        {
-            PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
-                "Failed to connect to indication listener.");
-            PEG_METHOD_EXIT();
-            throw;
-        }
-    }
-
-
     String messageId = XmlWriter::getNextMessageId();
     const_cast<String &>(request->messageId) = messageId;
 
@@ -179,9 +371,9 @@ Message* CIMExportClient::_doRequest(
     //
     //  Set HTTP method in request to POST
     //
-    request->setHttpMethod(HTTP_METHOD__POST);
+    request->setHttpMethod (HTTP_METHOD__POST);
 
-    _cimRequestEncoder->enqueue(request.release());
+    _requestEncoder->enqueue(request);
 
     Uint64 startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     Uint64 nowMilliseconds = startMilliseconds;
@@ -189,32 +381,25 @@ Message* CIMExportClient::_doRequest(
 
     while (nowMilliseconds < stopMilliseconds)
     {
-        //
-        // Wait until the timeout expires or an event occurs:
-        //
-        _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+	//
+	// Wait until the timeout expires or an event occurs:
+	//
+       #ifdef PEGASUS_USE_23HTTPMONITOR_CLIENT
+       _monitor->run(Uint32(stopMilliseconds - nowMilliseconds));
+       #else
+       _monitor2->run();
+       #endif
+       
+	//
+	// Check to see if incoming queue has a message
+	//
 
-        //
-        // Check to see if incoming queue has a message
-        //
+	Message* response = dequeue();
 
-        AutoPtr<Message> response(dequeue());
-
-        if (response.get() != 0)
-        {
+	if (response)
+	{
             // Shouldn't be any more messages in our queue
             PEGASUS_ASSERT(getCount() == 0);
-
-            //
-            // Close the connection if response contained a "Connection: Close"
-            // header (e.g. at authentication challenge)
-            //
-            if (response->getCloseConnect() == true)
-            {
-                _disconnect(true);
-                _doReconnect = true;
-                response->setCloseConnect(false);
-            }
 
             //
             //  Future:  If M-POST is used and HTTP response is 501 Not
@@ -224,12 +409,11 @@ Message* CIMExportClient::_doRequest(
             if (response->getType() == CLIENT_EXCEPTION_MESSAGE)
             {
                 Exception* clientException =
-                    ((ClientExceptionMessage*)response.get())->clientException;
+                    ((ClientExceptionMessage*)response)->clientException;
+                delete response;
+                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Client Exception Message received.");
 
-                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
-                    "Client Exception Message received.");
-
-                AutoPtr<Exception> d(clientException);
+                Destroyer<Exception> d(clientException);
 
                 //
                 // Determine and throw the specific class of client exception
@@ -237,7 +421,7 @@ Message* CIMExportClient::_doRequest(
 
                 CIMClientMalformedHTTPException* malformedHTTPException =
                     dynamic_cast<CIMClientMalformedHTTPException*>(
-                    clientException);
+                        clientException);
                 if (malformedHTTPException)
                 {
                     PEG_METHOD_EXIT();
@@ -246,7 +430,7 @@ Message* CIMExportClient::_doRequest(
 
                 CIMClientHTTPErrorException* httpErrorException =
                     dynamic_cast<CIMClientHTTPErrorException*>(
-                    clientException);
+                        clientException);
                 if (httpErrorException)
                 {
                     PEG_METHOD_EXIT();
@@ -274,88 +458,86 @@ Message* CIMExportClient::_doRequest(
             }
             else if (response->getType() == expectedResponseMessageType)
             {
-                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4,
-                    "Received expected indication response message.");
-                CIMResponseMessage* cimResponse =
-                    (CIMResponseMessage*)response.get();
+                PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, 
+                    "Received expected indication reponse message.");
+                CIMResponseMessage* cimResponse = (CIMResponseMessage*)response;
                 if (cimResponse->messageId != messageId)
                 {
-                    MessageLoaderParms mlParms(
-                        "ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID",
-                        "Mismatched response message ID:  Got \"$0\", "
-                            "expected \"$1\".",
-                        cimResponse->messageId, messageId);
-                    String mlString(MessageLoader::getMessage(mlParms));
+		  // l10n
+		  
+		  // CIMClientResponseException responseException(
+		  //   String("Mismatched response message ID:  Got \"") +
+		  //    cimResponse->messageId + "\", expected \"" +
+		  //    messageId + "\".");
 
-                    CIMClientResponseException responseException(mlString);
+		  MessageLoaderParms mlParms("ExportClient.CIMExportClient.MISMATCHED_RESPONSE_ID", 
+                      "Mismatched response message ID:  Got \"$0\", expected \"$1\".", 
+                      cimResponse->messageId, messageId);
+		  String mlString(MessageLoader::getMessage(mlParms));
 
-                    PEG_METHOD_EXIT();
-                    throw responseException;
+		  CIMClientResponseException responseException(mlString);
+
+		  delete response;
+                  PEG_METHOD_EXIT();
+		  throw responseException;
                 }
                 if (cimResponse->cimException.getCode() != CIM_ERR_SUCCESS)
                 {
-                    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
+                    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, 
                         "Received indication failure message.");
                     CIMException cimException(
                         cimResponse->cimException.getCode(),
                         cimResponse->cimException.getMessage());
+                    delete response;
                     PEG_METHOD_EXIT();
-                    throw cimException;
+	            throw cimException;
                 }
                 PEG_METHOD_EXIT();
-                return response.release();
-            }
-            else if (dynamic_cast<CIMRequestMessage*>(response.get()) != 0)
-            {
-                //
-                // Respond to an authentication challenge.
-                // Reconnect if the connection was closed.
-                //
-                if (_doReconnect)
-                {
-                    _connect();
-                }
-
-                _cimRequestEncoder->enqueue(response.release());
-
-                nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
-                stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
-                continue;
+                return response;
             }
             else
             {
-                MessageLoaderParms mlParms(
-                    "ExportClient.CIMExportClient.MISMATCHED_RESPONSE",
-                    "Mismatched response message type.");
-                String mlString(MessageLoader::getMessage(mlParms));
+	      // l10n
 
-                CIMClientResponseException responseException(mlString);
+	      // CIMClientResponseException responseException(
+	      //   "Mismatched response message type.");
+		
+	      MessageLoaderParms mlParms("ExportClient.CIMExportClient.MISMATCHED_RESPONSE", 
+					 "Mismatched response message type.");
+	      String mlString(MessageLoader::getMessage(mlParms));
+	      
+	      CIMClientResponseException responseException(mlString);
 
-                PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL1,
-                    (const char*)mlString.getCString());
+	      delete response;
 
-                PEG_METHOD_EXIT();
-                throw responseException;
+              PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, mlString);
+
+              PEG_METHOD_EXIT();
+	      throw responseException;
             }
-        }
+	}
 
         nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+	pegasus_yield();
     }
 
     //
     // Reconnect to reset the connection (disregard late response)
     //
+    try
+    {
+        PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Doing a _reconnect()...");
+        _reconnect();
+    }
+    catch (...)
+    {
+    }
 
-    PEG_TRACE_CSTRING(TRC_EXPORT_CLIENT, Tracer::LEVEL2,
-        "Connection to the listener timed out.");
-
-    _disconnect(true);
-    _doReconnect = true;
-
+    PEG_TRACE_STRING(TRC_EXPORT_CLIENT, Tracer::LEVEL4, "Connection to the listner timed out.");
+    PEG_METHOD_EXIT();
     //
     // Throw timed out exception:
     //
-    PEG_METHOD_EXIT();
     throw ConnectionTimeoutException();
 }
 

@@ -70,7 +70,6 @@
 #include <Pegasus/ProviderManager2/ProviderManagerzOS_inline.h>
 #endif
 
-
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -81,7 +80,6 @@ int _cmpi_trace=0;
 CMPIProviderManager::IndProvTab    CMPIProviderManager::provTab;
 CMPIProviderManager::IndSelectTab  CMPIProviderManager::selxTab;
 CMPIProviderManager::ProvRegistrar CMPIProviderManager::provReg;
-
 class CMPIPropertyList {
    char **props;
    int pCount;

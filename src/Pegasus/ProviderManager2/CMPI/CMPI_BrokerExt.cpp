@@ -35,6 +35,7 @@
 
 #include "CMPI_Version.h"
 
+#include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include "CMPI_Object.h"
 #include "CMPI_Broker.h"
 #include "CMPI_Ftabs.h"
@@ -59,25 +60,32 @@
   #include <sys/timeb.h>
 #endif
 
-PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 	struct thrd_data {
 	   CMPI_THREAD_RETURN(CMPI_THREAD_CDECL*pgm)(void*);
-	   void *parm;
+	   void *parm;	
+	   CMPIProvider *provider;
 	};
 }
 
 static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL start_driver(void *parm)
 {
+   PEGASUS_THREAD_RETURN rc;
    Thread* my_thread = (Thread*)parm;
    thrd_data *pp = (thrd_data*)my_thread->get_parm();
    thrd_data data=*pp;
-   delete pp;
 
-   return (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
+   delete pp;
+   rc = (PEGASUS_THREAD_RETURN)(data.pgm)(data.parm);
+
+   // Remove the thread from the watch-list (and clean it up).
+   data.provider->removeThreadFromWatch( my_thread);
+   return rc;
 }
+
+  
 
 extern "C" {
 
@@ -91,24 +99,39 @@ extern "C" {
    static CMPI_THREAD_TYPE newThread
          (CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *start )(void *), void *parm, int detached)
    {
+      const CMPIBroker *brk = CM_BROKER;
+      const CMPI_Broker *broker = (CMPI_Broker*)brk;
+
       AutoPtr<thrd_data> data(new thrd_data());
       data->pgm=(CMPI_THREAD_RETURN (CMPI_THREAD_CDECL *)(void*))start;
       data->parm=parm;
-
+      data->provider = broker->provider;
       Thread *t=new Thread(start_driver,data.get(),detached==1);
+
+      broker->provider->addThreadToWatch(t);
       data.release();
+
       ThreadStatus rtn = PEGASUS_THREAD_OK;
       while ( (rtn = t->run()) != PEGASUS_THREAD_OK)
       {
-	if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
-	 	pegasus_yield();
-	else
+		if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+	 		pegasus_yield();
+		else
 	    {
-		PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
-                "Could not allocate thread for the provider");
-		delete t; t = 0;
+			Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
+                "Could not allocate provider thread (%p) for %s provider.",
+				t,  (const char *)broker->name.getCString());
+			broker->provider->removeThreadFromWatch(t);
+			delete t; t = 0;
+			break;
 	    }		
       }
+     if (rtn == PEGASUS_THREAD_OK)
+     {
+   	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2, 
+			"Started provider thread (%p) for %s.", 
+			t, (const char *)broker->name.getCString());
+     }
       return (CMPI_THREAD_TYPE)t;
    }
 
@@ -207,26 +230,28 @@ extern "C" {
    static int condWait (CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m)
    {
       // need to take care of mutex
-      ((Condition*)c)->unlocked_wait(Thread::getCurrent()->self());
+      ((Condition*)c)->unlocked_wait(pegasus_thread_self());
       return 0;
    }
 
    static int timedCondWait(CMPI_COND_TYPE c, CMPI_MUTEX_TYPE m, struct timespec *wait)
    {
 
-   /* this is not truely mapping to pthread_timed_wait
-      but will work for the time beeing
-   */
       int msec;
       struct timespec next=*wait;
-
    #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
       struct timeval {
          long tv_sec;
          long tv_usec;
       }now;
       struct _timeb timebuffer;
+   #endif
 
+   /* this is not truely mapping to pthread_timed_wait
+      but will work for the time beeing
+   */
+
+   #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
       _ftime( &timebuffer );
       now.tv_sec=timebuffer.time;
       now.tv_usec=timebuffer.millitm*1000;

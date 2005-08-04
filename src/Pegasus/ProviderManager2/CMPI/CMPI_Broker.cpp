@@ -530,8 +530,11 @@ extern "C" {
 
    static CMPIStatus mbDetachThread(const CMPIBroker* mb, const CMPIContext* eCtx) {
       DDD(cout<<"--- mbDetachThread()"<<endl);
-      mb=CM_BROKER;
-      delete ((CMPI_Context*)eCtx)->thr;
+      mb=CM_BROKER;  
+      CMPI_Context *neCtx = (CMPI_Context *)eCtx;
+      delete neCtx->thr;
+      // Delete also CMPIContext
+      delete neCtx; 
       CMReturn(CMPI_RC_OK);
    }
 

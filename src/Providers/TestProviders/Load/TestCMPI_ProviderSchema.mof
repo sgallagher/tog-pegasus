@@ -64,3 +64,7 @@ class TestCMPI_Fail_3: TestCMPI_Parent
 class TestCMPI_Fail_4: TestCMPI_Parent
 {
 };
+
+class TestCMPI_Thread: TestCMPI_Parent
+{
+};

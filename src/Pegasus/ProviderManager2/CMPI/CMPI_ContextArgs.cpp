@@ -240,7 +240,10 @@ CMPI_Context::CMPI_Context(const OperationContext& ct) {
       hdl=(void*)new Array<CIMParamValue>();
       ft=CMPI_Context_Ftab;
    }
-
+CMPI_Context::~CMPI_Context() {
+      delete (Array<CIMParamValue>*)hdl;
+      delete ctx;
+}
 CMPI_ContextOnStack::CMPI_ContextOnStack(const OperationContext& ct) {
       ctx=(OperationContext*)&ct;
       hdl=(void*)new Array<CIMParamValue>();

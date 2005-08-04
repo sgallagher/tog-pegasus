@@ -1,20 +1,19 @@
-CMPI Providers in a nutshell
+Common Management Programming Interface (CMPI) Providers in a nutshell
 ============================
 
-Viktor Mihajlovski <mihajlov@de.ibm.com>
-Nov 14th 2003
+Aug 1st, 2005
 
-Pegasus 2.4 *NEWS*
+Pegasus 2.5 *NEWS*
 ------------------
 
-The CMPI header files are being standardized and will be (possibly by the 
-time you read this) frozen.  However, since the OpenPegasus 2.4 release is 
-anticipated prior to the anticipated freezing of the CMPI standard, 
-the OpenPegasus 2.4 release will not provide the CMPI header files as 
-part of the OpenPegasus 2.4 SDK. 
+The CMPI macro header files (cmpimacs.h) shipped is OpenPegasus specific. This 
+will change once OpenGroup releases a specification with the macro definitions.
 
-They can be found within CVS and the source tarball. Visit
-http://cvs.opengroup.org/cgi-bin/viewcvs.cgi/pegasus/src/Pegasus/Provider/CMPI/ to view the CMPI header files.
+The CMPI Function Table (cmpift.h) file and CMPI Data Types (cmpidt.h) file are
+ composed from the CMPI v1.0 specification + Technical Corrigenda and are
+binary compatible with the "historical implementations" and the 1.0 specification
+augmented with the Technical Corrigenda.
+
 
 Build CMPI from sources
 -----------------------
@@ -22,7 +21,9 @@ Build CMPI from sources
 The Common Manageability Programming Interface (CMPI) has been integrated into
 Pegasus as a pluggable provider manager.
 
-CMPI must be enabled during Pegasus build.
+CMPI is by default enabled on Linux. For other platforms it must be enabled 
+during Pegasus build.
+
 For CMPI enablement, set the following environment variables prior to make:
 
    PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=1
@@ -37,6 +38,19 @@ If you are looking for samples you should have a look at the SBLIM project.
 The packages prefixed by the string sblim-cmpi contain CMPI providers for
 various classes. See http://www-124.ibm.com/developerworks/projects/sblim .
 
+Using CMPI with threads
+-----------------------
+
+CMPI provides API functions for low-level thread, mutex and conditional constructs.
+Hence you can compile your provider without needing to link to pthread or other 
+threading library. 
+
+However, the developer is responsible for memory management of these constructs and
+as well of exiting the threads before the cleanup function is exited. If this is not 
+done, the thread will be forcefully terminated. This can have the nasty consequence of
+hanging CIMServer, or bringing down the CIMServer, or just the Out-of-Process Provider 
+Agent if you run OpenPegasus with 'run-as-requester' configuration flag turned on.
+Please refer to the Admin Guide or the readme files for more details about this flag.
 
 Using CQL with CMPI
 -------------------

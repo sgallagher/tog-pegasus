@@ -54,6 +54,7 @@ struct CMPI_Context : CMPIContext {
    OperationContext* ctx;
    CMPI_ThreadContext *thr;
    CMPI_Context(const OperationContext& ct);
+   ~CMPI_Context();
 };
 
 struct CMPI_ArgsOnStack : CMPIArgs {

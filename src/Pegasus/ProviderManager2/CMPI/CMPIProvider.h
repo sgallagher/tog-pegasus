@@ -44,11 +44,12 @@
 #include "CMPI_Version.h"
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
+#include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Provider/CIMInstanceProvider.h>
 #include <Pegasus/Provider/CIMAssociationProvider.h>
 #include <Pegasus/Provider/CIMMethodProvider.h>
-
 #include <Pegasus/ProviderManager2/CMPI/CMPIResolverModule.h>
 
 #include <Pegasus/ProviderManager2/CMPI/Linkage.h>
@@ -57,6 +58,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CMPIProviderModule;
 class CMPIResolverModule;
+
+#ifndef _CMPI_Broker_H_
+struct CMPI_Broker;
+#endif
 
 #define CMPI_MIType_Instance    1
 #define CMPI_MIType_Association 2
@@ -173,6 +178,46 @@ public:
 
     void reset();
 
+    // Monitors threads that the provider has allocated.
+
+	/* 
+     * Adds the thread to the watch list. The watch list is monitored when the
+     * provider is terminated and if any of the threads have not cleaned up by
+     * that time, they are forcifully terminated and cleaned up.
+     *
+     * @argument t Thread is not NULL.
+     */
+    void addThreadToWatch(Thread *t);
+  /*
+  // Removes the thread from the watch list and schedule the CMPILocalProviderManager
+  // to delete the thread. The CMPILocalProviderManager after deleting the thread calls
+  // the CMPIProvider' "cleanupThread". The CMPILocalProviderManager notifies this
+  // CMPIProvider object when the thread is truly dead by calling "threadDeleted" function.
+  //
+  // Note that this function is called from the thread that finished with
+  // running the providers function, and returns immediately while scheduling the
+  // a cleanup procedure. If you want to wait until the thread is truly deleted,
+  // call 'waitUntilThreadsDone' - but DO NOT do it in the the thread that
+  // the Thread owns - you will wait forever.
+  //
+  // @argument t Thread that is not NULL and finished with running the provider function.
+  */
+    void removeThreadFromWatch(Thread *t);
+
+	/*
+ 	* Remove the thread from the list of threads that are being deleted
+ 	* by the CMPILocalProviderManager.
+ 	*
+ 	* @argument t Thread which has been previously provided to 'removeThreadFromWatch' function.
+ 	*/
+	void threadDelete(Thread *t);
+	/*
+ 	* Check if the Thread is owner by this CMPIProvider object	.
+ 	*
+ 	* @argument t Thread that is not NULL.
+ 	*/
+	Boolean isThreadOwner( Thread *t); 
+
     CMPIProviderModule *getModule(void) const;
 
     // << Mon Oct 14 15:42:24 2002 mdd >> for use with DQueue template
@@ -267,16 +312,23 @@ private:
 
     static void initialize(CIMOMHandle & cimom,
                            ProviderVector & miVector,
-			   				String & name,
+			   			   String & name,
                            CMPI_Broker & broker);
-
+	
+   /*
+ 	* Wait until all finished provider threads have been cleaned and deleted.
+ 	* Note: This should NEVER be called from the thread that IS the Thread object that was
+ 	* is finished and called 'removeThreadFromWatch()' . If you do it, you will
+ 	* wait forever.
+ 	*/
+    void waitUntilThreadsDone();
 
     void set(CMPIProviderModule *&module,
             ProviderVector base,
             CIMOMHandle *&cimomHandle);
+
     friend class CMPILocalProviderManager;
     friend class CMPIProviderManager;
-    friend class CMPI_RProviderManager;
     friend class ProviderManagerService;
     class OpProviderHolder;
     friend class OpProviderHolder;
@@ -287,6 +339,13 @@ private:
     Uint32 _quantum;
     AtomicInt _current_operations;
     Mutex _statusMutex;
+
+	/*
+ 		List of threads which are monitored and cleaned.
+ 	*/
+    DQueue<Thread> _threadWatchList;
+    DQueue<Thread> _cleanedThreads;
+
 
     /**
         Count of current subscriptions for this provider.  Access to this

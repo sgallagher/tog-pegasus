@@ -96,7 +96,6 @@ public:
    static IndProvTab provTab;
    static IndSelectTab selxTab;
    static ProvRegistrar provReg;
-
 protected:
     CMPILocalProviderManager providerManager;
 
@@ -163,6 +162,8 @@ protected:
      */
     void _callDisableIndications
         (CMPIProvider::OpProviderHolder & ph);
+
+
 };
 
 PEGASUS_NAMESPACE_END

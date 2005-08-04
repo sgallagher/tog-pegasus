@@ -215,3 +215,39 @@ instance of PG_ProviderCapabilities
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };
+// ===================================================================
+// Instance provider that tests thread allocation using
+// broker->xft->newThread functionality.
+// ===================================================================
+
+instance of PG_ProviderModule
+{
+   Description = "CMPI Test newThread provider";
+   Name = "TestCMPIThreadProviderModule";
+  // The library name on disk
+   Location = "cmpiTestCMPIThreadProvider";
+   Vendor = "SBLIM";
+   Version = "2.0.0";
+   InterfaceType = "CMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestCMPIThreadProviderModule";
+   // The provider name as referenced in the code!
+   Name = "TestCMPIThreadProvider";	
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestCMPIThreadProviderModule";
+   ProviderName = "TestCMPIThreadProvider";
+   CapabilityID = "CMPI Test newThread Provider";
+   // Name of the CIM Class as defined in the mof.
+   ClassName = "TestCMPI_Thread";
+   Namespaces = { "test/TestProvider" };
+   ProviderType = { 2 }; // Instance
+   SupportedProperties = NULL; // All properties
+   SupportedMethods = NULL; // All methods
+};

@@ -49,7 +49,7 @@
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 
-#include "CMPILocalProviderManager.h"
+#include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -59,6 +59,14 @@ extern int _cmpi_trace;
 
 #undef IDLE_LIMIT
 #define IDLE_LIMIT 50
+
+/* Thread deletion specific */
+Semaphore CMPILocalProviderManager::_pollingSem(0);
+AtomicInt CMPILocalProviderManager::_stopPolling(0);
+Thread *CMPILocalProviderManager::_reaperThread = 0;
+DQueue <CMPILocalProviderManager::cleanupThreadRecord> CMPILocalProviderManager::_finishedThreadList(true);
+Mutex CMPILocalProviderManager::_reaperMutex(0);
+
   CMPILocalProviderManager::CMPILocalProviderManager (void):
 _idle_timeout (IDLE_LIMIT)
 {
@@ -76,6 +84,19 @@ CMPILocalProviderManager::~CMPILocalProviderManager (void)
       CMPIProviderModule *module = j.value ();
       delete module;
     }
+
+  if (_reaperThread) 
+    {
+		AutoMutex lock(_reaperMutex);
+  		_stopPolling++;
+  		_pollingSem.signal();
+  		// Wait until it finishes itself.
+ 		_reaperThread->join(); 
+  		delete _reaperThread; 
+		_reaperThread = 0;
+  	}
+ PEGASUS_ASSERT(_finishedThreadList.size() == 0);
+
 }
 
 Sint32
@@ -135,7 +156,8 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
 
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                           "_provider_ctrl::UNLOAD_PROVIDER");
-        CMPIProvider *pr = _lookupProvider (*(parms->providerName));
+        CMPIProvider *pr = 0;
+	pr = _lookupProvider (*(parms->providerName));
         if ((pr->getStatus () == CMPIProvider::INITIALIZED))
           {
 
@@ -258,7 +280,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
               if (provider->getStatus () == CMPIProvider::UNINITIALIZED)
                 {
                   // Delete the skeleton.
-                  delete provider;
+		delete provider;
                   continue;
                 }
               else
@@ -416,6 +438,87 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
     }
   PEG_METHOD_EXIT ();
   return (ccode);
+}
+
+
+
+/*
+ * The reaper function polls out the threads from the global list (_finishedThreadList), 
+ * joins them deletes them, and removes them from the CMPIProvider specific list.
+ */
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(void *parm)
+{
+  Thread *myself = reinterpret_cast<Thread *>(parm);
+  do { 
+      	_pollingSem.wait();
+	    // All of the threads are finished working. We just need to reap 'em
+		cleanupThreadRecord *rec = 0;
+
+		while (_finishedThreadList.size() >0 )
+		{
+		    // Pull of the the threads from the global list.
+			rec = _finishedThreadList.remove_first();
+			DDD(cerr << "Reaping the thread " << rec->thread << " from " << rec->provider->getName() << endl);
+			rec->thread->join();
+			// Delete the thread, and 
+			delete rec->thread;
+			// remove the thread for the CMPIProvider  
+	 		rec->provider->threadDelete(rec->thread);
+			delete rec;
+		}
+    }
+  while (_stopPolling.value() == 0);
+  myself->exit_self( (PEGASUS_THREAD_RETURN) 0);
+  return (0);
+}
+ /*
+  // Cleanup the thread and upon deletion of it, call the CMPIProvider' "threadDeleted".
+  // to not, all the CMPIProvider '
+  // Note that this function is called from the thread that finished with
+  // running the providers function, and returns immediately while scheduling the
+  // a cleanup procedure. If you want to wait until the thread is truly deleted,
+  // call 'waitUntilThreadsDone' - but DO NOT do it in the the thread that
+  // the Thread owns - you will wait forever.
+  //
+  // @argument t Thread that is not NULL and finished with running the provider function.
+  // @argument p CMPIProvider in which the 't' Thread was running.
+  */
+void 
+CMPILocalProviderManager::cleanupThread(Thread *t, CMPIProvider *p)
+{
+	PEGASUS_ASSERT( t != 0 && p != 0 );
+
+	PEGASUS_ASSERT ( p->isThreadOwner(t) );
+  	// The mutex guards against a race condition for _reaperThread creation.
+  	AutoMutex lock(_reaperMutex);
+
+    // Put the Thread and the CMPIProvider on the global list.
+	cleanupThreadRecord *record = new cleanupThreadRecord(t, p);
+	_finishedThreadList.insert_last (record);
+
+  	if (_reaperThread == 0)
+    {
+      _reaperThread = new Thread(_reaper, NULL, false);
+      ThreadStatus rtn = PEGASUS_THREAD_OK;
+      while ( (rtn = _reaperThread->run()) != PEGASUS_THREAD_OK)
+      {
+		if (rtn == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+	 		pegasus_yield();
+		else
+	    {
+			PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
+                "Could not allocate thread to take care of deleting user threads. ");
+			delete _reaperThread; _reaperThread = 0;
+			return;
+	    }		
+      }
+    }/*
+  Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2, \
+			"Cleaning up provider thread (%p) from provider %s.", 
+			t, (const char *)p->getName().getCString());*/
+  // Wake up the reaper.
+  _pollingSem.signal();
+
 }
 
 CMPIProvider::OpProviderHolder CMPILocalProviderManager::
@@ -845,7 +948,6 @@ CMPILocalProviderManager::_lookupProvider (const String & providerName)
   PEG_METHOD_ENTER (TRC_PROVIDERMANAGER, "_lookupProvider");
   // lock the providerTable mutex
   AutoMutex lock (_providerTableMutex);
-
   // look up provider in cache
   CMPIProvider *pr = 0;
   if (true == _providers.lookup (providerName, pr))

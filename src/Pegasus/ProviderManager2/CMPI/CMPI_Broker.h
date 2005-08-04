@@ -63,10 +63,13 @@ CIMClass *mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop);
 typedef HashTable<String, CIMClass *,
       EqualFunc<String>,  HashFunc<String> > ClassCache;
 
+class CMPIProvider;
+
 struct CMPI_Broker : CMPIBroker {
    ClassCache *clsCache;
    Mutex mtx;
    String name;
+   CMPIProvider *provider;
 };
 
 PEGASUS_NAMESPACE_END

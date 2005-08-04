@@ -48,10 +48,10 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProvider.h>
 #include <Pegasus/ProviderManager2/CMPI/CMPIProviderModule.h>
+#include <Pegasus/ProviderManager2/CMPI/CMPILocalProviderManager.h>
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
-
 
 // set current operations to 1 to prevent an unload
 // until the provider has had a chance to initialize
@@ -59,30 +59,35 @@ CMPIProvider::CMPIProvider(const String & name,
 		   CMPIProviderModule *module,
 		   ProviderVector *mv)
    : _status(UNINITIALIZED), _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0), _rm(0)
+     _no_unload(0), _rm(0), _threadWatchList(true), _cleanedThreads(true)
+
 {
    _current_operations = 1;
    _currentSubscriptions = 0;
    broker.hdl =0;
+   broker.provider = this;
    if (mv) miVector=*mv;
-   noUnload=false;
+   noUnload=false; 
 }
 
 CMPIProvider::CMPIProvider(CMPIProvider *pr)
   : _status(UNINITIALIZED), _module(pr->_module), _cimom_handle(0), _name(pr->_name),
-    _no_unload(0), _rm(0)
+    _no_unload(0), _rm(0), _threadWatchList(true), _cleanedThreads(true)
 {
    _current_operations = 1;
    _currentSubscriptions = 0;
    miVector=pr->miVector;
    broker.hdl =0;
+   broker.provider = this;
    _cimom_handle=new CIMOMHandle();
-   noUnload=pr->noUnload;
+   noUnload=pr->noUnload; 
 }
 
 CMPIProvider::~CMPIProvider(void)
 {
     delete (CIMOMHandle*)broker.hdl;
+	PEGASUS_ASSERT ( _threadWatchList.size () == 0 );
+	PEGASUS_ASSERT ( _cleanedThreads.size () == 0 );	
 }
 
 CMPIProvider::Status CMPIProvider::getStatus(void)
@@ -277,6 +282,13 @@ Boolean CMPIProvider::tryTerminate(void)
   return terminated;
 }
 
+/*
+ Terminates the CMPIProvider by cleaning its class cache and 
+ calling its cleanup funtions.
+
+ @argument terminating When set to false, the provider may resist terminating.
+  	If true, provider MUST clean up.
+*/ 
 void CMPIProvider::_terminate(Boolean terminating)
 {
     if (broker.clsCache) {
@@ -327,7 +339,58 @@ void CMPIProvider::_terminate(Boolean terminating)
        if (rc.rc==CMPI_RC_ERR_NOT_SUPPORTED) noUnload=true;
 	   if ((rc.rc == CMPI_RC_DO_NOT_UNLOAD) || (rc.rc==CMPI_RC_NEVER_UNLOAD)) noUnload =true;
     }   
+    if (noUnload == false) 
+    {
+	  // Check the thread list to make sure the thread has been de-allocated
+	  if (_threadWatchList.size() != 0)
+	  {
+	 	Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
+			  "There are %d provider threads in %s that have to be cleaned up.",
+			_threadWatchList.size(), (const char *)getName().getCString());
+		
+		// Walk through the list and terminate the threads. After they are 
+		// terminated, put them back on the watch list, call the cleanup function
+		// and wait until the cleanup is completed.
+		while (_threadWatchList.count() > 0) {
+				// Remove the thread from the watch list and kill it.
+                Thread *t = _threadWatchList.remove_first();
 
+		// If this a non-production build, DO NOT do the cancellation. This is 
+		// done so that the provider developer will notice incorrect behaviour
+		// when unloading his/her provider and hopefully fix that.
+#if !defined(PEGASUS_DEBUG)
+	#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+	 			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, 
+							Logger::WARNING,
+							"Provider thread in $0 did not exit after cleanup function. Attempting to terminate it.",
+					 		(const char *)getName().getCString());
+				t->cancel();
+	#else
+	// Every other OS that we do not want to do cancellation for.
+	 			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, 
+							Logger::WARNING,
+			  				"Provider thread in $0 did not exit after cleanup function. Ignoring it.",
+					 		(const char *)getName().getCString());
+	#endif
+#else 
+	// For the non-release
+	 			Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, 
+							Logger::WARNING,
+			  				"Provider thread in $0 did not exit after cleanup function. Ignoring it.",
+					 		(const char *)getName().getCString());
+				// The cancellation is disabled so that when the join happends
+				// the CIMServer will hang. This should help the provider writer to fix 
+				// his/her providers.
+				//t->cancel();
+#endif
+				//  and perform the normal  cleanup procedure
+				_threadWatchList.insert_last(t);
+				removeThreadFromWatch(t);	
+		}
+		// Wait until all of the threads have been cleaned.
+		waitUntilThreadsDone();
+	  }
+    }
 }
 
 
@@ -340,7 +403,8 @@ void CMPIProvider::terminate()
 	  pegasus_yield();
 	  try 
     {
-        _terminate(false);
+	
+        _terminate(true);
 	      if (noUnload==true) {
             _status=savedStatus;
 	          return;
@@ -357,6 +421,98 @@ void CMPIProvider::terminate()
   _status = UNINITIALIZED;
 }
 
+/*
+ * Wait until all finished provider threads have been cleaned and deleted.
+ * Note: This should NEVER be called from the thread that IS the Thread object that was
+ * is finished and called 'removeThreadFromWatch()' . If you do it, you will
+ * wait forever.
+ */
+void 
+CMPIProvider::waitUntilThreadsDone()
+{
+	while (_cleanedThreads.size() > 0)
+	{
+		pegasus_yield();
+	}
+}
+/*
+ * Check if the Thread is owner by this CMPIProvider object.
+ *
+ * @argument t Thread that is not NULL.
+ */
+Boolean
+CMPIProvider::isThreadOwner(Thread *t)  
+{
+	PEGASUS_ASSERT ( t != NULL );
+	if  ( _cleanedThreads.exists(t) )
+		return true;
+	if  ( !_threadWatchList.exists(t) )
+		return true;
+
+	return false;
+}
+/*
+ * Remove the thread from the list of threads that are being deleted
+ * by the CMPILocalProviderManager.
+ *
+ * @argument t Thread which has been previously provided to 'removeThreadFromWatch' function.
+ */
+void
+CMPIProvider::threadDelete(Thread *t)
+{
+	PEGASUS_ASSERT ( _cleanedThreads.exists(t) );
+	PEGASUS_ASSERT ( !_threadWatchList.exists(t) );
+	_cleanedThreads.remove( t );
+}
+
+  /*
+  // Removes the thread from the watch list and schedule the CMPILocalProviderManager
+  // to delete the thread. The CMPILocalProviderManager after deleting the thread calls
+  // the CMPIProvider' "cleanupThread". The CMPILocalProviderManager notifies this
+  // CMPIProvider object when the thread is truly dead by calling "threadDeleted" function.
+  //
+  // Note that this function is called from the thread that finished with
+  // running the providers function, and returns immediately while scheduling the
+  // a cleanup procedure. If you want to wait until the thread is truly deleted,
+  // call 'waitUntilThreadsDone' - but DO NOT do it in the the thread that
+  // the Thread owns - you will wait forever.
+  //
+  // @argument t Thread that is not NULL and finished with running the provider function.
+  */
+void 
+CMPIProvider::removeThreadFromWatch(Thread *t)
+{
+	PEGASUS_ASSERT( t != 0 );
+
+	PEGASUS_ASSERT (_threadWatchList.exists (t));
+	PEGASUS_ASSERT (!_cleanedThreads.exists (t));
+
+	// Add the thread to the CMPIProvider's list.
+	// We use this list to keep track of threads that are 
+	// being cleaned (this way 'waitUntilThreadsDone' can stall until the
+	// threads are truly deleted). 
+	_cleanedThreads.insert_last (t);
+
+	// and remove it from the watched list
+    _threadWatchList.remove(t);
+ 
+	CMPILocalProviderManager::cleanupThread(t, this);
+}
+
+/* 
+ * Adds the thread to the watch list. The watch list is monitored when the
+ * provider is terminated and if any of the threads have not cleaned up by
+ * that time, they are forcifully terminated and cleaned up.
+ *
+ * @argument t Thread is not NULL.
+*/
+void 
+CMPIProvider::addThreadToWatch(Thread *t)
+{
+	PEGASUS_ASSERT( t != 0 );
+
+    _threadWatchList.insert_last(t);
+}
 Boolean CMPIProvider::operator == (const void *key) const 
 {
    if( (void *)this == key)

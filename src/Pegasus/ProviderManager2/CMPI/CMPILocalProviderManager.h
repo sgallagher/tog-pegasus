@@ -84,6 +84,7 @@ public:
                  called
      */
     Array <CMPIProvider *> getIndicationProvidersToEnable ();
+	static void cleanupThread(Thread *t, CMPIProvider *p);
 
 private:
     enum CTRL
@@ -131,8 +132,30 @@ private:
 
     CMPIProviderModule * _lookupModule(const String & moduleFileName);
     Mutex _providerTableMutex;
-                                    
-    
+	                                    
+   /*
+   *  The cleaning functions for provider threads.
+   */
+
+   static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _reaper(void *);
+
+  /*
+   * The data structures for holding the thread and the CMPIProvider
+   */
+
+   struct cleanupThreadRecord {
+		cleanupThreadRecord(): thread(0), provider(0) {}
+		cleanupThreadRecord(Thread *t, CMPIProvider *p): thread(t), provider(p) { }
+		Thread *thread;
+		CMPIProvider *provider;
+   };
+
+   static Thread* _reaperThread;
+   static Semaphore _pollingSem;
+   static AtomicInt _stopPolling;
+   static Mutex _reaperMutex;
+   static DQueue<cleanupThreadRecord> _finishedThreadList;
+
 protected:
 
 };

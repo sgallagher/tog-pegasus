@@ -655,6 +655,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -886,6 +888,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1104,6 +1108,8 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1233,6 +1239,8 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1402,6 +1410,8 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -1508,6 +1518,8 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -1749,6 +1761,8 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -2037,6 +2051,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -2274,6 +2290,8 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -2544,6 +2562,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -2767,6 +2787,8 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -2909,6 +2931,8 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
     PEG_METHOD_EXIT();
 
+    STAT_COPYDISPATCHER
+
     return(response);
 }
 
@@ -3048,6 +3072,8 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -3291,6 +3317,8 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }
@@ -3695,6 +3723,8 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
     if (env) JMPIjvm::detachThread();
 
     PEG_METHOD_EXIT();
+
+    STAT_COPYDISPATCHER
 
     return(response);
 }

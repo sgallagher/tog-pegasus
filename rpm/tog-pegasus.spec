@@ -32,6 +32,10 @@
 #
 # Package spec for PEGASUS 2.4
 #
+
+%{?!PEGASUS_BUILD_TEST_RPM:   %define PEGASUS_BUILD_TEST_RPM        0}
+# do "rpmbuild --define 'PEGASUS_BUILD_TEST_RPM 1'" to build test RPM .
+
 %define srcRelease 1
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
@@ -63,6 +67,7 @@ The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenP
 Services for Linux release. It provides Linux C++ developers with the WBEM files required to
 build WBEM Clients and Providers. It also supports C provider developers via the CMPI interface.
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 %package test
 Summary:      The OpenPegasus Tests
 Group:        Systems Management/Base
@@ -71,6 +76,7 @@ Requires: tog-pegasus >= 2.4
 
 %description test
 The OpenPegasus WBEM tests for the OpenPegasus 2.4 Linux rpm.
+%endif
 
 %prep
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
@@ -147,8 +153,10 @@ make --directory=mak -f SDKMakefile stageSDK \
           PEGASUS_INCLUDE_DIR=%PEGASUS_INCLUDE_DIR \
           PEGASUS_HTML_DIR=%PEGASUS_HTML_DIR
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 make --directory=$PEGASUS_ROOT -f Makefile.ReleaseTest stageTEST \
 	PEGASUS_ENVVAR_FILE=$PEGASUS_ROOT/env_var_Linux.status
+%endif
 
 %install
 %define PEGASUS_PROD_DIR       /opt/tog-pegasus
@@ -180,11 +188,14 @@ make --directory=$PEGASUS_ROOT -f Makefile.ReleaseTest stageTEST \
 %define PEGASUS_SSL_CERT_FILE      server.pem
 %define PEGASUS_SSL_TRUSTSTORE     client.pem
 %define PEGASUS_INSTALL_SCRIPT_DIR $PEGASUS_ROOT/installs/scripts
+
+%if %{PEGASUS_BUILD_TEST_RPM}
 %define PEGASUS_TEST_DIR  /opt/tog-pegasus/test
 %define PEGASUS_TEST_STAGING_DIR  $PEGASUS_HOME/stagingDir
 %define PEGASUS_TEST_BIN_DIR  %PEGASUS_TEST_DIR/bin
 %define PEGASUS_TEST_LIB_DIR  %PEGASUS_TEST_DIR/lib
 %define PEGASUS_TEST_MAK_DIR  %PEGASUS_TEST_DIR/mak
+%endif
 
 #
 # Make directories
@@ -566,6 +577,8 @@ install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/Insta
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/MethodProviderR.mof %SAMPLES_DEST_PATH/Providers/Load/MethodProviderR.mof
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SampleProviderSchema.mof %SAMPLES_DEST_PATH/Providers/Load/SampleProviderSchema.mof
 install -D -m 0444 %PEGASUS_STAGING_DIR%PEGASUS_SAMPLES_DIR/Providers/Load/SimpleDisplayConsumerR.mof %SAMPLES_DEST_PATH/Providers/Load/SimpleDisplayConsumerR.mof
+
+%if %{PEGASUS_BUILD_TEST_RPM}
 #
 # Tests
 #
@@ -621,6 +634,8 @@ install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleFamil
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1 $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_MAK_DIR/commands.mak $RPM_BUILD_ROOT%PEGASUS_TEST_MAK_DIR/commands.mak
+%endif
+
 cd $RPM_BUILD_ROOT
 rm -Rf $PEGASUS_HOME
 
@@ -732,6 +747,7 @@ echo " To set up PATH and MANPATH in /etc/profile"
 echo " run /opt/tog-pegasus/sbin/settogpath.";
 fi
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 %post test
 /etc/init.d/tog-pegasus stop
 cd %PEGASUS_VARDATA_DIR
@@ -741,6 +757,7 @@ mv testrepository repository
 cd %PEGASUS_TEST_DIR
 make create_providerlinks
 make tests
+%endif
 
 %preun
 if [ $1 -eq 0 ]; then
@@ -1057,6 +1074,7 @@ fi
 %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/SampleProviderSchema.mof
 %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load/SimpleDisplayConsumerR.mof
 
+%if %{PEGASUS_BUILD_TEST_RPM}
 %files test
 %attr(-,root,root) %PEGASUS_TEST_DIR/Makefile
 %attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/CompAssoc
@@ -1102,4 +1120,5 @@ fi
 %attr(-,root,root) %PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1
 %attr(-,root,root) %PEGASUS_TEST_MAK_DIR/commands.mak
 %PEGASUS_TEST_REPOSITORY_DIR
+%endif
 

@@ -57,9 +57,7 @@ tests:
 
 ## poststarttests: wql_10_1  cql_10_1 wql_10_10 cql_10_10 wql_10_100 cql_10_100 wql_100_10 cql_100_10 
 
-poststarttests:
-	
-poststarttests-NOTENABLED: wql_10_1
+poststarttests: wql_10_1
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 
 wql_10_1:

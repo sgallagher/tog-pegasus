@@ -409,7 +409,6 @@ void CIMClientRep::disconnect()
     _connectSSLContext.reset();
 }
 
-
 Boolean CIMClientRep::isConnected() const throw()
 {
     return _connected;
@@ -1125,8 +1124,9 @@ Message* CIMClientRep::_doRequest(
             // Reconnect to reset the connection
             // if Server response contained a Connection: Close Header
             //
-            if(response->getCloseConnect() == true){
+            if (response->getCloseConnect() == true){
                 _reconnect();
+                response->setCloseConnect(false);
             }
 
             //
@@ -1252,16 +1252,23 @@ Message* CIMClientRep::_doRequest(
                 }//end of if statmet that call the callback method
                 return response;
             }
+            else if (dynamic_cast<CIMRequestMessage*>(response) != 0)
+            {
+                // Respond to an authentication challenge
+                _requestEncoder->enqueue(response);
+                nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+                stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
+                continue;
+            }
             else
             {
                 // l10n
 
                 // CIMClientResponseException responseException(
                 //   "Mismatched response message type.");
-
                 MessageLoaderParms mlParms(
-                  "Client.CIMOperationResponseDecoder.MISMATCHED_RESPONSE_TYPE",
-                  "Mismatched response message type.");
+                    "Client.CIMOperationResponseDecoder.MISMATCHED_RESPONSE_TYPE",
+                    "Mismatched response message type.");
                 String mlString(MessageLoader::getMessage(mlParms));
 
                 CIMClientResponseException responseException(mlString);

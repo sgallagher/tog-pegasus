@@ -3,7 +3,9 @@
 # This is mostly being used for generation of certificate requests.
 #
 
-RANDFILE                = .rnd
+# The random file specified below is used for test purposes only. It is not
+# recommended for production use.
+RANDFILE                = $ENV::PEGASUS_HOME/ssl.rnd
 
 ####################################################################
 [ ca ]

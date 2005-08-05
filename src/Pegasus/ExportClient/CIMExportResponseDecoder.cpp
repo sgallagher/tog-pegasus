@@ -162,7 +162,7 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     //
     // Check for Connection: Close
     //
-    if(HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
+    if (HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
     {
         if (String::equalNoCase(connectClose, "Close"))
         {
@@ -218,7 +218,16 @@ void CIMExportResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
           Message* reqMessage = _authenticator->getRequestMessage();
 
-          _encoderQueue->enqueue(reqMessage);
+          if (cimReconnect == true)
+          {
+              reqMessage->setCloseConnect(cimReconnect);
+              _outputQueue->enqueue(reqMessage);
+          }
+          else
+          {
+              _encoderQueue->enqueue(reqMessage);
+          }
+
 
           PEG_METHOD_EXIT();
           return;

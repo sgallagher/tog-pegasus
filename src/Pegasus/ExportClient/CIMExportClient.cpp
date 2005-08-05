@@ -381,8 +381,9 @@ Message* CIMExportClient::_doRequest(
             // Reconnect to reset the connection
             // if Server response contained a Connection: Close Header
             //
-            if(response->getCloseConnect() == true){
-                   _reconnect();
+            if (response->getCloseConnect() == true){
+                _reconnect();
+                response->setCloseConnect(false);
             }
 
 
@@ -474,6 +475,14 @@ Message* CIMExportClient::_doRequest(
                 }
                 PEG_METHOD_EXIT();
                 return response;
+            }
+            else if (dynamic_cast<CIMRequestMessage*>(response) != 0)
+            {
+                // Respond to an authentication challenge
+                _requestEncoder->enqueue(response);
+                nowMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
+                stopMilliseconds = nowMilliseconds + _timeoutMilliseconds;
+                continue;
             }
             else
             {

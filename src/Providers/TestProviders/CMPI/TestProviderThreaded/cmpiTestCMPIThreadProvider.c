@@ -37,7 +37,6 @@
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>
 #include <Pegasus/Provider/CMPI/cmpi_cql.h>
-#include <Pegasus/Common/Config.h>
 
 #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
 #include <time.h>

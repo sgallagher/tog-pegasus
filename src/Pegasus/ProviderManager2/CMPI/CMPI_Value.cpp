@@ -156,10 +156,10 @@ CIMValue value2CIMValue(const CMPIValue* data, const CMPIType type, CMPIrc *rc) 
 
    else if ((type & (CMPI_UINT|CMPI_SINT))==CMPI_UINT) {
       switch (type) {
-         case CMPI_uint32: v.set((Uint32)data->sint32); break;
-         case CMPI_uint16: v.set((Uint16)data->sint16); break;
-         case CMPI_uint8:  v.set((Uint8)data->sint8);   break;
-         case CMPI_uint64: v.set((Uint64)data->sint64); break;
+         case CMPI_uint32: v.set((Uint32)data->uint32); break;
+         case CMPI_uint16: v.set((Uint16)data->uint16); break;
+         case CMPI_uint8:  v.set((Uint8)data->uint8);   break;
+         case CMPI_uint64: v.set((Uint64)data->uint64); break;
          default: ;
       }
    }

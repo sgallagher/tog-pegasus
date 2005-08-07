@@ -84,7 +84,7 @@
     3. Review the key parameters on create, etc. to be sort out which are
        required from user and which we can supply.  I think we are asking too
        much of the user right now.
-    4. Review deletion of _buildObjectPath, _reference, etc.
+
 */
 
 #include <Pegasus/Common/Config.h>
@@ -445,16 +445,23 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
     If everything fails, gets the definition normally
     used for localhost (127.0.0.1).
 
-    @param hostName String with the name of the host
+    @param hostName String with the name of the host. Allows
+    String:EMPTY and in that case, gets it directly from system.
     @param namespaceType - Uint32 representing the
     access protocol for this request.  This is exactly
     the definition in the PG_CIMXMLCommunicationMechanism
     mof for the property namespaceAccessProtocol.
+    @param port String defining the port to be used.  If 
+    String::EMPTY, it is not valid and the defaultPortNumber
+    is to be inserted.
+    @param defaultPortNumber Uint32 defining a default port
+    number to be used if port string is not provided.
     @return String with the IP address to be used. This must
     be the complete address sufficient to access the
     IP address. Therefore, it includes the port number.
 */
-String _getHostAddress(String & hostName, Uint32  namespaceType)
+String _getHostAddress(String & hostName, Uint32  namespaceType,
+    const String & port, const Uint32 defaultPortNumber)
 {
   String ipAddress;
 
@@ -468,36 +475,20 @@ String _getHostAddress(String & hostName, Uint32  namespaceType)
   }
   // Question: is there a case where we leave off the port number.
   // Code to get the property service_location_tcp ( which is equivalent to "IP address:5988")
-  // Need to tie these two together.
-  Uint32 portNumber;
 
-  /********************** Drop this
-  ConfigManager* configManager = ConfigManager::getInstance();
-  Boolean enableHttpConnection = String::equal(
-      configManager->getCurrentValue("enableHttpConnection"), "true");
-  Boolean enableHttpsConnection = String::equal(
-      configManager->getCurrentValue("enableHttpsConnection"), "true");
-  ***********************/
-
-  // ATTN: The following is incorrect and must be modified as part
-  // of bug 1857 and possibly other bug reports. KS. This is 2.5 mustfix.
-
-  // Match the protocol and port number from internal information.
-  if (namespaceType == 3)
-       portNumber = System::lookupPort(WBEM_HTTPS_SERVICE_NAME,
-          WBEM_DEFAULT_HTTPS_PORT);
-  else if (namespaceType == 2)
+  // if port is valid port number, we use it.  Else use
+  // the default portnumber provided.
+  // One or the other MUST not be zero.
+  ipAddress.append(":");
+  if (port == String::EMPTY)
   {
-      portNumber = System::lookupPort(WBEM_HTTP_SERVICE_NAME,
-          WBEM_DEFAULT_HTTP_PORT);
+      // convert portNumber to ascii
+      char buffer[32];
+      sprintf(buffer, "%u", defaultPortNumber);
+      ipAddress.append(buffer);
   }
   else
-      portNumber = 0;
-  // convert portNumber to ascii
-  char buffer[32];
-  sprintf(buffer, ":%u", portNumber);
-  if (portNumber != 0)
-      ipAddress.append(buffer);
+      ipAddress.append(port);
 
   // now fillout the serviceIDAttribute from the object manager instance name property.
   // This is a key field so must have a value.
@@ -1010,10 +1001,6 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanism");
 
-    // This is a temporary hack to get the multiple connections.
-    // This is based on the configmanager being the source of what
-    // protocols are available, http and https.
-
     ConfigManager* configManager = ConfigManager::getInstance();
     Boolean enableHttpConnection = String::equal(
         configManager->getCurrentValue("enableHttpConnection"), "true");
@@ -1030,12 +1017,18 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
     {
         namespaceAccessProtocol = 2;
         namespaceType = "http";
+        Uint32 portNumberHttp;
+        String httpPort = configManager->getCurrentValue("httpPort");
+        if (httpPort == String::EMPTY)
+        {
+            portNumberHttp = System::lookupPort(WBEM_HTTP_SERVICE_NAME, WBEM_DEFAULT_HTTP_PORT);
+        }
         CIMInstance instance = 
             _buildInstancePGCIMXMLCommunicationMechanism(
                 objectPath,
                 namespaceType,
                 namespaceAccessProtocol,
-                _getHostAddress(hostName, namespaceAccessProtocol));
+                _getHostAddress(hostName, namespaceAccessProtocol, httpPort, portNumberHttp));
         instances.append(instance);
     }
 
@@ -1043,12 +1036,18 @@ Array<CIMInstance> InteropProvider::_buildInstancesPGCIMXMLCommunicationMechanis
     {
         namespaceAccessProtocol = 3;
         namespaceType = "https";
+        Uint32 portNumberHttps;
+        String httpsPort = configManager->getCurrentValue("httpsPort");
+        if (httpsPort == String::EMPTY)
+        {
+            portNumberHttps = System::lookupPort(WBEM_HTTPS_SERVICE_NAME, WBEM_DEFAULT_HTTPS_PORT);
+        }
         CIMInstance instance = 
             _buildInstancePGCIMXMLCommunicationMechanism(
                 objectPath,
                 namespaceType,
                 namespaceAccessProtocol,
-                _getHostAddress(hostName, namespaceAccessProtocol));
+                _getHostAddress(hostName, namespaceAccessProtocol, httpsPort, portNumberHttps));
 
         instances.append(instance);
     }

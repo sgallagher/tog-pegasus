@@ -241,7 +241,16 @@ public:
     void setStatisticsState(const Boolean flag);
 
     Boolean getStatisticsPropertyState(
-                            CIMInstance & objMgrInstance);
+            CIMInstance & objMgrInstance);
+
+    String getCurrentConfigProperty(
+            const CIMName& propName);
+
+    Boolean getCurrentBoolConfigProperty(
+            const CIMName& propName);
+
+    Uint32 getCurrentValueConfigProperty(
+           const CIMName& propName);
 
     Boolean getStatisticsState();
 
@@ -283,7 +292,96 @@ private:
 CIMClient _client;
 CIMInstance objectManagerInstance;
 };
+/**
+    Get property values for the specified configuration property from
+    the CIM Server.
+*/
 
+static const CIMName PROPERTY_NAME  = CIMName ("PropertyName");
+
+String InteropTest::getCurrentConfigProperty(
+    const CIMName& propertyName) 
+{
+    // The following assumes localconnect.
+    String _hostName;
+    _hostName.assign(System::getHostName());
+
+    CIMProperty prop;
+    Array<CIMKeyBinding> kbArray;
+    CIMKeyBinding kb;
+
+    kb.setName(PROPERTY_NAME);
+    kb.setValue(propertyName.getString());
+    kb.setType(CIMKeyBinding::STRING);
+
+    kbArray.append(kb);
+
+    String propertyNameValue;
+    String currentValue;
+    //String defaultValue;
+    //String plannedValue;
+    try
+    {
+        CIMObjectPath reference(
+            _hostName, PEGASUS_NAMESPACENAME_CONFIG,
+            PEGASUS_CLASSNAME_CONFIGSETTING, kbArray);
+
+        CIMInstance cimInstance =
+            _client.getInstance(PEGASUS_NAMESPACENAME_CONFIG, reference);
+
+        Uint32 pos = cimInstance.findProperty(PROPERTY_NAME);
+        prop = (CIMProperty)cimInstance.getProperty(pos);
+        propertyNameValue = prop.getValue().toString();
+
+        pos = cimInstance.findProperty(CIMName ("CurrentValue"));
+        prop = (CIMProperty)cimInstance.getProperty(pos);
+        currentValue = prop.getValue().toString();
+
+        //pos = cimInstance.findProperty(CIMName ("DefaultValue"));
+        //prop = (CIMProperty)cimInstance.getProperty(pos);
+        //defaultValue = prop.getValue().toString();
+
+        //pos = cimInstance.findProperty(CIMName ("PlannedValue"));
+        //prop = (CIMProperty)cimInstance.getProperty(pos);
+        //plannedValue = prop.getValue().toString();
+
+        if (verbose)
+        {
+            cout << " Config return: "
+                << " Requested Name: " <<  propertyName.getString()
+                << " Returned Name: " <<  propertyNameValue
+                //<< " Default: " << defaultValue
+                //<< " planned: " << plannedValue 
+                << " current: " << currentValue << endl;
+        }
+    }
+    catch(const CIMException& e)
+    {
+        cout << "CIM Exception during get Config " << e.getMessage() << endl;
+        return(String::EMPTY);
+    }
+
+    return (currentValue);
+}
+
+Boolean InteropTest::getCurrentBoolConfigProperty(
+    const CIMName& propName) 
+{
+    return (getCurrentConfigProperty(propName) == "true")?
+        true : false;
+}
+
+Uint32 InteropTest::getCurrentValueConfigProperty(
+    const CIMName& propName) 
+{
+    String strValue = getCurrentConfigProperty(propName);
+
+    long longValue;
+    if (!sscanf(strValue.getCString(), "%ld", &longValue))
+       return 0;
+
+    return (Uint32)longValue;
+}
 /** Test a single class to assure that the returned reference
     names from an enumerateInstanceNames and the paths in
     the instances match. Then get all classes and test against
@@ -2148,6 +2246,7 @@ void InteropTest::testCommunicationClass()
             assert (instancesCommMech[i].findProperty("CreationClassName") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("Name") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("FunctionalProfilesSupported") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
@@ -2160,8 +2259,8 @@ void InteropTest::testCommunicationClass()
             assert (instancePath.getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME );
         }
 
+        // Repeat with deepInheritance = true.
         deepInheritance = true;
-         // Repeat with deepInheritance = true.
          instancesCommMech = _client.enumerateInstances(
                                              PEGASUS_NAMESPACENAME_INTEROP,
                                              CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME,
@@ -2183,6 +2282,8 @@ void InteropTest::testCommunicationClass()
         assert(instancesCommMech.size() > 0);
         #endif
 
+        // Test the properties in each comm mechanism instance. This tests for existence and
+        // correct information as much as possible.
         for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
         {
             assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
@@ -2190,9 +2291,69 @@ void InteropTest::testCommunicationClass()
             assert (instancesCommMech[i].findProperty("CreationClassName") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("Name") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            assert (instancesCommMech[i].findProperty("FunctionalProfilesSupported") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
+
+            // testing of characteristics of FunctionalProfile properties
+            {
+                // get and test FunctionalProfileDescriptions property to determine if correct.
+                Uint32 pos = instancesCommMech[i].findProperty("FunctionalProfilesSupported");
+                CIMProperty p = instancesCommMech[i].getProperty(pos);
+                CIMValue v1 = p.getValue();
+                Array<Uint16> functionalProfile;
+                v1.get(functionalProfile);
+
+                // Build an array of entries to test against
+                Array<Uint16> testFunctionalProfile;
+                testFunctionalProfile.append(2);
+                testFunctionalProfile.append(3);
+                testFunctionalProfile.append(4);
+                testFunctionalProfile.append(5);
+                // Optional profile based on config param "enableAssociationTraversal"
+                if (getCurrentBoolConfigProperty("enableAssociationTraversal"))
+                    testFunctionalProfile.append(6);
+
+                // ExecQuery capability is a compile option. 
+#ifndef PEGASUS_DISABLE_EXECQUERY
+                testFunctionalProfile.append(7);
+#endif
+                testFunctionalProfile.append(8);
+
+                // enableIndicationService is a config option
+                if (getCurrentBoolConfigProperty("enableIndicationService"))
+                    testFunctionalProfile.append(9);
+
+                assert(testFunctionalProfile.size() == functionalProfile.size());
+
+                // clone so we can sort to do an identical test on the array.
+                Array<Uint16> fpTemp;
+                v1.get(fpTemp);
+                BubbleSort(fpTemp);
+                BubbleSort(testFunctionalProfile);
+
+                assert(fpTemp == testFunctionalProfile);
+
+                // get the  functionalProfileDescription to test against profile property.
+                pos = instancesCommMech[i].findProperty("FunctionalProfileDescriptions");
+                p = instancesCommMech[i].getProperty(pos);
+                v1 = p.getValue();
+
+                Array<String> functionalProfileDescription;
+                v1.get(functionalProfileDescription);
+
+                // assert that we have same number descriptions as profiles
+                assert(functionalProfileDescription.size() == functionalProfile.size());
+                // NOTE: We do not test for correct strings.
+                if (verbose)
+                    for (Uint32 i = 0 ; i < functionalProfile.size() ; i++)
+                        cout << functionalProfile[i] << " " << 
+                            functionalProfileDescription[i] << endl;
+            }
+
             assert (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
             assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
+
+            // The following tests are only for PG_CIMXML... Instances
             if (instancesCommMech[i].getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME)
             {
                 Uint32 pos;
@@ -2201,10 +2362,10 @@ void InteropTest::testCommunicationClass()
                 assert ((pos = instancesCommMech[i].findProperty("IPAddress")) != PEG_NOT_FOUND);
                 CIMProperty p = instancesCommMech[i].getProperty(pos);
                 CIMValue v1 = p.getValue();
-                String getIPAddress;
-                v1.get(getIPAddress);
+                String IPAddress;
+                v1.get(IPAddress);
                 // test to assure that the port number ss part of the value
-                assert(getIPAddress.find(':'));
+                assert(IPAddress.find(':'));
 
                 // test namespaceAccessProtocol property to determine if correct
                 assert ((pos = instancesCommMech[i].findProperty("namespaceAccessProtocol")) != PEG_NOT_FOUND);
@@ -2213,6 +2374,7 @@ void InteropTest::testCommunicationClass()
                 CIMValue v2 = p.getValue();
                 Uint16 accessProtocolValue;
                 v2.get(accessProtocolValue);
+
                 // test to assure that this is a 2 or 3 (http or https)
                 assert(accessProtocolValue == 2 || accessProtocolValue == 3);
 
@@ -2228,7 +2390,43 @@ void InteropTest::testCommunicationClass()
                 if (accessProtocolValue ==3)
                     assert(namespaceTypeValue == "https");
 
-                // TBD  Test agains the valuemap. KS may 05
+                if (accessProtocolValue == 2)
+                {
+                    // Test the received IP address.  We do this by
+                    // connecting to the cim server and then
+                    // disconnecting.
+                    CIMClient testClient;
+                    Uint32 ipAddressBreak = IPAddress.find(':');
+                    Uint32 portNumber = 5988;
+                    String ipaddress = IPAddress.subString(0,ipAddressBreak);
+                    String portString = IPAddress.subString((ipAddressBreak + 1),
+                                        (IPAddress.size() - ipAddressBreak));
+
+                    char* end = 0;
+                    CString portCString = portString.getCString();
+                    portNumber = strtol(portCString, &end, 10);
+                    if(!(end != 0 && *end == '\0'))
+                    {
+                        TERMINATE("Invalid http port value in CIMXML Comm object " + portString);
+                    }
+
+                    // Try to connect to the server.
+                    try{
+                        testClient.connect(ipaddress, portNumber, String::EMPTY, String::EMPTY);
+                        testClient.disconnect();
+                    }
+
+                    catch(CIMException& e)
+                    {
+                        TERMINATE(" Cim Exception Error Comm class IP Address: " << IPAddress << " " << e.getMessage());
+                    }
+                    catch(Exception& e)
+                    {
+                        TERMINATE("Exception Error Comm class IP Address: " << IPAddress << " " << e.getMessage());
+                    }
+                }
+
+                // ATTN: TODO  Test against the valuemap. KS may 05
             }
         }
     }

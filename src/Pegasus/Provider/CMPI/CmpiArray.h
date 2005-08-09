@@ -83,9 +83,6 @@ public:
    /** Extracting signed 32 bit.
    */
    operator CMPISint32() const;
-   /** Extracting signed 32 bit.
-   */
-   operator int() const;
    /** Extracting signed 64 bit.
    */
    operator CMPISint64() const;
@@ -99,9 +96,6 @@ public:
    /** Extracting unsigned 32 bit.
    */
    operator CMPIUint32() const;
-   /** Extracting unsigned 32 bit.
-   */
-   operator unsigned int() const;
    /** Extracting unsigned 64 bit.
    */
    operator CMPIUint64() const;

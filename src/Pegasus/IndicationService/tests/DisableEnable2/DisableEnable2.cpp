@@ -280,7 +280,7 @@ void _usage ()
         << "Usage: TestDisableEnable2 "
         << "{setup | setup2 | create | create2 "
         << "| sendSucceed | sendFail | sendBlock "
-        << "| delete | delete2 | cleanup | cleanup2} {wql | cim:cql}" 
+        << "| delete | delete2 | cleanup | cleanup2} {WQL | CIM:CQL}" 
         << PEGASUS_STD (endl);
 }
 
@@ -598,7 +598,7 @@ int main (int argc, char** argv)
         String qlang(optLang);
 
 #ifdef PEGASUS_DISABLE_CQL
-        if (String::equalNoCase(qlang, "cim:cql"))
+        if (qlang == "CIM:CQL")
         {
           PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
           return 0;

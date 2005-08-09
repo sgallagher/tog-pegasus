@@ -219,7 +219,7 @@ Boolean _checkIndicationLog
                 }
                 if (String::equalNoCase (propertyName, "IndicationIdentifier"))
                 {
-                    if(String::equalNoCase(qlang, "cim:cql"))
+                    if (qlang == "CIM:CQL")
                     {
                       id += 10;
                     }
@@ -553,7 +553,7 @@ void _usage ()
         << "| checkNormalAll | checkMissingAll | checkExtraAll "
         << "| checkNormalWhere | checkMissingWhere "
         << "| checkNormalWhereNotSatisfied "
-        << "| delete1 | delete2 | delete3 | delete4 | cleanup} {wql | cim:cql}" 
+        << "| delete1 | delete2 | delete3 | delete4 | cleanup} {WQL | CIM:CQL}" 
         << PEGASUS_STD (endl);
 }
 
@@ -573,7 +573,7 @@ void _setup (CIMClient & client, String& qlang)
         //  Filter03 and Filter04 are not created for WQL because WQL does not 
         //  support array properties in the WHERE clause
         //
-        if (!String::equalNoCase (qlang, "wql"))
+        if (qlang != "WQL")
         {
             //
             //  The following filters are used to test that only properties 
@@ -973,7 +973,7 @@ void _cleanup (CIMClient & client, String & qlang)
         //  Filter03 and Filter04 are not created for WQL because WQL does not 
         //  support array properties in the WHERE clause
         //
-        if (!String::equalNoCase (qlang, "wql"))
+        if (qlang != "WQL")
         {
             _deleteFilterInstance (client, String ("PIFilter03"));
             _deleteFilterInstance (client, String ("PIFilter04"));
@@ -1236,7 +1236,7 @@ int main (int argc, char** argv)
         String qlang(optLang);
 
 #ifdef PEGASUS_DISABLE_CQL
-        if (String::equalNoCase(qlang, "cim:cql"))
+        if (qlang == "CIM:CQL")
         {
           PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
           return 0;

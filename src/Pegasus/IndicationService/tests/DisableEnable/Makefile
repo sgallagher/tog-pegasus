@@ -44,70 +44,70 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@$(ECHO) "TestDisableEnable setup wql"
-	@$(PROGRAM) setup wql
-	@$(ECHO) "TestDisableEnable create wql"
-	@$(PROGRAM) create wql
+	@$(ECHO) "TestDisableEnable setup WQL"
+	@$(PROGRAM) setup WQL
+	@$(ECHO) "TestDisableEnable create WQL"
+	@$(PROGRAM) create WQL
 	cimprovider -d -m ProcessIndicationProviderModule
-	@$(ECHO) "TestDisableEnable delete wql"
-	@$(PROGRAM) delete wql
+	@$(ECHO) "TestDisableEnable delete WQL"
+	@$(PROGRAM) delete WQL
 	cimprovider -e -m ProcessIndicationProviderModule
-	@$(ECHO) "TestDisableEnable create wql"
-	@$(PROGRAM) create wql
+	@$(ECHO) "TestDisableEnable create WQL"
+	@$(PROGRAM) create WQL
 	cimprovider -d -m ProcessIndicationProviderModule
 	cimprovider -e -m ProcessIndicationProviderModule
-	@$(ECHO) "TestDisableEnable delete wql"
-	@$(PROGRAM) delete wql
-	@$(ECHO) "TestDisableEnable create wql"
-	@$(PROGRAM) create wql
-	@$(ECHO) "TestDisableEnable create2 wql"
-	@$(PROGRAM) create2 wql
-	@$(ECHO) "TestDisableEnable addProvider wql"
-	@$(PROGRAM) addProvider wql
-	@$(ECHO) "TestDisableEnable modifyProvider1 wql"
-	@$(PROGRAM) modifyProvider1 wql
-	@$(ECHO) "TestDisableEnable modifyProvider2 wql"
-	@$(PROGRAM) modifyProvider2 wql
-	@$(ECHO) "TestDisableEnable deleteProvider wql"
-	@$(PROGRAM) deleteProvider wql
-	@$(ECHO) "TestDisableEnable delete2 wql"
-	@$(PROGRAM) delete2 wql
-	@$(ECHO) "TestDisableEnable delete wql"
-	@$(PROGRAM) delete wql
-	@$(ECHO) "TestDisableEnable cleanup wql"
-	@$(PROGRAM) cleanup wql
+	@$(ECHO) "TestDisableEnable delete WQL"
+	@$(PROGRAM) delete WQL
+	@$(ECHO) "TestDisableEnable create WQL"
+	@$(PROGRAM) create WQL
+	@$(ECHO) "TestDisableEnable create2 WQL"
+	@$(PROGRAM) create2 WQL
+	@$(ECHO) "TestDisableEnable addProvider WQL"
+	@$(PROGRAM) addProvider WQL
+	@$(ECHO) "TestDisableEnable modifyProvider1 WQL"
+	@$(PROGRAM) modifyProvider1 WQL
+	@$(ECHO) "TestDisableEnable modifyProvider2 WQL"
+	@$(PROGRAM) modifyProvider2 WQL
+	@$(ECHO) "TestDisableEnable deleteProvider WQL"
+	@$(PROGRAM) deleteProvider WQL
+	@$(ECHO) "TestDisableEnable delete2 WQL"
+	@$(PROGRAM) delete2 WQL
+	@$(ECHO) "TestDisableEnable delete WQL"
+	@$(PROGRAM) delete WQL
+	@$(ECHO) "TestDisableEnable cleanup WQL"
+	@$(PROGRAM) cleanup WQL
 ifndef PEGASUS_DISABLE_CQL
-	@$(ECHO) "TestDisableEnable setup cim:cql"
-	@$(PROGRAM) setup cim:cql
-	@$(ECHO) "TestDisableEnable create cim:cql"
-	@$(PROGRAM) create cim:cql
+	@$(ECHO) "TestDisableEnable setup CIM:CQL"
+	@$(PROGRAM) setup CIM:CQL
+	@$(ECHO) "TestDisableEnable create CIM:CQL"
+	@$(PROGRAM) create CIM:CQL
 	cimprovider -d -m ProcessIndicationProviderModule
-	@$(ECHO) "TestDisableEnable delete cim:cql"
-	@$(PROGRAM) delete cim:cql
+	@$(ECHO) "TestDisableEnable delete CIM:CQL"
+	@$(PROGRAM) delete CIM:CQL
 	cimprovider -e -m ProcessIndicationProviderModule
-	@$(ECHO) "TestDisableEnable create cim:cql"
-	@$(PROGRAM) create cim:cql
+	@$(ECHO) "TestDisableEnable create CIM:CQL"
+	@$(PROGRAM) create CIM:CQL
 	cimprovider -d -m ProcessIndicationProviderModule
 	cimprovider -e -m ProcessIndicationProviderModule
-	@$(ECHO) "TestDisableEnable delete cim:cql"
-	@$(PROGRAM) delete cim:cql
-	@$(ECHO) "TestDisableEnable create cim:cql"
-	@$(PROGRAM) create cim:cql
-	@$(ECHO) "TestDisableEnable create2 cim:cql"
-	@$(PROGRAM) create2 cim:cql
-	@$(ECHO) "TestDisableEnable addProvider cim:cql"
-	@$(PROGRAM) addProvider cim:cql
-	@$(ECHO) "TestDisableEnable modifyProvider1 cim:cql"
-	@$(PROGRAM) modifyProvider1 cim:cql
-	@$(ECHO) "TestDisableEnable modifyProvider2 cim:cql"
-	@$(PROGRAM) modifyProvider2 cim:cql
-	@$(ECHO) "TestDisableEnable deleteProvider cim:cql"
-	@$(PROGRAM) deleteProvider cim:cql
-	@$(ECHO) "TestDisableEnable delete2 cim:cql"
-	@$(PROGRAM) delete2 cim:cql
-	@$(ECHO) "TestDisableEnable delete cim:cql"
-	@$(PROGRAM) delete cim:cql
-	@$(ECHO) "TestDisableEnable cleanup cim:cql"
-	@$(PROGRAM) cleanup cim:cql
+	@$(ECHO) "TestDisableEnable delete CIM:CQL"
+	@$(PROGRAM) delete CIM:CQL
+	@$(ECHO) "TestDisableEnable create CIM:CQL"
+	@$(PROGRAM) create CIM:CQL
+	@$(ECHO) "TestDisableEnable create2 CIM:CQL"
+	@$(PROGRAM) create2 CIM:CQL
+	@$(ECHO) "TestDisableEnable addProvider CIM:CQL"
+	@$(PROGRAM) addProvider CIM:CQL
+	@$(ECHO) "TestDisableEnable modifyProvider1 CIM:CQL"
+	@$(PROGRAM) modifyProvider1 CIM:CQL
+	@$(ECHO) "TestDisableEnable modifyProvider2 CIM:CQL"
+	@$(PROGRAM) modifyProvider2 CIM:CQL
+	@$(ECHO) "TestDisableEnable deleteProvider CIM:CQL"
+	@$(PROGRAM) deleteProvider CIM:CQL
+	@$(ECHO) "TestDisableEnable delete2 CIM:CQL"
+	@$(PROGRAM) delete2 CIM:CQL
+	@$(ECHO) "TestDisableEnable delete CIM:CQL"
+	@$(PROGRAM) delete CIM:CQL
+	@$(ECHO) "TestDisableEnable cleanup CIM:CQL"
+	@$(PROGRAM) cleanup CIM:CQL
 	@$(ECHO) "+++++ TestDisableEnable passed all tests"
 endif

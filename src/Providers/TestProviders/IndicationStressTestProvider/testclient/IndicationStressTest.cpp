@@ -472,7 +472,7 @@ void _usage ()
 {
    cerr << endl
         << "Usage:" << endl
-        << "\tTestIndicationStressTest setup [ wql | cim:cql ]" << endl
+        << "\tTestIndicationStressTest setup [ WQL | CIM:CQL ]" << endl
         << "\tTestIndicationStressTest run <indicationSendCount> [<threads>]" << endl
         << "\tTestIndicationStressTest cleanup" << endl
         << "where: " << endl
@@ -693,8 +693,8 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
     if (String::equalNoCase(opt, "setup"))
     {
         if ((optTwo == NULL) ||
-            (!(String::equalNoCase(optTwo, "wql") ||
-            String::equalNoCase(optTwo, "cim:cql"))))
+            (!(String::equal(optTwo, "WQL") ||
+               String::equal(optTwo, "CIM:CQL"))))
         {
             cerr << "Invalid query language: '" << optTwo << "'" << endl;
             _usage();

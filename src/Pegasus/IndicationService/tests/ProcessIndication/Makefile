@@ -48,148 +48,148 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@$(ECHO) "TestProcessIndication setup wql"
-	@$(PROGRAM) setup wql
-	@$(ECHO) "TestProcessIndication create1 wql"
-	@$(PROGRAM) create1 wql
-	@$(ECHO) "TestProcessIndication sendNormal wql"
-	@$(PROGRAM) sendNormal wql
-	@$(ECHO) "TestProcessIndication checkNormal wql"
-	@$(PROGRAM) checkNormal wql
-	@$(ECHO) "TestProcessIndication sendSubclass wql"
-	@$(PROGRAM) sendSubclass wql
-	@$(ECHO) "TestProcessIndication checkSubclass wql"
-	@$(PROGRAM) checkSubclass wql
-	@$(ECHO) "TestProcessIndication sendMissing wql"
-	@$(PROGRAM) sendMissing wql
-	@$(ECHO) "TestProcessIndication checkMissing wql"
-	@$(PROGRAM) checkMissing wql
-	@$(ECHO) "TestProcessIndication sendExtra wql"
-	@$(PROGRAM) sendExtra wql
-	@$(ECHO) "TestProcessIndication checkExtra wql"
-	@$(PROGRAM) checkExtra wql
-	@$(ECHO) "TestProcessIndication sendMatching wql"
-	@$(PROGRAM) sendMatching wql
-	@$(ECHO) "TestProcessIndication checkMatching wql"
-	@$(PROGRAM) checkMatching wql
-	@$(ECHO) "TestProcessIndication sendUnmatchingNamespace wql"
-	@$(PROGRAM) sendUnmatchingNamespace wql
-	@$(ECHO) "TestProcessIndication checkUnmatchingNamespace wql"
-	@$(PROGRAM) checkUnmatchingNamespace wql
-	@$(ECHO) "TestProcessIndication sendUnmatchingClassName wql"
-	@$(PROGRAM) sendUnmatchingClassName wql
-	@$(ECHO) "TestProcessIndication checkUnmatchingClassName wql"
-	@$(PROGRAM) checkUnmatchingClassName wql
-	@$(ECHO) "TestProcessIndication delete1 wql"
-	@$(PROGRAM) delete1 wql
-	@$(ECHO) "TestProcessIndication create2 wql"
-	@$(PROGRAM) create2 wql
-	@$(ECHO) "TestProcessIndication sendNormal wql"
-	@$(PROGRAM) sendNormal wql
-	@$(ECHO) "TestProcessIndication checkNormalAll wql"
-	@$(PROGRAM) checkNormalAll wql
-	@$(ECHO) "TestProcessIndication sendMissing wql"
-	@$(PROGRAM) sendMissing wql
-	@$(ECHO) "TestProcessIndication checkMissingAll wql"
-	@$(PROGRAM) checkMissingAll wql
-	@$(ECHO) "TestProcessIndication sendExtra wql"
-	@$(PROGRAM) sendExtra wql
-	@$(ECHO) "TestProcessIndication checkExtraAll wql"
-	@$(PROGRAM) checkExtraAll wql
-	@$(ECHO) "TestProcessIndication delete2 wql"
-	@$(PROGRAM) delete2 wql
-	@$(ECHO) "TestProcessIndication cleanup wql"
-	@$(PROGRAM) cleanup wql
-	@$(ECHO) "TestProcessIndication setup cim:cql"
-	@$(PROGRAM) setup cim:cql
-	@$(ECHO) "TestProcessIndication create1 cim:cql"
-	@$(PROGRAM) create1 cim:cql
-	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
-	@$(PROGRAM) sendNormal cim:cql
-	@$(ECHO) "TestProcessIndication checkNormal cim:cql"
-	@$(PROGRAM) checkNormal cim:cql
-	@$(ECHO) "TestProcessIndication sendSubclass cim:cql"
-	@$(PROGRAM) sendSubclass cim:cql
-	@$(ECHO) "TestProcessIndication checkSubclass cim:cql"
-	@$(PROGRAM) checkSubclass cim:cql
-	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
-	@$(PROGRAM) sendMissing cim:cql
-	@$(ECHO) "TestProcessIndication checkMissing cim:cql"
-	@$(PROGRAM) checkMissing cim:cql
-	@$(ECHO) "TestProcessIndication sendExtra cim:cql"
-	@$(PROGRAM) sendExtra cim:cql
-	@$(ECHO) "TestProcessIndication checkExtra cim:cql"
-	@$(PROGRAM) checkExtra cim:cql
-	@$(ECHO) "TestProcessIndication sendMatching cim:cql"
-	@$(PROGRAM) sendMatching cim:cql
-	@$(ECHO) "TestProcessIndication checkMatching cim:cql"
-	@$(PROGRAM) checkMatching cim:cql
-	@$(ECHO) "TestProcessIndication sendUnmatchingNamespace cim:cql"
-	@$(PROGRAM) sendUnmatchingNamespace cim:cql
-	@$(ECHO) "TestProcessIndication checkUnmatchingNamespace cim:cql"
-	@$(PROGRAM) checkUnmatchingNamespace cim:cql
-	@$(ECHO) "TestProcessIndication sendUnmatchingClassName cim:cql"
-	@$(PROGRAM) sendUnmatchingClassName cim:cql
-	@$(ECHO) "TestProcessIndication checkUnmatchingClassName cim:cql"
-	@$(PROGRAM) checkUnmatchingClassName cim:cql
-	@$(ECHO) "TestProcessIndication delete1 cim:cql"
-	@$(PROGRAM) delete1 cim:cql
-	@$(ECHO) "TestProcessIndication create2 cim:cql"
-	@$(PROGRAM) create2 cim:cql 
-	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
-	@$(PROGRAM) sendNormal cim:cql
-	@$(ECHO) "TestProcessIndication checkNormalAll cim:cql"
-	@$(PROGRAM) checkNormalAll cim:cql
-	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
-	@$(PROGRAM) sendMissing cim:cql
-	@$(ECHO) "TestProcessIndication checkMissingAll cim:cql"
-	@$(PROGRAM) checkMissingAll cim:cql
-	@$(ECHO) "TestProcessIndication sendExtra cim:cql"
-	@$(PROGRAM) sendExtra cim:cql
-	@$(ECHO) "TestProcessIndication checkExtraAll cim:cql"
-	@$(PROGRAM) checkExtraAll cim:cql
-	@$(ECHO) "TestProcessIndication delete2 cim:cql"
-	@$(PROGRAM) delete2 cim:cql
-	@$(ECHO) "TestProcessIndication create3 cim:cql"
-	@$(PROGRAM) create3 cim:cql
-	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
-	@$(PROGRAM) sendNormal cim:cql
-	@$(ECHO) "TestProcessIndication checkNormalWhere cim:cql"
-	@$(PROGRAM) checkNormalWhere cim:cql
-	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
-	@$(PROGRAM) sendMissing cim:cql
-	@$(ECHO) "TestProcessIndication checkMissingWhere cim:cql"
-	@$(PROGRAM) checkMissingWhere cim:cql
-	@$(ECHO) "TestProcessIndication delete3 cim:cql"
-	@$(PROGRAM) delete3 cim:cql
-	@$(ECHO) "TestProcessIndication create4 cim:cql"
-	@$(PROGRAM) create4 cim:cql
-	@$(ECHO) "TestProcessIndication sendNormal cim:cql"
-	@$(PROGRAM) sendNormal cim:cql
-	@$(ECHO) "TestProcessIndication checkNormalWhereNotSatisfied cim:cql"
-	@$(PROGRAM) checkNormalWhereNotSatisfied cim:cql
-	@$(ECHO) "TestProcessIndication sendMissing cim:cql"
-	@$(PROGRAM) sendMissing cim:cql
-	@$(ECHO) "TestProcessIndication checkMissingWhere cim:cql"
-	@$(PROGRAM) checkMissingWhere cim:cql
-	@$(ECHO) "TestProcessIndication delete4 cim:cql"
-	@$(PROGRAM) delete4 cim:cql
-	@$(ECHO) "TestProcessIndication cleanup cim:cql"
-	@$(PROGRAM) cleanup cim:cql
+	@$(ECHO) "TestProcessIndication setup WQL"
+	@$(PROGRAM) setup WQL
+	@$(ECHO) "TestProcessIndication create1 WQL"
+	@$(PROGRAM) create1 WQL
+	@$(ECHO) "TestProcessIndication sendNormal WQL"
+	@$(PROGRAM) sendNormal WQL
+	@$(ECHO) "TestProcessIndication checkNormal WQL"
+	@$(PROGRAM) checkNormal WQL
+	@$(ECHO) "TestProcessIndication sendSubclass WQL"
+	@$(PROGRAM) sendSubclass WQL
+	@$(ECHO) "TestProcessIndication checkSubclass WQL"
+	@$(PROGRAM) checkSubclass WQL
+	@$(ECHO) "TestProcessIndication sendMissing WQL"
+	@$(PROGRAM) sendMissing WQL
+	@$(ECHO) "TestProcessIndication checkMissing WQL"
+	@$(PROGRAM) checkMissing WQL
+	@$(ECHO) "TestProcessIndication sendExtra WQL"
+	@$(PROGRAM) sendExtra WQL
+	@$(ECHO) "TestProcessIndication checkExtra WQL"
+	@$(PROGRAM) checkExtra WQL
+	@$(ECHO) "TestProcessIndication sendMatching WQL"
+	@$(PROGRAM) sendMatching WQL
+	@$(ECHO) "TestProcessIndication checkMatching WQL"
+	@$(PROGRAM) checkMatching WQL
+	@$(ECHO) "TestProcessIndication sendUnmatchingNamespace WQL"
+	@$(PROGRAM) sendUnmatchingNamespace WQL
+	@$(ECHO) "TestProcessIndication checkUnmatchingNamespace WQL"
+	@$(PROGRAM) checkUnmatchingNamespace WQL
+	@$(ECHO) "TestProcessIndication sendUnmatchingClassName WQL"
+	@$(PROGRAM) sendUnmatchingClassName WQL
+	@$(ECHO) "TestProcessIndication checkUnmatchingClassName WQL"
+	@$(PROGRAM) checkUnmatchingClassName WQL
+	@$(ECHO) "TestProcessIndication delete1 WQL"
+	@$(PROGRAM) delete1 WQL
+	@$(ECHO) "TestProcessIndication create2 WQL"
+	@$(PROGRAM) create2 WQL
+	@$(ECHO) "TestProcessIndication sendNormal WQL"
+	@$(PROGRAM) sendNormal WQL
+	@$(ECHO) "TestProcessIndication checkNormalAll WQL"
+	@$(PROGRAM) checkNormalAll WQL
+	@$(ECHO) "TestProcessIndication sendMissing WQL"
+	@$(PROGRAM) sendMissing WQL
+	@$(ECHO) "TestProcessIndication checkMissingAll WQL"
+	@$(PROGRAM) checkMissingAll WQL
+	@$(ECHO) "TestProcessIndication sendExtra WQL"
+	@$(PROGRAM) sendExtra WQL
+	@$(ECHO) "TestProcessIndication checkExtraAll WQL"
+	@$(PROGRAM) checkExtraAll WQL
+	@$(ECHO) "TestProcessIndication delete2 WQL"
+	@$(PROGRAM) delete2 WQL
+	@$(ECHO) "TestProcessIndication cleanup WQL"
+	@$(PROGRAM) cleanup WQL
+	@$(ECHO) "TestProcessIndication setup CIM:CQL"
+	@$(PROGRAM) setup CIM:CQL
+	@$(ECHO) "TestProcessIndication create1 CIM:CQL"
+	@$(PROGRAM) create1 CIM:CQL
+	@$(ECHO) "TestProcessIndication sendNormal CIM:CQL"
+	@$(PROGRAM) sendNormal CIM:CQL
+	@$(ECHO) "TestProcessIndication checkNormal CIM:CQL"
+	@$(PROGRAM) checkNormal CIM:CQL
+	@$(ECHO) "TestProcessIndication sendSubclass CIM:CQL"
+	@$(PROGRAM) sendSubclass CIM:CQL
+	@$(ECHO) "TestProcessIndication checkSubclass CIM:CQL"
+	@$(PROGRAM) checkSubclass CIM:CQL
+	@$(ECHO) "TestProcessIndication sendMissing CIM:CQL"
+	@$(PROGRAM) sendMissing CIM:CQL
+	@$(ECHO) "TestProcessIndication checkMissing CIM:CQL"
+	@$(PROGRAM) checkMissing CIM:CQL
+	@$(ECHO) "TestProcessIndication sendExtra CIM:CQL"
+	@$(PROGRAM) sendExtra CIM:CQL
+	@$(ECHO) "TestProcessIndication checkExtra CIM:CQL"
+	@$(PROGRAM) checkExtra CIM:CQL
+	@$(ECHO) "TestProcessIndication sendMatching CIM:CQL"
+	@$(PROGRAM) sendMatching CIM:CQL
+	@$(ECHO) "TestProcessIndication checkMatching CIM:CQL"
+	@$(PROGRAM) checkMatching CIM:CQL
+	@$(ECHO) "TestProcessIndication sendUnmatchingNamespace CIM:CQL"
+	@$(PROGRAM) sendUnmatchingNamespace CIM:CQL
+	@$(ECHO) "TestProcessIndication checkUnmatchingNamespace CIM:CQL"
+	@$(PROGRAM) checkUnmatchingNamespace CIM:CQL
+	@$(ECHO) "TestProcessIndication sendUnmatchingClassName CIM:CQL"
+	@$(PROGRAM) sendUnmatchingClassName CIM:CQL
+	@$(ECHO) "TestProcessIndication checkUnmatchingClassName CIM:CQL"
+	@$(PROGRAM) checkUnmatchingClassName CIM:CQL
+	@$(ECHO) "TestProcessIndication delete1 CIM:CQL"
+	@$(PROGRAM) delete1 CIM:CQL
+	@$(ECHO) "TestProcessIndication create2 CIM:CQL"
+	@$(PROGRAM) create2 CIM:CQL 
+	@$(ECHO) "TestProcessIndication sendNormal CIM:CQL"
+	@$(PROGRAM) sendNormal CIM:CQL
+	@$(ECHO) "TestProcessIndication checkNormalAll CIM:CQL"
+	@$(PROGRAM) checkNormalAll CIM:CQL
+	@$(ECHO) "TestProcessIndication sendMissing CIM:CQL"
+	@$(PROGRAM) sendMissing CIM:CQL
+	@$(ECHO) "TestProcessIndication checkMissingAll CIM:CQL"
+	@$(PROGRAM) checkMissingAll CIM:CQL
+	@$(ECHO) "TestProcessIndication sendExtra CIM:CQL"
+	@$(PROGRAM) sendExtra CIM:CQL
+	@$(ECHO) "TestProcessIndication checkExtraAll CIM:CQL"
+	@$(PROGRAM) checkExtraAll CIM:CQL
+	@$(ECHO) "TestProcessIndication delete2 CIM:CQL"
+	@$(PROGRAM) delete2 CIM:CQL
+	@$(ECHO) "TestProcessIndication create3 CIM:CQL"
+	@$(PROGRAM) create3 CIM:CQL
+	@$(ECHO) "TestProcessIndication sendNormal CIM:CQL"
+	@$(PROGRAM) sendNormal CIM:CQL
+	@$(ECHO) "TestProcessIndication checkNormalWhere CIM:CQL"
+	@$(PROGRAM) checkNormalWhere CIM:CQL
+	@$(ECHO) "TestProcessIndication sendMissing CIM:CQL"
+	@$(PROGRAM) sendMissing CIM:CQL
+	@$(ECHO) "TestProcessIndication checkMissingWhere CIM:CQL"
+	@$(PROGRAM) checkMissingWhere CIM:CQL
+	@$(ECHO) "TestProcessIndication delete3 CIM:CQL"
+	@$(PROGRAM) delete3 CIM:CQL
+	@$(ECHO) "TestProcessIndication create4 CIM:CQL"
+	@$(PROGRAM) create4 CIM:CQL
+	@$(ECHO) "TestProcessIndication sendNormal CIM:CQL"
+	@$(PROGRAM) sendNormal CIM:CQL
+	@$(ECHO) "TestProcessIndication checkNormalWhereNotSatisfied CIM:CQL"
+	@$(PROGRAM) checkNormalWhereNotSatisfied CIM:CQL
+	@$(ECHO) "TestProcessIndication sendMissing CIM:CQL"
+	@$(PROGRAM) sendMissing CIM:CQL
+	@$(ECHO) "TestProcessIndication checkMissingWhere CIM:CQL"
+	@$(PROGRAM) checkMissingWhere CIM:CQL
+	@$(ECHO) "TestProcessIndication delete4 CIM:CQL"
+	@$(PROGRAM) delete4 CIM:CQL
+	@$(ECHO) "TestProcessIndication cleanup CIM:CQL"
+	@$(PROGRAM) cleanup CIM:CQL
 	@$(ECHO) "+++++ TestProcessIndication passed all tests"
 
 IndInit_TS1a:
-	@$(ECHO) "TestProcessIndication setup wql"
-	@$(PROGRAM) setup wql
-	@$(ECHO) "TestProcessIndication create1 wql"
-	@$(PROGRAM) create1 wql
-	@$(ECHO) "TestProcessIndication create2 wql"
-	@$(PROGRAM) create2 wql
+	@$(ECHO) "TestProcessIndication setup WQL"
+	@$(PROGRAM) setup WQL
+	@$(ECHO) "TestProcessIndication create1 WQL"
+	@$(PROGRAM) create1 WQL
+	@$(ECHO) "TestProcessIndication create2 WQL"
+	@$(PROGRAM) create2 WQL
 
 IndInit_TS1b:
-	@$(ECHO) "TestProcessIndication delete1 wql"
-	@$(PROGRAM) delete1 wql
-	@$(ECHO) "TestProcessIndication delete2 wql"
-	@$(PROGRAM) delete2 wql
-	@$(ECHO) "TestProcessIndication cleanup wql"
-	@$(PROGRAM) cleanup wql
+	@$(ECHO) "TestProcessIndication delete1 WQL"
+	@$(PROGRAM) delete1 WQL
+	@$(ECHO) "TestProcessIndication delete2 WQL"
+	@$(PROGRAM) delete2 WQL
+	@$(ECHO) "TestProcessIndication cleanup WQL"
+	@$(PROGRAM) cleanup WQL

@@ -2043,7 +2043,7 @@ void _errorQueries (CIMClient & client, String& qlang)
     catch (CIMException & e)
     {
 #ifdef PEGASUS_DISABLE_CQL
-        if (String::equalNoCase(qlang, "cim:cql"))
+        if (qlang == "CIM:CQL")
         {
           // If CQL is disabled, then a non-supported error
           // for invalid language is expected.

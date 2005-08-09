@@ -58,7 +58,7 @@ QueryExpression::QueryExpression(String queryLang, String query, QueryContext& c
    String cql("CIM:CQL");
    String wql("WQL");
 
-   if(String::compareNoCase(queryLang,cql) == 0)
+   if (queryLang == cql)
    {
      CQLSelectStatement* cqlss = new CQLSelectStatement(queryLang, query, ctx);
 
@@ -71,7 +71,7 @@ QueryExpression::QueryExpression(String queryLang, String query, QueryContext& c
 
      _ss = cqlss;
    }
-   else if(String::compareNoCase(queryLang,wql) == 0)
+   else if (queryLang == wql)
    {
      WQLSelectStatement* wqlss = new WQLSelectStatement(queryLang, query, ctx);
 
@@ -95,7 +95,7 @@ QueryExpression::QueryExpression(String queryLang, String query):
    String cql("CIM:CQL");
    String wql("WQL");
 
-   if(String::compareNoCase(queryLang,cql) == 0)
+   if (queryLang == cql)
    {
      CQLSelectStatement* cqlss = new CQLSelectStatement(queryLang, query);
 
@@ -105,7 +105,7 @@ QueryExpression::QueryExpression(String queryLang, String query):
 
      _ss = cqlss;
    }
-   else if(String::compareNoCase(queryLang,wql) == 0)
+   else if (queryLang == wql)
    {
      WQLSelectStatement* wqlss = new WQLSelectStatement(queryLang, query);
 
@@ -137,13 +137,13 @@ QueryExpression::QueryExpression(const QueryExpression& expr):
     String cql("CIM:CQL");
     String wql("WQL");
 
-    if(String::compareNoCase(expr._queryLang, cql) == 0)
+    if (expr._queryLang == cql)
     {
       CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(expr._ss);
       if (tempSS != NULL)
         _ss = new CQLSelectStatement(*tempSS);
     }
-    else if (String::compareNoCase(expr._queryLang, wql) == 0)
+    else if (expr._queryLang == wql)
     {
       WQLSelectStatement* tempSS = dynamic_cast<WQLSelectStatement*>(expr._ss);
       if (tempSS != NULL)
@@ -172,13 +172,13 @@ QueryExpression QueryExpression::operator=(const QueryExpression& rhs)
     String cql("CIM:CQL");
     String wql("WQL");
 
-    if(String::compareNoCase(rhs._queryLang, cql) == 0)
+    if (rhs._queryLang == cql)
     {
       CQLSelectStatement* tempSS = dynamic_cast<CQLSelectStatement*>(rhs._ss);
       if (tempSS != NULL)
         _ss = new CQLSelectStatement(*tempSS);
     }
-    else if (String::compareNoCase(rhs._queryLang, wql) == 0)
+    else if (rhs._queryLang == wql)
     {
       WQLSelectStatement* tempSS = dynamic_cast<WQLSelectStatement*>(rhs._ss);
       if (tempSS != NULL)
@@ -389,7 +389,7 @@ void QueryExpression::setQueryContext(QueryContext& inCtx)
 
   String cql("CIM:CQL");
 
-  if(String::compareNoCase(_queryLang, cql) == 0)
+  if (_queryLang == cql)
   {
     // Now that we have a QueryContext, we can finish compiling
     // the CQL statement.

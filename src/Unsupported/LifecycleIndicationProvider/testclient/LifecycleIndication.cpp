@@ -278,7 +278,7 @@ void _usage ()
 {
     PEGASUS_STD (cerr)
         << "Usage:" << PEGASUS_STD (endl)
-        << "\tTestLifecycleIndication setup [ wql | cim:cql ]" << PEGASUS_STD (endl)
+        << "\tTestLifecycleIndication setup [ WQL | CIM:CQL ]" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication createInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication deleteInstance" << PEGASUS_STD (endl)
         << "\tTestLifecycleIndication cleanup" << PEGASUS_STD (endl);
@@ -434,7 +434,7 @@ int _test(CIMClient& client, const char* opt, const char* optLang)
     {
         if (optLang == NULL)
         {
-            cerr << "Error, query language not specified, must be 'wql' or 'cim:cql'" << endl;
+            cerr << "Error, query language not specified, must be 'WQL' or 'CIM:CQL'" << endl;
             _usage ();
             return -1;
         }
@@ -497,7 +497,7 @@ int main (int argc, char** argv)
         }
 
 #ifdef PEGASUS_DISABLE_CQL
-        if (String::equalNoCase(qlang, "cim:cql"))
+        if (qlang == "CIM:CQL")
         {
             PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
             return 0;

@@ -51,8 +51,8 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
-	@$(ECHO) "TestLifecycleIndication setup wql"
-	@$(PROGRAM) setup wql
+	@$(ECHO) "TestLifecycleIndication setup WQL"
+	@$(PROGRAM) setup WQL
 	@$(ECHO) "TestLifecycleIndication createInstance"
 	@$(PROGRAM) createInstance
 	@$(ECHO) "TestLifecycleIndication createInstance"
@@ -71,8 +71,8 @@ poststarttests:
 	@$(PROGRAM) deleteInstance
 	@$(ECHO) "TestLifecycleIndication cleanup"
 	@$(PROGRAM) cleanup
-	@$(ECHO) "TestLifecycleIndication setup cim:cql"
-	@$(PROGRAM) setup cim:cql
+	@$(ECHO) "TestLifecycleIndication setup CIM:CQL"
+	@$(PROGRAM) setup CIM:CQL
 	@$(ECHO) "TestLifecycleIndication createInstance"
 	@$(PROGRAM) createInstance
 	@$(ECHO) "TestLifecycleIndication createInstance"

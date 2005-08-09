@@ -366,8 +366,8 @@ Array<char> WbemExecClient::issueRequest(
         }
     } while (!finished);
 
-    AutoPtr<HTTPMessage> origRequest((HTTPMessage*)_authenticator.getRequestMessage());
-    _authenticator.setRequestMessage(0);
+    AutoPtr<HTTPMessage> origRequest(
+        (HTTPMessage*)_authenticator.releaseRequestMessage());
 
     AutoPtr<HTTPMessage> destroyer(httpResponse);
 

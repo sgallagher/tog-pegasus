@@ -227,10 +227,11 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             // Get the original request, put that in the encoder's queue for
             // re-sending with authentication challenge response.
             //
-            Message* reqMessage = _authenticator->getRequestMessage();
+            Message* reqMessage = _authenticator->releaseRequestMessage();
+
             if (cimReconnect == true)
             {
-                 reqMessage->setCloseConnect(cimReconnect);
+                reqMessage->setCloseConnect(cimReconnect);
                 _outputQueue->enqueue(reqMessage);
             } 
             else 
@@ -247,12 +248,8 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
             // We do not need the original request message anymore, hence delete
             // the request message by getting the handle from the ClientAuthenticator.
             //
-            Message* reqMessage = _authenticator->getRequestMessage();
-            if (reqMessage)
-            {
-                _authenticator->setRequestMessage(0);
-                delete reqMessage;
-            }
+            Message* reqMessage = _authenticator->releaseRequestMessage();
+            delete reqMessage;
         }
     }
     catch(InvalidAuthHeader& e)

@@ -98,7 +98,7 @@ ClientAuthenticator::~ClientAuthenticator()
 
 void ClientAuthenticator::clear()
 {
-    _requestMessage = 0;
+    _requestMessage.reset();
     _userName = String::EMPTY;
     _password = String::EMPTY;
     _realm = String::EMPTY;
@@ -309,14 +309,17 @@ String ClientAuthenticator::buildRequestAuthHeader()
 
 void ClientAuthenticator::setRequestMessage(Message* message)
 {
-    _requestMessage = message;
+    _requestMessage.reset(message);
 }
-
 
 Message* ClientAuthenticator::getRequestMessage()
 {
-   return _requestMessage;
+    return _requestMessage.get();
+}
 
+Message* ClientAuthenticator::releaseRequestMessage()
+{
+    return _requestMessage.release();
 }
 
 void ClientAuthenticator::setUserName(const String& userName)

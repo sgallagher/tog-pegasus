@@ -72,9 +72,15 @@ public:
     */
     void setRequestMessage(Message* message);
 
-    /** Get the request message saved for resending on a challenge.
+    /** Get the request message saved for resending on a challenge while
+        retaining memory ownership for the message.
     */
     Message* getRequestMessage();
+
+    /** Get the request message saved for resending on a challenge and
+        release memory ownership for the message.
+    */
+    Message* releaseRequestMessage();
 
     /** Clear the request buffer and other authentication informations
         from the earlier request.
@@ -116,7 +122,7 @@ private:
         const char** line,
         char marker);
 
-    Message* _requestMessage;    
+    AutoPtr<Message> _requestMessage;    
 
     Boolean  _challengeReceived;
 

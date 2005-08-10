@@ -172,7 +172,10 @@ void SimpleDisplayConsumer::consumeIndication(
 		}
 		else
 		{
-		    fprintf(_indicationLogHandle, "%u\n", propertyValueUint64);
+		    fprintf(
+		        _indicationLogHandle,
+		        "%" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
+		        propertyValueUint64);
 		}
 	    	break;
 
@@ -224,7 +227,10 @@ void SimpleDisplayConsumer::consumeIndication(
 		}
 		else
 		{
-		    fprintf(_indicationLogHandle, "%i\n", propertyValueSint64);
+		    fprintf(
+		        _indicationLogHandle,
+		        "%" PEGASUS_64BIT_CONVERSION_WIDTH "d\n",
+		        propertyValueSint64);
 		}
 	    	break;
 		

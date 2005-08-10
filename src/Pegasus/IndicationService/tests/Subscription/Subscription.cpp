@@ -1747,6 +1747,22 @@ void _valid (CIMClient & client, String& qlang)
         String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2);
 
     //
+    //  Create subscription in which Filter and Handler reference property
+    //  values differ only in Namespace
+    //
+    CIMInstance subscription16 = _buildSubscriptionInstance
+        (fPath2, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath2);
+    CIMObjectPath s16Path = client.createInstance (NAMESPACE3, subscription16);
+
+    _checkSubscriptionPath (s16Path, "Filter11",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
+        String::EMPTY, String::EMPTY, NAMESPACE2, NAMESPACE1);
+
+    _deleteSubscriptionInstance (client, "Filter11",
+        PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
+        String::EMPTY, String::EMPTY, NAMESPACE2, NAMESPACE1, NAMESPACE3);
+
+    //
     //  Create another transient CIMXML listener destination in a different
     //  namespace
     //
@@ -3355,6 +3371,21 @@ void _error (CIMClient & client)
         String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE2);
 
     //
+    //  Ensure a duplicate Subscription may not be created
+    //
+    try
+    {
+        CIMInstance subscription17 = _buildSubscriptionInstance
+            (fPath, PEGASUS_CLASSNAME_LSTNRDST_CIMXML, hPath);
+        CIMObjectPath s17Path = client.createInstance (NAMESPACE3,
+            subscription17);
+    }
+    catch (CIMException & e)
+    {
+        _checkExceptionCode (e, CIM_ERR_ALREADY_EXISTS);
+    }
+
+    //
     //  Filter: Attempt to delete a filter referenced by a subscription
     //          A Filter referenced by a subscription may not be deleted
     //
@@ -4426,6 +4457,16 @@ void _cleanup (CIMClient & client)
         _deleteSubscriptionInstance (client, "Filter12",
             PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination06",
             String::EMPTY, String::EMPTY, NAMESPACE1, NAMESPACE3, NAMESPACE2);
+    }
+    catch (...)
+    {
+    }
+
+    try
+    {
+        _deleteSubscriptionInstance (client, "Filter11",
+            PEGASUS_CLASSNAME_LSTNRDST_CIMXML, "ListenerDestination05",
+            String::EMPTY, String::EMPTY, NAMESPACE2, NAMESPACE1, NAMESPACE3);
     }
     catch (...)
     {

@@ -39,6 +39,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
+#include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -59,6 +60,14 @@ PEGASUS_TEMPLATE_SPECIALIZATION struct PEGASUS_COMMON_LINKAGE HashFunc<String>
 PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc<Uint32>
 {
     static Uint32 hash(Uint32 x) { return x + 13; }
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc <CIMObjectPath>
+{
+    static Uint32 hash (const CIMObjectPath & path)
+    {
+        return path.makeHashCode ();
+    }
 };
 
 /*
@@ -93,6 +102,14 @@ struct EqualFunc
     static Boolean equal(const K& x, const K& y)
     {
 	return x == y;
+    }
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION struct EqualFunc <CIMObjectPath>
+{
+    static Boolean equal (const CIMObjectPath & x, const CIMObjectPath & y)
+    {
+        return x.identical (y);
     }
 };
 

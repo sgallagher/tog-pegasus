@@ -135,7 +135,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 
  		Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
                        	"Could not allocate thread for %s. " \
- 			"Queue has %d messages waiting and %s threads servicing." \
+ 			"Queue has %d messages waiting and %d threads servicing." \
  			"Skipping the service for right now. ",
                        	service->getQueueName(),
                         service->_incoming.count(),

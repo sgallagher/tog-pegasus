@@ -920,25 +920,25 @@ CmpiData::CmpiData(CMPISint64 d) {
 
 CmpiData::CmpiData(CMPIUint8 d) {
    _data.state=CMPI_goodValue;
-   _data.value.sint8=d;
+   _data.value.uint8=d;
    _data.type=CMPI_uint8;
 }
 
 CmpiData::CmpiData(CMPIUint16 d) {
    _data.state=CMPI_goodValue;
-   _data.value.sint16=d;
+   _data.value.uint16=d;
    _data.type=CMPI_uint16;
 }
 
 CmpiData::CmpiData(CMPIUint32 d) {
    _data.state=CMPI_goodValue;
-   _data.value.sint32=d;
+   _data.value.uint32=d;
    _data.type=CMPI_uint32;
 }
 
 CmpiData::CmpiData(CMPIUint64 d) {
    _data.state=CMPI_goodValue;
-   _data.value.sint64=d;
+   _data.value.uint64=d;
    _data.type=CMPI_uint64;
 }
 

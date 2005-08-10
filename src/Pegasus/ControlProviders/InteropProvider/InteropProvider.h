@@ -234,6 +234,8 @@ private:
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
+    String _getObjectManagerName();
+
     Array<CIMInstance> _getInstancesCIMNamespace(
         const CIMObjectPath& objectPath);
 
@@ -289,9 +291,11 @@ private:
         const Boolean includeQualifiers,
         const Boolean includeClassOrigin,
         const CIMPropertyList & propertyList);
-    // Repository Instance variable
-    //
+
+        // Repository Instance variable
        CIMRepository*   _repository;
+       // local save for name of object manager
+       String _objectManagerName;
 };
 
 PEGASUS_NAMESPACE_END

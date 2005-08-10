@@ -617,8 +617,7 @@ Boolean _checkRequiredProperty(CIMInstance& instance,
     const CIMType expectedType,
     const String & message)
 {
-
-    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+    PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
         "_checkRequiredProperty");
 
     Boolean propertyError = false;
@@ -1076,8 +1075,6 @@ String buildObjectManagerName()
     @return Boolean true if already exists. False if
     not initialized. Also returns with the current version set
     into local parameter.
-    ATTN: Probably should get rid of the local parameter since
-    this is used so infrequently, waste of space.
 */
 Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
                         const CIMObjectPath& objectPath,
@@ -1087,7 +1084,7 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
                         const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::_getInstanceCIMObjectManager");
+            "InteropProvider::_getInstanceFromRepositoryCIMObjectManager");
 
     // Try to get persistent instance from repository
     Array<CIMInstance> instances;
@@ -1139,7 +1136,7 @@ Boolean InteropProvider::_getInstanceFromRepositoryCIMObjectManager(
     }
 }
 
-/** build an instance of the CIM_ObjectManager class filling out
+/** get an instance of the CIM_ObjectManager class filling out
     the required properties if one does not already exist in the
     repository. This function will either return an instance
     or throw an exception.
@@ -1175,7 +1172,9 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
 
         _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_CREATIONCLASSNAME,
                 CIM_OBJECTMANAGER_CLASSNAME.getString());
-        _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME,buildObjectManagerName());
+
+        _objectManagerName = buildObjectManagerName();
+        _setPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME,_objectManagerName);
         _setPropertyValue(instance, CIMName("ElementName"), String("Pegasus"));
 
         //
@@ -1204,11 +1203,8 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
 
         _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, Boolean(gatherStatDataFlag));
 
-        // ATTN: This one is a problem KS rethink this.
-        // the following is a temporary hack to set the value of the statistics
-        // gathering function dynamically.  We simply get the correct value
-        // and call the internal method to set it each time this object is
-        // built.
+        // Set the statistics property into the Statisticaldata class so that
+        // it can perform statistics gathering if necessary.
     #ifndef PEGASUS_DISABLE_PERFINST
         StatisticalData* sd = StatisticalData::current();
         sd->setCopyGSD(gatherStatDataFlag);
@@ -1238,6 +1234,36 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
     }
     PEG_METHOD_EXIT();
     return(instance);
+}
+
+/** getObjectNamagerName returns the name property for this object manager
+    return String name of this object manager.  This is a convience function
+    to deliver only the name field from the CIM_ObjectManager object.
+    If the object Manager has been created and the name saved in this 
+    provider, that name is returned.  Else it calls the function to
+    get the instance of the Object Manager.
+    @return String containing the persistent name property for this
+    object manager
+    
+*/
+
+String InteropProvider::_getObjectManagerName()
+{
+    if (_objectManagerName != String::EMPTY)
+    {
+        return _objectManagerName;
+    }
+    else
+    {
+        CIMObjectPath path;
+        path.setNameSpace(PEGASUS_NAMESPACENAME_INTEROP);
+        CIMInstance instance = _getInstanceCIMObjectManager(path, true, true, CIMPropertyList());
+        // get the property name.
+        String name = _getPropertyValue(instance, CIM_NAMESPACE_PROPERTY_NAME,
+                                                String::EMPTY);
+        return name;
+    }
+
 }
 
 /** Get the instances of CIM_Namespace. Gets all instances of the namespace from
@@ -1386,7 +1412,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMObjectPath& obje
 
     // ATTN: KS need to get the real objectManager name from elsewhere.  the only place
     // this exists is through the objectmanager object.
-    String ObjectManagerName = "ObjectManagerNameValue";
+    String ObjectManagerName = _getObjectManagerName();
 
     CIMClass targetClass;
     CIMInstance instance = _buildInstanceSkeleton(objectPath, PG_NAMESPACE_CLASSNAME,
@@ -2366,7 +2392,7 @@ void InteropProvider::modifyObjectManagerInstance(const OperationContext & conte
     ResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::modifyInstanceManagerInstance");
+            "InteropProvider::modifyObjectManagerInstance");
 
     // the only allowed modification is this one property, statistical data
 
@@ -2619,9 +2645,9 @@ void InteropProvider::associators(
 	ObjectResponseHandler & handler)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::associatorNames()");
+            "InteropProvider::associators()");
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
-        "%s associatorNames. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
+        "%s associators. objectName= %s , assocClass= %s resultClass= %s role= %s resultRole %includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,
         (const char *)objectName.toString().getCString(),
         (const char *)associationClass.getString().getCString(),
@@ -2765,7 +2791,7 @@ Array<CIMObject> InteropProvider::localReferences(
 {
 
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
-            "InteropProvider::references()");
+            "InteropProvider::localReferences()");
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s references. objectName= %s , resultClass= %s role= %s includeQualifiers= %s, includeClassOrigin= %s, PropertyList= %s",
         thisProvider,

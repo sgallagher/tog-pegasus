@@ -837,7 +837,8 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
 #define SLEEP_SEC 1
 #define MSG_SEC 30
 
-        Uint32 sleep_nbr = 1 + indicationSendCountTotal/(MSG_PER_SEC*SLEEP_SEC);
+        Uint32 sleep_nbr = 30 +
+	    indicationSendCountTotal/(MSG_PER_SEC*SLEEP_SEC);
 
         // cout << "+++++ sleep_iterations = " << sleep_nbr << endl;
 

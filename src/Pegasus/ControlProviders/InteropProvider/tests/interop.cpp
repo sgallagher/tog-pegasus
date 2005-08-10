@@ -104,21 +104,6 @@ static const CIMName CIM_NAMESPACEINMANAGER_CLASSNAME  =
         CIMName ("CIM_NamespaceInManager");
 
 
-/** Check to see if the specified property is in the property list
-    @param property the specified property
-    @param propertyList the property list
-    @return true if the property is in the list otherwise false.
-*/
-Boolean _containsObjectPath(const CIMObjectPath& path, 
-    const Array<CIMObjectPath>& pathList)
-{
-    for (Uint32 p = 0; p < pathList.size(); p++)
-    {
-        if (pathList[p] == path)
-            return true;
-    }
-    return false;
-}
 String _toString(Boolean x)
 {
     return(x ? "true" : "false");
@@ -165,6 +150,22 @@ String _showPropertyList(const CIMPropertyList& pl)
         return("NULL");
 
     return((pl.size() == 0) ? String("EMPTY") : _toStringPropertyList(pl));
+}
+
+/** Check to see if the specified path is in the path list
+    @param CIMObjectPath which is target for search
+    @param Array of CIMObjectPaths to be searched
+    @return true if the path is in the list otherwise false.
+*/
+Boolean _containsObjectPath(const CIMObjectPath& path, 
+    const Array<CIMObjectPath>& pathList)
+{
+    for (Uint32 p = 0; p < pathList.size(); p++)
+    {
+        if (pathList[p].identical(path))
+            return true;
+    }
+    return false;
 }
 
 /* Class created to provide cover for all of the tests in this
@@ -273,7 +274,7 @@ public:
 
     // Methods associated with general instance testing
     Boolean matchPathsAndInstancePaths(
-        const Array<CIMObjectPath>& paths, 
+        Array<CIMObjectPath>& paths, 
         const Array<CIMInstance> instances);
 
     Boolean testGetInstancesForEnum(
@@ -522,33 +523,53 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
 
 /* Validate the path definitions in results of enumerateInstances against that in
    enumerateinstance paths.  Confirms that the same number of items is returned and that
-   they have the same path definitions.
+   they have the same path definitions. Note that this comparison is independent
+   of hostname and namespaces because they are not returned with instances.
    @param paths Array<CIMObjectPath> from an enumerateinstanceNames
    @param instances Array of CIMInstance from enumerateInstanceN.
 */
 
-Boolean InteropTest::matchPathsAndInstancePaths(const Array<CIMObjectPath>& paths, 
+Boolean InteropTest::matchPathsAndInstancePaths(Array<CIMObjectPath>& paths, 
         const Array<CIMInstance> instances)
 {
     assert(instances.size() == paths.size());
-    
-    Boolean found = true;
+    if (paths.size() == 0)
+        return true;
+
+    Array<CIMObjectPath> instancePaths;
+    // create path list from instances
+    for (Uint32 i = 0 ; i < instances.size() ; i++)
+    {
+        instancePaths.append(instances[i].getPath());
+    }
+    String host = paths[0].getHost();
+    CIMNamespaceName ns = paths[0].getNameSpace();
+
+    for (Uint32 i = 0 ; i < instancePaths.size() ; i++)
+    {
+        if (instancePaths[i].getHost() == String::EMPTY)
+        {
+            instancePaths[i].setHost(host);
+        }
+        if (instancePaths[i].getNameSpace().isNull())
+        {
+            instancePaths[i].setNameSpace(ns);
+        }
+    }
     for (Uint32 i = 0 ; i < paths.size() ; i++)
     {
-        if (!_containsObjectPath(instances[i].getPath(), paths))
+        if (!_containsObjectPath(instancePaths[i], paths))
         {
-            String tmp;
-            for (Uint32 j = 0 ; j < instances.size() ; j++)
+            // Failed test. Display error and rtn false.
+            if (true)
             {
-                tmp.append(instances[j].getPath().toString());
-                tmp.append("\n");
-            }
-            if (verbose)
-            {
-            cout << "matchPathsAndInstancePaths Error in path match. Path\n" <<
-                instances[i].getPath().toString() <<
-                "Not found in the following array of paths\n" <<
-                "\n" << tmp << endl;
+                cout << "matchPathsAndInstancePaths Error in path match. Path\n" <<
+                    instances[i].getPath().toString() <<
+                    "\nNot found in the following array of paths" << endl;
+                for (Uint32 j = 0 ; j < paths.size() ; j++)
+                {
+                    cout << paths[j].toString() << endl;;
+                }
             }
             return (false);
         }
@@ -2474,9 +2495,8 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
 
         // These should be the same (we should be returnin a namespace in manager for
         // each namespace instance.
-        //cout << _getNamespacesNew().size() << " " << instancesNamespaceInManager.size() << endl; 
-        ASSERTTEMP(_getNamespacesNew().size() == instancesNamespaceInManager.size());
-        ASSERTTEMP(_getNamespacesNew().size() == namespaceInstances.size());
+        assert(_getNamespacesNew().size() == instancesNamespaceInManager.size());
+        assert(_getNamespacesNew().size() == namespaceInstances.size());
     
         // Test getting reference names.  Should match number of instances
     
@@ -2493,11 +2513,10 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         role);                                   // role
 
         // should return same number of objects as number of namespaces.
-        ASSERTTEMP(referenceNames.size() == instancesNamespaceInManager.size());
+        assert(referenceNames.size() == instancesNamespaceInManager.size());
     
         // TODO test to see that all of the names match
-        // TODO - ERROR HERE. THis test does not work tonight.  
-        // TODO ASSERTTEMP( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
+        assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
 
         // Test getting references.  Compare to list of namespaces.
     
@@ -2511,16 +2530,14 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                 CIMPropertyList());                     // propertyList
     
         // test if references and referencenames return same size
+        assert(references.size() == referenceNames.size());
 
         // Add test for different role properties both for reference and referencenames.
 
-        ASSERTTEMP(references.size() == referenceNames.size());
-        //TODO ASSERTTEMP( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
+        assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
 
-        // TODO Test references in the other direcdtion (from the namespace).
+        // TODO Test references in the other direction (from the namespace).
 
-
-        // test namespaceinmanager associations.
         // test namespaceinmanager associations.
         Array<CIMObject> associatorInstances = _client.associators(
                         PEGASUS_NAMESPACENAME_INTEROP,           // namespace
@@ -2530,12 +2547,9 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         String::EMPTY,                           // role
                         String::EMPTY);                          // resultRole
 
-
-        ASSERTTEMP(namespaceInstances.size() == associatorInstances.size());
-
+        assert(namespaceInstances.size() == associatorInstances.size());
 
         //TODO Test with CIM_NAMESPACE_CLASSNAME in result role.
-
 
         Array<CIMObjectPath> associatorNames = _client.associatorNames(
                         PEGASUS_NAMESPACENAME_INTEROP,           // namespace
@@ -2545,9 +2559,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         String::EMPTY,                                   // role
                         String::EMPTY);                            // resultRole
 
-        //TODO assert(namespaceInstances.size() == associatorNames.size());
-
-
+        assert(namespaceInstances.size() == associatorNames.size());
 
     }
     // Catch block for all of the CIM_NamespaceInManager Tests.
@@ -2697,38 +2709,36 @@ int main(int argc, char** argv)
         Array<CIMName> pla2;
         pl2.set(pla2);
 
-        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl1, 1);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, pl1, 1);
-        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl1, 1);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl1, 1);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, pl1, 1);
 
-        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, true, pl2, 0);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, true, pl2, 0);
-        //it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl2, 0);
+        it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, true, false, pl2, 0);
         it.testEnumerateOptions( CIM_OBJECTMANAGER_CLASSNAME, false, false, pl2, 0);
 
         // Repeat the tests for the superclass.
         // classname, lo, di, propertylist, expected rtn count
-        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, CIMPropertyList(), 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, CIMPropertyList(),21);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, CIMPropertyList(), 21);
-        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, CIMPropertyList(), 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, CIMPropertyList(), 20);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, CIMPropertyList(), 20);
 
-        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl1, 1);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, pl1, 1);
-        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl1, 1);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl1, 1);
         // ATTN: The following test case is incorrect.  The
         // GatherStatisticalData property is not defined in the
         // CIM_WBEMService class, so it should not be returned on a
         // non-deep enumeration operation.
         //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl1, 1);
 
-
-        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, true, pl2, 0);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, true, pl2, 0);
-        //it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl2, 0);
+        it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, true, false, pl2, 0);
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl2, 0);
-
 
         it.testStatisticsEnable();
 

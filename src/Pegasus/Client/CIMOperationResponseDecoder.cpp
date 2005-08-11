@@ -533,16 +533,34 @@ void CIMOperationResponseDecoder::_handleMethodResponse(
             throw XmlValidationError(parser.getLine(), mlParms);
         }
 
-        if (!String::equalNoCase(protocolVersion, "1.0"))
+
+        //
+        // This code for checking the protocol version was taken from the server code.
+        //
+        Boolean protocolVersionAccepted = false;
+
+        if ((protocolVersion.size() >= 3) &&
+           (protocolVersion[0] == '1') &&
+           (protocolVersion[1] == '.'))
         {
-            // l10n
+           // Verify that all characters after the '.' are digits
+           Uint32 index = 2;
+           while ((index < protocolVersion.size()) &&
+                  (protocolVersion[index] >= '0') &&
+                  (protocolVersion[index] <= '9'))
+           {
+              index++;
+           }
 
-            // CIMClientResponseException* responseException =
-            //   new CIMClientResponseException(
-            //        String("Received unsupported protocol version \"") +
-            //        protocolVersion + "\", expected \"1.0\"");
+           if (index == protocolVersion.size())
+           {
+              protocolVersionAccepted = true;
+           }
+        }
 
-            MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"$1\"", protocolVersion, "1.0");
+        if (!protocolVersionAccepted)
+        {
+            MessageLoaderParms mlParms("Client.CIMOperationResponseDecoder.UNSUPPORTED_PROTOCOL", "Received unsupported protocol version \"$0\", expected \"$1\"", protocolVersion, "1.[0-9]+");
             String mlString(MessageLoader::getMessage(mlParms));
 
             CIMClientResponseException* responseException =

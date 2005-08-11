@@ -277,6 +277,11 @@ public:
         Array<CIMObjectPath>& paths, 
         const Array<CIMInstance> instances);
 
+    // Methods associated with general instance testing
+    Boolean matchPathsAndObjectPaths(
+        Array<CIMObjectPath>& paths, 
+        const Array<CIMObject> instanceObjectss);
+
     Boolean testGetInstancesForEnum(
         const Array<CIMObjectPath>& paths, 
         const Array<CIMInstance>& instances,
@@ -577,6 +582,53 @@ Boolean InteropTest::matchPathsAndInstancePaths(Array<CIMObjectPath>& paths,
     return (true);
 }
 
+Boolean InteropTest::matchPathsAndObjectPaths(Array<CIMObjectPath>& paths, 
+        const Array<CIMObject> ObjectInstances)
+{
+    assert(ObjectInstances.size() == paths.size());
+    if (paths.size() == 0)
+        return true;
+
+    Array<CIMObjectPath> instancePaths;
+    // create path list from instances
+    for (Uint32 i = 0 ; i < ObjectInstances.size() ; i++)
+    {
+        instancePaths.append(ObjectInstances[i].getPath());
+    }
+    String host = paths[0].getHost();
+    CIMNamespaceName ns = paths[0].getNameSpace();
+
+    for (Uint32 i = 0 ; i < instancePaths.size() ; i++)
+    {
+        if (instancePaths[i].getHost() == String::EMPTY)
+        {
+            instancePaths[i].setHost(host);
+        }
+        if (instancePaths[i].getNameSpace().isNull())
+        {
+            instancePaths[i].setNameSpace(ns);
+        }
+    }
+    for (Uint32 i = 0 ; i < paths.size() ; i++)
+    {
+        if (!_containsObjectPath(instancePaths[i], paths))
+        {
+            // Failed test. Display error and rtn false.
+            if (true)
+            {
+                cout << "matchPathsAndInstancePaths Error in path match. Path\n" <<
+                    ObjectInstances[i].getPath().toString() <<
+                    "\nNot found in the following array of paths" << endl;
+                for (Uint32 j = 0 ; j < paths.size() ; j++)
+                {
+                    cout << paths[j].toString() << endl;;
+                }
+            }
+            return (false);
+        }
+    }
+    return (true);
+}
 Boolean InteropTest::testEnumerateOptions(
         const CIMName& className,
         Boolean localOnly,
@@ -2493,7 +2545,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                              includeClassOrigin,                 // includeClassOrigin
                              CIMPropertyList());
 
-        // These should be the same (we should be returnin a namespace in manager for
+        // These should be the same (we should be returning a namespace in manager for
         // each namespace instance.
         assert(_getNamespacesNew().size() == instancesNamespaceInManager.size());
         assert(_getNamespacesNew().size() == namespaceInstances.size());
@@ -2515,11 +2567,10 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
         // should return same number of objects as number of namespaces.
         assert(referenceNames.size() == instancesNamespaceInManager.size());
     
-        // TODO test to see that all of the names match
+        // test to see that all of the names match
         assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
 
         // Test getting references.  Compare to list of namespaces.
-    
         Array<CIMObject> references = _client.references(
                 PEGASUS_NAMESPACENAME_INTEROP,           // namespace
                 objectManagerPath,                       // object manager instance
@@ -2531,23 +2582,72 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
     
         // test if references and referencenames return same size
         assert(references.size() == referenceNames.size());
-
-        // Add test for different role properties both for reference and referencenames.
-
         assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
+
+        //
+        // Add test for different role properties both for reference and referencenames.
+        //
+        role = "antecedent";
+
+        references = _client.references(
+                PEGASUS_NAMESPACENAME_INTEROP,           // namespace
+                objectManagerPath,                       // object manager instance
+                CIM_NAMESPACEINMANAGER_CLASSNAME,        // result class
+                role,                                   // role
+                true,                                   // includeQualifiers
+                true,                                   // includeClassOrigin
+                CIMPropertyList());                     // propertyList
+
+        // get the reference names for namespaceinmanager for target objectmanager.
+        referenceNames = _client.referenceNames(
+                        PEGASUS_NAMESPACENAME_INTEROP,           // namespace
+                        objectManagerPath,                       // object manager instance
+                        CIM_NAMESPACEINMANAGER_CLASSNAME,        // result class
+                        role);                                   // role
+
+        // test if references and referencenames return same size
+        assert(namespaceInstances.size() == referenceNames.size());
+        assert(references.size() == referenceNames.size());
+        assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
+
+        // test with role = dependent.  Should return no instances.
+        role = "dependent";
+        references = _client.references(
+                PEGASUS_NAMESPACENAME_INTEROP,           // namespace
+                objectManagerPath,                       // object manager instance
+                CIM_NAMESPACEINMANAGER_CLASSNAME,        // result class
+                role,                                   // role
+                true,                                   // includeQualifiers
+                true,                                   // includeClassOrigin
+                CIMPropertyList());                     // propertyList
+
+        // get the reference names for namespaceinmanager for target objectmanager.
+        referenceNames = _client.referenceNames(
+                        PEGASUS_NAMESPACENAME_INTEROP,           // namespace
+                        objectManagerPath,                       // object manager instance
+                        CIM_NAMESPACEINMANAGER_CLASSNAME,        // result class
+                        role);                                   // role
+
+        assert(referenceNames.size() == 0);
+        assert(references.size() == referenceNames.size());
 
         // TODO Test references in the other direction (from the namespace).
 
+        //
         // test namespaceinmanager associations.
-        Array<CIMObject> associatorInstances = _client.associators(
+        //
+
+        role = String::EMPTY;
+        String resultRole = String::EMPTY;
+        Array<CIMObject> associatorObjects = _client.associators(
                         PEGASUS_NAMESPACENAME_INTEROP,           // namespace
                         objectManagerPath,                       // object manager instance
                         CIM_NAMESPACEINMANAGER_CLASSNAME,        // association class
                         CIMName(),                               // Result class
-                        String::EMPTY,                           // role
-                        String::EMPTY);                          // resultRole
+                        role,                                    // role
+                        resultRole);                             // resultRole
 
-        assert(namespaceInstances.size() == associatorInstances.size());
+        assert(namespaceInstances.size() == associatorObjects.size());
 
         //TODO Test with CIM_NAMESPACE_CLASSNAME in result role.
 
@@ -2556,11 +2656,11 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         objectManagerPath,                       // object manager instance
                         CIM_NAMESPACEINMANAGER_CLASSNAME,        // association class
                         PG_NAMESPACE_CLASSNAME,                  // Result class
-                        String::EMPTY,                                   // role
-                        String::EMPTY);                            // resultRole
+                        role,                                    // role
+                        resultRole);                             // resultRole
 
         assert(namespaceInstances.size() == associatorNames.size());
-
+        assert( matchPathsAndObjectPaths(associatorNames, associatorObjects));
     }
     // Catch block for all of the CIM_NamespaceInManager Tests.
     catch(CIMException& e)
@@ -2741,12 +2841,13 @@ int main(int argc, char** argv)
         it.testEnumerateOptions( CIM_WBEMSERVICE_CLASSNAME, false, false, pl2, 0);
 
         it.testStatisticsEnable();
-
+#ifdef PEGASUS_ENABLE_SLP
         it.testCommunicationClass();
 
         it.testNameSpaceInObjectManagerAssocClass();
 
         it.testCommMechinManagerAssocClass();
+#endif
     }
 
     // Catch block for all of the CIM_ObjectManager Tests.

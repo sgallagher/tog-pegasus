@@ -540,6 +540,7 @@ String getTrademarkCIMOMIDPrefix()
 
     return(PEGASUS_INSTANCEID_GLOBAL_PREFIX);
 }
+
 /** Builds the UUID string for this CIMOM.
 **/
 String getUUIDString()
@@ -1852,7 +1853,6 @@ Boolean _isInstanceValidReference(const CIMObjectPath& target,
          if (instance.getProperty(pos).getType() != CIMTYPE_REFERENCE)
              throw CIMException(CIM_ERR_INVALID_PARAMETER);
     }
-
     //Search instance for all reference properties
     for (Uint32 j = 0; j < instance.getPropertyCount() ; j++)
     {
@@ -1865,8 +1865,9 @@ Boolean _isInstanceValidReference(const CIMObjectPath& target,
             v.get(path);
 
             // if no role or role ==this role and target = this path, rtn true.
-            if ((role == String::EMPTY) || (role == p.getName().getString()))
+            if ((role == String::EMPTY) || (CIMName(role) == p.getName()))
             {
+                // and if target is identical to reference path
                 if (target.identical(path))
                     return(true);
             }
@@ -1890,7 +1891,7 @@ Array<CIMObject> _filterReferenceInstances(Array<CIMInstance>& instances,
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "_filterReferenceInstances()");
-            
+
     CIMObjectPath targetReference = CIMObjectPath(
                             String(),
                             CIMNamespaceName(),
@@ -2612,10 +2613,8 @@ Array<CIMObjectPath> _filterAssocInstanceToTargetPaths(const CIMObject& assocIns
             {
                 if (resultClass.isNull() || resultClass == path.getClassName())
                 {
-                    if (resultRole == String::EMPTY || p.getName().getString() == resultRole)
-                    {
+                    if ((resultRole == String::EMPTY) || (p.getName() == CIMName(resultRole)))
                         returnPaths.append(path);
-                    }
                 }
             }
         }

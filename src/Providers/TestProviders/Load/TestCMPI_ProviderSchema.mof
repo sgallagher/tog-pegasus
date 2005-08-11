@@ -48,6 +48,7 @@ class TestCMPI_Method : TestCMPI_Parent
 	Uint32 returnUint32();
 	[EmbeddedObject]
     string returnInstance();
+	datetime returnDateTime();
 };
 
 class TestCMPI_Fail_1: TestCMPI_Parent

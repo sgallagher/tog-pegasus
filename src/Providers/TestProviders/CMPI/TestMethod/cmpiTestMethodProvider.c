@@ -676,6 +676,25 @@ TestCMPIMethodProviderInvokeMethod (CMPIMethodMI * mi,
           CMReturnData (rslt, (CMPIValue *) & instance, CMPI_instance);
           CMReturnDone (rslt);
 		}
+	else if (strncmp("returnDateTime", methodName, strlen("returnDateTime")) == 0)
+	{
+		CMPIUint64 ret_val = 0;
+		CMPIStatus rc={CMPI_RC_OK, NULL};
+
+		CMPIDateTime *dateTime = CMNewDateTime(_broker, &rc); 
+  		PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+		// Checking the date.
+		ret_val = CMGetBinaryFormat (dateTime, &rc);
+  		PROV_LOG ("---- (rc:%s)", strCMPIStatus (rc));
+		if (ret_val == 0)
+			PROV_LOG("Invalid conversion of date to CMPIDateTime");
+
+         PROV_LOG
+            ("++++ Calling CMReturnData+Done on returnDateTime operation");
+
+        CMReturnData (rslt, (CMPIValue *) & dateTime, CMPI_dateTime);
+        CMReturnDone (rslt);
+	}
       else
         {
           PROV_LOG ("++++ Could not find the %s operation", methodName);

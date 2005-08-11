@@ -182,8 +182,9 @@ extern "C" {
       CMPIUint64 days,hours,mins,secs,usecs,utc,lTime;
       struct tm tm,tmt;
       CString tStr=dt->toString().getCString();
-      char *cStr=strdup((const char*)tStr);
-
+      char cStr[26];
+      memset( cStr, 0, 26);
+      memcpy (cStr, (const char*)tStr, 25);
       if (dt->isInterval()) {
          cStr[21]=0;
          usecs=atoi(cStr+15);
@@ -224,7 +225,6 @@ extern "C" {
          tm.tm_mon=(atoi(cStr+4)-1);
          cStr[4]=0;
          tm.tm_year=(atoi(cStr)-1900);
-
          lTime=mktime(&tm);
          lTime*=1000000;
          lTime+=usecs;

@@ -318,6 +318,29 @@ test04 (CIMClient & client)
 
 }
 void
+test05 (CIMClient & client)
+{
+  CIMObjectPath instanceName;
+
+  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setClassName (CLASSNAME);
+
+  Array < CIMParamValue > inParams;
+  Array < CIMParamValue > outParams;
+
+  /*     String returnDateTime(); */
+
+  CIMValue retValue = client.invokeMethod (PROVIDERNAMESPACE,
+					   instanceName,
+					   "returnDateTime",
+					   inParams,
+					   outParams);
+  PEGASUS_ASSERT (retValue.getType () == CIMTYPE_DATETIME);
+  PEGASUS_ASSERT (!retValue.isArray ());
+  PEGASUS_ASSERT (!retValue.isNull ());
+
+}
+void
 _test (CIMClient & client)
 {
   try
@@ -327,6 +350,7 @@ _test (CIMClient & client)
     test02 (client);
     test03 (client);
     test04 (client);
+    test05 (client);
   }
   catch (Exception & e)
   {

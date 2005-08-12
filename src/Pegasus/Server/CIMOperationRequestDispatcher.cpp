@@ -276,11 +276,20 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         else
         {
             Logger::put(
-                Logger::STANDARD_LOG, System::CIMSERVER, Logger::WARNING,
-                func +
-                    "All completed responses ($0) for current request have been "
-                    "accounted for but expected count ($1) does not match the "
-                    "received count ($2). error count ($4).Attempting to continue ...",
+                Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                func + "All completed responses ($0) for current request "
+                    "have been accounted for but expected count ($1) does "
+                    "not match the received count ($2). error count ($3).  "
+                    "Attempting to continue ...",
+                _totalReceivedComplete,
+                _totalReceivedExpected,
+                _totalReceived,
+                _totalReceivedErrors);
+            Tracer::trace(
+                __FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "All completed responses (%u) for current request "
+                    "have been accounted for but expected count (%u) does "
+                    "not match the received count (%u). error count (%u).",
                 _totalReceivedComplete,
                 _totalReceivedExpected,
                 _totalReceived,

@@ -663,7 +663,7 @@ Array<CIMInstance> AssociationProvider::_filterAssociationInstancesByRole(
                 v.get(path);
 
                 if ((role == String::EMPTY) || 
-                    (role == p.getName().getString()))
+                    (p.getName() == CIMName(role)))
                 {
                     if (targetObjectPath.identical(path))
                     {
@@ -718,7 +718,7 @@ Array<CIMObjectPath> AssociationProvider::_filterAssociationInstances(
                 if (resultClass.isNull() || resultClass == path.getClassName())
                 {
                     if (resultRole == String::EMPTY || 
-                        p.getName().getString() == resultRole)
+                        (p.getName() == CIMName(resultRole)))
                     {
                         returnPaths.append(path);
                     }

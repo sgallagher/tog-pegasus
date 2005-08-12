@@ -61,6 +61,17 @@ ThreadPool *MessageQueueService::get_thread_pool(void)
    return _thread_pool;
 }
 
+//
+// MAX_THREADS_PER_SVC_QUEUE_LIMIT
+//
+// JR Wunderlich Jun 6, 2005
+//
+
+#define MAX_THREADS_PER_SVC_QUEUE_LIMIT 5000
+#define MAX_THREADS_PER_SVC_QUEUE_DEFAULT 5
+
+Uint32 max_threads_per_svc_queue;
+
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL  MessageQueueService::kill_idle_threads(void *parm)
 {
 
@@ -162,7 +173,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       {
          ThreadStatus rtn = PEGASUS_THREAD_OK;
          if (service->_incoming.count() > 0 &&
-              service->_die.value() == 0)
+              service->_die.value() == 0 &&
+              service->_threads <= max_threads_per_svc_queue)
 	 {
            rtn = _thread_pool->allocate_and_awaken(service, 
                _req_proc, &_polling_sem);
@@ -242,6 +254,27 @@ MessageQueueService::MessageQueueService(const char *name,
    
    _default_op_timeout.tv_sec = 30;
    _default_op_timeout.tv_usec = 100;
+
+   max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE;
+
+   // if requested threads gt MAX_THREADS_PER_SVC_QUEUE_LIMIT
+   // then set to MAX_THREADS_PER_SVC_QUEUE_LIMIT
+
+   if (max_threads_per_svc_queue > MAX_THREADS_PER_SVC_QUEUE_LIMIT)
+   {
+      max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_LIMIT;
+   }
+
+   // if requested threads eq 0 (unlimited)
+   // then set to MAX_THREADS_PER_SVC_QUEUE_LIMIT
+
+   if (max_threads_per_svc_queue == 0)
+   {
+      max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_DEFAULT;
+   }
+
+   // cout << "MAX_THREADS_PER_SVC_QUEUE = " << MAX_THREADS_PER_SVC_QUEUE << endl;
+   // cout << "max_threads_per_svc_queue set to = " << max_threads_per_svc_queue << endl;
 
    AutoMutex autoMut(_meta_dispatcher_mutex);
    

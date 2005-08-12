@@ -442,12 +442,27 @@ ifdef PEGASUS_ENABLE_EMAIL_HANDLER
   DEFINES += -DPEGASUS_ENABLE_EMAIL_HANDLER
 endif
 
-# setup function to enable SLP functions in the Pegasus standard compile
-# Set the environment varaible PEGASUS_ENABLE_SLP to enable SLP code.
-# NOTE. Effective with Bug # 2633 some platforms now enable SLP.
+#
+# PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
+#
+# Use PEGASUS_ENABLE_SLP to enable SLP functions in the Pegasus standard
+# compile on those platforms that do not enable it by default.
+#
+# Use PEGASUS_DISABLE_SLP to disable SLP on those platforms that enable
+# it by default. 
+#
+# Currently (Aug. 12, 2005) Windows is the only platform that enables SLP 
+# by default.
+#
+# NOTE. Effective with Bug # 2633 some platforms enable SLP.
 # To see which platforms look for platform make files that set
-# the variable PEGASUS_ENABLE_SLP
+# the variable PEGASUS_ENABLE_SLP. 
+#
+#
 ifdef PEGASUS_ENABLE_SLP
+  ifdef PEGASUS_DISABLE_SLP
+    $(error Conflicting defines PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP both set)
+  endif
     DEFINES += -DPEGASUS_ENABLE_SLP
 endif
 

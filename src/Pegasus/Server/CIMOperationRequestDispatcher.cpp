@@ -4147,15 +4147,44 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
 
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
+
+        if ((providerCount == 0) && !_repository->isDefaultInstanceProvider())
+        {
+            PEG_TRACE_STRING(
+                TRC_DISPATCHER,
+                Tracer::LEVEL4,
+                "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
+
+            CIMAssociatorsResponseMessage* response =
+                new CIMAssociatorsResponseMessage(
+                    request->messageId,
+                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+                    request->queueIds.copyAndPop(),
+                    Array<CIMObject>());
+
+            STAT_COPYDISPATCHER
+
+            _enqueueResponse(request, response);
+
+            PEG_METHOD_EXIT();
+            return;
+        }
+
         //
         // Get the instances from the repository, as necessary
         //
 
-        Array<CIMObject> cimObjects;
-        CIMException cimException;
+        // Hold the repository results in a response message.
+        // If not using the repository, this pointer is null.
+        CIMAssociatorsResponseMessage* response = 0;
 
         if (_repository->isDefaultInstanceProvider())
         {
+            Array<CIMObject> cimObjects;
+            CIMException cimException;
+
             STAT_PROVIDERSTART
 
             try
@@ -4192,18 +4221,16 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
                 "Associators repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
                     cimObjects.size());
+
+            response =
+                new CIMAssociatorsResponseMessage(
+                    request->messageId,
+                    cimException,
+                    request->queueIds.copyAndPop(),
+                    cimObjects);
+
+            STAT_COPYDISPATCHER_REP
         }
-
-        // Store the repository results in a response message.
-        // Note: if not using the repository, this response has no instances.
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjects);
-
-        STAT_COPYDISPATCHER_REP
 
         //
         // If we have no providers to call, just return what we've got
@@ -4229,9 +4256,23 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
             request->nameSpace);
 
         poA->_aggregationSN = cimOperationAggregationSN++;
-        poA->setTotalIssued(providerCount+1);
-        // send the repository's results
-        _forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), new CIMAssociatorsRequestMessage(*request), poA, response);
+
+        // Include the repository response in the aggregation, if applicable
+        if (response != 0)
+        {
+            poA->setTotalIssued(providerCount+1);
+            // send the repository's results
+            _forwardRequestForAggregation(
+                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                String(),
+                new CIMAssociatorsRequestMessage(*request),
+                poA,
+                response);
+        }
+        else
+        {
+            poA->setTotalIssued(providerCount);
+        }
 
         for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
@@ -4295,12 +4336,12 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	CIMException cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, request->role);
 
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
+        CIMAssociatorNamesResponseMessage* response =
+            new CIMAssociatorNamesResponseMessage(
                 request->messageId,
                 cimException,
                 request->queueIds.copyAndPop(),
-                Array<CIMObject>());
+                Array<CIMObjectPath>());
 
         STAT_COPYDISPATCHER
 
@@ -4317,12 +4358,12 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
 	CIMException cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, request->resultRole);
 
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
+        CIMAssociatorNamesResponseMessage* response =
+            new CIMAssociatorNamesResponseMessage(
                 request->messageId,
                 cimException,
                 request->queueIds.copyAndPop(),
-                Array<CIMObject>());
+                Array<CIMObjectPath>());
 
         STAT_COPYDISPATCHER
 
@@ -4461,15 +4502,44 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
 
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
+
+        if ((providerCount == 0) && !_repository->isDefaultInstanceProvider())
+        {
+            PEG_TRACE_STRING(
+                TRC_DISPATCHER,
+                Tracer::LEVEL4,
+                "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
+
+            CIMAssociatorNamesResponseMessage* response =
+                new CIMAssociatorNamesResponseMessage(
+                    request->messageId,
+                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+                    request->queueIds.copyAndPop(),
+                    Array<CIMObjectPath>());
+
+            STAT_COPYDISPATCHER
+
+            _enqueueResponse(request, response);
+
+            PEG_METHOD_EXIT();
+            return;
+        }
+
         //
         // Get the instances from the repository, as necessary
         //
 
-        Array<CIMObjectPath> cimObjectPaths;
-        CIMException cimException;
+        // Hold the repository results in a response message.
+        // If not using the repository, this pointer is null.
+        CIMAssociatorNamesResponseMessage* response = 0;
 
         if (_repository->isDefaultInstanceProvider())
         {
+            Array<CIMObjectPath> cimObjectPaths;
+            CIMException cimException;
+
             STAT_PROVIDERSTART
 
             try
@@ -4503,18 +4573,16 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
                 "AssociatorNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
                     cimObjectPaths.size());
+
+            response =
+                new CIMAssociatorNamesResponseMessage(
+                    request->messageId,
+                    cimException,
+                    request->queueIds.copyAndPop(),
+                    cimObjectPaths);
+
+            STAT_COPYDISPATCHER_REP
         }
-
-        // Store the repository results in a response message.
-        // Note: if not using the repository, this response has no instances.
-        CIMAssociatorNamesResponseMessage* response =
-            new CIMAssociatorNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjectPaths);
-
-        STAT_COPYDISPATCHER_REP
 
         //
         // If we have no providers to call, just return what we've got
@@ -4540,9 +4608,23 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
             request->nameSpace);
 
         poA->_aggregationSN = cimOperationAggregationSN++;
-        poA->setTotalIssued(providerCount+1);
-        // send the repository's results
-        _forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), new CIMAssociatorNamesRequestMessage(*request), poA, response);
+
+        // Include the repository response in the aggregation, if applicable
+        if (response != 0)
+        {
+            poA->setTotalIssued(providerCount+1);
+            // send the repository's results
+            _forwardRequestForAggregation(
+                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                String(),
+                new CIMAssociatorNamesRequestMessage(*request),
+                poA,
+                response);
+        }
+        else
+        {
+            poA->setTotalIssued(providerCount);
+        }
 
         for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
@@ -4606,8 +4688,8 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
 	CIMException cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, request->role);
 
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
+        CIMReferencesResponseMessage* response =
+            new CIMReferencesResponseMessage(
                 request->messageId,
                 cimException,
                 request->queueIds.copyAndPop(),
@@ -4751,15 +4833,44 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
 
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
+
+        if ((providerCount == 0) && !_repository->isDefaultInstanceProvider())
+        {
+            PEG_TRACE_STRING(
+                TRC_DISPATCHER,
+                Tracer::LEVEL4,
+                "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
+
+            CIMReferencesResponseMessage* response =
+                new CIMReferencesResponseMessage(
+                    request->messageId,
+                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+                    request->queueIds.copyAndPop(),
+                    Array<CIMObject>());
+
+            STAT_COPYDISPATCHER
+
+            _enqueueResponse(request, response);
+
+            PEG_METHOD_EXIT();
+            return;
+        }
+
         //
         // Get the instances from the repository, as necessary
         //
 
-        Array<CIMObject> cimObjects;
-        CIMException cimException;
+        // Hold the repository results in a response message.
+        // If not using the repository, this pointer is null.
+        CIMReferencesResponseMessage* response = 0;
 
         if (_repository->isDefaultInstanceProvider())
         {
+            Array<CIMObject> cimObjects;
+            CIMException cimException;
+
             STAT_PROVIDERSTART
 
             try
@@ -4794,18 +4905,16 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
                 "References repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
                     cimObjects.size());
+
+            response =
+                new CIMReferencesResponseMessage(
+                    request->messageId,
+                    cimException,
+                    request->queueIds.copyAndPop(),
+                    cimObjects);
+
+            STAT_COPYDISPATCHER_REP
         }
-
-        // Store the repository results in a response message.
-        // Note: if not using the repository, this response has no instances.
-        CIMReferencesResponseMessage* response =
-            new CIMReferencesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjects);
-
-        STAT_COPYDISPATCHER_REP
 
         //
         // If we have no providers to call, just return what we've got
@@ -4831,10 +4940,23 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
             request->nameSpace);
 
         poA->_aggregationSN = cimOperationAggregationSN++;
-        poA->setTotalIssued(providerCount+1);
-        // send the repository's results
-        _forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
-            String(), new CIMReferencesRequestMessage(*request), poA, response);
+
+        // Include the repository response in the aggregation, if applicable
+        if (response != 0)
+        {
+            poA->setTotalIssued(providerCount+1);
+            // send the repository's results
+            _forwardRequestForAggregation(
+                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                String(),
+                new CIMReferencesRequestMessage(*request),
+                poA,
+                response);
+        }
+        else
+        {
+            poA->setTotalIssued(providerCount);
+        }
 
         for (Uint32 i = 0; i < providerInfos.size(); i++)
         {
@@ -4898,12 +5020,12 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
 	CIMException cimException = PEGASUS_CIM_EXCEPTION(
             CIM_ERR_INVALID_PARAMETER, request->role);
 
-        CIMAssociatorsResponseMessage* response =
-            new CIMAssociatorsResponseMessage(
+        CIMReferenceNamesResponseMessage* response =
+            new CIMReferenceNamesResponseMessage(
                 request->messageId,
                 cimException,
                 request->queueIds.copyAndPop(),
-                Array<CIMObject>());
+                Array<CIMObjectPath>());
 
         STAT_COPYDISPATCHER
 
@@ -5040,15 +5162,44 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         Tracer::trace(TRC_DISPATCHER, Tracer::LEVEL4,
                       "providerCount = %u.", providerCount);
 
+        // If no provider is registered and the repository isn't the default,
+        // return CIM_ERR_NOT_SUPPORTED
+
+        if ((providerCount == 0) && !_repository->isDefaultInstanceProvider())
+        {
+            PEG_TRACE_STRING(
+                TRC_DISPATCHER,
+                Tracer::LEVEL4,
+                "CIM_ERR_NOT_SUPPORTED for " + request->className.getString());
+
+            CIMReferenceNamesResponseMessage* response =
+                new CIMReferenceNamesResponseMessage(
+                    request->messageId,
+                    PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED, String::EMPTY),
+                    request->queueIds.copyAndPop(),
+                    Array<CIMObjectPath>());
+
+            STAT_COPYDISPATCHER
+
+            _enqueueResponse(request, response);
+
+            PEG_METHOD_EXIT();
+            return;
+        }
+
         //
         // Get the instances from the repository, as necessary
         //
 
-        Array<CIMObjectPath> cimObjectPaths;
-        CIMException cimException;
+        // Hold the repository results in a response message.
+        // If not using the repository, this pointer is null.
+        CIMReferenceNamesResponseMessage* response = 0;
 
         if (_repository->isDefaultInstanceProvider())
         {
+            Array<CIMObjectPath> cimObjectPaths;
+            CIMException cimException;
+
             STAT_PROVIDERSTART
 
             try
@@ -5080,18 +5231,16 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
                 "ReferenceNames repository access: class = %s, count = %u.",
                     (const char*)request->objectName.toString().getCString(),
                     cimObjectPaths.size());
+
+            response =
+                new CIMReferenceNamesResponseMessage(
+                    request->messageId,
+                    cimException,
+                    request->queueIds.copyAndPop(),
+                    cimObjectPaths);
+
+            STAT_COPYDISPATCHER_REP
         }
-
-        // Store the repository results in a response message.
-        // Note: if not using the repository, this response has no instances.
-        CIMReferenceNamesResponseMessage* response =
-            new CIMReferenceNamesResponseMessage(
-                request->messageId,
-                cimException,
-                request->queueIds.copyAndPop(),
-                cimObjectPaths);
-
-        STAT_COPYDISPATCHER_REP
 
         //
         // If we have no providers to call, just return what we've got
@@ -5117,8 +5266,22 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
             request->nameSpace);
 
         poA->_aggregationSN = cimOperationAggregationSN++;
-        poA->setTotalIssued(providerCount+1);
-        _forwardRequestForAggregation(String(PEGASUS_QUEUENAME_OPREQDISPATCHER), String(), new CIMReferenceNamesRequestMessage(*request), poA, response);
+
+        // Include the repository response in the aggregation, if applicable
+        if (response != 0)
+        {
+            poA->setTotalIssued(providerCount+1);
+            _forwardRequestForAggregation(
+                String(PEGASUS_QUEUENAME_OPREQDISPATCHER),
+                String(),
+                new CIMReferenceNamesRequestMessage(*request),
+                poA,
+                response);
+        }
+        else
+        {
+            poA->setTotalIssued(providerCount);
+        }
 
         for (Uint32 i = 0; i < providerInfos.size(); i++)
         {

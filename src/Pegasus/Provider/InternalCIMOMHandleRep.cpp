@@ -462,7 +462,21 @@ Message* InternalCIMOMHandleRep::do_request(
     memcpy(dp->os400PH, os400PH, 12);
 #endif
 
-    MessageQueueService::get_thread_pool()->allocate_and_awaken(dp, _dispatch);
+    ThreadStatus rtn = 
+        MessageQueueService::get_thread_pool()->allocate_and_awaken(dp, _dispatch);
+    if (rtn != PEGASUS_THREAD_OK)
+    {
+         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "Not enough threads to create a worker to dispatch a request. ");
+
+         Tracer::trace(TRC_CIMOM_HANDLE, Tracer::LEVEL2,
+                        "Could not allocate thread for %s to dispatch a request.");
+        delete dp;
+        PEG_METHOD_EXIT();
+        throw CIMException(CIM_ERR_FAILED, MessageLoaderParms(
+            "Provider.CIMOMHandle.CANNOT_ALLOCATE_THREAD",
+             "Could not create a worker for the dispatch request."));
+    }
 
     _request = request;
 

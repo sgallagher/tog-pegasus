@@ -25,86 +25,40 @@
 //
 //==============================================================================
 //
-// Author: Mike Day (mdday@us.ibm.com)
+// Author: Markus Mueller (markus_mueller@de.ibm.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// this extra include file is needed, because zOS uses a char[8] for its
+// thread-id and refuses to accept the long int _handle.thid directly
 
-#ifndef ThreadUnix_inline_h
-#define ThreadUnix_inline_h
-
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-// _start wrapper to overcome "C" "C++" binding warnings
-// (code "borrowed" from ThreadzOS_inline.h)
-// Actually the Solaris compiler doesn't need this as "C" "C++"
-// bindings are the same, but it moans like hell about it !!
-// (Its correct to moan, but its a pain all the same).
-
+#ifndef ThreadzOS_inline_h
+#define ThreadzOS_inline_h
 
 typedef struct {                                   
     void * (PEGASUS_THREAD_CDECL * _start)(void *);
     void * realParm;                               
 } zosParmDef;                                      
 
-extern "C" { void * _linkage(void * zosParm); }
+extern "C" { void * _linkage(void * zosParm); };
  
-inline ThreadStatus Thread::run()                                                  
+inline ThreadStatus Thread::run()
 {
     zosParmDef * zosParm = (zosParmDef *)malloc(sizeof(zosParmDef));
     zosParm->_start = _start;
     zosParm->realParm = (void *) this;
     if (_is_detached)
     {
-        pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
+        int ds = 1;
+        pthread_attr_setdetachstate(&_handle.thatt, &ds);
     }
-    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
 
     int rc;
     rc = pthread_create((pthread_t *)&_handle.thid,
                         &_handle.thatt, &_linkage, zosParm);
-    /* On Sun Solaris, the manpage states that 'ENOMEM' is the error
-      code returned when there is no insufficient memory, but the
-      POSIX standard mentions EAGAIN as the proper return code, so
-      we checking for both. */
-    if ((rc == EAGAIN) || (rc==ENOMEM))
-    {
-        _handle.thid = 0
-        return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
-    }
-    else if (rc != 0)
-    {
-        // ATTN: Error behavior has not yet been defined (see Bugzilla 972)
-        _handle.thid = 0;
-        return PEGASUS_THREAD_SETUP_FAILURE;
-    }
-    return PEGASUS_THREAD_OK;
-}
-#else // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-inline ThreadStatus Thread::run()
-{
-    if (_is_detached)
-    {
-        pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
-    }
-
-#ifdef PEGASUS_OS_OS400
-    // Initialize the pegasusValue to 1, see IPCOs400.h.
-    _handle.thid.pegasusValue = 1;  
-#endif
-
-    int rc;
-    rc = pthread_create((pthread_t *)&_handle.thid,
-                        &_handle.thatt, _start, this);
-   /* On Linux distributions released prior 2005, the
-      implementation of Native POSIX Thread Library
-      returns ENOMEM instead of EAGAIN when there are no
-      insufficient memory.  Hence we are checking for both.
-
-      More details can be found : http://sources.redhat.com/bugzilla/show_bug.cgi?id=386
-    */
-    if ((rc == EAGAIN) || (rc == ENOMEM))
+    if (rc == EAGAIN)
     {
         _handle.thid = 0;
         return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
@@ -117,18 +71,16 @@ inline ThreadStatus Thread::run()
     }
     return PEGASUS_THREAD_OK;
 }
-#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-
 
 inline void Thread::cancel()
 {
    _cancelled = true;
-   pthread_cancel(_handle.thid);
+   pthread_cancel(*(pthread_t *)&_handle.thid);
 }
 
 inline void Thread::test_cancel()
 {
-  pthread_testcancel();
+  pthread_testintr();
 }
 
 inline Boolean Thread::is_cancelled(void)
@@ -138,21 +90,8 @@ inline Boolean Thread::is_cancelled(void)
 
 inline void Thread::thread_switch()
 {
-  sched_yield();
+  pthread_yield(NULL);
 }
-
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-inline void Thread::suspend()
-{
-    pthread_kill(_handle.thid,SIGSTOP);
-}
-
-inline void Thread::resume()
-{
-    pthread_kill(_handle.thid,SIGCONT);
-}
-#endif
-
 
 inline void Thread::sleep(Uint32 msec)
 {
@@ -162,28 +101,26 @@ inline void Thread::sleep(Uint32 msec)
 inline void Thread::join(void) 
 { 
    if((! _is_detached) && (_handle.thid != 0))
-      pthread_join(_handle.thid, &_exit_code) ; 
+      pthread_join(*(pthread_t *)&_handle.thid, &_exit_code) ; 
    _handle.thid = 0;
 }
 
 inline void Thread::thread_init(void)
 {
-  pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-  pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+  pthread_setintr(PTHREAD_INTR_ENABLE);
+  pthread_setintrtype(PTHREAD_INTR_ASYNCHRONOUS);
   _cancel_enabled = true;
 }
 
 // *****----- native thread exit routine -----***** //
 
-#if defined(PEGASUS_PLATFORM_HPUX_ACC) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-#define PEGASUS_THREAD_EXIT_NATIVE 
-inline void Thread::exit_self(void *return_code) { pthread_exit(return_code) ; }
-#endif
+
+// *****----- native cleanup routines -----***** //
 
 inline void Thread::detach(void)
 {
    _is_detached = true;
-   pthread_detach(_handle.thid);
+   pthread_detach((pthread_t *)&_handle.thid);
 }
 
-#endif // ThreadUnix_inline_h
+#endif // ThreadzOS_inline_h

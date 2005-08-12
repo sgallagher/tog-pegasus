@@ -160,20 +160,54 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       MessageQueueService *service = list->next(0);
       while(service != NULL)
       {
-	 if(service->_incoming.count() > 0 )
+         ThreadStatus rtn = PEGASUS_THREAD_OK;
+         if (service->_incoming.count() > 0 &&
+              service->_die.value() == 0)
 	 {
-	    _thread_pool->allocate_and_awaken(service, _req_proc);
+           rtn = _thread_pool->allocate_and_awaken(service, 
+               _req_proc, &_polling_sem);
 	 }
-	 service = list->next(service);
+         // if no more threads available, break from processing loop
+         if (rtn != PEGASUS_THREAD_OK )
+         {
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+               "Not enough threads to process this request. Skipping.");
+
+            Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+               "Could not allocate thread for %s. " \
+               "Queue has %d messages waiting and %d threads servicing." \
+               "Skipping the service for right now. ",
+               service->getQueueName(),
+               service->_incoming.count(),
+               service->_threads.value());
+
+            pegasus_yield();
+            service = NULL;
+            }
+         else
+         {
+            service = list->next(service);
+         }
       }
       list->unlock();
       if(_check_idle_flag.value() != 0 )
       {
 	 _check_idle_flag = 0;
 
-         // If there are insufficent resources to run
-         // kill_idle_threads, then just return.
-         _thread_pool->allocate_and_awaken(service, kill_idle_threads);
+         // try to do idle thread clean up processing when system is not busy
+         // if system is busy there may not be a thread available to allocate
+         // so nothing will be done and that is OK.
+
+         if ( _thread_pool->allocate_and_awaken(service, kill_idle_threads,
+              &_polling_sem) != PEGASUS_THREAD_OK)
+         {
+             Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                "Not enough threads to kill idle threads. What an irony.");
+
+             Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+                "Could not allocate thread to kill idle threads." \
+                "Skipping. ");
+         }
       }
    }
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
@@ -194,6 +228,7 @@ MessageQueueService::MessageQueueService(const char *name,
      
      _mask(mask),
      _die(0),
+     _threads(0),
      _incoming(true, 0),
      _callback(true),
      _incoming_queue_shutdown(0),
@@ -259,6 +294,13 @@ MessageQueueService::~MessageQueueService(void)
    {
       _shutdown_incoming_queue();
    }
+
+   while (_threads.value() > 0) 
+   { 
+       pegasus_yield(); 
+   } 
+   _polling_list.remove(this); 
+
    _callback_ready.signal();
    
    {
@@ -280,12 +322,19 @@ MessageQueueService::~MessageQueueService(void)
       _thread_pool = 0;
      }
    } // mutex unlocks here
-   _polling_list.remove(this);
    // Clean up in case there are extra stuff on the queue. 
-  while (_incoming.count())
-  {
-	delete _incoming.remove_first();
-  }
+   while (_incoming.count()) 
+   { 
+       try 
+       { 
+          delete _incoming.remove_first(); 
+       }
+       catch (const ListClosed &e) 
+       { 
+          // If the list is closed, there is nothing we can do. 
+          break; 
+       } 
+   } 
 } 
 
 void MessageQueueService::_shutdown_incoming_queue(void)
@@ -311,9 +360,23 @@ void MessageQueueService::_shutdown_incoming_queue(void)
 
    msg->op->_op_dest = this;
    msg->op->_request.insert_first(msg);
-   
-   _incoming.insert_last_wait(msg->op);
 
+   try 
+   {
+       _incoming.insert_last_wait(msg->op);
+       _polling_sem.signal(); 
+   } 
+   catch (const ListClosed &) 
+   { 
+       // This means the queue has already been shut-down (happens  when there 
+       // are two AsyncIoctrl::IO_CLOSE messages generated and one got first 
+       // processed. 
+       delete msg; 
+   } 
+   catch (const Permission &) 
+   { 
+       delete msg; 
+   } 
 }
 
 
@@ -369,6 +432,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
    
    if ( service->_die.value() == 0 ) 
     {
+         service->_threads++;
 	 try 
 	 {
 	    operation = service->_incoming.remove_first();
@@ -376,7 +440,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
 	 catch(ListClosed & )
 	 {
 	    operation = 0;
-	    
+            service->_threads--;
 	    return(0);
 	 }
 	 if( operation )
@@ -385,7 +449,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(void *
 	    service->_handle_incoming_operation(operation);
 	 }
     }
-
+   service->_threads--;
    return(0);
 }
 

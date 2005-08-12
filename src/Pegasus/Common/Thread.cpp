@@ -707,11 +707,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    return((PEGASUS_THREAD_RETURN)0);
 }
 
-Boolean ThreadPool::allocate_and_awaken(void *parm,
-				        PEGASUS_THREAD_RETURN \
-				        (PEGASUS_THREAD_CDECL *work)(void *), 
-				        Semaphore *blocking)
-   throw(IPCException)
+ThreadStatus ThreadPool::allocate_and_awaken(void *parm,
+                                        PEGASUS_THREAD_RETURN \
+                                        (PEGASUS_THREAD_CDECL *work)(void *),
+                                        Semaphore *blocking)
+
 {
    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::allocate_and_awaken");
 
@@ -725,8 +725,7 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
       {
          Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
           "ThreadPool::allocate_and_awaken: ThreadPool is dying(1).");
-         // ATTN: Error result has not yet been defined
-         return true;
+         return PEGASUS_THREAD_UNAVAILABLE;
       }
       struct timeval start;
       gettimeofday(&start, NULL);
@@ -757,7 +756,7 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
            "ThreadPool::allocate_and_awaken: Insufficient resources: "
            " pool = %s, running threads = %d, idle threads = %d, dead threads = %d ",
            _key, _running.count(), _pool.count(), _dead.count());
-         return false;
+         return PEGASUS_THREAD_INSUFFICIENT_RESOURCES;
       }
 
       // initialize the thread data with the work function and parameters
@@ -780,15 +779,8 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
 
       // signal the thread's sleep semaphore to awaken it
       Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-	 
-      if(sleep_sem == 0)
-      {
-         th->dereference_tsd();
-         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-           "ThreadPool::allocate_and_awaken: thread data is corrupted.");
-         PEG_METHOD_EXIT();
-         throw NullPointer();
-      }
+      PEGASUS_ASSERT(sleep_sem != 0);
+
       Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Signal thread to awaken");
       sleep_sem->signal();
       th->dereference_tsd();
@@ -799,10 +791,10 @@ Boolean ThreadPool::allocate_and_awaken(void *parm,
           "ThreadPool::allocate_and_awaken: Operation Failed.");
       PEG_METHOD_EXIT();
       // ATTN: Error result has not yet been defined
-      return true;
+      return PEGASUS_THREAD_SETUP_FAILURE;
    }
    PEG_METHOD_EXIT();
-   return true;
+   return PEGASUS_THREAD_OK;
 }
 
 // caller is responsible for only calling this routine during slack periods
@@ -1077,16 +1069,18 @@ PEGASUS_THREAD_RETURN ThreadPool::_graveyard(Thread *t)
    
    th->put_tsd("deadlock timer", thread_data::default_delete, sizeof(struct timeval), (void *)dldt);
    // thread will enter _loop(void *) and sleep on sleep_sem until we signal it
-  
-   if (!th->run())
+
+   if (th->run() != PEGASUS_THREAD_OK)
    {
-      delete th;
-      return 0;
+       Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
+          "Could not create thread. Error code is %d.", errno);
+        delete th;
+        return 0;
    }
    _current_threads++;
    pegasus_yield();
-  PEG_METHOD_EXIT();
-   
+
+   PEG_METHOD_EXIT();
    return th;
 }
 

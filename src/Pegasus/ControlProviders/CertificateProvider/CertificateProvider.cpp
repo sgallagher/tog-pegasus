@@ -493,7 +493,7 @@ inline CIMInstance _getCRLInstance(X509_CRL* xCrl, String host, CIMNamespaceName
     {
         r = sk_X509_REVOKED_value(revoked, i);
         rawSerialNumber = ASN1_INTEGER_get(r->serialNumber);
-        sprintf(serial, "%ld", rawSerialNumber);
+        sprintf(serial, "%lu", rawSerialNumber);
         revokedSerialNumbers.append(String(serial));
 
         revocationDate = getDateTime(r->revocationDate);
@@ -1208,7 +1208,7 @@ void CertificateProvider::invokeMethod(
             //serial number
             long rawSerialNumber = ASN1_INTEGER_get(X509_get_serialNumber(xCert));
             char serial[256];
-            sprintf(serial, "%ld", rawSerialNumber);
+            sprintf(serial, "%lu", rawSerialNumber);
             serialNumber = String(serial);
     
             //subject name

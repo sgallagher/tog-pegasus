@@ -1526,7 +1526,7 @@ String SSLCertificateInfo::toString() const
     sprintf(buf, "Version number: %d\n", _rep->versionNumber);
     s.append(buf);
 
-    sprintf(buf, "Serial number: %ld\n", _rep->serialNumber);
+    sprintf(buf, "Serial number: %lu\n", _rep->serialNumber);
     s.append(buf);
     
     s.append("Not before date: ");

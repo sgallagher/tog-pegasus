@@ -414,7 +414,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 				//get certificate properties
 				String issuerName = clientCertificate->getIssuerName();
 				char serialNumber[256];
-				sprintf(serialNumber, "%ld", clientCertificate->getSerialNumber());
+				sprintf(serialNumber, "%lu", clientCertificate->getSerialNumber());
 
 				//ATTN: Use certificate provider constants
 				String truststoreType = (httpMessage->authInfo->isExportConnection() ? String("3") : String("2"));

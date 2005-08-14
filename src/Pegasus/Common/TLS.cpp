@@ -137,13 +137,13 @@ SSLSocket::~SSLSocket()
 
 Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
 {
-    retCode = SSL_get_error(_SSLConnection, retCode);
+    Sint32 err = SSL_get_error(_SSLConnection, retCode);
 
     Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-        "SSLSocket::incompleteReadOccurred : retCode = %d", retCode);
+        "SSLSocket::incompleteReadOccurred : err = %d", err);
 
-    return(!(retCode == SSL_ERROR_WANT_READ ||
-             retCode == SSL_ERROR_WANT_WRITE));
+    return((err == SSL_ERROR_WANT_READ ||
+            err == SSL_ERROR_WANT_WRITE));
 }
 
 Sint32 SSLSocket::read(void* ptr, Uint32 size)

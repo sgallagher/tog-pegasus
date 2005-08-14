@@ -1659,7 +1659,7 @@ void HTTPConnection::_handleReadEvent()
 
         if (n <= 0)
         {
-            if (_socket->isSecure() && bytesRead == 0)
+            if (_socket->isSecure())
             {
                 // It is possible that SSL_read was not able to
                 // read the entire SSL record.  This could happen
@@ -1674,8 +1674,7 @@ void HTTPConnection::_handleReadEvent()
                 // handleReadEvent to distinguish between a
                 // disconnect and partial read of an SSL record.
                 //
-                incompleteSecureReadOccurred = !_socket->incompleteReadOccurred(n);
-
+                incompleteSecureReadOccurred = _socket->incompleteReadOccurred(n);
             }
             break;
         }
@@ -1745,8 +1744,8 @@ void HTTPConnection::_handleReadEvent()
     // -- at all).
 
     if ((bytesRead == 0 && !incompleteSecureReadOccurred) ||
-        _contentLength != -1 &&
-        (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset))
+        (_contentLength != -1 && _contentOffset != -1 &&
+        (Sint32(_incomingBuffer.size()) >= _contentLength + _contentOffset)))
     {
         HTTPMessage* message = new HTTPMessage(_incomingBuffer, getQueueId());
         message->authInfo = _authInfo.get();

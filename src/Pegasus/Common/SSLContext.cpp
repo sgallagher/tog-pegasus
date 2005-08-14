@@ -443,26 +443,33 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
         notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
 
     //
-    // Call the application callback.
+    // Call the user-specified application callback if it is specified.  If it is null, return OpenSSL's verification code.
     // Note that the verification result does not automatically get set to X509_V_OK if the callback is successful.
     // This is because OpenSSL retains the original default error in case we want to use it later.
     // To set the error, we could use X509_STORE_CTX_set_error(ctx, verifyError); but there is no real benefit to doing that here.
     //
-    if (exData->_rep->verifyCertificateCallback(*exData->_rep->peerCertificate)) 
+    if (exData->_rep->verifyCertificateCallback == NULL)
     {
-        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-            "--> SSL: _rep->verifyCertificateCallback() returned X509_V_OK");
+        return preVerifyOk;
 
-        PEG_METHOD_EXIT();
-        return 1;
-    }
-    else // verification failed, handshake will be immediately terminated
+    } else
     {
-        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-            "--> SSL: _rep->verifyCertificateCallback() returned error %d", exData->_rep->peerCertificate->getErrorCode());
-      
-        PEG_METHOD_EXIT();
-        return 0; 
+        if (exData->_rep->verifyCertificateCallback(*exData->_rep->peerCertificate)) 
+        {
+		    Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "--> SSL: _rep->verifyCertificateCallback() returned X509_V_OK");
+
+            PEG_METHOD_EXIT();
+            return 1;
+        }
+        else // verification failed, handshake will be immediately terminated
+        {
+            Tracer::trace(TRC_SSL, Tracer::LEVEL4,
+                "--> SSL: _rep->verifyCertificateCallback() returned error %d", exData->_rep->peerCertificate->getErrorCode());
+	  
+            PEG_METHOD_EXIT();
+            return 0; 
+        }
     }
 }
 

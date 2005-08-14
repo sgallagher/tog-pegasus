@@ -1,846 +1,2425 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+
 <html>
 
+
+
+
+
 <head>
+
+
 <meta name="GENERATOR" content="Microsoft FrontPage 3.0">
+
+
 <meta name="ProgId" content="FrontPage.Editor.Document">
+
+
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+
 <title>OpenPegasus</title>
+
+
 </head>
+
+
+
+
 
 <body>
 
+
+
+
+
 <p align="center"><b><font size="4">Pegasus Enhancement Proposal (PEP)</font></b></p>
+
+
+
+
 
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>PEP #:</b> 175</p>
 
+
+
+
+
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Title: </b>OpenPegasus Version 2.4
+
+
 Release Readme file</p>
 
+
+
+
+
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Version: </b><span
+
+
 style="color: rgb(0, 0, 0);">1.4</span></p>
+
+
+
+
 
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Created:</b> 24 June 2004</p>
 
+
+
+
+
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Authors: </b>Warren Grunbok, Mike
+
+
 Harris<br>
+
+
 </p>
+
+
+
+
 
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Status:&nbsp; </b>draft</p>
 
+
+
+
+
 <p style="margin-top: 0pt; margin-bottom: 0pt;"><b>Version History:</b></p>
 
+
+
+
+
 <table bordercolordark="#666666" bordercolorlight="#cccccc" style="font-family: Arial;"
+
+
 border="1" cellspacing="1" width="100%">
+
+
 <tbody>
+
+
   <tr>
+
+
     <th bgcolor="#cae6ca">Version</th>
+
+
     <th bgcolor="#cae6ca">Date</th>
+
+
     <th bgcolor="#cae6ca">Author</th>
+
+
     <th bgcolor="#cae6ca">Change Description</th>
+
+
   </tr>
+
+
   <tr>
+
+
     <td align="center">1.0</td>
+
+
     <td align="center">24, June 2004</td>
+
+
     <td align="center">Warren Grunbok<br>
+
+
     </td>
+
+
     <td>Initial draft<br>
+
+
     </td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td align="center">&nbsp;1.1</td>
+
+
     <td align="center">24,August 2004 <br>
+
+
     </td>
+
+
     <td align="center">Warren Grunbok <br>
+
+
     </td>
+
+
     <td>Mostly spelling changes, adds to very last paragraph <br>
+
+
     </td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td style="vertical-align: top;">1.2<br>
+
+
     </td>
+
+
     <td style="vertical-align: top;">31, August 2004<br>
+
+
     </td>
+
+
     <td style="vertical-align: top;">Warren Grunbok<br>
+
+
     </td>
+
+
     <td style="vertical-align: top;">Changes based on architecture review.&nbsp; Removed
+
+
     /Directory structure section and placed into&nbsp; seperate document.<br>
+
+
     &nbsp;<br>
+
+
     </td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td style="vertical-align: top;">1.3<br>
+
+
     </td>
+
+
     <td style="vertical-align: top;">???<br>
+
+
     </td>
+
+
     <td style="vertical-align: top;">Warren Grunbok<br>
+
+
     </td>
+
+
     <td style="vertical-align: top;">Removed Pegasus Directory structure and placed in PEP
+
+
     191, Added Copyright and End of Doc marker.<br>
+
+
     </td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td style="vertical-align: top; color: rgb(0, 0, 0);">1.4<br>
+
+
     </td>
+
+
     <td style="vertical-align: top; color: rgb(0, 0, 0);">27, Sept 2004<br>
+
+
     </td>
+
+
     <td style="vertical-align: top; color: rgb(0, 0, 0);">Warren Grunbok<br>
+
+
     </td>
+
+
     <td style="vertical-align: top; color: rgb(0, 0, 0);">Corrected Security changes as per
+
+
     Sterling.<br>
+
+
     </td>
+
+
   </tr>
+
+
 </tbody>
+
+
 </table>
 
+
+
+
+
 <hr>
+
+
+
+
 
 <p><b>Abstract:</b>&nbsp; Installation, build, operation information on the Pegasus
+
+
 Platform Version 2.4.0 Release. Note that if this readme conflicts with the documentation
+
+
 in the release notes or interface definition documents for a particular release, those
+
+
 documents should be considered authorative. This is a simplified overview to act as an
+
+
 introduction to Pegasus.</p>
+
+
+
+
 
 <hr>
 
+
+
+
+
 <p align="center"><b><font size="5">OpenPegasus - A Manageability Services Broker for the
+
+
 DMTF CIM/WBEM Standards </font></b></p>
 
+
+
+
+
 <p align="left"><b>Tagline:</b> OpenPegasus is an object manager for DMTF CIM objects
+
+
 written in C++ and supported by The Open Group </p>
 
+
+
+
+
 <p align="left"><b>STATUS:</b> Revised Sept 2004 for&nbsp; Pegasus release version
+
+
 2.4.0&nbsp; - Approved<br>
+
+
 </p>
+
+
 <a href="#Overview">
+
+
+
+
 
 <p>Overview</a> </p>
 
+
+
+
+
 <blockquote style="margin-top: 0pt; margin-bottom: 0pt;">
+
+
   <a href="#avail_of_peg"><p>Availability of Pegasus</a><br>
+
+
   <a href="#peg_maj_comp">Pegasus Major Components</a><br>
+
+
   <a href="#avail_of_peg">Availability of Pegasus</a><br>
+
+
   <a href="#peg_sup_plat">Pegasus Supported Platforms</a><br>
+
+
   <a href="#peg_dep">Pegasus Dependencies</a><br>
+
+
   <a href="#peg_dir_struc">The Pegasus Directory Structure</a><br>
+
+
   <a href="#dev_with_peg">Development with Pegasus and Pegasus Tools</a><br>
+
+
   <a href="#cmnd">Commands</a><br>
+
+
   <a href="#docs">Documentation</a><br>
+
+
   <a href="#part">Participate</a><br>
+
+
   </p>
+
+
 </blockquote>
+
+
 <a href="#inst_peg">
+
+
+
+
 
 <p>Install Pegasus</a> </p>
 
+
+
+
+
 <blockquote style="margin-top: 0pt; margin-bottom: 0pt;">
+
+
   <a href="#download"><p>Download or checkout Pegasus</a><br>
+
+
   <a href="#vfy_req_sw">Verify that you have the required software</a><br>
+
+
   <a href="#set_envt_var">Set the environment variables</a><br>
+
+
   <a href="#bld">Build the Pegasus runtime, test files, test clients, and repository</a><br>
+
+
   <a href="#pop_peg_rep">Populate the Pegasus repository</a><br>
+
+
   <a href="#reg_prov">Register providers in the Pegasus environment</a><br>
+
+
   <a href="#bld_rpms">Build an RPM for Pegasus</a><br>
+
+
   <a href="#note_bld_peg_lnx">Notes about Building Pegasus on Linux</a><br>
+
+
   <a href="#note_bld_peg_mac">Notes about Building Pegasus on Mac OS X</a><br>
+
+
   <a href="#note_bld_peg_ssl">Notes on building Pegasus with SSL</a><br>
-  <a href="#crt_ssl_cert">Creating SSL certifications</a><br>
+
+
   <a href="#bld_peg_win">Building Pegasus on Windows 2000 or Windows XP With Microsoft
+
+
   Visual C++</a><br>
+
+
   <a href="#mu_utility">The MU Utility</a><br>
+
+
   </p>
+
+
 </blockquote>
+
+
 <a href="#test">
 
+
+
+
+
 <p>Test the Pegasus installation</a><br>
+
+
 </p>
 
+
+
+
+
 <blockquote style="margin-top: 0pt; margin-bottom: 0pt;">
+
+
   <a href="#inst_peg_html"><p>Installing the Pegasus HTML Test Client</a><br>
+
+
   <a href="#test_icu">Testing with ICU enabled</a><br>
+
+
   </p>
+
+
 </blockquote>
+
+
+
+
 
 <hr>
 
+
+
+
+
 <h1><a name="Overview">Overview</a> </h1>
 
+
+
+
+
 <p><b>OpenPegasus (also referred to as Pegasus):</b> Pegasus is an open-source CIM Server
+
+
 for DMTF CIM objects. It is written in C++ and includes the Object manager (CIMOM), a set
+
+
 of defined interfaces, an implemenation of the CIMOperations over HTTP operations and
+
+
 their cimxml HTTP encodings, and Interface libraries for both client and providers. It is
+
+
 maintained consistent with the DMTF CIM and WBEM specifications except for&nbsp;
+
+
 exceptions noted in the documentation. </p>
+
+
+
+
 
 <p>Pegasus is open source and is covered under the MIT open-source license.</p>
 
+
+
+
+
 <p>Pegasus is being developed and maintained under the auspices of The Open Group. Pegasus
+
+
 is maintained under the license defined in the doc directory (LICENSE) of this release.
+
+
 This licensing is intended to support as wide a distribution as possible with minimal
+
+
 demands on the users. </p>
 
+
+
+
+
 <p>More information on this project, access to the CVS, and documentation on Pegasus are
+
+
 available from the OpenGroup WEB site. </p>
+
+
+
+
 
 <p>&nbsp;&nbsp;&nbsp; <a target="blank" href="http://www.openpegasus.org">http://www.openpegasus.org</a></p>
 
+
+
+
+
 <p>There are a number of separate documents representing the status and each release of
+
+
 Pegasus 
 
+
+
+
+
 <ul>
+
+
   <li>What's new for this release - See the PEPs (Pegasus Enhancement Procedures) release
+
+
     notes on the Pegasus web site and duplicated in the source top level directory </li>
+
+
   <li>What's Broken - BUGS - See the ReleaseNotes for this release in the CVS and the web site
+
+
     as a Pegasus PEP.</li>
+
+
 </ul>
 
+
+
+
+
 <p>The release notes are available on the WEB site as Pegasus PEP documents and in the CVS
+
+
 for each release.</p>
 
+
+
+
+
 <table id="AutoNumber3" border="1" cellspacing="1" width="31%">
+
+
 <tbody>
+
+
   <tr>
+
+
     <td width="42%"><b>Release</b></td>
+
+
     <td width="58%"><b>Release Notes PEP</b></td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td width="42%">2.0</td>
+
+
     <td width="58%">None</td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td width="42%">2.1</td>
+
+
     <td width="58%">None</td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td width="42%">2.2</td>
+
+
     <td width="58%">PEP 57</td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td width="42%">2.3</td>
+
+
     <td width="58%">PEP 98</td>
+
+
   </tr>
+
+
   <tr>
+
+
     <td style="vertical-align: top;">2.4<br>
+
+
     </td>
+
+
     <td style="vertical-align: top;">PEP 185<br>
+
+
     </td>
+
+
   </tr>
+
+
 </tbody>
+
+
 </table>
+
+
+
+
 
 <h2><a name="avail_of_peg">Availability of Pegasus</a></h2>
 
+
+
+
+
 <p>Pegasus is distributed as open source under the MIT open-source license. The
+
+
 distribution is available via CVS and snapshot images in tar and zip file formats on the
+
+
 web site. The source code from CVS can be found at the following Open Group CVS server; </p>
+
+
+
+
 
 <p><font face="Courier New">&nbsp;&nbsp;&nbsp; cvs.opengroup.org:/cvs/MSB </font></p>
 
+
+
+
+
 <p>using the password authenticating server option (pserve). </p>
+
+
+
+
 
 <p>Anonymous access for read is with the name and password &quot;anon&quot; as follows: </p>
 
+
+
+
+
 <blockquote>
+
+
   <p style="margin-top: 0pt; margin-bottom: 0pt;"><font face="Courier New">%export
+
+
   CVSROOT=:pserver:anon@cvs.opengroup.org:/cvs/MSB </font></p>
+
+
   <p style="margin-top: 0pt; margin-bottom: 0pt;"><font face="Courier New">%cvs login </font></p>
+
+
 </blockquote>
 
+
+
+
+
 <p>When requested, enter the password &quot;anon&quot;. The source tree is in the
+
+
 directory pegasus. To check out the complete Pegasus source tree just type: </p>
+
+
+
+
 
 <p><font face="Courier New">&nbsp;&nbsp;&nbsp; cvs co pegasus </font></p>
 
+
+
+
+
 <p>A Pegasus directory will be created under the current directory and populated with the
+
+
 complete source tree and documentation. To get the latest updates after a checkout just
+
+
 type this from Pegasus root: </p>
+
+
+
+
 
 <p><font face="Courier New">&nbsp;&nbsp;&nbsp; cvs update -d </font></p>
 
+
+
+
+
 <p>Active contributors to Pegasus have write access to the CVS repository. If you are
+
+
 interested in contributing back to the Pegasus project, (i.e. write (checkin) access to
+
+
 CVS) please request access from either Martin Kirk (<a
+
+
 href="mailto:(k.m.kirk@opengroup.org">m.kirk@opengroup.org</a>) or Karl Schopmeyer <a
+
+
 href="mailto:(k.schopmeyer@opengroup.org">k.schopmeyer@opengroup.org</a>. </p>
+
+
+
+
 
 <h2><a name="peg_maj_comp">Pegasus Major Components</a></h2>
 
+
+
+
+
 <p>The major components of Pegasus are: 
 
+
+
+
+
 <ul>
+
+
   <li><b>Pegasus Server</b> - WBEM/CIM Server with interfaces for providers and clients </li>
+
+
   <li><b>Pegasus Repositories</b> - Today Pegasus provides a defined class repository
+
+
     interface and a simple file based class repository. It also includes an instance
+
+
     repository. Note that these repository were created for functionality, not efficieny. It
+
+
     is expected that they will be replaced with other implementations of the respository
+
+
     function as the need arises. </li>
+
+
   <li><b>Pegasus Client Library</b> - Tools for building Pegasus clients based on the Pegasus
+
+
     C++ interfaces and using the WBEM HTTP/XML protocols or directly interfacing with Pegasus.
+
+
   </li>
+
+
   <li><b>Pegasus Test Clients</b> - Simple test clients being developed as part of the Pegasus
+
+
     development process. These can be seen in the src/Clients directory and its subdirectories
+
+
   </li>
+
+
   <li><b>Pegasus HTML Test Client</b> - To aid in testing we created a test client for Pegasus
+
+
     that uses a WEB server (ex. Apache) with a set of CGI modules and HTML to allow the entry
+
+
     of Pegasus operations from a WEB browser as forms and the receipt of the response as WEB
+
+
     pages. This has proven useful as a test tool and can be used for a wide variety of
+
+
     demonstrations. </li>
+
+
   <li><b>Pegasus Provider Library</b> - Tools for building Pegasus providers using the Pegasus
+
+
     C++ interfaces. </li>
+
+
   <li><b>Pegasus Providers</b> - Providers to illustrate the use of Pegasus services including
+
+
     providers for test and demonstration. </li>
+
+
   <li><b>Pegasus Control Providers</b> - Common services for use by other Pegasus components
+
+
     to extend Pegasus capabilites. </li>
+
+
   <li><b>Pegasus MOF Compiler </b>- There&nbsp; standalone compiler (cimmofl) for MOF files
+
+
     that can be used to install MOF into the Pegasus schema repository and also to check
+
+
     syntax. There is also a compiler that operates as a Pegasus client(cimmof) There is also a
+
+
     tool to extract the MOF from the repository. </li>
+
+
 </ul>
+
+
+
+
 
 <h2><a name="peg_sup_plat">Pegasus Supported Platforms</a></h2>
 
+
+
+
+
 <p>Pegasus is regularly tested against a variety of platforms by the development
+
+
 group.&nbsp; The set of platforms and exact set of compilers for any given release is
+
+
 documented in the Release notes for that release (see the CVS source tree root directory
+
+
 or the Pegasus PEP defining the ReleaseNotes for any particular release).</p>
 
+
+
+
+
 <p>Pegasus is supported on a variety of platforms.&nbsp; The list of platforms can be
+
+
 found in the release notes associated with this release.<br>
+
+
 </p>
 
+
+
+
+
 <p><br>
+
+
 </p>
+
+
+
+
 
 <h2><a name="peg_dep">Pegasus Dependencies</a></h2>
 
+
+
+
+
 <p>We have worked to minimize the dependence of Pegasus on other software packages and
+
+
 tools. Currently Pegasus has the following dependencies: </p>
 
+
+
+
+
 <p><b>1. GNUMAKE</b> - To simplify the building of Pegasus across multiple platforms we
+
+
 have standardized on a set of build tools including: GNUMAKE. We are using GNUMAKE 3.79.1
+
+
 successfully both in Windows and Linux environments. </p>
+
+
+
+
 
 <p>GNUMAKE is available from :</p>
 
+
+
+
+
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a target="blank" href="http://www.gnu.org">http://www.gnu.org</a>
+
+
 </p>
+
+
+
+
 
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NOTE: A set of the required tools for windows
+
+
 platforms is available on the openpegasus web site.&nbsp; <a href="www.openpegasus.org">www.openpegasus.org</a><br>
+
+
 </p>
 
+
+
+
+
 <p><b>2. MU.EXE </b>- To minimize the difference between Linux and Windows for GNUMAKE, we
+
+
 have created a utility called MU.exe. This utility is required for Pegasus make with ONLY
+
+
 Windows environment. It is provided as an alternative to requiring a number of UNIX
+
+
 utilities (SH, RM, etc.) on the windows platform and effectively provides the functions of
+
+
 these utilities that GNUMAKE needs. MU is not required on UNIX or LINUX platforms. </p>
 
+
+
+
+
 <p>NOTE: The binary for MU.EXE is not distributed in the Pegasus bin directory. You must
+
+
 build it separately. MU source code is part of the distribution in the directory
+
+
 src/utils/MU with its own make file. You must compile MU before you initiate the Pegausu
+
+
 make. </p>
+
+
+
+
 
 <p>NOTE: A copy of the binary is made available as a zip file on the Pegasus WEB site. </p>
 
+
+
+
+
 <p>Again, MU is used ONLY if you are using Windows. </p>
 
+
+
+
+
 <p><b>3. FLEX and BISON</b> - These tools were used to develop the MOF compiler and WQL
+
+
 parser. Anybody intending to recompile the compiler or parser from scratch will be
+
+
 required to have these tools. They are only required if changes need to be made to the
+
+
 files for parsing and compiling. </p>
+
+
 <b>
 
+
+
+
+
 <p>4. DLCOMPAT - </b>dlcompat is a dlopen(3) et.al. compatibility library for Mac OS
+
+
 X/Darwin.<br>
+
+
 <br>
+
+
 <strong>NOTE</strong>:&nbsp; The dlcompat is not distributed with pegasus source.<br>
+
+
 dlcomapt is avilable from <br>
+
+
 <br>
+
+
 <a href="http://www.opendarwin.org/projects/dlcompat/">http://www.opendarwin.org/projects/dlcompat/
+
+
 </a><br>
+
+
 <br>
+
+
 Again, dlcomapt needs to be installed ONLY if you are using Mac OS X/Darwin.</p>
 
+
+
+
+
 <p><b>5. DOC++ </b>- The Pegasus documentation is taken from a combination of text files
+
+
 and the Pegasus header files themselves. This documentation is formatted with DOC++ and
+
+
 GAWK. These tools are required if the documentation is to be recreated but we expect that
+
+
 only the core team will be recreating documentation. </p>
 
+
+
+
+
 <p><b>6. ICU Internationalization libraries</b> - These libraries are used as the basis
+
+
 for message catalogs for message internationalization. See the ICU website
+
+
 (http://oss.software.ibm.com/icu/) for more information on these libraries</p>
 
+
+
+
+
 <p><strong>7.</strong> <b>OpenSSL </b>- If it is intended to use SSL on the communication
+
+
 protocol, the OpenSSL libraries are required.</p>
+
+
+
+
 
 <h1><a name="peg_dir_struc">The Pegasus Directory Structure</a></h1>
 
+
+
+
+
 <p>Pegasus is distributed as a complete source directory structure that should be
+
+
 installed either from one of the snapshots or from CVS. </p>
 
+
+
+
+
 <p>The Pegasus Directory is documented in<span style="color: rgb(51, 255, 51);"> <span
+
+
 style="color: rgb(0, 0, 0);">PEP 191</span> </span>and listed in the Pegasus /doc
+
+
 directory.<br>
+
+
 </p>
+
+
+
+
 
 <h1><a name="dev_with_peg">Development with Pegasus and Pegasus Tools</a></h1>
 
+
+
+
+
 <p>ATTN: This section needs to be completed. It should reference the more complete
+
+
 documentation. </p>
+
+
+
+
 
 <h1><a name="cmnd">Commands</a></h1>
 
+
+
+
+
 <p>The manpages for each of the commands are in rpm/manLinux/man1.Z directory (on CVS) </p>
+
+
+
+
 
 <p>To see simple help for each of the commands, use the &quot;-h&quot; flag. </p>
 
+
+
+
+
 <blockquote>
+
+
   <pre>Examples:
+
+
 bin/cimserver &#150;s (Shuts it down)
+
+
 bin/cimserver traceLevel=4 traceComponents=ALL (starts server with config flags)
+
+
 bin/cimprovider &#150;l &#150;s (lists providers and their status)
+
+
 bin/cimprovider &#150;e &#150;m OperatingSystemModule (enables the OperatingSystem provider)
+
+
 bin/cimuser &#150;a &#150;u guest &#150;w ThePassword
+
+
 bin/cimuser &#150;l (lists the users)
+
+
 bin/tomof CIM_Config (extract CIM_Config from repository and present it in MOF type)
+
+
 </pre>
+
+
 </blockquote>
+
+
+
+
 
 <h1><a name="docs">Pegasus Documentation</a></h1>
 
+
+
+
+
 <p>The documentation is currently in preparation.&nbsp; Much of Pegasus is documented in
+
+
 the PEGASUS PEPs which are the basis for approval of Pegasus functionality, changes,
+
+
 plans, etc.&nbsp; These documents are openly available on the PEGASUS web site.&nbsp; The
+
+
 preliminary documentation is not provided with this release. The current documentation is
+
+
 maintained both as a manual created under the tool DOC++ in the runtime subdirectory
+
+
 manual/html (see doc/devManual to create), as an api document also creatable from the
+
+
 source tree (see doc/apidoc) and as other miscellaneous documentation in the doc
+
+
 directory. Also there is a set of release notes. Normally the release notes for the
+
+
 current release are available in the root source directory of CVS.</p>
 
+
+
+
+
 <p>Note that the Pegasus WEB site at The Open Group will be the source of most
+
+
 documentation in the future and today is the source of most discussion and design
+
+
 documentation. </p>
+
+
+
+
 
 <h1><a name="part">Participate!</a></h1>
 
+
+
+
+
 <p>We are looking for people who want to join the Pegasus work group and contribute to
+
+
 effort of getting this Pegasus off the ground. Please join the mailing list by visiting
+
+
 www.openpegasus.org, and click on Mailing Lists. &nbsp;</p>
+
+
+
+
 
 <h1><a name="inst_peg">Install Pegasus</a> </h1>
 
+
+
+
+
 <p>You can install and run Pegasus on any of the supported platforms. The installation
+
+
 process includes the following steps: 
 
+
+
+
+
 <ol>
+
+
   <li>Download or checkout Pegasus. </li>
+
+
   <li>Verify that you have the required software. </li>
+
+
   <li>Set environment variables. </li>
+
+
   <li>Build the Pegasus runtime, test files, test clients and repository. </li>
+
+
 </ol>
+
+
+
+
 
 <p><a name="download"><strong>Step 1: Download or checkout Pegasus</strong></a></p>
 
+
+
+
+
 <p>Pegasus is freely available from the open group's Pegasus home page: <a target="blank"
+
+
 href="http://www.openpegasus.org">http://www.openpegasus.org</a>. To obtain Pegasus, you
+
+
 can either check it out using CVS or download a snapshot image of the soruce distribution.
+
+
 For more information about checking out Pegasus using CVS, see: <a href="#avail_of_peg">Availability
+
+
 of Pegasus</a>. </p>
 
+
+
+
+
 <p>Pegasus is not currently releasing binaries, but you can create RPMs using a script
+
+
 included with the source distribution. See <a href="#bld_rpms">Building RPMs for Pegasus</a>
+
+
 for more information. </p>
+
+
+
+
 
 <p><a name="vfy_req_sw"><strong>Step 2: Verify that you have the required software</strong></a></p>
 
+
+
+
+
 <p>Refer to the section <a href="#peg_dep">Pegasus Dependencies</a> and verify that you
+
+
 have the software required for your Operating System and planned usage of Pegasus. </p>
+
+
+
+
 
 <p><a name="set_envt_var"><strong>Step 3: Set the environment variables</strong></a></p>
 
+
+
+
+
 <p>Before installing or running Pegasus, ensure that the following environment variables
+
+
 have been defined or updated: 
 
+
+
+
+
 <dl>
+
+
   <dt>PEGASUS_ROOT </dt>
+
+
   <dd>Defines the path to the &quot;pegasus&quot; directory you've pulled from CVS, for
+
+
     example: <tt>/opt/pegasus/pegasus-2.3.2</tt> <br>
+
+
   </dd>
+
+
   <dt>PEGASUS_HOME </dt>
+
+
   <dd>Defines the directory that will contain the output binary files. For example, if you set
+
+
     this to <tt>$HOME/pegasus_home</tt>, then the output will go into <tt>$HOME/pegasus_home/bin</tt>
+
+
     and <tt>$HOME/pegasus_home/lib.</tt> <br>
+
+
     If you plan on doing parallel builds, you may want to define a unique PEGASUS_HOME value
+
+
     for each build you need, that way the output of each build will be placed in its own
+
+
     directory, for example: <tt>$HOME/pegasus_home_LINUX_IX86_GNU.</tt> <br>
+
+
   </dd>
+
+
   <dt>PEGASUS_PLATFORM </dt>
+
+
   <dd>Identifies the platform to be built. Each supported platform has a unique identifier
+
+
     with the following form: <br>
+
+
     <tt>&lt;Operating-System&gt;_&lt;Architecture&gt;_&lt;Compiler&gt;</tt> <p>The following
+
+
     values are tested for the OpenPegasus release:<br>
+
+
     <ul>
+
+
       <li>AIX_RS_IBMCXX </li>
+
+
       <li>HPUX_IA64_ACC </li>
+
+
       <li>HPUX_PARISC_ACC </li>
+
+
       <li>LINUX_IA64_GNU </li>
+
+
       <li>LINUX_IX86_GNU </li>
+
+
       <li>LINUX_PPC_GNU </li>
+
+
       <li>LINUX_ZSERIES_GNU </li>
+
+
       <li>NSK_NONSTOP_NMCPLUS </li>
+
+
       <li>SOLARIS_SPARC_CC </li>
+
+
       <li>SOLARIS_SPARC_GNU </li>
+
+
       <li>TRU64_ALPHA_DECCXX </li>
+
+
       <li>WIN32_IX86_MSVC</li>
+
+
       <li>ZOS_ZSERIES_IBM</li>
+
+
       <li>DARWIN_PPC_GNU </li>
+
+
     </ul>
+
+
   </dd>
+
+
   <dt>PATH </dt>
+
+
   <dd>Add $PEGASUS_HOME/bin to your path.</dd>
+
+
 </dl>
+
+
+
+
 
 <p>Additional configuration: 
 
+
+
+
+
 <ul>
+
+
   <li>For Unix builds, place $PEGASUS_HOME/lib on your LD_LIBRARY_PATH. </li>
+
+
   <li>For RedHat/SuSE/UL, edit /etc/ld.so.conf and add $PEGASUS_HOME/lib.</li>
+
+
 </ul>
 
+
+
+
+
 <p><a name="bld"><strong>Step 4: Build the Pegasus runtime, test files, test clients and
+
+
 repository</strong></a></p>
 
+
+
+
+
 <p>Pegasus includes several make files that enable you to quickly build or refresh the
+
+
 Pegasus runtime, test files, test client and the repository. To use these make files, type
+
+
 &quot;make&quot; followed by one of the supplied targets. </p>
 
+
+
+
+
 <p>To build Pegasus, run the following commands from the root directory of the Pegasus
+
+
 distribution: 
 
+
+
+
+
 <ol>
+
+
   <li>Enter <tt>make</tt> <p>This builds all of Pegasus. </p>
+
+
   </li>
+
+
   <li>Enter <tt>make repository</tt> <p>This creates the repository, which is needed to serve
+
+
     data. To create the additional namespaces that represent the test support you can also
+
+
     execute &quot;make testrepository&quot;. </p>
+
+
   </li>
+
+
   <li>Enter <tt>make tests</tt> <p>This executes all the tests included with the Pegasus
+
+
     distribution, except the client/server tests. The client/server tests are executed
+
+
     separately from the above because they require the initiation of separate process for the
+
+
     Pegasus server and Pegasus client. To execute these tests, refer to the scripts in
+
+
     pegasus/mak/BuildMakefile. Refer to the prestarttests and poststarttests in this file. </p>
+
+
   </li>
+
+
 </ol>
+
+
+
+
 
 <p>The following make targets are supported: 
 
+
+
+
+
 <ul>
+
+
   <li>&lt;default&gt; - Build everything. </li>
+
+
   <li>clean - Clean out all objects, libs, and executables. </li>
+
+
   <li>depend - Create the dependencies. </li>
+
+
   <li>repository - Create the repository in $PEGASUS_HOME/repository </li>
+
+
   <li>tests - Execute all tests (except client server tests). </li>
+
+
   <li>rebuild - clean, depend, &lt;default&gt; </li>
+
+
   <li>world - depend, &lt;default&gt; </li>
+
+
 </ul>
+
+
+
+
 
 <p>Generally the build commands are as follows: 
 
+
+
+
+
 <ol>
+
+
   <li>There is a Makefile in the Pegasus root directory. Simply executing make in the Pegasus
+
+
     root directory will make everything. &quot;make rebuild&quot; will clean and rebuild
+
+
     everything. The &quot;make rebuild&quot; will also populate the repository with the
+
+
     current CIM Schemas. </li>
+
+
   <li>To test a fresh release, go to the pegasus root and type &quot;<font face="Courier New">make
+
+
     world</font>&quot;.&nbsp; This will build dependencies, build binaries, and then run all
+
+
     tests except the Client/Server tests. </li>
+
+
   <li>To execute the basic test suite that is shipped with pegasus type&nbsp; &quot;make
+
+
     tests&quot;. This also reinstalls the repository.&nbsp; Running &quot;make -s tests&quot;
+
+
     suppresses extraneous output such as the enter/leave directory messages. </li>
+
+
   <li>&quot;make clean&quot; removes all object and library files from the structure. </li>
+
+
   <li>A new build system has been added to Pegasus where a new CVS checkout is done, built,
+
+
     and tests are run. Do it by: &quot;make -f mak/BuildMakefile cleanbuild&quot; </li>
+
+
 </ol>
+
+
+
+
 
 <h2><a name="pop_peg_rep">Populate the Pegasus repository</a> </h2>
 
+
+
+
+
 <p>Before using Pegasus you must populate the repository. Typically, this is done during
+
+
 the buld process when you run the makefile. However, you can also do it manually after the
+
+
 Pegasus has been built. 
 
+
+
+
+
 <ol>
+
+
   <li>Register the MOF (Managed Object Format) file describing the skeleton of the object. </li>
+
+
   <li>Register a second MOF which only points out which lib*.so file to be loaded when a
+
+
     specific object is activated. </li>
+
+
 </ol>
 
+
+
+
+
 <p>The providers included with Pegasus are automatically entered into the repository by
+
+
 running the following command: <tt>make repository</tt> </p>
+
+
+
+
 
 <p>The 'make repository' in pegasus/Schemas does three things: 
 
+
+
+
+
 <ul>
+
+
   <li>Generates the CIM Schema v2.8 in the repository (skeleton of CIM objects). To do this,
+
+
     it runs the MOF compiler on the CIM schema: <tt>cimmofl -Schema v2.8</tt> </li>
+
+
   <li>Sets up operations (shutdown, add users, etc) and CIM indications (SNMP, Events, Alert,
+
+
     Threshold, etc) internal to the Pegasus schema by running the following command: <tt>cimmofl
+
+
     -PG_InterOp</tt> </li>
+
+
   <li>Registers included CIM Providers (libOSProvider.so, libDNSProvider.so, &#133; ) in
+
+
     Pegasus (which are located in src/Providers) by running: <tt>cimmofl -PG_ManagedSystem</tt>
+
+
   </li>
+
+
 </ul>
+
+
+
+
 
 <h2><a name="reg_prov">Registering Providers in the Pegasus Environment</a></h2>
 
+
+
+
+
 <p>Pegasus registers providers with a set of provider registration classes, not using the
+
+
 provider qualifier as is done in most DMTF CIM CIMOM implementations today. This set of
+
+
 classes is close to but not exactly the same as the current DMTF definition (See the DMTF
+
+
 Interop schema, experimental versions starting with 2.6). This will be harmonized in the
+
+
 future when the DMTF scheme is moved to final status.&nbsp; </p>
 
+
+
+
+
 <p>Registration is performed by defining a MOF for the instances of the registration
+
+
 classes that represent the porvider module, providers, classes, etc. to be
+
+
 registered.&nbsp; The easiest way to create a new registration today is to copy from one
+
+
 of the existing registration MOFs.&nbsp; See the providers/sample/load directory for
+
+
 examples of several registration instance implementations that do work with Pegasus today.</p>
+
+
+
+
 
 <h2><a name="bld_rpms">Building RPMs for Pegasus</a> </h2>
 
+
+
+
+
 <p>The source distribution includes a script you can use to create an RPM for Pegasus. To
+
+
 do this, your environment must meet the following requirements: 
 
+
+
+
+
 <ul>
+
+
   <li>The root directory for Pegasus must be &quot;/Pegasus-1.0&quot; </li>
+
+
   <li>Your environment variables must be set, as described in <a href="#set_envt_var">Set
+
+
     evironment variables</a>. </li>
+
+
   <li>You must be logged in as the root user.</li>
+
+
 </ul>
 
+
+
+
+
 <p>To create the RPMs, run the script <tt>rpmBuild</tt> from the root directory of the
+
+
 source distribution. For example: <tt>. /usr/source/pegasus-1.0/rpmBuild</tt> </p>
+
+
+
+
 
 <p>This will result in and RPM file names <tt>pegasus&lt;version number&gt;.rpm</tt>. </p>
 
+
+
+
+
 <p><strong>Note</strong>: After you install using the install using the PRM, you must
+
+
 crate and populate teh repository manually. </p>
+
+
 <strong>
 
+
+
+
+
 <p>Question: I'm still working on this procedure (I haven't gotten it to work yet).<br>
+
+
 <br>
+
+
 </strong></p>
+
+
+
+
 
 <h2><a name="note_bld_peg_lnx">Notes about Building Pegasus on Linux </a></h2>
 
+
+
+
+
 <p>Pegasus supports many distributions of Linux. Refer to <a href="#peg_sup_plat">Pegasus
+
+
 Supported Platforms</a> for more information. </p>
 
+
+
+
+
 <p>To build Pegasus on Linux, ensure that you you have the environment variables set
+
+
 (PEGASUS_HOME, PEGASUS_ROOT, PEGASUS_PLATFORM.&nbsp; For 32 bit linux, the definition of
+
+
 PEGASUS_PLATFORM is normally LINUX_IX86_GNU. </p>
 
+
+
+
+
 <p><br>
+
+
 </p>
 
+
+
+
+
 <h2><a name="bld_peg_win">Notes on building Pegasus on Windows 2k or Windows XP with
+
+
 Microsoft Visual C++ </a></h2>
 
+
+
+
+
 <p>Use of Windows 2000 SP3 or later is recommended.&nbsp; Pegasus is regularly tested on
+
+
 both Windows 2000 and Windows XP using the Microsoft compilers.</p>
 
+
+
+
+
 <p>Today we build Pegasus on Windows using a set of make files contained in the source
+
+
 distribution, the Microsoft compilers (DevStudio 5.x is not supported, Visual Studio 6.0,
+
+
 SP5 is supported) and the GNUMAKE make utility.&nbsp; Note that you MUST have the Pegasus <a
+
+
 href="#mu_utility">mu.exe </a>utility compiled and available before trying to compile
+
+
 Pegasus on the normal windows platform. The following is the basic setup steps for the
+
+
 environment. </p>
 
+
+
+
+
 <p>Setup the environment variables and path for the Micrososft Visual C compiler.
+
+
 Typically this can be done by running the VCVARS32.BAT file supplied with Microsoft Visual
+
+
 C++. (contained in the same directory as cl.exe). </p>
+
+
+
+
 
 <p>For Windows, try the following for an example environment: </p>
 
+
+
+
+
 <blockquote>
+
+
   <pre>REM call the standard Microsoft .bat for VC 6 setup. 
+
+
 call 'C:/Program Files\Microsoft Visual Studio\VC98\Bin\Vcvars32.bat' 
+
+
 REM Set debug to something if you want compile in debug mode 
+
+
 set PEGASUS_DEBUG=true 
+
+
 REM set PEGASUS_ROOT to top of source tree 
+
+
 set PEGASUS_ROOT=C:/cimom/pegasus (Note: <span
+
+
 class="norm">The '/' characters are intentional and required by the Pegasus build system)</span>
+
+
 REM set PEGASUS_HOME to where you want repository and executables
+
+
 set PEGASUS_HOME=%PEGASUS_ROOT% 
+
+
 REM setup the path to the runtime files. 
+
+
 set path=%path%;%PEGASUS_HOME%\bin 
+
+
 </pre>
+
+
 </blockquote>
+
+
+
+
 
 <h3><a name="mu_utility">The MU Utility </a></h3>
 
+
+
+
+
 <p>In order to provide a consistent build structure across multiple platforms, we
+
+
 developed a small utility to provide a consistent set of small utilities across these
+
+
 platforms. The MU utilityis a simple utility that contains many commands. For example: </p>
+
+
+
+
 
 <p><font face="Courier New">&nbsp;&nbsp;&nbsp; C:\&gt; mu rm myfile.cpp yourfile.cpp </font></p>
 
+
+
+
+
 <p>You may type &quot;mu&quot; to get a list of valid commands. Here are some of them: </p>
 
+
+
+
+
 <p>&nbsp;&nbsp;&nbsp; rm, rmdirhier, mkdirhier, echo, touch, pwd, copy, move, compare
+
+
 depend </p>
 
+
+
+
+
 <p>The MU utility supports globing (expansion of wildcards) so you can do things like
+
+
 this: </p>
+
+
+
+
 
 <p><font face="Courier New">&nbsp;&nbsp;&nbsp; C:\&gt; mu rm *.obj *.exe </font></p>
 
+
+
+
+
 <p>MU is required to build under the Windows environment. MU is available as part of the
+
+
 distribution of Pegasus.<br>
+
+
 </p>
+
+
+
+
 
 <h2><a name="note_bld_peg_mac">Notes about Building Pegasus on Mac OS X </a></h2>
 
+
+
+
+
 <p>No problem. Just make sure you have the environment variables set (PEASUS_HOME,
+
+
 PEGASUS_ROOT, PEGASUS_PLATFORM. For Mac OS X/Darwin, the defination of PEGASUS_PLATFORM is
+
+
 DARWIN_PPC_GNU.</p>
 
+
+
+
+
 <h2><br>
+
+
 <a name="note_bld_peg_ssl">Notes about Building Pegasus with SSL </a></h2>
 
-<p>To build with SSL you need the OpenSSL libraries and header files. They are NOT
-distributed with Pegasus. Make sure you have them in a standard directory so Pegasus can
-find them. If that's not the case, set the environment variable OPENSSL_HOME= to point
-where your OpenSSL installation is. </p>
 
-<p>Also have the PEGASUS_HAS_SSL=yes variable set. Then just run 'make' in Pegasus
-directory and you will have Pegasus with SSL enabled. See &quot;Creating SSL
-certificates&quot; below for more information on how to use SSL. </p>
 
-<h3><a name="crt_ssl_cert">Creating SSL certifications </a></h3>
 
-<p>Type these commands in your shell to create the SSL certifications. The PEGASUS_ROOT
-and PEGASUS_HOME have to be set to your respective installation and source directory.<br>
-<span style="color: rgb(0, 0, 0);">Set the sslKeyFilePath to key.pem.&nbsp; Set the
-sslCertificateFilePath to cert.pem.&nbsp; To create a client truststore to validate the
-server against, copy the server's certificate into the client truststore, client.pem.</span><br>
-</p>
 
-<pre
-style="font-style: italic; font-family: courier new,courier,monospace; margin-left: 40px;"><small>CN=&quot;Common Name&quot;
-EMAIL=&quot;test@email.address&quot;
-HOSTNAME=`uname -n`
-sed -e &quot;s/$CN/$HOSTNAME/&quot; \
--e &quot;s/$EMAIL/root@$HOSTNAME/&quot; $PEGASUS_ROOT/ssl.cnf \
-&gt; $PEGASUS_HOME/ssl.cnf
-chmod 644 $PEGASUS_HOME/ssl.cnf
-chown bin $PEGASUS_HOME/ssl.cnf
-chgrp bin $PEGASUS_HOME/ssl.cnf
+<p>Refer to the <A HREF="doc/PegasusSSLGuidelines.htm">Pegasus SSL Guidelines</A> for details on how to build and configure Pegasus for SSL support.
 
-/usr/bin/openssl req -x509 -days 365 -newkey rsa:512 \
--nodes -config $PEGASUS_HOME/ssl.cnf \
--keyout $PEGASUS_HOME/key.pem -out $PEGASUS_HOME/cert.pem 
 
-cp $PEGASUS_HOME/cert.pem $PEGASUS_HOME/client.pem</small></pre>
-
-<p style="color: rgb(0, 0, 0);">Note:&nbsp; key.pem is sslKeyFilePath. cert.pem is
-sslCertificateFilePath</p>
 
 <h1><a name="test">Testing a Pegasus Installation</a></h1>
 
+
+
+
+
 <p>Pegasus includes an extensive set of test facilities as part of the CVS enviroment,
+
+
 including: 
 
+
+
+
+
 <ul>
+
+
   <li><b>Test Clients</b> - There are several clients that have been built specifically to
+
+
     test Pegasus, or parts of Pegasus, including TestClient, Client, CLI, ipinfo, osinfo,
+
+
     WbemEsec, etc. See the src/Clients directory for more information. These programs require
+
+
     a server complete with repository to be running.&nbsp; Note that some of these tests use
+
+
     classes and instances that are only installed with the &quot;make testrepository&quot;
+
+
     functions including test namespaces and extra classes and instances in those namespaces
+
+
     and additional providers from the providers/sample and proviers/testproviders directories.
+
+
   </li>
+
+
   <li><b>Sample and test providers</b> -&nbsp; Test providers exist for the major provider
+
+
     types in the providers/sample directories and the providers/testProviders directory </li>
+
+
   <li><b>Unit Tests</b> - Most Pegasus functions include unit tests for the functions.&nbsp;
+
+
     These are normally executed with the &quot;make tests&quot; command which can be executed
+
+
     at many different levels of the source tree from the top level to execute all of the unit
+
+
     tests to individual directories.&nbsp; Usually the unit test functions can be found in
+
+
     test directories immediately below their corresponding source code (i.e&nbsp; common/tests
+
+
     is the unit test functions for the common directory). Unit tests are executed without the
+
+
     server being operational and normally do not require the existence of a Class repository. </li>
+
+
   <li><b>An end-to-end Test Suite</b> - the directory &quot;test&quot; contains a set of
+
+
     operations tests that cover the major CIM operations.&nbsp; See the make file TestMakefile
+
+
     in the PEGASUS_ROOT directory to execute these tests.&nbsp; This set of tests executes an
+
+
     extensive set of fixed tests and compares the results against predefined results.</li>
+
+
 </ul>
+
+
+
+
 
 <h2><a name="inst_peg_html">Installing the Pegasus HTML Test Client</a></h2>
 
+
+
+
+
 <p>This is a separate test tool that allows Pegasus requests to be initiated from any WEB
+
+
 browser and that uses a WEB browser, CGI scripts and HTML pages for the formatting and
+
+
 connections. It requires a WEB server, etc. The instructions for setting up this
+
+
 environment are maintained in a separate readme in the CGI directory. </p>
+
+
+
+
 
 <h2><a name="test_icu">Testing with ICU enabled</a></h2>
 
+
+
+
+
 <p>ICU (International Components for Unicode) refers to the set of libraries that Pegasus
+
+
 uses to run globalized. For example: these libraries are used to load messages in
+
+
 different languages, format currency and numbers according to a specific locale etc. In
+
+
 order to enable globalization in Pegasus, Pegasus must be built with ICU enabled, ie. the
+
+
 right environment variables must be set prior to running &quot;make&quot;. Refer to the
+
+
 GlobalizationHOWTO.htm in the docs directory for details.<br>
+
+
 </p>
+
+
+
+
 
 <p>&nbsp;When users run &quot;make poststarttests&quot; to verify the integrity of a
+
+
 Pegasus download, a series of tests are run that require the cimserver to be running.
+
+
 These tests currently depend on specific messages returned from the server. When ICU is
+
+
 enabled, all messages come from the resource bundles and these usually do not match the
+
+
 hardcoded default messages within Pegasus. These hardcoded default messages are what the
+
+
 various test programs expect in order to complete successfully. If the ICU enabled server
+
+
 is started without disabling message loading from the bundles, &quot;make
+
+
 poststartests&quot; will fail. In order to run &quot;make poststarttests&quot;
+
+
 successfully with ICU enabled, an environment variable called PEGASUS_USE_DEFAULT_MESSAGES
+
+
 must exist prior to starting the server. Once this is defined, when the cimserver starts,
+
+
 all messages generated will be the default hardcoded messages. This will enable &quot;make
+
+
 poststarttests&quot; to complete successfully. Once &quot;make poststarttests&quot; is
+
+
 complete, you should stop the cimserver and then undefine PEGASUS_USE_DEFAULT_MESSAGES. If
+
+
 this variable is left defined, Pegasus will not be able to load messages using ICU
+
+
 resource bundles.<br>
+
+
 </p>
 
+
+
+
+
 <p><span class="norm"></span><font style="color: rgb(0, 0, 0);">When running the make
+
+
 tests command with ICU enabled, the PEGASUS_MSG_HOME environment variable must be set to
+
+
 the home directory where the ICU resource bundles are built. By default the resource
+
+
 bundles are built into directories below PEGASUS_HOME/msg, so that should be the setting
+
+
 for PEGASUS_MSG_HOME.<br>
+
+
 </font></p>
+
+
+
+
 
 <p><font style="color: rgb(0, 0, 0);">-------------------------------------------------------------------------------------------------------------------------------------<br>
+
+
 </font></p>
 
+
+
+
+
 <p><i><font size="2">Copyright (c) 2004 EMC Corporation; Hewlett-Packard Development
+
+
 Company, L.P.; IBM Corp.; The Open Group; VERITAS Software Corporation</font><br>
+
+
 <br>
+
+
 <font size="1">Permission is hereby granted, free of charge, to any person obtaining a
+
+
 copy&nbsp; of this software and associated documentation files (the &quot;Software&quot;),
+
+
 to deal in the Software without restriction, including without limitation the rights to
+
+
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the
+
+
 Software, and to permit persons to whom the Software is furnished to do so, subject to the
+
+
 following conditions:</font><br>
+
+
 <font size="2"><br>
+
+
 </font><font size="1">THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE
+
+
 INCLUDED IN ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS
+
+
 PROVIDED&nbsp; &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+
+
 INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+
+
 PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+
+
 FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+
+
 OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+
+
 DEALINGS IN THE SOFTWARE.<br>
+
+
 </font></i></p>
 
+
+
+
+
 <p><i><font size="1"><br style="font-family: arial;">
+
+
 <big><big><span style="font-family: arial;">------------------------End of
+
+
 Document-------------------------<br>
+
+
 </span></big></big></font></i></p>
+
+
 </body>
+
+
 </html>
+
+

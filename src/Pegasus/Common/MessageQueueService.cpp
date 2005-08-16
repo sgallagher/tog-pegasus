@@ -114,61 +114,89 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
          break;
       }
 
+      // The polling_routine thread must hold the lock on the
+      // _polling_thread list while processing incoming messages.
+      // This lock is used to give this thread ownership of
+      // services on the _polling_routine list.
+
+      // This is necessary to avoid confict with other threads
+      // processing the _polling_list
+      // (e.g., MessageQueueServer::~MessageQueueService).
+
       list->lock();
-      int list_index = 0;
       MessageQueueService *service = list->next(0);
-      while(service != NULL)
-	{
-	  ThreadStatus rtn;
-	  rtn = PEGASUS_THREAD_OK;
-          if (service->_incoming.count() > 0 
-              && service->_die.value() == 0
-              && service->_threads <= max_threads_per_svc_queue)
-            rtn = _thread_pool->allocate_and_awaken(service, _req_proc,
-                                                        &_polling_sem);
-          
-	  // if no more threads available, break from processing loop
-	  if (rtn != PEGASUS_THREAD_OK )
-	    {
- 		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            		"Not enough threads to process this request. Skipping.");
+      ThreadStatus rtn = PEGASUS_THREAD_OK;
+      while (service != NULL)
+      {
+          if ((service->_incoming.count() > 0) &&
+              (service->_die.value() == 0) &&
+              (service->_threads < max_threads_per_svc_queue))
+          {
+             // The _threads count is used to track the 
+             // number of active threads that have been allocated
+             // to process messages for this service.
 
- 		Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
-                       	"Could not allocate thread for %s. " \
- 			"Queue has %d messages waiting and %d threads servicing." \
- 			"Skipping the service for right now. ",
-                       	service->getQueueName(),
-                        service->_incoming.count(),
- 			service->_threads.value());
+             // The _threads count MUST be incremented while
+             // the polling_routine owns the _polling_thread
+             // lock and has ownership of the service object.
 
- 	      pegasus_yield();
-	      service = NULL;
-	    } 
-	  else
-	    {
-	      service = list->next(service);
-	    }
-	}
+             service->_threads++;
+             try
+             {
+                 rtn = _thread_pool->allocate_and_awaken(
+                      service, _req_proc, &_polling_sem);
+             }
+             catch (...)
+             {
+                 service->_threads--;
+
+                 // allocate_and_awaken should never generate an exception.
+                 PEGASUS_ASSERT(0);
+             }
+             // if no more threads available, break from processing loop
+             if (rtn != PEGASUS_THREAD_OK )
+             {
+                 service->_threads--;
+                 Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                    "Not enough threads to process this request. Skipping.");
+
+                 Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+                    "Could not allocate thread for %s. " \
+                    "Queue has %d messages waiting and %d threads servicing." \
+                    "Skipping the service for right now. ",
+                    service->getQueueName(),
+                    service->_incoming.count(),
+                    service->_threads.value());
+
+                 pegasus_yield();
+                 service = NULL;
+              } 
+          }
+          if (service != NULL) 
+          {
+             service = list->next(service);
+          }
+      }
       list->unlock();
 
       if (_check_idle_flag.value() != 0)
       {
          _check_idle_flag = 0;
-	 // try to do idle thread clean up processing when system is not busy
-	 // if system is busy there may not be a thread available to allocate 
-	 // so nothing will be done and that is OK. 
+         // try to do idle thread clean up processing when system is not busy
+         // if system is busy there may not be a thread available to allocate 
+         // so nothing will be done and that is OK. 
 
          if ( _thread_pool->allocate_and_awaken(service, kill_idle_threads, &_polling_sem) != PEGASUS_THREAD_OK)
-	 {
- 		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            		"Not enough threads to kill idle threads. What an irony.");
+         {
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                        "Not enough threads to kill idle threads. What an irony.");
 
- 		Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
-                       	"Could not allocate thread to kill idle threads." \
- 			"Skipping. ");
-	 }
+                Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+                        "Could not allocate thread to kill idle threads." \
+                        "Skipping. ");
+         }
 
-	 
+         
       }
    }
    myself->exit_self( (PEGASUS_THREAD_RETURN) 1 );
@@ -189,7 +217,7 @@ MessageQueueService::MessageQueueService(
    : Base(name, true,  queueID),
      _mask(mask),
      _die(0),
-	_threads(0),
+     _threads(0),
      _incoming(true, 0),
      _incoming_queue_shutdown(0)
 {
@@ -259,17 +287,32 @@ MessageQueueService::~MessageQueueService()
 {
    _die = 1;
 
+   // The polling_routine locks the _polling_list while
+   // processing the incoming messages for services on the 
+   // list.  Deleting the service from the _polling_list
+   // prior to processing, avoids synchronization issues
+   // with the _polling_routine.
+
+   _polling_list.remove(this);
+
+   // ATTN: The code for closing the _incoming queue
+   // is not working correctly. In OpenPegasus 2.5,
+   // execution of the following code is very timing
+   // dependent. This needs to be fix.
+   // See Bug 4079 for details. 
    if (_incoming_queue_shutdown.value() == 0)
    {
-      _shutdown_incoming_queue();
-
+       _shutdown_incoming_queue();
    }
 
- while (_threads.value() > 0)
-     {
-          pegasus_yield();
-     }
-   _polling_list.remove(this);
+   // Wait until all threads processing the messages
+   // for this service have completed.
+
+   while (_threads.value() > 0)
+   {
+      pegasus_yield();
+   }
+
    {
      AutoMutex autoMut(_meta_dispatcher_mutex);
      _service_count--;
@@ -332,7 +375,7 @@ void MessageQueueService::_shutdown_incoming_queue()
      _polling_sem.signal();
    } catch (const ListClosed &) 
    { 
-	// This means the queue has already been shut-down (happens  when there
+        // This means the queue has already been shut-down (happens  when there
     // are two AsyncIoctrl::IO_CLOSE messages generated and one got first
     // processed.
      delete msg; 
@@ -366,9 +409,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
 
         if (service->_die.value() != 0)
         {
+            service->_threads--;
             return (0);
         }
-	    service->_threads++;
         // pull messages off the incoming queue and dispatch them. then
         // check pending messages that are non-blocking
         AsyncOpNode *operation = 0;
@@ -664,11 +707,11 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
       ThreadStatus tr = PEGASUS_THREAD_OK;
       while ( (tr =_polling_thread->run()) != PEGASUS_THREAD_OK)
       {
-	if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
+        if (tr == PEGASUS_THREAD_INSUFFICIENT_RESOURCES)
            pegasus_yield();
-	else
-	   throw Exception(MessageLoaderParms("Common.MessageQueueService.NOT_ENOUGH_THREAD",
-			"Could not allocate thread for the polling thread."));
+        else
+           throw Exception(MessageLoaderParms("Common.MessageQueueService.NOT_ENOUGH_THREAD",
+                        "Could not allocate thread for the polling thread."));
       }
    }
 // ATTN optimization remove the message checking altogether in the base

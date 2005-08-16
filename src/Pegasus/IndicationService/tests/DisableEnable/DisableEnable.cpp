@@ -718,7 +718,7 @@ int main (int argc, char** argv)
         String qlang(optLang);
 
 #ifdef PEGASUS_DISABLE_CQL
-        if (qlang == "CIM:CQL"))
+        if (qlang == "CIM:CQL")
         {
           PEGASUS_STD (cout) << "+++++ cql test disabled" << PEGASUS_STD (endl);
           return 0;

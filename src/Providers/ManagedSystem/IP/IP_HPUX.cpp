@@ -168,8 +168,25 @@ NOTES             :
 */
 Boolean IPInterface::getSystemName(String& s)
 {
-  s = _hostname;
-  return true;
+    struct hostent *he;
+    char hn[PEGASUS_MAXHOSTNAMELEN + 1];
+
+    // fill in hn with what this system thinks is its name
+    gethostname(hn, PEGASUS_MAXHOSTNAMELEN);
+    hn[PEGASUS_MAXHOSTNAMELEN] = 0;
+
+    // find out what the nameservices think is its full name
+    // but if that failed, return what gethostname said
+    if (he = gethostbyname(hn))
+    {
+        s = String(he->h_name);
+    }
+    else
+    {
+        s = String(hn);
+    }
+
+    return true;
 }
 
 
@@ -428,25 +445,6 @@ NOTES             :
 */
 void IPInterface::initSystemName(void)
 {
-    struct hostent *he;
-    char hn[PEGASUS_MAXHOSTNAMELEN];
-
-    // Only initialize _hostname if it's not already been done.
-    // We need to do this check since we don't know which provider
-    // will first call this method to set the _hostname.
-
-    if (String::equal(_hostname,String::EMPTY))
-    {
-	// fill in hn with what this system thinks is its name
-	gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
-
-	// find out what the nameservices think is its full name
-	// but if that failed, return what gethostname said
-	if (he=gethostbyname(hn))
-	    _hostname = String(he->h_name);
-	else
-	    _hostname = String(hn);
-    }
 }
 
 /*

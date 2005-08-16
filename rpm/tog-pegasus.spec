@@ -385,6 +385,7 @@ fi
 %doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimconfig.8
 %doc %attr(444,root,root) /opt/tog-pegasus/share/man/man8/cimserver.8
 %doc %attr(444,root,root) /opt/tog-pegasus/share/doc/Admin_Guide_Release.pdf
+%doc %attr(444,root,root) /opt/tog-pegasus/share/doc/PegasusSSLGuidelines.htm
 
 %attr(444,root,root) /opt/tog-pegasus/mof/CIM29/Application_AppRuntime.mof
 %attr(444,root,root) /opt/tog-pegasus/mof/CIM29/Application_BIOS.mof

@@ -180,7 +180,8 @@ PEGASUS_UNIX_MAN_ADMIN_PAGES = \
    cimserver.8
 
 PEGASUS_DOC_FILES = \
-   Admin_Guide_Release.pdf
+   Admin_Guide_Release.pdf \
+   PegasusSSLGuidelines.htm
 
 CIM29_MOF_FILES = \
    Application_AppRuntime.mof \

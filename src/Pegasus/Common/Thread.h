@@ -629,6 +629,7 @@ class PEGASUS_COMMON_LINKAGE ThreadPool
       Boolean _check_deadlock_no_throw(struct timeval *start);
       Boolean _check_dealloc(struct timeval *start);
       Thread *_init_thread(void) throw(IPCException);
+      void _cleanupThread(Thread* thread);
       void _link_pool(Thread *th) throw(IPCException);
       static PEGASUS_THREAD_RETURN  _undertaker(void *);
       static PEGASUS_THREAD_RETURN  _graveyard(Thread *);

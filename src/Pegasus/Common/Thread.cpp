@@ -357,12 +357,6 @@ ThreadPool::ThreadPool(Sint16 initial_size,
    _pools.insert_last(this);
 }
 
-
-// Note:   <<< Fri Oct 17 09:19:03 2003 mdd >>>
-// the pegasus_yield() calls that preceed each th->join() are to 
-// give a thread on the running list a chance to reach a cancellation
-// point before the join 
-
 ThreadPool::~ThreadPool(void)
 {
    PEG_METHOD_ENTER(TRC_THREAD, "Thread::~ThreadPool");
@@ -374,96 +368,21 @@ ThreadPool::~ThreadPool(void)
       // remove from the global pools list 
       _pools.remove(this);
 
-      // start with idle threads. 
-      Thread *th = 0;
-      th = _pool.remove_first();
-      Semaphore* sleep_sem;
-      
-      while(th != 0)
+      while(_current_threads.value() > 0)
       {
-	 sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-         PEGASUS_ASSERT(sleep_sem != 0);
+         Thread* thread = _pool.remove_first();
+         if (thread != 0)
+         {
+            _cleanupThread(thread);
+            _current_threads--;
+         }
 
-	 if(sleep_sem == 0)
-	 {
-	    th->dereference_tsd();
-	 }
          else
          {
-	    // Signal to get the thread out of the work loop.
-	    sleep_sem->signal();
-
-	    // Signal to get the thread past the end. See the comment
-	    // "wait to be awakend by the thread pool destructor"
-	    // Note: the current implementation of Thread for Windows
-	    // does not implement "pthread" cancelation points so this
-	    // is needed.
-	    sleep_sem->signal();
-	    th->dereference_tsd();
-	    th->join();
-	    delete th;
+            pegasus_yield();
          }
-	 th = _pool.remove_first();
       }
-
-      while(_idle_control.value())
-	 pegasus_yield();
-      
-      th = _dead.remove_first();
-      while(th != 0)
-      {
-	 sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-         PEGASUS_ASSERT(sleep_sem != 0);
-	 
-	 if(sleep_sem == 0)
-	 {
-	    th->dereference_tsd();
-	 }
-         else
-         {
-            //ATTN-DME-P3-20030322: _dead queue processing in
-            //ThreadPool::~ThreadPool is inconsistent with the
-            //processing in kill_dead_threads.  Is this correct?
-	    
-	    // signal the thread's sleep semaphore
-	    sleep_sem->signal();
-	    sleep_sem->signal();
-	    th->dereference_tsd();	 
-	    th->join();
-	    delete th;
-         }
-	 th = _dead.remove_first();
-      }
-
-      {
-	 th = _running.remove_first();
-	 while(th != 0)
-	 {	 
-	    // signal the thread's sleep semaphore
-
-	    sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-            PEGASUS_ASSERT(sleep_sem != 0);
-
-	    if(sleep_sem == 0 )
-	    {
-	       th->dereference_tsd();
-	    }
-            else
-            {
-	       sleep_sem->signal();
-	       sleep_sem->signal();
-	       th->dereference_tsd();
-	       //th->cancel();
-	       pegasus_yield();
-	    
-	       th->join();
-	       delete th;
-	    }
-	    th = _running.remove_first();
-         }
-      }  
    }
-   
    catch(...)
    {
    }
@@ -496,13 +415,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       PEG_METHOD_EXIT();
       throw NullPointer();
    }
-   if(pool->_dying.value())
-   {
-      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-          "ThreadPool::_loop: ThreadPool is dying(1)");
-      PEG_METHOD_EXIT();
-      return((PEGASUS_THREAD_RETURN)0);
-   }
    
    Semaphore *sleep_sem = 0;
    Semaphore *blocking_sem = 0;
@@ -513,55 +425,38 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
    {
       sleep_sem = (Semaphore *)myself->reference_tsd("sleep sem");
       myself->dereference_tsd();
+      PEGASUS_ASSERT(sleep_sem != 0);
+
       deadlock_timer = (struct timeval *)myself->reference_tsd("deadlock timer");
       myself->dereference_tsd(); 
+      PEGASUS_ASSERT(deadlock_timer != 0);
    }
-
    catch(...)
    {
       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
 		    "ThreadPool::_loop: Failure getting sleep_sem or deadlock_timer.");
-      _graveyard(myself);
+      PEGASUS_ASSERT(false);
+      pool->_pool.remove(myself);
+      pool->_current_threads--;
       PEG_METHOD_EXIT();
-      return((PEGASUS_THREAD_RETURN)0);
+      return((PEGASUS_THREAD_RETURN)1);
    }
    
-   if(sleep_sem == 0 || deadlock_timer == 0)
-   {
-      Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-          "ThreadPool::_loop: sleep_sem or deadlock_timer are null.");
-      _graveyard(myself);
-      PEG_METHOD_EXIT();
-      return((PEGASUS_THREAD_RETURN)0);
-   }
-
    while(1)
    {
-      if(pool->_dying.value())
-	 break;
-      
       try 
       {
-	 sleep_sem->wait(false);
+	 sleep_sem->wait();
       }
-      catch (WaitInterrupted &e)
-      {
-	/* From the sem_wait manpage:
- The sem_trywait() and sem_wait() functions may fail if:
-
-       EINTR  A signal interrupted this function.
-	*/
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-		"Sleep semaphore wait failed. Doing a continue");
-	    continue;
-      }
-      catch(IPCException& )
+      catch(...)
       {
          Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
 	   "ThreadPool::_loop: failure on sleep_sem->wait().");
-	 _graveyard(myself);	 
+         PEGASUS_ASSERT(false);
+         pool->_pool.remove(myself);
+         pool->_current_threads--;
 	 PEG_METHOD_EXIT();
-	 return((PEGASUS_THREAD_RETURN)0);
+	 return((PEGASUS_THREAD_RETURN)1);
       }
       
       // when we awaken we reside on the running queue, not the pool queue
@@ -573,6 +468,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
       
       PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *_work)(void *) = 0;
       void *parm = 0;
+      Semaphore* blocking_sem = 0;
 
       try
       {
@@ -585,123 +481,77 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL ThreadPool::_loop(void *parm)
 	 myself->dereference_tsd();
 
       }
-      catch(IPCException &)
+      catch(...)
       {
          Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
            "ThreadPool::_loop: Failure accessing work func, work parm, or blocking sem.");
-	/*
-	 * We cannot move ourselves to the dead queue b/c the TSD might be still
-	 * locked and _graveyard is not equipped to de-lock (dereference_tsd) the TSD.
-	 * Only the kill_dead_threads has enough logic to handle such situations.
-	 _graveyard( myself);
-	*/
+         PEGASUS_ASSERT(false);
+         pool->_pool.remove(myself);
+         pool->_current_threads--;
 	 PEG_METHOD_EXIT();
-	 return((PEGASUS_THREAD_RETURN)0);
+	 return((PEGASUS_THREAD_RETURN)1);
       }
       
       if(_work == 0)
       {
          Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-           "ThreadPool::_loop: work func is null.");
-         PEG_METHOD_EXIT();
-	 return((PEGASUS_THREAD_RETURN)0);
-      }
-
-      if(_work ==
-         (PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)) &_undertaker)
-      {
-	/*
-	* The undertaker is set by  ThreadPool::kill_dead_threads which awakens this thread,
-	*  joins it and then removes it from the queue. Hence no reason to go to the 
-	_graveyard( myself);
-	*/
-         PEG_METHOD_EXIT();
-	 _work(parm);
+           "ThreadPool::_loop: work func is 0, meaning we should exit.");
+	 break;
       }
 
       gettimeofday(deadlock_timer, NULL);
 
-      if (pool->_dying.value() == 0)
+      try 
       {
-         try 
-         {
-            PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4,
-		"Worker started");
-	    _work(parm);
-            PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4,
-		"Worker finished");
-         }
-         catch(Exception & e)
-         {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-               String("Exception from _work in ThreadPool::_loop: ") +
-                  e.getMessage());
-            PEG_METHOD_EXIT();
-            return((PEGASUS_THREAD_RETURN)0);
-         }
+         PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4,
+            "Worker started");
+         _work(parm);
+         PEG_TRACE_STRING(TRC_THREAD, Tracer::LEVEL4,
+            "Worker finished");
+      }
+      catch(Exception & e)
+      {
+         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            String("Exception from _work in ThreadPool::_loop: ") +
+               e.getMessage());
+      }
 #if !defined(PEGASUS_OS_LSB)
-         catch (exception& e)
-         {
-            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-               String("Exception from _work in ThreadPool::_loop: ") +
-                  e.what());
-            PEG_METHOD_EXIT();
-            return((PEGASUS_THREAD_RETURN)0);
-         }
+      catch (exception& e)
+      {
+         PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+            String("Exception from _work in ThreadPool::_loop: ") +
+               e.what());
+      }
 #endif
-         catch(...)
-         {
-            Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-              "ThreadPool::_loop: execution of _work failed.");
-            PEG_METHOD_EXIT();
-	    return((PEGASUS_THREAD_RETURN)0);
-         }
-       }
+      catch(...)
+      {
+         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+           "ThreadPool::_loop: execution of _work failed.");
+      }
       
       // put myself back onto the available list
       try
       {
-	 if(pool->_dying.value() == 0)
-	 {
-	    gettimeofday(deadlock_timer, NULL);
-	    if( blocking_sem != 0 )
-	       blocking_sem->signal();
-      
-	    // If we are not on _running then ~ThreadPool has removed
-	    // us and now "owns" our pointer.
-	    if ( pool->_running.remove((void *)myself) != 0 )
-            {
-	       pool->_pool.insert_first(myself);
-            }
-            else
-            {
-               Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
-                  "ThreadPool::_loop: Failed to remove thread from running queue.");
-               PEG_METHOD_EXIT();
-	       return((PEGASUS_THREAD_RETURN)0);
-            }
-	 }
-	 else
-	 {
-	    PEG_METHOD_EXIT();
-	    return((PEGASUS_THREAD_RETURN)0);
-	 }
+	 gettimeofday(deadlock_timer, NULL);
+	 if( blocking_sem != 0 )
+	    blocking_sem->signal();
+
+         Boolean removed = pool->_running.remove((void *)myself);
+         PEGASUS_ASSERT(removed);
+
+         pool->_pool.insert_first(myself);
       }
       catch(...)
       {
         Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
              "ThreadPool::_loop: Adding thread to idle pool failed.");
+         PEGASUS_ASSERT(false);
+         pool->_current_threads--;
 	 PEG_METHOD_EXIT();
-	 return((PEGASUS_THREAD_RETURN)0);
+	 return((PEGASUS_THREAD_RETURN)1);
       }
       
    }
-
-   // TODO: Why is this needed? Why not just continue?
-   // wait to be awakend by the thread pool destructor
-   //sleep_sem->wait();
-
-   myself->test_cancel();
 
    PEG_METHOD_EXIT();
    return((PEGASUS_THREAD_RETURN)0);
@@ -804,149 +654,85 @@ ThreadStatus ThreadPool::allocate_and_awaken(void *parm,
 Uint32 ThreadPool::kill_dead_threads(void)
 	 throw(IPCException)
 {
-   // Since the kill_dead_threads, ThreadPool or allocate_and_awaken 
-   // manipulate the threads on the ThreadPool queues, they should never 
-   // be allowed to run at the same time. 
-
    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::kill_dead_threads");
-   // << Thu Oct 23 14:41:02 2003 mdd >> 
-   // not true, the queues are thread safe. they are syncrhonized. 
 
-   auto_int do_not_destruct(&_idle_control);
-   
-   try
-   {
-      if (_dying.value())
-      {
-         return 0;
-      }
-      
-      struct timeval now;
-      gettimeofday(&now, NULL);
-      Uint32 bodies = 0;
-      AtomicInt needed(0);
-   
-      // first go thread the dead q and clean it up as much as possible
-      try 
-      {
-         while(_dying.value() == 0 && _dead.count() > 0)
-         {
-	    Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "ThreadPool:: removing and joining dead thread");
-            Thread *dead = _dead.remove_first();
-	    
-	    if(dead )
-	    {
-	       dead->join();
-	       delete dead;
-	    }
-         }
-      }
-      catch(...)
-      {
-	    Tracer::trace(TRC_THREAD, Tracer::LEVEL4, "Exception when deleting dead");
-      }
-   
-      if (_dying.value())
-      {
-         return 0;
-      }
-   
-      Thread *th = 0;
-      internal_dq idq;
-      
-      if(_pool.count() > 0 )
-      {
-	 try
-	 {
-	    _pool.try_lock();
-	 }
-	 catch(...)
-	 {
-	    return bodies;
-	 }
+   Uint32 numThreadsCleanedUp = 0;
 
-	 struct timeval dt = { 0, 0 };
-	 struct timeval *dtp;
-
-	 th = _pool.next(th);
-	 while (th != 0 )
-	 {
-	    try
-	    {
-	       dtp = (struct timeval *)th->try_reference_tsd("deadlock timer");
-	    }
-	    catch(...)
-	    {
-	       _pool.unlock();
-	       return bodies;
-	    }
-
-	    if(dtp != 0)
-	    {
-	       memcpy(&dt, dtp, sizeof(struct timeval));
-	    }
-	    th->dereference_tsd();
-	    struct timeval deadlock_timeout;
-	    Boolean too_long;
-	    too_long = check_time(&dt, get_deallocate_wait(&deadlock_timeout));
-
-	    if( true == too_long)
-	    {
-	       // escape if we are down to the minimum thread count
-	       _current_threads--;
-	       if( _current_threads.value() < (Uint32)_min_threads )
-	       {
-		  _current_threads++;
-		  th = _pool.next(th);
-		  continue;
-	       }
-
-	       th = _pool.remove_no_lock((void *)th);
-               idq.insert_first((void*)th);
-	    }
-	    th = _pool.next(th);
-	 }
-	 _pool.unlock();
-      }
-
-      th = (Thread*)idq.remove_last();
-      while(th != 0)
-      {
-         th->delete_tsd("work func");
-         th->put_tsd("work func", NULL,
-            sizeof( PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
-            (void *)&_undertaker);
-         th->delete_tsd("work parm");
-         th->put_tsd("work parm", NULL, sizeof(void *), th);
-	       
-         // signal the thread's sleep semaphore to awaken it
-         Semaphore *sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
-         PEGASUS_ASSERT(sleep_sem != 0);
-	       
-         bodies++;
-         th->dereference_tsd();
-         sleep_sem->signal();
-         th->join();  // Note: Clean up the thread here rather than
-         delete th;   // leave it sitting unused on the _dead queue
-         th = (Thread*)idq.remove_last();
-      }
-
-     Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
-		"We need %u new threads", needed.value());
-      while (needed.value() > 0)   {
-         _link_pool(_init_thread());
-         needed--;
-         pegasus_sleep(0);
-      }
-       return bodies; 
-    }
-    catch (...)
+    Uint32 numIdleThreads = _pool.count();
+    for (Uint32 i = 0; i < numIdleThreads; i++)
     {
+        // Do not dip below the minimum thread count
+        if (_current_threads.value() <= (Uint32)_min_threads)
+        {
+            break;
+        }
+
+        Thread* thread = _pool.remove_last();
+
+        // If there are no more threads in the _pool queue, we're done.
+        if (thread == 0)
+        {
+            break;
+        }
+
+        struct timeval* lastActivityTime;
+        try
+        {
+            lastActivityTime = (struct timeval *)thread->try_reference_tsd(
+                "deadlock timer");
+            PEGASUS_ASSERT(lastActivityTime != 0);
+        }
+        catch (...)
+        {
+            PEGASUS_ASSERT(false);
+            _pool.insert_last(thread);
+            break;
+        }
+
+        Boolean cleanupThisThread =
+            check_time(lastActivityTime, &_deallocate_wait);
+        thread->dereference_tsd();
+
+        if (cleanupThisThread)
+        {
+            _cleanupThread(thread);
+            _current_threads--;
+            numThreadsCleanedUp++;
+        }
+        else
+        {
+            _pool.insert_first(thread);
+        }
     }
-   PEG_METHOD_EXIT();
-    return 0;
+
+    PEG_METHOD_EXIT();
+    return numThreadsCleanedUp;
 }
 
+void ThreadPool::_cleanupThread(Thread* th)
+{
+    PEG_METHOD_ENTER(TRC_THREAD, "ThreadPool::cleanupThread");
+
+    // Set the "work func" and "work parm" to 0 so _loop() knows to exit.
+    th->delete_tsd("work func");
+    th->put_tsd(
+        "work func", NULL,
+        sizeof(PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *)(void *)),
+        (void *) 0);
+    th->delete_tsd("work parm");
+    th->put_tsd("work parm", NULL, sizeof(void *), 0);
+
+    // signal the thread's sleep semaphore to awaken it
+    Semaphore* sleep_sem = (Semaphore *)th->reference_tsd("sleep sem");
+    PEGASUS_ASSERT(sleep_sem != 0);
+    sleep_sem->signal();
+    th->dereference_tsd();
+
+    th->join();
+    delete th;
+
+    PEG_METHOD_EXIT();
+}
 
 Boolean ThreadPool::check_time(struct timeval *start, struct timeval *interval)
 {

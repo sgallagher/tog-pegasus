@@ -574,16 +574,26 @@ void LocalProviderManager::_unloadProvider(Provider* provider)
                 "Error occured terminating provider " + provider->_name);
         }
 
-        // delete the cimom handle
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Destroying Provider's CIMOM Handle " + provider->_name);
-        delete provider->_cimom_handle;
-
         PEGASUS_ASSERT(provider->_module != 0);
 
         // unload provider module
         provider->_module->unloadModule();
 
+        // NOTE: The "delete provider->_cimom_handle" operation was
+        //   moved to be called after the unloadModule() call above
+        //   as part of a fix for bugzilla 3669. For some providers
+        //   run out-of-process on Windows platforms (i.e. running
+        //   the cimserver with the forceProviderProcesses config option
+        //   set to "true"), deleting the provider's CIMOMHandle before
+        //   unloading the provider library caused the unload mechanism
+        //   to deadlock, making that provider unavailable and preventing
+        //   the cimserver from shutting down. It should NOT be moved back
+        //   above the unloadModule() call. See bugzilla 3669 for details.
+        // delete the cimom handle
+        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
+            "Destroying Provider's CIMOM Handle " + provider->_name);
+        delete provider->_cimom_handle;
+        
         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
             "ProviderManager::_provider_crtl -  Unload provider $0",
             provider->getName());

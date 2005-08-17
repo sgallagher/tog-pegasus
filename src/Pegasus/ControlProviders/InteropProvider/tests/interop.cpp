@@ -168,6 +168,25 @@ Boolean _containsObjectPath(const CIMObjectPath& path,
     return false;
 }
 
+Boolean _checkExceptionCode
+    (const CIMException & e,
+     const CIMStatusCode expectedCode)
+{
+    if (verbose)
+    {
+        if (e.getCode () != expectedCode)
+        {
+            cerr << "CIMException comparison failed.  ";
+            cerr << "Expected " << cimStatusCodeToString (expectedCode) << "; ";
+            cerr << "Actual exception was " << e.getMessage () << "." << endl;
+        }
+    }
+
+    if (e.getCode () == expectedCode)
+        return(true);
+    else
+        return(false);
+}
 /* Class created to provide cover for all of the tests in this
     test program.
 */
@@ -239,7 +258,15 @@ public:
     CIMObjectPath getObjMgrPath();
 
     void testObjectManagerClass();
+
     void setStatisticsState(const Boolean flag);
+
+    Boolean InteropTest::testStatisticsSetOperationError(
+            const CIMInstance & instance,
+            const CIMPropertyList& list,
+            Boolean shouldRespondGood,
+            Boolean includeQualifiers,
+            const CIMStatusCode expectedCode);
 
     Boolean getStatisticsPropertyState(
             CIMInstance & objMgrInstance);
@@ -2104,26 +2131,40 @@ void InteropTest::testObjectManagerClass()
         cout << "ObjectManagerClass Tests passed" << endl;
 }
 
+/* Set the CIM_ObjectManager gatherStatisticaldata property in the
+   server to the state defined by flag.
+   @flag Boolean - state to set.
+*/
 void InteropTest::setStatisticsState(const Boolean flag)
 {
     CIMInstance instanceObjectManagr = getInstanceObjMgr();
 
     CIMInstance sendInstance = instanceObjectManagr.clone();
 
-    Uint32 pos;
-    if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
-        sendInstance.getProperty(pos).setValue(CIMValue(flag));
-
-    // What is this for?????
-    // We are appending property????
+    // Filter out everything but our property.
     Array<CIMName> plA;
     plA.append(CIMName("gatherstatisticaldata"));
     CIMPropertyList myPropertyList(plA);
+    sendInstance.filter(false, false, myPropertyList);
 
+    Uint32 pos;
+    if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
+        sendInstance.getProperty(pos).setValue(CIMValue(flag));
+    else
+    {
+        TERMINATE("gatherstatisticaldata property not found in setStatisticsState function");
+    }
+    try
+    {
     _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
                         sendInstance,
                         false,
-                        CIMPropertyList());
+                        myPropertyList);
+    }
+    catch(CIMException& e)
+    {
+        cout <<" setStatistics CIMException: " << e.getMessage() << endl;
+    }
 }
 
 Boolean InteropTest::getStatisticsPropertyState(CIMInstance & objMgrInstance)
@@ -2160,11 +2201,85 @@ void InteropTest::showStatisticsState()
     cout << "Statistics State = " << (getStatisticsState()? "on" : "off") << endl;
 
 }
+
+/** try the modify operation.  Will return true if it passes and false if
+    it fails with any error code other than the one defined. This function
+    is used to test primarily the error functions of modify instance.
+    @param modifiedIns CIMInstance with modifications
+    @param list CIMPropertyList of properties to modify
+    @param includeQualifiers Boolean that defines whether qualifiers
+    are to be modified
+    @expectedCode CIMStatusCode defining expected error code.
+    @return True if the modification fails AND the expected error is received.
+*/
+Boolean InteropTest::testStatisticsSetOperationError(
+                    const CIMInstance & modifiedIns,
+                    const CIMPropertyList& list,
+                    Boolean shouldRespondGood,
+                    Boolean includeQualifiers, 
+                    const CIMStatusCode expectedCode)
+{
+    try
+    {
+        // modify with full instance but propertylist set to mod
+        // only this property.
+        _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
+                            modifiedIns,
+                            includeQualifiers,
+                            list);
+        if (shouldRespondGood)
+        {
+            return(true);
+        }
+        else
+            return(false);  // return false. modification was made
+    }
+    catch(CIMException& e)
+    {
+        if (shouldRespondGood)
+        {
+            // unexpected Error hit.
+            return(false);
+        }
+        else
+        {
+            if (_checkExceptionCode(e, expectedCode))
+                return (true);
+            else
+                return(false);
+        }
+    }
+}
+/** test of the function to enable and disable the boolean statistics
+    property in CIMObjectManager using modify instance.  
+    This tests both correct modification and error cases.
+*/
 void InteropTest::testStatisticsEnable()
 {
     try
     {
+        //
+        //  Test normal set to true and set to false operations
+        //
+        setStatisticsState(true);
+        // Get Object Manager instance and confirm property changed.
+        assert(getStatisticsState());
+        setStatisticsState(false);
+        // Get Object Manager instance and confirm property changed.
+        assert(!getStatisticsState());
+
+        //
+        //  Test modify with multiple properties in modifiedIns.
+        //
+        // Get original instance for following tests
         CIMInstance instanceObjectManager = getInstanceObjMgr();
+
+        // Create property list that represents correct request
+        Array<CIMName> plA;
+        plA.append(CIMName("gatherstatisticaldata"));
+        CIMPropertyList myPropertyList(plA);
+
+        // Get Object Manager instance as basis for following tests
         CIMInstance sendInstance = instanceObjectManager.clone();
 
         Uint32 pos;
@@ -2172,99 +2287,99 @@ void InteropTest::testStatisticsEnable()
             sendInstance.getProperty(pos).setValue(CIMValue(true));
         else
             assert(false);
-        CDEBUG("testStats. pos = " << pos);
-        Array<CIMName> plA;
-        plA.append(CIMName("gatherstatisticaldata"));
-        CIMPropertyList myPropertyList(plA);
 
-        // Don't need this.
-        //sendInstance.filter(false, false, CIMPropertyList());
+        // Test with Multiple Properties in instance and qualifiers removed
+        sendInstance.filter(false, false, CIMPropertyList());
+        // try modify with multiple properties . Should set statistics true
+        if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
+                true, false, CIM_ERR_NOT_SUPPORTED))
+           TERMINATE("Failed to Set Statistics true");
+        assert(getStatisticsState());
 
-        CDEBUG("testStats. filtered");
-        //??? Error here since we only have the one property in the instance.
-        try
-        {
-            if (verbose)
-            {
-                cout << "Instance to be modified" << endl;
-                XmlWriter::printInstanceElement(sendInstance);
-            }
-            _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
-                                sendInstance,
-                                false,
-                                CIMPropertyList());
-        }
-        catch(CIMException& e)
-            {
-                cout <<" CIM_ObjectManager Test Modify Instance CIMException: " << e.getMessage() << endl;
-                assert(false);
-            }
-
-
-        CDEBUG("testStats. modified");
-        // Get Object Manager instance and confirm property changed.
-        CIMInstance localInstance = getInstanceObjMgr();
-
-        if ((pos = localInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
-        {
-            CIMConstProperty p1 = localInstance.getProperty(pos);
-            if (p1.getType() == CIMTYPE_BOOLEAN)
-            {
-                CIMValue v1  = p1.getValue();
-                Boolean output;
-                if (!v1.isNull())
-                    v1.get(output);
-                assert(output);
-            }
-        }
-        else
-            assert(false);
-
-        // Now we must set it back to false.
-
-        CDEBUG("testStats. second get");
+        // test with multiple properties in instance and qualifiers in instance
+        sendInstance = instanceObjectManager.clone();
         if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
             sendInstance.getProperty(pos).setValue(CIMValue(false));
         else
             assert(false);
+        // following should turn statistics off
+        if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
+                true, false, CIM_ERR_NOT_SUPPORTED))
+           TERMINATE("Failed to Set Statistics false");
+        assert(!getStatisticsState());
 
-        _client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP,
-                            sendInstance,
-                            false,
-                            CIMPropertyList());
+        // now assure ourselves that the instances are the same.
+        //CIMInstance newInstanceObjectManager = getInstanceObjMgr();
+        assert(instanceObjectManager.identical(getInstanceObjMgr()));
 
-        // Get instance and confirm property changed once again.
-        CIMInstance newInstanceObjectManager = getInstanceObjMgr();
+        //
+        // Now test possible  modify operations that should fail.
+        //
+        sendInstance = instanceObjectManager.clone();
 
-        if ((pos = newInstanceObjectManager.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
-        {
-            CIMConstProperty p1 = newInstanceObjectManager.getProperty(pos);
-            if (p1.getType() == CIMTYPE_BOOLEAN)
-            {
-                CIMValue v1  = p1.getValue();
-                Boolean output;
-                if (!v1.isNull())
-                    v1.get(output);
-                else
-                    assert(false);
-                assert(output == false);
-            }
-        }
+        if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
+            sendInstance.getProperty(pos).setValue(CIMValue(true));
         else
             assert(false);
+
+        // Should fail because property list is null
+        if(!testStatisticsSetOperationError(sendInstance, CIMPropertyList(),
+                                    false, false, CIM_ERR_NOT_SUPPORTED))
+           TERMINATE("Set Should fail. CIMPropertyList Null not allowed");
+        assert(!getStatisticsState());
+
+        // PropertyList contains one property but NOT statistics. It should fail
+        Array<CIMName> plA2;
+        plA2.append(CIMName("RequestStateChange"));
+        CIMPropertyList myPropertyList2(plA2);
+        CIMInstance sendInstance2 = sendInstance.clone();
+        sendInstance2.filter(false, false, myPropertyList2); 
+        if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
+                                    false, false, CIM_ERR_NOT_SUPPORTED))
+           TERMINATE("Set Should fail. Bad Property in modifiedInstance");
+        assert(!getStatisticsState());
+
+        // Try with MyProperty list empty.  This should return good but
+        // no change
+        Array<CIMName> plA3;
+        myPropertyList2.set(plA3);
+        sendInstance2 = sendInstance.clone();
+        sendInstance2.filter(false, false, myPropertyList); 
+        if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
+                                    true, false, CIM_ERR_NOT_SUPPORTED))
+           TERMINATE("Set with propertylist empty should pass");
+        assert(!getStatisticsState());
+
+        // Try with includequalifiers and include qualifiers. Should fail
+        if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
+                                    false, true, CIM_ERR_NOT_SUPPORTED))
+           TERMINATE("Set Should fail. includeQualifiers = true");
+        assert(!getStatisticsState());
+
+        // try with propertylist that has extra properties.
+        plA.append(CIMName("RequestStateChange"));
+        myPropertyList.set(plA);
+        if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
+                                    false, false,CIM_ERR_NOT_SUPPORTED))
+           TERMINATE("Set Should fail. Bad Property in modifiedInstance");
+
+        // Confrim that instance is unchanged from original.
+        assert(!getStatisticsState());
+        //newInstanceObjectManager = getInstanceObjMgr();
+        assert(instanceObjectManager.identical(getInstanceObjMgr()));
     }
-    // Catch block for all of the CIM_ObjectManager Tests.
+    // Catch block for all of the Statistics Modification Tests.
     catch(CIMException& e)
     {
-        TERMINATE(" CIM_ObjectManager Test CIMException: " << e.getMessage());
+        TERMINATE(" testStatisticsEnable Test CIMException: " << e.getMessage());
     }
     catch(Exception& e)
     {
-        TERMINATE(" CIM_ObjectManager Test Pegasus Exception: " << e.getMessage());
+        TERMINATE(" testStatisticsEnable Test Pegasus Exception: " << e.getMessage());
     }
     catch(...)
     {
-        TERMINATE(" CIM_ObjectManager Test Caught General Exception:");
+        TERMINATE(" testStatisticsEnable Test Caught General Exception:");
     }
     if (verbose)
     {

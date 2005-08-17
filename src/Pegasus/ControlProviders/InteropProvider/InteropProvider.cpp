@@ -139,7 +139,13 @@ PEGASUS_NAMESPACE_BEGIN
 
 const char * thisProvider = "InteropProvider";
 
-
+// This Mutex serializes access to the instance change CIM requests. Keeps from mixing
+// instance creates, modifications, and deletes. This keeps the provider from
+// simultaneously execute creates, modifications, and deletes of instances. While
+// these operations are largely protected by the locking mechanisms of the 
+// repository this mutex guarantees that the provider will not simultaneously
+// execute the instance change operations.
+Mutex changeControlMutex;
 /**
     The constants representing the class names we process
 */
@@ -345,7 +351,7 @@ void _isNamespaceAllowed(const CIMObjectPath & path)
     // return;
     if (path.getNameSpace().getString() != PEGASUS_NAMESPACENAME_INTEROP)
     {
-            throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NOT_SUPPORTED,
+            throw CIMNotSupportedException(
                           path.getClassName().getString());
     }
     else
@@ -436,6 +442,9 @@ Boolean _getPropertyValue(const CIMInstance& instance, const CIMName& propertyNa
             if (!v1.isNull())
                 v1.get(output);
         }
+        else
+            throw CIMInvalidParameterException(
+                "Incorrect Property Type for Property " + propertyName.getString());
     }
     return(output);
 }
@@ -610,7 +619,7 @@ Boolean _validateRequiredProperty(const CIMInstance& instance,
     return(false);
 }
 
-/* _CheckRequiredProperty
+/*  _CheckRequiredProperty
     Note validate does about the same thing.
 */
 Boolean _checkRequiredProperty(CIMInstance& instance,
@@ -651,7 +660,6 @@ Boolean _checkRequiredProperty(CIMInstance& instance,
             if ((theValue.getType ()) != expectedType)
                 propertyError = true;
         }
-
     }
     PEG_METHOD_EXIT ();
     return(propertyError);
@@ -1233,6 +1241,7 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         }
         instance.setPath(instancePath);
     }
+
     PEG_METHOD_EXIT();
     return(instance);
 }
@@ -1472,7 +1481,7 @@ CIMInstance InteropProvider::_buildInstancePGNamespace(const CIMObjectPath& obje
           {
               PEG_METHOD_EXIT();
               // This is poor exception since it reflects internal error. Do error log
-              throw PEGASUS_CIM_EXCEPTION (CIM_ERR_NOT_SUPPORTED,
+              throw CIMNotSupportedException(
                   "Namespace attribute rtnd error for key " + key + "expected " +
                    nameSpace.getString()+ value + " in " + String(thisProvider));
           }
@@ -1601,7 +1610,6 @@ Boolean _completeProperty(CIMInstance& instance,
 }
 Boolean _completeCIMNamespaceKeys(CIMInstance& instance)
 {
-
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::_completeCIMNamespaceKeys");
 
@@ -1612,7 +1620,6 @@ Boolean _completeCIMNamespaceKeys(CIMInstance& instance)
                 CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME,
                 System::getSystemCreationClassName ()))
     {
-
         propertyName = CIM_NAMESPACE_PROPERTY_SYSTEMCREATIONCLASSNAME;
         valid = false;
     }
@@ -1925,6 +1932,8 @@ void InteropProvider::createInstance(
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::createInstance()");
 
+        AutoMutex autoMut(changeControlMutex);
+
         Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
             "%s createInstance. InstanceReference= %s",
             thisProvider,
@@ -2090,6 +2099,8 @@ void InteropProvider::deleteInstance(
     {
         PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "InteropProvider::deleteInstance");
 
+        AutoMutex autoMut(changeControlMutex);
+
         Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
             "%s deleteInstance. instanceName= %s",
             thisProvider,
@@ -2190,6 +2201,7 @@ CIMInstance InteropProvider::localGetInstance(
     
     // create reference from host, namespace, class components of
     // instance name
+
     CIMObjectPath ref;
     ref.setHost(instanceName.getHost());
     ref.setClassName(instanceName.getClassName());
@@ -2208,6 +2220,7 @@ CIMInstance InteropProvider::localGetInstance(
     
     // deliver a single instance if found.
     CIMInstance rtnInstance;
+
     for (Uint32 i = 0 ; i < instances.size() ; i++)
     {
        if (instanceName == instances[i].getPath())
@@ -2251,6 +2264,8 @@ void InteropProvider::getInstance(
 
     if (!myInstance.isUninitialized())
         handler.deliver(myInstance);
+    else
+        throw CIMObjectNotFoundException(instanceName.toString());
     
     handler.complete();
 }
@@ -2293,7 +2308,6 @@ Array<CIMInstance> InteropProvider::localEnumerateInstances(
                                     includeQualifiers,
                                     includeClassOrigin,
                                     propertyList);
-
             instances.append(instance);
         }
 
@@ -2385,69 +2399,166 @@ void InteropProvider::enumerateInstances(
         PEG_METHOD_EXIT();
     }   
 
-void InteropProvider::modifyObjectManagerInstance(const OperationContext & context,
+/** Determies if an instance modification is to be allowed. This includes
+    tests to determine the validity of the modified instance, the property
+    list provided, if qualifier modification was requested.
+    @param context
+    @param instanceReference CIMObjectPath defining the path of the instance
+    to be modified.
+    @param modifiedIns CIMInstance containing the modifications
+    @param includeQualifiers Boolean defining if qualifiers are to be modified.
+    @param propertyList CIMPropertyList provided with the request
+    @param allowedModifyProperties CIMPropertyList defining properties that
+    are allowed to be modified by the provider
+    @return true if there are modifications that can be made.  Note that there
+    is an additional decision to be made by the user whether the modifiedIns
+    includes all of the properties or they are to be set to default.
+    @exception CIM_ERR_NOT_SUPPORTED if the specified modification is not supported
+    @exception CIM_ERR_INVALID_PARAMETER  if the modifiedInstance is invalid
+ */
+Boolean InteropProvider::isModifyAllowed(const OperationContext & context,
     const CIMObjectPath & instanceReference,
     const CIMInstance& modifiedIns,
     const Boolean includeQualifiers,
     const CIMPropertyList& propertyList,
-    ResponseHandler & handler)
+    const CIMPropertyList& allowedModifyProperties)
+{
+    // if property list size does not match allowed list.
+    if ((propertyList.size() > allowedModifyProperties.size())
+           || (propertyList.isNull())
+       )
+    {
+        throw CIMNotSupportedException(
+            "Only Modification of " + _toStringPropertyList(allowedModifyProperties)
+             + " allowed");
+    }
+    // property list indicates nothing to modify return false
+    if (propertyList.size() == 0)
+    {
+        return(false);
+    }
+
+    // DO NOT allow any qualifier modifications.
+    if (includeQualifiers)
+    {
+        throw CIMNotSupportedException(
+            "Qualifier Modification not allowed");
+    }
+
+    // Assure that nothing is in the propertylist and NOT in
+    // the allowed list.
+    Array<CIMName> allowedArray = allowedModifyProperties.getPropertyNameArray();
+    for (Uint32 i = 0 ; i < propertyList.size() ; i++)
+    {
+        if (!Contains(allowedArray, propertyList[i]))
+        {
+            throw CIMNotSupportedException(
+                "Only Modification of " + _toStringPropertyList(allowedModifyProperties)
+                 + " allowed");
+        }
+    }
+    // We have something to modify. Property List is valid
+    return(true);
+}
+/** Modify the existing object Manager Object.  Only a single property modification
+    is allowed, the statistical data setting.  Any other change is rejected
+    with an exception
+    @param instanceReference - Reference for the instance to be modified.
+    @param modifiedIns CIMInstance defining the change. If this includes more than
+    a single property, the propertyList must specify modification only of the
+    statisticaldata property.
+    @includeQualifiers Boolean which must be false unless there are no qualifiers
+    in the modifiedIns.
+    @propertyList CIMPropertyList defining the property to be modified if there
+    is more than one property in the modifiedIns.
+    @Exceptions CIMInvalidParameterException if the parameters are not valid for
+    the modification.
+ */
+void InteropProvider::modifyObjectManagerInstance(const OperationContext & context,
+    const CIMObjectPath & instanceReference,
+    const CIMInstance& modifiedIns,
+    const Boolean includeQualifiers,
+    const CIMPropertyList& propertyList)
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::modifyObjectManagerInstance");
 
-    // the only allowed modification is this one property, statistical data
-
-    if (modifiedIns.findProperty(OM_GATHERSTATISTICALDATA) != PEG_NOT_FOUND)
-    {
-        // the following is a temporary hack to set the value of the statistics
-        // gathering function dynamically.  We simply get the  value from input
-        // and call the internal method to set it each time this object is
-        // built.
+    // Modification only allowed when Performance staticistics are active
 #ifndef PEGASUS_DISABLE_PERFINST
-        Boolean statisticsFlag = _getPropertyValue(modifiedIns,
-                OM_GATHERSTATISTICALDATA, false);
+    // the only allowed modification is one property, statistical data
+    Array<CIMName> plA;
+    plA.append(CIMName(OM_GATHERSTATISTICALDATA));
+    CIMPropertyList allowedModifyPropertyList(plA);
+
+    // returns only if no exception and there is property to modify.
+    if (isModifyAllowed(context, instanceReference, modifiedIns,
+        includeQualifiers, propertyList, allowedModifyPropertyList))
+    {
         CIMInstance instance;
         instance = _getInstanceCIMObjectManager(instanceReference,
                 true, true, CIMPropertyList());
 
-        if (statisticsFlag != _getPropertyValue(instance,  OM_GATHERSTATISTICALDATA, false))
-        {
-            // set the changed property into the
-            _setPropertyValue(instance, OM_GATHERSTATISTICALDATA, statisticsFlag);
-            // Modify the object on disk
-            try
-            {
-                _repository->modifyInstance(instanceReference.getNameSpace(),
-                               instance );
-            }
-            catch(const CIMException&)
-            {
-                // ATTN: KS generate log error if this not possible
-                PEG_METHOD_EXIT();
-                throw;
-            }
-            catch(const Exception&)
-            {
-                // ATTN: Generate log error.
-                PEG_METHOD_EXIT();
-                throw;
-            }
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
-                (statisticsFlag? "true" : "false"));
-            StatisticalData* sd = StatisticalData::current();
-            sd->setCopyGSD(statisticsFlag);
-        }
-        return;
-#endif
-
+        CIMObjectPath tmpPath;
+        tmpPath.setClassName(instanceReference.getClassName());
+        tmpPath.setKeyBindings(instanceReference.getKeyBindings());
+        if (!(tmpPath == instance.getPath()) )
+            throw CIMObjectNotFoundException(instanceReference.toString());
     }
+    else    // nothing to modify. return
+    {
+        return;
+    }
+    Boolean statisticsFlag;
+    CIMInstance myInstance;
+
+    // We modify only if this property exists.
+    // could either use the property from modifiedIns or simply replace
+    // value in property from object manager.
+    if (modifiedIns.findProperty(OM_GATHERSTATISTICALDATA) != PEG_NOT_FOUND)
+    {
+        myInstance = _getInstanceCIMObjectManager(instanceReference,
+                                    false, false, propertyList);
+        statisticsFlag = _getPropertyValue(modifiedIns, OM_GATHERSTATISTICALDATA, false);
+        // set the changed property into the instance
+        _setPropertyValue(myInstance, OM_GATHERSTATISTICALDATA, statisticsFlag);
+    }
+    else
+    {
+        // if statistics property not in place, simply exit. Nothing to do
+        // not considered an error
+        PEG_METHOD_EXIT();
+        return;
+    }
+    // Modify the instance on disk
+    try
+    {
+        _repository->modifyInstance(instanceReference.getNameSpace(),
+                       myInstance, false,  propertyList);
+    }
+    catch(const CIMException&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
+    catch(const Exception&)
+    {
+        PEG_METHOD_EXIT();
+        throw;
+    }
+    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "Interop Provider Set Statistics gathering in CIM_ObjectManager: $0",
+        (statisticsFlag? "true" : "false"));
+    StatisticalData* sd = StatisticalData::current();
+    sd->setCopyGSD(statisticsFlag);
     PEG_METHOD_EXIT();
-    // ATTN Expand this definition to be more precise since it allows only mod of
-    // one property and that property MUST be in the instance to be modifiable.
+    return;
+
+#else
+    PEG_METHOD_EXIT();
     throw CIMNotSupportedException
         (OM_GATHERSTATISTICALDATA.getString() + 
                 " modify operation not supported by Interop Provider");
+#endif
 }
 //***************************************************************************
 //***************************************************************************
@@ -2463,6 +2574,8 @@ void InteropProvider::modifyInstance(const OperationContext & context,
 {
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER,
             "InteropProvider::modifyInstance");
+
+    AutoMutex autoMut(changeControlMutex);
 
     Tracer::trace(TRC_CONTROLPROVIDER, Tracer::LEVEL4,
         "%s modifyInstance. instanceReference= %s, includeQualifiers= %s, PropertyList= %s",
@@ -2486,16 +2599,15 @@ void InteropProvider::modifyInstance(const OperationContext & context,
     if (classEnum == CIM_OBJECTMANAGER)
     {
         modifyObjectManagerInstance(context, instanceReference,modifiedIns,
-            includeQualifiers, propertyList, handler);
+            includeQualifiers, propertyList);
         // for the moment allow modification of the statistics property only
     }
 
     else if (classEnum == PG_CIMXMLCOMMUNICATIONMECHANISM)
     {
-
         PEG_METHOD_EXIT();
         throw CIMNotSupportedException
-            (className.getString() + " not supported by Interop Provider");
+            (" Modification of " + className.getString() + " not supported by Interop Provider");
     }
     else if (classEnum == PG_NAMESPACE)
     {

@@ -259,12 +259,18 @@ private:
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    void modifyObjectManagerInstance(const OperationContext & context,
+    Boolean InteropProvider::isModifyAllowed(const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
         const Boolean includeQualifiers,
         const CIMPropertyList& propertyList,
-        ResponseHandler & handler);
+        const CIMPropertyList& allowedModifyProperties);
+
+    void modifyObjectManagerInstance(const OperationContext & context,
+        const CIMObjectPath & instanceReference,
+        const CIMInstance& modifiedIns,
+        const Boolean includeQualifiers,
+        const CIMPropertyList& propertyList);
 
     // The following are internal equivalents of the operations
     // allowing the operations to call one another internally within

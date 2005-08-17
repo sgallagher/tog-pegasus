@@ -818,18 +818,6 @@ int main(int argc, char** argv)
         numExpectedObjects,
         "bad resultClass filter");
 
-    // bad parameter - assocClass
-    role = "Teaches";
-    resultRole = "TaughtBy";
-    resultClass = SAMPLE_TEACHER;
-    assocClass = SAMPLE_STUDENT;
-    numExpectedObjects = 0;
-
-    _testAssociatorFilters(client, "Sample_Teacher.Name=\"Teacher1\"", role,
-        resultRole, resultClass, assocClass,
-        numExpectedObjects,
-        "bad assocClass filter");
-
     // =======================================================================
     // Test passing Class object path to the Association Methods
     // =======================================================================

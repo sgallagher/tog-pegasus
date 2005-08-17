@@ -42,11 +42,15 @@ LIBRARIES = \
     pegprovider \
     pegprovidermanager \
     pegqueryexpression \
-    pegcql \
     pegwql \
     pegquerycommon \
     pegconfig \
     pegcommon
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+       pegcql
+endif
 
 SOURCES = \
 	DefaultProviderManagerMain.cpp \

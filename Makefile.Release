@@ -103,12 +103,16 @@ PEGASUS_LIBRARIES = \
    libDefaultProviderManager \
    libCertificateProvider \
    libpegqueryexpression \
-   libpegcql \
    libpegquerycommon \
-   libCIMQueryCapabilitiesProvider \
    libInteropProvider \
    libCIMOMStatDataProvider \
    libpegservice 
+
+ifndef PEGASUS_DISABLE_CQL
+   PEGASUS_LIBRARIES += \
+      libpegcql \
+      libCIMQueryCapabilitiesProvider
+endif
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 PEGASUS_LIBRARIES += \

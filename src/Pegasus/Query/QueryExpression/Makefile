@@ -43,8 +43,12 @@ LIBRARY = pegqueryexpression
 LIBRARIES = \
    pegcommon \
    pegquerycommon \
-   pegwql \
-   pegcql 
+   pegwql
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+       pegcql
+endif
 
 SOURCES = \
    QueryExpression.cpp 	

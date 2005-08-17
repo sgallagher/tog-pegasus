@@ -50,8 +50,12 @@ LIBRARIES = \
     pegquerycommon \
     pegconfig \
     pegwql \
-    pegcql \
     pegcommon
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+       pegcql
+endif
 
 SOURCES = \
 	CMPIProviderManagerMain.cpp \

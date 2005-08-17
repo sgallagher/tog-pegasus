@@ -566,9 +566,7 @@ fi
 %attr(555,root,root) /opt/tog-pegasus/lib/libDefaultProviderManager.so.1
 %attr(555,root,root) /opt/tog-pegasus/lib/libCertificateProvider.so.1
 %attr(555,root,root) /opt/tog-pegasus/lib/libpegqueryexpression.so.1
-%attr(555,root,root) /opt/tog-pegasus/lib/libpegcql.so.1
 %attr(555,root,root) /opt/tog-pegasus/lib/libpegquerycommon.so.1
-%attr(555,root,root) /opt/tog-pegasus/lib/libCIMQueryCapabilitiesProvider.so.1
 %attr(555,root,root) /opt/tog-pegasus/lib/libInteropProvider.so.1
 %attr(555,root,root) /opt/tog-pegasus/lib/libCIMOMStatDataProvider.so.1
 %attr(555,root,root) /opt/tog-pegasus/lib/libpegservice.so.1

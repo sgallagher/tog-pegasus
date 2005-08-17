@@ -85,9 +85,9 @@ public:
 
 int main(int argc, char** argv)
 {
-   cout << "++++++testing Client Performance Statistics " << endl;
-  const String interopNameSpace = "root/PG_Interop";
-  const String nameSpace = "root/cimv2";
+    cout << "++++++testing Client Performance Statistics " << endl;
+    const String interopNameSpace = "root/PG_Interop";
+    const String nameSpace = "root/cimv2";
     try{
 // connecting to server
 	   CIMClient client;
@@ -101,12 +101,12 @@ int main(int argc, char** argv)
    String gath = "GatherStatisticalData";
    CIMName gst = CIMName(gath);
    CIMValue val = CIMValue(loc);
-   Array<CIMObjectPath> instances;
+   Array<CIMObjectPath> instanceNames;
    /* EnumerateInstances and
    */
    try
    {
-      instances = client.enumerateInstanceNames(interopNameSpace, cN);
+      instanceNames = client.enumerateInstanceNames(interopNameSpace, cN);
    }
    catch (Exception& e)
    { cerr << "Exception : " << e.getMessage() << endl;
@@ -114,21 +114,32 @@ int main(int argc, char** argv)
    }
    catch(...) {
        cout << "enumerateInstancesNames in Client/tests/ClientStatistics has thrown an exception" << endl;
+       exit(1);
    }
+   // assert that we received  one name
+   assert(instanceNames.size() == 1);
    /* ModifyInstance
    */
    CIMName gathStatName ("GatherStatisticalData");
-   cout << "namespace " << interopNameSpace << endl;
+
+   // variables used with gatherstatistics setting.
+   CIMInstance instObjectManager;
+   Uint32 prop_num;
+   Array<CIMName> plA;
+   plA.append(gathStatName);
+   CIMPropertyList statPropertyList(plA);
    try {
-       CIMInstance inst  = client.getInstance(interopNameSpace, instances[0], true, false, false, CIMPropertyList());
-       Uint32 prop_num = inst.findProperty(gathStatName);
-       CIMProperty prop = CIMProperty(inst.getProperty(prop_num));
-       CIMValue prop_value = CIMValue();
-       prop_value.set(true);
-       prop.setValue(prop_value);
-       inst.removeProperty(prop_num);
-       inst.addProperty(prop);
-       client.modifyInstance(interopNameSpace, inst, false);
+        // Create property list that represents correct request
+        // get instance.  Get only the gatherstatitistics property
+        instObjectManager  = client.getInstance(interopNameSpace, instanceNames[0], true, false, false, statPropertyList);
+        instObjectManager.setPath(instanceNames[0]);         // set correct path into instance
+
+        prop_num = instObjectManager.findProperty(gathStatName);
+        assert(prop_num != PEG_NOT_FOUND);
+
+        instObjectManager.getProperty(prop_num).setValue(CIMValue(true));
+
+        client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
 	}
    catch (Exception& e)
    {
@@ -140,18 +151,16 @@ int main(int argc, char** argv)
  CliStat stat = CliStat();
          client.registerClientOpPerformanceDataHandler(stat);
          String classN = "PG_ComputerSystem";
-         Array<CIMObjectPath> inst = client.enumerateInstanceNames(nameSpace,
-                                                                        classN);
+         Array<CIMObjectPath> instance = client.enumerateInstanceNames(nameSpace,
+                                                                   classN);
+         instObjectManager.getProperty(prop_num).setValue(CIMValue(false));
+         client.modifyInstance(interopNameSpace, instObjectManager, false,statPropertyList);
     }
 
     catch(Exception& e){
 	   PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
 	   exit(1);
     }
-
-
-
-
 
     PEGASUS_STD(cout) << "+++++ passed all tests" << PEGASUS_STD(endl);
 

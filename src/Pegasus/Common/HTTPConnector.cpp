@@ -350,7 +350,7 @@ HTTPConnection* HTTPConnector::connect(
 
    // Create HTTPConnection object:
 
-   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, false));
+   AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, sslContext, 0, false));
    if (mp_socket->connect() < 0) {
       char portStr [32];
       sprintf (portStr, "%u", portNumber);

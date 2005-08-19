@@ -226,7 +226,8 @@ HTTPConnection::HTTPConnection(
     _outputMessageQueue(outputMessageQueue),
     _contentOffset(-1),
     _contentLength(-1),
-    _connectionClosePending(false)
+    _connectionClosePending(false),
+    _acceptPending(false)
 {
     PEG_METHOD_ENTER(TRC_HTTP, "HTTPConnection::HTTPConnection");
 
@@ -1642,6 +1643,47 @@ void HTTPConnection::_handleReadEvent()
 {
     static const char func[] = "HTTPConnection::_handleReadEvent()";
     PEG_METHOD_ENTER(TRC_HTTP, func);
+
+    if (_acceptPending)
+    {
+        PEGASUS_ASSERT(!_isClient());
+
+        Sint32 socketAcceptStatus = _socket->accept();
+
+        if (socketAcceptStatus < 0)
+        {
+            PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+                "HTTPConnection: SSL_accept() failed");
+            _closeConnection();
+            PEG_METHOD_EXIT();
+            return;
+        }
+        else if (socketAcceptStatus == 0)
+        {
+            // Not enough data yet to complete the SSL handshake
+            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+                "HTTPConnection: SSL_accept() pending");
+            PEG_METHOD_EXIT();
+            return;
+        }
+        else
+        {
+            // Add SSL verification information to the authentication info
+            if (_socket->isSecure() &&
+                _socket->isPeerVerificationEnabled() &&
+                _socket->isCertificateVerified())
+            {
+                _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
+                _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
+                _authInfo->setClientCertificate(_socket->getPeerCertificate());
+            }
+
+            // Go back to the select() and wait for data on the connection
+            _acceptPending = false;
+            PEG_METHOD_EXIT();
+            return;
+        }
+    }
 
     // -- Append all data waiting on socket to incoming buffer:
 

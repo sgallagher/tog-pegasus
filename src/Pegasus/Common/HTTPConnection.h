@@ -201,6 +201,11 @@ private:
     // returning control of the connection to the Monitor.
     Boolean _connectionClosePending;
 
+    // The _acceptPending flag is set to true if a server-side
+    // connection is accepted but an SSL handshake has not been
+    // completed.
+    Boolean _acceptPending;
+
     int _entry_index;
 
     // When used by the client, it is an offset (from start of http message)

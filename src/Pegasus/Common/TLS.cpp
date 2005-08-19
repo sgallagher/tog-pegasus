@@ -59,11 +59,16 @@ PEGASUS_NAMESPACE_BEGIN
 // Basic SSL socket
 //
 
-SSLSocket::SSLSocket(Sint32 socket, SSLContext * sslcontext, Boolean exportConnection)
+SSLSocket::SSLSocket(
+    Sint32 socket,
+    SSLContext * sslcontext,
+    ReadWriteSem * sslContextObjectLock,
+    Boolean exportConnection)
    :
    _SSLConnection(0),
    _socket(socket),
    _SSLContext(sslcontext),
+   _sslContextObjectLock(sslContextObjectLock),
    _SSLCallbackInfo(0),
    _certificateVerified(false),
    _exportConnection(exportConnection)
@@ -213,7 +218,9 @@ Sint32 SSLSocket::accept()
     //SSL_do_handshake(_SSLConnection);
     //SSL_set_accept_state(_SSLConnection);
 
-redo_accept:
+    // Make sure the SSLContext object is not updated during this operation.
+    ReadLock rlock(*_sslContextObjectLock);
+
     ssl_rc = SSL_accept(_SSLConnection);
 
     if (ssl_rc < 0)
@@ -224,7 +231,8 @@ redo_accept:
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
        {
-           goto redo_accept;
+           PEG_METHOD_EXIT();
+           return 0;
        }
        else
        {
@@ -314,7 +322,7 @@ redo_accept:
     }
 
     PEG_METHOD_EXIT();
-    return ssl_rc;
+    return 1;
 }
 
 Sint32 SSLSocket::connect()
@@ -426,13 +434,18 @@ Boolean SSLSocket::isCertificateVerified()
 MP_Socket::MP_Socket(Uint32 socket) 
  : _socket(socket), _isSecure(false) {}
 
-MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext, Boolean exportConnection)
+MP_Socket::MP_Socket(
+    Uint32 socket,
+    SSLContext * sslcontext,
+    ReadWriteSem * sslContextObjectLock,
+    Boolean exportConnection)
 {
     PEG_METHOD_ENTER(TRC_SSL, "MP_Socket::MP_Socket()");
     if (sslcontext != NULL)
     {
         _isSecure = true;
-        _sslsock = new SSLSocket(socket, sslcontext, exportConnection);
+        _sslsock = new SSLSocket(
+            socket, sslcontext, sslContextObjectLock, exportConnection);
     }
     else 
     {
@@ -524,8 +537,10 @@ void MP_Socket::disableBlocking()
 Sint32 MP_Socket::accept()
 {
     if (_isSecure)
-        if (_sslsock->accept() < 0) return -1;
-    return 0;
+    {
+        return (_sslsock->accept());
+    }
+    return 1;
 }
 
 Sint32 MP_Socket::connect()
@@ -572,8 +587,11 @@ PEGASUS_NAMESPACE_BEGIN
 MP_Socket::MP_Socket(Uint32 socket)
  : _socket(socket), _isSecure(false) {}
 
-MP_Socket::MP_Socket(Uint32 socket, SSLContext * sslcontext,
-   Boolean exportConnection)
+MP_Socket::MP_Socket(
+    Uint32 socket,
+    SSLContext * sslcontext,
+    ReadWriteSem * sslContextObjectLock,
+    Boolean exportConnection)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::~MP_Socket() {}
@@ -615,7 +633,7 @@ void MP_Socket::disableBlocking()
     Socket::disableBlocking(_socket);
 }
 
-Sint32 MP_Socket::accept() { return 0; }
+Sint32 MP_Socket::accept() { return 1; }
 
 Sint32 MP_Socket::connect() { return 0; }
 

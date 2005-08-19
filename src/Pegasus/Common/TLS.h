@@ -71,7 +71,10 @@ class PEGASUS_COMMON_LINKAGE SSLSocket
 {
 public:
 
-    SSLSocket(Sint32 socket, SSLContext * sslcontext,
+    SSLSocket(
+        Sint32 socket,
+        SSLContext * sslcontext,
+        ReadWriteSem * sslContextObjectLock,
         Boolean exportConnection = false);
 
     ~SSLSocket();
@@ -94,6 +97,12 @@ public:
 
     Sint32 getSocket() {return _socket;}
 
+    /**
+        Accepts the connection, performing the necessary SSL handshake. 
+
+        @return Returns -1 on failure, 0 if not enough data is available to
+        complete the operation (retry needed), and 1 on success.
+     */
     Sint32 accept();
 
     Sint32 connect();
@@ -109,6 +118,7 @@ private:
     SSL * _SSLConnection;
     Sint32 _socket;
     SSLContext * _SSLContext;
+    ReadWriteSem * _sslContextObjectLock;
 
     AutoPtr<SSLCallbackInfo> _SSLCallbackInfo;
     Boolean _certificateVerified;
@@ -131,7 +141,10 @@ class MP_Socket {
 public:
     MP_Socket(Uint32 socket);                          // "normal" socket
 
-    MP_Socket(Uint32 socket, SSLContext * sslcontext,
+    MP_Socket(
+        Uint32 socket,
+        SSLContext * sslcontext,
+        ReadWriteSem * sslContextObjectLock,
         Boolean exportConnection = false);             // secure socket
 
     ~MP_Socket();
@@ -152,6 +165,12 @@ public:
 
     void disableBlocking();
 
+    /**
+        Accepts the connection, performing an SSL handshake if applicable. 
+
+        @return Returns -1 on failure, 0 if not enough data is available to
+        complete the operation (retry needed), and 1 on success.
+     */
     Sint32 accept();
 
     Sint32 connect();

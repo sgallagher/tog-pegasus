@@ -215,7 +215,6 @@ Sint32 SSLSocket::accept()
     //SSL_do_handshake(_SSLConnection);
     //SSL_set_accept_state(_SSLConnection);
 
-redo_accept:
     ssl_rc = SSL_accept(_SSLConnection);
 
     if (ssl_rc < 0)
@@ -226,7 +225,8 @@ redo_accept:
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
        {
-           goto redo_accept;
+           PEG_METHOD_EXIT();
+           return 0;
        }
        else
        {
@@ -316,7 +316,7 @@ redo_accept:
     }
 
     PEG_METHOD_EXIT();
-    return ssl_rc;
+    return 1;
 }
 
 Sint32 SSLSocket::connect()
@@ -662,8 +662,10 @@ void MP_Socket::disableBlocking()
 Sint32 MP_Socket::accept()
 {
     if (_isSecure)
-        if (_sslsock->accept() < 0) return -1;
-    return 0;
+    {
+        return (_sslsock->accept());
+    }
+    return 1;
 }
 
 Sint32 MP_Socket::connect()
@@ -763,7 +765,7 @@ void MP_Socket::disableBlocking()
     Socket::disableBlocking(_socket);
 }
 
-Sint32 MP_Socket::accept() { return 0; }
+Sint32 MP_Socket::accept() { return 1; }
 
 Sint32 MP_Socket::connect() { return 0; }
 

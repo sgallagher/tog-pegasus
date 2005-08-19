@@ -90,6 +90,12 @@ public:
 
     Sint32 getSocket() {return _socket;}
 
+    /**
+        Accepts the connection, performing the necessary SSL handshake.
+
+        @return Returns -1 on failure, 0 if not enough data is available to
+        complete the operation (retry needed), and 1 on success.
+     */
     Sint32 accept();
 
     Sint32 connect();
@@ -151,6 +157,12 @@ public:
 
     void disableBlocking();
 
+    /**
+        Accepts the connection, performing an SSL handshake if applicable.
+
+        @return Returns -1 on failure, 0 if not enough data is available to
+        complete the operation (retry needed), and 1 on success.
+     */
     Sint32 accept();
 
     Sint32 connect();

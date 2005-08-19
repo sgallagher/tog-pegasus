@@ -653,10 +653,17 @@ void HTTPAcceptor::_acceptConnection()
 	       "HTTPAcceptor - accept() success.  Socket: $1"
 	       ,socket);
 
-   // Create a new conection and add it to the connection list:
-
    AutoPtr<MP_Socket> mp_socket(new MP_Socket(socket, _sslcontext, _exportConnection));
-   if (mp_socket->accept() < 0) 
+
+   // Perform the SSL handshake, if applicable.  Make the socket non-blocking
+   // for this operation so we can send it back to the Monitor's select() loop
+   // if it takes a while.
+
+   mp_socket->disableBlocking();
+   Sint32 socketAcceptStatus = mp_socket->accept();
+   mp_socket->enableBlocking();
+
+   if (socketAcceptStatus < 0) 
    {
        PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                         "HTTPAcceptor: SSL_accept() failed");
@@ -664,8 +671,17 @@ void HTTPAcceptor::_acceptConnection()
       return;
    }
 
+   // Create a new connection and add it to the connection list
+
    HTTPConnection* connection = new HTTPConnection(_monitor, mp_socket, 
        this, static_cast<MessageQueue *>(_outputMessageQueue), _exportConnection);
+
+   if (socketAcceptStatus == 0)
+   {
+       PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL2,
+           "HTTPAcceptor: SSL_accept() pending");
+       connection->_acceptPending = true;
+   }
 
    // Solicit events on this new connection's socket:
    int index;

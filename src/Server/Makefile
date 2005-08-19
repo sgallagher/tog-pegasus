@@ -43,9 +43,23 @@ LIBRARIES = \
     ProviderRegistrationProvider \
     pegauthentication \
     UserAuthProvider \
-    pegqueryexpression \
+    pegqueryexpression 
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+       pegcql
+endif
+
+LIBRARIES += \
     pegquerycommon \
-    pegwql \
+    pegwql
+
+ifndef PEGASUS_DISABLE_CQL
+    LIBRARIES += \
+       CIMQueryCapabilitiesProvider
+endif
+
+LIBRARIES += \
     pegprovidermanager \
     pegprovider \
     pegexportserver \
@@ -53,12 +67,6 @@ LIBRARIES = \
     pegconfig \
     pegcommon \
     pegservice
-
-ifndef PEGASUS_DISABLE_CQL
-    LIBRARIES += \
-       pegcql \
-       CIMQueryCapabilitiesProvider
-endif
 
 ifndef PEGASUS_DISABLE_PERFINST
     LIBRARIES += \

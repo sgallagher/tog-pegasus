@@ -261,7 +261,7 @@ public:
 
     void setStatisticsState(const Boolean flag);
 
-    Boolean InteropTest::testStatisticsSetOperationError(
+    Boolean testStatisticsSetOperationError(
             const CIMInstance & instance,
             const CIMPropertyList& list,
             Boolean shouldRespondGood,

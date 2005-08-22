@@ -259,7 +259,7 @@ private:
         const Boolean includeClassOrigin,
         const CIMPropertyList& propertyList);
 
-    Boolean InteropProvider::isModifyAllowed(const OperationContext & context,
+    Boolean isModifyAllowed(const OperationContext & context,
         const CIMObjectPath & instanceReference,
         const CIMInstance& modifiedIns,
         const Boolean includeQualifiers,

@@ -4975,7 +4975,8 @@ Boolean XmlReader::getParamValueElement(
                 // The type must have been specified.
                 if (gotType && (type == CIMTYPE_STRING))
                 {
-                    type = CIMTYPE_OBJECT; // Used below by getValueElement() or getValueArrayElement()
+                    // Used below by getValueElement() or getValueArrayElement()
+                    effectiveType = CIMTYPE_OBJECT;
                 }
                 else
                 {

@@ -778,7 +778,7 @@ void MessageQueueService::_complete_op_node(AsyncOpNode *op,
 Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 {
    if (_incoming_queue_shutdown.value() > 0 )
-      return false;
+      return true;
    
 // ATTN optimization remove the message checking altogether in the base 
 // << Mon Feb 18 14:02:20 2002 mdd >>

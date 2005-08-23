@@ -638,7 +638,7 @@ String SLPProvider::getRegisteredProfileList()
             CIMPropertyList());
     }
 
-    catch (Exception& e)
+    catch (Exception &)
     {
         CDEBUG("SLPProvider::getRegisteredProfiles: get class error");
 
@@ -666,7 +666,7 @@ String SLPProvider::getRegisteredProfileList()
 
 
     }
-    catch (Exception& e)
+    catch (Exception &)
     {
         CDEBUG("SLPProvider::getRegisteredProfiles: enum instances error");
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
@@ -755,7 +755,7 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     Boolean classInfoFound = false;
     for (Uint32 i = 0 ; i < CIMNamespaceInstances.size() ; i++)
     {
-        if (_getPropertyValueString(CIMNamespaceInstances[i], CIMName(classinfoAttribute), String::EMPTY) != String::EMPTY)
+        if (_getPropertyValueUint16(CIMNamespaceInstances[i], CIMName(classinfoAttribute)) != 0)
         {
             classInfoFound = true;
             break;
@@ -764,19 +764,24 @@ String SLPProvider::getNameSpaceInfo(const CIMNamespaceName& nameSpace, String& 
     // Extract the namespace names and class info from the objects.
     for (Uint32 i = 0 ; i < CIMNamespaceInstances.size() ; i++)
     {
-        String temp = _getPropertyValueString(CIMNamespaceInstances[i], CIMName(namePropertyName), "");
+        String temp = _getPropertyValueString(CIMNamespaceInstances[i],
+                                              CIMName(namePropertyName), "");
         if (temp != String::EMPTY)
         {
             _appendCSV(names, temp);
-            // Append to ClassInfo only if there is at least one valid classinfo property provided
+            // Append to ClassInfo only if at least one valid classinfo property provided
             if (classInfoFound)
             {
-                // Insert either the Class info or a "" indicating none at this position.
-                _appendCSV(classInfo, _getPropertyValueString(CIMNamespaceInstances[i], CIMName(classinfoAttribute), "\"\""));
+                // Append the Classinfo property value into the string for the attribute.
+                char buffer[32];
+                sprintf(buffer, "%u",_getPropertyValueUint16(CIMNamespaceInstances[i],
+                                                             CIMName(classinfoAttribute))); 
+                _appendCSV(classInfo, buffer);
             }
         }
         else
-            CDEBUG("Must log error here if property not found");
+            Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::WARNING,
+                "SLP Registration bypassed Namespace attribute: $0 property error in CIM_Namespace class.");
 
     }
 
@@ -1166,7 +1171,7 @@ Boolean SLPProvider::issueSLPRegistrations()
             CIMName(CIMObjectManagerClassName),
             false, false, false,false, CIMPropertyList());
     }
-    catch (const Exception& e)
+    catch (const Exception &)
     {
         CDEBUG("Exception caught on enumerateInstances(CIM_ObjectManager):=" << e.getMessage());
     }

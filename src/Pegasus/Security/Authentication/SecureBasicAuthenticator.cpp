@@ -183,8 +183,8 @@ Boolean SecureBasicAuthenticator::validateUser(const String& userName)
 
     Boolean authenticated = false;
 
-    if ( System::isSystemUser(userName.getCString()))
-		 //commented out per Bugzilla 3977 && _userManager->verifyCIMUser(userName))
+    if ( System::isSystemUser(userName.getCString())
+		  && _userManager->verifyCIMUser(userName))
     {
         authenticated = true;
     } 

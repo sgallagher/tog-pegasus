@@ -4,6 +4,8 @@
 <BODY>
 <H2>OpenPegasus 2.5 SSL Guidelines</H2>
 
+<P><B>Version:&nbsp;</B>1.0<BR>
+<B>Created:&nbsp;</B>July 20, 2005</P>
 <UL>
 	<LI><A HREF="#OVERVIEW">Overview</A>
 
@@ -24,10 +26,19 @@
 
 <P>
 The following document serves as a guide on how to build and configure Pegasus for SSL support.  It also discusses how to utilize a certificate-based
-infrastructure and configure the Pegasus CIM client.  This guide is intended to help developers and
-administrators make the right decisions about how to use SSL for their particular application.  It is important to keep in mind
-that these are recommendations and may not be applicable to all scenarios.  This guide assumes a basic understanding of SSL and basic authentication.
-For more information on these technologies, consult the sources in the <A HREF="#RESOURCES">Resources</A> section at the bottom.
+infrastructure and configure the Pegasus CIM client.  
+<P>
+This guide requires a basic understanding of SSL, OpenSSL, and basic authentication. This guide is intended to help developers 
+and administrators make the right decisions about how to use SSL for their particular application. 
+It is not intended to be a primary source of education on SSL. If you are not familiar with these technologies,
+consult the sources in the <A HREF="#RESOURCES">Resources</A> section at the bottom.
+<P>
+
+<P>Note: 
+In this document, the term "trust" refers only to authentication. It does not imply full trust in the traditional sense, because 
+it does not take into account authorization checks. It remains the responsibility of providers and clients to perform authorization, 
+and therefore establish real trust. Likewise, the term "Trust Store" can be misleading since the "store" is only a source of 
+authentication credentials.  Please bear this in mind when documenting recommended deployments or building clients or providers.
 </P>
 
 <H3><A NAME="RELATED">Related Information</A></H3>
@@ -50,10 +61,12 @@ together in a cohesive and simplified format.
 
 <P> To build Pegasus with HTTPS support, you will need to build against the <A HREF="http://www.openssl.org">OpenSSL 
   package</A>. The SSL support outlined here has been tested against recent releases of the major verions 0.9.6X and 0.9.7X (most notably, 0.9.7d).  
-  It has not been tested against major version 0.9.8, which came out in July 2005.
+  It has not been tested against major version 0.9.8, which came out in July 2005.  Some tests have found that versions of 0.9.6X prior to 0.9.6c 
+  do not contain the certificate revocation list (CRL) support that the OpenPegasus 2.5 utilizes. 
 Because this is an open source project, the SSL support has been tested with many versions of OpenSSL, 
   but we cannot guarantee it has been tested with every version on every platform.  
-	A list of recent OpenSSL releases can be found on the <A HREF="http://www.openssl.org/news">OpenSSL News page</A>.
+A list of recent OpenSSL releases, and important-to-review security advisories and fixes, can
+be found on the <A HREF="http://www.openssl.org/news">OpenSSL News page</A>.
 </P>
 <P>
 After grabbing the OpenSSL source tarball, you need to set the following environment variables before building Pegasus:
@@ -72,7 +85,7 @@ To turn on SSLv2 support, enable the additional environment variable:
   <LI> PEGASUS_ENABLE_SSLV2=1 </LI>
 </UL>
 <P>
-It is not recommended to enable this protocol, as there have been many security holes associated with it.  Unless you are dealing
+It is not recommended to enable this protocol, as there have been many security weaknesses associated with it.  Unless you are dealing
 with very outdated clients, you probably do not need to enable it.  
 </P>
 <P>
@@ -91,62 +104,30 @@ To generate a self-signed certificate, you must create a private key, a certific
 You also need an SSL configuration file that defines the parameters of the Distinguished Name (DN).  You can use the one that comes with Pegasus, 
 ssl.cnf in the root directory, or generate your own.  For a self-signed certificate, the subject
 is the same as the issuer.  Execute the following commands to create a self-signed certificate.  
-The PEGASUS_ROOT and PEGASUS_HOME have to be set to your respective installation and source directory.  
-
-
-<pre
-
-style="font-style: italic; font-family: courier new,courier,monospace; margin-left: 40px;"><small>CN=&quot;Common Name&quot;
-
-EMAIL=&quot;test@email.address&quot;
-
-HOSTNAME=`uname -n`
-
-sed -e &quot;s/$CN/$HOSTNAME/&quot; \
-
--e &quot;s/$EMAIL/root@$HOSTNAME/&quot; $PEGASUS_ROOT/ssl.cnf \
-
-&gt; $PEGASUS_HOME/ssl.cnf
-
-chmod 644 $PEGASUS_HOME/ssl.cnf
-
-chown bin $PEGASUS_HOME/ssl.cnf
-
-chgrp bin $PEGASUS_HOME/ssl.cnf
-
-
-
-/usr/bin/openssl req -x509 -days 365 -newkey rsa:1024 \
-
--nodes -config $PEGASUS_HOME/ssl.cnf \
-
--keyout $PEGASUS_HOME/key.pem -out $PEGASUS_HOME/cert.pem 
-
-
-
-cp $PEGASUS_HOME/cert.pem $PEGASUS_HOME/client.pem</small></pre>
-
-
-With the above command, key.pem is sslKeyFilePath. cert.pem is sslCertificateFilePath, and client.pem is the client's truststore file.
-
+The PEGASUS_ROOT and PEGASUS_HOME have to be set to your respective installation and source directory.  You will also need an OpenSSL configuration
+file.  There is a sample configuration file that comes with the OpenSSL package. 
 
 <P>
-To generate a CSR, execute the following command.  This CSR is generally what a third-party CA requires.  You submit the CSR to them and then they
-send you the signed certificate.
-<pre
+<UL>
+<LI>To generate a private key, execute the following:<BR>
+	<FONT FACE="courier" color="009900">openssl genrsa -out myserver.key 1024</FONT><BR>
+	Set the "sslKeyFilePath" configuration property to point to this key file. 
+</LI>
+<LI>To generate a certificate signing request, execute the following:<BR>
+	<FONT FACE="courier" color="009900">openssl req -config openssl.cnf -new -key myserver.key -out myserver.csr</font>
+</LI>
+<LI>	At this point, the certificate sigining request can be sent out to a third-party certificate authority for signing,
+	or a self-signed certificate can be generated.  To generate a self-signed certificate, execute the following:<BR>
+    <FONT FACE="courier" color="009900">openssl x509 -in myserver.csr -out myserver.cert -req -signkey myserver.key -days 365</FONT><BR>
+	Set the "sslCertificateFilePath" configuration property to point to this certificate file. The above CSR file can be discarded
+	after the certificate is created.
+</LI>
+</UL>
 
-style="font-style: italic; font-family: courier new,courier,monospace; margin-left: 40px;"><small>
-&gt;openssl req -newkey rsa:1024 -nodes -config $PEGASUS_HOME/ssl.cnf -keyout key.pem -out req.pem
-</SMALL></PRE>
 <P>
-
-
 After creating the keypair, make sure you protect the information sufficiently by changing permissions on the files and/or directories.  
 The following table shows the recommended privileges:
 <P>
-
-
-
 
 <TABLE border="1" cellspacing="1" width="30%">
 <TBODY>
@@ -158,8 +139,8 @@ The following table shows the recommended privileges:
 </TBODY>
 </TABLE>
 <P>
-Pegasus only checks the following conditions when starting up.  The administrator is responsible for ensuring that the above file permissions
-are set correctly.  The administrator should also ensure that all containing directories all the way up to the base directory are not world-writeable.
+The administrator is responsible for ensuring that the above file permissions are set correctly.  
+The administrator should also ensure that all containing directories all the way up to the base directory are not world-writeable. Pegasus only checks the following conditions when starting up:
 <UL>
 <LI>The sslKeyFilePath and the sslCertificateFilePath are readable by the CIMOM.</LI>
 <LI>The sslTrustStore, exportSSLTrustStore, and crlStore are readable by the CIMOM if they are a single file.</LI>
@@ -179,11 +160,21 @@ PEP#200 Recommended OpenPegasus 2.5 Build and Configuration Options for Selected
 
 <P>
 <B>enableHttpsConnection</b><BR>
-  This is enabled by default on most platforms.  It is recommended that 
-  all remote communication be done over the HTTPS port. If you are sending cleartext 
+  This is disabled by default on most platforms.  It is recommended that 
+  all remote communication be done over the HTTPS port. However, if you are sending cleartext 
   passwords over the wire, it is imperative that you only use the secure port. 
   For added security, the HTTP port can be disabled to prevent clients from connecting 
   to it. 
+  The HTTPS connection is enabled by default only on the following platforms:
+<P>
+<UL>
+<LI>LINUX</LI>
+<LI>OS-400</LI>
+<LI>HP_UX (if PEGASUS_USE_RELEASE_CONFIG_OPTIONS is true)</LI>
+<LI>VMS   (if PEGASUS_USE_RELEASE_CONFIG_OPTIONS is true)</LI>
+</UL>
+</P>
+
 <P>
 <B>httpsPort</B><BR>
 The default setting is 5989, the official WBEM secure port.  
@@ -251,8 +242,7 @@ be a one-to-one correspondence between users and certificates, it is recommended
 <B>enableSSLExportClientVerification</B><BR>
 This setting controls whether an ADDITIONAL port is used to listen for incoming indications.  This port is used only as a CIM indication listener
 and only supports HTTPS.  The port number of the export connection is currently not configurable; the port is determined by looking
-in /etc/services for the service name wbem-exp-https.  The default value of this port is 5990.
-
+in /etc/services for the service name wbem-exp-https.
 The export port is primarily used as a way to authenticate client indication requests.  Because indications are generated by providers
 and do not have a username/password associated with them, traditional basic authentication cannot be sent in the export request.  To work
 around this, a truststore can be configured to authenticate incoming requests.  This truststore is configured like the "required"
@@ -275,6 +265,7 @@ The following are configuration limitations:
 	<A HREF="http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_">http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_</A></LI>
 <LI>The verification depth cannot be specified.  Pegasus uses the default OpenSSL depth of 9.  This means the OpenSSL will only accept client
 	certificate chains up to 9 levels deep.</LI>
+<LI>No hostname checking is performed to ensure that the subject field of the distinguished name (DN) matches the hostname.</LI>
 </UL>
 
 <H3><A NAME="DESIGN">SSL Design Question List</A></H3>
@@ -303,7 +294,7 @@ These same conditions also apply to a client that is verifying a server.<BR>
 <B>Should I use a self-signed certificate or one issued by a third-party certificate authority?</B><BR>
 Generally, scalability will determine whether it's appropriate to use a self-signed certificate or one issued by Verisign
 or another third-party certificate authority.
-If an administrator administrates their self-singed certificates correctly, they are 
+If an administrator administrates their self-signed certificates correctly, they are 
 no less secure than one issued by a CA. What a CA buys you is scalability. An up front cost of 
 setting up a CA relationship will be offset by the convenience of having that 
 CA &quot;vouch&quot; for certs it has signed, in large deployments. In small deployments 
@@ -387,13 +378,42 @@ The CIMOM must be up and running while executing ssltrustmgr.  The ssltrustmgr m
 
 
 <H3><A NAME="CLIENT">Configuring the Pegasus CIM Client for SSL</A></H3>
-<P> The Pegasus CIM client can be configured for SSL by using a constructor that 
+<P> A Pegasus CIM client can be configured to use SSL by using a constructor that 
   takes an SSLContext. The construction of the SSLContext is really what controls 
   the behavior of the client during the SSL handshake. Without going into minute 
   details about what happens under the covers, here is a description of the various 
   SSLContext constructor parameters. The descriptions are written from a client 
   perspective even though the same constructors are utilized by the cimserver 
   HTTPS port and export port. 
+
+<P>
+  Here's a code snippet that shows how to call a client constructor that connects to a server over SSL and can present its own trusted certificate if
+  the server requests it. In this scenario, the client also checks the server certificate against its truststore and specifies an additional
+  callback in addition to the default one (the user-specified callback is optional and can be set to null).
+<UL><FONT FACE="courier">
+    client.connect(
+        hostname,
+        port,
+        <B>SSLContext(trustStore, certPath, keyPath, verifyCert, randomFile),</B>
+        username,
+        password);
+		</FONT>
+</UL>
+</P>
+<P>
+  Here's a code snippet that shows how to call a client constructor that connects to a server over SSL and does not possess its own trusted certificate.
+  In this scenario, the client also checks the server certificate against its truststore.
+<UL>
+	<FONT FACE="courier">
+    client.connect(
+        hostname,
+        port,
+        <B>SSLContext(trustStore, NULL, randomFile),</B>
+        username
+        password);
+		</FONT>
+</UL>
+</P>
 <UL>
 <LI><B>trustStore</B> -- This specifies the truststore that the client uses to verify server certificates.  It can be String::EMPTY if no truststore exists. </LI>
 
@@ -420,8 +440,8 @@ The CIMOM must be up and running while executing ssltrustmgr.  The ssltrustmgr m
 	trusted CA certificates.  The ssltrustmgr CLI cannot be used to configure client truststores.  The trusted certificate(s) should be placed
 	in a protected file or directory specified by the trustStore parameter.  Keep in mind that the SSL context generally has to be reloaded
 	to pick up any truststore changes.</LI>
-<LI>The client should use a user-specified callback in addition to the default if there are additional error conditions the client wants to check.
-	In most cases, the default verification callback is sufficient for checking untrusted certificates.</LI>
+<LI>The client could also use a user-specified callback in addition to the default verification callback, if additional verifications are desired over the normal checks that OpenSSL performs. 
+	In most cases, the default verification callback is sufficient for checking server certificates.</LI>
 <LI>The client should ensure that adequate entropy is attained.</LI>
 <LI>The client should use a CRL store if the truststore contains CA certificates that support one.</LI>
 <LI>The client should only use the SSLv3 and TLSv1 protocols.  By default, Pegasus is not built with SSLv2 support.</LI>
@@ -465,6 +485,8 @@ Because only the above arguments can be passed into the Pegasus SSLContext, ther
 <LI>The cipher list cannot be specified.  Pegasus uses the default OpenSSL cipher list.  The cipher lists can be found at
 	<A HREF="http://www.openssl.org/docs/apps/ciphers.html#SSL_v3_0_cipher_suites_">http://www.openssl.org/docs/apps/ciphers.html#SSL_v3_0_cipher_suites_</A> and
 	<A HREF="http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_">http://www.openssl.org/docs/apps/ciphers.html#TLS_v1_0_cipher_suites_</A></LI>
+<LI>No hostname checking is performed to ensure that the subject field of the distinguished name (DN) matches the hostname.  If desired, a user-specified callback should be configured
+	to perform this check or any additional checks relevant to the application.</LI>
 </UL>
 
 
@@ -480,7 +502,7 @@ Because only the above arguments can be passed into the Pegasus SSLContext, ther
   This effectively results in any basic or local authentication headers being 
   ignored. 
 <P>
-  Further <I><B>authorization</B></I> checks may be performed when validating 
+  Further <I><B>authorization</B></I> checks must be performed when validating 
   the user that is mapped to the certificate. First, the user that is registered to the certificate
   is validated as a valid system user and a valid cimuser (if the cimuser function has been configured).
   Additionally, if Pegasus was configured to use PAM, the pam_acct_mgmt function will be called with the

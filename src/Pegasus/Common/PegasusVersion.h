@@ -47,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 #else
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
 # define PEGASUS_PRODUCT_VERSION "2.5"
-# define PEGASUS_PRODUCT_STATUS  "Experimental"
+# define PEGASUS_PRODUCT_STATUS  ""
 # define PEGASUS_CIMOM_GENERIC_NAME "Pegasus"
 // If the following is non-zero length it becomes SLP description.
 # define PEGASUS_CIMOM_DESCRIPTION ""

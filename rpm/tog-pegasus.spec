@@ -40,7 +40,7 @@
 #
 
 %define srcRelease 1
-Version: 2.5Alpha1
+Version: 2.5.0
 Release: 1
 Epoch:   1
 

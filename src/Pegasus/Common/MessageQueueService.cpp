@@ -52,7 +52,7 @@ static struct timeval deadlock_time = {0, 0};
 
 ThreadPool *MessageQueueService::_thread_pool = 0;
 
-DQueue<MessageQueueService> MessageQueueService::_polling_list(true);
+DQueue<MessageQueueService>* MessageQueueService::_polling_list = 0;
 
 Thread* MessageQueueService::_polling_thread = 0;
 
@@ -116,8 +116,8 @@ void MessageQueueService::force_shutdown(Boolean destroy_flag)
 
    MessageQueueService *svc;
    int counter = 0;   
-   _polling_list.lock();
-   svc = _polling_list.next(0);
+   _polling_list->lock();
+   svc = _polling_list->next(0);
    
    while(svc != 0)
    {
@@ -129,26 +129,26 @@ void MessageQueueService::force_shutdown(Boolean destroy_flag)
    	  	PEGASUS_STD(cout) << MessageLoader::getMessage(parms) << PEGASUS_STD(endl);
 #endif
       							
-      _polling_sem.signal();
+      _polling_sem->signal();
       svc->_shutdown_incoming_queue();
       counter++;
-      _polling_sem.signal();
-      svc = _polling_list.next(svc);
+      _polling_sem->signal();
+      svc = _polling_list->next(svc);
    }
-   _polling_list.unlock();
+   _polling_list->unlock();
 
-   _polling_sem.signal();
+   _polling_sem->signal();
 
-   MessageQueueService::_stop_polling = 1;
+   *MessageQueueService::_stop_polling = 1;
    
    if(destroy_flag == true) 
    {
 
-      svc = _polling_list.remove_last();
+      svc = _polling_list->remove_last();
       while(svc)
       {
 	 delete svc;
-	 svc = _polling_list.remove_last();
+	 svc = _polling_list->remove_last();
       }
       
    }
@@ -159,10 +159,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
-   while ( _stop_polling.value()  == 0 ) 
+   while ( _stop_polling->value()  == 0 ) 
    {
-      _polling_sem.wait();
-      if(_stop_polling.value() != 0 )
+      _polling_sem->wait();
+      if(_stop_polling->value() != 0 )
       {
          break;
       }
@@ -197,7 +197,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
              try
              {
                  rtn = _thread_pool->allocate_and_awaken(
-                      service, _req_proc, &_polling_sem);
+                      service, _req_proc, _polling_sem);
              }
              catch (...)
              {
@@ -232,16 +232,16 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       }
       list->unlock();
 
-      if(_check_idle_flag.value() != 0 )
+      if(_check_idle_flag->value() != 0 )
       {
-	 _check_idle_flag = 0;
+	 *_check_idle_flag = 0;
 
          // try to do idle thread clean up processing when system is not busy
          // if system is busy there may not be a thread available to allocate
          // so nothing will be done and that is OK.
 
          if ( _thread_pool->allocate_and_awaken(service, kill_idle_threads,
-              &_polling_sem) != PEGASUS_THREAD_OK)
+              _polling_sem) != PEGASUS_THREAD_OK)
          {
              Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 "Not enough threads to kill idle threads. What an irony.");
@@ -257,9 +257,9 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 }
 
 
-Semaphore MessageQueueService::_polling_sem(0);
-AtomicInt MessageQueueService::_stop_polling(0);
-AtomicInt MessageQueueService::_check_idle_flag(0);
+Semaphore* MessageQueueService::_polling_sem = 0;
+AtomicInt* MessageQueueService::_stop_polling = 0;
+AtomicInt* MessageQueueService::_check_idle_flag = 0;
 
 
 MessageQueueService::MessageQueueService(const char *name, 
@@ -310,7 +310,13 @@ MessageQueueService::MessageQueueService(const char *name,
    
    if( _meta_dispatcher == 0 )
    {
-      _stop_polling = 0;
+      // Instantiate the common objects
+      _polling_list = new DQueue<MessageQueueService>(true);
+      _stop_polling = new AtomicInt(0);
+      _polling_sem = new Semaphore(0);
+      _check_idle_flag = new AtomicInt(0);
+
+      *_stop_polling = 0;
       PEGASUS_ASSERT( _service_count.value() == 0 );
       _meta_dispatcher = new cimom();
       if (_meta_dispatcher == NULL )
@@ -321,7 +327,7 @@ MessageQueueService::MessageQueueService(const char *name,
 				    create_time, destroy_time, deadlock_time);  
       
       _polling_thread = new Thread(polling_routine, 
-			           reinterpret_cast<void *>(&_polling_list), 
+			           reinterpret_cast<void *>(_polling_list), 
 			           false);
       while (!_polling_thread->run())
       {
@@ -340,7 +346,7 @@ MessageQueueService::MessageQueueService(const char *name,
       throw BindFailedException(parms);
    }
    
-   _polling_list.insert_last(this);
+   _polling_list->insert_last(this);
    
 //   _meta_dispatcher_mutex.unlock();  //Bug#1090
 //   _callback_thread.run();
@@ -359,7 +365,7 @@ MessageQueueService::~MessageQueueService(void)
    // prior to processing, avoids synchronization issues
    // with the _polling_routine.
 
-   _polling_list.remove(this);
+   _polling_list->remove(this);
 
    _callback_ready.signal();
 
@@ -387,8 +393,8 @@ MessageQueueService::~MessageQueueService(void)
      if (_service_count.value() == 0 )
      {
 
-      _stop_polling++;
-      _polling_sem.signal();
+      (*_stop_polling)++;
+      _polling_sem->signal();
       _polling_thread->join();
       delete _polling_thread;
       _polling_thread = 0;
@@ -398,6 +404,12 @@ MessageQueueService::~MessageQueueService(void)
 
       delete _thread_pool;
       _thread_pool = 0;
+
+      // Clean up the common objects
+      delete _check_idle_flag;
+      delete _polling_sem;
+      delete _stop_polling;
+      delete _polling_list;
      }
    } // mutex unlocks here
    // Clean up in case there are extra stuff on the queue. 
@@ -442,7 +454,7 @@ void MessageQueueService::_shutdown_incoming_queue(void)
    try 
    {
        _incoming.insert_last_wait(msg->op);
-       _polling_sem.signal(); 
+       _polling_sem->signal(); 
    } 
    catch (const ListClosed &) 
    { 
@@ -791,7 +803,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 	_die.value() == 0  )
    {
       _incoming.insert_last_wait(op);
-      _polling_sem.signal();
+      _polling_sem->signal();
       return true;
    }
    return false;

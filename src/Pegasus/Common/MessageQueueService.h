@@ -171,11 +171,11 @@ class PEGASUS_COMMON_LINKAGE MessageQueueService : public MessageQueue
       AsyncDQueue<AsyncOpNode> _incoming;
       DQueue<AsyncOpNode> _callback;
       static Thread* _polling_thread;
-      static Semaphore _polling_sem;
-      static AtomicInt _stop_polling;
-      static AtomicInt _check_idle_flag;
+      static Semaphore* _polling_sem;
+      static AtomicInt* _stop_polling;
+      static AtomicInt* _check_idle_flag;
       
-      static DQueue<MessageQueueService> _polling_list;
+      static DQueue<MessageQueueService>* _polling_list;
       
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _req_proc(void *);
       static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _callback_proc(void *);

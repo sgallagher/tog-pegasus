@@ -1,49 +1,98 @@
-//%LICENSE////////////////////////////////////////////////////////////////
-//
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
-//
-//%/////////////////////////////////////////////////////////////////////////////
-
 #ifndef _Pegasus_StringInline_h
 #define _Pegasus_StringInline_h
 
-#include <Pegasus/Common/StringRep.h>
-#include <cstring>
+#include <Pegasus/Common/Atomic.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-#if !defined(PEGASUS_DISABLE_INTERNAL_INLINES)
+//==============================================================================
+//
+// Compile-time macros:
+//
+//     PEGASUS_STRING_ENABLE_ICU -- enables use of ICU package.
+//
+//     PEGASUS_STRING_NO_THROW -- don't throw exceptions caused by bounds 
+//     errors and null-pointers.
+//      
+//     PEGASUS_STRING_NO_UTF8 -- don't generate slower UTF8 code.
+//
+//     PEGASUS_STRING_INLINE -- either "inline" or empty.
+//
+//==============================================================================
 
-#ifdef PEGASUS_INTERNALONLY
-# define PEGASUS_STRING_INLINE inline
+PEGASUS_COMMON_LINKAGE void String_throw_out_of_bounds();
+
+#ifdef PEGASUS_STRING_NO_THROW
+# define _check_bounds(ARG1, ARG2) /* empty */
 #else
-# define PEGASUS_STRING_INLINE /* empty */
+inline void _check_bounds(size_t index, size_t size)
+{
+    if (index > size)
+	String_throw_out_of_bounds();
+}
 #endif
+
+struct StringRep
+{
+    StringRep();
+
+    ~StringRep();
+
+    static StringRep* alloc(size_t cap);
+
+    static void free(StringRep* rep);
+
+    static StringRep* create(const Uint16* data, size_t size);
+
+    static StringRep* create(const char* data, size_t size);
+
+    static StringRep* copy_on_write(StringRep* rep);
+
+    static Uint32 length(const Uint16* str);
+
+    static void ref(const StringRep* rep);
+
+    static void unref(const StringRep* rep);
+
+    static StringRep _empty_rep;
+
+    size_t size;
+    size_t cap;
+    Atomic refs;
+    Uint16 data[1];
+};
+
+inline void StringRep::free(StringRep* rep)
+{
+    Atomic_destroy(&rep->refs);
+    ::operator delete(rep);
+}
+
+inline StringRep::StringRep() : size(0), cap(0)
+{
+    // Only called on _empty_rep.
+    Atomic_create(&refs, 99);
+    data[0] = 0;
+}
+
+inline StringRep::~StringRep()
+{
+    // Only called on _empty_rep.
+    Atomic_destroy(&refs);
+}
+
+PEGASUS_STRING_INLINE void StringRep::ref(const StringRep* rep)
+{
+    if (rep != &StringRep::_empty_rep)
+	Atomic_inc(&((StringRep*)rep)->refs);
+}
+
+PEGASUS_STRING_INLINE void StringRep::unref(const StringRep* rep)
+{
+    if (rep != &StringRep::_empty_rep && 
+	Atomic_dec_and_test(&((StringRep*)rep)->refs))
+	StringRep::free((StringRep*)rep);
+}
 
 PEGASUS_STRING_INLINE CString::CString() : _rep(0)
 {
@@ -65,60 +114,43 @@ PEGASUS_STRING_INLINE CString::operator const char*() const
 
 PEGASUS_STRING_INLINE String::String()
 {
-    // Note: ref() and unref() never touch the reference count of _emptyRep.
-    // This allows use to optimize the copy constructor by not incrementing
-    // _emptyRep.refs here. Performance is critical in this function. Please
-    // do not add any code to this function.
-    _rep = &StringRep::_emptyRep;
+    _rep = &StringRep::_empty_rep;
 }
 
 PEGASUS_STRING_INLINE String::String(const String& str)
 {
-#ifdef PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
-    //
-    // Some compilers don't do a good job of initializing global
-    //   constructors in the proper sequence.  This is one such case.
-    // String::EMPTY is not initialized by the time this is first
-    //   called during initialization of the executable.
-    //
-    if (!str._rep)
-    {
-      _rep = &StringRep::_emptyRep;
-      return;
-    }
-#endif
     StringRep::ref(_rep = str._rep);
-}
+} 
 
 PEGASUS_STRING_INLINE String::~String()
 {
     StringRep::unref(_rep);
 }
 
-PEGASUS_STRING_INLINE Uint32 String::size() const
-{
-    return (Uint32)_rep->size;
+PEGASUS_STRING_INLINE Uint32 String::size() const 
+{ 
+    return _rep->size; 
 }
 
-PEGASUS_STRING_INLINE const Char16* String::getChar16Data() const
-{
-    return (Char16*)&(_rep->data[0]);
+PEGASUS_STRING_INLINE const Char16* String::getChar16Data() const 
+{ 
+    return (Char16*)_rep->data; 
 }
 
-PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i)
+PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i) 
 {
-    _checkBounds(i, _rep->size);
+    _check_bounds(i, _rep->size);
 
-    if (_rep->refs.get() != 1)
-        _rep = StringRep::copyOnWrite(_rep);
+    if (Atomic_get(&_rep->refs) != 1)
+	_rep = StringRep::copy_on_write(_rep);
 
-    return (Char16&)_rep->data[i];
+    return (Char16&)_rep->data[i]; 
 }
 
-PEGASUS_STRING_INLINE const Char16 String::operator[](Uint32 i) const
+PEGASUS_STRING_INLINE const Char16 String::operator[](Uint32 i) const 
 {
-    _checkBounds(i, _rep->size);
-    return (Char16&)_rep->data[i];
+    _check_bounds(i, _rep->size);
+    return (Char16&)_rep->data[i]; 
 }
 
 PEGASUS_STRING_INLINE String& String::operator=(const String& str)
@@ -126,33 +158,31 @@ PEGASUS_STRING_INLINE String& String::operator=(const String& str)
     return assign(str);
 }
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 PEGASUS_STRING_INLINE String& String::operator=(const char* str)
 {
     return assign(str);
 }
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
 PEGASUS_STRING_INLINE String& String::assign(const Char16* str)
 {
     return assign(str, StringRep::length((Uint16*)str));
+    return *this;
 }
 
 PEGASUS_STRING_INLINE String& String::assign(const char* str)
 {
-    return assign(str, (Uint32)strlen(str));
+    return assign(str, strlen(str));
 }
 
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 {
-    return StringFindAux(_rep, (Char16*)&(s._rep->data[0]),
-        (Uint32)s._rep->size);
+    return _find_aux((Char16*)s._rep->data, s._rep->size);
 }
 
 PEGASUS_STRING_INLINE String& String::append(const Char16& c)
 {
-    if (_rep->size == _rep->cap || _rep->refs.get() != 1)
-        StringAppendCharAux(_rep);
+    if (_rep->size == _rep->cap || Atomic_get(&_rep->refs) != 1)
+	_append_char_aux();
 
     _rep->data[_rep->size++] = c;
     _rep->data[_rep->size] = 0;
@@ -162,20 +192,27 @@ PEGASUS_STRING_INLINE String& String::append(const Char16& c)
 PEGASUS_STRING_INLINE Boolean String::equalNoCase(
     const String& s1, const String& s2)
 {
-#ifdef PEGASUS_HAS_ICU
-    return StringEqualNoCase(s1, s2);
-#else
-    return s1._rep->size == s2._rep->size && StringEqualNoCase(s1, s2);
-#endif
+    if (s1._rep->size == s2._rep->size)
+	return equalNoCase_aux(s1, s2);
+
+    return false;
 }
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 PEGASUS_STRING_INLINE String& String::append(const char* str)
 {
-    append(str, (Uint32)strlen(str));
+    append(str, strlen(str));
     return *this;
 }
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
+
+PEGASUS_STRING_INLINE String& String::append(char c) 
+{
+    return append(Char16(c)); 
+}
+
+PEGASUS_STRING_INLINE Uint32 String::find(char c) const 
+{
+    return find(Char16(c)); 
+}
 
 PEGASUS_STRING_INLINE Boolean operator==(const String& s1, const String& s2)
 {
@@ -269,43 +306,18 @@ PEGASUS_STRING_INLINE Boolean operator>=(const char* s1, const String& s2)
 
 PEGASUS_STRING_INLINE String operator+(const String& s1, const String& s2)
 {
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
     return String(s1, s2);
-#else
-    String tmp;
-    tmp.reserveCapacity(s1.size() + s2.size());
-    tmp.append(s1);
-    tmp.append(s2);
-    return tmp;
-#endif
 }
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 PEGASUS_STRING_INLINE String operator+(const String& s1, const char* s2)
 {
     return String(s1, s2);
 }
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 PEGASUS_STRING_INLINE String operator+(const char* s1, const String& s2)
 {
     return String(s1, s2);
 }
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
-
-#endif /* !defined(PEGASUS_DISABLE_INTERNAL_INLINES) */
-
-/**
-    Fast way to assign a given character string consisting of ASCII only and
-    legal characters for a CIMName (i.e. letter, numbers and underscore)
-    to a String reference.
-
-    @param s reference to the String object which will be changed
-    @param str character string
-    @param n number of characters which shall be assigned from str to s
-*/
-PEGASUS_COMMON_LINKAGE void AssignASCII(String& s, const char* str, Uint32 n);
 
 PEGASUS_NAMESPACE_END
 

@@ -27,34 +27,8 @@
 //
 //==============================================================================
 //
+// Author: Mike Brasher (mbrasher@bmc.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_CharSet_h
-#define Pegasus_CharSet_h
-
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-
-PEGASUS_NAMESPACE_BEGIN
-
-class PEGASUS_COMMON_LINKAGE CharSet
-{
-public:
-
-    static int is_alpha_under(int c) { return _is_alpha_under[c]; }
-    static int is_alnum_under(int c) { return _is_alnum_under[c]; }
-    static int is_space(int c) { return _is_space[c]; }
-    static int to_upper(int c) { return _to_upper[c]; }
-    static int to_lower(int c) { return _to_lower[c]; }
-
-private:
-    static const Uint8 _is_alpha_under[];
-    static const Uint8 _is_alnum_under[];
-    static const Uint8 _to_upper[];
-    static const Uint8 _to_lower[];
-    static const Uint8 _is_space[];
-};
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_CharSet_h */
+#include "Atomic.h"

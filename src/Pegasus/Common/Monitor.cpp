@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -53,7 +53,7 @@
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
 #  error "FD_SETSIZE was not set to 1024 prior to the last inclusion \
 of <winsock.h>. It may have been indirectly included (e.g., by including \
-<windows.h>). Finthe inclusion of that header which is visible to this \
+<windows.h>). Find inclusion of that header which is visible to this \
 compilation unit and #define FD_SETZIE to 1024 prior to that inclusion; \
 otherwise, less than 64 clients (the default) will be able to connect to the \
 CIMOM. PLEASE DO NOT SUPPRESS THIS WARNING; PLEASE FIX THE PROBLEM."
@@ -156,7 +156,7 @@ void Monitor::initializeTickler(){
     /* setup the tickle server/listener */
 
     // get a socket for the server side
-    if((_tickle_server_socket = ::socket(PF_INET, SOCK_STREAM, 0)) < 0){
+    if((_tickle_server_socket = ::socket(PF_INET, SOCK_STREAM, 0)) == PEGASUS_INVALID_SOCKET){
 	//handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CREATE",
 				 "Received error number $0 while creating the internal socket.",
@@ -238,7 +238,7 @@ void Monitor::initializeTickler(){
     /* set up the tickle client/connector */
 
     // get a socket for our tickle client
-    if((_tickle_client_socket = ::socket(PF_INET, SOCK_STREAM, 0)) < 0){
+    if((_tickle_client_socket = ::socket(PF_INET, SOCK_STREAM, 0)) == PEGASUS_INVALID_SOCKET){
 	// handle error
 	MessageLoaderParms parms("Common.Monitor.TICKLE_CLIENT_CREATE",
 			 "Received error number $0 while creating the internal client socket.",
@@ -452,32 +452,42 @@ Boolean Monitor::run(Uint32 milliseconds)
     Uint32 _idleEntries = 0;
 
     /*
-	We will keep track of the maximum socket number and pass this value
-	to the kernel as a parameter to SELECT.  This loop seems like a good
-	place to calculate the max file descriptor (maximum socket number)
-	because we have to traverse the entire array.
+        We will keep track of the maximum socket number and pass this value
+        to the kernel as a parameter to SELECT.  This loop seems like a good
+        place to calculate the max file descriptor (maximum socket number)
+        because we have to traverse the entire array.
     */
-    int maxSocketCurrentPass = 0;
+    PEGASUS_SOCKET maxSocketCurrentPass = 0;
     for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
        if(maxSocketCurrentPass < _entries[indx].socket)
-	  maxSocketCurrentPass = _entries[indx].socket;
+            maxSocketCurrentPass = _entries[indx].socket;
 
        if(_entries[indx]._status.value() == _MonitorEntry::IDLE)
        {
-	  _idleEntries++;
-	  FD_SET(_entries[indx].socket, &fdread);
+           _idleEntries++;
+           FD_SET(_entries[indx].socket, &fdread);
        }
     }
 
     /*
-	Add 1 then assign maxSocket accordingly. We add 1 to account for
-	descriptors starting at 0.
+        Add 1 then assign maxSocket accordingly. We add 1 to account for
+        descriptors starting at 0.
     */
     maxSocketCurrentPass++;
 
     autoEntryMutex.unlock();
+
+    //
+    // The first argument to select() is ignored on Windows and it is not
+    // a socket value.  The original code assumed that the number of sockets
+    // and a socket value have the same type.  On Windows they do not.
+    //
+#ifdef PEGASUS_OS_TYPE_WINDOWS
+    int events = select(0, &fdread, NULL, NULL, &tv);
+#else
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
+#endif
     autoEntryMutex.lock();
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -499,31 +509,31 @@ Boolean Monitor::run(Uint32 milliseconds)
     {
        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::run select event received events = %d, monitoring %d idle entries",
-	   events, _idleEntries);
+           events, _idleEntries);
        for( int indx = 0; indx < (int)_entries.size(); indx++)
        {
           // The Monitor should only look at entries in the table that are IDLE (i.e.,
           // owned by the Monitor).
-	  if((_entries[indx]._status.value() == _MonitorEntry::IDLE) &&
-	     (FD_ISSET(_entries[indx].socket, &fdread)))
-	  {
-	     MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
+          if((_entries[indx]._status.value() == _MonitorEntry::IDLE) &&
+             (FD_ISSET(_entries[indx].socket, &fdread)))
+          {
+             MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
              Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "Monitor::run indx = %d, queueId =  %d, q = %p",
                   indx, _entries[indx].queueId, q);
              PEGASUS_ASSERT(q !=0);
 
-	     try
-	     {
-		if(_entries[indx]._type == Monitor::CONNECTION)
-		{
+             try
+             {
+                if(_entries[indx]._type == Monitor::CONNECTION)
+                {
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                      "_entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
-		   static_cast<HTTPConnection *>(q)->_entry_index = indx;
+                   static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
                    // Do not update the entry just yet. The entry gets updated once
                    // the request has been read.
-		   //_entries[indx]._status = _MonitorEntry::BUSY;
+                   //_entries[indx]._status = _MonitorEntry::BUSY;
 
                    // If allocate_and_awaken failure, retry on next iteration
 /* Removed for PEP 183.
@@ -537,20 +547,20 @@ Boolean Monitor::run(Uint32 milliseconds)
                    }
 */
 // Added for PEP 183
-		   HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
-  			 Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                   HTTPConnection *dst = reinterpret_cast<HTTPConnection *>(q);
+                   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                          "Monitor::_dispatch: entering run() for indx  = %d, queueId = %d, q = %p",
                    dst->_entry_index, dst->_monitor->_entries[dst->_entry_index].queueId, dst);
                    try
                    {
                        dst->run(1);
                    }
-   		   catch (...)
-   		   {
-      			Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-          		"Monitor::_dispatch: exception received");
-   		   }
-   		   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                   catch (...)
+                   {
+                       Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                       "Monitor::_dispatch: exception received");
+                   }
+                   Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                    "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
 
                    // It is possible the entry status may not be set to busy.
@@ -640,7 +650,7 @@ void Monitor::stopListeningForConnections(Boolean wait)
 
 
 int  Monitor::solicitSocketMessages(
-    Sint32 socket,
+    PEGASUS_SOCKET socket,
     Uint32 events,
     Uint32 queueId,
     int type)
@@ -684,7 +694,7 @@ int  Monitor::solicitSocketMessages(
 
 }
 
-void Monitor::unsolicitSocketMessages(Sint32 socket)
+void Monitor::unsolicitSocketMessages(PEGASUS_SOCKET socket)
 {
 
     PEG_METHOD_ENTER(TRC_HTTP, "Monitor::unsolicitSocketMessages");
@@ -700,7 +710,7 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
        if(_entries[index].socket == socket)
        {
           _entries[index]._status = _MonitorEntry::EMPTY;
-          _entries[index].socket = -1;
+          _entries[index].socket = PEGASUS_INVALID_SOCKET;
           _solicitSocketCount--;
           break;
        }

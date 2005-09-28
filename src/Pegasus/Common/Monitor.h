@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,15 +29,16 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:   Amit Arora (amita@in.ibm.com) for Bug#1170
-//                Sushma Fernandes (sushma@hp.com) for Bug#2057
+// Modified By: Amit Arora (amita@in.ibm.com) for Bug#1170
+//              Sushma Fernandes (sushma@hp.com) for Bug#2057
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
-//                Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Monitor_h 
-#define Pegasus_Monitor_h 
+#ifndef Pegasus_Monitor_h
+#define Pegasus_Monitor_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
@@ -47,7 +48,7 @@
 #include <Pegasus/Common/Socket.h>
 #include <Pegasus/Common/DQueue.h>
 #include <Pegasus/Common/Sharable.h>
-#include <Pegasus/Common/Linkage.h> 
+#include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -55,29 +56,28 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE _MonitorEntry
 {
 public:
-  Sint32 socket;
+  PEGASUS_SOCKET socket;
   Uint32 queueId;
   AtomicInt _status;
   int _type;
-      
-  _MonitorEntry(Sint32 sock, Uint32 q, int Type)
+
+  _MonitorEntry(PEGASUS_SOCKET sock, Uint32 q, int Type)
     : socket(sock), queueId(q), _status(EMPTY), _type(Type)
-	   
   {
   }
 
   _MonitorEntry() : socket(0), queueId(0), _status(EMPTY), _type(0)
   {
   }
-      
-  Boolean operator ==(const void *key) const 
+
+  Boolean operator ==(const void *key) const
   {
-    if(key != 0 && 
+    if(key != 0 &&
        (socket == (reinterpret_cast<_MonitorEntry *>(const_cast<void *>(key)))->socket))
       return true;
     return false;
   }
-      
+
   Boolean operator ==(const _MonitorEntry & key) const
   {
     if(key.socket == socket)
@@ -94,11 +94,11 @@ public:
 	this->_status = entry._status;
 	this->_type = entry._type;
       }
-	 
+
     return *this;
   }
-      
-  enum entry_status 
+
+  enum entry_status
     {
       IDLE,
       BUSY,
@@ -113,14 +113,14 @@ class SocketMessage : public Message
 public:
 
   enum Events { READ = 1, WRITE = 2, EXCEPTION = 4 };
-      
 
-  SocketMessage(Sint32 socket_, Uint32 events_) :
+
+  SocketMessage(PEGASUS_SOCKET socket_, Uint32 events_) :
     Message(SOCKET_MESSAGE), socket(socket_), events(events_)
   {
   }
 
-  Sint32 socket;
+  PEGASUS_SOCKET socket;
   Uint32 events;
 };
 
@@ -150,8 +150,8 @@ public:
     ...
 
     monitor.solicitSocketMessages(
-    socket, 
-    SocketMessage::READ | SocketMessage::WRITE, 
+    socket,
+    SocketMessage::READ | SocketMessage::WRITE,
     queueId);
     </pre>
 
@@ -177,12 +177,12 @@ public:
 class PEGASUS_COMMON_LINKAGE Monitor
 {
 public:
-  enum Type 
+  enum Type
     {
       UNTYPED, ACCEPTOR, CONNECTOR, CONNECTION, INTERNAL
     };
-      
-      
+
+
   /** Default constructor. */
   Monitor();
 
@@ -206,7 +206,7 @@ public:
   */
   Boolean run(Uint32 timeoutMsec);
 
-  /** Solicit interest in SocketMessages. Note that there may only 
+  /** Solicit interest in SocketMessages. Note that there may only
       be one solicitor per socket.
 
       @param socket the socket to monitor for activity.
@@ -216,19 +216,19 @@ public:
       @return false if messages have already been solicited on this socket.
   */
   int solicitSocketMessages(
-			    Sint32 socket, 
-			    Uint32 events,
-			    Uint32 queueId,
-			    int type);
+                PEGASUS_SOCKET socket,
+                Uint32 events,
+                Uint32 queueId,
+                int type);
 
   /** Unsolicit messages on the given socket.
 
   @param socket on which to unsolicit messages.
   @return false if no such solicitation has been made on the given socket.
   */
-  void unsolicitSocketMessages(Sint32);
+  void unsolicitSocketMessages(PEGASUS_SOCKET);
 
-  /** dispatch a message to the cimom on an independent thread 
+  /** dispatch a message to the cimom on an independent thread
       Note: The Monitor class uses the MessageQueueService ThreadPool.
       This ThreadPool is only available if it has been initialized by
       the MessageQueueService.  Therefore, the Monitor class should
@@ -236,13 +236,13 @@ public:
       system.
    */
   static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void *);
-      
-  /** stop listening for client connections 
+
+  /** stop listening for client connections
    */
   void stopListeningForConnections(Boolean wait);
 
 private:
-      
+
   Array<_MonitorEntry> _entries;
   Mutex _entry_mut;
   AtomicInt _stopConnections;
@@ -252,9 +252,9 @@ private:
   struct sockaddr_in _tickle_server_addr;
   struct sockaddr_in _tickle_client_addr;
   struct sockaddr_in _tickle_peer_addr;
-  Sint32 _tickle_client_socket; 
-  Sint32 _tickle_server_socket;      
-  Sint32 _tickle_peer_socket;
+  PEGASUS_SOCKET _tickle_client_socket;
+  PEGASUS_SOCKET _tickle_server_socket;
+  PEGASUS_SOCKET _tickle_peer_socket;
   Mutex _tickle_mutex;
 };
 

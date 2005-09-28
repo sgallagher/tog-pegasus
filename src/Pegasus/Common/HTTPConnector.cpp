@@ -270,7 +270,7 @@ HTTPConnection* HTTPConnector::connect(
    SSLContext * sslContext,
    MessageQueue* outputMessageQueue)
 {
-   Sint32 socket;
+   PEGASUS_SOCKET socket;
 
 #ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
    if (host == String::EMPTY)
@@ -285,7 +285,7 @@ HTTPConnection* HTTPConnector::connect(
 #endif
 
       socket = ::socket(AF_UNIX, SOCK_STREAM, 0);
-      if (socket < 0)
+      if (socket == PEGASUS_INVALID_SOCKET)
          throw CannotCreateSocketException();
 
       // Connect the socket to the address:
@@ -320,14 +320,11 @@ HTTPConnection* HTTPConnector::connect(
 
 
    // Create the socket:
-
    socket = ::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-   if (socket < 0)
+   if (socket == PEGASUS_INVALID_SOCKET)
       throw CannotCreateSocketException();
 
    // Conect the socket to the address:
-
    if (::connect(socket,
                  reinterpret_cast<sockaddr*>(&address),
                  sizeof(address)) < 0)

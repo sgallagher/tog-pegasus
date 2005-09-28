@@ -136,7 +136,7 @@ public:
     }
     ~HTTPAcceptorRep()
     {
-	delete address;
+        delete address;
     }
     struct sockaddr* address;
 
@@ -149,7 +149,7 @@ public:
 #endif
       Mutex _connection_mut;
 
-      Sint32 socket;
+      PEGASUS_SOCKET socket;
       Array<HTTPConnection*> connections;
 };
 
@@ -694,7 +694,7 @@ void HTTPAcceptor::_acceptConnection()
        address_size = sizeof(struct sockaddr_in);
    }
 
-   Sint32 socket = accept(_rep->socket, accept_address, &address_size);
+   PEGASUS_SOCKET socket = accept(_rep->socket, accept_address, &address_size);
 
    delete accept_address;
 

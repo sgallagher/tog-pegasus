@@ -73,10 +73,10 @@ class CloseConnectionMessage : public Message
 {
 public:
 
-    CloseConnectionMessage(Sint32 socket_)
+    CloseConnectionMessage(PEGASUS_SOCKET socket_)
         : Message(CLOSE_CONNECTION_MESSAGE), socket(socket_) { }
 
-    Sint32 socket;
+    PEGASUS_SOCKET socket;
 };
 
 /** This class represents an HTTP listener.

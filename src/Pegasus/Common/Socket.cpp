@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2513
+//              David Dillard, Symantec Corp.,  (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +64,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static Uint32 _socketInterfaceRefCount = 0;
 
-Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
+Sint32 Socket::read(PEGASUS_SOCKET socket, void* ptr, Uint32 size)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return ::recv(socket, (char*)ptr, size, 0);
@@ -71,13 +72,13 @@ Sint32 Socket::read(Sint32 socket, void* ptr, Uint32 size)
 #if defined (__GNUC__) && !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_OS_LSB)
     int ccode = TEMP_FAILURE_RETRY(::read(socket, (char*)ptr, size));
     return ccode;
-#else 
+#else
     return ::read(socket, (char*)ptr, size);
 #endif
 #endif
 }
 
-Sint32 Socket::write(Sint32 socket, const void* ptr, Uint32 size)
+Sint32 Socket::write(PEGASUS_SOCKET socket, const void* ptr, Uint32 size)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return ::send(socket, (const char*)ptr, size, 0);
@@ -91,7 +92,7 @@ Sint32 Socket::write(Sint32 socket, const void* ptr, Uint32 size)
 #endif
 }
 
-void Socket::close(Sint32 socket)
+void Socket::close(PEGASUS_SOCKET socket)
 {
   if(-1 != socket)
    {
@@ -107,7 +108,7 @@ void Socket::close(Sint32 socket)
    }
 }
 
-int Socket::close2(Sint32 socket)
+int Socket::close2(PEGASUS_SOCKET socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     return closesocket(socket);
@@ -122,7 +123,7 @@ int Socket::close2(Sint32 socket)
 }
 
 
-void Socket::enableBlocking(Sint32 socket)
+void Socket::enableBlocking(PEGASUS_SOCKET socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 0;
@@ -134,7 +135,7 @@ void Socket::enableBlocking(Sint32 socket)
 #endif
 }
 
-int Socket::enableBlocking2(Sint32 socket)
+int Socket::enableBlocking2(PEGASUS_SOCKET socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 0;
@@ -146,7 +147,7 @@ int Socket::enableBlocking2(Sint32 socket)
 #endif
 }
 
-void Socket::disableBlocking(Sint32 socket)
+void Socket::disableBlocking(PEGASUS_SOCKET socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 1;
@@ -158,7 +159,7 @@ void Socket::disableBlocking(Sint32 socket)
 #endif
 }
 
-int Socket::disableBlocking2(Sint32 socket)
+int Socket::disableBlocking2(PEGASUS_SOCKET socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     unsigned long flag = 1;
@@ -175,10 +176,10 @@ void Socket::initializeInterface()
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     if (_socketInterfaceRefCount == 0)
     {
-	WSADATA tmp;
+        WSADATA tmp;
 
-	if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
-	    WSACleanup();
+    if (WSAStartup(0x202, &tmp) == SOCKET_ERROR)
+        WSACleanup();
     }
 
     _socketInterfaceRefCount++;
@@ -191,7 +192,7 @@ void Socket::uninitializeInterface()
     _socketInterfaceRefCount--;
 
     if (_socketInterfaceRefCount == 0)
-	WSACleanup();
+        WSACleanup();
 #endif
 }
 

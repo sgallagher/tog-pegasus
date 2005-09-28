@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -35,6 +35,7 @@
 //         Yi Zhou, Hewlett-Packard Company (yi_zhou@hp.com)
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
 //         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
+//         David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,13 +45,13 @@
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
-#include <Pegasus/Common/FileSystem.h>    
+#include <Pegasus/Common/FileSystem.h>
 
 #include "TLS.h"
 
 //
 // use the following definitions only if SSL is available
-// 
+//
 #ifdef PEGASUS_HAS_SSL
 
 PEGASUS_NAMESPACE_BEGIN
@@ -91,17 +92,17 @@ SSLSocket::SSLSocket(
     //
     // set the verification callback data
     //
-        
+
     //we are only storing one set of data, so we can just use index 0, this is defined in SSLContext.h
     //int index = SSL_get_ex_new_index(0, (void*)"pegasus", NULL, NULL, NULL);
 
-    // 
+    //
     // Create a new callback info for each new connection
-    // 
+    //
     _SSLCallbackInfo.reset(new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction(),
 										   _SSLContext->getCRLStore()));
 
-    if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo.get())) 
+    if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo.get()))
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
     }
@@ -245,7 +246,7 @@ Sint32 SSLSocket::accept()
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Shutdown SSL_accept()");
 	   Tracer::trace(TRC_SSL, Tracer::LEVEL4, "Error Code:  %d", ssl_rsn );
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, 
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
 
        PEG_METHOD_EXIT();
@@ -255,7 +256,7 @@ Sint32 SSLSocket::accept()
 
     //
     // If peer certificate verification is enabled or request received on
-    // export connection, get the peer certificate and verify the trust 
+    // export connection, get the peer certificate and verify the trust
     // store validation result.
     //
     if (_SSLContext->isPeerVerificationEnabled() || _exportConnection)
@@ -273,10 +274,10 @@ Sint32 SSLSocket::accept()
             //
             int verifyResult = SSL_get_verify_result(_SSLConnection);
             Tracer::trace(TRC_SSL, Tracer::LEVEL3, "Verification Result:  %d", verifyResult );
-            
+
             if (verifyResult == X509_V_OK)
             {
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, 
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
                     "---> SSL: Client Certificate verified.");
                 //
                 // set flag to indicate that the certificate was verified in
@@ -286,8 +287,8 @@ Sint32 SSLSocket::accept()
             }
             else
             {
-                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, 
-                     "---> SSL: Client Certificate not verified");    
+                PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
+                     "---> SSL: Client Certificate not verified");
                 //
                 // On export connection, do not continue if the
                 // certificate is not verified.
@@ -303,10 +304,10 @@ Sint32 SSLSocket::accept()
         }
         else
         {
-            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
                 "---> SSL: Client not certified, no certificate received");
             //
-            // On export connection, do not continue if peer certificate 
+            // On export connection, do not continue if peer certificate
             // is not received
             //
             if (_exportConnection)
@@ -356,7 +357,7 @@ redo_connect:
     else if (ssl_rc == 0)
     {
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Shutdown SSL_connect()");
-       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, 
+       PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3,
            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
        PEG_METHOD_EXIT();
        return -1;
@@ -373,10 +374,10 @@ redo_connect:
             //
             // Do not check the verification result using SSL_get_verify_result here to see whether or not to continue.
             // The prepareForCallback does not reset the verification result, so it will still contain the original error.
-            // If the client chose to override the default error in the callback and return true, we got here and 
+            // If the client chose to override the default error in the callback and return true, we got here and
             // should proceed with the transaction.  Otherwise, the handshake was already terminated.
             //
-            
+
             if (SSL_get_verify_result(_SSLConnection) == X509_V_OK)
             {
                  PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Server Certificate verified.");
@@ -405,13 +406,13 @@ redo_connect:
 }
 
 Boolean SSLSocket::isPeerVerificationEnabled()
-{ 
-    return (_SSLContext->isPeerVerificationEnabled()); 
+{
+    return (_SSLContext->isPeerVerificationEnabled());
 }
 
-SSLCertificateInfo* SSLSocket::getPeerCertificate() 
-{ 
-    if (_SSLCallbackInfo.get()) 
+SSLCertificateInfo* SSLSocket::getPeerCertificate()
+{
+    if (_SSLCallbackInfo.get())
     {
         return (_SSLCallbackInfo->_rep->peerCertificate);
     }
@@ -420,8 +421,8 @@ SSLCertificateInfo* SSLSocket::getPeerCertificate()
 }
 
 Boolean SSLSocket::isCertificateVerified()
-{ 
-    return _certificateVerified; 
+{
+    return _certificateVerified;
 }
 
 
@@ -431,11 +432,11 @@ Boolean SSLSocket::isCertificateVerified()
 
 
 
-MP_Socket::MP_Socket(Uint32 socket) 
+MP_Socket::MP_Socket(PEGASUS_SOCKET socket)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(
-    Uint32 socket,
+    PEGASUS_SOCKET socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
@@ -447,7 +448,7 @@ MP_Socket::MP_Socket(
         _sslsock = new SSLSocket(
             socket, sslcontext, sslContextObjectLock, exportConnection);
     }
-    else 
+    else
     {
         _isSecure = false;
         _socket = socket;
@@ -463,8 +464,8 @@ MP_Socket::~MP_Socket()
         delete _sslsock;
     }
     PEG_METHOD_EXIT();
-}   
-   
+}
+
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
 Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
@@ -598,7 +599,7 @@ MP_Socket::~MP_Socket() {}
 
 Boolean MP_Socket::isSecure() {return _isSecure;}
 
-Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode) 
+Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
 {
    return (retCode <= 0);
 }

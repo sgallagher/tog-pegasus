@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, Symantec Corp.  (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -69,27 +69,35 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+#ifndef PEGASUS_SOCKET
+#define PEGASUS_SOCKET int
+#endif
+
+#ifndef PEGASUS_INVALID_SOCKET
+#define PEGASUS_INVALID_SOCKET -1
+#endif
+
 class PEGASUS_COMMON_LINKAGE Socket
 {
    public:
 
 
-      static Sint32 read(Sint32 socket, void* ptr, Uint32 size);
+      static Sint32 read(PEGASUS_SOCKET socket, void* ptr, Uint32 size);
 
-      static Sint32 write(Sint32 socket, const void* ptr, Uint32 size);
+      static Sint32 write(PEGASUS_SOCKET socket, const void* ptr, Uint32 size);
 
-      static void close(Sint32 socket);
-      static int close2(Sint32 socket);
-      
-      static void enableBlocking(Sint32 socket);
-      static int  enableBlocking2(Sint32 socket);
+      static void close(PEGASUS_SOCKET socket);
+      static int close2(PEGASUS_SOCKET socket);
 
-      static void disableBlocking(Sint32 socket);
-      static int disableBlocking2(Sint32 socket);
+      static void enableBlocking(PEGASUS_SOCKET socket);
+      static int  enableBlocking2(PEGASUS_SOCKET socket);
+
+      static void disableBlocking(PEGASUS_SOCKET socket);
+      static int disableBlocking2(PEGASUS_SOCKET socket);
 
       static void initializeInterface(void);
       static void uninitializeInterface(void);
-      
+
 
    private:
 

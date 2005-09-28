@@ -67,6 +67,9 @@
 
 #define PEGASUS_MAXHOSTNAMELEN  64
 
+#define PEGASUS_SOCKET SOCKET
+#define PEGASUS_INVALID_SOCKET INVALID_SOCKET
+
 // Exclude rarely-used stuff from Windows headers
 // Note: this is also an easy way to avoid the often introduced 
 // winsock.h/winsock2.h mixing compiler error problems.

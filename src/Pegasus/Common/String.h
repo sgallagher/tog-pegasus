@@ -476,9 +476,9 @@ public:
 
     String& operator=(const char* str);
 
-    String& assign_ascii7(const char* str);
+    String& assignAscii7(const char* str);
 
-    String& assign_ascii7(const char* str, Uint32 n);
+    String& assignAscii7(const char* str, Uint32 n);
 
     Uint32 find(const char* s) const;
 

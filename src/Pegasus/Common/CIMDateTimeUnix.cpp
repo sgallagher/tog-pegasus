@@ -58,7 +58,8 @@ CIMDateTime CIMDateTime::getCurrentDateTime()
     PEGASUS_ASSERT(tmval != 0);
 
     // Get the UTC offset
-#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+
+#if defined(PEGASUS_OS_SOLARIS)
     tzMinutesEast =
         - (int)((tmval->tm_isdst > 0 && daylight) ? altzone : timezone) / 60;
 #elif defined(PEGASUS_OS_HPUX)

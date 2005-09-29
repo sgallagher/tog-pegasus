@@ -129,8 +129,19 @@ ifeq ($(OS),solaris)
     DIFF = diff
     SORT = sort
     REDIRECTERROR = 2>&1
-    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
+#
+#   Refer to bug 4205 for the description of the problem with the SIGUSR1 
+#   signal.  That problem required changing the server to be started in the
+#   background with a sleep 30 to prevent the makefile from receiving the 
+#   SIGUSR1 signal and exiting 
+# 
+ifdef PEGASUS_PLATFORM_SPARC_GNU
+    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) & $(SLEEP) 30  
+    CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
+else
+    CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) 
     CIMSERVER_STOP_SERVICE = /usr/bin/ps -ef | /usr/bin/grep cimserver | /usr/bin/grep -v grep | /usr/bin/awk '{print "kill -9 "$$2 |"/usr/bin/ksh"}'
+endif
     SLEEP = sleep
     REMOVE_PEGASUS_DIRECTORY = rm -Rf pegasus.old; mv pegasus pegasus.old
     MUEXE = mu
@@ -143,6 +154,7 @@ ifeq ($(OS),solaris)
     CHMOD =
     CHOWN =
     CHGRP =
+    CURRENT_USER=`whoami`
 endif
 
 ifeq ($(OS),linux)

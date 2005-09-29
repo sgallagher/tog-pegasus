@@ -585,11 +585,11 @@ PEGASUS_NAMESPACE_END
 PEGASUS_NAMESPACE_BEGIN
 
 
-MP_Socket::MP_Socket(Uint32 socket)
+MP_Socket::MP_Socket(PEGASUS_SOCKET socket)
  : _socket(socket), _isSecure(false) {}
 
 MP_Socket::MP_Socket(
-    Uint32 socket,
+    PEGASUS_SOCKET socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)

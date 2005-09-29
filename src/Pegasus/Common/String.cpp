@@ -461,7 +461,7 @@ StringRep* StringRep::create(const char* data, size_t size)
     return rep;
 }
 
-StringRep* StringRep::createAscii7(const char* data, size_t size)
+StringRep* StringRep::createASCII7(const char* data, size_t size)
 {
     StringRep* rep = StringRep::alloc(size);
     _copy((Uint16*)rep->data, data, size);
@@ -516,7 +516,7 @@ String::String(const char* str)
 String::String(const char* str, String::ASCII7Tag tag)
 {
     _check_null_pointer(str);
-    _rep = StringRep::createAscii7(str, strlen(str));
+    _rep = StringRep::createASCII7(str, strlen(str));
 }
 
 String::String(const char* str, Uint32 n)
@@ -528,7 +528,7 @@ String::String(const char* str, Uint32 n)
 String::String(const char* str, size_t n, String::ASCII7Tag tag)
 {
     _check_null_pointer(str);
-    _rep = StringRep::createAscii7(str, n);
+    _rep = StringRep::createASCII7(str, n);
 }
 
 String::String(const String& s1, const String& s2)
@@ -609,7 +609,7 @@ String& String::assign(const char* str, Uint32 n)
     return *this;
 }
 
-String& String::assignAscii7(const char* str, Uint32 n)
+String& String::assignASCII7(const char* str, Uint32 n)
 {
     _check_null_pointer(str);
 
@@ -1254,7 +1254,7 @@ String optimizations:
 
 	    String s("hello world", String::ASCII7);
 
-	    s.assignAscii7("hello world");
+	    s.assignASCII7("hello world");
 
 	This avoids checking for UTF8 when it is not needed.
 

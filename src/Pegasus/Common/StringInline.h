@@ -46,7 +46,7 @@ struct StringRep
 
     static StringRep* create(const char* data, size_t size);
 
-    static StringRep* createAscii7(const char* data, size_t size);
+    static StringRep* createASCII7(const char* data, size_t size);
 
     static StringRep* copy_on_write(StringRep* rep);
 
@@ -176,9 +176,9 @@ PEGASUS_STRING_INLINE String& String::assign(const char* str)
     return assign(str, strlen(str));
 }
 
-PEGASUS_STRING_INLINE String& String::assignAscii7(const char* str)
+PEGASUS_STRING_INLINE String& String::assignASCII7(const char* str)
 {
-    return assignAscii7(str, strlen(str));
+    return assignASCII7(str, strlen(str));
 }
 
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const

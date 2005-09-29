@@ -471,7 +471,7 @@ StringRep* StringRep::createASCII7(const char* data, size_t size)
 
 Uint32 StringRep::length(const Uint16* str)
 {
-    // ATTN: We could unroll this but it is infrequently called.
+    // Note: We could unroll this but it is rarely called.
 
     const Uint16* end = (Uint16*)str;
 
@@ -717,7 +717,7 @@ void String::remove(Uint32 index, Uint32 n)
 
 String String::subString(Uint32 index, Uint32 n) const
 {
-    // ATTN: this implementation is very permissive but used for
+    // Note: this implementation is very permissive but used for
     // backwards compatibility.
 
     if (index < _rep->size)
@@ -785,8 +785,8 @@ Uint32 String::find(const char* s) const
 {
     _check_null_pointer(s);
 
-    // ATTN: implement faster version of this that doesn't create a string
-    // object.
+    // Note: could optimize away creation of temporary, but this is rarely
+    // called.
     return find(String(s));
 }
 
@@ -1031,6 +1031,7 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 #else /* PEGASUS_STRING_ENABLE_ICU */
 
     // ATTN: optimize this!
+
     return String::equalNoCase(s1, String(s2));
 
 #endif /* PEGASUS_STRING_ENABLE_ICU */
@@ -1061,7 +1062,6 @@ Boolean String::equal(const String& s1, const char* s2)
 
 #else /* PEGASUS_STRING_NO_UTF8 */
 
-    // ATTN: optimize this!
     return String::equal(s1, String(s2));
 
 #endif /* PEGASUS_STRING_NO_UTF8 */

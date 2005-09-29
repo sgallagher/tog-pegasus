@@ -144,7 +144,7 @@ void ServerProcess::set_parent_pid(int pid)
 }
 
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_OS_SOLARIS)
 
 //===========================================================================
 //  NAME          : verify_process_name
@@ -231,7 +231,7 @@ int ServerProcess::get_proc(int pid)
 
  // get the process name to make sure it is the cimserver process
 // ATTN: skip verify for Solaris
-#if !defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if !defined(PEGASUS_OS_SOLARIS)
   if ((verify_process_name(path, getProcessName())) == -1)
   {
     return -1;
@@ -420,7 +420,7 @@ Boolean ServerProcess::isCIMServerRunning(void)
       }
   }
 #endif
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_OS_SOLARIS)
   if (get_proc(pid) != -1 )
   {
       // cimserver is running
@@ -475,7 +475,7 @@ int ServerProcess::cimserver_kill(int id)
       kill(pid, SIGKILL);
   }
 #endif
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_OS_SOLARIS)
   if (get_proc(pid) != -1 )
   {
       kill(pid, SIGKILL);

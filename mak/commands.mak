@@ -135,7 +135,7 @@ ifeq ($(OS),solaris)
 #   background with a sleep 30 to prevent the makefile from receiving the 
 #   SIGUSR1 signal and exiting 
 # 
-ifdef PEGASUS_PLATFORM_SPARC_GNU
+ifeq ($(PEGASUS_PLATFORM), SOLARIS_SPARC_GNU)
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS) & $(SLEEP) 30  
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
 else

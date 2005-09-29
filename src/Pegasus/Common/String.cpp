@@ -223,33 +223,76 @@ inline void _check_null_pointer(const T* ptr)
 
 static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
 {
-    // ATTN: this permits embedded null characters; provided for
-    // backwards compatibility.
-
     Uint16* p = dest;
     const Uint8* q = (const Uint8*)src;
-    const Uint8* end = q + n;
+
+    // Process leading 7-bit ASCII characters (to avoid UTF8 overhead below
+    // this loop). Use factor-four loop-unrolling.
+
+    while (n >= 4 && q[0] < 128 && q[1] < 128 && q[2] < 128 && q[3] < 128)
+    {
+	p[0] = q[0];
+	p[1] = q[1];
+	p[2] = q[2];
+	p[3] = q[3];
+	p += 4;
+	q += 4;
+	n -= 4;
+    }
+
+    switch (n)
+    {
+	case 0:
+	    return p - dest;
+	case 1:
+	    if (q[0] < 128)
+	    {
+		p[0] = q[0];
+		return p + 1 - dest;
+	    }
+	    break;
+	case 2:
+	    if (q[0] < 128 && q[1] < 128)
+	    {
+		p[0] = q[0];
+		p[1] = q[1];
+		return p + 2 - dest;
+	    }
+	    break;
+	case 3:
+	    if (q[0] < 128 && q[1] < 128 && q[2] < 128)
+	    {
+		p[0] = q[0];
+		p[1] = q[1];
+		p[2] = q[2];
+		return p + 3 - dest;
+	    }
+	    break;
+    }
+
+    // Process remaining characters.
 
     while (n)
     {
-	// Optimize for the 7-bit ASCII case.
+	// Optimize for 7-bit ASCII case.
 
-	if (*q && *q < 128)
+	if (*q < 128)
 	{
 	    *p++ = *q++;
 	    n--;
-	    continue;
 	}
-
-	Uint8 c = UTF_8_COUNT_TRAIL_BYTES(*q) + 1;
-
-	if (q + c > end || !isValid_U8(q, c) ||
-	    UTF8toUTF16(&q, q + c, &p, p + n) != 0)
+	else
 	{
-	    throw Exception("Bad UTF8 encoding");
-	}
+	    Uint8 c = UTF_8_COUNT_TRAIL_BYTES(*q) + 1;
 
-	n -= c;
+	    if (c > n || !isValid_U8(q, c) ||
+		UTF8toUTF16(&q, q + c, &p, p + n) != 0)
+	    {
+		throw Exception("Bad UTF8 encoding");
+	    }
+
+	    n -= c;
+	}
     }
 
     return p - dest;
@@ -257,12 +300,57 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
 
 // Note: dest must be at least three times src (plus an extra byte for 
 // terminator).
-static inline size_t _copy_to_utf8(
-    char* dest, size_t dest_size, const Uint16* src, size_t src_size)
+static inline size_t _copy_to_utf8(char* dest, const Uint16* src, size_t n)
 {
-    Uint8* dest_ptr = (Uint8*)dest;
-    UTF16toUTF8(&src, src + src_size, &dest_ptr, dest_ptr + dest_size);
-    return dest_ptr - (Uint8*)dest;
+    const Uint16* q = src;
+    Uint8* p = (Uint8*)dest;
+
+    while (n >= 4 && q[0] < 128 && q[1] < 128 && q[2] < 128 && q[3] < 128)
+    {
+	p[0] = q[0];
+	p[1] = q[1];
+	p[2] = q[2];
+	p[3] = q[3];
+	p += 4;
+	q += 4;
+	n -= 4;
+    }
+
+    switch (n)
+    {
+	case 0:
+	    return p - (Uint8*)dest;
+	case 1:
+	    if (q[0] < 128)
+	    {
+		p[0] = q[0];
+		return p + 1 - (Uint8*)dest;
+	    }
+	    break;
+	case 2:
+	    if (q[0] < 128 && q[1] < 128)
+	    {
+		p[0] = q[0];
+		p[1] = q[1];
+		return p + 2 - (Uint8*)dest;
+	    }
+	    break;
+	case 3:
+	    if (q[0] < 128 && q[1] < 128 && q[2] < 128)
+	    {
+		p[0] = q[0];
+		p[1] = q[1];
+		p[2] = q[2];
+		return p + 3 - (Uint8*)dest;
+	    }
+	    break;
+    }
+
+    // If this line was reached, there must be characters greater than 128.
+
+    UTF16toUTF8(&q, q + n, &p, p + 3 * n);
+
+    return p - (Uint8*)dest;
 }
 
 static inline size_t _convert(Uint16* p, const char* q, size_t n)
@@ -373,6 +461,14 @@ StringRep* StringRep::create(const char* data, size_t size)
     return rep;
 }
 
+StringRep* StringRep::create_ascii7(const char* data, size_t size)
+{
+    StringRep* rep = StringRep::alloc(size);
+    _copy((Uint16*)rep->data, data, size);
+    rep->data[rep->size = size] = '\0';
+    return rep;
+}
+
 Uint32 StringRep::length(const Uint16* str)
 {
     // ATTN: We could unroll this but it is infrequently called.
@@ -417,10 +513,22 @@ String::String(const char* str)
     _rep = StringRep::create(str, strlen(str));
 }
 
+String::String(const char* str, String::ASCII7Tag tag)
+{
+    _check_null_pointer(str);
+    _rep = StringRep::create_ascii7(str, strlen(str));
+}
+
 String::String(const char* str, Uint32 n)
 {
     _check_null_pointer(str);
     _rep = StringRep::create(str, n);
+}
+
+String::String(const char* str, size_t n, String::ASCII7Tag tag)
+{
+    _check_null_pointer(str);
+    _rep = StringRep::create_ascii7(str, n);
 }
 
 String::String(const String& s1, const String& s2)
@@ -501,6 +609,22 @@ String& String::assign(const char* str, Uint32 n)
     return *this;
 }
 
+String& String::assign_ascii7(const char* str, Uint32 n)
+{
+    _check_null_pointer(str);
+
+    if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
+    {
+	StringRep::unref(_rep);
+	_rep = StringRep::alloc(n);
+    }
+
+    _copy(_rep->data, str, n);
+    _rep->data[_rep->size = n] = 0;
+
+    return *this;
+}
+
 void String::clear()
 {
     if (_rep->size)
@@ -530,7 +654,7 @@ CString String::getCString() const
 #else
     Uint32 n = 3 * _rep->size;
     char* str = (char*)operator new(n + 1);
-    size_t size = _copy_to_utf8(str, n, _rep->data, _rep->size);
+    size_t size = _copy_to_utf8(str, _rep->data, _rep->size);
     str[size] = '\0';
     return CString(str);
 #endif
@@ -1122,6 +1246,17 @@ String optimizations:
 
     13. Used memcpy() and memcmp() where possible. These are implemented using
 	the rep family of intructions under Intel and are much faster.
+
+    14. Used loop unrolling, jump-tables, and short-circuiting to reduce UTF8 
+	copy routine overhead.
+
+    15. Added ASCII7 form of the constructor and assign().
+
+	    String s("hello world", String::ASCII7);
+
+	    s.assign_ascii7("hello world");
+
+	This avoids checking for UTF8 when it is not needed.
 
 ================================================================================
 */

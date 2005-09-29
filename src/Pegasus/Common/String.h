@@ -462,13 +462,23 @@ public:
     //// {New interfaces start here:
     ////
 
+    enum ASCII7Tag { ASCII7 };
+
     String(const String& s1, const String& s2);
 
     String(const String& s1, const char* s2);
 
     String(const char* s1, const String& s2);
 
+    String(const char* str, ASCII7Tag tag);
+
+    String(const char* str, size_t n, ASCII7Tag tag);
+
     String& operator=(const char* str);
+
+    String& assign_ascii7(const char* str);
+
+    String& assign_ascii7(const char* str, Uint32 n);
 
     Uint32 find(const char* s) const;
 

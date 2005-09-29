@@ -86,26 +86,46 @@ CIMName& CIMName::operator=(const char* name)
 
 Boolean CIMName::legal(const String& name)
 {
+    // Check first character.
+
     const Uint16* p = (const Uint16*)name.getChar16Data();
+    size_t n = name.size();
 
-    Uint16 c = *p++;
-
-    if (!(c < 128 && CharSet::is_alpha_under(c)))
+    if (!(*p < 128 && CharSet::is_alpha_under(*p)))
     {
-	if (!(c >= 0x0080 && c <= 0xFFEF))
+	if (!(*p >= 0x0080 && *p <= 0xFFEF))
             return false;
     }
 
+    p++;
+    n--;
 
-    while (*p)
+    // Use loop unrolling to skip over good ASCII 7-bit characters.
+
+    while (n >= 4)
     {
-	c = *p++;
-
-	if (!(c < 128 && CharSet::is_alnum_under(c)))
+	if (p[0] < 128 && CharSet::is_alnum_under(p[0]) ||
+	    p[1] < 128 && CharSet::is_alnum_under(p[1]) ||
+	    p[2] < 128 && CharSet::is_alnum_under(p[2]) ||
+	    p[3] < 128 && CharSet::is_alnum_under(p[3]))
 	{
-	    if (!(c >= 0x0080 && c <= 0xFFEF))
+	    p += 4;
+	    n -= 4;
+	    continue;
+	}
+    }
+
+    // Process remaining charcters.
+
+    while (n)
+    {
+	if (!(*p < 128 && CharSet::is_alnum_under(*p)))
+	{
+	    if (!(*p >= 0x0080 && *p <= 0xFFEF))
 		return false;
 	}
+	p++;
+	n--;
     }
 
     return true;
@@ -225,6 +245,7 @@ Optimizations:
     4. Added comparison functions for "char*".
     5. Implemented "unchecked" version of constructors and assignment operators
        that take String or "char*".
+    6. Added loop unrolling to CIMName::legal()
 
 ================================================================================
 */

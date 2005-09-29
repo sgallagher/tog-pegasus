@@ -31,8 +31,9 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#define PEGASUS_USE_INTERNAL_INLINES
 #include "String.h"
+#include <cassert>
 #include "InternalException.h"
 #include "CommonUTF.h"
 #include "CharSet.h"
@@ -43,6 +44,20 @@
 #endif
 
 PEGASUS_NAMESPACE_BEGIN
+
+//==============================================================================
+//
+// Compile-time switches (defined macros).
+//
+//     PEGASUS_STRING_ENABLE_ICU -- enables use of ICU package.
+//
+//     PEGASUS_STRING_NO_THROW -- suppresses throwing of exceptions
+//      
+//     PEGASUS_STRING_NO_UTF8 -- don't generate slower UTF8 code.
+//
+//     PEGASUS_USE_INTERNAL_INLINES -- enables internal inlining feature.
+//
+//==============================================================================
 
 //==============================================================================
 //
@@ -1031,7 +1046,6 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 #else /* PEGASUS_STRING_ENABLE_ICU */
 
     // ATTN: optimize this!
-
     return String::equalNoCase(s1, String(s2));
 
 #endif /* PEGASUS_STRING_ENABLE_ICU */
@@ -1256,7 +1270,7 @@ String optimizations:
 
 	    s.assignASCII7("hello world");
 
-	This avoids checking for UTF8 when it is not needed.
+	This avoids slower UTF8 processing when not needed.
 
 ================================================================================
 */

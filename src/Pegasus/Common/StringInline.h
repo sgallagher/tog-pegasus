@@ -5,21 +5,6 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-//==============================================================================
-//
-// Compile-time macros:
-//
-//     PEGASUS_STRING_ENABLE_ICU -- enables use of ICU package.
-//
-//     PEGASUS_STRING_NO_THROW -- don't throw exceptions caused by bounds 
-//     errors and null-pointers.
-//      
-//     PEGASUS_STRING_NO_UTF8 -- don't generate slower UTF8 code.
-//
-//     PEGASUS_STRING_INLINE -- either "inline" or empty.
-//
-//==============================================================================
-
 PEGASUS_COMMON_LINKAGE void String_throw_out_of_bounds();
 
 #ifdef PEGASUS_STRING_NO_THROW

@@ -44,6 +44,11 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 
+#if defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+# include <sys/param.h>
+# include <dirent.h>
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)

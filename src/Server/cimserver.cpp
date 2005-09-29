@@ -530,7 +530,7 @@ void shutdownCIMOM(Uint32 timeoutValue)
 #endif
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
-|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) \
+|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_SOLARIS) \
 || defined (PEGASUS_OS_VMS)
         if (kill_rc != -1)
             {
@@ -1182,7 +1182,7 @@ MessageLoader::_useProcessLocale = false;
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
 || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
-|| defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined (PEGASUS_OS_VMS)
+|| defined(PEGASUS_OS_SOLARIS) || defined (PEGASUS_OS_VMS)
 
     //
     // check if CIMServer is already running
@@ -1319,7 +1319,7 @@ MessageLoader::_useProcessLocale = false;
     time_t last = 0;
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
-    || defined(PEGASUS_OS_AIX) || defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) \
+    || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_SOLARIS) \
     || defined(PEGASUS_OS_VMS)
         //
         // create a file to indicate that the cimserver has started and
@@ -1372,7 +1372,7 @@ MessageLoader::_useProcessLocale = false;
 
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
 || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
-|| defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) || defined(PEGASUS_OS_VMS)
+|| defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
         //
         // close the file created at startup time to indicate that the
         // cimserver has terminated normally.

@@ -426,13 +426,7 @@ String FileSystem::getAbsoluteFileName(const String &paths, const String &filena
   String root = String::EMPTY;
   String tempPath = paths;
 
-#if defined(PEGASUS_OS_VMS)
 
-  if (FileSystem::exists(paths + filename) == true)
-  {
-    root = filename;
-  }
-#else
   do {
     if (( pos = tempPath.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
                 pos = tempPath.size();
@@ -451,7 +445,7 @@ String FileSystem::getAbsoluteFileName(const String &paths, const String &filena
           //  cout << "File does not exist.\n";
           }
   } while (tempPath.size() > 0);
-#endif
+
   return root;
 }
 

@@ -31,6 +31,7 @@ ROOT=../..
 include $(ROOT)/mak/config.mak
 
 DIRS = stripcrs \
+       insertcrs \
              cnv2rootbundle
 
 TEST_DIRS = stripcrs

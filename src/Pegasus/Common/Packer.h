@@ -39,7 +39,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 
-#define PACKER_ASSERT assert
+#define PACKER_ASSERT(X) /* empty */
 
 PEGASUS_NAMESPACE_BEGIN
 

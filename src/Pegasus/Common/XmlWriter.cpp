@@ -88,6 +88,158 @@ PEGASUS_NAMESPACE_BEGIN
     out << LIT("content-length: ") << contentLengthP << LIT("\r\n");   	\
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// SpecialChar and table.
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct SpecialChar
+{
+    const char* str;
+    size_t size;
+    int special;
+};
+
+static const SpecialChar _specialChars[] =
+{
+    { "&#0;", 4, 1 },
+    { "&#1;", 4, 1 },
+    { "&#2;", 4, 1 },
+    { "&#3;", 4, 1 },
+    { "&#4;", 4, 1 },
+    { "&#5;", 4, 1 },
+    { "&#6;", 4, 1 },
+    { "&#7;", 4, 1 },
+    { "&#8;", 4, 1 },
+    { "&#9;", 4, 1 },
+    { "&#10;", 5, 1 },
+    { "&#11;", 5, 1 },
+    { "&#12;", 5, 1 },
+    { "&#13;", 5, 1 },
+    { "&#14;", 5, 1 },
+    { "&#15;", 5, 1 },
+    { "&#16;", 5, 1 },
+    { "&#17;", 5, 1 },
+    { "&#18;", 5, 1 },
+    { "&#19;", 5, 1 },
+    { "&#20;", 5, 1 },
+    { "&#21;", 5, 1 },
+    { "&#22;", 5, 1 },
+    { "&#23;", 5, 1 },
+    { "&#24;", 5, 1 },
+    { "&#25;", 5, 1 },
+    { "&#26;", 5, 1 },
+    { "&#27;", 5, 1 },
+    { "&#28;", 5, 1 },
+    { "&#29;", 5, 1 },
+    { "&#30;", 5, 1 },
+    { "&#31;", 5, 1 },
+    { " ", 1, 0 },
+    { "!", 1, 0 },
+    { "&quot;", 6, 1 },
+    { "#", 1, 0 },
+    { "$", 1, 0 },
+    { "%", 1, 0 },
+    { "&amp;", 5, 1 },
+    { "&apos;", 6, 1 },
+    { "(", 1, 0 },
+    { ")", 1, 0 },
+    { "*", 1, 0 },
+    { "+", 1, 0 },
+    { ",", 1, 0 },
+    { "-", 1, 0 },
+    { ".", 1, 0 },
+    { "/", 1, 0 },
+    { "0", 1, 0 },
+    { "1", 1, 0 },
+    { "2", 1, 0 },
+    { "3", 1, 0 },
+    { "4", 1, 0 },
+    { "5", 1, 0 },
+    { "6", 1, 0 },
+    { "7", 1, 0 },
+    { "8", 1, 0 },
+    { "9", 1, 0 },
+    { ":", 1, 0 },
+    { ";", 1, 0 },
+    { "&lt;", 4, 1 },
+    { "=", 1, 0 },
+    { "&gt;", 4, 0 },
+    { "?", 1, 0 },
+    { "@", 1, 0 },
+    { "A", 1, 0 },
+    { "B", 1, 0 },
+    { "C", 1, 0 },
+    { "D", 1, 0 },
+    { "E", 1, 0 },
+    { "F", 1, 0 },
+    { "G", 1, 0 },
+    { "H", 1, 0 },
+    { "I", 1, 0 },
+    { "J", 1, 0 },
+    { "K", 1, 0 },
+    { "L", 1, 0 },
+    { "M", 1, 0 },
+    { "N", 1, 0 },
+    { "O", 1, 0 },
+    { "P", 1, 0 },
+    { "Q", 1, 0 },
+    { "R", 1, 0 },
+    { "S", 1, 0 },
+    { "T", 1, 0 },
+    { "U", 1, 0 },
+    { "V", 1, 0 },
+    { "W", 1, 0 },
+    { "X", 1, 0 },
+    { "Y", 1, 0 },
+    { "Z", 1, 0 },
+    { "[", 1, 0 },
+    { "\\", 1, 0 },
+    { "]", 1, 0 },
+    { "^", 1, 0 },
+    { "_", 1, 0 },
+    { "`", 1, 0 },
+    { "a", 1, 0 },
+    { "b", 1, 0 },
+    { "c", 1, 0 },
+    { "d", 1, 0 },
+    { "e", 1, 0 },
+    { "f", 1, 0 },
+    { "g", 1, 0 },
+    { "h", 1, 0 },
+    { "i", 1, 0 },
+    { "j", 1, 0 },
+    { "k", 1, 0 },
+    { "l", 1, 0 },
+    { "m", 1, 0 },
+    { "n", 1, 0 },
+    { "o", 1, 0 },
+    { "p", 1, 0 },
+    { "q", 1, 0 },
+    { "r", 1, 0 },
+    { "s", 1, 0 },
+    { "t", 1, 0 },
+    { "u", 1, 0 },
+    { "v", 1, 0 },
+    { "w", 1, 0 },
+    { "x", 1, 0 },
+    { "y", 1, 0 },
+    { "z", 1, 0 },
+    { "{", 1, 0 },
+    { "|", 1, 0 },
+    { "}", 1, 0 },
+    { "~", 1, 0 },
+    { "&#127;", 6, 1 },
+};
+
+static inline int _isSpecialChar7(int c)
+{
+    return _specialChars[c].special;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Buffer& operator<<(Buffer& out, const char* x)
 {
     XmlWriter::append(out, x);
@@ -257,44 +409,15 @@ inline void _xmlWritter_appendSpecialChar(Buffer& out, const Char16& c)
     }
 }
 
-inline void _xmlWritter_appendSpecialChar(Buffer& out, char c)
+inline void _appendSpecialChar7(Buffer& out, char c)
 {
-	if ( ((c < 0x20) && (c >= 0)) || (c == 0x7f) )
-    {
-        char charref[7];
-        sprintf(charref, "&#%u;", (Uint8)c);
-        out.append(charref, static_cast<Uint32>(strlen(charref)));
-    }
+    const SpecialChar& sc = _specialChars[Uint32(c)];
+
+    if (sc.special)
+	out.append(sc.str, sc.size);
     else
-    {
-        switch (c)
-        {
-            case '&':
-                out.append("&amp;", 5);
-                break;
-
-            case '<':
-                out.append("&lt;", 4);
-                break;
-
-            case '>':
-                out.append("&gt;", 4);
-                break;
-
-            case '"':
-                out.append("&quot;", 6);
-                break;
-
-            case '\'':
-                out.append("&apos;", 6);
-                break;
-
-            default:
-		out.append(static_cast<Sint8>(c));
-        }
-    }
+	out.append(c);
 }
-
 
 inline void _xmlWritter_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
 {
@@ -459,32 +582,104 @@ void XmlWriter::appendSpecial(Buffer& out, const Char16& x)
 
 void XmlWriter::appendSpecial(Buffer& out, char x)
 {
-    _xmlWritter_appendSpecialChar(out, x);
+    _appendSpecialChar7(out, x);
 }
 
 void XmlWriter::appendSpecial(Buffer& out, const char* str)
 {
     while (*str)
-	_xmlWritter_appendSpecialChar(out, *str++);
+	_appendSpecialChar7(out, *str++);
 }
 
 void XmlWriter::appendSpecial(Buffer& out, const String& str)
 {
-    for (Uint32 i = 0; i < str.size(); i++)
+    const Uint16* p = (const Uint16*)str.getChar16Data();
+    size_t n = str.size();
+
+    // Handle leading ASCII 7 characers in these next two loos (use unrolling).
+
+    while (n >= 8)
     {
-        Uint16 c = str[i];
+	if (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128 &&
+	    p[4] < 128 && p[5] < 128 && p[6] < 128 && p[7] < 128)
+	{
+	    if (_isSpecialChar7(p[0]) || _isSpecialChar7(p[1]) ||
+		_isSpecialChar7(p[2]) || _isSpecialChar7(p[3]) ||
+		_isSpecialChar7(p[4]) || _isSpecialChar7(p[5]) ||
+		_isSpecialChar7(p[6]) || _isSpecialChar7(p[7]))
+	    {
+		_appendSpecialChar7(out, p[0]);
+		_appendSpecialChar7(out, p[1]);
+		_appendSpecialChar7(out, p[2]);
+		_appendSpecialChar7(out, p[3]);
+		_appendSpecialChar7(out, p[4]);
+		_appendSpecialChar7(out, p[5]);
+		_appendSpecialChar7(out, p[6]);
+		_appendSpecialChar7(out, p[7]);
+	    }
+	    else
+		out.append(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+
+	    p += 8;
+	    n -= 8;
+	}
+	else
+	    break;
+    }
+
+    while (n >= 4)
+    {
+	if (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128)
+	{
+	    if (_isSpecialChar7(p[0]) || _isSpecialChar7(p[1]) ||
+		_isSpecialChar7(p[2]) || _isSpecialChar7(p[3]))
+	    {
+		_appendSpecialChar7(out, p[0]);
+		_appendSpecialChar7(out, p[1]);
+		_appendSpecialChar7(out, p[2]);
+		_appendSpecialChar7(out, p[3]);
+	    }
+	    else
+		out.append(p[0], p[1], p[2], p[3]);
+
+	    p += 4;
+	    n -= 4;
+	}
+	else
+	    break;
+    }
+
+    // Process remaining characters. A UTF8 character must have been 
+    // encountered or this would have never been reached.
+
+    while (n--)
+    {
+	Uint16 c = *p++;
+
+	// Special processing for UTF8 case:
+
+	if (c < 128)
+	{
+	    _appendSpecialChar7(out, c);
+	    continue;
+	}
+
+	// Hanlde UTF8 case (if reached).
 
 	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
 	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
 	{
-	    Char16 highSurrogate = str[i];
-	    Char16 lowSurrogate = str[++i];
+	    Char16 highSurrogate = p[-1];
+	    Char16 lowSurrogate = p[0];
+	    p++;
+	    n--;
 
-	    _xmlWritter_appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
+	    _xmlWritter_appendSurrogatePair(
+		out, Uint16(highSurrogate),Uint16(lowSurrogate));
 	}
 	else
 	{
-	    _xmlWritter_appendSpecialChar(out, str[i]);
+	    _xmlWritter_appendSpecialChar(out, c);
 	}
     }
 }

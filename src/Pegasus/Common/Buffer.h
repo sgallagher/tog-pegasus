@@ -238,6 +238,21 @@ inline bool operator==(const Buffer& x, const Buffer& y)
     return memcmp(x.getData(), y.getData(), x.size()) == 0;
 }
 
+struct Lit
+{
+    Lit(const char* s, size_t n) : str(s), size(n) { }
+    const char* str;
+    const size_t size;
+};
+
+#define LIT(STR) Lit(STR, sizeof(STR))
+
+inline Buffer& operator<<(Buffer& out, const Lit& x)
+{
+    out.append(x.str, x.size-1);
+    return out;
+}
+
 PEGASUS_NAMESPACE_END
 
 #endif /* Pegasus_Buffer_h */

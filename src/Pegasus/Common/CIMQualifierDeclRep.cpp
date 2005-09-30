@@ -115,13 +115,15 @@ static const char* _toString(Boolean x)
 
 void CIMQualifierDeclRep::toXml(Buffer& out) const
 {
-    out << "<QUALIFIER.DECLARATION";
-    out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    out << LIT("<QUALIFIER.DECLARATION");
+    out << LIT(" NAME=\"") << _name;
+    out.append('"');
+    out << LIT(" TYPE=\"") << cimTypeToString (_value.getType ());
+    out.append('"');
 
     if (_value.isArray())
     {
-	out << " ISARRAY=\"true\"";
+	out << LIT(" ISARRAY=\"true\"");
 
 	if (_arraySize)
 	{
@@ -133,12 +135,12 @@ void CIMQualifierDeclRep::toXml(Buffer& out) const
 
     XmlWriter::appendQualifierFlavorEntity(out, _flavor);
 
-    out << ">\n";
+    out << LIT(">\n");
 
     XmlWriter::appendScopeElement(out, _scope);
     XmlWriter::appendValueElement(out, _value);
 
-    out << "</QUALIFIER.DECLARATION>\n";
+    out << LIT("</QUALIFIER.DECLARATION>\n");
 }
 
 /** toMof - Generate the MOF output for the Qualifier Declaration object.
@@ -158,13 +160,13 @@ void CIMQualifierDeclRep::toXml(Buffer& out) const
 */
 void CIMQualifierDeclRep::toMof(Buffer& out) const
 {
-    out << "\n";
+    out.append('\n');
 
     // output the "Qualifier" keyword and name
-    out << "Qualifier " << _name;
+    out << LIT("Qualifier ") << _name;
 
     // output the qualifiertype
-    out << " : " << cimTypeToString (_value.getType ());
+    out << LIT(" : ") << cimTypeToString (_value.getType ());
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())
@@ -176,7 +178,7 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
 	    out << buffer;
 	}
 	else
-	    out << "[]";
+	    out << LIT("[]");
     }
 
     Boolean hasValueField = false;
@@ -184,7 +186,7 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     //if (!_value.isNull() || !(_value.getType() == CIMTYPE_BOOLEAN) )
     //{
         // KS With CIM Qualifier, this should be =
-	out << " = ";
+	out << LIT(" = ");
 	hasValueField = true;
 	MofWriter::appendValueElement(out, _value);
     //}
@@ -194,17 +196,19 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     scopeString = MofWriter::getQualifierScope(_scope);
     //if (scopeString.size())
     //{
-	out << ", Scope(" << scopeString << ")";
+	out << LIT(", Scope(") << scopeString;
+	out.append(')');
     //}
     // Output Flavor Information
     String flavorString;
     flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
-    out << ", Flavor(" << flavorString << ")";
+    out << LIT(", Flavor(") << flavorString;
+    out.append(')');
     }
     // End each qualifier declaration with newline
-    out << ";\n";
+    out << LIT(";\n");
 }
 
 

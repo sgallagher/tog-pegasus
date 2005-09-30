@@ -544,13 +544,13 @@ void CIMClassRep::toXml(Buffer& out) const
 {
     // Class opening element:
 
-    out << "<CLASS ";
-    out << " NAME=\"" << _reference.getClassName() << "\" ";
+    out << LIT("<CLASS ");
+    out << LIT(" NAME=\"") << _reference.getClassName() << LIT("\" ");
 
     if (!_superClassName.isNull())
-	out << " SUPERCLASS=\"" << _superClassName << "\" ";
+	out << LIT(" SUPERCLASS=\"") << _superClassName << LIT("\" ");
 
-    out << ">\n";
+    out << LIT(">\n");
 
     // Qualifiers:
 
@@ -568,7 +568,7 @@ void CIMClassRep::toXml(Buffer& out) const
 
     // Class closing element:
 
-    out << "</CLASS>\n";
+    out << LIT("</CLASS>\n");
 }
 /** toMof prepares an 8-bit string with the MOF for the class.
     The BNF for this is:
@@ -586,22 +586,22 @@ void CIMClassRep::toXml(Buffer& out) const
 void CIMClassRep::toMof(Buffer& out) const
 {
     // Get and format the class qualifiers
-    out << "\n//    Class " << _reference.getClassName();
+    out << LIT("\n//    Class ") << _reference.getClassName();
     if (_qualifiers.getCount())
-	out << "\n";
-    out << "\n";
+	out.append('\n');
+    out.append('\n');
     _qualifiers.toMof(out);
 
     // Separate qualifiers from Class Name
-    out << "\n";
+    out.append('\n');
 
     // output class statement
-    out << "class " << _reference.getClassName();
+    out << LIT("class ") << _reference.getClassName();
 
     if (!_superClassName.isNull())
-	out << " : " << _superClassName;
+	out << LIT(" : ") << _superClassName;
 
-    out << "\n{";
+    out << LIT("\n{");
 
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
@@ -622,9 +622,8 @@ void CIMClassRep::toMof(Buffer& out) const
     }
 
     // Class closing element:
-    out << "\n};\n";
+    out << LIT("\n};\n");
 }
-
 
 CIMClassRep::CIMClassRep()
 {

@@ -147,73 +147,82 @@ void CIMParameterRep::toXml(Buffer& out) const
     {
         if (_type == CIMTYPE_REFERENCE)
         {
-            out << "<PARAMETER.REFARRAY";
-            out << " NAME=\"" << _name << "\"";
+            out << LIT("<PARAMETER.REFARRAY");
+            out << LIT(" NAME=\"") << _name;
+	    out.append('"');
 
             if (!_referenceClassName.isNull())
             {
-                out << " REFERENCECLASS=\"" << _referenceClassName.getString()
-                    << "\"";
+                out << LIT(" REFERENCECLASS=\"");
+		out << _referenceClassName.getString();
+		out.append('"');
             }
 
-			if (_arraySize)
+	    if (_arraySize)
             {
                 char buffer[32];
                 sprintf(buffer, "%d", _arraySize);
-                out << " ARRAYSIZE=\"" << buffer << "\"";
+                out << LIT(" ARRAYSIZE=\"") << buffer;
+		out.append('"');
             }
 
-            out << ">\n";
+            out << LIT(">\n");
 
             _qualifiers.toXml(out);
 
-            out << "</PARAMETER.REFARRAY>\n";
+            out << LIT("</PARAMETER.REFARRAY>\n");
         }
         else
         {
-            out << "<PARAMETER.ARRAY";
-            out << " NAME=\"" << _name << "\" ";
-            out << " TYPE=\"" << cimTypeToString (_type) << "\"";
+            out << LIT("<PARAMETER.ARRAY");
+            out << LIT(" NAME=\"") << _name << LIT("\" ");
+            out << LIT(" TYPE=\"") << cimTypeToString (_type);
+	    out.append('"');
 
             if (_arraySize)
             {
                 char buffer[32];
                 sprintf(buffer, "%d", _arraySize);
-                out << " ARRAYSIZE=\"" << buffer << "\"";
+                out << LIT(" ARRAYSIZE=\"") << buffer;
+		out.append('"');
             }
 
-            out << ">\n";
+            out << LIT(">\n");
 
             _qualifiers.toXml(out);
 
-            out << "</PARAMETER.ARRAY>\n";
+            out << LIT("</PARAMETER.ARRAY>\n");
         }
     }
     else if (_type == CIMTYPE_REFERENCE)
     {
-	out << "<PARAMETER.REFERENCE";
-	out << " NAME=\"" << _name << "\"";
+	out << LIT("<PARAMETER.REFERENCE");
+	out << LIT(" NAME=\"") << _name;
+	out.append('"');
+
         if (!_referenceClassName.isNull())
         {
-	    out << " REFERENCECLASS=\"" << _referenceClassName.getString() <<
-                   "\"";
+	    out << LIT(" REFERENCECLASS=\"");
+	    out << _referenceClassName.getString();
+	    out.append('"');
         }
-	out << ">\n";
+	out << LIT(">\n");
 
 	_qualifiers.toXml(out);
 
-	out << "</PARAMETER.REFERENCE>\n";
+	out << LIT("</PARAMETER.REFERENCE>\n");
     }
     else
     {
-	out << "<PARAMETER";
-	out << " NAME=\"" << _name << "\" ";
-	out << " TYPE=\"" << cimTypeToString (_type) << "\"";
-	out << ">\n";
+	out << LIT("<PARAMETER");
+	out << LIT(" NAME=\"") << _name << LIT("\" ");
+	out << LIT(" TYPE=\"") << cimTypeToString (_type);
+	out.append('"');
+	out << LIT(">\n");
 
 	_qualifiers.toXml(out);
 
-	out << "</PARAMETER>\n";
+	out << LIT("</PARAMETER>\n");
     }
 }
 
@@ -237,10 +246,12 @@ void CIMParameterRep::toMof(Buffer& out) const
     _qualifiers.toMof(out);
 
     if (_qualifiers.getCount())
-	out << " ";
+	out.append(' ');
 
     // Output the data type and name
-    out << cimTypeToString (_type) << " " <<  _name;
+    out << cimTypeToString (_type);
+    out.append(' ');
+    out << _name;
 
     if (_isArray)
     {
@@ -252,7 +263,7 @@ void CIMParameterRep::toMof(Buffer& out) const
 	    out << buffer;
 	}
 	else
-	    out << "[]";
+	    out << LIT("[]");
     }
 }
 

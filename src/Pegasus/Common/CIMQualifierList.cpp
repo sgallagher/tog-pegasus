@@ -365,19 +365,19 @@ void CIMQualifierList::toMof(Buffer& out) const
 	return;
 
     // Qualifier leading bracket.
-    out <<"[";
+    out.append('[');
 
     // Loop to list qualifiers
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
 	// if second or greater, add comma separator
 	if (i > 0)
-	    out << ", \n";
+	    out << LIT(", \n");
 	MofWriter::appendQualifierElement(out, _qualifiers[i]);
     }
     
     // Terminating bracket
-    out << "]";
+    out.append(']');
 }
 
 

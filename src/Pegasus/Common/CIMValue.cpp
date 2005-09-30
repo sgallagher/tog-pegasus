@@ -132,7 +132,7 @@ void _toString(Buffer& out, const T* p, Uint32 size)
     while (size--)
     {
         _toString(out, *p++);
-        out << " ";
+	out.append(' ');
     }
 }
 
@@ -1685,7 +1685,7 @@ String CIMValue::toString() const
                 for (Uint32 i = 0; i < size; i++)
                 {
                     _toString(out, Boolean(_rep->_u._booleanArray->getData()[i]));
-                    out << " ";
+		    out.append(' ');
                 }
                 break;
             }

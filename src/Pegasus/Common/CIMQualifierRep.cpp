@@ -127,20 +127,25 @@ static const char* _toString(Boolean x)
 
 void CIMQualifierRep::toXml(Buffer& out) const
 {
-    out << "<QUALIFIER";
-    out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    out << LIT("<QUALIFIER");
+    out << LIT(" NAME=\"") << _name;
+    out.append('"');
+    out << LIT(" TYPE=\"") << cimTypeToString (_value.getType ());
+    out.append('"');
 
     if (_propagated != false)
-	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+    {
+	out << LIT(" PROPAGATED=\"") << _toString(_propagated);
+	out.append('"');
+    }
 
     XmlWriter::appendQualifierFlavorEntity(out, _flavor);
 
-    out << ">\n";
+    out << LIT(">\n");
 
     XmlWriter::appendValueElement(out, _value);
 
-    out << "</QUALIFIER>\n";
+    out << LIT("</QUALIFIER>\n");
 }
 
 /** toMof Generates MOF output for a qualifier.
@@ -173,14 +178,14 @@ void CIMQualifierRep::toMof(Buffer& out) const
 		    Boolean b;
 			_value.get(b);
 		    if(!b)
-				out << " (false)";
+			out << LIT(" (false)");
 	   }
 	   else
 	   {
-		   out << " (";
+		   out << LIT(" (");
 		   hasValueField = true;
 		   MofWriter::appendValueElement(out, _value);
-		   out << ")";
+		   out.append(')');
 	   }
     }
 
@@ -189,7 +194,7 @@ void CIMQualifierRep::toMof(Buffer& out) const
     flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
-		out << " : ";
+		out << LIT(" : ");
 		out << flavorString;
     }
 }

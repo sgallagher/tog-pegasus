@@ -259,9 +259,8 @@ void CIMPropertyRep::toXml(Buffer& out) const
 {
     if (_value.isArray())
     {
-	out << "<PROPERTY.ARRAY";
-
-	out << " NAME=\"" << _name << "\" ";
+	out << LIT("<PROPERTY.ARRAY");
+	out << LIT(" NAME=\"") << _name << LIT("\" ");
 
     // If the property array type is CIMObject, then
     //   encode the property in CIM-XML as a string array with the EMBEDDEDOBJECT attribute
@@ -272,10 +271,10 @@ void CIMPropertyRep::toXml(Buffer& out) const
     {
         Array<CIMObject> a;
         _value.get(a);
-        out << " TYPE=\"string\"";
+        out << LIT(" TYPE=\"string\"");
         // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
         if (a.size() > 0 && a[0].isInstance())
-            out << " EMBEDDEDOBJECT=\"object\"";
+            out << LIT(" EMBEDDEDOBJECT=\"object\"");
         // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
         // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
         // the EmbeddedObject qualifier will always be added, whether it's a class or
@@ -298,65 +297,85 @@ void CIMPropertyRep::toXml(Buffer& out) const
     }
     else
     {
-        out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+        out << LIT(" TYPE=\"") << cimTypeToString (_value.getType ());
+	out.append('"');
     }
 
     if (_arraySize)
 	{
 	    char buffer[32];
 	    sprintf(buffer, "%d", _arraySize);
-	    out << " ARRAYSIZE=\"" << buffer << "\"";
+	    out << LIT(" ARRAYSIZE=\"") << buffer;
+	    out.append('"');
 	}
 
 	if (!_classOrigin.isNull())
-	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+	{
+	    out << LIT(" CLASSORIGIN=\"") << _classOrigin;
+	    out.append('"');
+	}
 
 	if (_propagated != false)
-	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+	{
+	    out << LIT(" PROPAGATED=\"") << _toString(_propagated);
+	    out.append('"');
+	}
 
-	out << ">\n";
+	out << LIT(">\n");
 
 	_qualifiers.toXml(out);
 
 	XmlWriter::appendValueElement(out, _value);
 
-	out << "</PROPERTY.ARRAY>\n";
+	out << LIT("</PROPERTY.ARRAY>\n");
     }
     else if (_value.getType() == CIMTYPE_REFERENCE)
     {
-	out << "<PROPERTY.REFERENCE";
-
-	out << " NAME=\"" << _name << "\" ";
+	out << LIT("<PROPERTY.REFERENCE");
+	out << LIT(" NAME=\"") << _name << LIT("\" ");
 
         if (!_referenceClassName.isNull())
         {
-            out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
+            out << LIT(" REFERENCECLASS=\"") << _referenceClassName;
+	    out.append('"');
         }
 
 	if (!_classOrigin.isNull())
-	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+	{
+	    out << LIT(" CLASSORIGIN=\"") << _classOrigin;
+	    out.append('"');
+	}
 
 	if (_propagated != false)
-	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+	{
+	    out << LIT(" PROPAGATED=\"") << _toString(_propagated);
+	    out.append('"');
+	}
 
-	out << ">\n";
+	out << LIT(">\n");
 
 	_qualifiers.toXml(out);
 
 	XmlWriter::appendValueElement(out, _value);
 
-	out << "</PROPERTY.REFERENCE>\n";
+	out << LIT("</PROPERTY.REFERENCE>\n");
     }
     else
     {
-	out << "<PROPERTY";
-	out << " NAME=\"" << _name << "\" ";
+	out << LIT("<PROPERTY");
+	out << LIT(" NAME=\"") << _name << LIT("\" ");
 
 	if (!_classOrigin.isNull())
-	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+	{
+	    out << LIT(" CLASSORIGIN=\"") << _classOrigin;
+	    out.append('"');
+	}
 
 	if (_propagated != false)
-	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+	{
+	    out << LIT(" PROPAGATED=\"") << _toString(_propagated);
+	    out.append('"');
+	}
 
     // If the property type is CIMObject, then
     //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
@@ -367,10 +386,10 @@ void CIMPropertyRep::toXml(Buffer& out) const
     {
         CIMObject a;
         _value.get(a);
-        out << " TYPE=\"string\"";
+        out << LIT(" TYPE=\"string\"");
         // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
         if (a.isInstance())
-            out << " EMBEDDEDOBJECT=\"object\"";
+            out << LIT(" EMBEDDEDOBJECT=\"object\"");
         // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
         // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
         // the EmbeddedObject qualifier will always be added, whether it's a class or
@@ -393,16 +412,17 @@ void CIMPropertyRep::toXml(Buffer& out) const
     }
     else
     {
-        out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+        out << LIT(" TYPE=\"") << cimTypeToString(_value.getType ());
+	out.append('"');
     }
 
-	out << ">\n";
+	out << LIT(">\n");
 
 	_qualifiers.toXml(out);
 
 	XmlWriter::appendValueElement(out, _value);
 
-	out << "</PROPERTY>\n";
+	out << LIT("</PROPERTY>\n");
     }
 }
 
@@ -423,11 +443,14 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 {
     //Output the qualifier list
     if (_qualifiers.getCount())
-	out << "\n";
+	out.append('\n');
     _qualifiers.toMof(out);
 
     // Output the Type and name on a new line
-    out << "\n" << cimTypeToString (_value.getType ()) << " " << _name;
+    out.append('\n');
+    out << cimTypeToString (_value.getType ());
+    out.append(' ');
+    out << _name;
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())
@@ -439,13 +462,13 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 	    out << buffer;
 	}
 	else
-	    out << "[]";
+	    out << LIT("[]");
     }
 
     // If the property value is not Null, add value after "="
     if (!_value.isNull())
     {
-	out << " = ";
+	out << LIT(" = ");
 	if (_value.isArray())
 	{
 	    // Insert any property values
@@ -460,9 +483,9 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 	    MofWriter::appendValueElement(out, _value);
 	}
     }
-    // Close the property MOF
-    out << ";";
 
+    // Close the property MOF
+    out.append(';');
 }
 
 Boolean CIMPropertyRep::identical(const CIMPropertyRep* x) const

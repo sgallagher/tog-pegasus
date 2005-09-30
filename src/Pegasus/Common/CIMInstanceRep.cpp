@@ -231,9 +231,9 @@ void CIMInstanceRep::toXml(Buffer& out) const
 {
     // Class opening element:
 
-    out << "<INSTANCE ";
-    out << " CLASSNAME=\"" << _reference.getClassName() << "\" ";
-    out << ">\n";
+    out << LIT("<INSTANCE ");
+    out << LIT(" CLASSNAME=\"") << _reference.getClassName() << LIT("\" ");
+    out << LIT(">\n");
 
     // Qualifiers:
 
@@ -246,24 +246,24 @@ void CIMInstanceRep::toXml(Buffer& out) const
 
     // Class closing element:
 
-    out << "</INSTANCE>\n";
+    out << LIT("</INSTANCE>\n");
 }
 
 void CIMInstanceRep::toMof(Buffer& out) const
 {
     // Get and format the class qualifiers
-    out << "\n//Instance of Class " << _reference.getClassName();
+    out << LIT("\n//Instance of Class ") << _reference.getClassName();
     if (_qualifiers.getCount())
-	out << "\n";
+	out.append('\n');
     _qualifiers.toMof(out);
 
     // Separate qualifiers from Class Name
-    out << "\n";
+    out.append('\n');
 
     // output class statement
-    out << "instance of class " << _reference.getClassName();
+    out << LIT("instance of class ") << _reference.getClassName();
 
-    out << "\n{";
+    out << LIT("\n{");
 
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
@@ -277,7 +277,7 @@ void CIMInstanceRep::toMof(Buffer& out) const
     }
 
     // Class closing element:
-    out << "\n};\n";
+    out << LIT("\n};\n");
 }
 
 CIMObjectPath CIMInstanceRep::buildPath(

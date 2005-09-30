@@ -216,26 +216,33 @@ static const char* _toString(Boolean x)
 
 void CIMMethodRep::toXml(Buffer& out) const
 {
-    out << "<METHOD";
+    out << LIT("<METHOD");
+    out << LIT(" NAME=\"") << _name;
+    out.append('"');
 
-    out << " NAME=\"" << _name << "\"";
-
-    out << " TYPE=\"" << cimTypeToString (_type) << "\"";
+    out << LIT(" TYPE=\"") << cimTypeToString (_type);
+    out.append('"');
 
     if (!_classOrigin.isNull())
-        out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+    {
+        out << LIT(" CLASSORIGIN=\"") << _classOrigin;
+	out.append('"');
+    }
 
     if (_propagated != false)
-        out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+    {
+        out << LIT(" PROPAGATED=\"") << _toString(_propagated);
+	out.append('"');
+    }
 
-    out << ">\n";
+    out << LIT(">\n");
 
     _qualifiers.toXml(out);
 
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
         XmlWriter::appendParameterElement(out, _parameters[i]);
 
-    out << "</METHOD>\n";
+    out << LIT("</METHOD>\n");
 }
 
 /**
@@ -251,12 +258,16 @@ void CIMMethodRep::toMof(Buffer& out) const   //ATTNKS:
 {
     // Output the qualifier list starting on new line
     if (_qualifiers.getCount())
-        out << "\n";
+	out.append('\n');
 
     _qualifiers.toMof(out);
 
     // output the type, MethodName and ParmeterList left enclosure
-    out << "\n" << cimTypeToString (_type) << " " << _name << "(";
+    out.append('\n');
+    out << cimTypeToString (_type);
+    out.append(' ');
+    out << _name;
+    out.append('(');
 
     // output the param list separated by commas.
 
@@ -264,13 +275,13 @@ void CIMMethodRep::toMof(Buffer& out) const   //ATTNKS:
     {
         // If not first, output comma separator
         if (i)
-            out << ", ";
+            out << LIT(", ");
 
         MofWriter::appendParameterElement(out, _parameters[i]);
     }
 
     // output the parameterlist and method terminator
-    out << ");";
+    out << LIT(");");
 }
 
 

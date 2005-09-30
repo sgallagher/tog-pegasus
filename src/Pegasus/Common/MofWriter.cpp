@@ -148,7 +148,7 @@ inline void _mofWriter_appendValue(Buffer& out, Char16 x)
 */
 inline void _mofWriter_appendValue(Buffer& out, const String& x)
 {
-    out << "\"";
+    out.append('"');
     const Uint32 size = x.size();
     for (Uint32 i = 0; i < size; i++)
     {
@@ -191,7 +191,7 @@ inline void _mofWriter_appendValue(Buffer& out, const String& x)
         }
 
     }
-    out << "\"";
+    out.append('"');
 }
 
 inline void _mofWriter_appendValue(Buffer& out, const CIMDateTime& x)
@@ -220,18 +220,18 @@ void _mofWriter_appendValueArrayMof(Buffer& out, const T* p, Uint32 size)
     // if there are any entries in the array output them
     if (size)
     {
-        out << "{";
+	out.append('{');
         while (size--)
         {
             // Put comma on all but first entry.
             if (!isFirstEntry)
             {
-                out << ", ";
+                out << LIT(", ");
             }
             isFirstEntry = false;
             _mofWriter_appendValue(out, *p++);
         }
-        out << "}";
+	out.append('}');
     }
 }
 
@@ -248,7 +248,7 @@ void MofWriter::appendValueElement(
     // if the CIMValue is Null we return the Null indicator.
     if (value.isNull())
     {
-        out << "null";
+        out << LIT("null");
         return;
     }
 

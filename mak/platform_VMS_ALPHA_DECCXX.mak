@@ -45,7 +45,7 @@ BIN_DIR = $(HOME_DIR)/bin
 LIB_DIR = $(HOME_DIR)/lib
 OPT_DIR = $(HOME_DIR)/opt
 
-LFLAGS = /map=$(BIN_VMSDIRA)]$(PROGRAM)
+LFLAGS = /Threads_Enable=Upcalls/map=$(BIN_VMSDIRA)]$(PROGRAM)
 CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL/nowarn
 #CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/preprocess_only/implicit_include
@@ -60,12 +60,22 @@ endif
 SYS_LIBS =+sys$share:sys$lib_c/lib
 
 # SSL support
-OPENSSL_VMSHOME =/Pegasus_Blddsk/OpenSSL
+#OPENSSL_VMSHOME =/Pegasus_OpenSSLHome
+OPENSSL_VMSHOME = /Pegasus_Tools
 OPENSSL_HOME = $(OPENSSL_VMSHOME)
-
 PEGASUS_HAS_SSL = yes
+
 PEGASUS_DISABLE_PERFINST = yes
 #PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER = yes
+
+# Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147
+PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1
+
+# The Provider User Context feature (PEP 197) is not yet supported on OpenVMS
+PEGASUS_DISABLE_PROV_USERCTXT=1
+
+# CQL is not yet supported on OpenVMS
+PEGASUS_DISABLE_CQL=1
 
 CXX = cxx
 
@@ -87,8 +97,3 @@ PEGASUS_SUPPORTS_DYNLIB = yes
 
 LIB_SUFFIX =.olb
 
-# The Provider User Context feature (PEP 197) is not yet supported on OpenVMS
-PEGASUS_DISABLE_PROV_USERCTXT=1
-
-# Local domain sockets, or an equivalent, is not currently supported on OpenVMS. Bug 2147
-PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1

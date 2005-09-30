@@ -29,6 +29,12 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
+// Modified By: 
+//     Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3297
+//     David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
+//     Mike Brasher (mike-brasher@austin.rr.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #define PEGASUS_USE_INTERNAL_INLINES

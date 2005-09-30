@@ -47,9 +47,9 @@ PEGASUS_NAMESPACE_BEGIN
 
 //==============================================================================
 //
-// Compile-time switches (defined macros).
+// Compile-time macros (undefined by default).
 //
-//     PEGASUS_STRING_ENABLE_ICU -- enables use of ICU package.
+//     PEGASUS_STRING_ENABLE_ICU -- enables use of ICU package
 //
 //     PEGASUS_STRING_NO_THROW -- suppresses throwing of exceptions
 //      

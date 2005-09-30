@@ -43,7 +43,7 @@ ifeq ($(OS_TYPE),windows)
 	$(PROGRAM) $(HOME_DIR)/bin/TestDynLib.dll
 else
  ifeq ($(PEGASUS_OS_TYPE),VMS)
-	$(PROGRAM) libTestDynLib
+	$(PROGRAM) $(HOME_DIR)/bin/libTestDynLib.exe
  else
 	$(PROGRAM) $(HOME_DIR)/lib/libTestDynLib$(LIB_SUFFIX)
  endif

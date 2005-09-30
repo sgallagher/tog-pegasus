@@ -48,11 +48,11 @@ public:
     static int to_lower(int c) { return _to_lower[c]; }
 
 private:
-    static const Uint8 _is_alpha_under[];
-    static const Uint8 _is_alnum_under[];
-    static const Uint8 _to_upper[];
-    static const Uint8 _to_lower[];
-    static const Uint8 _is_space[];
+    static const Uint8 _is_alpha_under[256];
+    static const Uint8 _is_alnum_under[256];
+    static const Uint8 _to_upper[256];
+    static const Uint8 _to_lower[256];
+    static const Uint8 _is_space[256];
 };
 
 PEGASUS_NAMESPACE_END

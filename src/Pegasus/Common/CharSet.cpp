@@ -47,7 +47,7 @@ PEGASUS_NAMESPACE_BEGIN
 # error "EBCDIC unsupported"
 #endif
 
-const Uint8 CharSet::_is_alpha_under[] = 
+const Uint8 CharSet::_is_alpha_under[256] = 
 {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -59,7 +59,7 @@ const Uint8 CharSet::_is_alpha_under[] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
-const Uint8 CharSet::_is_alnum_under[] = 
+const Uint8 CharSet::_is_alnum_under[256] = 
 {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
@@ -71,7 +71,7 @@ const Uint8 CharSet::_is_alnum_under[] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
-const Uint8 CharSet::_to_upper[] = 
+const Uint8 CharSet::_to_upper[256] = 
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -107,7 +107,7 @@ const Uint8 CharSet::_to_upper[] =
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
 
-const Uint8 CharSet::_to_lower[] = 
+const Uint8 CharSet::_to_lower[256] = 
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -143,7 +143,7 @@ const Uint8 CharSet::_to_lower[] =
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
 
-const Uint8 CharSet::_is_space[] = 
+const Uint8 CharSet::_is_space[256] = 
 {
     0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

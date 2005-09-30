@@ -39,7 +39,9 @@
 #include <stdlib>
 #include <stdio.h>
 #include <stddef>
+#ifdef PEGASUS_OS_VMS
 #include "ConfigVms.h"
+#endif
 
 #if (__INITIAL_POINTER_SIZE==64)
 #define PEGASUS_POINTER_64BIT

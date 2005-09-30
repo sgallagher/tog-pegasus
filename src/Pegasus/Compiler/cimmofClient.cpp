@@ -68,7 +68,7 @@ cimmofClient::init(String &location, compilerCommonDefs::operationType ot)
   _client = new CIMClient();
   _client->setRequestDefaultLanguages();  //l10n
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || defined(PEGASUS_OS_VMS)
   _client->connectLocal();
 #else
   String hostname = "localhost";  //defaults

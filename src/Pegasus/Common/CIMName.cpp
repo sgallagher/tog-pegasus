@@ -104,15 +104,17 @@ Boolean CIMName::legal(const String& name)
 
     while (n >= 4)
     {
-	if (p[0] < 128 && CharSet::is_alnum_under(p[0]) ||
-	    p[1] < 128 && CharSet::is_alnum_under(p[1]) ||
-	    p[2] < 128 && CharSet::is_alnum_under(p[2]) ||
+	if (p[0] < 128 && CharSet::is_alnum_under(p[0]) &&
+	    p[1] < 128 && CharSet::is_alnum_under(p[1]) &&
+	    p[2] < 128 && CharSet::is_alnum_under(p[2]) &&
 	    p[3] < 128 && CharSet::is_alnum_under(p[3]))
 	{
 	    p += 4;
 	    n -= 4;
 	    continue;
 	}
+
+	break;
     }
 
     // Process remaining charcters.

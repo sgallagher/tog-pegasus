@@ -158,7 +158,7 @@ static EntityReference _references[] =
 // S    ::=    (#x20 | #x9 | #xD | #xA)+
 static inline int _isspace(char c)
 {
-    return CharSet::is_space(c);
+    return CharSet::is_space((Uint8)c);
 }
 
 static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));

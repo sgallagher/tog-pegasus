@@ -141,6 +141,7 @@ int UTF16toUTF8(const Uint16** srcHead,
     Uint8* tgt = *tgtHead;
     while (src < srcEnd)
     {
+#if 0
 	if (*src < 128)
 	{
 	    if (tgt == tgtEnd)
@@ -152,6 +153,7 @@ int UTF16toUTF8(const Uint16** srcHead,
 	    *tgt++ = *src++;
 	    continue;
 	}
+#endif
 
     Uint32 tempchar;
     Uint16 numberOfBytes = 0;

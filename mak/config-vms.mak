@@ -70,7 +70,7 @@ CXXREPOSITORY_VMSROOT = $(HOME_VMSDIRA)cxx_repository]
 #REPOSITORY_VMSDIR = $(HOME_VMSDIR)
 #REPOSITORY_VMSROOT = $(REPOSITORY_VMSDIR)[repository]
 
-REPOSITORY_DIR = /var/opt/wbem
+#REPOSITORY_DIR = /wbem_var/opt/wbem
 REPOSITORY_VMSROOT = $(REPOSITORY_VMSDIR)[.repository]
 
 ######################################################

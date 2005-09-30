@@ -90,6 +90,9 @@ inline ThreadStatus Thread::run()
     {
         pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
     }
+#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU	
+    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
+#endif // PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
 
 #ifdef PEGASUS_OS_OS400
     // Initialize the pegasusValue to 1, see IPCOs400.h.

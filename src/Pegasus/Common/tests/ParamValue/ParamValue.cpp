@@ -1,31 +1,31 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
@@ -38,18 +38,18 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/PegasusAssert.h>
+#include <cassert>
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
-static Boolean verbose;
+static char * verbose;
 
 void test01()
 {
     CIMParamValue pv;
-    PEGASUS_TEST_ASSERT(pv.isUninitialized());
+    assert(pv.isUninitialized());
 
     String p1("message");
     CIMValue v1(String("argument_Test"));
@@ -60,19 +60,19 @@ void test01()
     CIMParamValue a7(p1, v1);
     CIMValue v7(String("argument_Test7"));
     a7.setValue( v7);
-    PEGASUS_TEST_ASSERT(a1.getValue().toString() != a7.getValue().toString());
-    PEGASUS_TEST_ASSERT(a1.getParameterName() == a7.getParameterName());
+    assert(a1.getValue().toString() != a7.getValue().toString());
+    assert(a1.getParameterName() == a7.getParameterName());
 
 //  Test call to CIMParamValue::setParameterName(String& parameterName)
 //  this test uses the above values for a1, p1 and v1.
     CIMParamValue a8(p1, v1);
     String p8("message8");
     a8.setParameterName( p8);
-    PEGASUS_TEST_ASSERT(a1.getValue().toString() == a8.getValue().toString());
-    PEGASUS_TEST_ASSERT(a1.getParameterName() != a8.getParameterName());
-    PEGASUS_TEST_ASSERT(a8.isTyped());
+    assert(a1.getValue().toString() == a8.getValue().toString());
+    assert(a1.getParameterName() != a8.getParameterName());
+    assert(a8.isTyped());
     a8.setIsTyped(false);
-    PEGASUS_TEST_ASSERT(!a8.isTyped());
+    assert(!a8.isTyped());
 
     String p2("message2");
     CIMValue v2(String("argument_Test2"));
@@ -98,7 +98,7 @@ void test01()
     aa.append(CIMParamValue("message3", CIMValue(200000)));
 
     aa.append(CIMParamValue("message4", CIMValue(String("test4"))));
-
+    
     //
     // clone
     //
@@ -120,68 +120,18 @@ void test01()
     XmlWriter::appendParamValueElement(xmlOut, a4clone);
 }
 
-#define TEST_UNINITIALIZED_OBJECT_EXCEPTION(statement) \
-    {                                                  \
-        Boolean gotException = false;                  \
-        try                                            \
-        {                                              \
-            statement;                                 \
-        }                                              \
-        catch (const UninitializedObjectException&)    \
-        {                                              \
-            gotException = true;                       \
-        }                                              \
-        PEGASUS_TEST_ASSERT(gotException);             \
-    }
 
-void testUninitializedObject()
+int main(int argc, char** argv)
 {
-    CIMParamValue uninitializedParamValue;
-    String name("name");
-    CIMValue value(String("value"));
-
-    PEGASUS_TEST_ASSERT(uninitializedParamValue.isUninitialized());
-
-    // Copy constructor allows an uninitialized object
-    {
-        CIMParamValue initializedParamValue(uninitializedParamValue);
-    }
-
-    // Assignment operator allows an uninitialized object
-    {
-        CIMParamValue initializedParamValue(name, value);
-        initializedParamValue = uninitializedParamValue;
-    }
-
-    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
-        uninitializedParamValue.getParameterName());
-    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
-        uninitializedParamValue.getValue());
-    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
-        uninitializedParamValue.isTyped());
-    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
-        uninitializedParamValue.setParameterName(name));
-    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
-        uninitializedParamValue.setValue(value));
-    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
-        uninitializedParamValue.setIsTyped(true));
-    TEST_UNINITIALIZED_OBJECT_EXCEPTION(
-        uninitializedParamValue.clone());
-}
-
-int main(int, char** argv)
-{
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
     try
     {
         test01();
-        testUninitializedObject();
     }
     catch (Exception& e)
     {
         cout << "Exception: " << e.getMessage() << endl;
-        return 1;
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

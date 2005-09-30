@@ -212,6 +212,8 @@ static int _compare(const Uint16* s1, const Uint16* s2, size_t n)
     while (n-- && (*s1++ - *s2++) == 0)
 	;
 
+    // 
+
     return s1[-1] - s2[-1];
 }
 

@@ -1139,7 +1139,7 @@ Boolean XmlEntry::getAttributeValue(const char* name, String& value) const
     return true;
 }
 
-void XmlAppendCString(Array<char>& out, const char* str)
+void XmlAppendCString(Buffer& out, const char* str)
 {
     out.append(str, static_cast<Uint32>(strlen(str)));
 }

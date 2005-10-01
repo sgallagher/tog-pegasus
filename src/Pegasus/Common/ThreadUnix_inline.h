@@ -44,6 +44,43 @@
 // bindings are the same, but it moans like hell about it !!
 // (Its correct to moan, but its a pain all the same).
 
+/*
+************************************************************************
+*************************************************************************
+revision 1.12
+date: 2003/08/06 13:58:15;  author: keith.petley;  state: Exp;  lines: +30 -0
+ - The Solaris compiler moans that pthread_create is expecting a function with
+   "C" linkage as the third parameter and we are passing one with "C++" linkage.
+   Not only is this true it appears the compiler is correct to complain, even
+   though "C" and "C++" linkage are the same on Solaris.
+
+   Added a structure zosParmDef to hold the desired function and its parameter.
+   The pass a wrapper function with "C" linkage to pthread_create that simply
+   calls the function in zosParmDef with the included parameter.
+
+   Note the structure is malloc'ed in Thread::run, but _must_ be free'd by the
+   newly created thread. This is may not be pretty, but it does avoid some nasty
+   race conditions.
+
+   zosParmDef shamelessly "borrowed" from the IBM zOS port.
+
+ - On Solaris 5.8 the IPC test (and some others) would deadlock with the
+   process consuming large amounts of CPU time. It turns out the "dqe" thread
+   in the IPC test has a "hard" loop checking for messages on the queue. If
+   the main thread and one of the dqe threads ended up on the same LWP process
+   then the dqe would spin and never get pre-empted. This locked out the main
+   thread which never got a chance to stop the dqe thread.
+
+   Changed the scheduling policy from SCHED_OTHER to SCHED_RR for Solaris. This
+   seems to fix the IPC deadlock by pre-empting dqe after a set time.
+
+ - All the above wrapped in an #ifdef SOLARIS so it doesn't affect other
+   platforms.
+
+*************************************************************************
+*************************************************************************
+*/
+
 
 typedef struct {                                   
     void * (PEGASUS_THREAD_CDECL * _start)(void *);

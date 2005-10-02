@@ -557,20 +557,53 @@ void XmlWriter::append(Buffer& out, const char* str)
 
 void XmlWriter::append(Buffer& out, const String& str)
 {
-    for (Uint32 i = 0; i < str.size(); i++)
+    const Uint16* p = (const Uint16*)str.getChar16Data();
+    size_t n = str.size();
+
+    // Handle leading ASCII 7 characers in these next two loops (use unrolling).
+
+    while (n >= 8 && ((p[0]|p[1]|p[2]|p[3]|p[4]|p[5]|p[6]|p[7]) & 0xFF80) == 0)
     {
-        Uint16 c = str[i];
+	out.append(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
+	p += 8;
+	n -= 8;
+    }
+
+    while (n >= 4 && ((p[0]|p[1]|p[2]|p[3]) & 0xFF80) == 0)
+    {
+	out.append(p[0], p[1], p[2], p[3]);
+	p += 4;
+	n -= 4;
+    }
+
+    while (n--)
+    {
+	Uint16 c = *p++;
+
+	// Special processing for UTF8 case:
+
+	if (c < 128)
+	{
+	    out.append(c);
+	    continue;
+	}
+
+	// Hanlde UTF8 case (if reached).
+
 	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
 	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
 	{
-	    Char16 highSurrogate = str[i];
-	    Char16 lowSurrogate = str[++i];
+	    Char16 highSurrogate = p[-1];
+	    Char16 lowSurrogate = p[0];
+	    p++;
+	    n--;
 
-	    _xmlWritter_appendSurrogatePair(out, Uint16(highSurrogate),Uint16(lowSurrogate));
+	    _xmlWritter_appendSurrogatePair(
+		out, Uint16(highSurrogate),Uint16(lowSurrogate));
 	}
 	else
 	{
-	    _xmlWritter_appendChar(out, str[i]);
+	    _xmlWritter_appendChar(out, c);
 	}
     }
 }
@@ -602,7 +635,7 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
     const Uint16* p = (const Uint16*)str.getChar16Data();
     size_t n = str.size();
 
-    // Handle leading ASCII 7 characers in these next two loos (use unrolling).
+    // Handle leading ASCII 7 characers in these next two loops (use unrolling).
 
     while (n >= 8)
     {

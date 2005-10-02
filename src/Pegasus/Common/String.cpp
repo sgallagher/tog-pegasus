@@ -252,10 +252,23 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
     Uint16* p = dest;
     const Uint8* q = (const Uint8*)src;
 
-    // Process leading 7-bit ASCII characters (to avoid UTF8 overhead below
-    // this loop). Use factor-four loop-unrolling. The following check is
-    // equivalent to:
-    //     (n >= 4 && q[0] < 128 && q[1] < 128 && q[2] < 128 && q[3] < 128)
+    // Process leading 7-bit ASCII characters (to avoid UTF8 overhead later).
+    // Use loop-unrolling.
+
+    while (n >=8 && ((q[0]|q[1]|q[2]|q[3]|q[4]|q[5]|q[6]|q[7]) & 0x80) == 0)
+    {
+	p[0] = q[0];
+	p[1] = q[1];
+	p[2] = q[2];
+	p[3] = q[3];
+	p[4] = q[4];
+	p[5] = q[5];
+	p[6] = q[6];
+	p[7] = q[7];
+	p += 8;
+	q += 8;
+	n -= 8;
+    }
 
     while (n >=4 && ((q[0]|q[1]|q[2]|q[3]) & 0x80) == 0)
     {
@@ -280,7 +293,7 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
 	    }
 	    break;
 	case 2:
-	    if (q[0] < 128 && q[1] < 128)
+	    if (((q[0]|q[1]) & 0x80) == 0)
 	    {
 		p[0] = q[0];
 		p[1] = q[1];
@@ -288,7 +301,7 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
 	    }
 	    break;
 	case 3:
-	    if (q[0] < 128 && q[1] < 128 && q[2] < 128)
+	    if (((q[0]|q[1]|q[2]) & 0x80) == 0)
 	    {
 		p[0] = q[0];
 		p[1] = q[1];

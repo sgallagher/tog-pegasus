@@ -37,7 +37,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#define PEGASUS_USE_INTERNAL_INLINES
+#ifndef PEGASUS_USE_INTERNAL_INLINES
+# define PEGASUS_USE_INTERNAL_INLINES
+#endif
+
 #include "String.h"
 #include <cassert>
 #include "InternalException.h"
@@ -250,9 +253,11 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
     const Uint8* q = (const Uint8*)src;
 
     // Process leading 7-bit ASCII characters (to avoid UTF8 overhead below
-    // this loop). Use factor-four loop-unrolling.
+    // this loop). Use factor-four loop-unrolling. The following check is
+    // equivalent to:
+    //     (n >= 4 && q[0] < 128 && q[1] < 128 && q[2] < 128 && q[3] < 128)
 
-    while (n >= 4 && q[0] < 128 && q[1] < 128 && q[2] < 128 && q[3] < 128)
+    while (n >=4 && ((q[0]|q[1]|q[2]|q[3]) & 0x80) == 0)
     {
 	p[0] = q[0];
 	p[1] = q[1];

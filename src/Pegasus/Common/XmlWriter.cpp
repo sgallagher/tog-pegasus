@@ -98,145 +98,153 @@ struct SpecialChar
 {
     const char* str;
     size_t size;
-    int special;
 };
 
+// Defines encodings of special characters. Just use a 7-bit ASCII character
+// as an index into this array to retrieve its string encoding and encoding
+// length in bytes.
 static const SpecialChar _specialChars[] =
 {
-    { "&#0;", 4, 1 },
-    { "&#1;", 4, 1 },
-    { "&#2;", 4, 1 },
-    { "&#3;", 4, 1 },
-    { "&#4;", 4, 1 },
-    { "&#5;", 4, 1 },
-    { "&#6;", 4, 1 },
-    { "&#7;", 4, 1 },
-    { "&#8;", 4, 1 },
-    { "&#9;", 4, 1 },
-    { "&#10;", 5, 1 },
-    { "&#11;", 5, 1 },
-    { "&#12;", 5, 1 },
-    { "&#13;", 5, 1 },
-    { "&#14;", 5, 1 },
-    { "&#15;", 5, 1 },
-    { "&#16;", 5, 1 },
-    { "&#17;", 5, 1 },
-    { "&#18;", 5, 1 },
-    { "&#19;", 5, 1 },
-    { "&#20;", 5, 1 },
-    { "&#21;", 5, 1 },
-    { "&#22;", 5, 1 },
-    { "&#23;", 5, 1 },
-    { "&#24;", 5, 1 },
-    { "&#25;", 5, 1 },
-    { "&#26;", 5, 1 },
-    { "&#27;", 5, 1 },
-    { "&#28;", 5, 1 },
-    { "&#29;", 5, 1 },
-    { "&#30;", 5, 1 },
-    { "&#31;", 5, 1 },
-    { " ", 1, 0 },
-    { "!", 1, 0 },
-    { "&quot;", 6, 1 },
-    { "#", 1, 0 },
-    { "$", 1, 0 },
-    { "%", 1, 0 },
-    { "&amp;", 5, 1 },
-    { "&apos;", 6, 1 },
-    { "(", 1, 0 },
-    { ")", 1, 0 },
-    { "*", 1, 0 },
-    { "+", 1, 0 },
-    { ",", 1, 0 },
-    { "-", 1, 0 },
-    { ".", 1, 0 },
-    { "/", 1, 0 },
-    { "0", 1, 0 },
-    { "1", 1, 0 },
-    { "2", 1, 0 },
-    { "3", 1, 0 },
-    { "4", 1, 0 },
-    { "5", 1, 0 },
-    { "6", 1, 0 },
-    { "7", 1, 0 },
-    { "8", 1, 0 },
-    { "9", 1, 0 },
-    { ":", 1, 0 },
-    { ";", 1, 0 },
-    { "&lt;", 4, 1 },
-    { "=", 1, 0 },
-    { "&gt;", 4, 0 },
-    { "?", 1, 0 },
-    { "@", 1, 0 },
-    { "A", 1, 0 },
-    { "B", 1, 0 },
-    { "C", 1, 0 },
-    { "D", 1, 0 },
-    { "E", 1, 0 },
-    { "F", 1, 0 },
-    { "G", 1, 0 },
-    { "H", 1, 0 },
-    { "I", 1, 0 },
-    { "J", 1, 0 },
-    { "K", 1, 0 },
-    { "L", 1, 0 },
-    { "M", 1, 0 },
-    { "N", 1, 0 },
-    { "O", 1, 0 },
-    { "P", 1, 0 },
-    { "Q", 1, 0 },
-    { "R", 1, 0 },
-    { "S", 1, 0 },
-    { "T", 1, 0 },
-    { "U", 1, 0 },
-    { "V", 1, 0 },
-    { "W", 1, 0 },
-    { "X", 1, 0 },
-    { "Y", 1, 0 },
-    { "Z", 1, 0 },
-    { "[", 1, 0 },
-    { "\\", 1, 0 },
-    { "]", 1, 0 },
-    { "^", 1, 0 },
-    { "_", 1, 0 },
-    { "`", 1, 0 },
-    { "a", 1, 0 },
-    { "b", 1, 0 },
-    { "c", 1, 0 },
-    { "d", 1, 0 },
-    { "e", 1, 0 },
-    { "f", 1, 0 },
-    { "g", 1, 0 },
-    { "h", 1, 0 },
-    { "i", 1, 0 },
-    { "j", 1, 0 },
-    { "k", 1, 0 },
-    { "l", 1, 0 },
-    { "m", 1, 0 },
-    { "n", 1, 0 },
-    { "o", 1, 0 },
-    { "p", 1, 0 },
-    { "q", 1, 0 },
-    { "r", 1, 0 },
-    { "s", 1, 0 },
-    { "t", 1, 0 },
-    { "u", 1, 0 },
-    { "v", 1, 0 },
-    { "w", 1, 0 },
-    { "x", 1, 0 },
-    { "y", 1, 0 },
-    { "z", 1, 0 },
-    { "{", 1, 0 },
-    { "|", 1, 0 },
-    { "}", 1, 0 },
-    { "~", 1, 0 },
-    { "&#127;", 6, 1 },
+    { "&#0;", 4 },
+    { "&#1;", 4 },
+    { "&#2;", 4 },
+    { "&#3;", 4 },
+    { "&#4;", 4 },
+    { "&#5;", 4 },
+    { "&#6;", 4 },
+    { "&#7;", 4 },
+    { "&#8;", 4 },
+    { "&#9;", 4 },
+    { "&#10;", 5 },
+    { "&#11;", 5 },
+    { "&#12;", 5 },
+    { "&#13;", 5 },
+    { "&#14;", 5 },
+    { "&#15;", 5 },
+    { "&#16;", 5 },
+    { "&#17;", 5 },
+    { "&#18;", 5 },
+    { "&#19;", 5 },
+    { "&#20;", 5 },
+    { "&#21;", 5 },
+    { "&#22;", 5 },
+    { "&#23;", 5 },
+    { "&#24;", 5 },
+    { "&#25;", 5 },
+    { "&#26;", 5 },
+    { "&#27;", 5 },
+    { "&#28;", 5 },
+    { "&#29;", 5 },
+    { "&#30;", 5 },
+    { "&#31;", 5 },
+    { " ", 1 },
+    { "!", 1 },
+    { "&quot;", 6 },
+    { "#", 1 },
+    { "$", 1 },
+    { "%", 1 },
+    { "&amp;", 5 },
+    { "&apos;", 6 },
+    { "(", 1 },
+    { ")", 1 },
+    { "*", 1 },
+    { "+", 1 },
+    { ",", 1 },
+    { "-", 1 },
+    { ".", 1 },
+    { "/", 1 },
+    { "0", 1 },
+    { "1", 1 },
+    { "2", 1 },
+    { "3", 1 },
+    { "4", 1 },
+    { "5", 1 },
+    { "6", 1 },
+    { "7", 1 },
+    { "8", 1 },
+    { "9", 1 },
+    { ":", 1 },
+    { ";", 1 },
+    { "&lt;", 4 },
+    { "=", 1 },
+    { "&gt;", 4 },
+    { "?", 1 },
+    { "@", 1 },
+    { "A", 1 },
+    { "B", 1 },
+    { "C", 1 },
+    { "D", 1 },
+    { "E", 1 },
+    { "F", 1 },
+    { "G", 1 },
+    { "H", 1 },
+    { "I", 1 },
+    { "J", 1 },
+    { "K", 1 },
+    { "L", 1 },
+    { "M", 1 },
+    { "N", 1 },
+    { "O", 1 },
+    { "P", 1 },
+    { "Q", 1 },
+    { "R", 1 },
+    { "S", 1 },
+    { "T", 1 },
+    { "U", 1 },
+    { "V", 1 },
+    { "W", 1 },
+    { "X", 1 },
+    { "Y", 1 },
+    { "Z", 1 },
+    { "[", 1 },
+    { "\\", 1 },
+    { "]", 1 },
+    { "^", 1 },
+    { "_", 1 },
+    { "`", 1 },
+    { "a", 1 },
+    { "b", 1 },
+    { "c", 1 },
+    { "d", 1 },
+    { "e", 1 },
+    { "f", 1 },
+    { "g", 1 },
+    { "h", 1 },
+    { "i", 1 },
+    { "j", 1 },
+    { "k", 1 },
+    { "l", 1 },
+    { "m", 1 },
+    { "n", 1 },
+    { "o", 1 },
+    { "p", 1 },
+    { "q", 1 },
+    { "r", 1 },
+    { "s", 1 },
+    { "t", 1 },
+    { "u", 1 },
+    { "v", 1 },
+    { "w", 1 },
+    { "x", 1 },
+    { "y", 1 },
+    { "z", 1 },
+    { "{", 1 },
+    { "|", 1 },
+    { "}", 1 },
+    { "~", 1 },
+    { "&#127;", 6 },
 };
 
-static inline int _isSpecialChar7(int c)
+// If _isSpecialChar7[ch] is true, then ch is a special character, which must
+// have a special encoding in XML. But only use 7-bit ASCII characters to
+// index this array.
+static const int _isSpecialChar7[] = 
 {
-    return _specialChars[c].special;
-}
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,
+    0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -411,10 +419,8 @@ inline void _xmlWritter_appendSpecialChar(Buffer& out, const Char16& c)
 
 inline void _appendSpecialChar7(Buffer& out, char c)
 {
-    const SpecialChar& sc = _specialChars[Uint32(c)];
-
-    if (sc.special)
-	out.append(sc.str, sc.size);
+    if (_isSpecialChar7[int(c)])
+	out.append(_specialChars[int(c)].str, _specialChars[int(c)].size);
     else
 	out.append(c);
 }
@@ -600,14 +606,21 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
 
     while (n >= 8)
     {
-	if (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128 &&
-	    p[4] < 128 && p[5] < 128 && p[6] < 128 && p[7] < 128)
+	// The following condition is equivalent to this:
+	//     (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128 &&
+	//      p[4] < 128 && p[5] < 128 && p[6] < 128 && p[7] < 128)
+
+	if (((p[0]|p[1]|p[2]|p[3]|p[4]|p[5]|p[6]|p[7]) & 0xFF80) == 0)
 	{
-	    if (_isSpecialChar7(p[0]) || _isSpecialChar7(p[1]) ||
-		_isSpecialChar7(p[2]) || _isSpecialChar7(p[3]) ||
-		_isSpecialChar7(p[4]) || _isSpecialChar7(p[5]) ||
-		_isSpecialChar7(p[6]) || _isSpecialChar7(p[7]))
+	    // Note: "|" is faster than "||" and achieves the same effect
+	    // since p[i] is either 0 or 1.
+
+	    if (_isSpecialChar7[p[0]] | _isSpecialChar7[p[1]] |
+		_isSpecialChar7[p[2]] | _isSpecialChar7[p[3]] |
+		_isSpecialChar7[p[4]] | _isSpecialChar7[p[5]] |
+		_isSpecialChar7[p[6]] | _isSpecialChar7[p[7]])
 	    {
+		// Rare case.
 		_appendSpecialChar7(out, p[0]);
 		_appendSpecialChar7(out, p[1]);
 		_appendSpecialChar7(out, p[2]);
@@ -618,8 +631,10 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
 		_appendSpecialChar7(out, p[7]);
 	    }
 	    else
+	    {
+		// Common case.
 		out.append(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);
-
+	    }
 	    p += 8;
 	    n -= 8;
 	}
@@ -629,18 +644,25 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
 
     while (n >= 4)
     {
-	if (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128)
+	// The following condition is equivalent to this:
+	//     (p[0] < 128 && p[1] < 128 && p[2] < 128 && p[3] < 128)
+
+	if (((p[0]|p[1]|p[2]|p[3]) & 0xFF80) == 0)
 	{
-	    if (_isSpecialChar7(p[0]) || _isSpecialChar7(p[1]) ||
-		_isSpecialChar7(p[2]) || _isSpecialChar7(p[3]))
+	    if (_isSpecialChar7[p[0]] | _isSpecialChar7[p[1]] |
+		_isSpecialChar7[p[2]] | _isSpecialChar7[p[3]])
 	    {
+		// Rare case:
 		_appendSpecialChar7(out, p[0]);
 		_appendSpecialChar7(out, p[1]);
 		_appendSpecialChar7(out, p[2]);
 		_appendSpecialChar7(out, p[3]);
 	    }
 	    else
+	    {
+		// Common case:
 		out.append(p[0], p[1], p[2], p[3]);
+	    }
 
 	    p += 4;
 	    n -= 4;

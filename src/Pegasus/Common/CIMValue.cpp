@@ -535,7 +535,8 @@ void CIMValue::assign(const CIMValue& x)
                 break;
 
             case CIMTYPE_STRING:
-                _rep->_u._stringValue = new String(*(x._rep->_u._stringValue));
+                new(_rep->_u._stringValue) String(
+		    *((String*)x._rep->_u._stringValue));
                 break;
 
             case CIMTYPE_DATETIME:
@@ -660,7 +661,7 @@ void CIMValue::clear()
                 break;
 
             case CIMTYPE_STRING:
-                delete _rep->_u._stringValue;
+                ((String*)_rep->_u._stringValue)->~String();
                 break;
 
             case CIMTYPE_DATETIME:
@@ -1042,7 +1043,7 @@ void CIMValue::set(const Char16& x)
 void CIMValue::set(const String& x)
 {
     clear();
-    _rep->_u._stringValue = new String(x);
+    new(_rep->_u._stringValue) String(x);
     _rep->_type = CIMTYPE_STRING;
     _rep->_isNull = false;
 }
@@ -1349,7 +1350,7 @@ void CIMValue::get(String& x) const
         throw TypeMismatchException();
 
     if (!_rep->_isNull)
-        x = *_rep->_u._stringValue;
+        x = *((String*)_rep->_u._stringValue);
 }
 
 void CIMValue::get(CIMDateTime& x) const
@@ -1644,8 +1645,9 @@ Boolean CIMValue::equal(const CIMValue& x) const
                 return _rep->_u._char16Value == x._rep->_u._char16Value;
 
             case CIMTYPE_STRING:
-                return String::equal(*_rep->_u._stringValue,
-                                     *x._rep->_u._stringValue);
+                return String::equal(
+		    *((String*)_rep->_u._stringValue),
+                    *((String*)x._rep->_u._stringValue));
 
             case CIMTYPE_DATETIME:
                 return *_rep->_u._dateTimeValue == *x._rep->_u._dateTimeValue;
@@ -1822,7 +1824,7 @@ String CIMValue::toString() const
                 break;
 
             case CIMTYPE_STRING:
-                _toString(out, *_rep->_u._stringValue);
+                _toString(out, *((String*)_rep->_u._stringValue));
                 break;
 
             case CIMTYPE_DATETIME:

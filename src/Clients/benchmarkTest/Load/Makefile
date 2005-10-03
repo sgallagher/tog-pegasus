@@ -44,7 +44,7 @@ CIMMOFL = cimmofl
 
 repository:
 	@ $(ECHO) +++++ Removing existing repository named $(PROVIDERNS)
-	@$(RMREPOSITORY) $(PROVIDERNSDIRECTORY)
+	@$(RMREPOSITORY) "$(PROVIDERNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(PROVIDERNS) namespace ...
 	@ $(CIMMOFL) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" \
               "-n$(PROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
@@ -63,7 +63,7 @@ repositoryServer:
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(PROVIDERNS)
-	@ $(RMREPOSITORY) $(PROVIDERNSDIRECTORY)
+	@ $(RMREPOSITORY) "$(PROVIDERNSDIRECTORY)"
 
 registerproviders:
 	@ $(ECHO) +++++ Registering benchmark Provider   ...

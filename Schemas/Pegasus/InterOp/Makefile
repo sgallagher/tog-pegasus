@@ -54,7 +54,7 @@ all:
 
 repository:
 	@$(ECHO) +++++ Removing existing repository named $(INTEROPNS)
-	@$(RMREPOSITORY) $(INTEROPNSDIRECTORY)
+	@$(RMREPOSITORY) "$(INTEROPNSDIRECTORY)"
 	@$(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...
 	@$(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(INTEROPNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof"
 	@$(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(INTEROPNS) namespace ...

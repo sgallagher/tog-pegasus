@@ -51,7 +51,7 @@ all:
 
 repository:
 	@ $(ECHO) +++++ Removing existing repository named $(INTERNALNS)
-	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
+	@ $(RMREPOSITORY) "$(INTERNALNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading Core$(CIM_SCHEMA_VER)_Qualifiers.mof into $(INTERNALNS) namespace ...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTERNALNS)" "$(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof"
 	@ $(ECHO) +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
@@ -74,7 +74,7 @@ endif
 
 clean:
 	@ $(ECHO) +++++ Removing existing CIM Repository named $(REPOSITORY_ROOT)
-	@ $(RMREPOSITORY) $(INTERNALNSDIRECTORY)
+	@ $(RMREPOSITORY) "$(INTERNALNSDIRECTORY)"
 
 
 depend:

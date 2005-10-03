@@ -56,14 +56,14 @@ FILE_PREFIX=HPUX
 endif
 
 ifeq ($(OS), VMS)
-EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED = true
+#EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED = true
 FILE_PREFIX=HPUX
 endif
 
 ifeq ($(MANAGEDSYSTEM_NS_SUPPORTED),true)
 repository:
 	@ $(ECHO) +++++ Removing existing repository named $(MANAGEDSYSTEMNS)
-	@ $(RMREPOSITORY) $(MANAGEDSYSTEMNSDIRECTORY)
+	@ $(RMREPOSITORY) "$(MANAGEDSYSTEMNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Schema$(CIM_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(MANAGEDSYSTEMNS)" $(ALLOW_EXPERIMENTAL) "$(CIM_SCHEMA_DIR)/CIM_Schema$(CIM_SCHEMA_VER).mof"
 	@ $(ECHO) +++++ Loading PG_Events$(PG_INTEROP_SCHEMA_VER) into $(MANAGEDSYSTEMNS) namespace ...
@@ -117,7 +117,7 @@ endif
 
 clean:
 	@ $(ECHO) +++++ Removing existing Repository named $(MANAGEDSYSTEMNS)
-	@ $(RMREPOSITORY) $(MANAGEDSYSTEMNSDIRECTORY)
+	@ $(RMREPOSITORY) "$(MANAGEDSYSTEMNSDIRECTORY)"
 else
 repository:
 	@ $(ECHO) +++++ No Managed System Namespace defined for this platform ++++

@@ -54,7 +54,7 @@ CIMV2NS=root/cimv2
 # NOTE: I believe that the remove is duplicated for some reason.
 repository:
 	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
-	@$(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
+	@$(RMREPOSITORY) "$(SAMPLEPROVIDERNSDIRECTORY)"
 	@ $(ECHO) +++++ Loading CIM_Core$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "-n$(SAMPLEPROVIDERNS)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Core$(CIM_SCHEMA_VER).mof
 	@ $(ECHO) +++++ Loading CIM_Event$(CIM_SCHEMA_VER) into $(SAMPLEPROVIDERNS) namespace ...
@@ -118,7 +118,7 @@ endif
 
 removerepository:
 	@ $(ECHO) +++++ Removing existing repository named $(SAMPLEPROVIDERNS)
-	@ $(RMREPOSITORY) $(SAMPLEPROVIDERNSDIRECTORY)
+	@ $(RMREPOSITORY) "$(SAMPLEPROVIDERNSDIRECTORY)"
 
 unregister:
 	$(MAKE) -i unregisterproviders

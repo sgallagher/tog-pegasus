@@ -60,14 +60,14 @@ QEXPRTESTNSDIRECTORY=$(REPOSITORY_ROOT)/root\#SampleProvider
 include $(ROOT)/mak/program.mak
 
 repository:
-	@ echo +++++ Loading QueryExpression Test Schema into $(QEXPRTESTNS) namespace ...
-	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(QEXPRTESTNS) QExprTestSchema.mof
-	@ cimmofl -R$(REPOSITORY_DIR) -N$(REPOSITORY_NAME) -M$(REPOSITORY_MODE) -n$(QEXPRTESTNS) QExprTestSchemaR.mof
+	@ $(ECHO) +++++ Loading QueryExpression Test Schema into $(QEXPRTESTNS) namespace ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(QEXPRTESTNS)" QExprTestSchema.mof
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(QEXPRTESTNS)" QExprTestSchemaR.mof
 
 repositoryServer:
-	@ echo +++++ Loading QueryExpression Test Schema into $(QEXPRTESTNS) namespace ...
-	@ cimmof -n$(QEXPRTESTNS) QExprTestSchema.mof
-	@ cimmof -n$(QEXPRTESTNS) QExprTestSchemaR.mof
+	@ $(ECHO) +++++ Loading QueryExpression Test Schema into $(QEXPRTESTNS) namespace ...
+	@ cimmof "-n$(QEXPRTESTNS)" QExprTestSchema.mof
+	@ cimmof "-n$(QEXPRTESTNS)" QExprTestSchemaR.mof
 
 tests: 
                                                                                 

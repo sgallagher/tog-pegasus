@@ -41,16 +41,16 @@ include $(ROOT)/mak/program.mak
 
 
 tests: testxml testbin
-	@ $(RMREPOSITORY) $(TMP_DIR)/repository
+	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
 	@ $(ECHO) $(PROGRAM) +++++ passed all tests
 
 testxml:
-	@ $(RMREPOSITORY) $(TMP_DIR)/repository
-	$(PROGRAM) XML
+	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
+	$(PROGRAM) "XML"
 
 testbin:
-	@ $(RMREPOSITORY) $(TMP_DIR)/repository	
-	$(PROGRAM) BIN
+	@ $(RMREPOSITORY) "$(TMP_DIR)/repository"
+	$(PROGRAM) "BIN"
 
 poststarttests:
 

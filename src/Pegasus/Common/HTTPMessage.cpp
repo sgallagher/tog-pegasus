@@ -198,9 +198,12 @@ void HTTPMessage::parse(
 
 		headers.append(HTTPHeader(name, value));
 
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPMessage - HTTP header name: $0  HTTP header value: $1"
-			    ,name,value);
+		if (Logger::wouldLog(Logger::TRACE))
+		{
+		    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, 
+			Logger::TRACE, "HTTPMessage - HTTP header name: $0  "
+			"HTTP header value: $1" ,name,value);
+		}
 	    }
 	}
 

@@ -160,7 +160,7 @@ public:
     {
         int index = int(logFileType);
 
-        if (index > int(Logger::ERROR_LOG))
+        if (index > int(Logger::NUM_LOGS))
             index = Logger::ERROR_LOG;
 
         return _logs[index];

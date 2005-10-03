@@ -44,16 +44,16 @@ SOURCES = TestCIMQueryCap.cpp
 include $(ROOT)/mak/program.mak
 
 CIM_SCHEMA_DIR = $(ROOT)/Schemas/CIMPrelim291
-ALLOW_EXPERIMENTAL = -aE
+ALLOW_EXPERIMENTAL = "-aE"
 SAMPLE_PROVIDER_NS = root/SampleProvider
 
 tests:
  
 repository:
 	@ $(ECHO) +++++ Loading $(CIM_SCHEMA_DIR)/CIM_Interop.mof into root/cimv2 namespace...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "$(ALLOW_EXPERIMENTAL)" $(CIM_SCHEMA_DIR)/CIM_Interop.mof 
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" $(ALLOW_EXPERIMENTAL) $(CIM_SCHEMA_DIR)/CIM_Interop.mof 
 	@ $(ECHO) +++++ Loading $(CIM_SCHEMA_DIR)/CIM_Interop.mof into $(SAMPLE_PROVIDER_NS) namespace...
-	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" "$(ALLOW_EXPERIMENTAL)" "-n$(SAMPLE_PROVIDER_NS)" $(CIM_SCHEMA_DIR)/CIM_Interop.mof 
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(CIM_SCHEMA_DIR)" $(ALLOW_EXPERIMENTAL) "-n$(SAMPLE_PROVIDER_NS)" $(CIM_SCHEMA_DIR)/CIM_Interop.mof 
 
 
 repositoryServer:

@@ -45,6 +45,7 @@
 #include <cassert>
 #include "InternalException.h"
 #include "CommonUTF.h"
+#include "MessageLoader.h"
 #include "CharSet.h"
 
 #ifdef PEGASUS_STRING_ENABLE_ICU
@@ -329,7 +330,10 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
 	    if (c > n || !isValid_U8(q, c) ||
 		UTF8toUTF16(&q, q + c, &p, p + n) != 0)
 	    {
-		throw Exception("Bad UTF8 encoding");
+            MessageLoaderParms parms("Common.String.BAD_UTF8",
+                "The byte sequence starting at index $0 is not valid UTF-8 encoding.",
+                 q - (const Uint8*)src);
+            throw Exception(parms);
 	    }
 
 	    n -= c;
@@ -852,6 +856,15 @@ void String::toLower()
 
     if (InitializeICU::initICUSuccessful())
     {
+        if (Atomic_get(&_rep->refs) != 1)
+	        _rep = StringRep::copy_on_write(_rep);
+
+        // This will do a locale-insensitive, but context-sensitive convert.
+        // Since context-sensitive casing looks at adjacent chars, this 
+        // prevents optimizations where the us-ascii is converted before 
+        // calling ICU.
+        // The string may shrink or expand after the convert.
+
 	//// First calculate size of resulting string. u_strToLower() returns
 	//// only the size when zero is passed as the destination size argument.
 
@@ -859,6 +872,8 @@ void String::toLower()
 
         int32_t new_size = u_strToLower(
 	    NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
+        
+        err = U_ZERO_ERROR;
 
 	//// Reserve enough space for the result.
 
@@ -871,6 +886,7 @@ void String::toLower()
 	    (UChar*)_rep->data, _rep->size, NULL, &err);
 
 	_rep->size = new_size;
+    return;
     }
 
 #endif /* PEGASUS_STRING_ENABLE_ICU */
@@ -894,6 +910,15 @@ void String::toUpper()
 
     if (InitializeICU::initICUSuccessful())
     {
+        if (Atomic_get(&_rep->refs) != 1)
+	        _rep = StringRep::copy_on_write(_rep);
+
+        // This will do a locale-insensitive, but context-sensitive convert.
+        // Since context-sensitive casing looks at adjacent chars, this 
+        // prevents optimizations where the us-ascii is converted before 
+        // calling ICU.
+        // The string may shrink or expand after the convert.
+
 	//// First calculate size of resulting string. u_strToUpper() returns
 	//// only the size when zero is passed as the destination size argument.
 
@@ -901,6 +926,8 @@ void String::toUpper()
 
         int32_t new_size = u_strToUpper(
 	    NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
+
+        err = U_ZERO_ERROR;
 
 	//// Reserve enough space for the result.
 
@@ -913,6 +940,8 @@ void String::toUpper()
 	    (UChar*)_rep->data, _rep->size, NULL, &err);
 
 	_rep->size = new_size;
+
+    return;
     }
 
 #endif /* PEGASUS_STRING_ENABLE_ICU */
@@ -1114,8 +1143,10 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     CString cstr = str.getCString();
     const char* utf8str = cstr;
     os << utf8str;
+    return os;
+#else    
 
-#elif defined(PEGASUS_STRING_ENABLE_ICU)
+#if defined(PEGASUS_STRING_ENABLE_ICU)
 
     if (InitializeICU::initICUSuccessful())
     {
@@ -1129,26 +1160,28 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
         os << buf;
         os.flush();
         delete [] buf;
+        return os;       
     }
 
-#endif /* PEGASUS_OS_OS400 */
+#endif  // PEGASUS_STRING_ENABLE_ICU 
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
-	Uint16 code = str[i];
+        Uint16 code = str[i];
 
-	if (code > 0 && !(code & 0xFF00))
-	    os << char(code);
-	else
-	{
-	    // Print in hex format:
-	    char buffer[8];
-	    sprintf(buffer, "\\x%04X", code);
-	    os << buffer;
-	}
+       	if (code > 0 && !(code & 0xFF00))
+   	        os << char(code);
+        else
+   	    {
+            // Print in hex format:
+            char buffer[8];
+            sprintf(buffer, "\\x%04X", code);
+            os << buffer;
+        }
     }
 
     return os;
+#endif // PEGASUS_OS_OS400
 }
 
 void String::_append_char_aux()

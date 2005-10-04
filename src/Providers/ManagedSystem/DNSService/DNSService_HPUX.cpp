@@ -119,7 +119,7 @@ Boolean DNSFileOk()
     
     while(!feof(fp)) {
         memset(buffer, 0, sizeof(buffer));
-        fscanf(fp, "%s", buffer);
+        fscanf(fp, "%511s", buffer);
 	strBuffer.assign(buffer);
 
         // Verify if keys exist
@@ -339,7 +339,7 @@ DNSService::getDNSInfo()
     // Retrieve DNS informations from file
     while(!feof(fp)) {
         memset(buffer, 0, sizeof(buffer));
-        fscanf(fp, "%s", buffer);
+        fscanf(fp, "%511s", buffer);
 
         if(!strlen(buffer))
             continue;
@@ -348,7 +348,7 @@ DNSService::getDNSInfo()
         
         // Verify if key is domain name
         if(String::equalNoCase(strBuffer, DNS_ROLE_DOMAIN)) {
-            fscanf(fp, "%s", buffer);
+            fscanf(fp, "%511s", buffer);
             dnsName.assign(buffer);
 #ifdef DEBUG
     cout << "DNSService::getDNSInfo() - buffer = `" << buffer << "'" << endl;

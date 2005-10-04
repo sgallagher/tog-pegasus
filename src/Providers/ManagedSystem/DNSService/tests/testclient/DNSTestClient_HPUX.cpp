@@ -143,14 +143,14 @@ DNSTestClient::goodName(const String &name, Boolean verbose)
     // Retrieve domain information from resolv.conf file
     while(!feof(arq)) {
     	memset(buffer, 0, sizeof(buffer));
-    	fscanf(arq, "%s", buffer);
+    	fscanf(arq, "%149s", buffer);
 
     	if(!strlen(buffer))
     		continue;
 
     	if(IsEqual(buffer, "domain") ||
            IsEqual(buffer, "search")) {
-    		fscanf(arq, "%s", buffer);
+    		fscanf(arq, "%149s", buffer);
     		domain.assign(buffer);
     		break;
     	}
@@ -245,7 +245,7 @@ DNSTestClient::goodSearchList(const Array<String> &src,
 	// retrieve search list if exists
     while(!feof(arq)) {
     	memset(buffer, 0, sizeof(buffer));
-    	fscanf(arq, "%s", buffer);
+    	fscanf(arq, "%149s", buffer);
     	
     	if(!strlen(buffer))
     		continue;
@@ -334,7 +334,7 @@ DNSTestClient::goodAddresses(const Array<String> &addr,
 	// retrieve addresses list
     while(!feof(arq)) {
     	memset(buffer, 0, sizeof(buffer));
-    	fscanf(arq, "%s", buffer);
+    	fscanf(arq, "%149s", buffer);
 
     	if(!strlen(buffer))
     		continue;

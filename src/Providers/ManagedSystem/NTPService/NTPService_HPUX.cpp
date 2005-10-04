@@ -288,7 +288,11 @@ Boolean NTPService::getNTPInfo()
     memset(buffer, 0, sizeof(buffer));
     while(fgets(buffer, sizeof(buffer), fp) != NULL) 
     {
-        buffer[strlen(buffer)-1] = 0;
+        int bufferLength = strlen(buffer);
+        if (bufferLength > 0)
+        {
+            buffer[bufferLength - 1] = 0;
+        }
         strBuffer.assign(buffer);
 
         ps = strBuffer.find(NTP_ROLE_CLIENT);
@@ -298,7 +302,7 @@ Boolean NTPService::getNTPInfo()
         {
             okRet = true;
             fseek(fp, lstPos, SEEK_SET);
-            fscanf(fp, "%s", buffer);
+            fscanf(fp, "%4999s", buffer);
             strBuffer.assign(buffer);
             ps = strBuffer.find(NTP_ROLE_CLIENT);
             if(ps < 0) {
@@ -306,7 +310,7 @@ Boolean NTPService::getNTPInfo()
                 continue;
             }
 
-            fscanf(fp, "%s", buffer);
+            fscanf(fp, "%4999s", buffer);
             strHost.assign(buffer);
 
             ok = false;    

@@ -403,11 +403,10 @@ void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
     Array<HTTPHeader>            headers;
     Uint32                       contentLength;
     Uint32                       contentOffset       = 0;
-    HTTPMessage*                 httpMessage;
+    HTTPMessage                  httpMessage(responseMessage, 0);
     Boolean                      needsAuthentication = false;
 
-    httpMessage = new HTTPMessage( responseMessage, 0 );
-    httpMessage->parse( startLine, headers, contentLength );
+    httpMessage.parse(startLine, headers, contentLength);
     if( contentLength > 0 )
       {
     contentOffset = responseMessage.size() - contentLength;

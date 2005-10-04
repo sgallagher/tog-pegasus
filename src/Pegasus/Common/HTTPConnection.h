@@ -108,7 +108,7 @@ public:
     virtual void handleEnqueue();
 
     /** Return socket this connection is using. */
-    Sint32 getSocket() { return _socket->getSocket();}
+    PEGASUS_SOCKET getSocket() { return _socket->getSocket();}
 
     MP_Socket& getMPSocket() { return *_socket;}
 

@@ -94,7 +94,7 @@ public:
 
     static void uninitializeInterface();
 
-    Sint32 getSocket() {return _socket;}
+    PEGASUS_SOCKET getSocket() {return _socket;}
 
     /**
         Accepts the connection, performing the necessary SSL handshake.
@@ -152,7 +152,7 @@ public:
 
     Boolean incompleteReadOccurred(Sint32 retCode);
 
-    Sint32 getSocket();
+    PEGASUS_SOCKET getSocket();
 
     Sint32 read(void* ptr, Uint32 size);
 
@@ -181,7 +181,7 @@ public:
     Boolean isCertificateVerified();
 
     union {
-        Uint32    _socket;
+        PEGASUS_SOCKET _socket;
         SSLSocket *_sslsock;
     };
 

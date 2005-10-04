@@ -61,7 +61,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 
 SSLSocket::SSLSocket(
-    Sint32 socket,
+    PEGASUS_SOCKET socket,
     SSLContext * sslcontext,
     ReadWriteSem * sslContextObjectLock,
     Boolean exportConnection)
@@ -108,7 +108,7 @@ SSLSocket::SSLSocket(
     }
     else
     {
-		PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Error setting callback info");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Error setting callback info");
     }
 
     //
@@ -227,7 +227,7 @@ Sint32 SSLSocket::accept()
     if (ssl_rc < 0)
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
-	   Tracer::trace(TRC_SSL, Tracer::LEVEL3, "---> SSL: Not accepted %d", ssl_rsn );
+       Tracer::trace(TRC_SSL, Tracer::LEVEL3, "---> SSL: Not accepted %d", ssl_rsn );
 
        if ((ssl_rsn == SSL_ERROR_WANT_READ) ||
            (ssl_rsn == SSL_ERROR_WANT_WRITE))
@@ -245,7 +245,7 @@ Sint32 SSLSocket::accept()
     {
        ssl_rsn = SSL_get_error(_SSLConnection, ssl_rc);
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Shutdown SSL_accept()");
-	   Tracer::trace(TRC_SSL, Tracer::LEVEL4, "Error Code:  %d", ssl_rsn );
+       Tracer::trace(TRC_SSL, Tracer::LEVEL4, "Error Code:  %d", ssl_rsn );
        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
            "Error string: " + String(ERR_error_string(ssl_rc, NULL)));
 
@@ -395,10 +395,10 @@ redo_connect:
             PEG_METHOD_EXIT();
             return -1;
         }
-	}
+    }
     else
     {
-	    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Server certification disabled");
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: Server certification disabled");
     }
 
     PEG_METHOD_EXIT();
@@ -475,7 +475,7 @@ Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
     return (retCode <=  0);
 }
 
-Sint32 MP_Socket::getSocket()
+PEGASUS_SOCKET MP_Socket::getSocket()
 {
     if (_isSecure)
         return _sslsock->getSocket();
@@ -502,37 +502,25 @@ Sint32 MP_Socket::write(const void * ptr, Uint32 size)
 void MP_Socket::close()
 {
     if (_isSecure)
-
         _sslsock->close();
-
     else
-
         Socket::close(_socket);
-
 }
 
 void MP_Socket::enableBlocking()
 {
     if (_isSecure)
-
         _sslsock->enableBlocking();
-
     else
-
         Socket::enableBlocking(_socket);
-
 }
 
 void MP_Socket::disableBlocking()
 {
     if (_isSecure)
-
         _sslsock->disableBlocking();
-
     else
-
        Socket::disableBlocking(_socket);
-
 }
 
 Sint32 MP_Socket::accept()
@@ -604,7 +592,7 @@ Boolean MP_Socket::incompleteReadOccurred(Sint32 retCode)
    return (retCode <= 0);
 }
 
-Sint32 MP_Socket::getSocket()
+PEGASUS_SOCKET MP_Socket::getSocket()
 {
     return _socket;
 }

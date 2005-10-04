@@ -36,7 +36,7 @@ DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
 # Enable CMPI by default.
 #
-PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=yes
+#PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=yes
 
 OS = linux
 
@@ -166,5 +166,3 @@ ifdef PEGASUS_LSB
     SYS_INCLUDES += -I/usr/include -I/usr/include/c++ -I/opt/lsbdev-base/include/c++ -I/opt/lsbdev-base/include/
     FLAGS += -DPEGASUS_OS_LSB
 endif
-
-#DEFINES += -DPEGASUS_USE_INTERNAL_INLINES

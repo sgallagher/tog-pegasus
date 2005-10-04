@@ -748,26 +748,24 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
 //   Unwise = '{' '}' '|' '\\' '^' '[' ']' '`'
 //
 
+static const char _is_uri[128] =
+{
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,
+    1,1,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,
+}; 
+
 inline void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
 {
     Uint8 c = (Uint8)char8;
 
 #ifndef PEGASUS_DO_NOT_IMPLEMENT_URI_ENCODING
-    if ( (c <= 0x20) ||                     // Control characters + space char
-         ( (c >= 0x22) && (c <= 0x26) ) ||  // '"' '#' '$' '%' '&'
-         (c == 0x2b) ||                     // '+'
-         (c == 0x2c) ||                     // ','
-         (c == 0x2f) ||                     // '/'
-         ( (c >= 0x3a) && (c <= 0x40) ) ||  // ':' ';' '<' '=' '>' '?' '@'
-         ( (c >= 0x5b) && (c <= 0x5e) ) ||  // '[' '\\' ']' '^'
-         (c == 0x60) ||                     // '`'
-         ( (c >= 0x7b) && (c <= 0x7d) ) ||  // '{' '|' '}'
-         (c >= 0x7f) )                      // Control character or non US-ASCII (UTF-8)
+    if (c > 127 || _is_uri[int(c)])
     {
         char hexencoding[4];
-
-        sprintf(hexencoding, "%%%X%X", c/16, c%16);
-        outString.append(hexencoding);
+        int n = sprintf(hexencoding, "%%%X%X", c/16, c%16);
+        outString.append(hexencoding, n);
     }
     else
 #endif

@@ -330,10 +330,11 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
 	    if (c > n || !isValid_U8(q, c) ||
 		UTF8toUTF16(&q, q + c, &p, p + n) != 0)
 	    {
-            MessageLoaderParms parms("Common.String.BAD_UTF8",
-                "The byte sequence starting at index $0 is not valid UTF-8 encoding.",
-                 q - (const Uint8*)src);
-            throw Exception(parms);
+		MessageLoaderParms parms("Common.String.BAD_UTF8",
+		    "The byte sequence starting at index $0 "
+		    "is not valid UTF-8 encoding.",
+		     q - (const Uint8*)src);
+		throw Exception(parms);
 	    }
 
 	    n -= c;
@@ -886,7 +887,7 @@ void String::toLower()
 	    (UChar*)_rep->data, _rep->size, NULL, &err);
 
 	_rep->size = new_size;
-    return;
+	return;
     }
 
 #endif /* PEGASUS_STRING_ENABLE_ICU */
@@ -911,7 +912,7 @@ void String::toUpper()
     if (InitializeICU::initICUSuccessful())
     {
         if (Atomic_get(&_rep->refs) != 1)
-	        _rep = StringRep::copy_on_write(_rep);
+	    _rep = StringRep::copy_on_write(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
         // Since context-sensitive casing looks at adjacent chars, this 
@@ -941,7 +942,7 @@ void String::toUpper()
 
 	_rep->size = new_size;
 
-    return;
+	return;
     }
 
 #endif /* PEGASUS_STRING_ENABLE_ICU */
@@ -1305,7 +1306,7 @@ String optimizations:
 	    }
 
     9.  Experimented to find the optimial initial size for a short string.
-	Eight seems to offer the best tradoff between space and time.
+	Eight seems to offer the best tradeoff between space and time.
 
     10. Inlined all members of the Char16 class.
 

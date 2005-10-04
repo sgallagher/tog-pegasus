@@ -42,7 +42,6 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Message.h>
-#include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/internal_dq.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Linkage.h>
@@ -110,8 +109,6 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
 
       Boolean timeout(void);
 
-      OperationContext & get_context(void);
-
       void put_request(const Message *request);
       Message *get_request(void) ;
 
@@ -157,17 +154,8 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       /**
         @exception  IPCException    Indicates an IPC error occurred.
       */
-      void processing(OperationContext *context);
-
-      /**
-        @exception  IPCException    Indicates an IPC error occurred.
-      */
       void complete(void);
 
-      /**
-        @exception  IPCException    Indicates an IPC error occurred.
-      */
-      void complete(OperationContext *context);
       void release(void);
       void wait(void);
 
@@ -178,7 +166,6 @@ class PEGASUS_COMMON_LINKAGE AsyncOpNode
       unlocked_dq<Message> _request;
       unlocked_dq<Message> _response;
 
-      OperationContext _operation_list;
       Uint32 _state;
       Uint32 _flags;
       Uint32 _offered_count;
@@ -290,13 +277,6 @@ inline Boolean AsyncOpNode::timeout(void)
     ret =  true;
 
    return ret;
-}
-
-// context is now a locked list
-inline OperationContext & AsyncOpNode::get_context(void)
-{
-   gettimeofday(&_updated, NULL);
-   return _operation_list;
 }
 
 
@@ -413,43 +393,11 @@ inline void AsyncOpNode::processing(void)
    gettimeofday(&_updated, NULL);
 }
 
-// con will be empty upon return of this member function
-inline void AsyncOpNode::processing(OperationContext *con)
-{
-   AutoMutex autoMut(_mut);
-   _state |= ASYNC_OPSTATE_PROCESSING;
-   gettimeofday(&_updated, NULL);
-
-   /*
-   context *c = con->remove_context();
-   while(c != 0)
-   {
-      _operation_list.add_context(c);
-      c = con->remove_context();
-   }
-   */
-}
-
 inline void AsyncOpNode::complete(void)
 {
    AutoMutex autoMut(_mut);
    _state |= ASYNC_OPSTATE_COMPLETE;
    gettimeofday(&_updated, NULL);
-}
-
-inline void AsyncOpNode::complete(OperationContext *con)
-{
-   AutoMutex autoMut(_mut);
-   _state |= ASYNC_OPSTATE_COMPLETE;
-   gettimeofday(&_updated, NULL);
-   /*
-   context *c = con->remove_context();
-   while(c != 0)
-   {
-      _operation_list.add_context(c);
-      c = con->remove_context();
-   }
-   */
 }
 
 inline void AsyncOpNode::wait(void)

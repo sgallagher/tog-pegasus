@@ -48,7 +48,7 @@
 #include "MessageLoader.h"
 #include "CharSet.h"
 
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 #include <unicode/ustring.h>
 #include <unicode/uchar.h>
 #endif
@@ -58,8 +58,6 @@ PEGASUS_NAMESPACE_BEGIN
 //==============================================================================
 //
 // Compile-time macros (undefined by default).
-//
-//     PEGASUS_STRING_ENABLE_ICU -- enables use of ICU package
 //
 //     PEGASUS_STRING_NO_THROW -- suppresses throwing of exceptions
 //      
@@ -853,7 +851,7 @@ Uint32 String::reverseFind(Char16 c) const
 
 void String::toLower()
 {
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 
     if (InitializeICU::initICUSuccessful())
     {
@@ -890,7 +888,7 @@ void String::toLower()
 	return;
     }
 
-#endif /* PEGASUS_STRING_ENABLE_ICU */
+#endif /* PEGASUS_HAS_ICU */
 
     if (Atomic_get(&_rep->refs) != 1)
 	_rep = StringRep::copy_on_write(_rep);
@@ -907,7 +905,7 @@ void String::toLower()
 
 void String::toUpper()
 {
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 
     if (InitializeICU::initICUSuccessful())
     {
@@ -945,7 +943,7 @@ void String::toUpper()
 	return;
     }
 
-#endif /* PEGASUS_STRING_ENABLE_ICU */
+#endif /* PEGASUS_HAS_ICU */
 
     if (Atomic_get(&_rep->refs) != 1)
 	_rep = StringRep::copy_on_write(_rep);
@@ -985,7 +983,7 @@ int String::compare(const String& s1, const char* s2)
 
 int String::compareNoCase(const String& str1, const String& str2)
 {
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 
     if (InitializeICU::initICUSuccessful())
     {
@@ -993,7 +991,7 @@ int String::compareNoCase(const String& str1, const String& str2)
 	    str1._rep->data, str2._rep->data, U_FOLD_CASE_DEFAULT);
     }
 
-#endif /* PEGASUS_STRING_ENABLE_ICU */
+#endif /* PEGASUS_HAS_ICU */
 
     const Uint16* s1 = str1._rep->data;
     const Uint16* s2 = str2._rep->data;
@@ -1016,11 +1014,11 @@ int String::compareNoCase(const String& str1, const String& str2)
 
 Boolean String::equalNoCase_aux(const String& s1, const String& s2)
 {
-#ifdef PEGASUS_STRING_ENABLE_ICU
+#ifdef PEGASUS_HAS_ICU
 
     return String::compareNoCase(s1, s2) == 0;
 
-#else /* PEGASUS_STRING_ENABLE_ICU */
+#else /* PEGASUS_HAS_ICU */
 
     Uint16* p = (Uint16*)s1._rep->data;
     Uint16* q = (Uint16*)s2._rep->data;
@@ -1071,14 +1069,14 @@ Boolean String::equalNoCase_aux(const String& s1, const String& s2)
 
     return true;
 
-#endif /* PEGASUS_STRING_ENABLE_ICU */
+#endif /* PEGASUS_HAS_ICU */
 }
 
 Boolean String::equalNoCase(const String& s1, const char* s2)
 {
     _check_null_pointer(s2);
 
-#if defined(PEGASUS_STRING_ENABLE_ICU)
+#if defined(PEGASUS_HAS_ICU)
 
     return String::equalNoCase(s1, String(s2));
 
@@ -1099,12 +1097,12 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
     
     return true;
 
-#else /* PEGASUS_STRING_ENABLE_ICU */
+#else /* PEGASUS_HAS_ICU */
 
     // ATTN: optimize this!
     return String::equalNoCase(s1, String(s2));
 
-#endif /* PEGASUS_STRING_ENABLE_ICU */
+#endif /* PEGASUS_HAS_ICU */
 }
 
 Boolean String::equal(const String& s1, const String& s2)
@@ -1147,7 +1145,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     return os;
 #else    
 
-#if defined(PEGASUS_STRING_ENABLE_ICU)
+#if defined(PEGASUS_HAS_ICU)
 
     if (InitializeICU::initICUSuccessful())
     {
@@ -1164,7 +1162,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
         return os;       
     }
 
-#endif  // PEGASUS_STRING_ENABLE_ICU 
+#endif  // PEGASUS_HAS_ICU 
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {

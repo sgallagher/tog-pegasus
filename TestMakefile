@@ -156,7 +156,7 @@ OOP_TS1_TEST_CMDS = \
         TestClient
 
 run_OOP_TS1:
-	echo $(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
 ###############################################################################

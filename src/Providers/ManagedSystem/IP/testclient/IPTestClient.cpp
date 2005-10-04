@@ -723,7 +723,7 @@ int main(int argc, char** argv)
 
     // check what's on the command line
 
-    for (int i=1; argv[i] != 0; i++)
+    for (int i=1; i < argc; i++)
     {
         String Arg = argv[i];
 

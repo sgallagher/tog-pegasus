@@ -257,7 +257,11 @@ void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
     {
 	// Note this will assign the string without trying to interpret any
 	// of the characters as UTF8.
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 	x.assignASCII7(&in[pos], n);
+#else /* PEGASUS_USE_STRING_EXTENSIONS */
+	x.assign(&in[pos], n);
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 	pos += n;
     }
     else

@@ -765,7 +765,11 @@ inline void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
     {
         char hexencoding[4];
         int n = sprintf(hexencoding, "%%%X%X", c/16, c%16);
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
         outString.append(hexencoding, n);
+#else /* PEGASUS_USE_STRING_EXTENSIONS */
+        outString.append(hexencoding);
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
     }
     else
 #endif

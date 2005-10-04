@@ -458,9 +458,7 @@ public:
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
 
-    ////
-    //// {New interfaces start here:
-    ////
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 
     enum ASCII7Tag { ASCII7 };
 
@@ -496,17 +494,13 @@ public:
 
     static Boolean equalNoCase(const String& s1, const char* s2);
 
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
+
 private:
 
     void _append_char_aux();
 
     static Boolean equalNoCase_aux(const String& str1, const String& str2);
-
-    ////
-    //// }New interfaces end here:
-    ////
-
-private:
 
     Uint32 _find_aux(const Char16* s, Uint32 n) const;
 
@@ -598,9 +592,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator>=(
     const String& str1,
     const String& str2);
 
-////
-//// {New functions start here.
-////
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 
 PEGASUS_COMMON_LINKAGE Boolean operator==(const String& s1, const String& s2);
 
@@ -644,9 +636,7 @@ PEGASUS_COMMON_LINKAGE String operator+(const String& s1, const char* s2);
 
 PEGASUS_COMMON_LINKAGE String operator+(const char* s1, const String& s2);
 
-////
-//// }New functions end here.
-////
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 PEGASUS_NAMESPACE_END
 

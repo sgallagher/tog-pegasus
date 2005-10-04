@@ -145,10 +145,12 @@ PEGASUS_STRING_INLINE String& String::operator=(const String& str)
     return assign(str);
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 PEGASUS_STRING_INLINE String& String::operator=(const char* str)
 {
     return assign(str);
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 PEGASUS_STRING_INLINE String& String::assign(const Char16* str)
 {
@@ -161,10 +163,12 @@ PEGASUS_STRING_INLINE String& String::assign(const char* str)
     return assign(str, strlen(str));
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 PEGASUS_STRING_INLINE String& String::assignASCII7(const char* str)
 {
     return assignASCII7(str, strlen(str));
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 {
@@ -194,21 +198,27 @@ PEGASUS_STRING_INLINE Boolean String::equalNoCase(
 #endif
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 PEGASUS_STRING_INLINE String& String::append(const char* str)
 {
     append(str, strlen(str));
     return *this;
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 PEGASUS_STRING_INLINE String& String::append(char c) 
 {
     return append(Char16(c)); 
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 PEGASUS_STRING_INLINE Uint32 String::find(char c) const 
 {
     return find(Char16(c)); 
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 PEGASUS_STRING_INLINE Boolean operator==(const String& s1, const String& s2)
 {
@@ -302,18 +312,30 @@ PEGASUS_STRING_INLINE Boolean operator>=(const char* s1, const String& s2)
 
 PEGASUS_STRING_INLINE String operator+(const String& s1, const String& s2)
 {
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
     return String(s1, s2);
+#else
+    String tmp;
+    tmp.reserveCapacity(s1.size() + s2.size());
+    tmp.append(s1);
+    tmp.append(s2);
+    return tmp;
+#endif
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 PEGASUS_STRING_INLINE String operator+(const String& s1, const char* s2)
 {
     return String(s1, s2);
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 PEGASUS_STRING_INLINE String operator+(const char* s1, const String& s2)
 {
     return String(s1, s2);
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 PEGASUS_NAMESPACE_END
 

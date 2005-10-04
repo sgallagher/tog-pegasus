@@ -557,11 +557,13 @@ String::String(const char* str)
     _rep = StringRep::create(str, strlen(str));
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 String::String(const char* str, String::ASCII7Tag tag)
 {
     _check_null_pointer(str);
     _rep = StringRep::createASCII7(str, strlen(str));
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 String::String(const char* str, Uint32 n)
 {
@@ -569,12 +571,15 @@ String::String(const char* str, Uint32 n)
     _rep = StringRep::create(str, n);
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 String::String(const char* str, size_t n, String::ASCII7Tag tag)
 {
     _check_null_pointer(str);
     _rep = StringRep::createASCII7(str, n);
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 String::String(const String& s1, const String& s2)
 {
     size_t n1 = s1._rep->size;
@@ -586,7 +591,9 @@ String::String(const String& s1, const String& s2)
     _rep->size = n;
     _rep->data[n] = '\0';
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 String::String(const String& s1, const char* s2)
 {
     _check_null_pointer(s2);
@@ -597,7 +604,9 @@ String::String(const String& s1, const char* s2)
     _rep->size = n1 + _convert((Uint16*)_rep->data + n1, s2, n2);
     _rep->data[_rep->size] = '\0';
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 String::String(const char* s1, const String& s2)
 {
     _check_null_pointer(s1);
@@ -608,6 +617,7 @@ String::String(const char* s1, const String& s2)
     _copy(_rep->data + n1, s2._rep->data, n2);
     _rep->data[_rep->size] = '\0';
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 String& String::assign(const String& str)
 {
@@ -653,6 +663,7 @@ String& String::assign(const char* str, Uint32 n)
     return *this;
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 String& String::assignASCII7(const char* str, Uint32 n)
 {
     _check_null_pointer(str);
@@ -668,6 +679,7 @@ String& String::assignASCII7(const char* str, Uint32 n)
 
     return *this;
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 void String::clear()
 {
@@ -723,6 +735,7 @@ String& String::append(const String& str)
     return append((Char16*)str._rep->data, str._rep->size);
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 String& String::append(const char* str, Uint32 size)
 {
     _check_null_pointer(str);
@@ -736,6 +749,7 @@ String& String::append(const char* str, Uint32 size)
 
     return *this;
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 void String::remove(Uint32 index, Uint32 n)
 {
@@ -825,6 +839,7 @@ Uint32 String::_find_aux(const Char16* s, Uint32 n) const
     return PEG_NOT_FOUND;
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 Uint32 String::find(const char* s) const
 {
     _check_null_pointer(s);
@@ -833,6 +848,7 @@ Uint32 String::find(const char* s) const
     // called.
     return find(String(s));
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 Uint32 String::reverseFind(Char16 c) const
 {
@@ -969,6 +985,7 @@ int String::compare(const String& s1, const String& s2)
     return _compare(s1._rep->data, s2._rep->data);
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 int String::compare(const String& s1, const char* s2)
 {
     _check_null_pointer(s2);
@@ -980,6 +997,7 @@ int String::compare(const String& s1, const char* s2)
     return String::compare(s1, String(s2));
 #endif
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 int String::compareNoCase(const String& str1, const String& str2)
 {
@@ -1072,6 +1090,7 @@ Boolean String::equalNoCase_aux(const String& s1, const String& s2)
 #endif /* PEGASUS_HAS_ICU */
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 Boolean String::equalNoCase(const String& s1, const char* s2)
 {
     _check_null_pointer(s2);
@@ -1104,6 +1123,7 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 
 #endif /* PEGASUS_HAS_ICU */
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 Boolean String::equal(const String& s1, const String& s2)
 {
@@ -1111,6 +1131,7 @@ Boolean String::equal(const String& s1, const String& s2)
 	s2._rep->data, s1._rep->size * sizeof(Uint16)) == 0;
 }
 
+#ifdef PEGASUS_USE_STRING_EXTENSIONS
 Boolean String::equal(const String& s1, const char* s2)
 {
 #ifdef PEGASUS_STRING_NO_UTF8
@@ -1134,6 +1155,7 @@ Boolean String::equal(const String& s1, const char* s2)
 
 #endif /* PEGASUS_STRING_NO_UTF8 */
 }
+#endif /* PEGASUS_USE_STRING_EXTENSIONS */
 
 PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 {

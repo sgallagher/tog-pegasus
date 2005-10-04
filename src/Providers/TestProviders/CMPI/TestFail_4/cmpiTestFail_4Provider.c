@@ -45,10 +45,10 @@ static const CMPIBroker *_broker;
 
 const char *_msg =  "&quot;&lt;MSGS&gt;&lt;MSG COMP=&quot;CIMVM&quot; RC=&quot;400&quot; RS=&quot;65&quot;" \
 					" MSGID=&quot;DNZZMC465E&quot; COMM AND=&quot;Transaction: CimVm::CbCProvisioningService::createUser; Subtask:" \
-					" Process disk settings&quot;&gt;Fehler beim Erstellen eines virtuellen Computersystems "\
-					" (Aktion wurde rückgängig gemacht).&#13;&lt;/MSG&gt;&lt;MSG COMP=&quot;CIMVM&quot; "\
-					" RC=&quot;200&quot; RS=&quot;5&quot; MSGID=&quot;DNZZMC205E&quot; "\
-					" ROOTCAUSE=&quot;true&quot;&gt;&amp;quot;22500&amp;quot; ist keine gültige "\
+					" Process disk settings&quot;&gt;Fehler beim Erstellen eines virtuellen Computersystems"\
+					" (Aktion wurde rückgängig gemacht).&#13;&lt;/MSG&gt;&lt;MSG COMP=&quot;CIMVM&quot;"\
+					" RC=&quot;200&quot; RS=&quot;5&quot; MSGID=&quot;DNZZMC205E&quot;"\
+					" ROOTCAUSE=&quot;true&quot;&gt;&amp;quot;22500&amp;quot; ist keine gültige"\
 					" Einheitennummer.&#13;&lt;/MSG&gt;&lt;/MSGS&gt;&quot;";
 
 CMPIStatus

@@ -40,6 +40,7 @@
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/CharSet.h>
 #include "InheritanceTree.h"
 
 #if 0
@@ -69,6 +70,37 @@ struct NoCaseEqualFunc
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+// _HashFunc
+//
+////////////////////////////////////////////////////////////////////////////////
+
+struct _HashFunc
+{
+    static Uint32 hash(const String& str)
+    {
+	Uint16* p = (Uint16*)str.getChar16Data();
+	Uint32 h = 0;
+	Uint32 n = str.size();
+
+	while (n >= 4)
+	{
+	    h = ((h << 9) | (h >> 23)) ^ CharSet::to_lower(p[0] & 0x007F);
+	    h = ((h << 9) | (h >> 23)) ^ CharSet::to_lower(p[1] & 0x007F);
+	    h = ((h << 9) | (h >> 23)) ^ CharSet::to_lower(p[2] & 0x007F);
+	    h = ((h << 9) | (h >> 23)) ^ CharSet::to_lower(p[3] & 0x007F);
+	    n -= 4;
+	    p += 4;
+	}
+
+	while (*p)
+	    h = ((h << 9) | (h >> 23)) ^ CharSet::to_lower(*p++ & 0x007F);
+
+	return h;
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+//
 // InheritanceTreeRep
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,9 +109,13 @@ struct InheritanceTreeNode;
 
 struct InheritanceTreeRep
 {
-    typedef HashTable<String, InheritanceTreeNode*,
-          NoCaseEqualFunc, HashFunc<String> > Table;
+    typedef HashTable<
+	String, InheritanceTreeNode*, NoCaseEqualFunc, _HashFunc> Table;
     Table table;
+
+    InheritanceTreeRep() : table(1024)
+    {
+    }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

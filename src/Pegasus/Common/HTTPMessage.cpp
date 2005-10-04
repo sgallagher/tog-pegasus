@@ -100,6 +100,7 @@ HTTPMessage::HTTPMessage(
     Message(HTTP_MESSAGE),
     message(message_),
     queueId(queueId_),
+    authInfo(0),
     acceptLanguagesDecoded(false),
     contentLanguagesDecoded(false)
 {

@@ -212,25 +212,28 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
 String System::getHostName()
 {
-  static char hostname[PEGASUS_MAXHOSTNAMELEN];
+  static char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
 
   if (!*hostname)
   {
     gethostname(hostname, sizeof (hostname));
   }
+  hostname[sizeof(hostname)-1] = 0;
+
   return hostname;
 }
 
 String System::getFullyQualifiedHostName()
 {
-  char hostName[PEGASUS_MAXHOSTNAMELEN];
+  char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
   struct hostent *he;
   String fqName;
 
-  if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+  if (gethostname(hostName, sizeof(hostname)) != 0)
   {
   return String::EMPTY;
   }
+  hostname[sizeof(hostname)-1] = 0;
 
   if (he = gethostbyname(hostName))
   {

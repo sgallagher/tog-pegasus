@@ -64,6 +64,7 @@ char * CSName()
     strcpy(csn,"localhost");
 #else
     gethostname(csn,sizeof(csn));
+    csn[sizeof(csn)-1] = 0;
 #endif
   return csn;
 }

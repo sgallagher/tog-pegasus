@@ -845,10 +845,11 @@ NOTES             :
 String Process::getCSName(void) const
 {
   struct hostent *he;
-  char hn[PEGASUS_MAXHOSTNAMELEN];
+  char hn[PEGASUS_MAXHOSTNAMELEN + 1];
 
   // fill in hn with what this system thinks is its name
-  gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
+  gethostname(hn, sizeof(hn));
+  hn[sizeof(hn)-1] = 0;
 
   // find out what the nameservices think is its full name
   if (he=gethostbyname(hn)) return String(he->h_name);

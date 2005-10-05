@@ -69,13 +69,14 @@ static const String DNS_NAME("named");
 //------------------------------------------------------------------------------
 static Boolean getUtilGetHostName(String& systemName)
 {
-  char    hostName[MAXHOSTNAMELEN];
+  char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
   struct  hostent *he;
 
-  if (gethostname(hostName, MAXHOSTNAMELEN) != 0)
+  if (gethostname(hostName, sizeof(hostName)) != 0)
   {
      return false;
   }
+  hostName[sizeof(hostName)-1] = 0;
 
   // Now get the official hostname.  If this call fails then return
   // the value from gethostname().

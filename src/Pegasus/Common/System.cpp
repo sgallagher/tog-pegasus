@@ -255,10 +255,11 @@ Uint32 System::_acquireIP(const char* hostname)
 #elif defined(PEGASUS_OS_OS400)
 		entry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
-		char hostName[ PEGASUS_MAXHOSTNAMELEN ];
+		char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
 		if (String::equalNoCase("localhost",String(hostname)))
 		{
 			gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
+			hostName[sizeof(hostName)-1] = 0;
 			entry = gethostbyname(hostName);
 		} else
 		{

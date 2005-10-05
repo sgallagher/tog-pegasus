@@ -191,10 +191,13 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
 String System::getHostName()
 {
-    static char hostname[PEGASUS_MAXHOSTNAMELEN];
+    static char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
 
     if (!*hostname)
+    {
         gethostname(hostname, sizeof(hostname));
+    }
+    hostname[sizeof(hostname)-1] = 0;
 
     return hostname;
 }

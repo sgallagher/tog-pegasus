@@ -539,11 +539,12 @@ DynamicSymbolHandle System::loadDynamicSymbol(
 
 String System::getHostName()
 {
-    static char hostname[PEGASUS_MAXHOSTNAMELEN];
+    static char hostname[PEGASUS_MAXHOSTNAMELEN + 1];
 
     if (!*hostname)
     {
         gethostname(hostname, sizeof(hostname));
+        hostname[sizeof(hostname)-1] = 0;
 #if defined(PEGASUS_OS_OS400)
         EtoA(hostname);
 #endif
@@ -555,14 +556,15 @@ String System::getHostName()
 String System::getFullyQualifiedHostName ()
 {
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_OS400)
-    char hostName [PEGASUS_MAXHOSTNAMELEN];
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     struct hostent *he;
     String fqName;
 
-    if (gethostname (hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+    if (gethostname(hostName, sizeof(hostName)) != 0)
     {
         return String::EMPTY;
     }
+    hostName[sizeof(hostName)-1] = 0;
 
     if ((he = gethostbyname (hostName)))
     {
@@ -577,14 +579,15 @@ String System::getFullyQualifiedHostName ()
 
     return fqName;
 #elif defined(PEGASUS_OS_ZOS)
-    char hostName [PEGASUS_MAXHOSTNAMELEN];
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     char *domainName;
     String fqName;
     // receive short name of the local host
-    if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+    if (gethostname(hostName, sizeof(hostName)) != 0)
     {
         return String::EMPTY;
     }
+    hostName[sizeof(hostName)-1] = 0;
     // get domain name of the local host
     domainName= __ipDomainName();
     if (domainName == 0)

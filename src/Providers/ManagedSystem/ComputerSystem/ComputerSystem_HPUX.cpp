@@ -333,9 +333,10 @@ void ComputerSystem::initialize(void)
   
   // _hostName
   struct hostent *he;
-  char hn[PEGASUS_MAXHOSTNAMELEN];
+  char hn[PEGASUS_MAXHOSTNAMELEN + 1];
   // fill hn with what this system thinks is name
-  gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
+  gethostname(hn, sizeof(hn));
+  hn[sizeof(hn)-1] = 0;
   // find out what nameservices think is full name
   if (he=gethostbyname(hn)) _hostName = he->h_name;
   else _hostName = hn;

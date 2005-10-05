@@ -296,13 +296,14 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
  */
 void ComputerSystem::initialize(void)
 {
-  char    hostName[PEGASUS_MAXHOSTNAMELEN];
+  char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
   struct  hostent *he;
 
-  if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+  if (gethostname(hostName, sizeof(hostName)) != 0)
   {
       _hostName.assign("Not initialized");
   }
+  hostName[sizeof(hostName)-1] = 0;
 
   // Now get the official hostname.  If this call fails then return
   // the value from gethostname().

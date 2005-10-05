@@ -1193,9 +1193,10 @@ String Process::getCSName (void)
   const
   {
     struct hostent *he;
-    char hostName[128];
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
 
-      gethostname (hostName, MAXHOSTNAMELEN);
+    gethostname(hostName, sizeof(hostName));
+    hostName[sizeof(hostName)-1] = 0;
 
     // Now get the official hostname.  If this call fails then return
     // the value from gethostname().

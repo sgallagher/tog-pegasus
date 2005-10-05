@@ -152,9 +152,12 @@ NTPTestClient::isHostAddress(String host) {
 Boolean
 NTPTestClient::getLocalHostName(String & hostName) 
 {
-    char host[30];
+    char host[PEGASUS_MAXHOSTNAMELEN + 1];
     if(gethostname(host, sizeof(host)))
+    {
         return false;
+    }
+    host[sizeof(host)-1] = 0;
 
        hostName.assign(host);
     return true;

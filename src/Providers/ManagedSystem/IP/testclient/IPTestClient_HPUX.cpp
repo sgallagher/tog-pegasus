@@ -70,10 +70,11 @@ void IPTestClient::_check_BIPTLEp_Antecedent(String &pv, Boolean verbose)
                    ": Antecedent does not define SCCN.");
 
     struct hostent *he;
-    char hn[PEGASUS_MAXHOSTNAMELEN];
+    char hn[PEGASUS_MAXHOSTNAMELEN + 1];
     String _hostname;
 
-    gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
+    gethostname(hn, sizeof(hn));
+    hn[sizeof(hn)-1] = 0;
 
     if (he=gethostbyname(hn))
 	_hostname = String(he->h_name);
@@ -109,10 +110,11 @@ void IPTestClient::_check_BIPTLEp_Dependent(String &pv, Boolean verbose)
                    ": Dependent does not define SCCN.");
 
     struct hostent *he;
-    char hn[PEGASUS_MAXHOSTNAMELEN];
+    char hn[PEGASUS_MAXHOSTNAMELEN + 1];
     String _hostname;
 
-    gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
+    gethostname(hn, sizeof(hn));
+    hn[sizeof(hn)-1] = 0;
 
     if (he=gethostbyname(hn))
 	_hostname = String(he->h_name);
@@ -231,10 +233,11 @@ void IPTestClient::_check_IPPEp_SystemName(String &pv, Boolean verbose)
     }
 
     struct hostent *he;
-    char hn[PEGASUS_MAXHOSTNAMELEN];
+    char hn[PEGASUS_MAXHOSTNAMELEN + 1];
     String _hostname;
 
-    gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
+    gethostname(hn, sizeof(hn));
+    hn[sizeof(hn)-1] = 0;
 
     if (he=gethostbyname(hn))
 	_hostname = String(he->h_name);
@@ -517,10 +520,11 @@ void IPTestClient::_check_IPRoute_SystemName(String &pv, Boolean verbose)
     }
 
     struct hostent *he;
-    char hn[PEGASUS_MAXHOSTNAMELEN];
+    char hn[PEGASUS_MAXHOSTNAMELEN + 1];
     String _hostname;
 
-    gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
+    gethostname(hn, sizeof(hn));
+    hn[sizeof(hn)-1] = 0;
 
     if (he=gethostbyname(hn))
 	_hostname = String(he->h_name);
@@ -680,10 +684,11 @@ void IPTestClient::_check_LEP_SystemName(String &pv, Boolean verbose)
     }
 
     struct hostent *he;
-    char hn[PEGASUS_MAXHOSTNAMELEN];
+    char hn[PEGASUS_MAXHOSTNAMELEN + 1];
     String _hostname;
 
-    gethostname(hn,PEGASUS_MAXHOSTNAMELEN);
+    gethostname(hn, sizeof(hn));
+    hn[sizeof(hn)-1] = 0;
 
     if (he=gethostbyname(hn))
 	_hostname = String(he->h_name);

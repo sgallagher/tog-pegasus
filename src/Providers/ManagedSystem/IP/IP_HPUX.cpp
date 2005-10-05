@@ -172,8 +172,8 @@ Boolean IPInterface::getSystemName(String& s)
     char hn[PEGASUS_MAXHOSTNAMELEN + 1];
 
     // fill in hn with what this system thinks is its name
-    gethostname(hn, PEGASUS_MAXHOSTNAMELEN);
-    hn[PEGASUS_MAXHOSTNAMELEN] = 0;
+    gethostname(hn, sizeof(hn));
+    hn[sizeof(hn)-1] = 0;
 
     // find out what the nameservices think is its full name
     // but if that failed, return what gethostname said

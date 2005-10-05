@@ -767,14 +767,15 @@ NOTES             :
 */
 String Process::getCSName(void) const
 {
-     char    hostName[PEGASUS_MAXHOSTNAMELEN];
+     char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
      struct  hostent *he;
      String csName;
 
-     if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
+     if (gethostname(hostName, sizeof(hostName)) != 0)
      {
          return String::EMPTY;
      }
+     hostName[sizeof(hostName)-1] = 0;
 
      // Now get the official hostname.  If this call fails then return
      // the value from gethostname().

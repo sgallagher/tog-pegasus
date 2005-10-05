@@ -319,6 +319,37 @@ void test04()
         XmlWriter::printPropertyElement(p2, cout);
 }
 
+//Test reference array type properties
+void test05()
+{
+    Array<CIMObjectPath> oa;
+    oa.append(CIMObjectPath("/root/cimv2:My_Class.a=1"));
+    oa.append(CIMObjectPath("/root/cimv2:My_Class.a=2"));
+    CIMProperty p1;
+
+    Boolean gotException = false;
+    try
+    {
+        p1 = CIMProperty(CIMName("property1"), oa, 0, CIMName("refclass"));
+    }
+    catch (TypeMismatchException& e)
+    {
+        gotException = true;
+    }
+    assert(gotException);
+
+    p1 = CIMProperty(CIMName("property1"), oa[0], 0, CIMName("refclass"));
+    gotException = false;
+    try
+    {
+        p1.setValue(oa);
+    }
+    catch (TypeMismatchException& e)
+    {
+        gotException = true;
+    }
+    assert(gotException);
+}
 
 int main(int argc, char** argv)
 {
@@ -329,10 +360,12 @@ int main(int argc, char** argv)
         test02();
         test03();
         test04();
+        test05();
     }
     catch (Exception& e)
     {
         cout << "Exception: " << e.getMessage() << endl;
+        exit(1);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

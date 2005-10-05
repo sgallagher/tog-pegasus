@@ -92,6 +92,12 @@ CIMPropertyRep::CIMPropertyRep(
         throw TypeMismatchException();
     }
 
+    // A CIM Property may not be of reference array type
+    if (value.isArray() && (value.getType() == CIMTYPE_REFERENCE))
+    {
+        throw TypeMismatchException();
+    }
+
     // if referenceClassName exists, must be CIMType REFERENCE.
     if (!referenceClassName.isNull())
     {
@@ -497,6 +503,12 @@ void CIMPropertyRep::setValue(const CIMValue& value)
 
     if (_arraySize && _arraySize != value.getArraySize())
 	throw TypeMismatchException();
+
+    // A CIM Property may not be of reference array type
+    if (value.isArray() && (value.getType() == CIMTYPE_REFERENCE))
+    {
+        throw TypeMismatchException();
+    }
 
     _value = value;
 }

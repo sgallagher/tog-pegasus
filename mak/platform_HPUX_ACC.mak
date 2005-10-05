@@ -167,6 +167,8 @@ FLAGS += -Wl,+s
 
 ifdef PEGASUS_DEBUG
   FLAGS += -g
+else
+  FLAGS += +O2 -s
 endif
 
 ifdef PEGASUS_USE_RELEASE_DIRS

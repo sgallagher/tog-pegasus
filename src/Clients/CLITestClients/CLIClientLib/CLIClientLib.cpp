@@ -2387,20 +2387,20 @@ void mofFormat(
         switch (c)
         {
             case '\n':
-                os << Sint8(c);
+                os << c;
                 prevchar = c;
                 count = 0 + (indent * indentSize);
                 _indent(os, indent, indentSize);
                 break;
 
             case '\"':   // quote
-                os << Sint8(c);
+                os << c;
                 prevchar = c;
                 quoteState = !quoteState;
                 break;
 
             case ' ':
-                os << Sint8(c);
+                os << c;
                 prevchar = c;
                 if (count > 66)
                 {
@@ -2425,7 +2425,7 @@ void mofFormat(
                     _indent(os, indent,  indentSize);
                     qualifierState = true;
                 }
-                os << Sint8(c);
+                os << c;
                 prevchar = c;
                 break;
 
@@ -2436,12 +2436,12 @@ void mofFormat(
                         indent--;
                     qualifierState = false;
                 }
-                os << Sint8(c);
+                os << c;
                 prevchar = c;
                 break;
 
             default:
-                os << Sint8(c);
+                os << c;
                 prevchar = c;
         }
 

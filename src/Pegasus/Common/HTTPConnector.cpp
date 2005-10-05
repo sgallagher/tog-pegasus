@@ -38,6 +38,7 @@
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
 //              Amit Arora, IBM (amita@in.ibm.com) for Bug#2541
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, Symantec Corp (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -232,7 +233,7 @@ void HTTPConnector::handleEnqueue(Message *message)
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];  
-        Sint32 socket = connection->getSocket();
+        PEGASUS_SOCKET socket = connection->getSocket();
 
         if (socket == closeConnectionMessage->socket)
         {
@@ -412,7 +413,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
     PEGASUS_ASSERT(index != PEG_NOT_FOUND);
 
-    Sint32 socket = currentConnection->getSocket();
+    PEGASUS_SOCKET socket = currentConnection->getSocket();
     _monitor->unsolicitSocketMessages(socket);
     _rep->connections.remove(index);
     delete currentConnection;
@@ -420,7 +421,7 @@ void HTTPConnector::disconnect(HTTPConnection* currentConnection)
 
 void HTTPConnector::_deleteConnection(HTTPConnection* httpConnection)
 {
-    Sint32 socket = httpConnection->getSocket();
+    PEGASUS_SOCKET socket = httpConnection->getSocket();
 
     // Unsolicit SocketMessages:
 

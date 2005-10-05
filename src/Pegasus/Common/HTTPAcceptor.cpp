@@ -39,8 +39,7 @@
 //          Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //          Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //          Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2065
-//          David Dillard, VERITAS Software Corp.
-//              (david.dillard@veritas.com)
+//          David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //          John Alex, IBM (johnalex@us.ibm.com) for Bug#3312
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -262,7 +261,7 @@ void HTTPAcceptor::handleEnqueue(Message *message)
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];
-        Sint32 socket = connection->getSocket();
+        PEGASUS_SOCKET socket = connection->getSocket();
 
         if (socket == closeConnectionMessage->socket)
         {
@@ -643,7 +642,7 @@ void HTTPAcceptor::destroyConnections()
      for (Uint32 i = 0, n = _rep->connections.size(); i < n; i++)
      {
         HTTPConnection* connection = _rep->connections[i];
-        Sint32 socket = connection->getSocket();
+        PEGASUS_SOCKET socket = connection->getSocket();
 
         // Unsolicit SocketMessages:
 

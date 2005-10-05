@@ -108,21 +108,6 @@ void Socket::close(PEGASUS_SOCKET socket)
    }
 }
 
-int Socket::close2(PEGASUS_SOCKET socket)
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    return closesocket(socket);
-#else
-#if (__GNUC__) && !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_DARWIN) && !defined(PEGASUS_OS_LSB)
-    int ccode = TEMP_FAILURE_RETRY(::close(socket));
-    return ccode;
-#else
-    return ::close(socket);
-#endif
-#endif
-}
-
-
 void Socket::enableBlocking(PEGASUS_SOCKET socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -135,18 +120,6 @@ void Socket::enableBlocking(PEGASUS_SOCKET socket)
 #endif
 }
 
-int Socket::enableBlocking2(PEGASUS_SOCKET socket)
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    unsigned long flag = 0;
-    return ioctlsocket(socket, FIONBIO, &flag);
-#else
-    int flags = fcntl(socket, F_GETFL, 0);
-    flags &= ~O_NONBLOCK;
-    return fcntl(socket, F_SETFL, flags);
-#endif
-}
-
 void Socket::disableBlocking(PEGASUS_SOCKET socket)
 {
 #ifdef PEGASUS_OS_TYPE_WINDOWS
@@ -156,18 +129,6 @@ void Socket::disableBlocking(PEGASUS_SOCKET socket)
     int flags = fcntl(socket, F_GETFL, 0);
     flags |= O_NONBLOCK;
     fcntl(socket, F_SETFL, flags);
-#endif
-}
-
-int Socket::disableBlocking2(PEGASUS_SOCKET socket)
-{
-#ifdef PEGASUS_OS_TYPE_WINDOWS
-    unsigned long flag = 1;
-    return ioctlsocket(socket, FIONBIO, &flag);
-#else
-    int flags = fcntl(socket, F_GETFL, 0);
-    flags |= O_NONBLOCK;
-    return fcntl(socket, F_SETFL, flags);
 #endif
 }
 

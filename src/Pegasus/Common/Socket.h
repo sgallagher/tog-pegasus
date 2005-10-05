@@ -87,13 +87,10 @@ class PEGASUS_COMMON_LINKAGE Socket
       static Sint32 write(PEGASUS_SOCKET socket, const void* ptr, Uint32 size);
 
       static void close(PEGASUS_SOCKET socket);
-      static int close2(PEGASUS_SOCKET socket);
 
       static void enableBlocking(PEGASUS_SOCKET socket);
-      static int  enableBlocking2(PEGASUS_SOCKET socket);
 
       static void disableBlocking(PEGASUS_SOCKET socket);
-      static int disableBlocking2(PEGASUS_SOCKET socket);
 
       static void initializeInterface(void);
       static void uninitializeInterface(void);

@@ -30,7 +30,7 @@
 // Author: Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //
-// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3603
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3603, 3602
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -327,6 +327,14 @@ public:
 
 
 private:
+
+    /**  Copy Constructor just to avoid the compiler provided one.
+     */
+    SubscriptionTable ( const SubscriptionTable& subscriptionTable );
+
+    /** Overloaded Assignment Operator
+     */
+    SubscriptionTable& operator=( const SubscriptionTable& rhs );
 
     /**
         Generates a unique CIMObjectPath key for the Active Subscriptions table

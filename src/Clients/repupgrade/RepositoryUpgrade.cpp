@@ -32,6 +32,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4114
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -271,7 +272,7 @@ const char* RepositoryUpgrade::_ALL = "a";
     const String OLD_REPOSITORY_PATH = "/var/opt/wbem/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/wbem/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/wbem/upgrade";
-#elseif defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_VMS)
+#elif defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_VMS)
     const String OLD_REPOSITORY_PATH = "/wbem_var/opt/wbem/prev_repository";
     const String NEW_REPOSITORY_PATH = "/wbem_var/opt/wbem/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/wbem_var/opt/wbem/upgrade";

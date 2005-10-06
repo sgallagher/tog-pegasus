@@ -39,6 +39,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Seema Gupta (gseema@in.ibm.com for PEP135)
 //              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
+//              Aruran, IBM (ashanmug@in.ibm.com)for Bug# 3881
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -208,6 +209,7 @@ void ProviderManagerService::_handle_async_request(AsyncRequest * request)
  	       Tracer::trace(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                         "Could not allocate thread for %s.",
                          getQueueName());
+		   break;
 	   }
         }
     }

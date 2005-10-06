@@ -37,7 +37,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518, 4067
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -295,7 +295,10 @@ public:
     {
         try
         {
-            unlock();
+			if (_locked)
+			{
+                unlock();
+			}
         }
         catch (...)
         {

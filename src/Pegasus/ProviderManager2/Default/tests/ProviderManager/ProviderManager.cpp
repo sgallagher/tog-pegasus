@@ -34,6 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Common/FileSystem.h>
 
 #include <Pegasus/ProviderManager2/Default/LocalProviderManager.h>
@@ -55,9 +56,18 @@ int main(int argc, char** argv)
     {
         LocalProviderManager providerManager;
 
+#if defined (PEGASUS_OS_VMS)
+        String fileName;
+
+        fileName = ConfigManager::getInstance()->getCurrentValue("providerDir") +
+            String("/") + FileSystem::buildLibraryFileName(String("SampleInstanceProvider")) + String(".exe");
+        OpProviderHolder provider = providerManager.getProvider(fileName,
+            "SampleInstanceProvider");
+#else
         OpProviderHolder provider = providerManager.getProvider(
             FileSystem::buildLibraryFileName("SampleInstanceProvider"),
-            "SampleInstanceProvider");
+              "SampleInstanceProvider");
+#endif
 
         cout << argv[0] <<  " +++++passed all tests" << endl;
     }

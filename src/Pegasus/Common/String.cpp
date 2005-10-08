@@ -1400,7 +1400,7 @@ String optimizations:
 
 	This avoids slower UTF8 processing when not needed.
 
-BUG-4200 Review actions:
+BUG-4200 Review notes:
 
     1. 	Use PEGASUS_USE_EXPERIMENTAL_INTERFACES instead of 
 	PEGASUS_STRING_EXTENSIONS.
@@ -1418,12 +1418,15 @@ BUG-4200 Review actions:
     4.	Increasing the number of objects may break Windows 2000 build
         (limit of 2048 bytes for command line). See BUG-2754
 	
-	Status: looking into the use auto-generated linker files.
+	Status: submitted patch for bug 2754
 
     5.  Concerns about whether generating inlines and non-inline versions
 	of functions will work with all compilers.
 
-	Status: confident it will work on platforms except maybe Windows.
+	Status: tested on Windows. Also showed how inlining can be disabled
+	on platforms that don't support it.
+
+    6.  Atomic.h -- more to come
 
 ================================================================================
 */

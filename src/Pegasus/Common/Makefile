@@ -42,7 +42,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegcommon
 
-SOURCES = \
+SOURCES1 = \
     AnonymousPipe.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
@@ -100,6 +100,8 @@ SOURCES = \
     DeclContext.cpp \
     Dir.cpp \
     DQueue.cpp \
+
+SOURCES2 = \
     DynamicLibrary.cpp \
     Exception.cpp \
     InternalException.cpp \
@@ -156,6 +158,8 @@ SOURCES = \
     MofWriter.cpp \
     peg_authorization.cpp \
     CommonUTF.cpp
+
+SOURCES = $(SOURCES1) $(SOURCES2)
 
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp

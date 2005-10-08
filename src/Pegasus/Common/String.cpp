@@ -37,15 +37,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef PEGASUS_USE_INTERNAL_INLINES
-# define PEGASUS_USE_INTERNAL_INLINES
-#endif
-
-#include "String.h"
 #include <cassert>
 #include "InternalException.h"
 #include "CommonUTF.h"
 #include "MessageLoader.h"
+#include "StringRep.h"
 
 #ifdef PEGASUS_HAS_ICU
 #include <unicode/ustring.h>

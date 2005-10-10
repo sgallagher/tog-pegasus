@@ -3,65 +3,62 @@
 
 #include <Pegasus/Common/Config.h>
 
-#if 0
-# define PEGASUS_DCBT "dcbt " #ra "," #rb ";"
-# else
-# define PEGASUS_DCBT /* */
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
+
+//------------------------------------------------------------------------------
+// WARNING: this implementation does not work on multi-processor PPC 
+// architectures or on the older IBM-405 processor (Mike Brasher).
+//------------------------------------------------------------------------------
 
 struct Atomic
 { 
-    volatile int counter; 
+    volatile int n; 
 };
 
-inline void Atomic_create(Atomic* v, int x)
+inline void Atomic_create(Atomic* atomic, int x)
 {
-    v->counter = x;
+    atomic->n = x;
 }
 
-inline void Atomic_destroy(Atomic* v)
+inline void Atomic_destroy(Atomic* atomic)
 {
 }
 
-inline int Atomic_get(const Atomic* v)
+inline int Atomic_get(const Atomic* atomic)
 {
-    return v->counter;
+    return atomic->n;
 }
 
-inline void Atomic_set(Atomic* v, int x)
+inline void Atomic_set(Atomic* atomic, int x)
 {
-    v->counter = x;
+    atomic->n = x;
 }
 
-static __inline__ void Atomic_inc(Atomic* v)
+static __inline__ void Atomic_inc(Atomic* atomic)
 {
     int t;
 
     __asm__ __volatile__(
 	"1: lwarx %0,0,%2\n"
 	"addic %0,%0,1\n"
-	PEGASUS_DCBT
 	"stwcx.	%0,0,%2\n"
 	"bne- 1b"
-	: "=&r" (t), "=m" (v->counter)
-	: "r" (&v->counter), "m" (v->counter)
+	: "=&r" (t), "=m" (atomic->n)
+	: "r" (&atomic->n), "m" (atomic->n)
 	: "cc");
 }
 
-static __inline__ int Atomic_dec_test(Atomic* v)
+static __inline__ int Atomic_dec_and_test(Atomic* atomic)
 {
     int c;
 
     __asm__ __volatile__(
 	"1: lwarx %0,0,%1\n"
 	"addic %0,%0,-1\n"
-	PEGASUS_DCBT
-	"stwcx.	%0,0,%1\n\
-	bne- 1b"
-	: "=&r" (t)
-	: "r" (&v->counter)
+	"stwcx.	%0,0,%1\n"
+	"bne- 1b"
+	: "=&r" (c)
+	: "r" (&atomic->n)
 	: "cc", "memory");
 
     return c == 0;

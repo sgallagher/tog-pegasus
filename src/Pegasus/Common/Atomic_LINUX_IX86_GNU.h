@@ -7,44 +7,44 @@ PEGASUS_NAMESPACE_BEGIN
 
 struct Atomic
 { 
-    volatile int counter; 
+    volatile int n; 
 };
 
-inline void Atomic_create(Atomic* v, int x)
+inline void Atomic_create(Atomic* atomic, int x)
 {
-    v->counter = x;
+    atomic->n = x;
 }
 
-inline void Atomic_destroy(Atomic* v)
+inline void Atomic_destroy(Atomic* atomic)
 {
 }
 
-inline int Atomic_get(const Atomic* v)
+inline int Atomic_get(const Atomic* atomic)
 {
-    return v->counter;
+    return atomic->n;
 }
 
-inline void Atomic_set(Atomic* v, int x)
+inline void Atomic_set(Atomic* atomic, int x)
 {
-    v->counter = x;
+    atomic->n = x;
 }
 
-static __inline__ void Atomic_inc(Atomic *v)
+static __inline__ void Atomic_inc(Atomic* atomic)
 {
     __asm__ __volatile__(
 	"lock ; incl %0"
-	:"=m" (v->counter)
-	:"m" (v->counter));
+	:"=m" (atomic->n)
+	:"m" (atomic->n));
 }
 
-static __inline__ int Atomic_dec_and_test(Atomic *v)
+static __inline__ int Atomic_dec_and_test(Atomic* atomic)
 {
     unsigned char c;
 
     __asm__ __volatile__(
 	"lock ; decl %0; sete %1"
-	:"=m" (v->counter), "=qm" (c)
-	:"m" (v->counter) : "memory");
+	:"=m" (atomic->n), "=qm" (c)
+	:"m" (atomic->n) : "memory");
 
     return c != 0;
 }

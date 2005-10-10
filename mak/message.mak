@@ -26,20 +26,6 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-#include $(ROOT)/mak/common.mak
-
-include $(ROOT)/mak/objects.mak
-
-depend: 
-
-include $(ROOT)/mak/build.mak
-
-include $(ROOT)/mak/docxx.mak
-
-include $(ROOT)/mak/sub.mak
-
-include $(ROOT)/mak/misc.mak
-
 
 ################################################################################
 ##
@@ -69,6 +55,7 @@ endif
 
 # Rule for ICU resource bundles
 ifdef ICU_ROOT
+messages: $(MSG_BUNDLES)
 
 $(MSG_DIR)/$(MSG_PACKAGE)_root.res: $(MSG_PACKAGE)_root.rb $(ERROR)
 	$(MKDIRHIER) $(MSG_DIR)
@@ -102,6 +89,8 @@ include $(ROOT)/mak/clean.mak
 else
 clean:
 endif
+
+depend:
 
 ################################################################################
 ##

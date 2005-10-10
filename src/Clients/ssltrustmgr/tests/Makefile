@@ -56,17 +56,23 @@ clean:
 	@$(RM) $(PEGASUS_HOME)/testca1.key
 	@$(RM) $(PEGASUS_HOME)/testca1.srl
 	@$(RM) $(PEGASUS_HOME)/testca1.crl
+	@$(RM) $(PEGASUS_HOME)/testca2.crl
 	@$(RM) index.txt
 	@$(RM) index.txt.attr
 	@$(RM) index.txt.old
+	@$(RM) index.txt.attr.old
 	@$(RM) .rnd
+	@$(RM) $(PEGASUS_HOME)/ssltest_setup
 
 #
 # Create certificates and CRLs required for running the tests
 #
-test_setup:
-ifdef PEGASUS_HAS_SSL
+test_setup: $(PEGASUS_HOME)/ssltest_setup 
+
+$(PEGASUS_HOME)/ssltest_setup: $(OPENSSL_CNF) testca1.txt testdn1.txt testdn2.txt testdn3.txt testdn4.txt
 	@$(MAKE) -i -s clean
+	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
+ifdef PEGASUS_HAS_SSL
 	@#
 	@# Create a self-signed certificate
 	@#
@@ -118,7 +124,7 @@ ifdef PEGASUS_HAS_SSL
 endif
 
 
-SSLCertificateTest1:
+SSLCertificateTest1: test_setup
 ifdef PEGASUS_HAS_SSL
 	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s SSLCertificateTest1_ignoreerror

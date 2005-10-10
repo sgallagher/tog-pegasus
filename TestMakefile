@@ -83,20 +83,14 @@ TESTS = prestarttests poststarttests
 
 FORCE:
 
-rebuild: clean all tests
+rebuild: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile rebuild	
 
-build: all tests
+build: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile build
 
-clean:
+clean: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
-
-buildmu:
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
-	$(MKDIRHIER) $(BIN_DIR)
-
-all: buildmu
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile all
 
 doc:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
@@ -117,8 +111,6 @@ prestarttests:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
-	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests -f Makefile test_setup
 
 poststarttestsclean:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
@@ -126,6 +118,7 @@ poststarttestsclean:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 
 poststarttests: poststarttestsclean
+	-$(CIMSERVER_STOP_SERVICE)
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
@@ -195,10 +188,18 @@ SSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true \
 SSL_TS1_TEST_CMDS = \
        $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests@@SSLCertificateTest1
 
-run_SSL_TS1:
+ifdef PEGASUS_HAS_SSL
+run_SSL_TS1: FORCE
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
+else
+run_SSL_TS1: FORCE
+	@ $(ECHO) "PEGASUS_HAS_SSL not defined: Skipping run_SSL_TS1 poststarttest"
+
+endif
+
+
 ###############################################################################
 
 

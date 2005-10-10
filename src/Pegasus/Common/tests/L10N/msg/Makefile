@@ -51,6 +51,4 @@ MSG_SOURCES = \
 
 include $(ROOT)/mak/message.mak
 
-messages: $(MSG_BUNDLES)
-
 # DO NOT DELETE

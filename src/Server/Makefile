@@ -167,6 +167,10 @@ displayCERTFILE:
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile displayCertificate \
             PEGASUS_SSLCERT_FILE=$(PEGASUS_SSLCERT_CERTFILE)
 
+clean: cleanupSSLFiles
+
+install_run_clean: cleanupSSLFiles 
+
 cleanupSSLFiles:
 	@$(RM) $(PEGASUS_HOME)/cert.pem
 	@$(RM) $(PEGASUS_HOME)/file.pem
@@ -180,6 +184,7 @@ cleanupSSLFiles:
 	@$(RMDIRHIER) $(PEGASUS_HOME)/cimserver_trust
 	@$(RMDIRHIER) $(PEGASUS_HOME)/indication_trust
 	@$(RMDIRHIER) $(PEGASUS_HOME)/crl
+	@$(RM) $(PEGASUS_HOME)/setupserverdev
 
 createSSLTrustDirectories:
 	@$(MKDIRHIER) $(PEGASUS_HOME)/cimserver_trust
@@ -214,14 +219,17 @@ stageClientSSLFiles-SystemIndependent:
 stageCIMServerConfigurationFiles:
 	@$(RM) $(PEGASUS_HOME)/cimserver_planned.conf
 	@$(COPY) cimserver_planned.conf $(PEGASUS_HOME)
-	
-install_run:
+
+install_run: $(PEGASUS_HOME)/setupserverdev
+
+$(PEGASUS_HOME)/setupserverdev: cert.pem file.pem cimserver.rnd ssl.rnd ssl.cnf
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageServerSSLFiles-SystemIndependent
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageClientSSLFiles-SystemIndependent
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile stageCIMServerConfigurationFiles
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-	@$(PEGASUS_HOME)/bin/cimserver -install
+	-@$(PEGASUS_HOME)/bin/cimserver -install
 endif
+	@$(TOUCH) $(PEGASUS_HOME)/setupserverdev
 
 uninstall:
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)

@@ -49,16 +49,62 @@ DIRS = src test rpm Schemas
 
 include $(ROOT)/mak/recurse.mak
 
-# rebuild target cleans, setup dependencies, compiles all and builds 
-# repository
+
+
+.PHONY: FORCE
 
 FORCE:
 
-rebuild: clean depend all repository
+#-----------------------
+# build target: builds all source and runs the test
+#
+#                 builds mu utility, 
+#                 compiles all, 
+#                 sets up the dev server env  
+
+build: all setupdevserver
+	@ $(MAKE) -s tests 
+
+#-----------------------
+# rebuild target: cleans and and then builds everything and runs tests
+#
+
+
+rebuild: clean repositoryclean world
+
+#-----------------------
+# world target: builds everything and runs tests
+#
+#       Typically used after a fresh checkout from CVS 
+#
+#                 builds mu utility, 
+#                 builds dependencies, 
+#                 compiles all
+#                 sets up the dev server env, 
+#                 builds repository,
+#                 runs the unit tests
+
+world: buildmu depend all setupdevserver repository
 	@ $(MAKE) -s tests
 
-world: depend all repository
-	@ $(MAKE) -s tests
+#---------------------
+# buildmu target: build mu the make utility that among other things
+#                 includes depend
+buildmu: FORCE
+	$(MKDIRHIER) $(BIN_DIR)
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
+
+#----------------------
+# setupdevserver and cleandevserver are used to setup and clear the 
+# server configuration files needed to run the server in a development
+# environment. 
+#
+setupdevserver: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	@$(ECHO) "PEGASUS Development Server Runtime Environment configured "
+
+cleandevserver: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run_clean
 
 # The repository Target removes and rebuilds the CIM repository
 
@@ -98,8 +144,6 @@ removetestrepository: FORCE
 
 config:
 	@ $(ROOT)/SetConfig_EnvVar
-
-all: messages 
 
 messages: rootbundle
 

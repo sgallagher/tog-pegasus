@@ -741,7 +741,10 @@ void String::clear()
     if (_rep->size)
     {
 	if (Atomic_get(&_rep->refs) == 1)
+	{
 	    _rep->size = 0;
+	    _rep->data[0] = '\0';
+	}
 	else
 	{
 	    StringRep::unref(_rep);
@@ -1409,7 +1412,7 @@ BUG-4200 Review notes:
 
     2.  Doc++ String.h
 
-	Status: pending
+	Status: pending review (changing it now would obscure the diffs).
 
     3.  Look at PEP223 for security coding guidelines for strings.
 

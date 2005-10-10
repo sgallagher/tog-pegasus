@@ -27,12 +27,12 @@ inline void Atomic_set(Atomic* atomic, int x)
     *atomic = LONG(x);
 }
 
-static __inline__ void Atomic_inc(Atomic* atomic)
+inline void Atomic_inc(Atomic* atomic)
 {
     InterlockedIncrement(atomic);
 }
 
-static __inline__ int Atomic_dec_and_test(Atomic* atomic)
+inline int Atomic_dec_and_test(Atomic* atomic)
 {
     return InterlockedDecrement(atomic) == 0;
 }

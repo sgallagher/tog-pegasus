@@ -153,8 +153,12 @@ inline Uint16 _toLower(Uint16 x)
 // Rounds x up to the nearest power of two (or just returns 8 if x < 8).
 static Uint32 _roundUpToPow2(Uint32 x)
 {
+#ifndef PEGASUS_STRING_NO_THROW
+
     if (x > 0x0FFFFFFF)
 	throw PEGASUS_STD(bad_alloc)();
+
+#endif
 
     if (x < 8)
 	return 8;
@@ -522,9 +526,13 @@ StringRep StringRep::_emptyRep;
 
 inline StringRep* StringRep::alloc(size_t cap)
 {
+#ifndef PEGASUS_STRING_NO_THROW
+
     // Any string bigger than this is seriously suspect.
     if (cap > 0x0FFFFFFF)
 	throw PEGASUS_STD(bad_alloc)();
+
+#endif
 
     StringRep* rep = (StringRep*)::operator new(
 	sizeof(StringRep) + cap * sizeof(Uint16));
@@ -1436,9 +1444,9 @@ TO-DO:
 
     (+) [DONE] useCamelNotationOnAllFunctionNames.
 
-    -----------
+    (+) [DONE] Check for overlow condition in StringRep::alloc().
 
-    (+) Check for overlow condition in StringRep::alloc().
+    -----------
 
     (+) Fix throw-related memory leak.
 

@@ -35,6 +35,7 @@
 #define _Pegasus_Common_AtomicInt_WIN32_IX86_MSVC_h
 
 #include <Pegasus/Common/Config.h>
+#include <windows.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -42,7 +43,7 @@ typedef LONG AtomicType;
 
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
-    _rep = LONG(x);
+    _rep = LONG(n);
 }
 
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()

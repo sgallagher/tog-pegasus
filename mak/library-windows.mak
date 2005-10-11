@@ -38,6 +38,10 @@ FULL_PDB = $(BIN_DIR)/$(LIBRARY)$(PDB)
 
 LINKFILE=$(LIB_DIR)/linkfile
 
+##
+## The next four lines define a variable (called NL) that contains a simple
+## newline. The two blank lines are needed (please do not remove).
+##
 define NL
 
 

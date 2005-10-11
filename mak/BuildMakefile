@@ -54,7 +54,7 @@ else
   CVS = cvs
 endif
 
-cleanbuild: recheckout all tests
+cleanbuild: recheckout build tests
 
 recheckout: removeall checkout
 

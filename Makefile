@@ -62,8 +62,7 @@ FORCE:
 #                 compiles all, 
 #                 sets up the dev server env  
 
-build: all setupdevserver
-	@ $(MAKE) -s tests 
+build: buildmu depend all setupdevserver
 
 #-----------------------
 # rebuild target: cleans and and then builds everything and runs tests

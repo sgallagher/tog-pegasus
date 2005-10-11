@@ -429,15 +429,18 @@ int main(int argc, char** argv)
                 UTF8_NEXT(utf8chr,count);
         }
 
-        char utf8bad[]    = {
-                              '\xFF','\xFF', '\xFF'
-                            }; // utf8 string with mutliple byte characters
+        // utf8 string with mutliple byte characters
+        char utf8bad[] = 
+        {
+            '\xFF','\xFF', '\xFF', '\0', '\0', '\0'
+        };
+
         count = 0;
-        size = sizeof(utf8bad);
+        size = 3;
         while(count<size)
         {
-                assert(isUTF8(&utf8bad[count]) == false);
-                UTF8_NEXT(utf8bad,count);
+            assert(isUTF8(&utf8bad[count]) == false);
+            UTF8_NEXT(utf8bad,count);
         }
 
         Char16 utf16Chars[] =

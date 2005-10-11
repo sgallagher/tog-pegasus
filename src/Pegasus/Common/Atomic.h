@@ -10,6 +10,8 @@
 # include "Atomic_LINUX_PPC_GNU.h"
 #elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include "Atomic_WIN32_IX86_MSVC.h"
+#elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include "Atomic_ZOS_ZSERIES_IBM.h"
 #else
 # include "Atomic_Generic.h"
 #endif

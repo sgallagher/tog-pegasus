@@ -623,7 +623,7 @@ String SLPProvider::getRegisteredProfileList()
 
     Boolean         deepInheritance = true;
     Boolean         localOnly = true;
-    Boolean         includeQualifiers = false;
+    Boolean         includeQualifiers = true;
     Boolean         includeClassOrigin = false;
 
     try
@@ -704,7 +704,8 @@ String SLPProvider::getRegisteredProfileList()
         regitem.append(RegOrg);
         regitem.append(":");
         regitem.append(RN_PropertyName.getString());
-        regarray[j] = regitem;
+        regarray.append(regitem);
+        regitem.clear();
         j++;
     }
     if (j > 0)

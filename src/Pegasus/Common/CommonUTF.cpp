@@ -293,9 +293,6 @@ int UTF8toUTF16 (const Uint8** srcHead,
 
 Boolean isUTF8(const char *legal)
 {
-    if (Uint8(*legal) < 128)
-        return false;
-
     char numBytes = UTF_8_COUNT_TRAIL_BYTES(*legal)+1;
 
     // Validate that the string is long enough to hold all the expected bytes.

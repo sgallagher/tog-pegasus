@@ -1446,6 +1446,8 @@ TO-DO:
 
     (+) [DONE] Check for overlow condition in StringRep::alloc().
 
+    (+) [DONE] Remove tabs (used vim ":set expandtab" and ":retab").
+
     -----------
 
     (+) Fix throw-related memory leak.
@@ -1457,8 +1459,6 @@ TO-DO:
     (+) Replace AtomicInt with new Atomic implementation.
 
     (+) Implement Atomic operations for HP.
-
-    (+) Remove tabs.
 
 ================================================================================
 */

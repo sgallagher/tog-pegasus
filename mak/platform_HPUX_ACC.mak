@@ -165,7 +165,7 @@ endif
 
 FLAGS += -Wl,+s
 
-ifdef PEGASUS_DEBUG
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
   FLAGS += -g
 else
   FLAGS += +O2 -s

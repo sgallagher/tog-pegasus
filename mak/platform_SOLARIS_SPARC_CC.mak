@@ -89,7 +89,7 @@ ifeq ($(SUNOS_VERSION), 5.6)
 DEFINES += -DSUNOS_5_6
 endif
 
-ifdef PEGASUS_DEBUG
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 FLAGS = -g -KPIC -mt -xs -xildoff
 else
 FLAGS = -O -KPIC -mt -xildoff -s -xipo=1

@@ -99,7 +99,7 @@ ifdef PEGASUS_PAM_AUTHENTICATION
 endif
 
 
-ifdef PEGASUS_DEBUG
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 FLAGS += -g -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 else
 FLAGS += -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -s -fno-enforce-eh-specs

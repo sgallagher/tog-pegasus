@@ -45,7 +45,7 @@ endif
 
 DEPEND_DEFINES = -D__IBMCPP__=400
 
-ifdef PEGASUS_DEBUG
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
 FLAGS = -g -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
 PR_FLAGS = -g -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
 else

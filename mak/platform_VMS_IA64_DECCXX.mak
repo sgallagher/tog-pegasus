@@ -50,7 +50,7 @@ CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL/nowarn
 #CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/names=as_is
 #CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/preprocess_only/implicit_include
-ifdef PEGASUS_DEBUG
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]
 CCFLAGS = /debug/noopt/nowarn/show=include/lis=$(OBJ_VMSDIRA)]
 #CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]/be_dump="-mGLOB_show_limit_info"

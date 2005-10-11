@@ -72,6 +72,10 @@ else
     DISPLAYCONSUMER_DIR = $(subst \,/,$(PEGASUS_HOME))
 endif
 
+ifdef PEGASUS_DEBUG
+     PEGASUS_USE_DEBUG_BUILD_OPTIONS = 1
+endif
+
 PLATFORM_FILES=$(wildcard $(ROOT)/mak/platform*.mak)
 PLATFORM_TEMP=$(subst $(ROOT)/mak/platform_,, $(PLATFORM_FILES))
 VALID_PLATFORMS=$(subst .mak,, $(PLATFORM_TEMP))

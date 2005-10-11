@@ -42,7 +42,7 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
 DEPEND_INCLUDES =                         
 
-ifdef PEGASUS_DEBUG
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 FLAGS = -g -Winspect -Wversion2 -Werrors=10
 else
 FLAGS = -Wversion2 -Werrors=10

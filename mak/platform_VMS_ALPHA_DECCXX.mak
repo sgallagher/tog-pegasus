@@ -49,7 +49,7 @@ LFLAGS = /Threads_Enable=Upcalls/map=$(BIN_VMSDIRA)]$(PROGRAM)
 CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time
 CCFLAGS = /OPT=INLINE=ALL/nowarn
 #CFLAGS = /repos=$(CXXREPOSITORY_VMSROOT)/template_def=time/preprocess_only/implicit_include
-ifdef PEGASUS_DEBUG
+ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 #CFLAGS += /debug/noopt/show=include/machi/lis
 CFLAGS += /debug/noopt/show=include/lis=$(OBJ_VMSDIRA)]
 CCFLAGS = /debug/noopt/nowarn/show=include/lis=$(OBJ_VMSDIRA)]

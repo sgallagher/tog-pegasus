@@ -65,7 +65,7 @@ ifeq ($(COMPILER),acc)
     endif
   endif
   LINK_COMMAND += -Wl,+s
-  ifdef PEGASUS_DEBUG
+  ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
     LINK_COMMAND += -g
   endif
   ifdef PEGASUS_CCOVER

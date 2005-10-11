@@ -32,9 +32,14 @@
 #ifndef Pegasus_Char16Inline_h
 #define Pegasus_Char16Inline_h
 
+#ifdef PEGASUS_INTERNALONLY
+# define PEGASUS_CHAR16_INLINE inline
+#else
+# define PEGASUS_CHAR16_INLINE /* */
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
-// ATTN-MEB: is the initialization really necessary?
 PEGASUS_CHAR16_INLINE Char16::Char16() : _code(0)
 {
 }

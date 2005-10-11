@@ -62,9 +62,18 @@ struct StringRep
 
     static StringRep _empty_rep;
 
+    // Number of characters in this string, excluding the null terminator.
     size_t size;
+
+    // Number of characters this representation has room for. This is
+    // greater or equal to size.
     size_t cap;
+
+    // Number of string refering to this StringRep (1, 2, etc).
     Atomic refs;
+
+    // The first character in the string. Extra space is allocated off the
+    // end of this structure for additional characters.
     Uint16 data[1];
 };
 
@@ -76,8 +85,10 @@ inline void StringRep::free(StringRep* rep)
 
 inline StringRep::StringRep() : size(0), cap(0)
 {
-    // Only called on _empty_rep.
-    Atomic_create(&refs, 99);
+    // Only called on _empty_rep. We set the reference count to two to
+    // keep a String from modifying it (if the reference count were one,
+    // a string would think it was the sole owner of the StringRep object).
+    Atomic_create(&refs, 2);
     data[0] = 0;
 }
 
@@ -101,6 +112,14 @@ inline void StringRep::unref(const StringRep* rep)
 }
 
 PEGASUS_COMMON_LINKAGE void String_throw_out_of_bounds();
+
+PEGASUS_COMMON_LINKAGE void String_append_char_aux(StringRep*& _rep);
+
+PEGASUS_COMMON_LINKAGE Boolean String_equalNoCase_aux(
+    const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Uint32 String_find_aux(
+    const StringRep* _rep, const Char16* s, Uint32 n);
 
 #ifdef PEGASUS_STRING_NO_THROW
 # define _check_bounds(ARG1, ARG2) /* empty */

@@ -58,8 +58,6 @@ PEGASUS_NAMESPACE_BEGIN
 //      
 //     PEGASUS_STRING_NO_UTF8 -- don't generate slower UTF8 code.
 //
-//     PEGASUS_USE_INTERNAL_INLINES -- enables internal inlining feature.
-// 
 //==============================================================================
 
 //==============================================================================
@@ -153,7 +151,7 @@ inline Uint16 _to_lower(Uint16 x)
 }
 
 // Rounds x to the next power of two (or just returns 8 if x < 8).
-static Uint32 _next_pow_2(Uint32 x)
+static Uint32 _roundUpToPow2(Uint32 x)
 {
     if (x < 8)
 	return 8;
@@ -533,7 +531,7 @@ static inline void _reserve(StringRep*& rep, Uint32 cap)
 {
     if (cap > rep->cap || Atomic_get(&rep->refs) != 1)
     {
-	size_t n = _next_pow_2(cap);
+	size_t n = _roundUpToPow2(cap);
 	StringRep* new_rep = StringRep::alloc(n);
 	new_rep->size = rep->size;
 	_copy(new_rep->data, rep->data, rep->size + 1);
@@ -870,7 +868,8 @@ Uint32 String::find(Uint32 index, Char16 c) const
     return PEG_NOT_FOUND;
 }
 
-Uint32 String::_find_aux(const Char16* s, Uint32 n) const
+Uint32 String_find_aux(
+    const StringRep* _rep, const Char16* s, Uint32 n)
 {
     _check_null_pointer(s);
 
@@ -1082,7 +1081,7 @@ int String::compareNoCase(const String& str1, const String& str2)
     return 0;
 }
 
-Boolean String::equalNoCase_aux(const String& s1, const String& s2)
+Boolean String_equalNoCase_aux(const String& s1, const String& s2)
 {
 #ifdef PEGASUS_HAS_ICU
 
@@ -1090,9 +1089,9 @@ Boolean String::equalNoCase_aux(const String& s1, const String& s2)
 
 #else /* PEGASUS_HAS_ICU */
 
-    Uint16* p = (Uint16*)s1._rep->data;
-    Uint16* q = (Uint16*)s2._rep->data;
-    Uint32 n = s2._rep->size;
+    Uint16* p = (Uint16*)s1.getChar16Data();
+    Uint16* q = (Uint16*)s2.getChar16Data();
+    Uint32 n = s2.size();
 
     while (n >= 8)
     {
@@ -1256,7 +1255,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 #endif // PEGASUS_OS_OS400
 }
 
-void String::_append_char_aux()
+void String_append_char_aux(StringRep*& _rep)
 {
     StringRep* tmp;
 
@@ -1348,10 +1347,10 @@ String optimizations:
 	    String operator+(const String& s1, const char* s2)
 	    String operator+(const char* s1, const String& s2)
 
-    7.  Optimized _next_pow_2(), used in rounding the capacity to the next 
+    7.  Optimized _roundUpToPow2(), used in rounding the capacity to the next 
         power of two (algorithm from the book "Hacker's Delight").
 
-	    static Uint32 _next_pow_2(Uint32 x)
+	    static Uint32 _roundUpToPow2(Uint32 x)
 	    {
 		if (x < 8)
 		    return 8;
@@ -1403,33 +1402,48 @@ String optimizations:
 
 	This avoids slower UTF8 processing when not needed.
 
-BUG-4200 Review notes:
+================================================================================
 
-    1. 	Use PEGASUS_USE_EXPERIMENTAL_INTERFACES instead of 
-	PEGASUS_STRING_EXTENSIONS.
+TO-DO:
 
-	Status: done
+    (+)	[DONE] Use PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-    2.  Doc++ String.h
+    (+)	[DONE] Submit BUG-2754 (Windows buffer limit).
 
-	Status: pending review (changing it now would obscure the diffs).
+    (+) [DONE] Eliminate char versions of find() and append().
 
-    3.  Look at PEP223 for security coding guidelines for strings.
+    (+) [DONE] Remove PEGASUS_MAX_PRINTABLE_CHARACTER from Config.h
 
-	Status: pending
+    (+) [DONE] Change _next_pow_2() to _roundUpToPow2().
 
-    4.	Increasing the number of objects may break Windows 2000 build
-        (limit of 2048 bytes for command line). See BUG-2754
+    (+) [DONE] Change '99' to '2' in StringRep constructor (comment as well).
+
+    (+) [DONE] Comment StringRep allocation layout.
+
+    (+) [DONE] Conceal private inline functions.
+
+    (+) [DONE] Shorten inclusion of StringInline.h in String.h.
+
+    (+) [DONE] Change USE_INTERNAL_INLINE TO DISABLE_INTERNAL_INLINE or get
+	rid of altogether.
+
+    -----------
+
+    (+) Check for overlow condition in StringRep::alloc().
+
+    (+) useCamelNotationOnAllFunctionNames.
+
+    (+) Fix throw-related memory leak.
+
+    (+)	DOC++ String.h
 	
-	Status: submitted patch for bug 2754
+    (+) Look at PEP223 for coding security guidelines.
 
-    5.  Concerns about whether generating inlines and non-inline versions
-	of functions will work with all compilers.
+    (+) Rework AtomicInt (put into AtomicInt.h).
 
-	Status: tested on Windows. Also showed how inlining can be disabled
-	on platforms that don't support it.
+    (+) Implement Atomic operations for HP.
 
-    6.  Atomic.h -- more to come
+    (+) Remove tabs.
 
 ================================================================================
 */

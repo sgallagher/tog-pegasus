@@ -124,7 +124,7 @@ public:
 
     /** Initialize with first <TT>n</TT> characters from <TT>str</TT>.
     @param str Specifies the name of the String instance.
-    @param n Specifies the Uint32 size to use for the length of the string object.
+    @param n Specifies Uint32 size to use for the length of the string object.
     @exception bad_alloc Thrown if there is insufficient memory.
     */
     String(const String& str, Uint32 n);
@@ -480,13 +480,9 @@ public:
 
     Uint32 find(const char* s) const;
 
-    Uint32 find(char c) const;
-
     static Boolean equal(const String& s1, const char* s2);
 
     static int compare(const String& s1, const char* s2);
-
-    String& append(char c);
 
     String& append(const char* str);
 
@@ -497,12 +493,6 @@ public:
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
 private:
-
-    void _append_char_aux();
-
-    static Boolean equalNoCase_aux(const String& str1, const String& str2);
-
-    Uint32 _find_aux(const Char16* s, Uint32 n) const;
 
     StringRep* _rep;
 };
@@ -640,10 +630,8 @@ PEGASUS_COMMON_LINKAGE String operator+(const char* s1, const String& s2);
 
 PEGASUS_NAMESPACE_END
 
-#if defined(PEGASUS_INTERNALONLY) && defined(PEGASUS_USE_INTERNAL_INLINES)
-# define PEGASUS_STRING_INLINE inline
+#if defined(PEGASUS_INTERNALONLY)
 # include "StringInline.h"
-# undef PEGASUS_STRING_INLINE
 #endif
 
 #endif /* Pegasus_String_h */

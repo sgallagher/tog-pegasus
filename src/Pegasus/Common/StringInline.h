@@ -35,6 +35,12 @@
 #include <Pegasus/Common/Atomic.h>
 #include <Pegasus/Common/StringRep.h>
 
+#ifdef PEGASUS_INTERNALONLY
+# define PEGASUS_STRING_INLINE inline
+#else
+# define PEGASUS_STRING_INLINE /* empty */
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
 PEGASUS_STRING_INLINE CString::CString() : _rep(0)
@@ -128,13 +134,13 @@ PEGASUS_STRING_INLINE String& String::assignASCII7(const char* str)
 
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 {
-    return _find_aux((Char16*)s._rep->data, s._rep->size);
+    return String_find_aux(_rep, (Char16*)s._rep->data, s._rep->size);
 }
 
 PEGASUS_STRING_INLINE String& String::append(const Char16& c)
 {
     if (_rep->size == _rep->cap || Atomic_get(&_rep->refs) != 1)
-	_append_char_aux();
+	String_append_char_aux(_rep);
 
     _rep->data[_rep->size++] = c;
     _rep->data[_rep->size] = 0;
@@ -148,7 +154,7 @@ PEGASUS_STRING_INLINE Boolean String::equalNoCase(
 	return equalNoCase_aux(s1, s2);
 #else
     if (s1._rep->size == s2._rep->size)
-	return equalNoCase_aux(s1, s2);
+	return String_equalNoCase_aux(s1, s2);
 
     return false;
 #endif
@@ -159,20 +165,6 @@ PEGASUS_STRING_INLINE String& String::append(const char* str)
 {
     append(str, strlen(str));
     return *this;
-}
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-PEGASUS_STRING_INLINE String& String::append(char c) 
-{
-    return append(Char16(c)); 
-}
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-PEGASUS_STRING_INLINE Uint32 String::find(char c) const 
-{
-    return find(Char16(c)); 
 }
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 

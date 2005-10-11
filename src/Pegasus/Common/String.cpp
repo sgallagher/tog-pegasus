@@ -66,6 +66,9 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
+// Note: this table is much faster than the system toupper(). Please do not
+// change.
+
 const Uint8 _toUpperTable[256] = 
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
@@ -101,6 +104,9 @@ const Uint8 _toUpperTable[256] =
     0xF0,0xF1,0xF2,0xF3,0xF4,0xF5,0xF6,0xF7,
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
+
+// Note: this table is much faster than the system tulower(). Please do not
+// change.
 
 const Uint8 _toLowerTable[256] = 
 {
@@ -138,13 +144,15 @@ const Uint8 _toLowerTable[256] =
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
 
-// Converts 16-bit characters to upper case.
+// Converts 16-bit characters to upper case. This routine is faster than the
+// system toupper(). Please do not change.
 inline Uint16 _toUpper(Uint16 x)
 {
     return (x & 0xFF00) ? x : _toUpperTable[x];
 }
 
-// Converts 16-bit characters to lower case.
+// Converts 16-bit characters to lower case. This routine is faster than the
+// system toupper(). Please do not change.
 inline Uint16 _toLower(Uint16 x)
 {
     return (x & 0xFF00) ? x : _toLowerTable[x];
@@ -177,7 +185,8 @@ static Uint32 _roundUpToPow2(Uint32 x)
 template<class P, class Q>
 static void _copy(P* p, const Q* q, size_t n)
 {
-    // Use loop unrolling.
+    // The following employs loop unrolling for efficiency. Please do not
+    // eliminate.
 
     while (n >= 8)
     {
@@ -211,6 +220,9 @@ static void _copy(P* p, const Q* q, size_t n)
 
 static Uint16* _find(const Uint16* s, size_t n, Uint16 c)
 {
+    // The following employs loop unrolling for efficiency. Please do not
+    // eliminate.
+
     while (n >= 4)
     {
         if (s[0] == c)
@@ -292,8 +304,6 @@ static int _compare(const Uint16* s1, const Uint16* s2, size_t n)
     while (n-- && (*s1++ - *s2++) == 0)
         ;
 
-    // 
-
     return s1[-1] - s2[-1];
 }
 
@@ -302,23 +312,36 @@ static inline void _copy(Uint16* s1, const Uint16* s2, size_t n)
     memcpy(s1, s2, n * sizeof(Uint16));
 }
 
-void StrinThrowOutOfBounds()
+void StringThrowOutOfBounds()
 {
     throw IndexOutOfBoundsException();
 }
 
-#ifdef PEGASUS_STRING_NO_THROW
-# define _checkNullPointer(ARG) /* empty */
-#else
-template<class T>
-inline void _checkNullPointer(const T* ptr)
+inline void _checkNullPointer(const void* ptr)
 {
+#ifdef PEGASUS_STRING_NO_THROW
+
     if (!ptr)
         throw NullPointer();
-}
-#endif
 
-static size_t _copyFromUTF8(Uint16* dest, const char* src, size_t n)
+#endif
+}
+
+static void _StringThrowBadUTF8(Uint32 index)
+{
+    MessageLoaderParms parms(
+        "Common.String.BAD_UTF8",
+        "The byte sequence starting at index $0 "
+        "is not valid UTF-8 encoding.",
+        index);
+    throw Exception(parms);
+}
+
+static size_t _copyFromUTF8(
+    Uint16* dest, 
+    const char* src, 
+    size_t n,
+    size_t& utf8_error_index)
 {
     Uint16* p = dest;
     const Uint8* q = (const Uint8*)src;
@@ -400,11 +423,8 @@ static size_t _copyFromUTF8(Uint16* dest, const char* src, size_t n)
             if (c > n || !isValid_U8(q, c) ||
                 UTF8toUTF16(&q, q + c, &p, p + n) != 0)
             {
-                MessageLoaderParms parms("Common.String.BAD_UTF8",
-                    "The byte sequence starting at index $0 "
-                    "is not valid UTF-8 encoding.",
-                     q - (const Uint8*)src);
-                throw Exception(parms);
+                utf8_error_index = q - (const Uint8*)src;
+                return size_t(-1);
             }
 
             n -= c;
@@ -418,6 +438,9 @@ static size_t _copyFromUTF8(Uint16* dest, const char* src, size_t n)
 // terminator).
 static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
 {
+    // The following employs loop unrolling for efficiency. Please do not
+    // eliminate.
+
     const Uint16* q = src;
     Uint8* p = (Uint8*)dest;
 
@@ -469,13 +492,14 @@ static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
     return p - (Uint8*)dest;
 }
 
-static inline size_t _convert(Uint16* p, const char* q, size_t n)
+static inline size_t _convert(
+    Uint16* p, const char* q, size_t n, size_t& utf8_error_index)
 {
 #ifdef PEGASUS_STRING_NO_UTF8
     _copy(p, q, n);
     return n;
 #else
-    return _copyFromUTF8(p, q, n);
+    return _copyFromUTF8(p, q, n, utf8_error_index);
 #endif
 }
 
@@ -579,7 +603,17 @@ StringRep* StringRep::copyOnWrite(StringRep* rep)
 StringRep* StringRep::create(const char* data, size_t size)
 {
     StringRep* rep = StringRep::alloc(size);
-    rep->size = _convert((Uint16*)rep->data, data, size);
+    Uint32 utf8_error_index;
+    rep->size = _convert((Uint16*)rep->data, data, size, utf8_error_index);
+
+#ifndef PEGASUS_STRING_NO_THROW
+    if (rep->size == size_t(-1))
+    {
+        StringRep::free(rep);
+        _StringThrowBadUTF8(utf8_error_index);
+    }
+#endif
+
     rep->data[rep->size] = '\0';
 
     return rep;
@@ -634,6 +668,9 @@ String::String(const Char16* str, Uint32 n)
 String::String(const char* str)
 {
     _checkNullPointer(str);
+
+    // Set this just in case create() throws an exception.
+    _rep = &StringRep::_emptyRep;
     _rep = StringRep::create(str, strlen(str));
 }
 
@@ -646,6 +683,9 @@ String::String(const char* str, String::ASCII7Tag tag)
 String::String(const char* str, Uint32 n)
 {
     _checkNullPointer(str);
+
+    // Set this just in case create() throws an exception.
+    _rep = &StringRep::_emptyRep;
     _rep = StringRep::create(str, n);
 }
 
@@ -674,7 +714,19 @@ String::String(const String& s1, const char* s2)
     size_t n2 = strlen(s2);
     _rep = StringRep::alloc(n1 + n2);
     _copy(_rep->data, s1._rep->data, n1);
-    _rep->size = n1 + _convert((Uint16*)_rep->data + n1, s2, n2);
+    size_t utf8_error_index;
+    size_t tmp = _convert((Uint16*)_rep->data + n1, s2, n2, utf8_error_index);
+
+#ifndef PEGASUS_STRING_NO_THROW
+    if (tmp == size_t(-1))
+    {
+        StringRep::free(_rep);
+        _rep = &StringRep::_emptyRep;
+        _StringThrowBadUTF8(utf8_error_index);
+    }
+#endif
+
+    _rep->size = n1 + tmp;
     _rep->data[_rep->size] = '\0';
 }
 
@@ -684,7 +736,19 @@ String::String(const char* s1, const String& s2)
     size_t n1 = strlen(s1);
     size_t n2 = s2._rep->size;
     _rep = StringRep::alloc(n1 + n2);
-    _rep->size = n2 + _convert((Uint16*)_rep->data, s1, n1);
+    size_t utf8_error_index;
+    size_t tmp = _convert((Uint16*)_rep->data, s1, n1, utf8_error_index);
+
+#ifndef PEGASUS_STRING_NO_THROW
+    if (tmp ==  size_t(-1))
+    {
+        StringRep::free(_rep);
+        _rep = &StringRep::_emptyRep;
+        _StringThrowBadUTF8(utf8_error_index);
+    }
+#endif
+
+    _rep->size = n2 + tmp;
     _copy(_rep->data + n1, s2._rep->data, n2);
     _rep->data[_rep->size] = '\0';
 }
@@ -727,7 +791,18 @@ String& String::assign(const char* str, Uint32 n)
         _rep = StringRep::alloc(n);
     }
 
-    _rep->size = _convert(_rep->data, str, n);
+    size_t utf8_error_index;
+    _rep->size = _convert(_rep->data, str, n, utf8_error_index);
+
+#ifndef PEGASUS_STRING_NO_THROW
+    if (_rep->size ==  size_t(-1))
+    {
+        StringRep::free(_rep);
+        _rep = &StringRep::_emptyRep;
+        _StringThrowBadUTF8(utf8_error_index);
+    }
+#endif
+
     _rep->data[_rep->size] = 0;
 
     return *this;
@@ -773,6 +848,14 @@ void String::reserveCapacity(Uint32 cap)
 
 CString String::getCString() const
 {
+    // A UTF8 string can have three times as many characters as its UTF16 
+    // counterpart, so we allocate extra memory for the worst case. In the 
+    // best case, we may need only one third of the memory allocated. But
+    // downsizing the string afterwards is expensive and unecessary since 
+    // CString objects are usually short-lived (disappearing after only a few 
+    // instructions). CString objects are typically created on the stack as
+    // means to obtain a char* pointer.
+
 #ifdef PEGASUS_STRING_NO_UTF8
     char* str = (char*)operator new(_rep->size + 1);
     _copy(str, _rep->data, _rep->size);
@@ -814,7 +897,20 @@ String& String::append(const char* str, Uint32 size)
     size_t cap = oldSize + size;
 
     _reserve(_rep, cap);
-    _rep->size += _convert((Uint16*)_rep->data + oldSize, str, size);
+    size_t utf8_error_index;
+    size_t tmp = _convert(
+        (Uint16*)_rep->data + oldSize, str, size, utf8_error_index);
+
+#ifndef PEGASUS_STRING_NO_THROW
+    if (tmp ==  size_t(-1))
+    {
+        StringRep::free(_rep);
+        _rep = &StringRep::_emptyRep;
+        _StringThrowBadUTF8(utf8_error_index);
+    }
+#endif
+
+    _rep->size += tmp;
     _rep->data[_rep->size] = '\0';
 
     return *this;
@@ -1103,6 +1199,9 @@ Boolean StringEqualNoCase(const String& s1, const String& s2)
     return String::compareNoCase(s1, s2) == 0;
 
 #else /* PEGASUS_HAS_ICU */
+
+    // The following employs loop unrolling for efficiency. Please do not
+    // eliminate.
 
     Uint16* p = (Uint16*)s1.getChar16Data();
     Uint16* q = (Uint16*)s2.getChar16Data();
@@ -1448,9 +1547,9 @@ TO-DO:
 
     (+) [DONE] Remove tabs (used vim ":set expandtab" and ":retab").
 
-    -----------
+    (+) [DONE] Fix throw-related memory leak.
 
-    (+) Fix throw-related memory leak.
+    -----------
 
     (+) DOC++ String.h
         
@@ -1458,7 +1557,7 @@ TO-DO:
 
     (+) Replace AtomicInt with new Atomic implementation.
 
-    (+) Implement Atomic operations for HP.
+    (+) Put word document into source.
 
 ================================================================================
 */

@@ -111,7 +111,7 @@ inline void StringRep::unref(const StringRep* rep)
         StringRep::free((StringRep*)rep);
 }
 
-PEGASUS_COMMON_LINKAGE void StrinThrowOutOfBounds();
+PEGASUS_COMMON_LINKAGE void StringThrowOutOfBounds();
 
 PEGASUS_COMMON_LINKAGE void StringAppendCharAux(StringRep*& _rep);
 
@@ -125,7 +125,7 @@ inline void _checkBounds(size_t index, size_t size)
 {
 #ifndef PEGASUS_STRING_NO_THROW
     if (index > size)
-        StrinThrowOutOfBounds();
+        StringThrowOutOfBounds();
 #endif
 }
 

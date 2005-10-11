@@ -63,6 +63,10 @@ PEGASUS_STRING_INLINE CString::operator const char*() const
 
 PEGASUS_STRING_INLINE String::String()
 {
+    // Note: ref() and unref() never touch the reference count of _emptyRep. 
+    // This allows use to optimize the copy constructor by not incrementing
+    // _emptyRep.refs here. Performance is critical in this function. Please
+    // do not add any code to this function.
     _rep = &StringRep::_emptyRep;
 }
 

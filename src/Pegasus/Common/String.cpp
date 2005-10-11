@@ -156,12 +156,12 @@ static Uint32 _roundUpToPow2(Uint32 x)
 #ifndef PEGASUS_STRING_NO_THROW
 
     if (x > 0x0FFFFFFF)
-	throw PEGASUS_STD(bad_alloc)();
+        throw PEGASUS_STD(bad_alloc)();
 
 #endif
 
     if (x < 8)
-	return 8;
+        return 8;
 
     x--;
     x |= (x >> 1);
@@ -181,69 +181,69 @@ static void _copy(P* p, const Q* q, size_t n)
 
     while (n >= 8)
     {
-	p[0] = q[0];
-	p[1] = q[1];
-	p[2] = q[2];
-	p[3] = q[3];
-	p[4] = q[4];
-	p[5] = q[5];
-	p[6] = q[6];
-	p[7] = q[7];
-	p += 8;
-	q += 8;
-	n -= 8;
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p[4] = q[4];
+        p[5] = q[5];
+        p[6] = q[6];
+        p[7] = q[7];
+        p += 8;
+        q += 8;
+        n -= 8;
     }
 
     while (n >= 4)
     {
-	p[0] = q[0];
-	p[1] = q[1];
-	p[2] = q[2];
-	p[3] = q[3];
-	p += 4;
-	q += 4;
-	n -= 4;
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p += 4;
+        q += 4;
+        n -= 4;
     }
 
     while (n--)
-	*p++ = *q++;
+        *p++ = *q++;
 }
 
 static Uint16* _find(const Uint16* s, size_t n, Uint16 c)
 {
     while (n >= 4)
     {
-	if (s[0] == c)
-	    return (Uint16*)s;
-	if (s[1] == c)
-	    return (Uint16*)&s[1];
-	if (s[2] == c)
-	    return (Uint16*)&s[2];
-	if (s[3] == c)
-	    return (Uint16*)&s[3];
+        if (s[0] == c)
+            return (Uint16*)s;
+        if (s[1] == c)
+            return (Uint16*)&s[1];
+        if (s[2] == c)
+            return (Uint16*)&s[2];
+        if (s[3] == c)
+            return (Uint16*)&s[3];
 
-	n -= 4;
-	s += 4;
+        n -= 4;
+        s += 4;
     }
 
     if (n)
     {
-	if (*s == c)
-	    return (Uint16*)s;
-	s++;
-	n--;
+        if (*s == c)
+            return (Uint16*)s;
+        s++;
+        n--;
     }
 
     if (n)
     {
-	if (*s == c)
-	    return (Uint16*)s;
-	s++;
-	n--;
+        if (*s == c)
+            return (Uint16*)s;
+        s++;
+        n--;
     }
 
     if (n && *s == c)
-	return (Uint16*)s;
+        return (Uint16*)s;
 
     // Not found!
     return 0;
@@ -274,11 +274,11 @@ static int _compareNoUTF8(const Uint16* s1, const char* s2)
 
     do
     {
-	c1 = *s1++;
-	c2 = *s2++;
+        c1 = *s1++;
+        c2 = *s2++;
 
-	if (c1 == 0)
-	    return c1 - c2;
+        if (c1 == 0)
+            return c1 - c2;
     }
     while (c1 == c2);
 
@@ -290,7 +290,7 @@ static int _compare(const Uint16* s1, const Uint16* s2, size_t n)
     // This should only be called when s1 and s2 have the same length.
 
     while (n-- && (*s1++ - *s2++) == 0)
-	;
+        ;
 
     // 
 
@@ -314,7 +314,7 @@ template<class T>
 inline void _checkNullPointer(const T* ptr)
 {
     if (!ptr)
-	throw NullPointer();
+        throw NullPointer();
 }
 #endif
 
@@ -328,87 +328,87 @@ static size_t _copyFromUTF8(Uint16* dest, const char* src, size_t n)
 
     while (n >=8 && ((q[0]|q[1]|q[2]|q[3]|q[4]|q[5]|q[6]|q[7]) & 0x80) == 0)
     {
-	p[0] = q[0];
-	p[1] = q[1];
-	p[2] = q[2];
-	p[3] = q[3];
-	p[4] = q[4];
-	p[5] = q[5];
-	p[6] = q[6];
-	p[7] = q[7];
-	p += 8;
-	q += 8;
-	n -= 8;
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p[4] = q[4];
+        p[5] = q[5];
+        p[6] = q[6];
+        p[7] = q[7];
+        p += 8;
+        q += 8;
+        n -= 8;
     }
 
     while (n >=4 && ((q[0]|q[1]|q[2]|q[3]) & 0x80) == 0)
     {
-	p[0] = q[0];
-	p[1] = q[1];
-	p[2] = q[2];
-	p[3] = q[3];
-	p += 4;
-	q += 4;
-	n -= 4;
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p += 4;
+        q += 4;
+        n -= 4;
     }
 
     switch (n)
     {
-	case 0:
-	    return p - dest;
-	case 1:
-	    if (q[0] < 128)
-	    {
-		p[0] = q[0];
-		return p + 1 - dest;
-	    }
-	    break;
-	case 2:
-	    if (((q[0]|q[1]) & 0x80) == 0)
-	    {
-		p[0] = q[0];
-		p[1] = q[1];
-		return p + 2 - dest;
-	    }
-	    break;
-	case 3:
-	    if (((q[0]|q[1]|q[2]) & 0x80) == 0)
-	    {
-		p[0] = q[0];
-		p[1] = q[1];
-		p[2] = q[2];
-		return p + 3 - dest;
-	    }
-	    break;
+        case 0:
+            return p - dest;
+        case 1:
+            if (q[0] < 128)
+            {
+                p[0] = q[0];
+                return p + 1 - dest;
+            }
+            break;
+        case 2:
+            if (((q[0]|q[1]) & 0x80) == 0)
+            {
+                p[0] = q[0];
+                p[1] = q[1];
+                return p + 2 - dest;
+            }
+            break;
+        case 3:
+            if (((q[0]|q[1]|q[2]) & 0x80) == 0)
+            {
+                p[0] = q[0];
+                p[1] = q[1];
+                p[2] = q[2];
+                return p + 3 - dest;
+            }
+            break;
     }
 
     // Process remaining characters.
 
     while (n)
     {
-	// Optimize for 7-bit ASCII case.
+        // Optimize for 7-bit ASCII case.
 
-	if (*q < 128)
-	{
-	    *p++ = *q++;
-	    n--;
-	}
-	else
-	{
-	    Uint8 c = UTF_8_COUNT_TRAIL_BYTES(*q) + 1;
+        if (*q < 128)
+        {
+            *p++ = *q++;
+            n--;
+        }
+        else
+        {
+            Uint8 c = UTF_8_COUNT_TRAIL_BYTES(*q) + 1;
 
-	    if (c > n || !isValid_U8(q, c) ||
-		UTF8toUTF16(&q, q + c, &p, p + n) != 0)
-	    {
-		MessageLoaderParms parms("Common.String.BAD_UTF8",
-		    "The byte sequence starting at index $0 "
-		    "is not valid UTF-8 encoding.",
-		     q - (const Uint8*)src);
-		throw Exception(parms);
-	    }
+            if (c > n || !isValid_U8(q, c) ||
+                UTF8toUTF16(&q, q + c, &p, p + n) != 0)
+            {
+                MessageLoaderParms parms("Common.String.BAD_UTF8",
+                    "The byte sequence starting at index $0 "
+                    "is not valid UTF-8 encoding.",
+                     q - (const Uint8*)src);
+                throw Exception(parms);
+            }
 
-	    n -= c;
-	}
+            n -= c;
+        }
     }
 
     return p - dest;
@@ -423,43 +423,43 @@ static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
 
     while (n >= 4 && q[0] < 128 && q[1] < 128 && q[2] < 128 && q[3] < 128)
     {
-	p[0] = q[0];
-	p[1] = q[1];
-	p[2] = q[2];
-	p[3] = q[3];
-	p += 4;
-	q += 4;
-	n -= 4;
+        p[0] = q[0];
+        p[1] = q[1];
+        p[2] = q[2];
+        p[3] = q[3];
+        p += 4;
+        q += 4;
+        n -= 4;
     }
 
     switch (n)
     {
-	case 0:
-	    return p - (Uint8*)dest;
-	case 1:
-	    if (q[0] < 128)
-	    {
-		p[0] = q[0];
-		return p + 1 - (Uint8*)dest;
-	    }
-	    break;
-	case 2:
-	    if (q[0] < 128 && q[1] < 128)
-	    {
-		p[0] = q[0];
-		p[1] = q[1];
-		return p + 2 - (Uint8*)dest;
-	    }
-	    break;
-	case 3:
-	    if (q[0] < 128 && q[1] < 128 && q[2] < 128)
-	    {
-		p[0] = q[0];
-		p[1] = q[1];
-		p[2] = q[2];
-		return p + 3 - (Uint8*)dest;
-	    }
-	    break;
+        case 0:
+            return p - (Uint8*)dest;
+        case 1:
+            if (q[0] < 128)
+            {
+                p[0] = q[0];
+                return p + 1 - (Uint8*)dest;
+            }
+            break;
+        case 2:
+            if (q[0] < 128 && q[1] < 128)
+            {
+                p[0] = q[0];
+                p[1] = q[1];
+                return p + 2 - (Uint8*)dest;
+            }
+            break;
+        case 3:
+            if (q[0] < 128 && q[1] < 128 && q[2] < 128)
+            {
+                p[0] = q[0];
+                p[1] = q[1];
+                p[2] = q[2];
+                return p + 3 - (Uint8*)dest;
+            }
+            break;
     }
 
     // If this line was reached, there must be characters greater than 128.
@@ -489,9 +489,9 @@ CString::CString(const CString& cstr) : _rep(0)
 {
     if (cstr._rep)
     {
-	size_t n = strlen(cstr._rep) + 1;
+        size_t n = strlen(cstr._rep) + 1;
         _rep = (char*)operator new(n);
-	memcpy(_rep, cstr._rep, n);
+        memcpy(_rep, cstr._rep, n);
     }
 }
 
@@ -507,9 +507,9 @@ CString& CString::operator=(const CString& cstr)
 
         if (cstr._rep)
         {
-	    size_t n = strlen(cstr._rep) + 1;
+            size_t n = strlen(cstr._rep) + 1;
             _rep = (char*)operator new(n);
-	    memcpy(_rep, cstr._rep, n);
+            memcpy(_rep, cstr._rep, n);
         }
     }
 
@@ -530,12 +530,12 @@ inline StringRep* StringRep::alloc(size_t cap)
 
     // Any string bigger than this is seriously suspect.
     if (cap > 0x0FFFFFFF)
-	throw PEGASUS_STD(bad_alloc)();
+        throw PEGASUS_STD(bad_alloc)();
 
 #endif
 
     StringRep* rep = (StringRep*)::operator new(
-	sizeof(StringRep) + cap * sizeof(Uint16));
+        sizeof(StringRep) + cap * sizeof(Uint16));
     rep->cap = cap;
     Atomic_create(&rep->refs, 1);
 
@@ -546,12 +546,12 @@ static inline void _reserve(StringRep*& rep, Uint32 cap)
 {
     if (cap > rep->cap || Atomic_get(&rep->refs) != 1)
     {
-	size_t n = _roundUpToPow2(cap);
-	StringRep* newRep = StringRep::alloc(n);
-	newRep->size = rep->size;
-	_copy(newRep->data, rep->data, rep->size + 1);
-	StringRep::unref(rep);
-	rep = newRep;
+        size_t n = _roundUpToPow2(cap);
+        StringRep* newRep = StringRep::alloc(n);
+        newRep->size = rep->size;
+        _copy(newRep->data, rep->data, rep->size + 1);
+        StringRep::unref(rep);
+        rep = newRep;
     }
 }
 
@@ -600,7 +600,7 @@ Uint32 StringRep::length(const Uint16* str)
     const Uint16* end = (Uint16*)str;
 
     while (*end++)
-	;
+        ;
 
     return end - str - 1;
 }
@@ -693,8 +693,8 @@ String& String::assign(const String& str)
 {
     if (_rep != str._rep)
     {
-	StringRep::unref(_rep);
-	StringRep::ref(_rep = str._rep);
+        StringRep::unref(_rep);
+        StringRep::ref(_rep = str._rep);
     }
 
     return *this;
@@ -706,8 +706,8 @@ String& String::assign(const Char16* str, Uint32 n)
 
     if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
     {
-	StringRep::unref(_rep);
-	_rep = StringRep::alloc(n);
+        StringRep::unref(_rep);
+        _rep = StringRep::alloc(n);
     }
 
     _rep->size = n;
@@ -723,8 +723,8 @@ String& String::assign(const char* str, Uint32 n)
 
     if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
     {
-	StringRep::unref(_rep);
-	_rep = StringRep::alloc(n);
+        StringRep::unref(_rep);
+        _rep = StringRep::alloc(n);
     }
 
     _rep->size = _convert(_rep->data, str, n);
@@ -739,8 +739,8 @@ String& String::assignASCII7(const char* str, Uint32 n)
 
     if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
     {
-	StringRep::unref(_rep);
-	_rep = StringRep::alloc(n);
+        StringRep::unref(_rep);
+        _rep = StringRep::alloc(n);
     }
 
     _copy(_rep->data, str, n);
@@ -753,16 +753,16 @@ void String::clear()
 {
     if (_rep->size)
     {
-	if (Atomic_get(&_rep->refs) == 1)
-	{
-	    _rep->size = 0;
-	    _rep->data[0] = '\0';
-	}
-	else
-	{
-	    StringRep::unref(_rep);
-	    _rep = &StringRep::_emptyRep;
-	}
+        if (Atomic_get(&_rep->refs) == 1)
+        {
+            _rep->size = 0;
+            _rep->data[0] = '\0';
+        }
+        else
+        {
+            StringRep::unref(_rep);
+            _rep = &StringRep::_emptyRep;
+        }
     }
 }
 
@@ -828,7 +828,7 @@ void String::remove(Uint32 index, Uint32 n)
     _checkBounds(index + n, _rep->size);
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copyOnWrite(_rep);
+        _rep = StringRep::copyOnWrite(_rep);
 
     assert(index + n <= _rep->size);
 
@@ -849,10 +849,10 @@ String String::subString(Uint32 index, Uint32 n) const
 
     if (index < _rep->size)
     {
-	if (n == PEG_NOT_FOUND || n > _rep->size - index)
-	    n = _rep->size - index;
+        if (n == PEG_NOT_FOUND || n > _rep->size - index)
+            n = _rep->size - index;
 
-	return String((Char16*)_rep->data + index, n);
+        return String((Char16*)_rep->data + index, n);
     }
 
     return String();
@@ -863,7 +863,7 @@ Uint32 String::find(Char16 c) const
     Uint16* p = (Uint16*)_find(_rep->data, _rep->size, c);
 
     if (p)
-	return p - _rep->data;
+        return p - _rep->data;
 
     return PEG_NOT_FOUND;
 }
@@ -873,12 +873,12 @@ Uint32 String::find(Uint32 index, Char16 c) const
     _checkBounds(index, _rep->size);
 
     if (index >= _rep->size)
-	return PEG_NOT_FOUND;
+        return PEG_NOT_FOUND;
 
     Uint16* p = (Uint16*)_find(_rep->data + index, _rep->size - index, c);
 
     if (p)
-	return p - _rep->data;
+        return p - _rep->data;
 
     return PEG_NOT_FOUND;
 }
@@ -893,17 +893,17 @@ Uint32 StringFindAux(
 
     while (n <= rem)
     {
-	Uint16* p = (Uint16*)_find(data, rem, s[0]);
+        Uint16* p = (Uint16*)_find(data, rem, s[0]);
 
-	if (!p)
-	    break;
+        if (!p)
+            break;
 
-	if (memcmp(p, s, n * sizeof(Uint16)) == 0)
-	    return p - _rep->data;
+        if (memcmp(p, s, n * sizeof(Uint16)) == 0)
+            return p - _rep->data;
 
-	p++;
-	rem -= p - data;
-	data = p;
+        p++;
+        rem -= p - data;
+        data = p;
     }
 
     return PEG_NOT_FOUND;
@@ -926,8 +926,8 @@ Uint32 String::reverseFind(Char16 c) const
 
     while (q != p)
     {
-	if (*--q == x)
-	    return q - p;
+        if (*--q == x)
+            return q - p;
     }
 
     return PEG_NOT_FOUND;
@@ -940,7 +940,7 @@ void String::toLower()
     if (InitializeICU::initICUSuccessful())
     {
         if (Atomic_get(&_rep->refs) != 1)
-	    _rep = StringRep::copyOnWrite(_rep);
+            _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
         // Since context-sensitive casing looks at adjacent chars, this 
@@ -948,42 +948,42 @@ void String::toLower()
         // calling ICU.
         // The string may shrink or expand after the convert.
 
-	//// First calculate size of resulting string. u_strToLower() returns
-	//// only the size when zero is passed as the destination size argument.
+        //// First calculate size of resulting string. u_strToLower() returns
+        //// only the size when zero is passed as the destination size argument.
 
         UErrorCode err = U_ZERO_ERROR;
 
         int32_t newSize = u_strToLower(
-	    NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
+            NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
         
         err = U_ZERO_ERROR;
 
-	//// Reserve enough space for the result.
+        //// Reserve enough space for the result.
 
-	if ((Uint32)newSize > _rep->cap)
-	    _reserve(_rep, newSize);
+        if ((Uint32)newSize > _rep->cap)
+            _reserve(_rep, newSize);
 
-	//// Perform the conversion (overlapping buffers are allowed).
+        //// Perform the conversion (overlapping buffers are allowed).
 
         u_strToLower((UChar*)_rep->data, newSize,
-	    (UChar*)_rep->data, _rep->size, NULL, &err);
+            (UChar*)_rep->data, _rep->size, NULL, &err);
 
-	_rep->size = newSize;
-	return;
+        _rep->size = newSize;
+        return;
     }
 
 #endif /* PEGASUS_HAS_ICU */
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copyOnWrite(_rep);
+        _rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;
     size_t n = _rep->size;
 
     for (; n--; p++)
     {
-	if (!(*p & 0xFF00))
-	    *p = _toLower(*p);
+        if (!(*p & 0xFF00))
+            *p = _toLower(*p);
     }
 }
 
@@ -994,7 +994,7 @@ void String::toUpper()
     if (InitializeICU::initICUSuccessful())
     {
         if (Atomic_get(&_rep->refs) != 1)
-	    _rep = StringRep::copyOnWrite(_rep);
+            _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
         // Since context-sensitive casing looks at adjacent chars, this 
@@ -1002,41 +1002,41 @@ void String::toUpper()
         // calling ICU.
         // The string may shrink or expand after the convert.
 
-	//// First calculate size of resulting string. u_strToUpper() returns
-	//// only the size when zero is passed as the destination size argument.
+        //// First calculate size of resulting string. u_strToUpper() returns
+        //// only the size when zero is passed as the destination size argument.
 
         UErrorCode err = U_ZERO_ERROR;
 
         int32_t newSize = u_strToUpper(
-	    NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
+            NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
 
         err = U_ZERO_ERROR;
 
-	//// Reserve enough space for the result.
+        //// Reserve enough space for the result.
 
-	if ((Uint32)newSize > _rep->cap)
-	    _reserve(_rep, newSize);
+        if ((Uint32)newSize > _rep->cap)
+            _reserve(_rep, newSize);
 
-	//// Perform the conversion (overlapping buffers are allowed).
+        //// Perform the conversion (overlapping buffers are allowed).
 
         u_strToUpper((UChar*)_rep->data, newSize,
-	    (UChar*)_rep->data, _rep->size, NULL, &err);
+            (UChar*)_rep->data, _rep->size, NULL, &err);
 
-	_rep->size = newSize;
+        _rep->size = newSize;
 
-	return;
+        return;
     }
 
 #endif /* PEGASUS_HAS_ICU */
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copyOnWrite(_rep);
+        _rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;
     size_t n = _rep->size;
 
     for (; n--; p++)
-	*p = _toUpper(*p);
+        *p = _toUpper(*p);
 }
 
 int String::compare(const String& s1, const String& s2, Uint32 n)
@@ -1072,7 +1072,7 @@ int String::compareNoCase(const String& str1, const String& str2)
     if (InitializeICU::initICUSuccessful())
     {
         return  u_strcasecmp(
-	    str1._rep->data, str2._rep->data, U_FOLD_CASE_DEFAULT);
+            str1._rep->data, str2._rep->data, U_FOLD_CASE_DEFAULT);
     }
 
 #endif /* PEGASUS_HAS_ICU */
@@ -1110,45 +1110,45 @@ Boolean StringEqualNoCase(const String& s1, const String& s2)
 
     while (n >= 8)
     {
-	if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))) ||
-	    ((p[1] - q[1]) && (_toUpper(p[1]) - _toUpper(q[1]))) ||
-	    ((p[2] - q[2]) && (_toUpper(p[2]) - _toUpper(q[2]))) ||
-	    ((p[3] - q[3]) && (_toUpper(p[3]) - _toUpper(q[3]))) ||
-	    ((p[4] - q[4]) && (_toUpper(p[4]) - _toUpper(q[4]))) ||
-	    ((p[5] - q[5]) && (_toUpper(p[5]) - _toUpper(q[5]))) ||
-	    ((p[6] - q[6]) && (_toUpper(p[6]) - _toUpper(q[6]))) ||
-	    ((p[7] - q[7]) && (_toUpper(p[7]) - _toUpper(q[7]))))
-	{
-	    return false;
-	}
+        if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))) ||
+            ((p[1] - q[1]) && (_toUpper(p[1]) - _toUpper(q[1]))) ||
+            ((p[2] - q[2]) && (_toUpper(p[2]) - _toUpper(q[2]))) ||
+            ((p[3] - q[3]) && (_toUpper(p[3]) - _toUpper(q[3]))) ||
+            ((p[4] - q[4]) && (_toUpper(p[4]) - _toUpper(q[4]))) ||
+            ((p[5] - q[5]) && (_toUpper(p[5]) - _toUpper(q[5]))) ||
+            ((p[6] - q[6]) && (_toUpper(p[6]) - _toUpper(q[6]))) ||
+            ((p[7] - q[7]) && (_toUpper(p[7]) - _toUpper(q[7]))))
+        {
+            return false;
+        }
 
-	n -= 8;
-	p += 8;
-	q += 8;
+        n -= 8;
+        p += 8;
+        q += 8;
     }
 
     while (n >= 4)
     {
-	if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))) ||
-	    ((p[1] - q[1]) && (_toUpper(p[1]) - _toUpper(q[1]))) ||
-	    ((p[2] - q[2]) && (_toUpper(p[2]) - _toUpper(q[2]))) ||
-	    ((p[3] - q[3]) && (_toUpper(p[3]) - _toUpper(q[3]))))
-	{
-	    return false;
-	}
+        if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))) ||
+            ((p[1] - q[1]) && (_toUpper(p[1]) - _toUpper(q[1]))) ||
+            ((p[2] - q[2]) && (_toUpper(p[2]) - _toUpper(q[2]))) ||
+            ((p[3] - q[3]) && (_toUpper(p[3]) - _toUpper(q[3]))))
+        {
+            return false;
+        }
 
-	n -= 4;
-	p += 4;
-	q += 4;
+        n -= 4;
+        p += 4;
+        q += 4;
     }
 
     while (n--)
     {
-	if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))))
-	    return false;
+        if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))))
+            return false;
 
-	p++;
-	q++;
+        p++;
+        q++;
     }
 
     return true;
@@ -1172,15 +1172,15 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 
     while (n--)
     {
-	if (!*p2)
-	    return false;
+        if (!*p2)
+            return false;
 
-	if (_toUpper(*p1++) != _toUpperTable[int(*p2++)])
-	    return false;
+        if (_toUpper(*p1++) != _toUpperTable[int(*p2++)])
+            return false;
     }
 
     if (*p2)
-	return false;
+        return false;
     
     return true;
 
@@ -1195,7 +1195,7 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 Boolean String::equal(const String& s1, const String& s2)
 {
     return s1._rep->size == s2._rep->size && memcmp(s1._rep->data, 
-	s2._rep->data, s1._rep->size * sizeof(Uint16)) == 0;
+        s2._rep->data, s1._rep->size * sizeof(Uint16)) == 0;
 }
 
 Boolean String::equal(const String& s1, const char* s2)
@@ -1209,8 +1209,8 @@ Boolean String::equal(const String& s1, const char* s2)
 
     while (*p && *q)
     {
-	if (*p++ != Uint16(*q++))
-	    return false;
+        if (*p++ != Uint16(*q++))
+            return false;
     }
 
     return !(*p || *q);
@@ -1239,7 +1239,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
         char *buf = NULL;
         const int size = str.size() * 6;
         UnicodeString UniStr(
-	    (const UChar *)str.getChar16Data(), (int32_t)str.size());
+            (const UChar *)str.getChar16Data(), (int32_t)str.size());
         Uint32 bufsize = UniStr.extract(0,size,buf);
         buf = new char[bufsize+1];
         UniStr.extract(0,bufsize,buf);
@@ -1255,10 +1255,10 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     {
         Uint16 code = str[i];
 
-       	if (code > 0 && !(code & 0xFF00))
-   	        os << char(code);
+        if (code > 0 && !(code & 0xFF00))
+                os << char(code);
         else
-   	    {
+            {
             // Print in hex format:
             char buffer[8];
             sprintf(buffer, "\\x%04X", code);
@@ -1276,14 +1276,14 @@ void StringAppendCharAux(StringRep*& _rep)
 
     if (_rep->cap)
     {
-	tmp = StringRep::alloc(2 * _rep->cap);
-	tmp->size = _rep->size;
-	_copy(tmp->data, _rep->data, _rep->size);
+        tmp = StringRep::alloc(2 * _rep->cap);
+        tmp->size = _rep->size;
+        _copy(tmp->data, _rep->data, _rep->size);
     }
     else
     {
-	tmp = StringRep::alloc(8);
-	tmp->size = 0;
+        tmp = StringRep::alloc(8);
+        tmp->size = 0;
     }
 
     StringRep::unref(_rep);
@@ -1298,132 +1298,132 @@ PEGASUS_NAMESPACE_END
 String optimizations:
 
     1.  Added mechanism allowing certain functions to be inlined only when
-	used by internal Pegasus modules. External modules (i.e., providers)
-	link to a non-inline version, which allows for binary compatibility.
+        used by internal Pegasus modules. External modules (i.e., providers)
+        link to a non-inline version, which allows for binary compatibility.
 
     2.  Implemented copy-on-write with atomic increment/decrement. This
-	yieled a 10% improvement for the 'gc' benchmark and a 11% improvment
-	for the 'ni1000' benchmark.
+        yieled a 10% improvement for the 'gc' benchmark and a 11% improvment
+        for the 'ni1000' benchmark.
 
-    3.	Employed loop unrolling in several places. For example, see:
+    3.  Employed loop unrolling in several places. For example, see:
 
-	    static Uint16* _find(const Uint16* s, size_t n, Uint16 c);
+            static Uint16* _find(const Uint16* s, size_t n, Uint16 c);
 
     4.  Used the "empty-rep" optimization (described in whitepaper from the
-	GCC Developers Summit). This reduced default construction to a simple
-	pointer assignment.
+        GCC Developers Summit). This reduced default construction to a simple
+        pointer assignment.
 
-	    inline String::String() : _rep(&_emptyRep) { }
+            inline String::String() : _rep(&_emptyRep) { }
 
     5.  Implemented Uint16 versions of toupper() and tolower() using tables.
-	For example:
+        For example:
 
-	    static const char _upper[] =
-	    {
-		0,1,2,...255
-	    };
+            static const char _upper[] =
+            {
+                0,1,2,...255
+            };
 
-	    inline Uint16 _toUpper(Uint16 x)
-	    {
-		return (x & 0xFF00) ? x : _upper[x];
-	    }
+            inline Uint16 _toUpper(Uint16 x)
+            {
+                return (x & 0xFF00) ? x : _upper[x];
+            }
 
-	This outperforms the system implementation by avoiding an anding 
-	operation.
+        This outperforms the system implementation by avoiding an anding 
+        operation.
 
     6.  Implemented char* version of the following member functions to 
-	eliminate unecessary creation of anonymous string objects 
-	(temporaries).
+        eliminate unecessary creation of anonymous string objects 
+        (temporaries).
 
-	    String(const String& s1, const char* s2);
-	    String(const char* s1, const String& s2);
-	    String& String::operator=(const char* str);
-	    Uint32 String::find(const char* s) const;
-	    bool String::equal(const String& s1, const char* s2);
-	    static int String::compare(const String& s1, const char* s2);
-	    String& String::append(const char* str);
-	    String& String::append(const char* str, Uint32 size);
-	    static bool String::equalNoCase(const String& s1, const char* s2);
-	    String& operator=(const char* str)
-	    String& String::assign(const char* str)
-	    String& String::append(const char* str)
-	    Boolean operator==(const String& s1, const char* s2)
-	    Boolean operator==(const char* s1, const String& s2)
-	    Boolean operator!=(const String& s1, const char* s2)
-	    Boolean operator!=(const char* s1, const String& s2)
-	    Boolean operator<(const String& s1, const char* s2)
-	    Boolean operator<(const char* s1, const String& s2)
-	    Boolean operator>(const String& s1, const char* s2)
-	    Boolean operator>(const char* s1, const String& s2)
-	    Boolean operator<=(const String& s1, const char* s2)
-	    Boolean operator<=(const char* s1, const String& s2)
-	    Boolean operator>=(const String& s1, const char* s2)
-	    Boolean operator>=(const char* s1, const String& s2)
-	    String operator+(const String& s1, const char* s2)
-	    String operator+(const char* s1, const String& s2)
+            String(const String& s1, const char* s2);
+            String(const char* s1, const String& s2);
+            String& String::operator=(const char* str);
+            Uint32 String::find(const char* s) const;
+            bool String::equal(const String& s1, const char* s2);
+            static int String::compare(const String& s1, const char* s2);
+            String& String::append(const char* str);
+            String& String::append(const char* str, Uint32 size);
+            static bool String::equalNoCase(const String& s1, const char* s2);
+            String& operator=(const char* str)
+            String& String::assign(const char* str)
+            String& String::append(const char* str)
+            Boolean operator==(const String& s1, const char* s2)
+            Boolean operator==(const char* s1, const String& s2)
+            Boolean operator!=(const String& s1, const char* s2)
+            Boolean operator!=(const char* s1, const String& s2)
+            Boolean operator<(const String& s1, const char* s2)
+            Boolean operator<(const char* s1, const String& s2)
+            Boolean operator>(const String& s1, const char* s2)
+            Boolean operator>(const char* s1, const String& s2)
+            Boolean operator<=(const String& s1, const char* s2)
+            Boolean operator<=(const char* s1, const String& s2)
+            Boolean operator>=(const String& s1, const char* s2)
+            Boolean operator>=(const char* s1, const String& s2)
+            String operator+(const String& s1, const char* s2)
+            String operator+(const char* s1, const String& s2)
 
     7.  Optimized _roundUpToPow2(), used in rounding the capacity to the next 
         power of two (algorithm from the book "Hacker's Delight").
 
-	    static Uint32 _roundUpToPow2(Uint32 x)
-	    {
-		if (x < 8)
-		    return 8;
+            static Uint32 _roundUpToPow2(Uint32 x)
+            {
+                if (x < 8)
+                    return 8;
 
-		x--;
-		x |= (x >> 1);
-		x |= (x >> 2);
-		x |= (x >> 4);
-		x |= (x >> 8);
-		x |= (x >> 16);
-		x++;
+                x--;
+                x |= (x >> 1);
+                x |= (x >> 2);
+                x |= (x >> 4);
+                x |= (x >> 8);
+                x |= (x >> 16);
+                x++;
 
-		return x;
-	    }
+                return x;
+            }
 
     8.  Implemented "concatenating constructors" to eliminate temporaries
-	created by operator+(). This scheme employs the "return-value 
-	optimization" described by Stan Lippman.
+        created by operator+(). This scheme employs the "return-value 
+        optimization" described by Stan Lippman.
 
-	    inline String operator+(const String& s1, const String& s2)
-	    {
-		return String(s1, s2, 0);
-	    }
+            inline String operator+(const String& s1, const String& s2)
+            {
+                return String(s1, s2, 0);
+            }
 
     9.  Experimented to find the optimial initial size for a short string.
-	Eight seems to offer the best tradeoff between space and time.
+        Eight seems to offer the best tradeoff between space and time.
 
     10. Inlined all members of the Char16 class.
 
     11. Used Uint16 internally in the String class. This showed no improvememnt
-	since Char16 was already fully inlined and was essentially reduced to
-	Uint16 in any case.
+        since Char16 was already fully inlined and was essentially reduced to
+        Uint16 in any case.
 
     12. Implemented conditional logic (#if) allowing error checking logic to
-	be excluded to better performance. Examples include bounds checking 
-	and null-pointer checking.
+        be excluded to better performance. Examples include bounds checking 
+        and null-pointer checking.
 
     13. Used memcpy() and memcmp() where possible. These are implemented using
-	the rep family of intructions under Intel and are much faster.
+        the rep family of intructions under Intel and are much faster.
 
     14. Used loop unrolling, jump-tables, and short-circuiting to reduce UTF8 
-	copy routine overhead.
+        copy routine overhead.
 
     15. Added ASCII7 form of the constructor and assign().
 
-	    String s("hello world", String::ASCII7);
+            String s("hello world", String::ASCII7);
 
-	    s.assignASCII7("hello world");
+            s.assignASCII7("hello world");
 
-	This avoids slower UTF8 processing when not needed.
+        This avoids slower UTF8 processing when not needed.
 
 ================================================================================
 
 TO-DO:
 
-    (+)	[DONE] Use PEGASUS_USE_EXPERIMENTAL_INTERFACES
+    (+) [DONE] Use PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-    (+)	[DONE] Submit BUG-2754 (Windows buffer limit).
+    (+) [DONE] Submit BUG-2754 (Windows buffer limit).
 
     (+) [DONE] Eliminate char versions of find() and append().
 
@@ -1440,7 +1440,7 @@ TO-DO:
     (+) [DONE] Shorten inclusion of StringInline.h in String.h.
 
     (+) [DONE] Change USE_INTERNAL_INLINE TO DISABLE_INTERNAL_INLINE or get
-	rid of altogether.
+        rid of altogether.
 
     (+) [DONE] useCamelNotationOnAllFunctionNames.
 
@@ -1450,8 +1450,8 @@ TO-DO:
 
     (+) Fix throw-related memory leak.
 
-    (+)	DOC++ String.h
-	
+    (+) DOC++ String.h
+        
     (+) Look at PEP223 for coding security guidelines.
 
     (+) Replace AtomicInt with new Atomic implementation.

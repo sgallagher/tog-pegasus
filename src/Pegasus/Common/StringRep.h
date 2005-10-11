@@ -101,14 +101,14 @@ inline StringRep::~StringRep()
 inline void StringRep::ref(const StringRep* rep)
 {
     if (rep != &StringRep::_emptyRep)
-	Atomic_inc(&((StringRep*)rep)->refs);
+        Atomic_inc(&((StringRep*)rep)->refs);
 }
 
 inline void StringRep::unref(const StringRep* rep)
 {
     if (rep != &StringRep::_emptyRep && 
-	Atomic_dec_and_test(&((StringRep*)rep)->refs))
-	StringRep::free((StringRep*)rep);
+        Atomic_dec_and_test(&((StringRep*)rep)->refs))
+        StringRep::free((StringRep*)rep);
 }
 
 PEGASUS_COMMON_LINKAGE void StrinThrowOutOfBounds();
@@ -121,15 +121,13 @@ PEGASUS_COMMON_LINKAGE Boolean StringEqualNoCase(
 PEGASUS_COMMON_LINKAGE Uint32 StringFindAux(
     const StringRep* _rep, const Char16* s, Uint32 n);
 
-#ifdef PEGASUS_STRING_NO_THROW
-# define _checkBounds(ARG1, ARG2) /* empty */
-#else
 inline void _checkBounds(size_t index, size_t size)
 {
+#ifndef PEGASUS_STRING_NO_THROW
     if (index > size)
-	StrinThrowOutOfBounds();
-}
+        StrinThrowOutOfBounds();
 #endif
+}
 
 PEGASUS_NAMESPACE_END
 

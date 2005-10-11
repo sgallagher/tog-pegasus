@@ -91,7 +91,7 @@ PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i)
     _checkBounds(i, _rep->size);
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copyOnWrite(_rep);
+        _rep = StringRep::copyOnWrite(_rep);
 
     return (Char16&)_rep->data[i]; 
 }
@@ -140,7 +140,7 @@ PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 PEGASUS_STRING_INLINE String& String::append(const Char16& c)
 {
     if (_rep->size == _rep->cap || Atomic_get(&_rep->refs) != 1)
-	StringAppendCharAux(_rep);
+        StringAppendCharAux(_rep);
 
     _rep->data[_rep->size++] = c;
     _rep->data[_rep->size] = 0;
@@ -154,7 +154,7 @@ PEGASUS_STRING_INLINE Boolean String::equalNoCase(
     return equalNoCase_aux(s1, s2);
 #else
     if (s1._rep->size == s2._rep->size)
-	return StringEqualNoCase(s1, s2);
+        return StringEqualNoCase(s1, s2);
 
     return false;
 #endif

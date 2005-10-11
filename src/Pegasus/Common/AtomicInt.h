@@ -98,11 +98,11 @@ PEGASUS_NAMESPACE_END
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include "AtomicInt_LINUX_IX86_GNU.h"
 #elif defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
-# include "AtomicInt_Generic.h"
+# include "AtomicInt_PLATFORM_LINUX_PPC_GNU.h"
 #elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-# include "AtomicInt_Generic.h"
+# include "AtomicInt_PLATFORM_WIN32_IX86_MSVC.h"
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include "AtomicInt_Generic.h"
+# include "AtomicInt_PLATFORM_ZOS_ZSERIES_IBM.h"
 #else
 # include "AtomicInt_Generic.h"
 #endif

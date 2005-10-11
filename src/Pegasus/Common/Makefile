@@ -47,7 +47,6 @@ SOURCES1 = \
     AnonymousPipe.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
-    Atomic.cpp \
     AuthenticationInfoRep.cpp \
     AutoStreamer.cpp \
     Base64.cpp \

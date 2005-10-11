@@ -1557,7 +1557,7 @@ TO-DO:
 
     (+) Replace AtomicInt with new Atomic implementation.
 
-    (+) Put word document into source.
+    (+) Hide appendASCII7() function.
 
 ================================================================================
 */

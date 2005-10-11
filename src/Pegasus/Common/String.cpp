@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Mike Brasher (mbrasher@austin.rr.com)
 //
 // Modified By: 
 //     Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
@@ -561,14 +561,14 @@ inline StringRep* StringRep::alloc(size_t cap)
     StringRep* rep = (StringRep*)::operator new(
         sizeof(StringRep) + cap * sizeof(Uint16));
     rep->cap = cap;
-    Atomic_create(&rep->refs, 1);
+    new(&rep->refs) NewAtomicInt(1);
 
     return rep;
 }
 
 static inline void _reserve(StringRep*& rep, Uint32 cap)
 {
-    if (cap > rep->cap || Atomic_get(&rep->refs) != 1)
+    if (cap > rep->cap || rep->refs.get() != 1)
     {
         size_t n = _roundUpToPow2(cap);
         StringRep* newRep = StringRep::alloc(n);
@@ -768,7 +768,7 @@ String& String::assign(const Char16* str, Uint32 n)
 {
     _checkNullPointer(str);
 
-    if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
+    if (n > _rep->cap || _rep->refs.get() != 1)
     {
         StringRep::unref(_rep);
         _rep = StringRep::alloc(n);
@@ -785,7 +785,7 @@ String& String::assign(const char* str, Uint32 n)
 {
     _checkNullPointer(str);
 
-    if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
+    if (n > _rep->cap || _rep->refs.get() != 1)
     {
         StringRep::unref(_rep);
         _rep = StringRep::alloc(n);
@@ -812,7 +812,7 @@ String& String::assignASCII7(const char* str, Uint32 n)
 {
     _checkNullPointer(str);
 
-    if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
+    if (n > _rep->cap || _rep->refs.get() != 1)
     {
         StringRep::unref(_rep);
         _rep = StringRep::alloc(n);
@@ -828,7 +828,7 @@ void String::clear()
 {
     if (_rep->size)
     {
-        if (Atomic_get(&_rep->refs) == 1)
+        if (_rep->refs.get() == 1)
         {
             _rep->size = 0;
             _rep->data[0] = '\0';
@@ -923,7 +923,7 @@ void String::remove(Uint32 index, Uint32 n)
 
     _checkBounds(index + n, _rep->size);
 
-    if (Atomic_get(&_rep->refs) != 1)
+    if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
     assert(index + n <= _rep->size);
@@ -1035,7 +1035,7 @@ void String::toLower()
 
     if (InitializeICU::initICUSuccessful())
     {
-        if (Atomic_get(&_rep->refs) != 1)
+        if (_rep->refs.get() != 1)
             _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
@@ -1070,7 +1070,7 @@ void String::toLower()
 
 #endif /* PEGASUS_HAS_ICU */
 
-    if (Atomic_get(&_rep->refs) != 1)
+    if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;
@@ -1089,7 +1089,7 @@ void String::toUpper()
 
     if (InitializeICU::initICUSuccessful())
     {
-        if (Atomic_get(&_rep->refs) != 1)
+        if (_rep->refs.get() != 1)
             _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
@@ -1125,7 +1125,7 @@ void String::toUpper()
 
 #endif /* PEGASUS_HAS_ICU */
 
-    if (Atomic_get(&_rep->refs) != 1)
+    if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;

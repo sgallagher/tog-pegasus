@@ -31,86 +31,49 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AtomicInt_h
-#define Pegasus_AtomicInt_h
+#ifndef _Pegasus_Common_AtomicInt_WIN32_IX86_MSVC_h
+#define _Pegasus_Common_AtomicInt_WIN32_IX86_MSVC_h
 
 #include <Pegasus/Common/Config.h>
 
-#ifndef PEGASUS_INTERNALONLY
-# error "ERROR: This header is for internal use only (AtomicInt.h)"
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
-template<class ATOMIC_TYPE>
-class AtomicIntTemplate
+typedef LONG AtomicType;
+
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
-public:
+    _rep = LONG(x);
+}
 
-    // Constructor.
-    AtomicIntTemplate(Uint32 n = 0);
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
 
-    // Destructor.
-    ~AtomicIntTemplate();
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return Uint32(_rep);
+}
 
-    // Sets value.
-    void set(Uint32 n);
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep = LONG(n);
+}
 
-    // Gets value.
-    Uint32 get() const;
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    InterlockedIncrement(&_rep);
+}
 
-    // Increment.
-    void inc();
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    InterlockedDecrement(&_rep);
+}
 
-    // Decrement.
-    void dec();
-
-    // Decrements and returns true if it is zero.
-    bool dec_and_test();
-
-    // Assignment.
-    AtomicIntTemplate& operator=(Uint32 n) { set(n); }
-
-    // Post-increment.
-    void operator++(int) { inc(); }
-
-    // Post-decrement.
-    void operator--(int) { dec(); }
-
-private:
-
-    // Note: These methods are intentionally hidden (and should not be called).
-    // The implementation is much easier without having to implement these for
-    // every platform.
-    AtomicIntTemplate(const AtomicIntTemplate&) { }
-    AtomicIntTemplate& operator=(const AtomicIntTemplate&) { return *this; }
-    Boolean operator==(Uint32) const { return false; }
-    void operator++() { }
-    void operator--() { }
-
-    typedef AtomicIntTemplate<ATOMIC_TYPE> This;
-
-    ATOMIC_TYPE _rep;
-};
+inline bool AtomicIntTemplate<AtomicType>::dec_and_test()
+{
+    return InterlockedDecrement(&_rep) == 0;
+}
 
 PEGASUS_NAMESPACE_END
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-# include "AtomicInt_LINUX_IX86_GNU.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
-# include "AtomicInt_Generic.h"
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-# include "AtomicInt_Generic.h"
-#elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include "AtomicInt_Generic.h"
-#else
-# include "AtomicInt_Generic.h"
-#endif
-
-PEGASUS_NAMESPACE_BEGIN
-
-typedef AtomicIntTemplate<AtomicType> NewAtomicInt;
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_AtomicInt_h */
+#endif /* _Pegasus_Common_AtomicInt_WIN32_IX86_MSVC_h */

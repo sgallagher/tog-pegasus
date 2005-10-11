@@ -43,6 +43,7 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 LIBRARY = pegcommon
 
 SOURCES1 = \
+    AtomicInt.cpp \
     AnonymousPipe.cpp \
     Array.cpp \
     AsyncOpNode.cpp \

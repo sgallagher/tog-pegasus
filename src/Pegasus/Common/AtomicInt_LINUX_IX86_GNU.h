@@ -31,86 +31,65 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AtomicInt_h
-#define Pegasus_AtomicInt_h
+#ifndef _Pegasus_Common_AtomicInt_LINUX_IX86_GNU_h
+#define _Pegasus_Common_AtomicInt_LINUX_IX86_GNU_h
 
 #include <Pegasus/Common/Config.h>
 
-#ifndef PEGASUS_INTERNALONLY
-# error "ERROR: This header is for internal use only (AtomicInt.h)"
-#endif
-
 PEGASUS_NAMESPACE_BEGIN
 
-template<class ATOMIC_TYPE>
-class AtomicIntTemplate
+struct AtomicType
 {
-public:
-
-    // Constructor.
-    AtomicIntTemplate(Uint32 n = 0);
-
-    // Destructor.
-    ~AtomicIntTemplate();
-
-    // Sets value.
-    void set(Uint32 n);
-
-    // Gets value.
-    Uint32 get() const;
-
-    // Increment.
-    void inc();
-
-    // Decrement.
-    void dec();
-
-    // Decrements and returns true if it is zero.
-    bool dec_and_test();
-
-    // Assignment.
-    AtomicIntTemplate& operator=(Uint32 n) { set(n); }
-
-    // Post-increment.
-    void operator++(int) { inc(); }
-
-    // Post-decrement.
-    void operator--(int) { dec(); }
-
-private:
-
-    // Note: These methods are intentionally hidden (and should not be called).
-    // The implementation is much easier without having to implement these for
-    // every platform.
-    AtomicIntTemplate(const AtomicIntTemplate&) { }
-    AtomicIntTemplate& operator=(const AtomicIntTemplate&) { return *this; }
-    Boolean operator==(Uint32) const { return false; }
-    void operator++() { }
-    void operator--() { }
-
-    typedef AtomicIntTemplate<ATOMIC_TYPE> This;
-
-    ATOMIC_TYPE _rep;
+    volatile int n; 
 };
 
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    asm volatile(
+	"lock ; incl %0"
+	:"=m" (_rep.n)
+	:"m" (_rep.n));
+}
+
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    asm volatile(
+        "lock decl %0"
+        :"=m" (_rep.n)
+        :"m" (_rep.n));
+}
+
+inline bool AtomicIntTemplate<AtomicType>::dec_and_test()
+{
+    unsigned char c;
+
+    asm volatile(
+	"lock ; decl %0; sete %1"
+	:"=m" (_rep.n), "=qm" (c)
+	:"m" (_rep.n) : "memory");
+
+    return c != 0;
+}
+
 PEGASUS_NAMESPACE_END
 
-#if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
-# include "AtomicInt_LINUX_IX86_GNU.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
-# include "AtomicInt_Generic.h"
-#elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-# include "AtomicInt_Generic.h"
-#elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include "AtomicInt_Generic.h"
-#else
-# include "AtomicInt_Generic.h"
-#endif
-
-PEGASUS_NAMESPACE_BEGIN
-
-typedef AtomicIntTemplate<AtomicType> NewAtomicInt;
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_AtomicInt_h */
+#endif /* _Pegasus_Common_AtomicInt_LINUX_IX86_GNU_h */

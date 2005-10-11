@@ -52,7 +52,7 @@ struct StringRep
 
     static StringRep* createASCII7(const char* data, size_t size);
 
-    static StringRep* copy_on_write(StringRep* rep);
+    static StringRep* copyOnWrite(StringRep* rep);
 
     static Uint32 length(const Uint16* str);
 
@@ -60,7 +60,7 @@ struct StringRep
 
     static void unref(const StringRep* rep);
 
-    static StringRep _empty_rep;
+    static StringRep _emptyRep;
 
     // Number of characters in this string, excluding the null terminator.
     size_t size;
@@ -85,7 +85,7 @@ inline void StringRep::free(StringRep* rep)
 
 inline StringRep::StringRep() : size(0), cap(0)
 {
-    // Only called on _empty_rep. We set the reference count to two to
+    // Only called on _emptyRep. We set the reference count to two to
     // keep a String from modifying it (if the reference count were one,
     // a string would think it was the sole owner of the StringRep object).
     Atomic_create(&refs, 2);
@@ -94,40 +94,40 @@ inline StringRep::StringRep() : size(0), cap(0)
 
 inline StringRep::~StringRep()
 {
-    // Only called on _empty_rep.
+    // Only called on _emptyRep.
     Atomic_destroy(&refs);
 }
 
 inline void StringRep::ref(const StringRep* rep)
 {
-    if (rep != &StringRep::_empty_rep)
+    if (rep != &StringRep::_emptyRep)
 	Atomic_inc(&((StringRep*)rep)->refs);
 }
 
 inline void StringRep::unref(const StringRep* rep)
 {
-    if (rep != &StringRep::_empty_rep && 
+    if (rep != &StringRep::_emptyRep && 
 	Atomic_dec_and_test(&((StringRep*)rep)->refs))
 	StringRep::free((StringRep*)rep);
 }
 
-PEGASUS_COMMON_LINKAGE void String_throw_out_of_bounds();
+PEGASUS_COMMON_LINKAGE void StrinThrowOutOfBounds();
 
-PEGASUS_COMMON_LINKAGE void String_append_char_aux(StringRep*& _rep);
+PEGASUS_COMMON_LINKAGE void StringAppendCharAux(StringRep*& _rep);
 
-PEGASUS_COMMON_LINKAGE Boolean String_equalNoCase_aux(
+PEGASUS_COMMON_LINKAGE Boolean StringEqualNoCase(
     const String& s1, const String& s2);
 
-PEGASUS_COMMON_LINKAGE Uint32 String_find_aux(
+PEGASUS_COMMON_LINKAGE Uint32 StringFindAux(
     const StringRep* _rep, const Char16* s, Uint32 n);
 
 #ifdef PEGASUS_STRING_NO_THROW
-# define _check_bounds(ARG1, ARG2) /* empty */
+# define _checkBounds(ARG1, ARG2) /* empty */
 #else
-inline void _check_bounds(size_t index, size_t size)
+inline void _checkBounds(size_t index, size_t size)
 {
     if (index > size)
-	String_throw_out_of_bounds();
+	StrinThrowOutOfBounds();
 }
 #endif
 

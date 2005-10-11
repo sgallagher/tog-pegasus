@@ -66,7 +66,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //==============================================================================
 
-const Uint8 _to_upper_tbl[256] = 
+const Uint8 _toUpperTable[256] = 
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -102,7 +102,7 @@ const Uint8 _to_upper_tbl[256] =
     0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
 };
 
-const Uint8 _to_lower_tbl[256] = 
+const Uint8 _toLowerTable[256] = 
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -139,20 +139,23 @@ const Uint8 _to_lower_tbl[256] =
 };
 
 // Converts 16-bit characters to upper case.
-inline Uint16 _to_upper(Uint16 x)
+inline Uint16 _toUpper(Uint16 x)
 {
-    return (x & 0xFF00) ? x : _to_upper_tbl[x];
+    return (x & 0xFF00) ? x : _toUpperTable[x];
 }
 
 // Converts 16-bit characters to lower case.
-inline Uint16 _to_lower(Uint16 x)
+inline Uint16 _toLower(Uint16 x)
 {
-    return (x & 0xFF00) ? x : _to_lower_tbl[x];
+    return (x & 0xFF00) ? x : _toLowerTable[x];
 }
 
-// Rounds x to the next power of two (or just returns 8 if x < 8).
+// Rounds x up to the nearest power of two (or just returns 8 if x < 8).
 static Uint32 _roundUpToPow2(Uint32 x)
 {
+    if (x > 0x0FFFFFFF)
+	throw PEGASUS_STD(bad_alloc)();
+
     if (x < 8)
 	return 8;
 
@@ -260,7 +263,7 @@ static int _compare(const Uint16* s1, const Uint16* s2)
     return 0;
 }
 
-static int _compare_no_utf8(const Uint16* s1, const char* s2)
+static int _compareNoUTF8(const Uint16* s1, const char* s2)
 {
     Uint16 c1;
     Uint16 c2;
@@ -295,23 +298,23 @@ static inline void _copy(Uint16* s1, const Uint16* s2, size_t n)
     memcpy(s1, s2, n * sizeof(Uint16));
 }
 
-void String_throw_out_of_bounds()
+void StrinThrowOutOfBounds()
 {
     throw IndexOutOfBoundsException();
 }
 
 #ifdef PEGASUS_STRING_NO_THROW
-# define _check_null_pointer(ARG) /* empty */
+# define _checkNullPointer(ARG) /* empty */
 #else
 template<class T>
-inline void _check_null_pointer(const T* ptr)
+inline void _checkNullPointer(const T* ptr)
 {
     if (!ptr)
 	throw NullPointer();
 }
 #endif
 
-static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
+static size_t _copyFromUTF8(Uint16* dest, const char* src, size_t n)
 {
     Uint16* p = dest;
     const Uint8* q = (const Uint8*)src;
@@ -409,7 +412,7 @@ static size_t _copy_from_utf8(Uint16* dest, const char* src, size_t n)
 
 // Note: dest must be at least three times src (plus an extra byte for 
 // terminator).
-static inline size_t _copy_to_utf8(char* dest, const Uint16* src, size_t n)
+static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
 {
     const Uint16* q = src;
     Uint8* p = (Uint8*)dest;
@@ -468,7 +471,7 @@ static inline size_t _convert(Uint16* p, const char* q, size_t n)
     _copy(p, q, n);
     return n;
 #else
-    return _copy_from_utf8(p, q, n);
+    return _copyFromUTF8(p, q, n);
 #endif
 }
 
@@ -515,10 +518,14 @@ CString& CString::operator=(const CString& cstr)
 //
 //==============================================================================
 
-StringRep StringRep::_empty_rep;
+StringRep StringRep::_emptyRep;
 
 inline StringRep* StringRep::alloc(size_t cap)
 {
+    // Any string bigger than this is seriously suspect.
+    if (cap > 0x0FFFFFFF)
+	throw PEGASUS_STD(bad_alloc)();
+
     StringRep* rep = (StringRep*)::operator new(
 	sizeof(StringRep) + cap * sizeof(Uint16));
     rep->cap = cap;
@@ -532,11 +539,11 @@ static inline void _reserve(StringRep*& rep, Uint32 cap)
     if (cap > rep->cap || Atomic_get(&rep->refs) != 1)
     {
 	size_t n = _roundUpToPow2(cap);
-	StringRep* new_rep = StringRep::alloc(n);
-	new_rep->size = rep->size;
-	_copy(new_rep->data, rep->data, rep->size + 1);
+	StringRep* newRep = StringRep::alloc(n);
+	newRep->size = rep->size;
+	_copy(newRep->data, rep->data, rep->size + 1);
 	StringRep::unref(rep);
-	rep = new_rep;
+	rep = newRep;
     }
 }
 
@@ -549,16 +556,16 @@ StringRep* StringRep::create(const Uint16* data, size_t size)
     return rep;
 }
 
-StringRep* StringRep::copy_on_write(StringRep* rep)
+StringRep* StringRep::copyOnWrite(StringRep* rep)
 {
     // Return a new copy of rep. Release rep.
 
-    StringRep* new_rep = StringRep::alloc(rep->size);
-    new_rep->size = rep->size;
-    _copy(new_rep->data, rep->data, rep->size);
-    new_rep->data[new_rep->size] = '\0';
+    StringRep* newRep = StringRep::alloc(rep->size);
+    newRep->size = rep->size;
+    _copy(newRep->data, rep->data, rep->size);
+    newRep->data[newRep->size] = '\0';
     StringRep::unref(rep);
-    return new_rep;
+    return newRep;
 }
 
 StringRep* StringRep::create(const char* data, size_t size)
@@ -600,43 +607,43 @@ const String String::EMPTY;
 
 String::String(const String& str, Uint32 n)
 {
-    _check_bounds(n, str._rep->size);
+    _checkBounds(n, str._rep->size);
     _rep = StringRep::create(str._rep->data, n);
 }
 
 String::String(const Char16* str)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
     _rep = StringRep::create((Uint16*)str, StringRep::length((Uint16*)str));
 }
 
 String::String(const Char16* str, Uint32 n)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
     _rep = StringRep::create((Uint16*)str, n);
 }
 
 String::String(const char* str)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
     _rep = StringRep::create(str, strlen(str));
 }
 
 String::String(const char* str, String::ASCII7Tag tag)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
     _rep = StringRep::createASCII7(str, strlen(str));
 }
 
 String::String(const char* str, Uint32 n)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
     _rep = StringRep::create(str, n);
 }
 
 String::String(const char* str, size_t n, String::ASCII7Tag tag)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
     _rep = StringRep::createASCII7(str, n);
 }
 
@@ -654,7 +661,7 @@ String::String(const String& s1, const String& s2)
 
 String::String(const String& s1, const char* s2)
 {
-    _check_null_pointer(s2);
+    _checkNullPointer(s2);
     size_t n1 = s1._rep->size;
     size_t n2 = strlen(s2);
     _rep = StringRep::alloc(n1 + n2);
@@ -665,7 +672,7 @@ String::String(const String& s1, const char* s2)
 
 String::String(const char* s1, const String& s2)
 {
-    _check_null_pointer(s1);
+    _checkNullPointer(s1);
     size_t n1 = strlen(s1);
     size_t n2 = s2._rep->size;
     _rep = StringRep::alloc(n1 + n2);
@@ -687,7 +694,7 @@ String& String::assign(const String& str)
 
 String& String::assign(const Char16* str, Uint32 n)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
 
     if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
     {
@@ -704,7 +711,7 @@ String& String::assign(const Char16* str, Uint32 n)
 
 String& String::assign(const char* str, Uint32 n)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
 
     if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
     {
@@ -720,7 +727,7 @@ String& String::assign(const char* str, Uint32 n)
 
 String& String::assignASCII7(const char* str, Uint32 n)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
 
     if (n > _rep->cap || Atomic_get(&_rep->refs) != 1)
     {
@@ -746,7 +753,7 @@ void String::clear()
 	else
 	{
 	    StringRep::unref(_rep);
-	    _rep = &StringRep::_empty_rep;
+	    _rep = &StringRep::_emptyRep;
 	}
     }
 }
@@ -766,7 +773,7 @@ CString String::getCString() const
 #else
     Uint32 n = 3 * _rep->size;
     char* str = (char*)operator new(n + 1);
-    size_t size = _copy_to_utf8(str, _rep->data, _rep->size);
+    size_t size = _copyToUTF8(str, _rep->data, _rep->size);
     str[size] = '\0';
     return CString(str);
 #endif
@@ -774,14 +781,14 @@ CString String::getCString() const
 
 String& String::append(const Char16* str, Uint32 n)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
 
-    size_t old_size = _rep->size;
-    size_t new_size = old_size + n;
-    _reserve(_rep, new_size);
-    _copy(_rep->data + old_size, (Uint16*)str, n);
-    _rep->size = new_size;
-    _rep->data[new_size] = '\0';
+    size_t oldSize = _rep->size;
+    size_t newSize = oldSize + n;
+    _reserve(_rep, newSize);
+    _copy(_rep->data + oldSize, (Uint16*)str, n);
+    _rep->size = newSize;
+    _rep->data[newSize] = '\0';
 
     return *this;
 }
@@ -793,13 +800,13 @@ String& String::append(const String& str)
 
 String& String::append(const char* str, Uint32 size)
 {
-    _check_null_pointer(str);
+    _checkNullPointer(str);
 
-    size_t old_size = _rep->size;
-    size_t cap = old_size + size;
+    size_t oldSize = _rep->size;
+    size_t cap = oldSize + size;
 
     _reserve(_rep, cap);
-    _rep->size += _convert((Uint16*)_rep->data + old_size, str, size);
+    _rep->size += _convert((Uint16*)_rep->data + oldSize, str, size);
     _rep->data[_rep->size] = '\0';
 
     return *this;
@@ -810,10 +817,10 @@ void String::remove(Uint32 index, Uint32 n)
     if (n == PEG_NOT_FOUND)
         n = _rep->size - index;
 
-    _check_bounds(index + n, _rep->size);
+    _checkBounds(index + n, _rep->size);
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copy_on_write(_rep);
+	_rep = StringRep::copyOnWrite(_rep);
 
     assert(index + n <= _rep->size);
 
@@ -855,7 +862,7 @@ Uint32 String::find(Char16 c) const
 
 Uint32 String::find(Uint32 index, Char16 c) const
 {
-    _check_bounds(index, _rep->size);
+    _checkBounds(index, _rep->size);
 
     if (index >= _rep->size)
 	return PEG_NOT_FOUND;
@@ -868,10 +875,10 @@ Uint32 String::find(Uint32 index, Char16 c) const
     return PEG_NOT_FOUND;
 }
 
-Uint32 String_find_aux(
+Uint32 StringFindAux(
     const StringRep* _rep, const Char16* s, Uint32 n)
 {
-    _check_null_pointer(s);
+    _checkNullPointer(s);
 
     const Uint16* data = _rep->data;
     size_t rem = _rep->size;
@@ -896,7 +903,7 @@ Uint32 String_find_aux(
 
 Uint32 String::find(const char* s) const
 {
-    _check_null_pointer(s);
+    _checkNullPointer(s);
 
     // Note: could optimize away creation of temporary, but this is rarely
     // called.
@@ -925,7 +932,7 @@ void String::toLower()
     if (InitializeICU::initICUSuccessful())
     {
         if (Atomic_get(&_rep->refs) != 1)
-	        _rep = StringRep::copy_on_write(_rep);
+	    _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
         // Since context-sensitive casing looks at adjacent chars, this 
@@ -938,29 +945,29 @@ void String::toLower()
 
         UErrorCode err = U_ZERO_ERROR;
 
-        int32_t new_size = u_strToLower(
+        int32_t newSize = u_strToLower(
 	    NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
         
         err = U_ZERO_ERROR;
 
 	//// Reserve enough space for the result.
 
-	if ((Uint32)new_size > _rep->cap)
-	    _reserve(_rep, new_size);
+	if ((Uint32)newSize > _rep->cap)
+	    _reserve(_rep, newSize);
 
 	//// Perform the conversion (overlapping buffers are allowed).
 
-        u_strToLower((UChar*)_rep->data, new_size,
+        u_strToLower((UChar*)_rep->data, newSize,
 	    (UChar*)_rep->data, _rep->size, NULL, &err);
 
-	_rep->size = new_size;
+	_rep->size = newSize;
 	return;
     }
 
 #endif /* PEGASUS_HAS_ICU */
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copy_on_write(_rep);
+	_rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;
     size_t n = _rep->size;
@@ -968,7 +975,7 @@ void String::toLower()
     for (; n--; p++)
     {
 	if (!(*p & 0xFF00))
-	    *p = _to_lower(*p);
+	    *p = _toLower(*p);
     }
 }
 
@@ -979,7 +986,7 @@ void String::toUpper()
     if (InitializeICU::initICUSuccessful())
     {
         if (Atomic_get(&_rep->refs) != 1)
-	    _rep = StringRep::copy_on_write(_rep);
+	    _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
         // Since context-sensitive casing looks at adjacent chars, this 
@@ -992,22 +999,22 @@ void String::toUpper()
 
         UErrorCode err = U_ZERO_ERROR;
 
-        int32_t new_size = u_strToUpper(
+        int32_t newSize = u_strToUpper(
 	    NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
 
         err = U_ZERO_ERROR;
 
 	//// Reserve enough space for the result.
 
-	if ((Uint32)new_size > _rep->cap)
-	    _reserve(_rep, new_size);
+	if ((Uint32)newSize > _rep->cap)
+	    _reserve(_rep, newSize);
 
 	//// Perform the conversion (overlapping buffers are allowed).
 
-        u_strToUpper((UChar*)_rep->data, new_size,
+        u_strToUpper((UChar*)_rep->data, newSize,
 	    (UChar*)_rep->data, _rep->size, NULL, &err);
 
-	_rep->size = new_size;
+	_rep->size = newSize;
 
 	return;
     }
@@ -1015,13 +1022,13 @@ void String::toUpper()
 #endif /* PEGASUS_HAS_ICU */
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copy_on_write(_rep);
+	_rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;
     size_t n = _rep->size;
 
     for (; n--; p++)
-	*p = _to_upper(*p);
+	*p = _toUpper(*p);
 }
 
 int String::compare(const String& s1, const String& s2, Uint32 n)
@@ -1040,10 +1047,10 @@ int String::compare(const String& s1, const String& s2)
 
 int String::compare(const String& s1, const char* s2)
 {
-    _check_null_pointer(s2);
+    _checkNullPointer(s2);
 
 #ifdef PEGASUS_STRING_NO_UTF8
-    return _compare_no_utf8(s1._rep->data, s2);
+    return _compareNoUTF8(s1._rep->data, s2);
 #else
     // ATTN: optimize this!
     return String::compare(s1, String(s2));
@@ -1067,7 +1074,7 @@ int String::compareNoCase(const String& str1, const String& str2)
 
     while (*s1 && *s2)
     {
-        int r = _to_lower(*s1++) - _to_lower(*s2++);
+        int r = _toLower(*s1++) - _toLower(*s2++);
 
         if (r)
             return r;
@@ -1081,7 +1088,7 @@ int String::compareNoCase(const String& str1, const String& str2)
     return 0;
 }
 
-Boolean String_equalNoCase_aux(const String& s1, const String& s2)
+Boolean StringEqualNoCase(const String& s1, const String& s2)
 {
 #ifdef PEGASUS_HAS_ICU
 
@@ -1095,14 +1102,14 @@ Boolean String_equalNoCase_aux(const String& s1, const String& s2)
 
     while (n >= 8)
     {
-	if (((p[0] - q[0]) && (_to_upper(p[0]) - _to_upper(q[0]))) ||
-	    ((p[1] - q[1]) && (_to_upper(p[1]) - _to_upper(q[1]))) ||
-	    ((p[2] - q[2]) && (_to_upper(p[2]) - _to_upper(q[2]))) ||
-	    ((p[3] - q[3]) && (_to_upper(p[3]) - _to_upper(q[3]))) ||
-	    ((p[4] - q[4]) && (_to_upper(p[4]) - _to_upper(q[4]))) ||
-	    ((p[5] - q[5]) && (_to_upper(p[5]) - _to_upper(q[5]))) ||
-	    ((p[6] - q[6]) && (_to_upper(p[6]) - _to_upper(q[6]))) ||
-	    ((p[7] - q[7]) && (_to_upper(p[7]) - _to_upper(q[7]))))
+	if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))) ||
+	    ((p[1] - q[1]) && (_toUpper(p[1]) - _toUpper(q[1]))) ||
+	    ((p[2] - q[2]) && (_toUpper(p[2]) - _toUpper(q[2]))) ||
+	    ((p[3] - q[3]) && (_toUpper(p[3]) - _toUpper(q[3]))) ||
+	    ((p[4] - q[4]) && (_toUpper(p[4]) - _toUpper(q[4]))) ||
+	    ((p[5] - q[5]) && (_toUpper(p[5]) - _toUpper(q[5]))) ||
+	    ((p[6] - q[6]) && (_toUpper(p[6]) - _toUpper(q[6]))) ||
+	    ((p[7] - q[7]) && (_toUpper(p[7]) - _toUpper(q[7]))))
 	{
 	    return false;
 	}
@@ -1114,10 +1121,10 @@ Boolean String_equalNoCase_aux(const String& s1, const String& s2)
 
     while (n >= 4)
     {
-	if (((p[0] - q[0]) && (_to_upper(p[0]) - _to_upper(q[0]))) ||
-	    ((p[1] - q[1]) && (_to_upper(p[1]) - _to_upper(q[1]))) ||
-	    ((p[2] - q[2]) && (_to_upper(p[2]) - _to_upper(q[2]))) ||
-	    ((p[3] - q[3]) && (_to_upper(p[3]) - _to_upper(q[3]))))
+	if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))) ||
+	    ((p[1] - q[1]) && (_toUpper(p[1]) - _toUpper(q[1]))) ||
+	    ((p[2] - q[2]) && (_toUpper(p[2]) - _toUpper(q[2]))) ||
+	    ((p[3] - q[3]) && (_toUpper(p[3]) - _toUpper(q[3]))))
 	{
 	    return false;
 	}
@@ -1129,7 +1136,7 @@ Boolean String_equalNoCase_aux(const String& s1, const String& s2)
 
     while (n--)
     {
-	if (((p[0] - q[0]) && (_to_upper(p[0]) - _to_upper(q[0]))))
+	if (((p[0] - q[0]) && (_toUpper(p[0]) - _toUpper(q[0]))))
 	    return false;
 
 	p++;
@@ -1143,7 +1150,7 @@ Boolean String_equalNoCase_aux(const String& s1, const String& s2)
 
 Boolean String::equalNoCase(const String& s1, const char* s2)
 {
-    _check_null_pointer(s2);
+    _checkNullPointer(s2);
 
 #if defined(PEGASUS_HAS_ICU)
 
@@ -1160,7 +1167,7 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 	if (!*p2)
 	    return false;
 
-	if (_to_upper(*p1++) != _to_upper_tbl[int(*p2++)])
+	if (_toUpper(*p1++) != _toUpperTable[int(*p2++)])
 	    return false;
     }
 
@@ -1187,7 +1194,7 @@ Boolean String::equal(const String& s1, const char* s2)
 {
 #ifdef PEGASUS_STRING_NO_UTF8
 
-    _check_null_pointer(s2);
+    _checkNullPointer(s2);
 
     const Uint16* p = (Uint16*)s1._rep->data;
     const char* q = s2;
@@ -1255,7 +1262,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
 #endif // PEGASUS_OS_OS400
 }
 
-void String_append_char_aux(StringRep*& _rep)
+void StringAppendCharAux(StringRep*& _rep)
 {
     StringRep* tmp;
 
@@ -1298,7 +1305,7 @@ String optimizations:
 	GCC Developers Summit). This reduced default construction to a simple
 	pointer assignment.
 
-	    inline String::String() : _rep(&_empty_rep) { }
+	    inline String::String() : _rep(&_emptyRep) { }
 
     5.  Implemented Uint16 versions of toupper() and tolower() using tables.
 	For example:
@@ -1308,7 +1315,7 @@ String optimizations:
 		0,1,2,...255
 	    };
 
-	    inline Uint16 _to_upper(Uint16 x)
+	    inline Uint16 _toUpper(Uint16 x)
 	    {
 		return (x & 0xFF00) ? x : _upper[x];
 	    }
@@ -1427,11 +1434,11 @@ TO-DO:
     (+) [DONE] Change USE_INTERNAL_INLINE TO DISABLE_INTERNAL_INLINE or get
 	rid of altogether.
 
+    (+) [DONE] useCamelNotationOnAllFunctionNames.
+
     -----------
 
     (+) Check for overlow condition in StringRep::alloc().
-
-    (+) useCamelNotationOnAllFunctionNames.
 
     (+) Fix throw-related memory leak.
 
@@ -1439,7 +1446,7 @@ TO-DO:
 	
     (+) Look at PEP223 for coding security guidelines.
 
-    (+) Rework AtomicInt (put into AtomicInt.h).
+    (+) Replace AtomicInt with new Atomic implementation.
 
     (+) Implement Atomic operations for HP.
 

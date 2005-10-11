@@ -1215,6 +1215,18 @@ int main(int argc, char** argv)
 	assert(s.subString(13, 0) == "");
     }
 
+    // Overflow
+    bool caught_bad_alloc = false;
+    try
+    {
+	String s("junk", Uint32(0xFFFFFFFF));
+    }
+    catch(...)
+    {
+	caught_bad_alloc = true;
+    }
+    assert(caught_bad_alloc);
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

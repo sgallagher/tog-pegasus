@@ -63,7 +63,7 @@ PEGASUS_STRING_INLINE CString::operator const char*() const
 
 PEGASUS_STRING_INLINE String::String()
 {
-    _rep = &StringRep::_empty_rep;
+    _rep = &StringRep::_emptyRep;
 }
 
 PEGASUS_STRING_INLINE String::String(const String& str)
@@ -88,17 +88,17 @@ PEGASUS_STRING_INLINE const Char16* String::getChar16Data() const
 
 PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i) 
 {
-    _check_bounds(i, _rep->size);
+    _checkBounds(i, _rep->size);
 
     if (Atomic_get(&_rep->refs) != 1)
-	_rep = StringRep::copy_on_write(_rep);
+	_rep = StringRep::copyOnWrite(_rep);
 
     return (Char16&)_rep->data[i]; 
 }
 
 PEGASUS_STRING_INLINE const Char16 String::operator[](Uint32 i) const 
 {
-    _check_bounds(i, _rep->size);
+    _checkBounds(i, _rep->size);
     return (Char16&)_rep->data[i]; 
 }
 
@@ -134,13 +134,13 @@ PEGASUS_STRING_INLINE String& String::assignASCII7(const char* str)
 
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 {
-    return String_find_aux(_rep, (Char16*)s._rep->data, s._rep->size);
+    return StringFindAux(_rep, (Char16*)s._rep->data, s._rep->size);
 }
 
 PEGASUS_STRING_INLINE String& String::append(const Char16& c)
 {
     if (_rep->size == _rep->cap || Atomic_get(&_rep->refs) != 1)
-	String_append_char_aux(_rep);
+	StringAppendCharAux(_rep);
 
     _rep->data[_rep->size++] = c;
     _rep->data[_rep->size] = 0;
@@ -151,10 +151,10 @@ PEGASUS_STRING_INLINE Boolean String::equalNoCase(
     const String& s1, const String& s2)
 {
 #ifdef PEGASUS_HAS_ICU
-	return equalNoCase_aux(s1, s2);
+    return equalNoCase_aux(s1, s2);
 #else
     if (s1._rep->size == s2._rep->size)
-	return String_equalNoCase_aux(s1, s2);
+	return StringEqualNoCase(s1, s2);
 
     return false;
 #endif

@@ -229,11 +229,11 @@ String System::getFullyQualifiedHostName()
   struct hostent *he;
   String fqName;
 
-  if (gethostname(hostName, sizeof(hostname)) != 0)
+  if (gethostname(hostName, sizeof(hostName)) != 0)
   {
   return String::EMPTY;
   }
-  hostname[sizeof(hostname)-1] = 0;
+  hostName[sizeof(hostName)-1] = 0;
 
   if (he = gethostbyname(hostName))
   {

@@ -819,49 +819,46 @@ int main(int argc, char** argv)
 
     // string()
     {
-	string s;
+	String s;
 	assert(s.size() == 0);
 	assert(s[0] == '\0');
     }
 
-    // string(const string& s)
+    // String(const String& s)
     {
-	const string s("hello");
-	const string t = s;
+	const String s("hello");
+	const String t = s;
 	assert(s.size() == strlen("hello"));
 	assert(s == "hello");
 	assert(t.size() == strlen("hello"));
 	assert(t == "hello");
     }
 
-    // string(const char*)
+    // String(const char*)
     {
-	const string s("hello");
+	const String s("hello");
 	assert(s.size() == strlen("hello"));
 	assert(s == "hello");
     }
 
     // reserve()
     {
-	string s;
-	s.reserve(100);
+	String s;
+	s.reserveCapacity(100);
 	assert(s.size() == 0);
-	assert(s.capacity() >= 100);
+	// assert(s.getCapacity() >= 100);
 
-	string t("hello world");
-	assert(t.capacity() >= t.size());
+	String t("hello world");
 	assert(t.size() == strlen("hello world"));
-	t.reserve(500);
-	assert(t.capacity() >= t.size());
-	assert(t.capacity() >= 500);
+	t.reserveCapacity(500);
 	assert(t.size() == strlen("hello world"));
 	assert(t == "hello world");
     }
 
-    // assign(const string&)
+    // assign(const String&)
     {
-	string s("this is a test");
-	string t;
+	String s("this is a test");
+	String t;
 
 	t = s;
 	assert(s.size() == strlen("this is a test"));
@@ -880,12 +877,12 @@ int main(int argc, char** argv)
     {
 	const char MESSAGE[] = "x";
 	const size_t LENGTH = sizeof(MESSAGE) - 1;
-	string s;
+	String s;
 	s.assign(MESSAGE, LENGTH);
 	assert(s.size() == LENGTH);
 	assert(s == MESSAGE);
 
-	string t("dummy", 5);
+	String t("dummy", 5);
 	t.assign(MESSAGE, LENGTH);
 	assert(t.size() == LENGTH);
 	assert(t == MESSAGE);
@@ -895,37 +892,37 @@ int main(int argc, char** argv)
     {
 	const char MESSAGE[] = "x";
 	const size_t LENGTH = sizeof(MESSAGE) - 1;
-	string s;
+	String s;
 	s.assign(MESSAGE);
 	assert(s.size() == LENGTH);
 	assert(s == MESSAGE);
 
-	string t("dummy", 5);
+	String t("dummy", 5);
 	t.assign(MESSAGE);
 	assert(t.size() == LENGTH);
 	assert(t == MESSAGE);
     }
 
-    // append(const string&)
+    // append(const String&)
     {
-	string s;
+	String s;
 
-	s.append(string("xxx"));
+	s.append(String("xxx"));
 	assert(s.size() == 3);
 	assert(s == "xxx");
 
-	s.append(string("yyy"));
+	s.append(String("yyy"));
 	assert(s.size() == 6);
 	assert(s == "xxxyyy");
 
-	s.append(string("zzz"));
+	s.append(String("zzz"));
 	assert(s.size() == 9);
 	assert(s == "xxxyyyzzz");
     }
 
     // append(const char*)
     {
-	string s;
+	String s;
 
 	s.append("xxx");
 	assert(s.size() == 3);
@@ -942,7 +939,7 @@ int main(int argc, char** argv)
 
     // append(const char*)
     {
-	string s;
+	String s;
 
 	s.append("xxx");
 	assert(s.size() == 3);

@@ -630,7 +630,7 @@ PEGASUS_COMMON_LINKAGE String operator+(const char* s1, const String& s2);
 
 PEGASUS_NAMESPACE_END
 
-#if defined(PEGASUS_INTERNALONLY)
+#if defined(PEGASUS_INTERNALONLY) && defined(PEGASUS_HAVE_INTERNAL_INLINES)
 # include "StringInline.h"
 #endif
 

@@ -699,11 +699,10 @@ String SLPProvider::getRegisteredProfileList()
 
 
         CIMConstProperty RN_Property = cimInstances[i].getProperty(index_RN);
-        CIMName RN_PropertyName = RN_Property.getName();
 
         regitem.append(RegOrg);
         regitem.append(":");
-        regitem.append(RN_PropertyName.getString());
+        regitem.append(RN_Property.getValue().toString());
         regarray.append(regitem);
         regitem.clear();
         j++;

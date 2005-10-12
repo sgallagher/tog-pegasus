@@ -603,7 +603,7 @@ StringRep* StringRep::copyOnWrite(StringRep* rep)
 StringRep* StringRep::create(const char* data, size_t size)
 {
     StringRep* rep = StringRep::alloc(size);
-    Uint32 utf8_error_index;
+    size_t utf8_error_index;
     rep->size = _convert((Uint16*)rep->data, data, size, utf8_error_index);
 
 #ifndef PEGASUS_STRING_NO_THROW

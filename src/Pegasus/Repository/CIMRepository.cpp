@@ -3060,7 +3060,9 @@ CIMValue CIMRepository::getProperty(
     if (pos == PEG_NOT_FOUND)
     {
         PEG_METHOD_EXIT();
-        throw PEGASUS_CIM_EXCEPTION(CIM_ERR_NO_SUCH_PROPERTY, "getProperty()");
+        throw PEGASUS_CIM_EXCEPTION(
+            CIM_ERR_NO_SUCH_PROPERTY,
+            propertyName.getString());
     }
 
     CIMProperty prop = cimInstance.getProperty(pos);

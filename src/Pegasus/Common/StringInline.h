@@ -128,13 +128,6 @@ PEGASUS_STRING_INLINE String& String::assign(const char* str)
     return assign(str, strlen(str));
 }
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-PEGASUS_STRING_INLINE String& String::assignASCII7(const char* str)
-{
-    return assignASCII7(str, strlen(str));
-}
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
-
 PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 {
     return StringFindAux(_rep, (Char16*)s._rep->data, s._rep->size);

@@ -619,14 +619,6 @@ StringRep* StringRep::create(const char* data, size_t size)
     return rep;
 }
 
-StringRep* StringRep::createASCII7(const char* data, size_t size)
-{
-    StringRep* rep = StringRep::alloc(size);
-    _copy((Uint16*)rep->data, data, size);
-    rep->data[rep->size = size] = '\0';
-    return rep;
-}
-
 Uint32 StringRep::length(const Uint16* str)
 {
     // Note: We could unroll this but it is rarely called.
@@ -674,12 +666,6 @@ String::String(const char* str)
     _rep = StringRep::create(str, strlen(str));
 }
 
-String::String(const char* str, String::ASCII7Tag tag)
-{
-    _checkNullPointer(str);
-    _rep = StringRep::createASCII7(str, strlen(str));
-}
-
 String::String(const char* str, Uint32 n)
 {
     _checkNullPointer(str);
@@ -687,12 +673,6 @@ String::String(const char* str, Uint32 n)
     // Set this just in case create() throws an exception.
     _rep = &StringRep::_emptyRep;
     _rep = StringRep::create(str, n);
-}
-
-String::String(const char* str, size_t n, String::ASCII7Tag tag)
-{
-    _checkNullPointer(str);
-    _rep = StringRep::createASCII7(str, n);
 }
 
 String::String(const String& s1, const String& s2)
@@ -804,22 +784,6 @@ String& String::assign(const char* str, Uint32 n)
 #endif
 
     _rep->data[_rep->size] = 0;
-
-    return *this;
-}
-
-String& String::assignASCII7(const char* str, Uint32 n)
-{
-    _checkNullPointer(str);
-
-    if (n > _rep->cap || _rep->refs.value() != 1)
-    {
-        StringRep::unref(_rep);
-        _rep = StringRep::alloc(n);
-    }
-
-    _copy(_rep->data, str, n);
-    _rep->data[_rep->size = n] = 0;
 
     return *this;
 }
@@ -1549,15 +1513,16 @@ TO-DO:
 
     (+) [DONE] Fix throw-related memory leak.
 
+    (+) [DONE] Look at PEP223 for coding security guidelines.
+
+    (+) [DONE] Use old AtomicInt for now (split new AtomicInt into another
+	bug.
+
+    (+) [DONE] Removed appendASCII() and the ASCII form of the constructor.
+
     -----------
 
     (+) DOC++ String.h
-        
-    (+) Look at PEP223 for coding security guidelines.
-
-    (+) Replace AtomicInt with new Atomic implementation.
-
-    (+) Hide appendASCII7() function.
 
 ================================================================================
 */

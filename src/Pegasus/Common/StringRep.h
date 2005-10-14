@@ -51,8 +51,6 @@ struct StringRep
 
     static StringRep* create(const char* data, size_t size);
 
-    static StringRep* createASCII7(const char* data, size_t size);
-
     static StringRep* copyOnWrite(StringRep* rep);
 
     static Uint32 length(const Uint16* str);

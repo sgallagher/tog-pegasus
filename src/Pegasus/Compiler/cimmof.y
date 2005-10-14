@@ -125,7 +125,8 @@ extern int   cimmof_leng;
   CIMMethod *g_currentMethod = 0;
   CIMClass *g_currentClass = 0;
   CIMInstance *g_currentInstance = 0;
-  String g_currentAlias = String::EMPTY;
+  String g_currentAliasRef = String::EMPTY;  // Alias reference
+  String g_currentAliasDecl = String::EMPTY; // Alias declaration
   CIMName g_referenceClassName = CIMName();
   Array<CIMKeyBinding> g_KeyBindingArray; // it gets created empty
   TYPED_INITIALIZER_VALUE g_typedInitializerValue; 
@@ -157,6 +158,10 @@ cimmof_error(const char *msg) {
   cimmofParser::Instance()->log_parse_error(cimmof_text, msg);
   // printf("Error: %s\n", msg);
 }
+
+static void MOF_error(const char * str, const char * S);
+static void MOF_trace(const char* str);
+static void MOF_trace2(const char * str, const char * S);
 
 %}
 
@@ -274,9 +279,11 @@ cimmof_error(const char *msg) {
 %type <strval>           namespaceHandle namespaceHandleRef
 %type <strval>           nonNullConstantValue
 %type <strval>           pragmaName pragmaVal keyValuePairName qualifierName
-%type <strval>           referenceInitializer aliasInitializer objectHandle
+%type <strval>           referenceInitializer objectHandle
+%type <strval>           aliasInitializer
+%type <strval>           aliasIdentifier
 %type <strval>           stringValue stringValues initializer constantValue
-%type <strval>           TOK_ALIAS_IDENTIFIER  alias aliasIdentifier
+%type <strval>           TOK_ALIAS_IDENTIFIER  alias 
 %type <strval>           TOK_POSITIVE_DECIMAL_VALUE TOK_OCTAL_VALUE TOK_HEX_VALUE 
 %type <strval>           TOK_SIGNED_DECIMAL_VALUE TOK_BINARY_VALUE
 %type <strval>           TOK_SIMPLE_IDENTIFIER TOK_STRING_VALUE
@@ -330,8 +337,8 @@ mofProduction: compilerDirective { /* FIXME: Where do we put directives? */ }
 classDeclaration: classHead  classBody
 {
     YACCTRACE("classDeclaration");
-    if (g_currentAlias != String::EMPTY)
-    cimmofParser::Instance()->addClassAlias(g_currentAlias, $$, false);
+    if (g_currentAliasDecl != String::EMPTY)
+    cimmofParser::Instance()->addClassAlias(g_currentAliasDecl, $$, false);
 } ;
 
 
@@ -345,7 +352,7 @@ classHead: qualifierList TOK_CLASS className alias superClass
     // put list of qualifiers into class
     applyQualifierList(&g_qualifierList, $$);
     
-    g_currentAlias = *$4;
+    g_currentAliasRef = *$4;
     if (g_currentClass)
         delete g_currentClass;
     g_currentClass = $$;
@@ -722,15 +729,35 @@ objectHandle: TOK_DQUOTE namespaceHandleRef modelPath TOK_DQUOTE
   $$ = s;
   delete $2;
   delete $3;
+  MOF_trace2 ("objectHandle done $$ = ", $$->getCString());
 } ;
 
 
 aliasInitializer : aliasIdentifier {
-        // convert somehow from alias to a CIM object name
-        yyerror("'alias' is not yet supported (see bugzilla 14).");
-        delete $1;
-        YYABORT;
-        };
+  
+  CIMObjectPath AOP;
+
+  MOF_trace2("aliasInitializer $$ = ", $$->getCString());
+  MOF_trace2("aliasInitializer $1 = ", $1->getCString());
+
+  g_currentAliasRef = *$$;
+
+  MOF_trace2("aliasInitializer g_currentAliasRef = ", g_currentAliasRef.getCString());
+  if (cimmofParser::Instance()->getInstanceAlias(g_currentAliasRef, AOP) == 0)
+    {
+      yyerror("aliasInitializer - 'aliasIdentifier' NOT FOUND");
+      YYABORT;
+    }
+
+  String *s = new String(AOP.toString());
+
+  $$ = s;
+  
+  delete $1;
+
+  MOF_trace2 ("aliasInitializer done $$ = ", $$->getCString());
+  
+};
 
 
 namespaceHandleRef: namespaceHandle TOK_COLON
@@ -764,19 +791,20 @@ keyValuePair: keyValuePairName TOK_EQUAL initializer
 keyValuePairName: TOK_SIMPLE_IDENTIFIER ;
 
 
-alias: TOK_AS aliasIdentifier { 
-              yyerror("'alias' is not yet supported (see bugzilla 14).");
+alias: TOK_AS aliasIdentifier {
               $$ = $2;
-              YYABORT;
+	      g_currentAliasDecl = *$2;
+	      MOF_trace2("aliasIdentifier $$ = ", $$->getCString());
+	      MOF_trace2("aliasIdentifier g_currentAliasDecl = ", g_currentAliasDecl.getCString());
+
               } 
-              | /* empty */ { $$ = new String(String::EMPTY); }
+              | /* empty */ { 
+              $$ = new String(String::EMPTY);
+              g_currentAliasDecl = String::EMPTY}
               ;
 
 
 aliasIdentifier: TOK_ALIAS_IDENTIFIER ;
-
-
-
 
 
 /*
@@ -784,14 +812,25 @@ aliasIdentifier: TOK_ALIAS_IDENTIFIER ;
 **
 **   Instance Declaration productions and processing
 **
-**------------------------------------------------------------------------------
+**-----------------------------------------------------------------------------
 */
 
 instanceDeclaration: instanceHead instanceBody
 { 
   $$ = g_currentInstance; 
-  if (g_currentAlias != String::EMPTY)
-    cimmofParser::Instance()->addInstanceAlias(g_currentAlias, $1, true);
+  if (g_currentAliasDecl != String::EMPTY)
+    {
+      MOF_trace2("instanceDeclaration g_currentAliasDecl = ", g_currentAliasDecl.getCString());
+      // MOF_trace2 ("instanceDeclaration instance = ", ((CIMObject *)$$)->toString().getCString());
+      if (cimmofParser::Instance()->addInstanceAlias(g_currentAliasDecl, $$, true) == 0)
+	{
+	  // Error alias already exist
+	  MOF_error("ERROR: alias ALREADY EXISTS: aliasIdentifier = ",
+		    g_currentAliasDecl.getCString());
+	  yyerror("instanceDeclaration - 'aliasIdentifier' ALREADY EXISTS");
+	  YYABORT;
+	}
+    }
 };
 
 
@@ -800,13 +839,15 @@ instanceHead: qualifierList TOK_INSTANCE TOK_OF className alias
 {
   if (g_currentInstance)
     delete g_currentInstance;
-  g_currentAlias = *$5;
+  g_currentAliasDecl = *$5;
   g_currentInstance = cimmofParser::Instance()->newInstance(*$4);
   // apply the qualifierlist to the current instance
   $$ = g_currentInstance;
   applyQualifierList(&g_qualifierList, $$);
   delete $4;
   delete $5;
+  if (g_currentAliasDecl != String::EMPTY)
+    MOF_trace2("instanceHead g_currentAliasDecl = ", g_currentAliasDecl.getCString());
 } ;
 
 
@@ -1111,3 +1152,38 @@ pragmaName: TOK_SIMPLE_IDENTIFIER { $$ = $1; } ;
 pragmaVal:  TOK_STRING_VALUE { $$ = $1; } ;
 
 %%
+
+/*
+**==============================================================================
+**
+** MOF_error():
+**
+**==============================================================================
+*/
+static void MOF_error(const char * str, const char * S)
+{
+  printf("%s %s\n", str, S);
+}
+
+/*
+**==============================================================================
+**
+** MOF_trace():
+**
+**==============================================================================
+*/
+// #define DEBUG_cimmof 1
+
+static void MOF_trace(const char* str)
+{
+#ifdef DEBUG_cimmof
+    printf("MOF_trace(): %s \n", str);
+#endif // DEBUG_cimmof
+}
+
+static void MOF_trace2(const char * str, const char * S)
+{
+#ifdef DEBUG_cimmof
+  printf("MOF_trace2(): %s %s\n", str, S);
+#endif // DEBUG_cimmof
+}

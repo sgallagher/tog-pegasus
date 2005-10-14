@@ -166,7 +166,7 @@
 
 
 #if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
-#line 163 "cimmof.y"
+#line 168 "cimmof.y"
 typedef union YYSTYPE {
   //char                     *strval;
   CIMClass                 *mofclass;
@@ -189,7 +189,7 @@ typedef union YYSTYPE {
   struct pragma            *pragma;
   TYPED_INITIALIZER_VALUE  *typedinitializer;
 } YYSTYPE;
-/* Line 1250 of yacc.c.  */
+/* Line 1249 of yacc.c.  */
 #line 193 "cimmoftemp.h"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

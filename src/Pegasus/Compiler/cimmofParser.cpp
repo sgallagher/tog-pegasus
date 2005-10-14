@@ -1278,11 +1278,100 @@ cimmofParser::addClassAlias(const String &alias, const CIMClass *cd,
   // ATTN: P3 BB 2001 ClassAlias - to be deprecated.  Simply warning here
 }
 
-void
+
+Array <String> aliasName;
+Array <CIMObjectPath> aliasObjPath;
+
+
+Uint32
 cimmofParser::addInstanceAlias(const String &alias, const CIMInstance *cd,
     Boolean isInstance)
 {
-  // ATTN:P3 BB 2001  As soon as we figure out what Aliases are for, do something
+
+  CIMObjectPath objpath;
+
+#ifdef DEBUG_cimmofParser
+  printf("addInstanceAlias: aliasName.size = %d\n", aliasName.size());
+  cout << "addInstanceAlias: alias = " << alias << endl;
+  cout << "addInstanceAlias class name = " << cd->getClassName().getString() << endl;
+#endif // DEBUG_cimmofParser
+
+
+  // verify new alias doesn't already exists
+  CIMObjectPath tmpobjpath;
+  if (getInstanceAlias(alias, tmpobjpath) == 1)
+    {
+      return (0);
+    }
+
+
+  // Get the class from the repository
+  CIMClass classrep;
+  Boolean classExist = true;
+
+  try
+  {
+    classrep = _repository.getClass(getNamespacePath(), cd->getClassName());
+  }
+  catch (const CIMException &e)
+  {
+    if (e.getCode() == CIM_ERR_NOT_FOUND)
+    {
+        classExist = false;
+    }
+    else
+    if (e.getCode() == CIM_ERR_INVALID_CLASS)
+    {
+        /* Note:  this is where cimmofl and cimmof fall into */
+        classExist = false;
+    }
+    else
+    {
+        throw;
+    }
+  }
+
+  objpath = cd->buildPath(classrep);
+
+#ifdef DEBUG_cimmofParser
+  cout << "addInstance objPath = " << objpath.toString() << endl;
+#endif // DEBUG_cimmofParser
+
+  aliasName.append(alias);
+  aliasObjPath.append(objpath);
+
+  return(1);
+}
+
+Uint32
+cimmofParser::getInstanceAlias(const String &alias, CIMObjectPath &ObjPath)
+{
+  for (Uint32 i=0; i < aliasName.size(); i++)
+    {
+
+#ifdef DEBUG_cimmofParser
+      cout << "getInstanceAlias: aliasName[" << i << "] = " << aliasName[i].getCString() << endl;
+      cout << "getInstanceAlias: aliasObjPath[" << i << "] = " << aliasObjPath[i].toString() << endl;
+#endif // DEBUG_cimmofParser
+
+      if (alias == aliasName[i])
+	{
+	  ObjPath = aliasObjPath[i];
+
+#ifdef DEBUG_cimmofParser
+	  cout << "getInstanceAlias: alias found = " << aliasName[i] << endl;
+          cout << "getInstanceAlias: aliasObjPath found = " << aliasObjPath[i].toString() << endl;
+#endif // DEBUG_cimmofParser
+
+	  return (1);
+	}
+    }
+
+#ifdef DEBUG_cimmofParser
+  cout << "getInstanceAlias: alias NOT found" << endl;
+#endif // DEBUG_cimmofParser
+
+  return (0);
 }
 
 

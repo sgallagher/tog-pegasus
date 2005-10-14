@@ -42,7 +42,14 @@ LOCAL_DEFINES = -DPEGASUS_COMMON_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegcommon
 
-SOURCES = \
+##
+## CAUTION: the source files are divided evenly (more or less) between SOURCES1
+## and SOURCES2. This avoids a command line buffer overflow on Windows 2000
+## (see bug #2754 for details). As a precaution, limit SOURCES1 and SOURCES2 
+## to 75 source files each.
+##
+
+SOURCES1 = \
     AnonymousPipe.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
@@ -99,6 +106,8 @@ SOURCES = \
     DeclContext.cpp \
     Dir.cpp \
     DQueue.cpp \
+
+SOURCES2 = \
     DynamicLibrary.cpp \
     Exception.cpp \
     InternalException.cpp \
@@ -154,6 +163,8 @@ SOURCES = \
     MofWriter.cpp \
     peg_authorization.cpp \
     CommonUTF.cpp
+
+SOURCES = $(SOURCES1) $(SOURCES2)
 
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp

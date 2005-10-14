@@ -36,8 +36,30 @@ FULL_PDB = $(BIN_DIR)/$(LIBRARY)$(PDB)
 ## ws2_32.lib is needed to get the WINSOCK routines!
 ##
 
+##
+## The next four lines define a variable (called NL) that contains a simple
+## newline. The two blank lines are needed (please do not remove).
+##
+define NL
+
+
+endef
+
+##
+## The name of the link file to be used by the Windows link command. This is
+## only used when SOURCES1 is defined.
+## 
+LINKFILE=$(LIB_DIR)/linkfile
+
+ifdef SOURCES1
 $(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+	@ $(ECHO) "Creating $(LINKFILE)"
+	@ $(RM) $(LINKFILE)
+	@ $(foreach i, $(OBJECTS), echo $(i) >> $(LINKFILE) $(NL) )
+	link -nologo -dll $(LINK_FLAGS) $(EXTRA_LINK_FLAGS) -out:$(FULL_DLL) -implib:$(FULL_LIB) @$(LINKFILE) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
+else
 	link -nologo -dll $(LINK_FLAGS) $(EXTRA_LINK_FLAGS) -out:$(FULL_DLL) -implib:$(FULL_LIB) $(OBJECTS) $(FULL_LIBRARIES) $(SYS_LIBS) $(EXTRA_LIBRARIES)
+endif
 
 FILES_TO_CLEAN = \
     $(OBJECTS) $(FULL_LIB) $(FULL_DLL) $(FULL_EXP) $(FULL_ILK) $(FULL_PDB) $(OBJ_DIR)/vc60$(PDB) $(OBJ_DIR)/vc70$(PDB) depend.mak depend.mak.bak

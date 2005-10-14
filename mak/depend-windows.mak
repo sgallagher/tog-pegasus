@@ -38,8 +38,14 @@ DEPEND_MAK = $(OBJ_DIR)/depend.mak
 ## the ones that matter (the ones the user put on the path).
 ##
 
-depend: $(OBJ_DIR)/target $(ERROR)
+ifdef SOURCES1
+depend:
+	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES1) > $(DEPEND_MAK)
+	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES2) >> $(DEPEND_MAK)
+else
+depend:
 	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES) > $(DEPEND_MAK)
+endif
 
 clean-depend:
 	$(RM) $(OBJ_DIR)/depend.mak

@@ -281,16 +281,10 @@ endif
 ##
 ## Controls the maximum number of threads allowed per message service queue.
 ##     It is allowed to range between 1 and MAX_THREADS_PER_SVC_QUEUE_LIMIT
-##     as set in pegasus/src/Pegasus/Common/MessageQueueService.cpp. 
-##
-##      defaults to 0 (zero)
-##
-##      if set to 0 (zero) 
-##	 then the max threads per service queue is 
-##            set to MAX_THREADS_PER_SVC_QUEUE_DEFAULT.
-##      if set larger than MAX_THREADS_PER_SVC_QUEUE_LIMIT 
-##        then the max threads per service queue is
-##            set to MAX_THREADS_PER_SVC_QUEUE_LIMIT.
+##     as set in pegasus/src/Pegasus/Common/MessageQueueService.cpp.  If the
+##     specified value is out of range, MAX_THREADS_PER_SVC_QUEUE_LIMIT is
+##     used.  The default value is MAX_THREADS_PER_SVC_QUEUE_DEFAULT, as
+##     defined in pegasus/src/Pegasus/Common/MessageQueueService.cpp.
 ##
 ##	Label					Current value
 ##	--------------------------------------  -------------
@@ -301,8 +295,6 @@ endif
 
 ifdef PEGASUS_MAX_THREADS_PER_SVC_QUEUE
   DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=$(PEGASUS_MAX_THREADS_PER_SVC_QUEUE)
-else
-  DEFINES += -DMAX_THREADS_PER_SVC_QUEUE=0
 endif
 
 ##############################################################################

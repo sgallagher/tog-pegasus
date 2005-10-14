@@ -60,14 +60,19 @@ ThreadPool *MessageQueueService::get_thread_pool()
 {
    return _thread_pool;
 }
+
 //
-// MAX_THREADS_PER_SVC_QUEUE_LIMIT
+// MAX_THREADS_PER_SVC_QUEUE
 //
 // JR Wunderlich Jun 6, 2005
 //
 
 #define MAX_THREADS_PER_SVC_QUEUE_LIMIT 5000 
 #define MAX_THREADS_PER_SVC_QUEUE_DEFAULT 5
+
+#ifndef MAX_THREADS_PER_SVC_QUEUE
+# define MAX_THREADS_PER_SVC_QUEUE MAX_THREADS_PER_SVC_QUEUE_DEFAULT
+#endif
 
 Uint32 max_threads_per_svc_queue;
 
@@ -229,25 +234,17 @@ MessageQueueService::MessageQueueService(
 
    max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE;
 
-   // if requested threads gt MAX_THREADS_PER_SVC_QUEUE_LIMIT
-   // then set to MAX_THREADS_PER_SVC_QUEUE_LIMIT
+   // if requested thread max is out of range, then set to
+   // MAX_THREADS_PER_SVC_QUEUE_LIMIT
 
-   if (max_threads_per_svc_queue > MAX_THREADS_PER_SVC_QUEUE_LIMIT)
-     {
+   if ((max_threads_per_svc_queue < 1) ||
+       (max_threads_per_svc_queue > MAX_THREADS_PER_SVC_QUEUE_LIMIT))
+   {
        max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_LIMIT;
-     }
+   }
 
-   // if requested threads eq 0 (unlimited) 
-   // then set to MAX_THREADS_PER_SVC_QUEUE_LIMIT
-
-   if (max_threads_per_svc_queue == 0)
-     {
-       max_threads_per_svc_queue = MAX_THREADS_PER_SVC_QUEUE_DEFAULT;
-     }
-
-   // cout << "MAX_THREADS_PER_SVC_QUEUE = " << MAX_THREADS_PER_SVC_QUEUE << endl;
-   // cout << "max_threads_per_svc_queue set to = " << max_threads_per_svc_queue << endl;
-   
+   Tracer::trace(TRC_MESSAGEQUEUESERVICE, Tracer::LEVEL2,
+      "max_threads_per_svc_queue set to %u.", max_threads_per_svc_queue);
 
    AutoMutex autoMut(_meta_dispatcher_mutex);
 

@@ -204,7 +204,7 @@ String System::getHostName()
 
 String System::getFullyQualifiedHostName ()
 {
-    static char FQHostName[PEGASUS_MAXHOSTNAMELEN];
+    static char FQHostName[PEGASUS_MAXHOSTNAMELEN + 1];
 
     if (!*FQHostName)
     {
@@ -216,7 +216,7 @@ String System::getFullyQualifiedHostName ()
         {
             return String::EMPTY;
         }
-        strcpy(FQHostName, hostEnt->h_name);
+        strncpy(FQHostName, hostEnt->h_name, sizeof(FQHostName)-1);
     }
 
     return FQHostName;

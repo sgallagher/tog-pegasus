@@ -311,7 +311,7 @@ void ComputerSystem::initialize(void)
   he=gethostbyname(hostName);
   if (he)
   {
-     strcpy(hostName, he->h_name);
+     strncpy(hostName, he->h_name, sizeof(hostName)-1);
   }
 
   _hostName.assign(hostName);

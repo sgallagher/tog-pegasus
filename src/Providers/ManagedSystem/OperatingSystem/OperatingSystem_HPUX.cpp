@@ -114,7 +114,7 @@ static Boolean getUtilGetHostName(String& csName)
      
      if (he=gethostbyname(hostName))
      {
-        strcpy(hostName, he->h_name);
+         strncpy(hostName, he->h_name, sizeof(hostName)-1);
      }
 
      csName.assign(hostName);

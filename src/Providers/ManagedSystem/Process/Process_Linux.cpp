@@ -783,7 +783,7 @@ String Process::getCSName(void) const
      he=gethostbyname(hostName);
      if (he)
      {
-        strcpy(hostName, he->h_name);
+        strncpy(hostName, he->h_name, sizeof(hostName)-1);
      }
 
      csName.assign(hostName);

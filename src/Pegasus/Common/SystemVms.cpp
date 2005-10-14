@@ -237,7 +237,7 @@ String System::getFullyQualifiedHostName()
 
   if (he = gethostbyname(hostName))
   {
-    strcpy(hostName, he->h_name);
+      strncpy(hostName, he->h_name, sizeof(hostName)-1);
   }
 
   fqName.assign(hostName);

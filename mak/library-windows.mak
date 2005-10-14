@@ -51,8 +51,8 @@ endef
 ## 
 LINKFILE=$(LIB_DIR)/linkfile
 
-ifdef SOURCES1
 $(FULL_LIB): $(BIN_DIR)/target $(LIB_DIR)/target $(OBJ_DIR)/target $(OBJECTS) $(FULL_LIBRARIES) $(ERROR)
+ifdef SOURCES1
 	@ $(ECHO) "Creating $(LINKFILE)"
 	@ $(RM) $(LINKFILE)
 	@ $(foreach i, $(OBJECTS), echo $(i) >> $(LINKFILE) $(NL) )

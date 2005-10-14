@@ -32,7 +32,7 @@
 #ifndef _Pegasus_StringRep_h
 #define _Pegasus_StringRep_h
 
-#include <Pegasus/Common/AtomicInt.h>
+#include <Pegasus/Common/IPC.h>
 #include <new>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -71,7 +71,7 @@ struct StringRep
     size_t cap;
 
     // Number of string refering to this StringRep (1, 2, etc).
-    NewAtomicInt refs;
+    AtomicInt refs;
 
     // The first character in the string. Extra space is allocated off the
     // end of this structure for additional characters.
@@ -80,34 +80,34 @@ struct StringRep
 
 inline void StringRep::free(StringRep* rep)
 {
-    rep->refs.~NewAtomicInt();
+    rep->refs.~AtomicInt();
     ::operator delete(rep);
 }
 
-inline StringRep::StringRep() : size(0), cap(0)
+inline StringRep::StringRep() : size(0), cap(0), refs(2)
 {
     // Only called on _emptyRep. We set the reference count to two to
     // keep a String from modifying it (if the reference count were one,
     // a string would think it was the sole owner of the StringRep object).
-    new(&refs) NewAtomicInt();
     data[0] = 0;
 }
 
 inline StringRep::~StringRep()
 {
     // Only called on _emptyRep.
-    refs.~NewAtomicInt();
+    refs.~AtomicInt();
 }
 
 inline void StringRep::ref(const StringRep* rep)
 {
     if (rep != &StringRep::_emptyRep)
-        ((StringRep*)rep)->refs.inc();
+        ((StringRep*)rep)->refs++;
 }
 
 inline void StringRep::unref(const StringRep* rep)
 {
-    if (rep != &StringRep::_emptyRep && ((StringRep*)rep)->refs.dec_and_test())
+    if (rep != &StringRep::_emptyRep && 
+	((StringRep*)rep)->refs.DecAndTestIfZero())
         StringRep::free((StringRep*)rep);
 }
 

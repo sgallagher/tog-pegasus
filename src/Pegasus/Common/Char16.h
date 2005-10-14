@@ -82,7 +82,7 @@ PEGASUS_COMMON_LINKAGE Boolean operator!=(char x, const Char16& y);
 
 PEGASUS_NAMESPACE_END
 
-#if defined(PEGASUS_INTERNALONLY) && defined(PEGASUS_HAVE_INTERNAL_INLINES)
+#if defined(PEGASUS_INTERNALONLY) && defined(PEGASUS_DISABLE_INTERNAL_INLINES)
 # include "Char16Inline.h"
 #endif
 

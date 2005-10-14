@@ -46,7 +46,7 @@ PEGASUS_USING_STD;
 
 static char * verbose;
 
-int main(int argc, char** argv)
+int test(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
@@ -1229,5 +1229,13 @@ int main(int argc, char** argv)
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 
+    char* p = (char*)operator new(88888);
+    operator delete(p);
+
     return 0;
+}
+
+int main(int argc, char** argv)
+{
+    return test(argc, argv);
 }

@@ -1,3 +1,4 @@
+
 //%2005////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
@@ -31,6 +32,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
+//              Jim Wunderlich (Jim_Wunderlich@prdigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,35 +45,65 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+// #define DO_NOT_DELETE_INSTANCE
+Boolean verbose = false;
+
 void TestAssociations(CIMRepository& r)
 {
+
+  if (verbose)
+    cout << "TestAssociations Starting" << endl;
+
+  CIMObjectPath instanceName_JohnSmith = CIMObjectPath ("X.key=\"John Smith\"");
+
+
+  CIMObjectPath instanceName_JohnJones = CIMObjectPath("/root:Y.key=\"John Jones\"");
+
+
+  CIMObjectPath instanceName_Assoc = CIMObjectPath ("/root:A."
+	    "left=\"x.key=\\\"John Smith\\\"\","
+	    "right=\"y.key=\\\"John Jones\\\"\"");
+
+
     String nameSpace = "root";
     {
-	CIMObjectPath instanceName = CIMObjectPath ("X.key=\"John Smith\"");
-
 	Array<CIMObjectPath> names = r.associatorNames(
 	    nameSpace,
-	    instanceName,
+	    instanceName_JohnSmith,
 	    CIMName ("A"),
 	    CIMName ("Y"),
 	    "left",
 	    "right");
 
+	if (verbose)
+	  cout << "names.size() = " << names.size() << endl;
+
 	assert(names.size() == 1);
-	Boolean cond = names[0] == CIMObjectPath("Y.key=\"John Jones\"");
-	assert(cond);
+
+	names[0].setHost(String::EMPTY);
+
+	if (verbose)
+	  {
+	  cout << "names[0] = " << names[0].toString() << endl << endl;
+	  cout << "instanceName_JohnJones = " << instanceName_JohnJones.toString() << endl;
+	  cout << endl;
+	  }
+
+
+	assert(names[0] == instanceName_JohnJones);
     }
 
     {
-	CIMObjectPath instanceName = CIMObjectPath ("X.key=\"John Smith\"");
-
 	Array<CIMObject> result = r.associators(
 	    nameSpace,
-	    instanceName,
+	    instanceName_JohnSmith,
 	    CIMName ("a"),
 	    CIMName ("y"),
 	    "LEFT",
 	    "RIGHT");
+
+	if (verbose)
+	  cout << "result.size() = " << result.size() << endl;
 
 	assert(result.size() == 1);
 
@@ -81,28 +113,41 @@ void TestAssociations(CIMRepository& r)
 	CIMClass tmpClass = r.getClass(nameSpace, cimInstance.getClassName());
 	CIMObjectPath tmpInstanceName = cimInstance.buildPath(tmpClass);
 
-	Boolean t = tmpInstanceName == CIMObjectPath("Y.key=\"John Jones\"");
-	assert(t);
-	// result[0].print();
+	tmpInstanceName.setNameSpace(nameSpace);
+	if (verbose)
+	  {
+	    cout << "tmpInstanceName = " << tmpInstanceName.toString() << endl;
+	    cout << "instanceName_JohnJones = " << instanceName_JohnJones.toString() << endl;
+	    cout << endl;
+	  }
+
+	assert(tmpInstanceName == instanceName_JohnJones);
+
     }
 
     {
-	CIMObjectPath instanceName = CIMObjectPath ("X.key=\"John Smith\"");
-
 	Array<CIMObjectPath> result = r.referenceNames(
 	    nameSpace,
-	    instanceName,
+	    instanceName_JohnSmith,
 	    CIMName ("A"),
 	    "left");
 
-	assert(result.size() == 1);
+	if (verbose)
+	  cout << "result.size() = " << result.size() << endl;
 
-	CIMObjectPath tmp = CIMObjectPath ("A."
-	    "left=\"x.key=\\\"John Smith\\\"\","
-	    "right=\"y.key=\\\"John Jones\\\"\"");
+	assert(result.size() == 1);
 	
-	Boolean cond = (result[0] == tmp);
-	assert(cond);
+
+	result[0].setHost(String::EMPTY);
+	
+	if (verbose)
+	  {
+	  cout << "result = " << result[0].toString() << endl;
+	  cout << "instanceName_Assoc = " << instanceName_Assoc.toString() << endl;
+	  cout << endl;
+	  }
+ 
+	assert(result[0] == instanceName_Assoc);
     }
 
     {
@@ -114,7 +159,14 @@ void TestAssociations(CIMRepository& r)
 	    CIMName ("A"),
 	    "left");
 
+	if (verbose)
+	  cout << "result.size() = " << result.size() << endl;
+
 	assert(result.size() == 1);
+
+	// Too much output
+	// if (verbose)
+	//   cout << "result[0] = " << result[0].toString() << "\n\n";
 
 	CIMClass tmpClass = r.getClass(
 	    nameSpace, CIMInstance(result[0]).getClassName());
@@ -122,14 +174,19 @@ void TestAssociations(CIMRepository& r)
 	CIMObjectPath tmpInstanceName = 
 	    CIMInstance(result[0]).buildPath(tmpClass);
 
-	CIMObjectPath tmp = CIMObjectPath ("A."
-	    "left=\"x.key=\\\"John Smith\\\"\","
-	    "right=\"y.key=\\\"John Jones\\\"\"");
+	tmpInstanceName.setNameSpace(nameSpace);
+
+	if (verbose)
+	  {
+	  cout << "tmpInstanceName = " << tmpInstanceName.toString() << endl;
+	  cout << "instanceName_Assoc = " << instanceName_Assoc.toString() << endl;
+	  cout << endl;
+	  }
 	
-	Boolean cond = (tmpInstanceName == tmp);
-	assert(cond);
+	assert(tmpInstanceName == instanceName_Assoc);
     }
 
+#ifdef DO_NOT_DELETE_INSTANCE
     // Delete all the object we created:
     {
 	// First delete the association:
@@ -140,11 +197,14 @@ void TestAssociations(CIMRepository& r)
 
 	r.deleteInstance(nameSpace, assocInstanceName);
     }
+#endif
 }
 
 int main(int argc, char** argv)
 {
     String repositoryRoot;
+
+    verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
     const char* tmpDir = getenv ("PEGASUS_TMP");
     if (tmpDir == NULL)
     {
@@ -160,7 +220,7 @@ int main(int argc, char** argv)
     {
 	CIMRepository r (repositoryRoot);
 
-	// TestAssociations(r);
+	TestAssociations(r);
     }
     catch (Exception& e)
     {

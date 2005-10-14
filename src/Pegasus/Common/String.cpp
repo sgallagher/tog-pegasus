@@ -1515,14 +1515,14 @@ TO-DO:
 
     (+) [DONE] Look at PEP223 for coding security guidelines.
 
-    (+) [DONE] Use old AtomicInt for now (split new AtomicInt into another
-	bug.
+    (+) [DONE] Use old AtomicInt for now (new AtomicInt part of bug #4250).
 
     (+) [DONE] Removed appendASCII() and the ASCII form of the constructor.
 
-    -----------
+    (+) DOC++ String.h - will open new bug?
 
-    (+) DOC++ String.h
+    (+) Added PEGASUS_DISABLE_INTERNAL_INLINES macro (to permit suppression
+	on certain platforms).
 
 ================================================================================
 */

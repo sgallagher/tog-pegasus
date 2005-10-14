@@ -266,7 +266,13 @@ int main(int argc, char** argv)
 
       test01(mode);
       test02(mode);
-      test03(mode);
+
+      // bug 4206 - test03 removed because it usees the repository
+      // in PEGASUS_HOME which should not be done in unit tests. 
+      // Additionally: There is are unit test under the Pegasus/Compiler 
+      // CompAssoc.cpp and InstAlias.cpp that test associations.
+
+      // test03(mode);
     }
     catch (Exception& e)
     {

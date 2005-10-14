@@ -33,20 +33,13 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
 #include "Sharable.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
-Sharable::Sharable() : _ref(1), _magic(0xDEADBEEF) 
-{ 
-
-}
-
 Sharable::~Sharable()
 {
-    assert(_magic == 0xDEADBEEF);
-    _magic = 0;
+
 }
 
 PEGASUS_NAMESPACE_END

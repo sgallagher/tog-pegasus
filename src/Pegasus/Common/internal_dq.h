@@ -150,7 +150,7 @@ class PEGASUS_COMMON_LINKAGE internal_dq {
 	       temp->unlink();
 	       if(temp->_rep != NULL)
 		  ::operator delete(temp->_rep);
-	       // delete temp;
+	       delete temp;
 	       _count--;
 	    }
 	 }

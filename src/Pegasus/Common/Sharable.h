@@ -57,10 +57,9 @@ class PEGASUS_COMMON_LINKAGE Sharable
 {
 public:
 
-    Sharable();
+    Sharable() : _ref(1) { }
 
     virtual ~Sharable();
-
     Uint32 getRef() const { return _ref.value(); }
 
     friend void Inc(Sharable* sharable); 
@@ -71,7 +70,6 @@ private:
     Sharable(const Sharable &s) : _ref(1) {assert(0);} 
     // we should never copy a counter, so we make this private - dte
     AtomicInt _ref;
-    Uint32 _magic;
 };
 
 inline void Inc(Sharable* x)

@@ -276,25 +276,24 @@ const _BucketBase* _HashTableRep::lookup(
 
 Boolean _HashTableRep::remove(Uint32 hashCode, const void* key)
 {
-    for (Uint32 i = 0; i < _numChains; i++)
+    Uint32 i = hashCode % _numChains;
+
+    _BucketBase* prev = 0;
+
+    for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
     {
-	_BucketBase* prev = 0;
+        if (bucket->equal(key))
+        {
+            if (prev)
+                prev->next = bucket->next;
+            else
+                _chains[i] = bucket->next;
 
-	for (_BucketBase* bucket = _chains[i]; bucket; bucket = bucket->next)
-	{
-	    if (bucket->equal(key))
-	    {
-		if (prev)
-		    prev->next = bucket->next;
-		else
-		    _chains[i] = bucket->next;
-
-		delete bucket;
-		_size--;
-		return true;
-	    }
-	    prev = bucket;
-	}
+            delete bucket;
+            _size--;
+            return true;
+        }
+        prev = bucket;
     }
 
     return false;

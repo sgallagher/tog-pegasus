@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@austin.rr.com)
+// Author: Mike Brasher (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@
 #define _Pegasus_Common_AtomicInt_Generic_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -84,7 +84,7 @@ inline void AtomicIntTemplate<AtomicType>::dec()
     _rep.mutex.unlock();
 }
 
-inline bool AtomicIntTemplate<AtomicType>::dec_and_test()
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     _rep.mutex.lock(pegasus_thread_self());
     Uint32 tmp = --_rep.n;

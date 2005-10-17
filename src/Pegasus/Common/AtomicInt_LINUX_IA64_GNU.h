@@ -31,9 +31,65 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#ifndef _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h
+#define _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h
+
 #include <Pegasus/Common/Config.h>
-#include "AtomicInt.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
+struct AtomicType
+{
+    volatile int n; 
+};
+
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
+}
+
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return _rep.n;
+}
+
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = n;
+}
+
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    asm volatile(
+	"lock ; incl %0"
+	:"=m" (_rep.n)
+	:"m" (_rep.n));
+}
+
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    asm volatile(
+        "lock decl %0"
+        :"=m" (_rep.n)
+        :"m" (_rep.n));
+}
+
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    unsigned char c;
+
+    asm volatile(
+	"lock ; decl %0; sete %1"
+	:"=m" (_rep.n), "=qm" (c)
+	:"m" (_rep.n) : "memory");
+
+    return c != 0;
+}
+
 PEGASUS_NAMESPACE_END
+
+#endif /* _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h */

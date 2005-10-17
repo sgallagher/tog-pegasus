@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@austin.rr.com)
+// Author: Mike Brasher (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +78,7 @@ inline void AtomicIntTemplate<AtomicType>::dec()
         :"m" (_rep.n));
 }
 
-inline bool AtomicIntTemplate<AtomicType>::dec_and_test()
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     unsigned char c;
 

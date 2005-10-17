@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@austin.rr.com)
+// Author: Mike Brasher (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -36,9 +36,9 @@
 
 #include <Pegasus/Common/Config.h>
 
-#ifndef PEGASUS_INTERNALONLY
-# error "ERROR: This header is for internal use only (AtomicInt.h)"
-#endif
+//#ifndef PEGASUS_INTERNALONLY
+//# error "ERROR: This header is for internal use only (AtomicInt.h)"
+//#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -66,16 +66,19 @@ public:
     void dec();
 
     // Decrements and returns true if it is zero.
-    bool dec_and_test();
+    bool decAndTestIfZero();
 
     // Assignment.
-    AtomicIntTemplate& operator=(Uint32 n) { set(n); }
+    AtomicIntTemplate& operator=(Uint32 n) { set(n); return* this; }
 
     // Post-increment.
     void operator++(int) { inc(); }
 
     // Post-decrement.
     void operator--(int) { dec(); }
+
+    // Backwards compatibility:
+    Uint32 value() const { return get(); }
 
 private:
 
@@ -97,6 +100,8 @@ PEGASUS_NAMESPACE_END
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_IX86_GNU.h>
+#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+# include <Pegasus/Common/AtomicInt_LINUX_IA64_GNU.h>
 #elif defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_PPC_GNU.h>
 #elif defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
@@ -109,7 +114,7 @@ PEGASUS_NAMESPACE_END
 
 PEGASUS_NAMESPACE_BEGIN
 
-typedef AtomicIntTemplate<AtomicType> NewAtomicInt;
+typedef AtomicIntTemplate<AtomicType> AtomicInt;
 
 PEGASUS_NAMESPACE_END
 

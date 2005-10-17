@@ -88,7 +88,7 @@ inline void AtomicIntTemplate<AtomicType>::dec()
     }
 }
 
-inline bool AtomicIntTemplate<AtomicType>::dec_and_test()
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     Uint32 x = (Uint32)_rep.n;
     Uint32 old = x;

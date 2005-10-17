@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,83 +27,56 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek, IBM Corp.
-// Modified by:
-//         Steve Hills (steve.hills@ncr.com)
+// Author: Mike Day (mdday@us.ibm.com)
+//
+// Modified By: Markus Mueller
+//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//              David Eger (dteger@us.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
+//              Mike Brasher (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/InternalException.h>
+#ifndef Pegasus_IPCTypes_h
+#define Pegasus_IPCTypes_h
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/AutoPtr.h>
 
-int main(int argc, char** argv)
-{
-    Boolean bad = false;
-    try
-    {
-        Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-	        
-	AtomicInt i,j,ii,jj;
+#if !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_LSB) && !defined(PEGASUS_OS_VMS)
+#define PEGASUS_NEED_CRITICAL_TYPE
+#endif
 
-	if (verbose) {
-		cout << "Testing: i++, ++ii, i--, --i	"<< endl;
-	}
-	i = 5;
-	i++;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i++;
-	PEGASUS_ASSERT( i.get() == 7 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 5 );
+#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# include "IPCWindows.h"
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+# include "IPCUnix.h"
+#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
+# include "IPCHpux.h"
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+# include "IPCUnix.h"
+#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
+# include "IPCSun.h"
+#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
+# include "IPCAix.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+# include "IPCzOS.h"
+#elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
+# include "IPCTru64.h"
+#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
+# include "IPCOs400.h"
+#elif defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
+# include "IPCUnix.h"
+#elif defined(PEGASUS_OS_VMS)
+# include "IPCVms.h"
+#else
+# error "Unsupported platform"
+#endif
 
-	if (verbose) {
-		cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
-	}	
-	PEGASUS_ASSERT( (i.get() + 5) == 10 );
-	PEGASUS_ASSERT( i.get() == 5 );
-	j = 1;	
-	PEGASUS_ASSERT( i.get() + j.get() == 6 );
-	PEGASUS_ASSERT( j.get() + i.get() == 6 );
-	PEGASUS_ASSERT( i.get() == 5 && j.get() == 1 );
-	i = j.get() - 5; // Ugly.
-	PEGASUS_ASSERT( i.get() > 0 );
-	ii = 4;
-	i.set(i.get() + ii.get());
-	// Always true anyway: PEGASUS_ASSERT( i.get() >= 0 );
-	PEGASUS_ASSERT( ii.get() < 5 );
-	//PEGASUS_ASSERT( 5 > ii.get() );
-	jj = 2;
-	ii.set(ii.get() + jj.get() + jj.get());
-	PEGASUS_ASSERT( ii.get() == 8 );
-	PEGASUS_ASSERT( jj.get() == 2 );
-
-	i = 20;
-	j = 10;
-	ii = i.get() + j.get();
-	PEGASUS_ASSERT( i.get() == 20 );
-	PEGASUS_ASSERT( j.get() == 10 );
-
-	ii = i.get() + 1;
-	PEGASUS_ASSERT( i.get() == 20 );
-
-	ii = i.get() - j.get();
-	PEGASUS_ASSERT( i.get() == 20 );
-
-	ii = i.get() - 1;
-	PEGASUS_ASSERT( i.get() == 20 );
-    }
-    catch (Exception & e)
-    {
-        cout << "Exception: " << e.getMessage () << endl;
-        exit (1);
-    }
-    cout << argv[0] << " +++++ passed all tests" << endl;
-
-    return 0;
-}
+#endif /* Pegasus_IPCTypes_h */

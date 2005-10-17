@@ -38,6 +38,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
+#include <cstring>
 #include "InternalException.h"
 #include "CommonUTF.h"
 #include "MessageLoader.h"

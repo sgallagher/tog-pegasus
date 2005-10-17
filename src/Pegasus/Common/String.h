@@ -50,11 +50,10 @@
 // lower case language; underscore; Uppercase Country
 const char ENGLISH_US[] = "en_US";
 
-
 PEGASUS_NAMESPACE_BEGIN
 
 class String;
-class StringRep;
+struct StringRep;
 
 /** The CString class provides access to an 8-bit String representation.
 */
@@ -92,7 +91,7 @@ private:
 
     friend class String;
 
-    void* _rep;
+    char* _rep;
 };
 
 /**
@@ -125,7 +124,7 @@ public:
 
     /** Initialize with first <TT>n</TT> characters from <TT>str</TT>.
     @param str Specifies the name of the String instance.
-    @param n Specifies the Uint32 size to use for the length of the string object.
+    @param n Specifies Uint32 size to use for the length of the string object.
     @exception bad_alloc Thrown if there is insufficient memory.
     */
     String(const String& str, Uint32 n);
@@ -459,6 +458,30 @@ public:
     */
     static Boolean equalNoCase(const String& str1, const String& str2);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    String(const String& s1, const String& s2);
+
+    String(const String& s1, const char* s2);
+
+    String(const char* s1, const String& s2);
+
+    String& operator=(const char* str);
+
+    Uint32 find(const char* s) const;
+
+    static Boolean equal(const String& s1, const char* s2);
+
+    static int compare(const String& s1, const char* s2);
+
+    String& append(const char* str);
+
+    String& append(const char* str, Uint32 size);
+
+    static Boolean equalNoCase(const String& s1, const char* s2);
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
+
 private:
 
     StringRep* _rep;
@@ -549,6 +572,56 @@ PEGASUS_COMMON_LINKAGE Boolean operator>=(
     const String& str1,
     const String& str2);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+PEGASUS_COMMON_LINKAGE Boolean operator==(const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator==(const String& s1, const char* s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator==(const char* s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator!=(const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator!=(const String& s1, const char* s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator!=(const char* s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator<(const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator<(const String& s1, const char* s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator<(const char* s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator>(const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator>(const String& s1, const char* s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator>(const char* s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator<=(const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator<=(const String& s1, const char* s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator<=(const char* s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator>=(const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator>=(const String& s1, const char* s2);
+
+PEGASUS_COMMON_LINKAGE Boolean operator>=(const char* s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE String operator+(const String& s1, const String& s2);
+
+PEGASUS_COMMON_LINKAGE String operator+(const String& s1, const char* s2);
+
+PEGASUS_COMMON_LINKAGE String operator+(const char* s1, const String& s2);
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
+
 PEGASUS_NAMESPACE_END
+
+#if defined(PEGASUS_INTERNALONLY) && !defined(PEGASUS_DISABLE_INTERNAL_INLINES)
+# include "StringInline.h"
+#endif
 
 #endif /* Pegasus_String_h */

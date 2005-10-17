@@ -46,7 +46,7 @@ PEGASUS_USING_STD;
 
 static char * verbose;
 
-int main(int argc, char** argv)
+int test(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
 
@@ -429,15 +429,18 @@ int main(int argc, char** argv)
                 UTF8_NEXT(utf8chr,count);
         }
 
-        char utf8bad[]    = {
-                              '\xFF','\xFF', '\xFF'
-                            }; // utf8 string with mutliple byte characters
+        // utf8 string with mutliple byte characters
+        char utf8bad[] = 
+        {
+            '\xFF','\xFF', '\xFF', '\0', '\0', '\0'
+        };
+
         count = 0;
-        size = sizeof(utf8bad);
+        size = 3;
         while(count<size)
         {
-                assert(isUTF8(&utf8bad[count]) == false);
-                UTF8_NEXT(utf8bad,count);
+            assert(isUTF8(&utf8bad[count]) == false);
+            UTF8_NEXT(utf8bad,count);
         }
 
         Char16 utf16Chars[] =
@@ -814,7 +817,425 @@ int main(int argc, char** argv)
     }
 #endif
 
+    // string()
+    {
+	String s;
+	assert(s.size() == 0);
+	assert(s[0] == '\0');
+    }
+
+    // String(const String& s)
+    {
+	const String s("hello");
+	const String t = s;
+	assert(s.size() == strlen("hello"));
+	assert(s == "hello");
+	assert(t.size() == strlen("hello"));
+	assert(t == "hello");
+    }
+
+    // String(const char*)
+    {
+	const String s("hello");
+	assert(s.size() == strlen("hello"));
+	assert(s == "hello");
+    }
+
+    // reserve()
+    {
+	String s;
+	s.reserveCapacity(100);
+	assert(s.size() == 0);
+	// assert(s.getCapacity() >= 100);
+
+	String t("hello world");
+	assert(t.size() == strlen("hello world"));
+	t.reserveCapacity(500);
+	assert(t.size() == strlen("hello world"));
+	assert(t == "hello world");
+    }
+
+    // assign(const String&)
+    {
+	String s("this is a test");
+	String t;
+
+	t = s;
+	assert(s.size() == strlen("this is a test"));
+	assert(s == "this is a test");
+	assert(t.size() == strlen("this is a test"));
+	assert(t == "this is a test");
+
+	s = t;
+	assert(s.size() == strlen("this is a test"));
+	assert(s == "this is a test");
+	assert(t.size() == strlen("this is a test"));
+	assert(t == "this is a test");
+    }
+
+    // assign(const char*, size_t)
+    {
+	const char MESSAGE[] = "x";
+	const size_t LENGTH = sizeof(MESSAGE) - 1;
+	String s;
+	s.assign(MESSAGE, LENGTH);
+	assert(s.size() == LENGTH);
+	assert(s == MESSAGE);
+
+	String t("dummy", 5);
+	t.assign(MESSAGE, LENGTH);
+	assert(t.size() == LENGTH);
+	assert(t == MESSAGE);
+    }
+
+    // assign(const char*)
+    {
+	const char MESSAGE[] = "x";
+	const size_t LENGTH = sizeof(MESSAGE) - 1;
+	String s;
+	s.assign(MESSAGE);
+	assert(s.size() == LENGTH);
+	assert(s == MESSAGE);
+
+	String t("dummy", 5);
+	t.assign(MESSAGE);
+	assert(t.size() == LENGTH);
+	assert(t == MESSAGE);
+    }
+
+    // append(const String&)
+    {
+	String s;
+
+	s.append(String("xxx"));
+	assert(s.size() == 3);
+	assert(s == "xxx");
+
+	s.append(String("yyy"));
+	assert(s.size() == 6);
+	assert(s == "xxxyyy");
+
+	s.append(String("zzz"));
+	assert(s.size() == 9);
+	assert(s == "xxxyyyzzz");
+    }
+
+    // append(const char*)
+    {
+	String s;
+
+	s.append("xxx");
+	assert(s.size() == 3);
+	assert(s == "xxx");
+
+	s.append("yyy");
+	assert(s.size() == 6);
+	assert(s == "xxxyyy");
+
+	s.append("zzz");
+	assert(s.size() == 9);
+	assert(s == "xxxyyyzzz");
+    }
+
+    // append(const char*)
+    {
+	String s;
+
+	s.append("xxx");
+	assert(s.size() == 3);
+	assert(s == "xxx");
+
+	s.append("yyy");
+	assert(s.size() == 6);
+	assert(s == "xxxyyy");
+
+	s.append("zzz");
+	assert(s.size() == 9);
+	assert(s == "xxxyyyzzz");
+    }
+
+    // append(char)
+    {
+	String s;
+
+	for (int i = 'a'; i <= 'z'; i++)
+	{
+	    Char16 c = i;
+	    s.append(c);
+	}
+
+	assert(s.size() == 26);
+	assert(s == "abcdefghijklmnopqrstuvwxyz");
+    }
+
+    // clear()
+    {
+	String s("abc");
+	String t = s;
+	String u = s;
+
+	s.clear();
+	assert(t.size() == 3);
+	assert(t == "abc");
+	assert(t[0] == 'a');
+	assert(u.size() == 3);
+	assert(u == "abc");
+	assert(u[0] == 'a');
+	assert(s.size() == 0);
+	assert(s[0] == '\0');
+
+	t.clear();
+	assert(t.size() == 0);
+	assert(t[0] == '\0');
+	assert(t == "");
+	assert(u.size() == 3);
+	assert(u == "abc");
+	assert(u[0] == 'a');
+	assert(s.size() == 0);
+	assert(s == "");
+	assert(s[0] == '\0');
+
+	u.clear();
+	assert(t.size() == 0);
+	assert(t == "");
+	assert(t[0] == '\0');
+	assert(u.size() == 0);
+	assert(u == "");
+	assert(u[0] == '\0');
+	assert(s.size() == 0);
+	assert(s == "");
+	assert(s[0] == '\0');
+    }
+
+    // c_str()
+    {
+	String s("abc");
+	String t("abc");
+	String u("def");
+	String v;
+	String w("");
+
+	assert(s == "abc");
+	assert(t == "abc");
+	assert(u == "def");
+	assert(s == t);
+	assert(s != u);
+	assert(v == "");
+	assert(v[0] == '\0');
+	assert(v[0] == '\0');
+	assert(w.size() == 0);
+	assert(w[0] == '\0');
+	assert(w[0] == '\0');
+    }
+
+    // set(size_t, char)
+    {
+	String s("abcdefghijklmnopqrstuvwxyz");
+
+	for (int i = 0; i < 26; i++)
+	    s[i] = toupper(s[i]);
+
+	assert(s == "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    }
+
+    // equal(const String&)
+    {
+	String t("abc");
+	String u("abc");
+	String v("def");
+	String w("defg");
+	String x("");
+	String y("");
+
+	assert(String::equal(t, t));
+	assert(String::equal(u, u));
+	assert(String::equal(v, v));
+	assert(String::equal(w, w));
+	assert(String::equal(x, x));
+	assert(String::equal(y, y));
+
+	assert(String::equal(t, u));
+	assert(String::equal(u, t));
+
+	assert(!String::equal(t, v));
+	assert(!String::equal(t, w));
+	assert(!String::equal(t, x));
+	assert(!String::equal(t, y));
+	assert(!String::equal(v, t));
+	assert(!String::equal(w, t));
+	assert(!String::equal(x, t));
+	assert(!String::equal(y, t));
+
+	assert(!String::equal(v, w));
+	assert(!String::equal(w, v));
+	assert(String::equal(x, y));
+	assert(String::equal(y, x));
+    }
+
+    // equal(const char*)
+    {
+	String t("abc");
+	String u("abc");
+	String v("def");
+	String w("defg");
+	String x("");
+	String y("");
+
+	assert(String::equal(t, "abc"));
+	assert(String::equal(u, "abc"));
+	assert(String::equal(v, "def"));
+	assert(String::equal(w, "defg"));
+	assert(String::equal(x, ""));
+	assert(String::equal(y, ""));
+
+	assert(String::equal(t, "abc"));
+	assert(String::equal(u, "abc"));
+
+	assert(!String::equal(t, "def"));
+	assert(!String::equal(t, "defg"));
+	assert(!String::equal(t, ""));
+	assert(!String::equal(t, ""));
+	assert(!String::equal(v, "abc"));
+	assert(!String::equal(w, "abc"));
+	assert(!String::equal(x, "abc"));
+	assert(!String::equal(y, "abc"));
+
+	assert(!String::equal(v, "defg"));
+	assert(!String::equal(w, "def"));
+	assert(String::equal(x, ""));
+	assert(String::equal(y, ""));
+    }
+
+    // equali()
+    {
+	String s("abc");
+	String t("abC");
+	String u("ABC");
+	String v("xyz");
+	String w("");
+	String x("");
+	assert(String::equalNoCase(s, t));
+	assert(String::equalNoCase(s, u));
+	assert(!String::equalNoCase(s, v));
+	assert(String::equalNoCase(w, x));
+	assert(!String::equalNoCase(w, s));
+	assert(!String::equalNoCase(w, t));
+	assert(!String::equalNoCase(w, v));
+    }
+
+    {
+
+	String t;
+	const char MESSAGE[] = "hello";
+	const size_t LENGTH = sizeof(MESSAGE) - 1;
+	String s = String(MESSAGE);
+	t = s;
+	String u = String(t);
+
+	assert(t.size() == LENGTH);
+	assert(t == MESSAGE);
+	assert(s.size() == LENGTH);
+	assert(s == MESSAGE);
+	assert(u.size() == LENGTH);
+	assert(u == MESSAGE);
+
+	assert(t[0] == 'h');
+	assert(t[1] == 'e');
+	assert(t[2] == 'l');
+	assert(t[3] == 'l');
+	assert(t[4] == 'o');
+	assert(t[5] == '\0');
+
+	t.append(" world");
+	assert(t.size() == strlen("hello world"));
+	assert(t == "hello world");
+	assert(s != "hello world");
+	assert(s == "hello");
+	assert(s.size() == strlen("hello"));
+
+	t[0] = 'x';
+	assert(t == "xello world");
+    }
+
+    // remove()
+    {
+	String s("abcXYZdefLMNOP");
+
+	s.remove(0,0);
+	assert(s.size() == 14);
+	assert(s == "abcXYZdefLMNOP");
+
+	s.remove(0, 3);
+	assert(s.size() == 11);
+	assert(s == "XYZdefLMNOP");
+
+	s.remove(3, 3);
+	assert(s.size() == 8);
+	assert(s == "XYZLMNOP");
+
+	s.remove(7, 1);
+	assert(s.size() == 7);
+	assert(s == "XYZLMNO");
+
+	s.remove(0, 1);
+	assert(s.size() == 6);
+	assert(s == "YZLMNO");
+
+	s.remove(2, size_t(-1));
+	assert(s.size() == 2);
+	assert(s == "YZ");
+
+	s.remove(2, 0);
+	assert(s.size() == 2);
+	assert(s == "YZ");
+
+	s.remove(1, 1);
+	assert(s.size() == 1);
+	assert(s == "Y");
+
+	s.remove(0, 1);
+	assert(s.size() == 0);
+	assert(s == "");
+	assert(s[0] == '\0');
+
+	s.remove(0,0);
+	assert(s.size() == 0);
+	assert(s == "");
+	assert(s[0] == '\0');
+    }
+
+    // subString()
+    {
+	String s("one two three");
+	assert(s.subString(0) == "one two three");
+	assert(s.subString(0, 3) == "one");
+	assert(s.subString(4, 3) == "two");
+	assert(s.subString(8, 5) == "three");
+	assert(s.subString(0, 0) == "");
+	assert(s.subString(13, 0) == "");
+    }
+
+    // Overflow
+    bool caught_bad_alloc = false;
+    try
+    {
+	String s("junk", Uint32(0xFFFFFFFF));
+    }
+    catch(...)
+    {
+	caught_bad_alloc = true;
+    }
+    assert(caught_bad_alloc);
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
+    char* p = (char*)operator new(88888);
+    operator delete(p);
+
     return 0;
+}
+
+int main(int argc, char** argv)
+{
+    return test(argc, argv);
 }

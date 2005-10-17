@@ -29,61 +29,80 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_Char16_h
-#define Pegasus_Char16_h
+#ifndef Pegasus_Char16Inline_h
+#define Pegasus_Char16Inline_h
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
+#ifdef PEGASUS_INTERNALONLY
+# define PEGASUS_CHAR16_INLINE inline
+#else
+# define PEGASUS_CHAR16_INLINE /* */
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
-/** The Char16 class represents a CIM sixteen bit character (char16).
-    This class is a trivial wrapper for a sixteen bit integer. It is used
-    as the element type in the String class (used to represent the CIM
-    string type). Ordinarily Uint16 could be used; however, a distinguishable
-    type was needed for the purposes of function overloaded which occurs in
-    the CIMValue class.
-*/
-class PEGASUS_COMMON_LINKAGE Char16
+PEGASUS_CHAR16_INLINE Char16::Char16() : _code(0)
 {
-public:
+}
 
-    /// Constructor.
-    Char16();
+PEGASUS_CHAR16_INLINE Char16::Char16(Uint16 x) : _code(x)
+{
+}
 
-    /// Constructor.
-    Char16(Uint16 x);
+PEGASUS_CHAR16_INLINE Char16::Char16(const Char16& x) : _code(x._code)
+{
+}
 
-    /// Constructor.
-    Char16(const Char16& x);
+PEGASUS_CHAR16_INLINE Char16::~Char16()
+{
+}
 
-    /// Destructor.
-    ~Char16();
+PEGASUS_CHAR16_INLINE Char16& Char16::operator=(Uint16 x)
+{
+    _code = x;
+    return *this;
+}
 
-    /// Assignment operator.
-    Char16& operator=(Uint16 x);
+PEGASUS_CHAR16_INLINE Char16& Char16::operator=(const Char16& x)
+{
+    _code = x._code;
+    return *this;
+}
 
-    /// Assignment operator.
-    Char16& operator=(const Char16& x);
+PEGASUS_CHAR16_INLINE Char16::operator Uint16() const
+{
+    return _code;
+}
 
-    /// Implicit converter from Char16 to Uint16
-    operator Uint16() const;
+PEGASUS_CHAR16_INLINE Boolean operator==(const Char16& x, const Char16& y)
+{
+    return Uint16(x) == Uint16(y);
+}
 
-private:
-    Uint16 _code;
-};
+PEGASUS_CHAR16_INLINE Boolean operator==(const Char16& x, char y)
+{
+    return Uint16(x) == Uint16(y);
+}
 
-PEGASUS_COMMON_LINKAGE Boolean operator==(const Char16& x, const Char16& y);
-PEGASUS_COMMON_LINKAGE Boolean operator==(const Char16& x, char y);
-PEGASUS_COMMON_LINKAGE Boolean operator==(char x, const Char16& y);
-PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, const Char16& y);
-PEGASUS_COMMON_LINKAGE Boolean operator!=(const Char16& x, char y);
-PEGASUS_COMMON_LINKAGE Boolean operator!=(char x, const Char16& y);
+PEGASUS_CHAR16_INLINE Boolean operator==(char x, const Char16& y)
+{
+    return Uint16(x) == Uint16(y);
+}
+
+PEGASUS_CHAR16_INLINE Boolean operator!=(const Char16& x, const Char16& y)
+{
+    return Uint16(x) != Uint16(y);
+}
+
+PEGASUS_CHAR16_INLINE Boolean operator!=(const Char16& x, char y)
+{
+    return Uint16(x) != Uint16(y);
+}
+
+PEGASUS_CHAR16_INLINE Boolean operator!=(char x, const Char16& y)
+{
+    return Uint16(x) != Uint16(y);
+}
 
 PEGASUS_NAMESPACE_END
 
-#if defined(PEGASUS_INTERNALONLY) && !defined(PEGASUS_DISABLE_INTERNAL_INLINES)
-# include "Char16Inline.h"
-#endif
-
-#endif /* Pegasus_Char16_h */
+#endif /* Pegasus_Char16Inline_h */

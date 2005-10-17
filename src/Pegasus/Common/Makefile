@@ -67,7 +67,7 @@ SOURCES1 = \
     AcceptLanguages.cpp \
     ContentLanguages.cpp \
     MessageLoader.cpp \
-    Char16.cpp \
+    Char16Inline.cpp \
     CIMClass.cpp \
     CIMClassRep.cpp \
     CIMDateTime.cpp \
@@ -146,6 +146,7 @@ SOURCES2 = \
     StatisticalData.cpp \
     Stopwatch.cpp \
     String.cpp \
+    StringInline.cpp \
     System.cpp \
     TimeValue.cpp \
     SSLContext.cpp \

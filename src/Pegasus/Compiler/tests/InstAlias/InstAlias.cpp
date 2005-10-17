@@ -179,7 +179,6 @@ void TestInstanceAliases(CIMRepository& r)
 	assert(tmpInstanceName == instanceName_Assoc);
     }
 
-#ifdef DO_NOT_DELETE_INSTANCE
     // Delete all the object we created:
     {
 	// First delete the association:
@@ -187,7 +186,6 @@ void TestInstanceAliases(CIMRepository& r)
 	r.deleteInstance(nameSpace, instanceName_Assoc);
 
     }
-#endif
 }
 
 int main(int argc, char** argv)

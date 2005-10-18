@@ -56,6 +56,8 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/CIMDateTime.h>
+#include <Pegasus/Common/PegasusVersion.h>
+
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -187,23 +189,20 @@ void GetOptions(
         {"port", "5988", false, Option::INTEGER, 0, 0, "p",
                                         "specifies port" },
 
-        {"location", "localhost", false, Option::STRING, 0, 0, "l",
+        {"location", "localhost", false, Option::STRING, 0, 0, "h",
                                         "specifies hostname of system" },
 
-        {"version", "false", false, Option::BOOLEAN, 0, 0, "v",
+        {"version", "false", false, Option::BOOLEAN, 0, 0, "-version",
                                         "Displays software Version "},
 
-        {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
-                            "Prints help message with command line options "},
-
-        {"help1", "false", false, Option::BOOLEAN, 0, 0, "-help",
+        {"help", "false", false, Option::BOOLEAN, 0, 0, "-help",
                             "Prints help message with command line options "},
 
         {"user name","",false,Option::STRING, 0, 0, "u",
                              "specifies user loging in"},
 
-        {"pass word","",false,Option::STRING, 0, 0, "pw",
-                             "login pass word for user"},
+        {"password","",false,Option::STRING, 0, 0, "w",
+                             "login password for user"},
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -283,13 +282,19 @@ int main(int argc, char** argv)
 
 
     // Check to see if user asked for help (-h or --help otpion)
-    if (om.valueEquals("help", "true") || om.valueEquals("help1", "true"))
+    if (om.valueEquals("help", "true"))
     {
         String header = "Usage ";
         String trailer = "";
         om.printOptionsHelpTxt(header, trailer);
         exit(0);
     }
+     else if (om.valueEquals("version", "true"))
+    {
+        cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
+        exit(0);
+    }
+
 
 
     //Get hostname form (option manager) command line if none use default
@@ -580,9 +585,7 @@ int main(int argc, char** argv)
     }
     catch(Exception& e)
     {
-      cerr << argv[0] << "Exception : " << className
-            << e.getMessage() << endl;
-
+      cerr << argv[0] << "Exception : " << e.getMessage() << endl;
       exit(1);
     }
 

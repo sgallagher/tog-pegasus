@@ -120,7 +120,6 @@ PEGASUS_STRING_INLINE String& String::operator=(const char* str)
 PEGASUS_STRING_INLINE String& String::assign(const Char16* str)
 {
     return assign(str, StringRep::length((Uint16*)str));
-    return *this;
 }
 
 PEGASUS_STRING_INLINE String& String::assign(const char* str)

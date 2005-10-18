@@ -33,6 +33,7 @@
 #define _Pegasus_StringInline_h
 
 #include <Pegasus/Common/StringRep.h>
+#include <cstring>
 
 #ifdef PEGASUS_INTERNALONLY
 # define PEGASUS_STRING_INLINE inline

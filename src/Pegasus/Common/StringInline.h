@@ -146,14 +146,7 @@ PEGASUS_STRING_INLINE String& String::append(const Char16& c)
 PEGASUS_STRING_INLINE Boolean String::equalNoCase(
     const String& s1, const String& s2)
 {
-#ifdef PEGASUS_HAS_ICU
-    return equalNoCase_aux(s1, s2);
-#else
-    if (s1._rep->size == s2._rep->size)
-        return StringEqualNoCase(s1, s2);
-
-    return false;
-#endif
+    return s1._rep->size == s2._rep->size && StringEqualNoCase(s1, s2);
 }
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES

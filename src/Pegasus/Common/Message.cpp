@@ -415,7 +415,15 @@ void Message::endServer()
     StatisticalData::current()->addToValue((_provTi*1000),
         statType, StatisticalData::PEGASUS_STATDATA_PROVIDER );
 
-}
+    /*This adds the number of bytes read to the total.the request size 
+      value must be stored (requSize) and passed to the StatisticalData 
+     object at the end of processing other wise it will be the ONLY vlaue 
+     that is passed to the client which reports the current state of the 
+     object, not the pevious (one command ago) state */
+ 
+    StatisticalData::current()->addToValue(StatisticalData::current()->requSize,
+        statType, StatisticalData::PEGASUS_STATDATA_BYTES_READ);
+  }
 
 void Message::startProvider()
 {

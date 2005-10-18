@@ -107,8 +107,7 @@ response->setEndProviderTime(request->getEndProviderTime());
 #define STAT_BYTESREAD \
 Uint16 statType = (request->getType() >= CIM_GET_CLASS_RESPONSE_MESSAGE)? \
     request->getType() - CIM_GET_CLASS_RESPONSE_MESSAGE: request->getType()-1;\
-StatisticalData::current()->requSize = contentLength; \
-StatisticalData::current()->addToValue(contentLength, statType, StatisticalData::PEGASUS_STATDATA_BYTES_READ);
+StatisticalData::current()->requSize = contentLength; 
 
 
 

@@ -74,7 +74,7 @@ struct AtomicType
     // This is the only data type that is aligned on a 16 byte boundary
     // (a requirement of the LDCWS instruction used in this module).
 #if 1
-    volatile __float128 tmpl;
+    volatile __float80 tmpl;
 #else
     int x;
 #endif

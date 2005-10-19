@@ -46,29 +46,29 @@ StrippedDiff:
 	$(STRIPCRS)
 	$(COMPARERESULTS)
 
-NewTests:
+NewTests: 
 	@$(RMDIRHIER) $(REPOSITORYDIR)/repository
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" "-I$(MOF_PATH)" $(MOF_PATH)/CIM_Core25.mof
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4.mof"
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof4.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof4.instances RESULTFILE=ValidMof4.instances.master
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4a.mof"
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof4a.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4a.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof4a.instances RESULTFILE=ValidMof4.instances.master
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4b.mof"
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof4b.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4b.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof4b.instances RESULTFILE=ValidMof4.instances.master
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof5.mof"
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof5.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof5.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof5.instances RESULTFILE=ValidMof5.instances.master
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof6.mof"
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof6.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof6.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/instances/ValidMof6.instances RESULTFILE=ValidMof6.instances.master
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof7.mof"
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof7.mof"
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof7.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/A.B RESULTFILE=ValidMof7.A.master
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/B.# RESULTFILE=ValidMof7.B.master
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof8.mof"
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof8.mof"
 	@cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof8.mof
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/ValidMof8a.# RESULTFILE=ValidMof8a.master
 	@$(MAKE) -s MASTERRESULTFILE=./repository/test/classes/ValidMof8b.# RESULTFILE=ValidMof8b.master
@@ -86,28 +86,25 @@ hangdefects:
 	@cimmofl >> $(RESULTFILE) $(REDIRECTERROR)
 
 defects:
-	@$(ECHO) "cimmofl -E InvalidMof1.mof - InvalidQualifier" >> $(RESULTFILE)
-	@cimmofl "-E" InvalidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -E InvalidMof1.mof - InvalidQualifier" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R$(REPOSITORYDIR)" -E" InvalidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -E ValidMof2.mof" >> $(RESULTFILE)
-	@cimmofl "-E" ValidMof2.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -E ValidMof2.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) "-E" ValidMof2.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -xml ValidMof2.mof" >> $(RESULTFILE)
-	@cimmofl --xml ValidMof1.mof >> $(TMPFILE) $(REDIRECTERROR)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -xml ValidMof2.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) --xml ValidMof1.mof >> $(TMPFILE) $(REDIRECTERROR)
 
-tests:
-	@$(RM) $(RESULTFILE)
-	@$(RM) $(TMPFILE)
-	@$(RMDIRHIER) $(REPOSITORYDIR)/repository
+tests: clean
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" "-I$(MOF_PATH)" $(MOF_PATH)/CIM_Core25.mof
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -xml ValidMof1.mof" >> $(RESULTFILE)
-	@cimmofl --xml ValidMof1.mof >> $(TMPFILE) 
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -xml ValidMof1.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) --xml ValidMof1.mof >> $(TMPFILE) 
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -E ValidMof1.mof" >> $(RESULTFILE)
-	@cimmofl "-E" ValidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -E ValidMof1.mof" >> $(RESULTFILE)
+	@cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) "-E" ValidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof1.mof" >> $(RESULTFILE)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof1.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof1.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
 	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) -xml ValidMof2.mof" >> $(RESULTFILE)
@@ -116,25 +113,26 @@ tests:
 	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof2.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof2.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof3.mof" >> $(RESULTFILE)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof3.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof3.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4.mof" >> $(RESULTFILE)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof4.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4a.mof" >> $(RESULTFILE)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof4a.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4a.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof4b.mof" >> $(RESULTFILE)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof4b.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof4b.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) " " >> $(RESULTFILE)
-	@$(ECHO) "cimmofl -R$(REPOSITORYDIR) ValidMof5.mof" >> $(RESULTFILE)
+	@$(ECHO) "cimmofl $(NAMESPACE) -R$(REPOSITORYDIR) ValidMof5.mof" >> $(RESULTFILE)
 	@cimmofl $(NAMESPACE) "-R$(REPOSITORYDIR)" ValidMof5.mof >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(MAKE) -i -s tests_ignoreerror
 	$(COMPARERESULTS)
 	@$(ECHO) +++ Test Passed +++
 	@$(MAKE) -s NewTests
 	@$(MAKE) -i -s defects
+	@$(MAKE) clean
 
 tests_ignoreerror:
 	@$(ECHO) " " >> $(RESULTFILE)

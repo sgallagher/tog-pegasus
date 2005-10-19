@@ -299,8 +299,8 @@ extern int   cimmof_leng;
   CIMMethod *g_currentMethod = 0;
   CIMClass *g_currentClass = 0;
   CIMInstance *g_currentInstance = 0;
-  String g_currentAliasRef = String::EMPTY;  // Alias reference
-  String g_currentAliasDecl = String::EMPTY; // Alias declaration
+  String g_currentAliasRef;  // Alias reference
+  String g_currentAliasDecl; // Alias declaration
   CIMName g_referenceClassName = CIMName();
   Array<CIMKeyBinding> g_KeyBindingArray; // it gets created empty
   TYPED_INITIALIZER_VALUE g_typedInitializerValue; 

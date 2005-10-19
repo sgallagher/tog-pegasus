@@ -54,7 +54,6 @@ PEGASUS_NAMESPACE_BEGIN
 #undef PEGASUS_ARRAY_T
 
 CIMName::CIMName()
-    : cimName(String::EMPTY)
 {
 }
 

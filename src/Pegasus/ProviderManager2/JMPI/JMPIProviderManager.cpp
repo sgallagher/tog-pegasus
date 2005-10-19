@@ -88,6 +88,10 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
       //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/CIMInstanceProvider.java
       {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
       {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;"},
+      /* Fix for 4189 */
+      {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;"},
+      /* Fix for 4189 */
       {"getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;"},
       {"createInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)Lorg/pegasus/jmpi/CIMObjectPath;"},
       {"setInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V"},
@@ -671,7 +675,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     typedef enum {
        METHOD_UNKNOWN = 0,
        METHOD_PEGASUS_24,
-       METHOD_SNIA_PROVIDER20,
+       METHOD_SNIA_PROVIDER20_VER1,
+       METHOD_SNIA_PROVIDER20_VER2,
     } METHOD_VERSION;
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
@@ -723,19 +728,44 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         jmethodID id = NULL;
 
-        // public abstract java.util.Vector enumInstances (org.pegasus.jmpi.CIMObjectPath cop,
-        //                                                 boolean                        deep,
-        //                                                 org.pegasus.jmpi.CIMClass      cimClass,
-        //                                                 boolean                        localOnly)
+        /* Fix for 4189 */
+        // public synchronized Vector enumInstances(CIMObjectPath cop,
+        //                                          boolean       deep,
+        //                                          CIMClass      cimClass,
+        //                                          boolean       localOnly,
+        //                                          boolean       includeQualifiers,
+        //                                          boolean       includeClassOrigin,
+        //                                          String        propertyList[])
         //        throws org.pegasus.jmpi.CIMException
         id = env->GetMethodID((jclass)pr.jProviderClass,
                               "enumInstances",
-                              "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;");
+                              "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
         if (id != NULL)
         {
-            eMethodFound = METHOD_SNIA_PROVIDER20;
-            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_SNIA_PROVIDER20."<<PEGASUS_STD(endl));
+            eMethodFound = METHOD_SNIA_PROVIDER20_VER1;
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_SNIA_PROVIDER20_VER1."<<PEGASUS_STD(endl));
+        }
+        /* Fix for 4189 */
+
+        if (id == NULL)
+        {
+            env->ExceptionClear();
+
+            // public abstract java.util.Vector enumInstances (org.pegasus.jmpi.CIMObjectPath cop,
+            //                                                 boolean                        deep,
+            //                                                 org.pegasus.jmpi.CIMClass      cimClass,
+            //                                                 boolean                        localOnly)
+            //        throws org.pegasus.jmpi.CIMException
+            id = env->GetMethodID((jclass)pr.jProviderClass,
+                                  "enumInstances",
+                                  "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;");
+
+            if (id != NULL)
+            {
+                eMethodFound = METHOD_SNIA_PROVIDER20_VER2;
+                DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_SNIA_PROVIDER20_VER2."<<PEGASUS_STD(endl));
+            }
         }
 
         if (id == NULL)
@@ -823,7 +853,84 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             break;
         }
 
-        case METHOD_SNIA_PROVIDER20:
+        /* Fix for 4189 */
+        case METHOD_SNIA_PROVIDER20_VER1:
+        {
+            jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
+            jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
+
+            JMPIjvm::checkException(env);
+
+            CIMClass cls = pr._cimom_handle->getClass(context,
+                                                      request->nameSpace,
+                                                      request->className,
+                                                      false,
+                                                      true,
+                                                      true,
+                                                      CIMPropertyList());
+            CIMClass *pcls = new CIMClass (cls);
+
+            JMPIjvm::checkException(env);
+
+            jint    jccRef = DEBUG_ConvertCToJava (CIMClass*, jint, pcls);
+            jobject jcc    = env->NewObject(jv->CIMClassClassRef,jv->CIMClassNewI,jccRef);
+
+            JMPIjvm::checkException(env);
+
+            jobjectArray jPropertyList = getList(jv,env,request->propertyList);
+            jobject      jVec          = env->CallObjectMethod((jobject)pr.jProvider,
+                                                               id,
+                                                               jcop,
+                                                               request->deepInheritance,
+                                                               jcc,
+                                                               JMPI_LOCALONLY,
+                                                               JMPI_INCLUDE_QUALIFIERS,
+                                                               request->includeClassOrigin,
+                                                               jPropertyList);
+
+            JMPIjvm::checkException(env);
+
+            STAT_PMS_PROVIDEREND;
+
+            handler.processing();
+            if (jVec) {
+                for (int i=0,m=env->CallIntMethod(jVec,JMPIjvm::jv.VectorSize); i<m; i++) {
+                    JMPIjvm::checkException(env);
+
+                    jobject jciRet = env->CallObjectMethod(jVec,JMPIjvm::jv.VectorElementAt,i);
+
+                    JMPIjvm::checkException(env);
+
+                    jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
+                    CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+
+                    /* Fix for 4237 */
+                    CIMClass             cls = pr._cimom_handle->getClass(context,
+                                                                         request->nameSpace,
+                                                                         ciRet->getClassName(),
+                                                                         false,
+                                                                         true,	
+                                                                         true,
+                                                                         CIMPropertyList());
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
+
+                    JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+
+                    ciRet->setPath(iop);
+                    /* Fix for 4237*/
+
+                    handler.deliver(*ciRet);
+                }
+            }
+            handler.complete();
+            break;
+        }
+        /* Fix for 4189 */
+
+        case METHOD_SNIA_PROVIDER20_VER2:
         {
             jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
@@ -850,7 +957,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             jobject jVec = env->CallObjectMethod((jobject)pr.jProvider,
                                                  id,
                                                  jcop,
-                                                 JMPI_DEEPINHERITANCE,
+                                                 request->deepInheritance,
                                                  jcc,
                                                  JMPI_LOCALONLY);
 
@@ -869,6 +976,24 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
                     jint         jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
                     CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
+
+                    /* Fix for 4237 */
+                    CIMClass             cls = pr._cimom_handle->getClass(context,
+                                                                         request->nameSpace,
+                                                                         ciRet->getClassName(),
+                                                                         false,
+                                                                         true,	
+                                                                         true,
+                                                                         CIMPropertyList());
+                    const CIMObjectPath& op  = ciRet->getPath();
+                    CIMObjectPath        iop = ciRet->buildPath(cls);
+
+                    JMPIjvm::checkException(env);
+
+                    iop.setNameSpace(op.getNameSpace());
+
+                    ciRet->setPath(iop);
+                    /* Fix for 4237*/
 
                     handler.deliver(*ciRet);
                 }

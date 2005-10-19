@@ -68,6 +68,8 @@ int JMPIProviderManager::trace=0;
 #endif
 #define JMPI_LOCALONLY false
 #define JMPI_DEEPINHERITANCE true
+/* Fix for 4092 */
+#define JMPI_INCLUDE_QUALIFIERS false
 
 #include "Convert.h"
 
@@ -1997,8 +1999,8 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                                                                  jResultClass,
                                                                  jRole,
                                                                  jResultRole,
-                                                                 false,
-                                                                 false,
+                                                                 JMPI_INCLUDE_QUALIFIERS,
+                                                                 request->includeClassOrigin,
                                                                  jPropertyList);
 
             JMPIjvm::checkException(env);
@@ -2508,8 +2510,8 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                                                                   jAssociationName,
                                                                   jPathName,
                                                                   jRole,
-                                                                  false,
-                                                                  false,
+                                                                  JMPI_INCLUDE_QUALIFIERS,
+                                                                  request->includeClassOrigin,
                                                                   jPropertyList);
 
             JMPIjvm::checkException(env);

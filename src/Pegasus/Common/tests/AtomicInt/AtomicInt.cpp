@@ -35,12 +35,13 @@
 
 #include <cassert>
 #include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/InternalException.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-int main(int argc, char** argv)
+void test01()
 {
     Boolean bad = false;
     try
@@ -103,6 +104,52 @@ int main(int argc, char** argv)
         cout << "Exception: " << e.getMessage () << endl;
         exit (1);
     }
+}
+
+static AtomicInt _atomic_int(0);
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
+{
+    Thread* thread = (Thread*)parm;
+
+    for (;;)
+    {
+	const size_t N = 100000000;
+
+	for (size_t i = 0; i < N; i++)
+	{
+	    for (size_t i = 0; i < 3; i++)
+	    {
+		_atomic_int++;
+	    }
+
+	    for (size_t i = 0; i < 3; i++)
+	    {
+		_atomic_int.decAndTestIfZero();
+	    }
+	}
+
+	printf("here: %d\n", _atomic_int.get());
+	pegasus_sleep(1000);
+    }
+
+    return 0;
+}
+
+void test02()
+{
+    Thread t1(test_thread, 0, false);
+    t1.run();
+
+    Thread t2(test_thread, 0, false);
+    t2.run();
+}
+
+int main(int argc, char** argv)
+{
+    test01();
+//     test02();
+
     cout << argv[0] << " +++++ passed all tests" << endl;
 
     return 0;

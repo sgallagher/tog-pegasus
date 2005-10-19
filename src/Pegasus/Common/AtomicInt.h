@@ -98,9 +98,15 @@ private:
 
 PEGASUS_NAMESPACE_END
 
+#if 1
+
+# include <Pegasus/Common/AtomicInt_HPUX_PARISC_ACC.h>
+
+#else
+
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_IX86_GNU.h>
-#if defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
+#elif defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_IA64_GNU.h>
 #elif defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_PPC_GNU.h>
@@ -111,6 +117,8 @@ PEGASUS_NAMESPACE_END
 #else
 # include <Pegasus/Common/AtomicInt_Generic.h>
 #endif
+
+#endif /* if 1 */
 
 PEGASUS_NAMESPACE_BEGIN
 

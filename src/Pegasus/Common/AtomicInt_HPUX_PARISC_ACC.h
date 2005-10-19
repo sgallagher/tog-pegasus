@@ -46,7 +46,7 @@ inline Uint32 load_and_clear(volatile Uint32* x)
     /* Warning: x must be aligned on a 16-byte boundary. */
     register Uint32 volatile* addr = (Uint32 volatile*)x;
     register Uint32 t = 0;
-    // ((volatile char*)x)[0] = 0;
+    ((volatile char*)(x + 1))[0] = 0;
     _asm("LDCWS,CO",0,0,addr,t);
     return t;
 #else
@@ -71,16 +71,18 @@ inline Uint32 obtain_spinlock(volatile Uint32* x)
 
 struct AtomicType
 {
-    // We must reserve 16 bytes. The underlying PA-RISC instruction (LDCWS) 
-    // expects its 32-bit operand to be aligned on a 16-byte bondary. To 
-    // ensure this, we find the first 16-byte aligned address within this
-    // buffer by using the AtomicCounter() function defined above.
-    volatile char bytes[16];
+    // This is the only data type that is aligned on a 16 byte boundary
+    // (a requirement of the LDCWS instruction used in this module).
+#if 1
+    volatile __float128 tmpl;
+#else
+    int x;
+#endif
 };
 
 inline volatile Uint32* AtomicCounter(AtomicType* a)
 {
-    return (volatile Uint32*)((((unsigned long)a) + 15) & ~0xF);
+    return (volatile Uint32*)a;
 }
 
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)

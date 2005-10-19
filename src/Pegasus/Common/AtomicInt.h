@@ -100,6 +100,8 @@ PEGASUS_NAMESPACE_END
 
 
 
+#if 1
+# include <Pegasus/Common/AtomicInt_HPUX_PARISC_ACC.h>
 #else
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)

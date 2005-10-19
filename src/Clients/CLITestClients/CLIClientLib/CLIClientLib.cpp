@@ -479,7 +479,7 @@ int enumerateAllInstanceNames(CIMClient& client, Options& opts)
         {
             cout << "EnumerateInstanceNames "
                 << "Namespace = " << opts.nameSpace
-                << ", Class = " << opts.className
+                << ", Class = " << classNames[iClass]
                 << endl;
         }
         Array<CIMObjectPath> instanceNames =

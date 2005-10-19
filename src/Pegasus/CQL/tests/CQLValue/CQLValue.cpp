@@ -360,16 +360,7 @@ void drive_operation()
 
 void drive_get_misc_functions()
 {
-   
-   
-  
-      const char* env = getenv("PEGASUS_HOME");
-   	String repositoryDir(env);
-		repositoryDir.append("/repository");
-      //String repositoryDir("c:/pegasus-cvs/pegasus/repository");	
-	   CIMNamespaceName _ns("root/cimv2");
-	   CIMRepository *_rep = new CIMRepository(repositoryDir);
-	   RepositoryQueryContext _query(_ns, _rep);
+
 try{
       // Get function tests
       CQLValue a1(Uint64(123));
@@ -393,8 +384,6 @@ try{
       CIMInstance _i1(_cimName);
 
       CQLValue a8(_i1);
-
-      CQLValue a9(_query.getClass(CIMName("CIM_OperatingSystem")));
 
       assert(a1.getUint() == Uint64(123));
       assert(a2.getSint() == Sint64(-123));
@@ -422,7 +411,7 @@ try{
       cout << e.getMessage() << endl;
       assert(0);
    }
-   delete _rep;
+
    return;
 }
 
@@ -492,6 +481,8 @@ try{
    CQLValue a9(ci9);
    CQLValue a10(ci10);
 
+   CQLValue a11(_query.getClass(CIMName("CIM_OperatingSystem")));
+
       a1.resolve(_i1, _query);
       a2.resolve(_i1, _query);
       a3.resolve(_i1, _query);
@@ -500,12 +491,7 @@ try{
       a7.resolve(_i1, _query);
       a10.resolve(_i1, _query1);
 
-
-
-
       a9.resolve(_i1, _query);
-
-
 
    assert(a1 == CQLValue(String("Dave Rules")));
    assert(a2 == CQLValue(Uint64(2)));
@@ -622,25 +608,55 @@ void drive_resolve_specialChars()
 
 int main( int argc, char *argv[] ){
 
+  Boolean verbose = false;
+  verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+  Boolean unittests = false;
+  
+  if (argc == 2 && !strcmp (argv[1],"unittests")) 
+    {
+      unittests = true;
+
+    }
+  else if (argc == 2 && !strcmp (argv[1],"poststarttests")) 
+    {
+      unittests = false;
+    }
+  else
+    {
+      cout << argv[0] << ": ERROR - paramater invalid must be either unittests or poststarttests" << endl;
+      exit(0);
+    }
+	
 try
   {
    //BEGIN TESTS....
-cout << "operation" << endl;
+    if (unittests)
+      {
+	if (verbose)
+	  cout << argv[0] << " " << argv[1] << " +++++ operation " << endl;
 	drive_operation();
-       
- cout << "misc" << endl;  
-   drive_get_misc_functions();
-  
- cout << "primitive" << endl;
-   drive_resolve_primitive();
+
+	if (verbose)       
+	  cout << argv[0] << " " << argv[1] << " +++++ misc " << endl;  
+	drive_get_misc_functions();
+
+      }
+    else
+      {  
+	if (verbose)
+	  cout << argv[0] << " " << argv[1] << " +++++ primitive " << endl;
+	drive_resolve_primitive();
    
- cout << "special" << endl;
-   drive_resolve_specialChars();
-   
-	
+	if (verbose)
+	  cout << argv[0] << " " << argv[1] << " +++++ special " << endl;
+	drive_resolve_specialChars();
+
+      }
 	//END TESTS....
 	     
-        cout << argv[0] << " +++++ passed all tests" << endl;
+    cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;
+
   }
 catch(Exception e)
   {

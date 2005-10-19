@@ -42,7 +42,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 inline Uint32 load_and_clear(volatile Uint32* x) 
 {
-#if 0
+#if 1
     /* Warning: x must be aligned on a 16-byte boundary. */
     register Uint32 volatile* addr = (Uint32 volatile*)x;
     register Uint32 t = 0;

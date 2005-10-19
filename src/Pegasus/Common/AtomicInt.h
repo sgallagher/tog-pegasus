@@ -98,9 +98,7 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-#if 1
 
-# include <Pegasus/Common/AtomicInt_HPUX_PARISC_ACC.h>
 
 #else
 
@@ -114,6 +112,8 @@ PEGASUS_NAMESPACE_END
 # include <Pegasus/Common/AtomicInt_WIN32_IX86_MSVC.h>
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <Pegasus/Common/AtomicInt_ZOS_ZSERIES_IBM.h>
+#elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+# include <Pegasus/Common/AtomicInt_HPUX_PARISC_ACC.h>
 #else
 # include <Pegasus/Common/AtomicInt_Generic.h>
 #endif

@@ -106,7 +106,8 @@ void test01()
     }
 }
 
-static AtomicInt _atomic_int(0);
+static AtomicInt _ai1(0);
+static AtomicInt _ai2(0);
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
 {
@@ -114,22 +115,24 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
 
     for (;;)
     {
-	const size_t N = 100000000;
+	const size_t N = 10000000;
 
 	for (size_t i = 0; i < N; i++)
 	{
 	    for (size_t i = 0; i < 3; i++)
 	    {
-		_atomic_int++;
+		_ai1++;
+		_ai2++;
 	    }
 
 	    for (size_t i = 0; i < 3; i++)
 	    {
-		_atomic_int.decAndTestIfZero();
+		_ai1.decAndTestIfZero();
+		_ai2.decAndTestIfZero();
 	    }
 	}
 
-	printf("here: %d\n", _atomic_int.get());
+	break;
     }
 
     return 0;
@@ -146,7 +149,8 @@ void test02()
     t1.join();
     t2.join();
 
-    assert(_atomic_int.get() == 0);
+    assert(_ai1.get() == 0);
+    assert(_ai2.get() == 0);
 }
 
 int main(int argc, char** argv)

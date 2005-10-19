@@ -38,14 +38,15 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#define ATOMIC_UNLOCKED_MASK 0x80000000
+#define PEGASUS_ATOMIC_UNLOCKED_MASK 0x80000000
 
-inline Uint32 load_and_clear(volatile Uint32* x) 
+inline Uint32 AtomicLoadAndClear(volatile Uint32* x) 
 {
 #if 1
-    /* Warning: x must be aligned on a 16-byte boundary. */
+    // Warning: x must be aligned on a 16-byte boundary on older PA-RISC chips.
     register Uint32 volatile* addr = (Uint32 volatile*)x;
     register Uint32 t = 0;
+    // This memory access speeds up LDCWS according to HP documentation.
     ((volatile char*)(x + 1))[0] = 0;
     _asm("LDCWS,CO",0,0,addr,t);
     return t;
@@ -57,13 +58,13 @@ inline Uint32 load_and_clear(volatile Uint32* x)
 #endif
 }
 
-inline Uint32 obtain_spinlock(volatile Uint32* x)
+inline Uint32 AtomicObtainSpinlock(volatile Uint32* x)
 {
     Uint32 t;
 
     // Spin here while not available.
 
-    while (*x == 0 || (t = load_and_clear(x)) == 0)
+    while (*x == 0 || (t = AtomicLoadAndClear(x)) == 0)
 	;
 
     return t;
@@ -74,9 +75,9 @@ struct AtomicType
     // This is the only data type that is aligned on a 16 byte boundary
     // (a requirement of the LDCWS instruction used in this module).
 #if 1
-    volatile __float80 tmpl;
+    volatile __float80 rep;
 #else
-    int x;
+    char rep[16];
 #endif
 };
 
@@ -87,7 +88,7 @@ inline volatile Uint32* AtomicCounter(AtomicType* a)
 
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
-    *AtomicCounter(&_rep) = ATOMIC_UNLOCKED_MASK | n;
+    *AtomicCounter(&_rep) = PEGASUS_ATOMIC_UNLOCKED_MASK | n;
 }
 
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
@@ -106,37 +107,37 @@ inline Uint32 AtomicIntTemplate<AtomicType>::get() const
     while ((t = *c) == 0)
 	;
 
-    return ~ATOMIC_UNLOCKED_MASK & t;
+    return ~PEGASUS_ATOMIC_UNLOCKED_MASK & t;
 }
 
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
     volatile Uint32* c = AtomicCounter(&_rep);
-    obtain_spinlock(c);
-    *c = ATOMIC_UNLOCKED_MASK | n;
+    AtomicObtainSpinlock(c);
+    *c = PEGASUS_ATOMIC_UNLOCKED_MASK | n;
 }
 
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
     volatile Uint32* c = AtomicCounter(&_rep);
-    Uint32 t = obtain_spinlock(c);
+    Uint32 t = AtomicObtainSpinlock(c);
     *c = t + 1;
 }
 
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
     volatile Uint32* c = AtomicCounter(&_rep);
-    Uint32 t = obtain_spinlock(c);
+    Uint32 t = AtomicObtainSpinlock(c);
     *c = t - 1;
 }
 
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     volatile Uint32* c = AtomicCounter(&_rep);
-    Uint32 t = obtain_spinlock(c);
+    Uint32 t = AtomicObtainSpinlock(c);
     t -= 1;
     *c = t;
-    return (~ATOMIC_UNLOCKED_MASK & t) == 0;
+    return (~PEGASUS_ATOMIC_UNLOCKED_MASK & t) == 0;
 }
 
 PEGASUS_NAMESPACE_END

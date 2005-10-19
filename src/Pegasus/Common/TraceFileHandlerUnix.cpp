@@ -66,6 +66,7 @@ void TraceFileHandler::handleMessage(
 
     // Do not add Trace calls in the Critical section
     // ---- BEGIN CRITICAL SECTION
+    AutoMutex writeLock(writeMutex);
 
     // If the file has been deleted, re-open it and continue
     if (!System::exists(_fileName))
@@ -77,8 +78,6 @@ void TraceFileHandler::handleMessage(
             return;
         }
     }
-
-    AutoMutex writeLock(writeMutex);
 
     // Got the Lock on the File. Seek to the end of File
     fseek(_fileHandle,0,SEEK_END);

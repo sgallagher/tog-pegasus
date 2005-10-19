@@ -100,7 +100,7 @@ PEGASUS_NAMESPACE_END
 
 
 
-#if 1
+#if 0
 # include <Pegasus/Common/AtomicInt_HPUX_PARISC_ACC.h>
 #else
 

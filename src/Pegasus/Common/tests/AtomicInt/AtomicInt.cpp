@@ -130,7 +130,6 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
 	}
 
 	printf("here: %d\n", _atomic_int.get());
-	pegasus_sleep(1000);
     }
 
     return 0;
@@ -143,12 +142,17 @@ void test02()
 
     Thread t2(test_thread, 0, false);
     t2.run();
+
+    t1.join();
+    t2.join();
+
+    assert(_atomic_int.get() == 0);
 }
 
 int main(int argc, char** argv)
 {
     test01();
-//     test02();
+    test02();
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

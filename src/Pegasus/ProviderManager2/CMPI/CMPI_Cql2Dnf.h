@@ -48,7 +48,6 @@ PEGASUS_NAMESPACE_BEGIN
 class CMPI_Cql2Dnf
 {
 public:
-  CMPI_Cql2Dnf ();
 CMPI_Cql2Dnf (CMPI_Cql2Dnf * m):_tableau (m->_tableau), cqs (m->cqs)
   {
   }

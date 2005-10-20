@@ -1,15 +1,23 @@
 [Indication]
 class TestCMPI_Indication 
 {
-	string PropertyA;
+    string PropertyA;
     string PropertyB;
 
-	string s; 
-    uint64 n;
-    real64 f;
+    string s; 
+    char16 c;
+    uint64 n64;
+    uint32 n32;
+    uint16 n16;
+    uint8  n8;
+    real64 r64;
+    real32 r32;
     datetime d;
-
-
+    sint64 s64;
+    sint32 s32;
+    sint16 s16;
+    sint8  s8;
+    boolean b;
 };
 
 class TestCMPI_Parent
@@ -18,17 +26,26 @@ class TestCMPI_Parent
 
 class TestCMPI_Instance : TestCMPI_Parent
 {
-	[key]
-	string ElementName;
+    [key]
+    string ElementName;
 
-	string s; 
+    string s; 
+    char16 c;
     uint64 n64;
     uint32 n32;
-	uint16 n16;
-    real64 f;
+    uint16 n16;
+    real64 r64;
+    real32 r32;
     datetime d;
+    sint64 s64;
+    sint32 s32;
+    sint16 s16;
+    boolean b;
 
+};
 
+class TestCMPI_ExecQuery : TestCMPI_Instance
+{
 };
 
 class TestCMPI_Method : TestCMPI_Parent
@@ -64,6 +81,7 @@ class TestCMPI_Fail_3: TestCMPI_Parent
 
 class TestCMPI_Fail_4: TestCMPI_Parent
 {
+  string Name;
 };
 
 class TestCMPI_Thread: TestCMPI_Parent

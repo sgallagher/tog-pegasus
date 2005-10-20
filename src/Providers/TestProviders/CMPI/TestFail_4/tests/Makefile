@@ -31,6 +31,13 @@ ROOT = ../../../../../../
 include $(ROOT)/mak/config.mak
 include $(ROOT)/test/config.mak
 
-XMLSCRIPTS = EnumerateInstance_Fail_4
+XMLSCRIPTS = \
+	CreateInstance_Fail_4 \
+	DeleteInstance_Fail_4 \
+	EnumerateInstance_Fail_4 \
+	EnumerateInstanceNames_Fail_4 \
+	GetInstance_Fail_4 \
+	ModifyInstance_Fail_4
+
 
 include $(ROOT)/test/configend.mak

@@ -45,6 +45,8 @@
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
+const CIMNamespaceName PROVIDERNAMESPACE =
+CIMNamespaceName ("test/TestProvider");
 
 Boolean verbose;
 
@@ -59,7 +61,7 @@ test01( CIMClient & client)
 {  
   try {
    Array<CIMInstance> instances = client.enumerateInstances(
-		CIMNamespaceName("test/TestProvider"),
+		   PROVIDERNAMESPACE,
 		CIMName("TestCMPI_Thread"));
   } catch (const CIMException &e)
   {
@@ -68,6 +70,88 @@ test01( CIMClient & client)
 		throw e;
   }
 }
+
+static void
+test02 (CIMClient & client)
+{
+  Uint32 exceptions = 0;
+  CIMObjectPath instanceName;
+  Array < CIMKeyBinding > keyBindings;
+
+  keyBindings.append (CIMKeyBinding ("ElementNameName",
+                                     "TestCMPI_Thread",
+                                     CIMKeyBinding::STRING));
+
+  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setClassName ("TestCMPI_Thread");
+  instanceName.setKeyBindings (keyBindings);
+
+  /* Call the unsupported functions of the provider. */
+  try
+  {
+    CIMInstance instance (client.getInstance (PROVIDERNAMESPACE,
+                                              instanceName));
+  } catch (const CIMException &)
+  {
+	 exceptions ++;
+  }
+
+
+  try
+  {
+    client.deleteInstance (PROVIDERNAMESPACE, instanceName);
+
+  } catch (const CIMException & )
+  {
+	 exceptions ++;
+  }
+  CIMInstance newInstance ("TestCMPI_Thread");
+  newInstance.setPath (instanceName);
+  try
+  {
+
+    CIMObjectPath objectPath (client.createInstance (PROVIDERNAMESPACE,
+                                                     newInstance));
+
+
+  } catch (const CIMException &)
+  {
+	 exceptions ++;
+  }
+
+  try
+  {
+    client.modifyInstance (PROVIDERNAMESPACE, newInstance);
+
+  } catch (const CIMException &)
+  {
+	 exceptions ++;
+  }
+  try
+  {
+
+    Array < CIMInstance > instances =
+      client.enumerateInstances (PROVIDERNAMESPACE,
+                                 CIMName ("TestCMPI_Thread"));
+  } catch (const CIMException &)
+  {
+	 exceptions ++;
+  }
+
+  try
+  {
+    Array < CIMObjectPath > objectPaths =
+      client.enumerateInstanceNames (PROVIDERNAMESPACE,
+                                     CIMName ("TestCMPI_Thread"));
+  } catch (const CIMException &)
+  {
+	 exceptions ++;
+  }
+
+  PEGASUS_ASSERT(exceptions ==  6);
+
+}
+
 void
 executeMethod (CIMClient & client, String operation)
 {
@@ -90,16 +174,15 @@ executeMethod (CIMClient & client, String operation)
 						inParm,
 						outParm);
 }
-
-
 void
 _test (CIMClient & client)
 {
   try
   {
     test01(client);
-    executeMethod (client, "stop");
-    executeMethod (client, "start"); 
+    test02(client);
+    executeMethod(client, "stop");
+    executeMethod(client, "start");
   }
   catch (Exception & e)
   {

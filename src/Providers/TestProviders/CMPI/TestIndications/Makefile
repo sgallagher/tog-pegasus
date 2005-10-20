@@ -33,7 +33,7 @@ DIR = Providers/TestProviders/CMPI/TestIndications
 
 include $(ROOT)/mak/config.mak
 
-LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
+LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\" -DPEGASUS_USE_EXPERIMENTAL
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc
@@ -41,6 +41,8 @@ ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
 endif
 
 VMS_HAS_CC = yes
+
+LIBRARIES = cmpiUtilLib
 
 LIBRARY = cmpiTestIndicationProvider
 

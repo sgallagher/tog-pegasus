@@ -28,26 +28,24 @@
 #//==============================================================================
 ROOT = ../../../../..
 
-DIR = Providers/TestProviders/CMPI/TestMethod
-
+DIR = Providers/TestProviders/CMPI/TestExecQuery
 
 include $(ROOT)/mak/config.mak
+
+LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
 
 ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
     CXX = cc
     FLAGS += -W"c,SSCOMM"
 endif
 
-LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
-
 VMS_HAS_CC = yes
-
 LIBRARIES = cmpiUtilLib
 
-LIBRARY = cmpiTestMethodProvider
+LIBRARY = cmpiTestExecQueryProvider
 
 SOURCES = \
-	cmpiTestMethodProvider.c
+	cmpiTestExecQueryProvider.c
 
 include $(ROOT)/mak/library.mak
 

@@ -61,82 +61,106 @@ TestCMPIFail_4ProviderCleanup (CMPIInstanceMI * mi, const CMPIContext * ctx,
 
 CMPIStatus
 TestCMPIFail_4ProviderEnumInstanceNames (CMPIInstanceMI * mi,
-                                           const CMPIContext * ctx,
-                                           const CMPIResult * rslt,
-                                           const CMPIObjectPath * ref)
+                                         const CMPIContext * ctx,
+                                         const CMPIResult * rslt,
+                                         const CMPIObjectPath * ref)
 {
-  CMReturnWithChars(_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
 TestCMPIFail_4ProviderEnumInstances (CMPIInstanceMI * mi,
-                                       const CMPIContext * ctx,
-                                       const CMPIResult * rslt,
-                                       const CMPIObjectPath * ref,
-                                       const char **properties)
+                                     const CMPIContext * ctx,
+                                     const CMPIResult * rslt,
+                                     const CMPIObjectPath * ref,
+                                     const char **properties)
 {
-  CMReturnWithChars(_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
 TestCMPIFail_4ProviderGetInstance (CMPIInstanceMI * mi,
-                                     const CMPIContext * ctx,
-                                     const CMPIResult * rslt,
-                                     const CMPIObjectPath * cop,
-                                     const char **properties)
+                                   const CMPIContext * ctx,
+                                   const CMPIResult * rslt,
+                                   const CMPIObjectPath * cop,
+                                   const char **properties)
 {
-  CMReturnWithChars(_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
 TestCMPIFail_4ProviderCreateInstance (CMPIInstanceMI * mi,
-                                        const CMPIContext * ctx,
-                                        const CMPIResult * rslt,
-                                        const CMPIObjectPath * cop,
-                                        const CMPIInstance * ci)
+                                      const CMPIContext * ctx,
+                                      const CMPIResult * rslt,
+                                      const CMPIObjectPath * cop,
+                                      const CMPIInstance * ci)
 {
-  CMReturnWithChars(_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
 TestCMPIFail_4ProviderModifyInstance (CMPIInstanceMI * mi,
-                                        const CMPIContext * ctx,
-                                        const CMPIResult * rslt,
-                                        const CMPIObjectPath * cop,
-                                        const CMPIInstance * ci,
-                                        const char **properties)
+                                      const CMPIContext * ctx,
+                                      const CMPIResult * rslt,
+                                      const CMPIObjectPath * cop,
+                                      const CMPIInstance * ci,
+                                      const char **properties)
 {
-  CMReturnWithChars(_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
 CMPIStatus
 TestCMPIFail_4ProviderDeleteInstance (CMPIInstanceMI * mi,
-                                        const CMPIContext * ctx,
-                                        const CMPIResult * rslt,
-                                        const CMPIObjectPath * cop)
+                                      const CMPIContext * ctx,
+                                      const CMPIResult * rslt,
+                                      const CMPIObjectPath * cop)
 {
-  CMReturnWithChars(_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
+/*
+ * We don't support this function.
+ */
+/*
 CMPIStatus
 TestCMPIFail_4ProviderExecQuery (CMPIInstanceMI * mi,
-                                   const CMPIContext * ctx,
-                                   const CMPIResult * rslt,
-                                   const CMPIObjectPath * ref,
-                                   const char *lang, const char *query)
+                                 const CMPIContext * ctx,
+                                 const CMPIResult * rslt,
+                                 const CMPIObjectPath * ref,
+                                 const char *lang, const char *query)
 {
-  CMReturnWithChars(_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
+  CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
-
+*/
 /* ---------------------------------------------------------------------------*/
 /*                              Provider Factory                              */
 /* ---------------------------------------------------------------------------*/
-
+/*
 CMInstanceMIStub (TestCMPIFail_4Provider,
                   TestCMPIFail_4Provider, _broker, CMNoHook);
+*/
 
+static CMPIInstanceMIFT instMIFT__ = {
+    100, 100, "instance" "TestCMPIFail_4Provider",
+    TestCMPIFail_4ProviderCleanup, 
+    TestCMPIFail_4ProviderEnumInstanceNames,
+    TestCMPIFail_4ProviderEnumInstances, 
+    TestCMPIFail_4ProviderGetInstance,
+    TestCMPIFail_4ProviderCreateInstance,
+    TestCMPIFail_4ProviderModifyInstance,
+    TestCMPIFail_4ProviderDeleteInstance, 
+    NULL
+};
+CMPIInstanceMI *
+TestCMPIFail_4Provider_Create_InstanceMI (const CMPIBroker * brkr,
+                                          const CMPIContext * ctx,
+                                          CMPIStatus * rc)
+{
+  static CMPIInstanceMI mi = { ((void *) 0), &instMIFT__, };
+  _broker = brkr;
+  return &mi;
+};
 
 /* ---------------------------------------------------------------------------*/
 /*             end of TestCMPIProvider                      */
 /* ---------------------------------------------------------------------------*/
-

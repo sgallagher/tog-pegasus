@@ -58,7 +58,7 @@ extern int _cmpi_trace;
 extern "C"
 {
 
-  static CMPIStatus selxRelease (CMPISelectExp * eSx)
+  PEGASUS_STATIC CMPIStatus selxRelease (CMPISelectExp * eSx)
   {
  	CMPI_SelectExp *se = (CMPI_SelectExp*)eSx;
         if (!se->persistent) {
@@ -74,7 +74,7 @@ extern "C"
     CMReturn (CMPI_RC_OK);
   }
 
-  static CMPISelectExp *selxClone (const CMPISelectExp * eSx, CMPIStatus * rc)
+  PEGASUS_STATIC CMPISelectExp *selxClone (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
     if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
@@ -82,7 +82,7 @@ extern "C"
   }
 
   /* Helper functions */
-  static CMPIBoolean _check_WQL (CMPI_SelectExp * sx, CMPIStatus * rc)
+  PEGASUS_STATIC CMPIBoolean _check_WQL (CMPI_SelectExp * sx, CMPIStatus * rc)
   {
 
     if (sx->wql_stmt == NULL)
@@ -112,7 +112,7 @@ extern "C"
       }                         /* sx->wql_stmt ... */
     return true;
   }
-  static CMPIBoolean _check_CQL (CMPI_SelectExp * sx, CMPIStatus * rc)
+  PEGASUS_STATIC CMPIBoolean _check_CQL (CMPI_SelectExp * sx, CMPIStatus * rc)
   {
     Boolean fail = false;
     if (sx->cql_stmt == NULL)
@@ -154,7 +154,7 @@ extern "C"
     return true;
   }
 
-  static CMPIBoolean selxEvaluate (const CMPISelectExp * eSx, const CMPIInstance * inst,
+  PEGASUS_STATIC CMPIBoolean selxEvaluate (const CMPISelectExp * eSx, const CMPIInstance * inst,
                                    CMPIStatus * rc)
   {
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
@@ -231,7 +231,7 @@ extern "C"
     return false;
   }
 
-  static CMPIBoolean selxEvaluateUsingAccessor (const CMPISelectExp * eSx,
+  PEGASUS_STATIC CMPIBoolean selxEvaluateUsingAccessor (const CMPISelectExp * eSx,
                                                 CMPIAccessor * accessor,
                                                 void *parm, CMPIStatus * rc)
   {
@@ -307,7 +307,7 @@ extern "C"
     return false;
   }
 
-  static CMPIString *selxGetString (const CMPISelectExp * eSx, CMPIStatus * rc)
+  PEGASUS_STATIC CMPIString *selxGetString (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
     if (rc)
@@ -315,7 +315,7 @@ extern "C"
     return string2CMPIString (sx->cond);
   }
 
-  static CMPISelectCond *selxGetDOC (const CMPISelectExp * eSx, CMPIStatus * rc)
+  PEGASUS_STATIC CMPISelectCond *selxGetDOC (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
 
     CMPI_SelectExp *sx = (CMPI_SelectExp *) eSx;
@@ -326,7 +326,22 @@ extern "C"
       {
         if (sx->wql_dnf == NULL)
           {
-            sx->wql_dnf = new CMPI_Wql2Dnf (String (sx->cond), String::EMPTY);
+	   CMPI_Wql2Dnf *dnf = NULL;
+	   try 
+	   {
+            dnf = new CMPI_Wql2Dnf (String (sx->cond), String::EMPTY);
+            }
+            catch (const Exception &e)
+            {
+		 DDD(cout<<"### exception: selxGetDOC - msg: "<<e.getMessage()<<endl);
+
+         	if (rc) CMSetStatusWithString(rc,CMPI_RC_ERR_FAILED,
+            		(CMPIString*)string2CMPIString(e.getMessage()));
+                if (dnf)
+                  delete dnf;
+	       return NULL;
+	    }
+	    sx->wql_dnf = dnf;
             sx->tableau = sx->wql_dnf->getTableau ();
           }
         sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
@@ -381,7 +396,7 @@ extern "C"
     return NULL;
   }
 
-  static CMPISelectCond *selxGetCOD (const CMPISelectExp * eSx, CMPIStatus * rc)
+  PEGASUS_STATIC CMPISelectCond *selxGetCOD (const CMPISelectExp * eSx, CMPIStatus * rc)
   {
     if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);

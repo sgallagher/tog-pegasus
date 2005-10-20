@@ -82,11 +82,13 @@ extern "C" {
 		CMReturn(CMPI_RC_ERR_NOT_SUPPORTED);
    }
 
+#if defined (CMPI_VER_87) && !defined(CMPI_VER_100)
    int prdEvaluate(CMPIPredicate* pr, CMPIValue* value,
                   CMPIType type, CMPIStatus* rc) {
 		 if (rc) CMSetStatus(rc,CMPI_RC_ERR_NOT_SUPPORTED);
          return 0;
    }
+#endif
 
   CMPIBoolean prdEvaluateUsingAccessor (const CMPIPredicate*,  CMPIAccessor *f, void *p, CMPIStatus *rc) {
 

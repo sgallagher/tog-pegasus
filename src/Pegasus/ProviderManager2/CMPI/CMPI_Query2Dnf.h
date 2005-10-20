@@ -91,7 +91,6 @@ public:
   {
     return _stringValue;
   }
-  Boolean operator== (const CMPI_QueryOperand & x) const;
 
 private:
   Type _type;
@@ -140,7 +139,6 @@ protected:
   {
     return mark;
   }
-  Boolean operator== (const CMPI_term_el & x);
 private:
   CMPIType mapType (CMPI_QueryOperand::Type type) const;
 };

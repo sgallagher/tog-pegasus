@@ -296,13 +296,6 @@ CMPI_Cql2Dnf::_populateTableau ()
         }
     }
 }
-
-CMPI_Cql2Dnf::CMPI_Cql2Dnf ()
-{
-  _tableau.clear ();
-
-}
-
 CMPI_Cql2Dnf::CMPI_Cql2Dnf (const CQLSelectStatement qs):
 cqs (qs)
 {

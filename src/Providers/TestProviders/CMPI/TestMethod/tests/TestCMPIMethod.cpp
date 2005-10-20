@@ -341,6 +341,69 @@ test05 (CIMClient & client)
 
 }
 void
+test06 (CIMClient & client)
+{
+  CIMObjectPath instanceName;
+  Uint32 exception  =0;
+  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setClassName (CLASSNAME);
+
+  Array < CIMParamValue > inParams;
+  Array < CIMParamValue > outParams;
+
+  /*     String returnDateTime(); */
+  try {
+  CIMValue retValue = client.invokeMethod (PROVIDERNAMESPACE,
+					   instanceName,
+					   "noSuchFunction",
+					   inParams,
+					   outParams);
+  } catch (const CIMException &e)
+  {
+	  exception ++;
+  	PEGASUS_ASSERT (e.getCode() == CIM_ERR_NOT_FOUND);
+  }
+  PEGASUS_ASSERT (exception == 1);
+}
+void
+test07 (CIMClient & client)
+{
+  CIMObjectPath instanceName;
+  Uint32 exception  =0;
+  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setClassName (CLASSNAME);
+
+  Array < CIMParamValue > inParams;
+  Array < CIMParamValue > outParams;
+
+    inParams.append (CIMParamValue ("Operation", CIMValue (String ("Boom"))));
+  CIMValue retValue = client.invokeMethod (PROVIDERNAMESPACE,
+					   instanceName,
+					   "TestCMPIBroker",
+					   inParams,
+					   outParams);
+    _checkUint32Value (retValue, 1);
+}
+void
+test08 (CIMClient & client)
+{
+  CIMObjectPath instanceName;
+  Uint32 exception  =0;
+  instanceName.setNameSpace (PROVIDERNAMESPACE);
+  instanceName.setClassName (CLASSNAME);
+
+  Array < CIMParamValue > inParams;
+  Array < CIMParamValue > outParams;
+
+  inParams.append (CIMParamValue ("Operation", CIMValue (Uint64 (1))));
+  CIMValue retValue = client.invokeMethod (PROVIDERNAMESPACE,
+					   instanceName,
+					   "TestCMPIBroker",
+					   inParams,
+					   outParams);
+    _checkUint32Value (retValue, 1);
+}
+void
 _test (CIMClient & client)
 {
   try
@@ -351,6 +414,10 @@ _test (CIMClient & client)
     test03 (client);
     test04 (client);
     test05 (client);
+    test06 (client);
+    test07 (client);
+    test08 (client);
+    
   }
   catch (Exception & e)
   {

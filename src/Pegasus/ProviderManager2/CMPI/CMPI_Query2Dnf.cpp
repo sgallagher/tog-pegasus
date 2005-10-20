@@ -51,18 +51,6 @@ CMPI_QueryOperand::CMPI_QueryOperand (const String & x, Type type)
   _stringValue = String (x);
 }
 
-
-Boolean
-CMPI_QueryOperand::operator== (const CMPI_QueryOperand & x) const 
-{
-
-  if (x._type == _type)
-    {
-      return x._stringValue == _stringValue;
-    }
-  return false;
-}
-
 int
 CMPI_term_el::toStrings (CMPIType & typ, CMPIPredOp & opr, String & o1,
                          String & o2) const 
@@ -77,20 +65,6 @@ CMPI_term_el::toStrings (CMPIType & typ, CMPIPredOp & opr, String & o1,
     typ = mapType (opn1.getType ());
   return 0;
 }
-
-Boolean
-CMPI_term_el::operator== (const CMPI_term_el & x)
-{
-  if (x.op == op)
-    {
-      if (opn1.getType () == opn2.getType ())
-        {
-          return opn1.getTypeValue () == opn2.getTypeValue ();
-        }
-    }
-  return false;
-}
-
 CMPIType
 CMPI_term_el::mapType (CMPI_QueryOperand::Type type) const 
 {

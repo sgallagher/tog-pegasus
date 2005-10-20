@@ -52,7 +52,7 @@ CMPI_String* string2CMPIString(const String &s) {
 
 extern "C" {
 
-static CMPIStatus stringRelease(CMPIString *eStr) {
+PEGASUS_STATIC CMPIStatus stringRelease(CMPIString *eStr) {
    // cout<<"--- cmpi stringRelease()"<<endl;
    char* str=(char*)eStr->hdl;
    if (str) {
@@ -63,7 +63,7 @@ static CMPIStatus stringRelease(CMPIString *eStr) {
    CMReturn(CMPI_RC_OK);
 }
 
-   static CMPIString* stringClone(const CMPIString *eStr, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPIString* stringClone(const CMPIString *eStr, CMPIStatus* rc) {
       char* str=(char*)eStr->hdl;
       char* newstr=::strdup(str);
       CMPI_Object* obj=new CMPI_Object(newstr);
@@ -72,14 +72,13 @@ static CMPIStatus stringRelease(CMPIString *eStr) {
       return (CMPIString*)obj;
    }
 
-   static char * stringGetCharPtr(const CMPIString *eStr, CMPIStatus* rc) {
+   PEGASUS_STATIC char * stringGetCharPtr(const CMPIString *eStr, CMPIStatus* rc) {
       char* ptr=(char*)eStr->hdl;
       if (rc) CMSetStatus(rc,CMPI_RC_OK);
       return ptr;
    }
 
 }
-
 static CMPIStringFT string_FT={
      CMPICurrentVersion,
      stringRelease,

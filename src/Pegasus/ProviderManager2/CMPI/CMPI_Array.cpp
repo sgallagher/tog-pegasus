@@ -45,7 +45,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 extern "C" {
 
-   static CMPIStatus arrayRelease(CMPIArray* eArray) {
+   PEGASUS_STATIC CMPIStatus arrayRelease(CMPIArray* eArray) {
    //   cout<<"--- arrayRelease()"<<endl;
       CMPIData *dta=(CMPIData*)eArray->hdl;
       if (dta) {
@@ -55,7 +55,7 @@ extern "C" {
       CMReturn(CMPI_RC_OK);
    }
 
-   static CMPIArray* arrayClone(const CMPIArray* eArray, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPIArray* arrayClone(const CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData* dta=(CMPIData*)eArray->hdl;
 
 	  if (!dta) {
@@ -128,7 +128,7 @@ extern "C" {
       return nArray;
    }
 
-   static CMPIData arrayGetElementAt(const CMPIArray* eArray, CMPICount pos, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPIData arrayGetElementAt(const CMPIArray* eArray, CMPICount pos, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
       CMPIData data={0,CMPI_nullValue,{0}};
 	  if (!dta) {
@@ -165,7 +165,7 @@ extern "C" {
       CMReturn(CMPI_RC_ERR_NOT_FOUND);
    }
 
-   static CMPICount arrayGetSize(const CMPIArray* eArray, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPICount arrayGetSize(const CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
 	  if (!dta) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -175,7 +175,7 @@ extern "C" {
       return dta->value.uint32;
    }
 
-   static CMPIType arrayGetType(const CMPIArray* eArray, CMPIStatus* rc) {
+   PEGASUS_STATIC CMPIType arrayGetType(const CMPIArray* eArray, CMPIStatus* rc) {
       CMPIData *dta=(CMPIData*)eArray->hdl;
 	  if (!dta) {
 		if (rc) CMSetStatus(rc, CMPI_RC_ERR_INVALID_PARAMETER);
@@ -187,7 +187,6 @@ extern "C" {
    }
 
 }
-
 static CMPIArrayFT array_FT={
      CMPICurrentVersion,
      arrayRelease,

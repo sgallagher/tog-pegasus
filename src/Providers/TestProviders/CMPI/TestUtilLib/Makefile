@@ -28,7 +28,7 @@
 #//==============================================================================
 ROOT = ../../../../..
 
-DIR = Providers/TestProviders/CMPI/TestMethod
+DIR = Providers/TestProviders/CMPI/TestUtilLib
 
 
 include $(ROOT)/mak/config.mak
@@ -42,12 +42,10 @@ LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
 
 VMS_HAS_CC = yes
 
-LIBRARIES = cmpiUtilLib
-
-LIBRARY = cmpiTestMethodProvider
+LIBRARY = cmpiUtilLib
 
 SOURCES = \
-	cmpiTestMethodProvider.c
+	cmpiUtilLib.c
 
 include $(ROOT)/mak/library.mak
 

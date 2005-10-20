@@ -4,10 +4,10 @@
 
 instance of PG_ProviderModule
 {
-   Description = "CMPI Test Instance provider";
-   Name = "TestCMPIInstanceProviderModule";
+   Description = "CMPI Test Instance and ExecQuery provider";
+   Name = "TestCMPIExecQueryProviderModule";
   // The library name on disk
-   Location = "cmpiTestInstanceProvider"; 
+   Location = "cmpiTestExecQueryProvider"; 
    Vendor = "SBLIM";
    Version = "2.0.0";
    InterfaceType = "CMPI";
@@ -16,20 +16,20 @@ instance of PG_ProviderModule
 
 instance of PG_Provider
 {
-   ProviderModuleName = "TestCMPIInstanceProviderModule";
+   ProviderModuleName = "TestCMPIExecQueryProviderModule";
    // The provider name as referenced in the code!
-   Name = "TestCMPIInstanceProvider";	
+   Name = "TestCMPIExecQueryProvider";	
 };
 
 instance of PG_ProviderCapabilities
 {
-   ProviderModuleName = "TestCMPIInstanceProviderModule";
-   ProviderName = "TestCMPIInstanceProvider";
-   CapabilityID = "CMPI Test Instance Provider";
+   ProviderModuleName = "TestCMPIExecQueryProviderModule";
+   ProviderName = "TestCMPIExecQueryProvider";
+   CapabilityID = "CMPI Test ExecQuery Provider";
    // Name of the CIM Class as defined in the mof.
-   ClassName = "TestCMPI_Instance";
+   ClassName = "TestCMPI_ExecQuery";
    Namespaces = { "test/TestProvider" };
-   ProviderType = { 2, 7 }; // Instance
+   ProviderType = { 2, 7 }; // Instance and Execute Query.
    SupportedProperties = NULL; // All properties
    SupportedMethods = NULL; // All methods
 };

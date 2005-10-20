@@ -26,29 +26,41 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../..
-
-DIR = Providers/TestProviders/CMPI/TestMethod
-
+ROOT = ../../../../../../
 
 include $(ROOT)/mak/config.mak
 
-ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-    CXX = cc
-    FLAGS += -W"c,SSCOMM"
-endif
+LIBRARIES = \
+     pegserver \
+     pegclient \
+     pegrepository \
+     pegconfig \
+     pegcommon
 
-LOCAL_DEFINES = -DPEGASUS_ROOT=\"$(PEGASUS_ROOT)\"
+LOGFILES = TestCMPIInstanceExecQuery
 
-VMS_HAS_CC = yes
+EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-LIBRARIES = cmpiUtilLib
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-LIBRARY = cmpiTestMethodProvider
+SOURCES = TestCMPIInstanceExecQuery.cpp
 
-SOURCES = \
-	cmpiTestMethodProvider.c
+PROGRAM = TestCMPIInstanceExecQuery
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/program.mak
+include $(ROOT)/test/config.mak
+
+LOGFILES = TestCMPIExecQuery
 
 tests:
+
+poststarttests: 
+	@$(RM) $(LOGFILES).log
+	@$(ECHO) $(PROGRAM) test
+	@$(PROGRAM) test
+	@$(ECHO) +++ $(PROGRAM) passed successfully +++
+	@$(DIFF) $(LOGFILES).loggood $(LOGFILES).log
+	@$(ECHO) +++ $(LOGFILES) passed successfully +++
+
+
+install:

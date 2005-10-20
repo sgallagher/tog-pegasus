@@ -50,14 +50,21 @@ PEGASUS_USING_STD;
 const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
 const CIMNamespaceName SOURCENAMESPACE =
 CIMNamespaceName ("test/TestProvider");
-const char *queries[] = {
+const char *queries_CQL[] = {
+  "SELECT * FROM TestCMPI_Indication WHERE s='s' AND c='c' OR n32>=32 OR n16<=17 OR n64>23 OR r32>=1.0 OR r64=1.2 or b=1 AND s8>1 AND s16>16 AND s32>32 AND s64>64",
   "SELECT * FROM TestCMPI_Indication WHERE (PropertyA='PropertyA' OR PropertyB='Nothing') AND s='s'",
   "SELECT PropertyA, PropertyB FROM TestCMPI_Indication WHERE PropertyA='PropertyA' OR PropertyB='Nothing' OR s='s'",
   "SELECT s FROM TestCMPI_Indication WHERE NOT (PropertyA='PropertyA' OR PropertyB='Nothing') AND PropertyA='AccessorPropertyA'",
-  "SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (n IS NULL)"
+  "SELECT * FROM TestCMPI_Indication WHERE (s IS NOT NULL) OR (c IS NULL)",
+  "SELECT n32,r64 FROM TestCMPI_Indication WHERE n32=42 AND r64>=2.2",
+  "SELECT n8,n16,n32,n64 FROM TestCMPI_Indication WHERE n8=8 AND n16=16 AND n32=32 AND n64>32",
+  "SELECT s8,s16,s32,s64 FROM TestCMPI_Indication WHERE s8>1 AND s16=256 OR s32>9999 or s64>=2232",
+  "SELECT r32,r64 FROM TestCMPI_Indication WHERE r32<=1.23 OR r64=3.14",
+  "SELECT c,b FROM TestCMPI_Indication WHERE c=c OR b=1",
+  "SELECT * FROM TestCMPI_Indication WHERE b!=1 AND c=c",
 };
 
-#define QUERIES 4
+#define QUERIES_CQL 10
 String _filter ("TestCMPI_Indication_Filter_");
 String _handler ("TestCMPI_Indication_Handler_");
 String _destination ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer");
@@ -67,7 +74,7 @@ Boolean verbose;
 void _addStringProperty
   (CIMInstance & instance,
    const String & name,
-   const String & value, Boolean null = false, Boolean isArray = false)
+   const String & value, Boolean null = false)
 {
   if (null)
     {
@@ -76,23 +83,14 @@ void _addStringProperty
     }
   else
     {
-      if (isArray)
-	{
-	  Array < String > values;
-	  values.append (value);
-	  instance.addProperty (CIMProperty (CIMName (name), values));
-	}
-      else
-	{
 	  instance.addProperty (CIMProperty (CIMName (name), value));
-	}
     }
 }
 
 void _addUint16Property
   (CIMInstance & instance,
    const String & name,
-   Uint16 value, Boolean null = false, Boolean isArray = false)
+   Uint16 value, Boolean null = false)
 {
   if (null)
     {
@@ -101,48 +99,13 @@ void _addUint16Property
     }
   else
     {
-      if (isArray)
-	{
-	  Array < Uint16 > values;
-	  values.append (value);
-	  instance.addProperty (CIMProperty (CIMName (name), values));
-	}
-      else
-	{
 	  instance.addProperty (CIMProperty (CIMName (name), value));
-	}
     }
 }
-
-void _addUint32Property
-  (CIMInstance & instance,
-   const String & name,
-   Uint32 value, Boolean null = false, Boolean isArray = false)
-{
-  if (null)
-    {
-      instance.addProperty (CIMProperty (CIMName (name),
-					 CIMValue (CIMTYPE_UINT32, false)));
-    }
-  else
-    {
-      if (isArray)
-	{
-	  Array < Uint32 > values;
-	  values.append (value);
-	  instance.addProperty (CIMProperty (CIMName (name), values));
-	}
-      else
-	{
-	  instance.addProperty (CIMProperty (CIMName (name), value));
-	}
-    }
-}
-
 void _addUint64Property
   (CIMInstance & instance,
    const String & name,
-   Uint64 value, Boolean null = false, Boolean isArray = false)
+   Uint64 value, Boolean null = false)
 {
   if (null)
     {
@@ -151,16 +114,7 @@ void _addUint64Property
     }
   else
     {
-      if (isArray)
-	{
-	  Array < Uint64 > values;
-	  values.append (value);
-	  instance.addProperty (CIMProperty (CIMName (name), values));
-	}
-      else
-	{
 	  instance.addProperty (CIMProperty (CIMName (name), value));
-	}
     }
 }
 
@@ -374,35 +328,6 @@ void _checkUint16Property
 
   PEGASUS_ASSERT (result == value);
 }
-
-void _checkUint32Property
-  (CIMInstance & instance, const String & name, Uint32 value)
-{
-  Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
-
-  CIMProperty theProperty = instance.getProperty (pos);
-  CIMValue theValue = theProperty.getValue ();
-
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_UINT32);
-  PEGASUS_ASSERT (!theValue.isArray ());
-  PEGASUS_ASSERT (!theValue.isNull ());
-  Uint32 result;
-  theValue.get (result);
-
-  if (verbose)
-    {
-      if (result != value)
-	{
-	  cerr << "Property value comparison failed.  ";
-	  cerr << "Expected " << value << "; ";
-	  cerr << "Actual property value was " << result << "." << endl;
-	}
-    }
-
-  PEGASUS_ASSERT (result == value);
-}
-
 void _checkUint64Property
   (CIMInstance & instance, const String & name, Uint64 value)
 {
@@ -495,9 +420,6 @@ _addFilter (CIMClient & client, String & filter, String & query,
   CIMObjectPath path;
   CIMInstance retrievedInstance;
 
-  //
-  // IBMKR:
-  //
   CIMInstance filter01 (PEGASUS_CLASSNAME_INDFILTER);
   _addStringProperty (filter01, "SystemCreationClassName",
 		      System::getSystemCreationClassName ());
@@ -645,14 +567,13 @@ _test (CIMClient & client)
 {
   try
   {
-    String wql ("WQL");
     String cql ("CIM:CQL");
 
     char cnt[512];
     String filter;
     String query;
     String handler;
-    for (Uint32 i = 0; i < QUERIES; i++)
+    for (Uint32 i = 0; i < QUERIES_CQL; i++)
       {
 
 	filter.clear ();
@@ -666,7 +587,7 @@ _test (CIMClient & client)
 	handler.append (cnt);
 
 	query.clear ();
-	query.append (queries[i]);
+	query.append (queries_CQL[i]);
 
 	if (verbose)
 	  {
@@ -674,6 +595,7 @@ _test (CIMClient & client)
 	    cerr << " with query: " << query << endl;
 	    cerr << " and handler" << handler << endl;
 	  }
+	// Do the CQL first
 	_addFilter (client, filter, query, cql);
 
 	_addHandler (client, handler, _destination);
@@ -681,13 +603,12 @@ _test (CIMClient & client)
 	_addSubscription (client, filter, handler);
 
 	_delete (client, filter, handler);
-      }
-  }
 
-  catch (Exception & e)
+      }
+  } catch (const Exception &e)
   {
-    cerr << "test failed: " << e.getMessage () << endl;
-    exit (-1);
+	 cerr << e.getMessage() << endl;
+	 exit(1);
   }
 
   cout << "+++++ test completed successfully" << endl;
@@ -701,7 +622,7 @@ _cleanup (CIMClient & client)
   String filter;
   String handler;
 
-  for (Uint32 i = 0; i < QUERIES; i++)
+  for (Uint32 i = 0; i < QUERIES_CQL; i++)
     {
 
       sprintf (cnt, "%d", i);
@@ -767,7 +688,7 @@ main (int argc, char **argv)
     client.connectLocal ();
     client.setTimeout(400000);
   }
-  catch (Exception & e)
+  catch (const Exception & e)
   {
     cerr << e.getMessage () << endl;
     return -1;

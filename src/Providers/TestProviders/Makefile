@@ -55,6 +55,7 @@ DIRS = \
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \
+	CMPI/TestUtilLib \
 	CMPI/TestIndications \
 	CMPI/TestIndications/tests \
 	CMPI/TestMethod \
@@ -70,12 +71,10 @@ DIRS += \
 	CMPI/TestProviderThreaded \
 	CMPI/TestProviderThreaded/tests
 
-
-
 ifdef PEGASUS_ENABLE_EXECQUERY
 DIRS += \
-	CMPI/TestInstance \
-	CMPI/TestInstance/tests
+	CMPI/TestExecQuery \
+	CMPI/TestExecQuery/tests
 endif
 endif
 include $(ROOT)/mak/recurse.mak

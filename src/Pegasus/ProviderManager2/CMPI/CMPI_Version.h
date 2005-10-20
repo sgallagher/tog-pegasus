@@ -35,4 +35,9 @@
 
 // This file sets the CMPI implementation version.
 
+#ifdef PEGASUS_ENABLE_GCOV
+#define PEGASUS_STATIC
+#else
+#define PEGASUS_STATIC static
+#endif
 // By default, cmpidt.h sets it to the 100 - the CMPI standard.

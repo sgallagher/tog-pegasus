@@ -44,7 +44,7 @@
 
 
 
-
+/* Note: These functions will never be executed. */
 CMPI_EXTERN_C CMPIInstanceMI* 
 TestCMPIFail_3Provider_Create_InstanceMI(const CMPIBroker* brkr,const CMPIContext *ctx,  CMPIStatus *rc) 
 {

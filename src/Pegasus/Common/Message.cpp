@@ -378,7 +378,6 @@ void Message::startServer()
 
 void Message::endServer()
 {
-	
 	_timeServerEnd = TimeValue::getCurrentTime();
     
     Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?

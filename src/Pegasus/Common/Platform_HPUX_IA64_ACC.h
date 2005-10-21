@@ -56,4 +56,6 @@
 
 #define PEGASUS_MAXHOSTNAMELEN  256
 
+#define PEGASUS_DISABLE_INTERNAL_INLINES
+
 #endif /* Pegasus_Platform_HPUX_IA64_ACC_h */

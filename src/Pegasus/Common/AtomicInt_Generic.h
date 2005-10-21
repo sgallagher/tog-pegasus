@@ -45,15 +45,18 @@ struct AtomicType
     Uint32 n; 
 };
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
     _rep.n = n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
 {
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 {
     ((This*)this)->_rep.mutex.lock(pegasus_thread_self());
@@ -63,6 +66,7 @@ inline Uint32 AtomicIntTemplate<AtomicType>::get() const
     return tmp;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
     _rep.mutex.lock(pegasus_thread_self());
@@ -70,6 +74,7 @@ inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
     _rep.mutex.unlock();
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
     _rep.mutex.lock(pegasus_thread_self());
@@ -77,6 +82,7 @@ inline void AtomicIntTemplate<AtomicType>::inc()
     _rep.mutex.unlock();
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
     _rep.mutex.lock(pegasus_thread_self());
@@ -84,6 +90,7 @@ inline void AtomicIntTemplate<AtomicType>::dec()
     _rep.mutex.unlock();
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     _rep.mutex.lock(pegasus_thread_self());

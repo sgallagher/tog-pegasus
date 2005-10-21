@@ -86,16 +86,19 @@ inline volatile Uint32* AtomicCounter(AtomicType* a)
     return (volatile Uint32*)a;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
     *AtomicCounter(&_rep) = PEGASUS_ATOMIC_UNLOCKED_MASK | n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
 {
     // Nothing to do!
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 {
     Uint32 t;
@@ -110,6 +113,7 @@ inline Uint32 AtomicIntTemplate<AtomicType>::get() const
     return ~PEGASUS_ATOMIC_UNLOCKED_MASK & t;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
     volatile Uint32* c = AtomicCounter(&_rep);
@@ -117,6 +121,7 @@ inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
     *c = PEGASUS_ATOMIC_UNLOCKED_MASK | n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
     volatile Uint32* c = AtomicCounter(&_rep);
@@ -124,6 +129,7 @@ inline void AtomicIntTemplate<AtomicType>::inc()
     *c = t + 1;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
     volatile Uint32* c = AtomicCounter(&_rep);
@@ -131,6 +137,7 @@ inline void AtomicIntTemplate<AtomicType>::dec()
     *c = t - 1;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     volatile Uint32* c = AtomicCounter(&_rep);

@@ -43,25 +43,30 @@ struct AtomicType
     volatile int n; 
 };
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
     _rep.n = n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
 {
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 {
     return _rep.n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
     _rep.n = n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
     asm volatile(
@@ -70,6 +75,7 @@ inline void AtomicIntTemplate<AtomicType>::inc()
 	:"m" (_rep.n));
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
     asm volatile(
@@ -78,6 +84,7 @@ inline void AtomicIntTemplate<AtomicType>::dec()
         :"m" (_rep.n));
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     unsigned char c;

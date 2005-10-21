@@ -43,25 +43,30 @@ struct AtomicType
     cs_t n;
 };
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
     _rep.n = (cs_t)n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
 {
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 {
     return (Uint32)_rep.n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
     _rep.n = (cs_t)n;
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
     Uint32 x = (Uint32)_rep.n;
@@ -75,6 +80,7 @@ inline void AtomicIntTemplate<AtomicType>::inc()
     }
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
     Uint32 x = (Uint32)_rep.n;
@@ -88,6 +94,7 @@ inline void AtomicIntTemplate<AtomicType>::dec()
     }
 }
 
+PEGASUS_TEMPLATE_SPECIALIZATION
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     Uint32 x = (Uint32)_rep.n;

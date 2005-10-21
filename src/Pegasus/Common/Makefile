@@ -120,6 +120,7 @@ SOURCES = \
     MessageQueueService.cpp \
     ModuleController.cpp \
     Monitor.cpp \
+    Mutex.cpp \
     ObjectNormalizer.cpp \
     OperationContext.cpp \
     OperationContextInternal.cpp \

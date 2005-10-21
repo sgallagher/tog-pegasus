@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mike-brasher@austin.rr.com)
+// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,7 @@
 #define _Pegasus_Common_AtomicInt_HPUX_PARISC_ACC_h
 
 #include <Pegasus/Common/Config.h>
+#include <machine/sys/inline.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mike-brasher@austin.rr.com)
+// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
 //
 //%/////////////////////////////////////////////////////////////////////////////
 

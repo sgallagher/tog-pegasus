@@ -27,7 +27,7 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mike-brasher@austin.rr.com)
+// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,9 @@
 #define _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h
 
 #include <Pegasus/Common/Config.h>
+
+// Note: this lock can be eliminated for single processor systems.
+#define PEGASUS_ATOMIC_LOCK "lock ; "
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -70,7 +73,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
     asm volatile(
-	"lock ; incl %0"
+	PEGASUS_ATOMIC_LOCK "incl %0"
 	:"=m" (_rep.n)
 	:"m" (_rep.n));
 }
@@ -79,7 +82,7 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
     asm volatile(
-        "lock decl %0"
+        PEGASUS_ATOMIC_LOCK "decl %0"
         :"=m" (_rep.n)
         :"m" (_rep.n));
 }
@@ -90,7 +93,7 @@ inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
     unsigned char c;
 
     asm volatile(
-	"lock ; decl %0; sete %1"
+	PEGASUS_ATOMIC_LOCK "decl %0; sete %1"
 	:"=m" (_rep.n), "=qm" (c)
 	:"m" (_rep.n) : "memory");
 

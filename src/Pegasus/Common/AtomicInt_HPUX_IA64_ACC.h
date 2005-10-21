@@ -31,16 +31,17 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Pegasus_Common_AtomicInt_LINUX_PPC_GNU_h
-#define _Pegasus_Common_AtomicInt_LINUX_PPC_GNU_h
+#ifndef _Pegasus_Common_AtomicInt_HPUX_IA64_ACC_h
+#define _Pegasus_Common_AtomicInt_HPUX_IA64_ACC_h
 
 #include <Pegasus/Common/Config.h>
+#include <machine/sys/inline.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct AtomicType
 {
-    volatile Uint32 n; 
+    volatile Uint32 n;
 };
 
 PEGASUS_TEMPLATE_SPECIALIZATION
@@ -52,6 +53,7 @@ inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
 {
+    // Nothing to do!
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
@@ -69,50 +71,38 @@ inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
-    int t;
-
-    asm volatile(
-	"1: lwarx %0,0,%2\n"
-	"addic %0,%0,1\n"
-	"stwcx.	%0,0,%2\n"
-	"bne- 1b"
-	: "=&r" (t), "=m" (_rep.n)
-	: "r" (&_rep.n), "m" (_rep.n)
-	: "cc");
+    _Asm_fetchadd(
+	(_Asm_fasz)_FASZ_W,
+	(_Asm_sem)_SEM_ACQ,
+	(volatile uint32*)&_rep.n,
+	(int)1,
+	(_Asm_ldhint)LDHINT_NONE);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
-    int c;
-
-    asm volatile(
-	"1: lwarx %0,0,%1\n"
-	"addic %0,%0,-1\n"
-	"stwcx.	%0,0,%1\n"
-	"bne- 1b"
-	: "=&r" (c)
-	: "r" (&_rep.n)
-	: "cc", "memory");
+    _Asm_fetchadd(
+	(_Asm_fasz)_FASZ_W,
+	(_Asm_sem)_SEM_ACQ,
+	(volatile uint32*)&_rep.n,
+	(int)-1,
+	(_Asm_ldhint)LDHINT_NONE);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
-    int c;
+    uint32 x = _Asm_fetchadd(
+	(_Asm_fasz)_FASZ_W,
+	(_Asm_sem)_SEM_ACQ,
+	(volatile uint32*)&_rep.n,
+	(int)-1,
+	(_Asm_ldhint)LDHINT_NONE);
 
-    asm volatile(
-	"1: lwarx %0,0,%1\n"
-	"addic %0,%0,-1\n"
-	"stwcx.	%0,0,%1\n"
-	"bne- 1b"
-	: "=&r" (c)
-	: "r" (&_rep.n)
-	: "cc", "memory");
-
-    return c == 0;
+    return x == 1;
 }
 
 PEGASUS_NAMESPACE_END
 
-#endif /* _Pegasus_Common_AtomicInt_LINUX_PPC_GNU_h */
+#endif /* _Pegasus_Common_AtomicInt_HPUX_IA64_ACC_h */

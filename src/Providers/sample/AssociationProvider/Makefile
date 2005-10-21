@@ -35,13 +35,13 @@ include $(ROOT)/mak/config.mak
 LIBRARY = SampleAssociationProvider
 
 LIBRARIES = \
-	 pegcommon \
-	 pegprovider
+	 pegprovider \
+	 pegcommon
 	
 SOURCES = \
    AssociationProviderMain.cpp \
    AssociationProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:

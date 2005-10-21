@@ -35,14 +35,15 @@ include $(ROOT)/mak/config.mak
 LIBRARY = IndicationStressTestProvider
 
 LIBRARIES = \
-	pegcommon \
+	pegqueryexpression \
 	pegprovider \
-	pegqueryexpression
+	pegclient \
+	pegcommon
 	
 SOURCES = \
 	IndicationStressTestProviderMain.cpp \
 	IndicationStressTestProvider.cpp
 
-include $(ROOT)/mak/library.mak
+include $(ROOT)/mak/dynamic-library.mak
 
 tests:

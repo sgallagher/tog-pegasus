@@ -29,11 +29,15 @@
 
 ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
-    REDIRECTERROR = 2>&1
 else
-    STRIPCRS =
-    REDIRECTERROR = 2>&1
+    ifeq  ($(PEGASUS_OS_TYPE), VMS)
+        STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
+    else
+        STRIPCRS = 
+    endif
 endif
+
+REDIRECTERROR = 2>&1
 
 
 ifdef DIFF

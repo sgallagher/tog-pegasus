@@ -600,10 +600,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    provider = String::EMPTY;
    CIMNamespaceName _wild;
    _wild.clear();
-   if(_initialized.value() == 0)
+   if(_initialized.get() == 0)
    {
       AutoMutex autoMut(_monitor);
-      if(_initialized.value() == 0 )
+      if(_initialized.get() == 0 )
       {
          _routing_table.insert_record(PEGASUS_CLASSNAME_CONFIGSETTING,
                           PEGASUS_NAMESPACENAME_CONFIG,

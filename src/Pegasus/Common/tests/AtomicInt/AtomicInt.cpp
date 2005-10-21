@@ -63,41 +63,8 @@ void test01()
 	i--;
 	PEGASUS_ASSERT( i.get() == 5 );
 
-	if (verbose) {
-		cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
-	}	
-	PEGASUS_ASSERT( (i.get() + 5) == 10 );
-	PEGASUS_ASSERT( i.get() == 5 );
-	j = 1;	
-	PEGASUS_ASSERT( i.get() + j.get() == 6 );
-	PEGASUS_ASSERT( j.get() + i.get() == 6 );
-	PEGASUS_ASSERT( i.get() == 5 && j.get() == 1 );
-	i = j.get() - 5; // Ugly.
-	PEGASUS_ASSERT( i.get() > 0 );
-	ii = 4;
-	i.set(i.get() + ii.get());
-	// Always true anyway: PEGASUS_ASSERT( i.get() >= 0 );
-	PEGASUS_ASSERT( ii.get() < 5 );
-	//PEGASUS_ASSERT( 5 > ii.get() );
-	jj = 2;
-	ii.set(ii.get() + jj.get() + jj.get());
-	PEGASUS_ASSERT( ii.get() == 8 );
-	PEGASUS_ASSERT( jj.get() == 2 );
-
-	i = 20;
-	j = 10;
-	ii = i.get() + j.get();
-	PEGASUS_ASSERT( i.get() == 20 );
-	PEGASUS_ASSERT( j.get() == 10 );
-
-	ii = i.get() + 1;
-	PEGASUS_ASSERT( i.get() == 20 );
-
-	ii = i.get() - j.get();
-	PEGASUS_ASSERT( i.get() == 20 );
-
-	ii = i.get() - 1;
-	PEGASUS_ASSERT( i.get() == 20 );
+	if (verbose) 
+	    cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
     }
     catch (Exception & e)
     {

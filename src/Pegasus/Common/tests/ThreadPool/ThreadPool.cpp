@@ -57,7 +57,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepUntilCancelled(
 {
     AtomicInt* cancelled = static_cast<AtomicInt*>(parm);
 
-    while (cancelled->value() == 0)
+    while (cancelled->get() == 0)
     {
         pegasus_sleep(1);
     }
@@ -291,7 +291,7 @@ void testHighWorkload()
 
         delete threadPool;
 
-        assert(counter.value() == 50);
+        assert(counter.get() == 50);
     }
     catch (const Exception& e)
     {

@@ -869,7 +869,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 "A total of %d requests have been processed on this connection.";
 
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4, msg, totalBytesWritten,
-                messageLength, _requestCount.value(), _connectionRequestCount);
+                messageLength, _requestCount.get(), _connectionRequestCount);
         }
 
         //
@@ -1804,7 +1804,7 @@ void HTTPConnection::_handleReadEvent()
             _connectionRequestCount++;
         }
         Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-            "_requestCount = %d", _requestCount.value());
+            "_requestCount = %d", _requestCount.get());
         message->dest = _outputMessageQueue->getQueueId();
 //        SendForget(message);
 
@@ -1831,7 +1831,7 @@ void HTTPConnection::_handleReadEvent()
             // decrement request count
             //
             Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                "_requestCount = %d", _requestCount.value());
+                "_requestCount = %d", _requestCount.get());
 
             PEG_METHOD_EXIT();
             return;
@@ -1842,7 +1842,7 @@ void HTTPConnection::_handleReadEvent()
 
 Uint32 HTTPConnection::getRequestCount()
 {
-    return(_requestCount.value());
+    return(_requestCount.get());
 }
 
 Boolean HTTPConnection::run(Uint32 milliseconds)

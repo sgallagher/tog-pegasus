@@ -301,8 +301,8 @@ ThreadPool::~ThreadPool()
         // Set the dying flag so all thread know the destructor has been entered
         _dying++;
        Tracer::trace(TRC_THREAD, Tracer::LEVEL2,
-		"Cleaning up %d idle threads. ", _currentThreads.value());
-        while (_currentThreads.value() > 0)
+		"Cleaning up %d idle threads. ", _currentThreads.get());
+        while (_currentThreads.get() > 0)
         {
             Thread* thread = _idleThreads.remove_first();
             if (thread != 0)
@@ -497,7 +497,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
 
     try
     {
-        if (_dying.value())
+        if (_dying.get())
         {
             Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "ThreadPool::allocate_and_awaken: ThreadPool is dying(1).");
@@ -512,7 +512,7 @@ ThreadStatus ThreadPool::allocate_and_awaken(
         if (th == 0)
         {
             if ((_maxThreads == 0) || 
-		(_currentThreads.value() < Uint32(_maxThreads)))
+		(_currentThreads.get() < Uint32(_maxThreads)))
             {
                 th = _initializeThread();
             }
@@ -583,7 +583,7 @@ Uint32 ThreadPool::cleanupIdleThreads()
     for (Uint32 i = 0; i < numIdleThreads; i++)
     {
         // Do not dip below the minimum thread count
-        if (_currentThreads.value() <= (Uint32)_minThreads)
+        if (_currentThreads.get() <= (Uint32)_minThreads)
         {
             break;
         }

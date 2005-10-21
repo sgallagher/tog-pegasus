@@ -188,8 +188,8 @@ int main(int argc, char **argv)
    }
 
    delete rw;
-   if (verbose) cout << endl << "read operations: " << read_count.value() << endl;
-   if (verbose) cout << "write operations: " << write_count.value() << endl;
+   if (verbose) cout << endl << "read operations: " << read_count.get() << endl;
+   if (verbose) cout << "write operations: " << write_count.get() << endl;
    
    cout << argv[0] << " +++++ passed all tests" << endl;
    return(0);

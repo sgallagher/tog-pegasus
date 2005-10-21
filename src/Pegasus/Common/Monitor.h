@@ -65,7 +65,7 @@ public:
   _MonitorEntry(const _MonitorEntry& x) :
       socket(x.socket), 
       queueId(x.queueId), 
-      _status(x._status.value()),
+      _status(x._status.get()),
       _type(x._type) 
   {
   }
@@ -101,7 +101,7 @@ public:
       {
 	this->socket = entry.socket;
 	this->queueId = entry.queueId;
-	this->_status = entry._status.value();
+	this->_status = entry._status.get();
 	this->_type = entry._type;
       }
 	 

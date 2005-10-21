@@ -131,7 +131,7 @@ ReadWriteSem::~ReadWriteSem()
    {
       PEGASUS_ASSERT(0);
    }
-   while(_readers.value() > 0 || _writers.value() > 0)
+   while(_readers.get() > 0 || _writers.get() > 0)
    {
       pegasus_yield();
    }
@@ -193,7 +193,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 
 	 if(milliseconds == 0) // fast wait
 	 {
-	    if(_readers.value() > 0)
+	    if(_readers.get() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
 	       //caught.reset(new WaitFailed(pegasus_thread_self()));
@@ -203,7 +203,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	   else if(milliseconds == -1) // infinite wait
 	 {
-	    while(_readers.value() > 0 )
+	    while(_readers.get() > 0 )
 	       pegasus_yield();
 	 }
 	 else // timed wait
@@ -211,7 +211,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    struct timeval start, now;
 	    gettimeofday(&start, NULL);
 	    start.tv_usec += (1000 * milliseconds);
-	    while(_readers.value() > 0)
+	    while(_readers.get() > 0)
 	    {
 	       gettimeofday(&now, NULL);
 	       if((now.tv_usec > start.tv_usec) || now.tv_sec > start.tv_sec )
@@ -285,7 +285,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 //-----------------------------------------------------------------
 	 if(milliseconds == 0) // fast wait
 	 {
-	    if(_writers.value() > 0)
+	    if(_writers.get() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
 	       //caught.reset(new WaitFailed(pegasus_thread_self()));
@@ -295,7 +295,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	 else if(milliseconds == -1) // infinite wait
 	 {
-	    while(_writers.value() >  0)
+	    while(_writers.get() >  0)
 	       pegasus_yield();
 	 }
 	 else // timed wait
@@ -304,7 +304,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    gettimeofday(&start, NULL);
 	    start.tv_usec += (milliseconds * 1000);
 
-	    while(_writers.value() > 0)
+	    while(_writers.get() > 0)
 	    {
 	       gettimeofday(&now, NULL);
 	       if((now.tv_usec > start.tv_usec) || (now.tv_sec > start.tv_sec))
@@ -406,12 +406,12 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 {
-   if(mode == PEG_SEM_WRITE && _writers.value() != 0 )
+   if(mode == PEG_SEM_WRITE && _writers.get() != 0 )
    {
       _writers = 0;
       _rwlock._wlock.unlock();
    }
-   else if (_readers.value() != 0 )
+   else if (_readers.get() != 0 )
    {
       _readers--;
       _rwlock._rlock.signal();
@@ -421,12 +421,12 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 int ReadWriteSem::read_count() const
 
 {
-   return( _readers.value() );
+   return( _readers.get() );
 }
 
 int ReadWriteSem::write_count() const
 {
-   return( _writers.value() );
+   return( _writers.get() );
 }
 
 #endif // ! PEGASUS_READWRITE_NATIVE
@@ -531,21 +531,21 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 
 void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
       throw ListClosed();
    _cond_mutex->lock(caller);
 }
 
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0 )
+   if(_disallow.get() > 0 )
       throw ListClosed();
    _cond_mutex->try_lock(caller);
 }
 
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
 }
@@ -562,7 +562,7 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 
 void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();

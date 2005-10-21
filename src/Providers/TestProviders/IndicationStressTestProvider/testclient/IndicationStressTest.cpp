@@ -133,9 +133,9 @@ void MyIndicationConsumer::consumeIndication(
   //
   receivedIndicationCount++;
   assert(indicationInstance.getClassName().getString() == INDICATION_NAME);
-  if (receivedIndicationCount.value() % 200 == 0)
+  if (receivedIndicationCount.get() % 200 == 0)
     cout << "+++++     received indications = " 
-         << receivedIndicationCount.value() 
+         << receivedIndicationCount.get() 
          << " of " << indicationSendCountTotal 
          << " sent, waiting for more ..." << endl;
 
@@ -845,11 +845,11 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         for (Uint32 i = 1; i <= sleep_nbr; i++)
         {
             System::sleep (SLEEP_SEC);
-            if (indicationSendCountTotal == receivedIndicationCount.value())
+            if (indicationSendCountTotal == receivedIndicationCount.get())
                 break;
             if (i % (MSG_SEC/SLEEP_SEC) == 1)
               cout << "+++++     received indications = " 
-                   << receivedIndicationCount.value() 
+                   << receivedIndicationCount.get() 
                    << " of " << indicationSendCountTotal 
                    << " sent, waiting for more ...." << endl;
         }
@@ -865,9 +865,9 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         cout << "+++++     Sent indications =          " 
              << indicationSendCountTotal << endl;
         cout << "+++++     Received indications =      " 
-             << receivedIndicationCount.value() << endl;
+             << receivedIndicationCount.get() << endl;
         cout << "+++++     Out of Sequence =           "
-             << seqNumberErrors.value() << endl;
+             << seqNumberErrors.get() << endl;
         cout << "+++++     Avg. Send-Recv Delta time = "
              << (long)(sendRecvDeltaTimeTotal/1000)/sendRecvDeltaTimeCnt
              << " milli-seconds" << endl;
@@ -883,14 +883,14 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
              << elapsedTime.getElapsed()/60
              << " minutes." << endl;
         cout << "+++++     Rate =                      " 
-             << receivedIndicationCount.value()/elapsedTime.getElapsed()
+             << receivedIndicationCount.get()/elapsedTime.getElapsed()
              << " indications per second." << endl;
 
         // assert that all indications sent have been received.
-        assert((indicationSendCount * runClientThreadCount) == receivedIndicationCount.value());
+        assert((indicationSendCount * runClientThreadCount) == receivedIndicationCount.get());
 
         // if error encountered then fail the test.
-        if (errorsEncountered.value())
+        if (errorsEncountered.get())
           {
           cout << "+++++ test failed" << endl;
           return (-1);

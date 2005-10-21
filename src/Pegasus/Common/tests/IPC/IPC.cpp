@@ -272,7 +272,7 @@ void test02()
         delete threads[i];
     }
 
-    assert(atom->value() == numThreads);
+    assert(atom->get() == numThreads);
     delete atom;
 }
 

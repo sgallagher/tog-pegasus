@@ -77,9 +77,6 @@ public:
     // Post-decrement.
     void operator--(int) { dec(); }
 
-    // Backwards compatibility:
-    Uint32 value() const { return get(); }
-
 private:
 
     // Note: These methods are intentionally hidden (and should not be called).
@@ -98,12 +95,6 @@ private:
 
 PEGASUS_NAMESPACE_END
 
-
-
-#if 0
-# include <Pegasus/Common/AtomicInt_HPUX_PARISC_ACC.h>
-#else
-
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_IX86_GNU.h>
 #elif defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
@@ -115,12 +106,10 @@ PEGASUS_NAMESPACE_END
 #elif defined (PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <Pegasus/Common/AtomicInt_ZOS_ZSERIES_IBM.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
-# include <Pegasus/Common/AtomicInt_HPUX_PARISC_ACC.h>
+# include <Pegasus/Common/AtomicInt_Generic.h>
 #else
 # include <Pegasus/Common/AtomicInt_Generic.h>
 #endif
-
-#endif /* if 1 */
 
 PEGASUS_NAMESPACE_BEGIN
 

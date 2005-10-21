@@ -60,7 +60,7 @@ public:
     Sharable() : _ref(1) { }
 
     virtual ~Sharable();
-    Uint32 getRef() const { return _ref.value(); }
+    Uint32 getRef() const { return _ref.get(); }
 
     friend void Inc(Sharable* sharable); 
 
@@ -80,7 +80,7 @@ inline void Inc(Sharable* x)
       // If so, there is a double delete being cause by impropoer use
       // of sharable assignment or copy constructors somewhere
       // << Wed Nov  6 12:46:52 2002 mdd >>
-      assert(((Sharable*)x)->_ref.value());
+      assert(((Sharable*)x)->_ref.get());
       x->_ref++;
     }
   

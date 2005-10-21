@@ -139,12 +139,12 @@ void pegasus_module::module_rep::_send_async_callback(Uint32 msg_handle, Message
 void pegasus_module::module_rep::_send_shutdown_notify()
 {
    AutoMutex autoMut(_thread_safety);
-   if(_reference_count.value() == 0 )
+   if(_reference_count.get() == 0 )
    {
-      if( _shutting_down.value() == 0 )
+      if( _shutting_down.get() == 0 )
       {
 	 _shutting_down++;
-	 _shutdown_notify(_reference_count.value(), _module_address);
+	 _shutdown_notify(_reference_count.get(), _module_address);
 	 _async_callback = closed_async_callback;
 	 _receive_message = closed_receive_message;
       }

@@ -105,11 +105,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
 {
    Thread *myself = reinterpret_cast<Thread *>(parm);
    DQueue<MessageQueueService> *list = reinterpret_cast<DQueue<MessageQueueService> *>(myself->get_parm());
-   while (_stop_polling.value()  == 0)
+   while (_stop_polling.get()  == 0)
    {
       _polling_sem.wait();
 
-      if (_stop_polling.value() != 0)
+      if (_stop_polling.get() != 0)
       {
          break;
       }
@@ -129,8 +129,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       while (service != NULL)
       {
           if ((service->_incoming.count() > 0) &&
-              (service->_die.value() == 0) &&
-              (service->_threads.value() < max_threads_per_svc_queue))
+              (service->_die.get() == 0) &&
+              (service->_threads.get() < max_threads_per_svc_queue))
           {
              // The _threads count is used to track the 
              // number of active threads that have been allocated
@@ -166,7 +166,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
                     "Skipping the service for right now. ",
                     service->getQueueName(),
                     service->_incoming.count(),
-                    service->_threads.value());
+                    service->_threads.get());
 
                  pegasus_yield();
                  service = NULL;
@@ -179,7 +179,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::polling_routine(
       }
       list->unlock();
 
-      if (_check_idle_flag.value() != 0)
+      if (_check_idle_flag.get() != 0)
       {
          _check_idle_flag = 0;
          // try to do idle thread clean up processing when system is not busy
@@ -254,7 +254,7 @@ MessageQueueService::MessageQueueService(
    if (_meta_dispatcher == 0)
    {
       _stop_polling = 0;
-      PEGASUS_ASSERT(_service_count.value() == 0);
+      PEGASUS_ASSERT(_service_count.get() == 0);
       _meta_dispatcher = new cimom();
       if (_meta_dispatcher == NULL)
       {
@@ -300,7 +300,7 @@ MessageQueueService::~MessageQueueService()
    // execution of the following code is very timing
    // dependent. This needs to be fix.
    // See Bug 4079 for details. 
-   if (_incoming_queue_shutdown.value() == 0)
+   if (_incoming_queue_shutdown.get() == 0)
    {
        _shutdown_incoming_queue();
    }
@@ -308,7 +308,7 @@ MessageQueueService::~MessageQueueService()
    // Wait until all threads processing the messages
    // for this service have completed.
 
-   while (_threads.value() > 0)
+   while (_threads.get() > 0)
    {
       pegasus_yield();
    }
@@ -316,7 +316,7 @@ MessageQueueService::~MessageQueueService()
    {
      AutoMutex autoMut(_meta_dispatcher_mutex);
      _service_count--;
-     if (_service_count.value() == 0)
+     if (_service_count.get() == 0)
      {
 
       _stop_polling++;
@@ -349,7 +349,7 @@ MessageQueueService::~MessageQueueService()
 
 void MessageQueueService::_shutdown_incoming_queue()
 {
-   if (_incoming_queue_shutdown.value() > 0)
+   if (_incoming_queue_shutdown.get() > 0)
       return;
 
    AsyncIoctl *msg = new AsyncIoctl(
@@ -407,7 +407,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL MessageQueueService::_req_proc(
     try
     {
 
-        if (service->_die.value() != 0)
+        if (service->_die.get() != 0)
         {
             service->_threads--;
             return (0);
@@ -696,7 +696,7 @@ void MessageQueueService::_complete_op_node(
 
 Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 {
-   if (_incoming_queue_shutdown.value() > 0)
+   if (_incoming_queue_shutdown.get() > 0)
       return false;
    if (_polling_thread == NULL)
    {
@@ -722,7 +722,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
    op->unlock();
 
    if ((rq != 0 && (true == messageOK(rq))) ||
-       (rp != 0 && (true == messageOK(rp))) && _die.value() == 0)
+       (rp != 0 && (true == messageOK(rp))) && _die.get() == 0)
    {
       _incoming.insert_last_wait(op);
       _polling_sem.signal();
@@ -733,7 +733,7 @@ Boolean MessageQueueService::accept_async(AsyncOpNode *op)
 
 Boolean MessageQueueService::messageOK(const Message *msg)
 {
-   if (_incoming_queue_shutdown.value() > 0)
+   if (_incoming_queue_shutdown.get() > 0)
       return false;
    return true;
 }
@@ -778,7 +778,7 @@ void MessageQueueService::handle_AsyncIoctl(AsyncIoctl *req)
          // ensure we do not accept any further messages
 
          // ensure we don't recurse on IO_CLOSE
-         if (_incoming_queue_shutdown.value() > 0)
+         if (_incoming_queue_shutdown.get() > 0)
             break;
 
          // set the closing flag
@@ -1265,7 +1265,7 @@ Uint32 MessageQueueService::get_next_xid()
    Uint32 value;
    AutoMutex autoMut(_monitor);
    _xid++;
-   value =  _xid.value();
+   value =  _xid.get();
    return value;
 
 }

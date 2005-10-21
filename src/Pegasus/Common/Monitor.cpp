@@ -372,16 +372,16 @@ Boolean Monitor::run(Uint32 milliseconds)
     AutoMutex autoEntryMutex(_entry_mut);
 
     // Check the stopConnections flag.  If set, clear the Acceptor monitor entries
-    if (_stopConnections.value() == 1)
+    if (_stopConnections.get() == 1)
     {
         for ( int indx = 0; indx < (int)_entries.size(); indx++)
         {
             if (_entries[indx]._type == Monitor::ACCEPTOR)
             {
-                if ( _entries[indx]._status.value() != _MonitorEntry::EMPTY)
+                if ( _entries[indx]._status.get() != _MonitorEntry::EMPTY)
                 {
-                   if ( _entries[indx]._status.value() == _MonitorEntry::IDLE ||
-                        _entries[indx]._status.value() == _MonitorEntry::DYING )
+                   if ( _entries[indx]._status.get() == _MonitorEntry::IDLE ||
+                        _entries[indx]._status.get() == _MonitorEntry::DYING )
                    {
                        // remove the entry
 		       _entries[indx]._status = _MonitorEntry::EMPTY;
@@ -401,7 +401,7 @@ Boolean Monitor::run(Uint32 milliseconds)
     for( int indx = 0; indx < (int)_entries.size(); indx++)
     {
 			 const _MonitorEntry &entry = _entries[indx];
-       if ((entry._status.value() == _MonitorEntry::DYING) &&
+       if ((entry._status.get() == _MonitorEntry::DYING) &&
 					 (entry._type == Monitor::CONNECTION))
        {
           MessageQueue *q = MessageQueue::lookup(entry.queueId);
@@ -463,7 +463,7 @@ Boolean Monitor::run(Uint32 milliseconds)
        if(maxSocketCurrentPass < _entries[indx].socket)
 	  maxSocketCurrentPass = _entries[indx].socket;
 
-       if(_entries[indx]._status.value() == _MonitorEntry::IDLE)
+       if(_entries[indx]._status.get() == _MonitorEntry::IDLE)
        {
 	  _idleEntries++;
 	  FD_SET(_entries[indx].socket, &fdread);
@@ -504,7 +504,7 @@ Boolean Monitor::run(Uint32 milliseconds)
        {
           // The Monitor should only look at entries in the table that are IDLE (i.e.,
           // owned by the Monitor).
-	  if((_entries[indx]._status.value() == _MonitorEntry::IDLE) &&
+	  if((_entries[indx]._status.get() == _MonitorEntry::IDLE) &&
 	     (FD_ISSET(_entries[indx].socket, &fdread)))
 	  {
 	     MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
@@ -555,7 +555,7 @@ Boolean Monitor::run(Uint32 milliseconds)
 
                    // It is possible the entry status may not be set to busy.
                    // The following will fail in that case.
-   		   // PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);
+   		   // PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() == _MonitorEntry::BUSY);
 		   // Once the HTTPConnection thread has set the status value to either
 		   // Monitor::DYING or Monitor::IDLE, it has returned control of the connection
 		   // to the Monitor.  It is no longer permissible to access the connection
@@ -578,12 +578,12 @@ Boolean Monitor::run(Uint32 milliseconds)
                         // read the data
                         // and set ourself back to IDLE
 
-		   	_entries[indx]._status.value() == _MonitorEntry::BUSY;
+		   	_entries[indx]._status.get() == _MonitorEntry::BUSY;
 			static char buffer[2];
       			Socket::disableBlocking(_entries[indx].socket);
       			Sint32 amt = Socket::read(_entries[indx].socket,&buffer, 2);
       			Socket::enableBlocking(_entries[indx].socket);
-			_entries[indx]._status.value() == _MonitorEntry::IDLE;
+			_entries[indx]._status.get() == _MonitorEntry::IDLE;
 		}
 		else
 		{
@@ -664,7 +664,7 @@ int  Monitor::solicitSocketMessages(
    {
       try
       {
-         if(_entries[index]._status.value() == _MonitorEntry::EMPTY)
+         if(_entries[index]._status.get() == _MonitorEntry::EMPTY)
          {
             _entries[index].socket = socket;
             _entries[index].queueId  = queueId;
@@ -713,7 +713,7 @@ void Monitor::unsolicitSocketMessages(Sint32 socket)
 	This prevents the positions, of the NON EMPTY entries, from being changed.
     */
     index = _entries.size() - 1;
-    while(_entries[index]._status.value() == _MonitorEntry::EMPTY){
+    while(_entries[index]._status.get() == _MonitorEntry::EMPTY){
 	if(_entries.size() > MAX_NUMBER_OF_MONITOR_ENTRIES)
                 _entries.remove(index);
 	index--;
@@ -740,7 +740,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL Monitor::_dispatch(void *parm)
    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::_dispatch: exited run() for index %d", dst->_entry_index);
 
-   PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.value() == _MonitorEntry::BUSY);
+   PEGASUS_ASSERT(dst->_monitor->_entries[dst->_entry_index]._status.get() == _MonitorEntry::BUSY);
 
    // Once the HTTPConnection thread has set the status value to either
    // Monitor::DYING or Monitor::IDLE, it has returned control of the connection

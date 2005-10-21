@@ -379,7 +379,7 @@ Boolean DynamicConsumer::isIdle()
     struct timeval timeout = {0,0};
     getIdleTimer(&timeout);
 
-    if (!_current_operations.value())
+    if (!_current_operations.get())
     {
         PEG_METHOD_EXIT();
         return true;
@@ -501,7 +501,7 @@ CIMInstance IndicationDispatchEvent::getIndicationInstance() const
 
 Uint32 IndicationDispatchEvent::getRetries()
 {
-    return _retries.value();
+    return _retries.get();
 }
 
 void IndicationDispatchEvent::increaseRetries()

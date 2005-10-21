@@ -33,6 +33,7 @@
 // Modified By:  Susan Campbell, Hewlett-Packard Company <scampbell@hp.com>
 //               k. v. le   <ikhanh@us.ibm.com>
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include "OperatingSystem.h"
@@ -49,6 +50,8 @@
 #include "OperatingSystem_DARWIN.cpp"
 #elif defined (PEGASUS_OS_VMS)
 # include "OperatingSystem_Vms.cpp"
+#elif defined (PEGASUS_OS_SOLARIS)
+# include "OperatingSystem_Solaris.cpp" 
 #else
 # include "OperatingSystem_Stub.cpp"
 #endif

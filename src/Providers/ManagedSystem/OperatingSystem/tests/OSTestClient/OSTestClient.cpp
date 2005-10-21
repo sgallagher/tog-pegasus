@@ -55,12 +55,12 @@
 // include the appropriate OS-specific file for checking results
 #if defined (PEGASUS_PLATFORM_HPUX_ACC)
 # include "OSTestClient_HPUX.cpp"
-#else
-# if defined (PEGASUS_OS_VMS)
+#elif defined (PEGASUS_OS_VMS)
 #  include "OSTestClient_VMS.cpp"
+#elif defined (PEGASUS_OS_SOLARIS)
+#  include "OSTestClient_Solaris.cpp"
 # else
 #  include "OSTestClient_Stub.cpp"
-# endif
 #endif
 
 PEGASUS_USING_PEGASUS;

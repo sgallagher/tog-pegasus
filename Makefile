@@ -27,12 +27,8 @@
 #//
 #//==============================================================================
 # Pegasus top level make file
-# options are
-# Make rebuild
-# Make world
-# Make tests - Executes the complete test suite
-# Make repository - Rebuilds the Pegasus repository
-#
+# see the usage rule for options
+
 ROOT = .
 
 include $(ROOT)/env_var.status
@@ -47,45 +43,180 @@ DIRS = src test rpm Schemas
 # Define the inclusion of the recurse.mak file to execute the next
 # level of makefiles defined by the DIRS variable
 
+defaultrule: all setupdevserver
+
 include $(ROOT)/mak/recurse.mak
-
-
 
 .PHONY: FORCE
 
 FORCE:
 
-#-----------------------
-# build target: builds all source and runs the test
+usage: FORCE
+	$(USAGE)
+	$(USAGE)"Makefile targets:"
+	$(USAGE)
+	$(USAGE)"Recursive rules - These are the primatives that traverse the tree"
+	$(USAGE)"invoking the specified command in each subdirectory directory."
+	$(USAGE)"NOTE: all is special, it specifies no target and therefore invokes"
+	$(USAGE)"the default rule for that directory."
+	$(USAGE)"all                 - recursive DEFAULT rule"
+	$(USAGE)"clean               - recursive clean"
+	$(USAGE)"depend              - buildmu recursive depend"
+	$(USAGE)"messages            - rootbundle recursive messages"
+	$(USAGE)"tests               - recursive tests"
+	$(USAGE)"poststarttests      - recursive poststarttests"
+	$(USAGE) 
+	$(USAGE)"Combinational rules - Combine other rules to achieve results"
+	$(USAGE)"DEFAULT RULE        - all, setupdevserver"
+	$(USAGE)"new                 - clean repositoryclean"
+	$(USAGE)"build               - depend all, setupdevserver"
+	$(USAGE)"smallworld          - build unittests serverquicktests"
+	$(USAGE)"world               - build unittests servertests"
+	$(USAGE)
+	$(USAGE)"Functional rules - Other rules to achieve specified results"
+	$(USAGE)"buildmu             - builds the mu utility"
+	$(USAGE)"setupdevserver      - setup the development server env"
+	$(USAGE)"cleandevserver      - cleans the development server env"
+	$(USAGE)"repository          - builds the base repository"
+	$(USAGE)"testrepository      - builds items for the test suites into the repository"
+	$(USAGE)"removetestrepository- removes test items from the repository"
+	$(USAGE)"repositoryclean     - cleans the repository"
+	$(USAGE)"listplatforms       - List all valid platforms"
+	$(USAGE)
+	$(USAGE)"Test rules (accessable here but implemented in TestMakefile)"
+	$(USAGE)"alltests            - unittests and servertests"
+	$(USAGE)"unittests           - runs the unit functional test"
+	$(USAGE)"serverquicktests    - runs quick server tests"
+	$(USAGE)"servertests         - runs basic server tests"
+	$(USAGE)"standardtests       - runs server extended tests"
+	$(USAGE)"testusage           - TestMakefile usage"
+	$(USAGE)"testusage2          - TestMakefile usage2"
+	$(USAGE)
+	$(USAGE)"--------------------"
+	$(USAGE)"Quick start:"
+	$(USAGE)"  After checkout of new tree:"
+	$(USAGE)"  use \"make listplatforms\" to view a list of platforms"
+	$(USAGE)"  set PEGASUS_PLATFORM=<your platofrm>"
+	$(USAGE)"  set PEGASUS_ROOT=<location of your pegasus source>"
+	$(USAGE)"  set PEGASUS_HOME=<build output location"
+	$(USAGE)"  make smallworld"
+	$(USAGE)
+	$(USAGE)"  This will build everthing with a default configuration"
+	$(USAGE)"  and run some tests."
+	$(USAGE)
+	$(USAGE)"  For a more extensive test use \"make world\""
+	$(USAGE)
+	$(USAGE)"--------------------"
+	$(USAGE)"Examples:"
+	$(USAGE)"  After \"cvs checkout\" of new tree:    make smallworld"
+	$(USAGE)"                          OR           make world"
+	$(USAGE)
+	$(USAGE)"  After changes to include files:      make"
+	$(USAGE)
+	$(USAGE)"  After changes to the files included: make build"
+	$(USAGE)
+	$(USAGE)"  After \"cvs update\" or to start over: make new smallworld" 
+	$(USAGE)"                          OR           make new world"
+	$(USAGE)
+
+listplatforms: FORCE
+	$(USAGE)
+	$(USAGE)"The $(words $(VALID_PLATFORMS)) valid platforms are:"
+	$(USAGE)" $(foreach w, $(VALID_PLATFORMS), " $w ")"
+	$(USAGE)
+	$(USAGE)
+
+#########################################################################
+# This section defines any prerequisites that are required by the 
+# recursive rules.
 #
-#                 builds mu utility, 
-#                 compiles all, 
-#                 sets up the dev server env  
-
-build: buildmu depend all setupdevserver
-
-#-----------------------
-# rebuild target: cleans and and then builds everything and runs tests
+# NOTE: You can add prerequisties for the recursive rules but you cannot
+#       add any commands to run as part of the rule. You can define them 
+#       and make will quietly ignore them and they will not be run either
+#       before or after the recursive rule. 
 #
+#
+messages: rootbundle
 
+depend: buildmu
 
-rebuild: clean repositoryclean world
+#########################################################################
+# This section defines combinational rules
+#
+#-----------------------
+# build target: builds all source
+#
+build: depend all setupdevserver
+
+#------------------------
+# rebuild target is being deprecated instead use "make new build"
+#
+rebuild_msg: FORCE
+	@$(ECHO) "==============================================================================="
+	@$(ECHO) "Makefile: The rebuild target is being deprecated." 
+	@$(ECHO) "          Use \"make usage\" for a description of the usage model."
+	@$(ECHO) "          Consider using \"make new smallworld\" ."
+	@$(ECHO) "          Invoking the old rebuild rule now."
+	@$(ECHO) "==============================================================================="
+
+rebuild: rebuild_msg shortsleep new build s_unittests repository
 
 #-----------------------
-# world target: builds everything and runs tests
+# new target: cleans everthing
+#
+# This can be combined on the command line with other rules like:
+#
+# make new build
+# make new world 
+
+new: clean repositoryclean
+
+#-----------------------
+# world targets: builds everything and dependent on which target may do testing
 #
 #       Typically used after a fresh checkout from CVS 
+
+smallworld: build s_unittests serverquicktests
+
+world: build s_unittests servertests
+
+
+############################
 #
-#                 builds mu utility, 
-#                 builds dependencies, 
-#                 compiles all
-#                 sets up the dev server env, 
-#                 builds repository,
-#                 runs the unit tests
+# rules defined in TestMakefile that are repeated here for convenience
+#
+shortsleep: FORCE
+	@$(MAKE)  -f TestMakefile shortsleep
 
-world: buildmu depend all setupdevserver repository
-	@ $(MAKE) -s tests
+servertests: FORCE
+	@ $(MAKE) -f TestMakefile servertests
 
+s_unittests: FORCE
+	@ $(MAKE) -f TestMakefile -s unittests
+
+unittests: FORCE
+	@ $(MAKE) -f TestMakefile unittests
+
+standardtests: FORCE
+	@ $(MAKE) -f TestMakefile standardtests
+
+serverquicktests: FORCE
+	@ $(MAKE) -f TestMakefile serverquicktests
+
+alltests: FORCE
+	@ $(MAKE) -f TestMakefile alltests
+
+testusage: FORCE
+	@ $(MAKE) -f TestMakefile usage
+
+testusage2: FORCE
+	@ $(MAKE) -f TestMakefile usage2
+
+
+##########################################################################
+#
+# This section defines functional rules
+#
 #---------------------
 # buildmu target: build mu the make utility that among other things
 #                 includes depend
@@ -105,6 +236,8 @@ setupdevserver: FORCE
 cleandevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run_clean
 
+
+#---------------------
 # The repository Target removes and rebuilds the CIM repository
 
 # Note: Arguments must be quoted to preserve upper case characters in VMS.
@@ -144,17 +277,7 @@ removetestrepository: FORCE
 config:
 	@ $(ROOT)/SetConfig_EnvVar
 
-messages: rootbundle
-
 rootbundle: 
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/cnv2rootbundle -f Makefile
 
-# the collections of tests that we run with the server active.
-# For now, these are centralized and do not include startup
-# and shutdown of the server.
 
-activetests: FORCE
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test -f Makefile clean
-	$(PEGASUS_ROOT)/bin/TestClient
-	$(PEGASUS_ROOT)/bin/Client
-	$(MAKE) --directory=$(PEGASUS_ROOT)/test -f Makefile tests

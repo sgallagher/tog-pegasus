@@ -78,7 +78,7 @@ endif
 
 PLATFORM_FILES=$(wildcard $(ROOT)/mak/platform*.mak)
 PLATFORM_TEMP=$(subst $(ROOT)/mak/platform_,, $(PLATFORM_FILES))
-VALID_PLATFORMS=$(subst .mak,, $(PLATFORM_TEMP))
+VALID_PLATFORMS=$(subst .mak,  , $(PLATFORM_TEMP))
 
 ifndef PEGASUS_PLATFORM
     $(error PEGASUS_PLATFORM environment variable undefined. Please set to\
@@ -250,6 +250,13 @@ $(SORT) $(2) > $(2).tmp $(NL) \
 $(DIFF) $(1).tmp $(2).tmp $(NL) \
 $(RM) -f $(1).tmp $(NL) \
 $(RM) -f $(2).tmp $(NL)
+
+#
+# The following is used to define the usage message for MakeFile
+#
+# See the pegasus/Makfile for an exampleof its usage.
+#
+USAGE = @$(ECHO) " $(1)"
 
 ################################################################################
 ##

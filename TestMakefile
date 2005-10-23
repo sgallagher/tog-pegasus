@@ -30,46 +30,13 @@
 ##
 ## Test Makefile for Pegasus CIMOM
 ##
-## Options:
-##      rebuild            - Rebuild
-##      build              - Build
-##      prestarttests      - Execute functional tests
-##      poststarttests     - Execute poststarttests (No security, No SSL)
-##      tests              - Execute prestarttests and poststarttests
-##      standardtests      - Execute poststartests and a series of
-##                           posstarttests using multiple options.
-##
-#####################
-##
-## The following are all standalone tests. That is the can be invoked 
-## without any prerequisite dependencies. They stop and start the server as
-## needed. They clean and rebuild the repository as needed and then run the 
-## poststarttests.
-##
-##	TestXMLRepository  - Executes poststartests on binary repository 
-##				built with cimmofl.
-##
-##	TestXMLRepositoryServer - Executes poststartests on binary repository 
-##				built with cimmof.
-##
-##	TestXMLCmpRepository - Executes poststartests on binary compressed 
-##				repository built with cimmofl.	
-##
-##
-##	TestBinRepository  - Executes poststartests on binary repository 
-##				built with cimmofl.
-##
-##	TestBinRepositoryServer - Executes poststartests on binary repository 
-##				built with cimmof.
-##
-##	TestBinCmpRepository - Executes poststartests on binary compressed 
-##				repository built with cimmofl.	
+## see the usage rule for documentation of rules etc.
 ##
 ##
 ###############################################################################
 
 error:
-	@ $(ECHO) "Specify desired makefile option (i.e., build, rebuild)"
+	@ $(ECHO) "Specify desired makefile option (i.e., unittests, usage )"
 
 include $(PEGASUS_ROOT)/mak/config.mak
 include $(PEGASUS_ROOT)/mak/test.mak
@@ -77,26 +44,102 @@ include $(PEGASUS_ROOT)/mak/commands.mak
 
 system = localhost
 
-TESTS = prestarttests poststarttests
-
 .PHONY: FORCE
 
 FORCE:
 
-rebuild: FORCE
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile rebuild	
+usage: FORCE
+	$(USAGE)
+	$(USAGE)"TestMakefile Primary Targets:"
+	$(USAGE)
+	$(USAGE)"The following are all standalone tests. They stop and start the server,"
+	$(USAGE)"and build repositories as needed."
+	$(USAGE)
+	$(USAGE)"alltests           - Execute unittests and servertests"
+	$(USAGE)"unittests          - Execute the unit functional tests - no repository"
+	$(USAGE)"                     or active server is required"
+	$(USAGE)"servertests        - Execute a basic server test suites (No security, No SSL)"
+	$(USAGE)"standardtests      - Execute an extended server test suites "
+	$(USAGE)"                     using multiple options."
+	$(USAGE)"serverquicktests   - Executes a brief server test"
+	$(USAGE)
+	$(USAGE)"usage2             - usage on secondary test targets"
+	$(USAGE)
+
+usage2: FORCE
+	$(USAGE)
+	$(USAGE)"TestMakefile Secondary Targets:"
+	$(USAGE)
+	$(USAGE)"The following are run as part of the Primary target test suites and may"
+	$(USAGE)"also be invoked as standalone tests."
+	$(USAGE)
+	$(USAGE)"TestXMLRepository       - Executes poststarttests on XML repository"
+	$(USAGE)"                          built with cimmofl."
+	$(USAGE)"TestXMLRepositoryServer - Executes poststarttests on XML repository" 
+	$(USAGE)"                          built with cimmof."
+	$(USAGE)"TestXMLCmpRepository    - Executes poststarttests on XML compressed"
+	$(USAGE)"                          repository built with cimmofl."
+	$(USAGE)"TestBinRepository       - Executes poststarttests on binary repository "
+	$(USAGE)"                          built with cimmofl."
+	$(USAGE)"TestBinRepositoryServer - Executes poststarttests on binary repository"
+	$(USAGE)"                          built with cimmof."
+	$(USAGE)"TestBinCmpRepository    - Executes poststarttests on binary compressed"
+	$(USAGE)"                          repository built with cimmofl."
+	$(USAGE)
+	$(USAGE)"The following require the repository to be pre-built."
+	$(USAGE)
+	$(USAGE)"run_SSL_TS1             - Executes the SSL tests"
+	$(USAGE)"run_OOP_TS1             - Executes the Out Of Process Provider tests"
+	$(USAGE)
+	$(USAGE)"The following require the repository to be pre-built and the server to be started."
+	$(USAGE)
+	$(USAGE)"serversuite             - the collection of test run by the servertests rule"
+	$(USAGE)"serverquicksuite        - The collection of test run by the serverquicktests rule"
+	$(USAGE)
+
+
+##########################################################
+#
+# rules that are defined in Makefile
+#
+##########################################################
 
 build: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile build
 
+world: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile world
+
+new: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile new
+
 clean: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
 
+depend: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend
+
+
+############################################################
+#
+# rules defined here
+#
+############################################################
+
+#######################
+#
+# doc
+#
 doc:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
 	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
 
-repositoryServer:
+
+#######################
+#
+# repositoryServer
+#
+repositoryServer: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(SLEEP) 5
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
@@ -105,34 +148,113 @@ repositoryServer:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
 
-prestarttests:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
-	$(SLEEP) 5
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
+######################
+#
+# prestarttests is being deprecated since poststarttest is being deprecated
+# in favor of name more related to its intended functionality. 
+#
+prestarttests: prestarttests_msg shortsleep unittests
 
-poststarttestsclean:
+prestarttests_msg: FORCE
+	@$(ECHO) "=============================================================================="
+	@$(ECHO) "TestMakefile: The \"prestarttests\" rule is being deprecated."
+	@$(ECHO) "              Use \"make testusage\" for a description of the usage model."	
+	@$(ECHO) "              The equivalent new rule is \"unittests\"."  
+	@$(ECHO) "              Invoking the \"unittests\" rule now."
+	@$(ECHO) "=============================================================================="
+
+####################
+#
+# poststarttests is being deprecated since it multiply defines a 
+# recursive make rule leading to ambuguity and confusion.
+#
+poststarttests: poststarttests_msg shortsleep servertests 
+
+poststarttests_msg: FORCE
+	@$(ECHO) "==============================================================================="
+	@$(ECHO) "TestMakefile: The \"posstarttests\" rule is being deprecated.."  
+	@$(ECHO) "              Use \"make testusage\" for a description of the usage model."	
+	@$(ECHO) "              The equivalent new rule is \"servertests\"."  
+	@$(ECHO) "              Invoking the \"servertests\" rule now."
+	@$(ECHO) "==============================================================================="
+
+#####################
+#
+# tests is being deprecated since it multiply defines a 
+# recursive make rule leading to ambuguity and confusion.
+#
+tests: tests_msg shortsleep alltests
+
+tests_msg: FORCE
+	@$(ECHO) "==================================================================="
+	@$(ECHO) "TestMakefile: The \"tests\" rule is being deprecated."
+	@$(ECHO) "              Use \"make testusage\" for a description of the usage model."	
+	@$(ECHO) "              The equivalent new rule is \"alltests\"."  
+	@$(ECHO) "              Invoking the \"alltests\" rule now."
+	@$(ECHO) "==================================================================="
+
+
+shortsleep: FORCE
+	@$(SLEEP) 5
+
+####################
+#
+# unittests
+#
+unittests: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
+	@ $(ECHO) "+++++ TestMakefile unittests complete"
+
+#####################
+#
+# servertests
+#
+
+servertestsclean: FORCE
+	-$(CIMSERVER_STOP_SERVICE)
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 
-poststarttests: poststarttestsclean
-	-$(CIMSERVER_STOP_SERVICE)
+
+servertestssetup: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
 	$(CIMSERVER_START_SERVICE)
 	$(SLEEP) 5
+
+servertests: servertestsclean servertestssetup serversuite
+	@ $(ECHO) "+++++ TestMakefile servertests suites complete"
+
+serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 
-tests: $(TESTS)
+####################
+#
+# serverquicktests
+#
+serverquicktests: servertestsclean servertestssetup serverquicksuite
+	@ $(ECHO) "+++++ TestMakefile serverquicktests complete"
+
+serverquicksuite: FORCE
+	$(PEGASUS_HOME)/bin/TestClient
+	$(PEGASUS_HOME)/bin/Client
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests
+
+####################
+#
+# alltests
+#
+alltests: unittests servertests
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile uninstall
 endif
-	@ $(ECHO) Finished Tests
+	@ $(ECHO) "+++++ TestMakefile alltests Complete"
 
 ###############################################################################
 ##  Test Suite Definitions
@@ -300,7 +422,7 @@ TestXMLBuildRepoServ: TestXMLStartServer
 ##
 ## TestXMLRepo
 ##
-TestXMLRepo: poststarttestsclean
+TestXMLRepo: servertestsclean
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestXMLStartServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
@@ -405,7 +527,7 @@ TestBinBuildRepoServ: TestBinStartServer
 ##
 ## TestBinRepo
 ##
-TestBinRepo: poststarttestsclean 
+TestBinRepo: servertestsclean 
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinStartServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
@@ -484,7 +606,7 @@ list:
 
 # More options...
 
-standardtests:
+standardtests: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i DisableSecurity
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestCimmof
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestNoSecurity
@@ -493,6 +615,7 @@ standardtests:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestRemoteSecurity
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthorization
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestAuthorization
+	@ $(ECHO) "+++++ TestMakefile standardtests complete"
 
 TestNoSecurity:
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests

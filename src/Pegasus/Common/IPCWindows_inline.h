@@ -150,105 +150,6 @@ inline int Semaphore::count() const
 }
 
 
-//-----------------------------------------------------------------
-/// Native Windows inline implementation of AtomicInt class
-//-----------------------------------------------------------------
-#if defined(PEGASUS_ATOMIC_INT_NATIVE)
-
-inline AtomicInt& AtomicInt::operator=(const AtomicInt& original)
-{
-    InterlockedExchange(&_rep, original._rep);
-    return *this;
-}
-
-inline AtomicInt& AtomicInt::operator=(Uint32 val)
-{
-    InterlockedExchange(&_rep, val);
-    return *this;
-}
-
-inline Uint32 AtomicInt::value(void) const
-{
-    return ((Uint32)_rep);
-}
-
-inline void AtomicInt::operator++(void) { InterlockedIncrement(&_rep); }
-inline void AtomicInt::operator--(void) { InterlockedDecrement(&_rep); }
-inline void AtomicInt::operator++(int) { InterlockedIncrement(&_rep); }
-inline void AtomicInt::operator--(int) { InterlockedDecrement(&_rep); }
-
-inline Uint32 AtomicInt::operator+(const AtomicInt& val)
-{
-    //InterlockedExchangeAdd(&_rep, val._rep);
-    return (_rep + val._rep);
-}
-
-inline Uint32 AtomicInt::operator+(Uint32 val)
-{
-    //InterlockedExchangeAdd(&_rep, val);
-    return (_rep + val);
-}
-
-inline Uint32 AtomicInt::operator-(const AtomicInt& val)
-{
-    //LONG temp_operand, temp_result;
-    //temp_operand = InterlockedExchangeAdd((long *)&(val._rep), 0);
-    //temp_result = InterlockedExchangeAdd(&_rep, 0);
-    //return(temp_result - temp_operand);
-    return (_rep - val._rep);
-}
-
-inline Uint32 AtomicInt::operator-(Uint32 val)
-{
-    //LONG temp_operand, temp_result;
-    //temp_operand = InterlockedExchangeAdd( (long *)&val, 0);
-    //temp_result = InterlockedExchangeAdd(&_rep, 0);
-    //return(temp_result - temp_operand);
-    return (_rep - val);
-}
-
-inline AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
-{
-    InterlockedExchangeAdd(&_rep, val._rep);
-    return *this;
-}
-
-inline AtomicInt& AtomicInt::operator+=(Uint32 val)
-{
-    InterlockedExchangeAdd(&_rep, val);
-    return *this;
-}
-
-inline AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
-{
-    LONG temp ;
-    InterlockedExchange(&temp, val._rep);
-    enter_crit(&_crit);
-    _rep -= temp;
-    exit_crit(&_crit);
-
-    return *this;
-}
-
-inline AtomicInt& AtomicInt::operator-=(Uint32 val)
-{
-    LONG temp ;
-    InterlockedExchange(&temp, val);
-    enter_crit(&_crit);
-    _rep -= temp;
-    exit_crit(&_crit);
-
-    return *this;
-}
-
-inline Boolean AtomicInt::DecAndTestIfZero()
-{
-    return(InterlockedDecrement(&_rep) == 0);
-}
-
-
-#endif // inline atomic int
-
 //_________________________________________________________________
 //
 /// Native Windows implementation of the conditional semaphore
@@ -284,24 +185,24 @@ inline void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 
 inline void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 {
-    if(_disallow.value() > 0 )
+    if(_disallow.get() > 0 )
         throw ListClosed();
     _cond_mutex->lock(caller);
 }
 
 inline void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 {
-    if(_disallow.value() > 0 )
+    if(_disallow.get() > 0 )
         throw ListClosed();
     _cond_mutex->try_lock(caller);
 }
 
 inline void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
 {
-    if(_disallow.value() > 0)
+    if(_disallow.get() > 0)
         throw ListClosed();
     _cond_mutex->timed_lock(milliseconds, caller);
-    if( _disallow.value() > 0 )
+    if( _disallow.get() > 0 )
     {
         _cond_mutex->unlock();
         throw ListClosed();
@@ -320,7 +221,7 @@ inline void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 
 inline void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
 {
-    if(_disallow.value() > 0)
+    if(_disallow.get() > 0)
     {
         _cond_mutex->unlock();
         throw ListClosed();

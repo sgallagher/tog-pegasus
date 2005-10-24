@@ -120,7 +120,6 @@ SOURCES2 = \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
     Indentor.cpp \
-    Mutex.cpp \
     IndicationFormatter.cpp \
     IPC.cpp \
     Logger.cpp \

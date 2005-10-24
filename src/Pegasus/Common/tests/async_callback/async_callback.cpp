@@ -290,16 +290,16 @@ client_func (void *parm)
       //pegasus_yield ();
       if (verbose)
         {
-          if (test_async_queue::msg_count.value () % 100 == 0)
-            cout << (test_async_queue::msg_count.value () /
+          if (test_async_queue::msg_count.get () % 100 == 0)
+            cout << (test_async_queue::msg_count.get () /
                      10) << "%% complete" << endl;
         }
     }
-  while (test_async_queue::msg_count.value () < 1000);
+  while (test_async_queue::msg_count.get () < 1000);
 
   if (verbose)
    cout << "Waiting until all messages are flushed. " << endl;
-  while (test_async_queue::msg_count.value() != rq_count.value())
+  while (test_async_queue::msg_count.get() != rq_count.get())
   {
 	pegasus_yield();
   }
@@ -328,16 +328,16 @@ client_func (void *parm)
       //pegasus_yield ();
       if (verbose)
         {
-          if (test_async_queue::msg_count.value () % 100 == 0)
-            cout << (test_async_queue::msg_count.value () /
+          if (test_async_queue::msg_count.get () % 100 == 0)
+            cout << (test_async_queue::msg_count.get () /
                      10) << "%% complete" << endl;
         }
 
     }
-  while (test_async_queue::msg_count.value () < 1000);
+  while (test_async_queue::msg_count.get () < 1000);
   if (verbose)
    cout << "Waiting until all messages are flushed. " << endl;
-  while (test_async_queue::msg_count.value() != rq_count.value())
+  while (test_async_queue::msg_count.get() != rq_count.get())
   {
 	pegasus_yield();
   }
@@ -384,7 +384,7 @@ server_func (void *parm)
 
   test_async_queue *server = new test_async_queue (test_async_queue::SERVER);
 
-  while (server->_die_now.value () < 1)
+  while (server->_die_now.get () < 1)
     {
       pegasus_yield ();
     }

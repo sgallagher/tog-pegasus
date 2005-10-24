@@ -52,10 +52,6 @@
 # error "Unsupported platform"
 #endif
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-#include "IPCzOS.cpp"
-#endif
-
 #include "InternalException.h"
 //#include "NativeCleanup.h"
 
@@ -107,7 +103,7 @@ void extricate_read_write(void *parm)
    if(rws->_rwlock._wlock.get_owner() == myself)
       rws->_rwlock._wlock.unlock();
    else
-      if(rws->_readers > 0)
+      if(rws->_readers.get() > 0)
          rws->_rwlock._rlock.signal();
    if (rws->_rwlock._internal_lock.get_owner() == myself)
       rws->_rwlock._internal_lock.unlock();
@@ -131,7 +127,7 @@ ReadWriteSem::~ReadWriteSem()
    {
       PEGASUS_ASSERT(0);
    }
-   while(_readers.value() > 0 || _writers.value() > 0)
+   while(_readers.get() > 0 || _writers.get() > 0)
    {
       pegasus_yield();
    }
@@ -193,7 +189,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 
 	 if(milliseconds == 0) // fast wait
 	 {
-	    if(_readers.value() > 0)
+	    if(_readers.get() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
 	       //caught.reset(new WaitFailed(pegasus_thread_self()));
@@ -203,7 +199,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	   else if(milliseconds == -1) // infinite wait
 	 {
-	    while(_readers.value() > 0 )
+	    while(_readers.get() > 0 )
 	       pegasus_yield();
 	 }
 	 else // timed wait
@@ -211,7 +207,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    struct timeval start, now;
 	    gettimeofday(&start, NULL);
 	    start.tv_usec += (1000 * milliseconds);
-	    while(_readers.value() > 0)
+	    while(_readers.get() > 0)
 	    {
 	       gettimeofday(&now, NULL);
 	       if((now.tv_usec > start.tv_usec) || now.tv_sec > start.tv_sec )
@@ -285,7 +281,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 //-----------------------------------------------------------------
 	 if(milliseconds == 0) // fast wait
 	 {
-	    if(_writers.value() > 0)
+	    if(_writers.get() > 0)
 	    {
 	       _rwlock._internal_lock.unlock();
 	       //caught.reset(new WaitFailed(pegasus_thread_self()));
@@ -295,7 +291,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	 }
 	 else if(milliseconds == -1) // infinite wait
 	 {
-	    while(_writers.value() >  0)
+	    while(_writers.get() >  0)
 	       pegasus_yield();
 	 }
 	 else // timed wait
@@ -304,7 +300,7 @@ void ReadWriteSem::timed_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller, int milli
 	    gettimeofday(&start, NULL);
 	    start.tv_usec += (milliseconds * 1000);
 
-	    while(_writers.value() > 0)
+	    while(_writers.get() > 0)
 	    {
 	       gettimeofday(&now, NULL);
 	       if((now.tv_usec > start.tv_usec) || (now.tv_sec > start.tv_sec))
@@ -406,12 +402,12 @@ void ReadWriteSem::try_wait(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 
 void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 {
-   if(mode == PEG_SEM_WRITE && _writers.value() != 0 )
+   if(mode == PEG_SEM_WRITE && _writers.get() != 0 )
    {
       _writers = 0;
       _rwlock._wlock.unlock();
    }
-   else if (_readers.value() != 0 )
+   else if (_readers.get() != 0 )
    {
       _readers--;
       _rwlock._rlock.signal();
@@ -421,187 +417,18 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 int ReadWriteSem::read_count() const
 
 {
-   return( _readers.value() );
+   return( _readers.get() );
 }
 
 int ReadWriteSem::write_count() const
 {
-   return( _writers.value() );
+   return( _writers.get() );
 }
 
 #endif // ! PEGASUS_READWRITE_NATIVE
 //-----------------------------------------------------------------
 // END of generic read/write semaphore implementaion
 //-----------------------------------------------------------------
-
-
-
-//-----------------------------------------------------------------
-/// Generic Implementation of Atomic Integer class
-//-----------------------------------------------------------------
-
-#ifndef PEGASUS_ATOMIC_INT_NATIVE
-
-AtomicInt::AtomicInt() {_rep._value = 0;  }
-
-AtomicInt::AtomicInt(Uint32 initial) {_rep._value = initial; }
-
-AtomicInt::~AtomicInt()
-{
-
-}
-
-AtomicInt::AtomicInt(const AtomicInt& original)
-{
-    _rep._value = original._rep._value;
-}
-
-AtomicInt& AtomicInt::operator=(const AtomicInt& original )
-{
-    // to avoid deadlocks, always be certain to only hold one mutex at a time.
-    // therefore, get the original value (which will lock and unlock the original's mutex)
-    // and _then_ lock this mutex. This pattern is repeated throughout the class
-
-    Uint32 temp = original._rep._value;
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value = temp;
-
-    return *this;
-}
-
-AtomicInt& AtomicInt::operator=(Uint32 val)
-{
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value = val;
-
-    return *this;
-}
-
-Uint32 AtomicInt::value() const
-{
-    AutoMutex autoMut(_rep._mutex);
-    Uint32 retval = _rep._value;
-
-    return retval;
-}
-
-void AtomicInt::operator++()
-{
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value++;
-
-}
-
-void AtomicInt::operator++(int)
-{
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value++;
-
-}
-
-void AtomicInt::operator--()
-{
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value--;
-
-}
-
-void AtomicInt::operator--(int)
-{
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value--;
-
-}
-
-Uint32 AtomicInt::operator+(const AtomicInt& val)
-{
-    // never acquire a mutex while holding a mutex
-    Uint32 retval = val._rep._value;
-    AutoMutex autoMut(_rep._mutex);
-    retval += _rep._value ;
-
-    return retval;
-}
-
-Uint32 AtomicInt::operator+(Uint32 val)
-{
-    AutoMutex autoMut(_rep._mutex);
-    Uint32 retval = _rep._value + val;
-
-    return retval;
-}
-
-Uint32 AtomicInt::operator-(const AtomicInt& val)
-{
-    // never acquire a mutex while holding a mutex
-    Uint32 retval =  val._rep._value;
-    AutoMutex autoMut(_rep._mutex);
-    retval += _rep._value;
-
-    return retval;
-}
-
-Uint32 AtomicInt::operator-(Uint32 val)
-{
-    AutoMutex autoMut(_rep._mutex);
-    Uint32 retval = _rep._value - val;
-
-    return retval;
-}
-
-
-AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
-{
-    // never acquire a mutex while holding a mutex
-    Uint32 temp = val._rep._value;
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value += temp;
-
-    return *this;
-}
-AtomicInt& AtomicInt::operator+=(Uint32 val)
-{
-    // never acquire a mutex while holding a mutex
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value += val;
-
-    return *this;
-}
-
-AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
-{
-    // never acquire a mutex while holding a mutex
-    Uint32 temp = val._rep._value;
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value -= temp;
-
-    return *this;
-}
-
-AtomicInt& AtomicInt::operator-=(Uint32 val)
-{
-    // never acquire a mutex while holding a mutex
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value -= val;
-
-    return *this;
-}
-
-Boolean AtomicInt::DecAndTestIfZero()
-{
-    AutoMutex autoMut(_rep._mutex);
-    _rep._value--;
-    Boolean b = (_rep._value == 0);
-
-    return b;
-}
-
-#endif // ! PEGASUS_ATOMIC_INT_NATIVE
-//-----------------------------------------------------------------
-// END of generic atomic integer implementation
-//-----------------------------------------------------------------
-
-
 
 //-----------------------------------------------------------------
 // Generic implementation of conditional semaphore object
@@ -700,21 +527,21 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 
 void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
       throw ListClosed();
    _cond_mutex->lock(caller);
 }
 
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0 )
+   if(_disallow.get() > 0 )
       throw ListClosed();
    _cond_mutex->try_lock(caller);
 }
 
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
 }
@@ -731,7 +558,7 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
 
 void Condition::unlocked_timed_wait(int milliseconds, PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();

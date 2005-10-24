@@ -119,7 +119,7 @@ FAKE_MESSAGE *get_next_msg(void *key)
    AutoPtr<FAKE_MESSAGE> msg;
 
    AutoMutex autoMut(msg_mutex);
-   if(requests.value() < NUMBER_MSGS)
+   if(requests.get() < NUMBER_MSGS)
    {
       msg.reset(PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0));
 
@@ -188,7 +188,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm)
    Thread *my_handle = (Thread *)parm;
    read_write * my_qs = (read_write *)my_handle->get_parm();
    PEGASUS_THREAD_TYPE myself = pegasus_thread_self();
-//   while( requests.value() < NUMBER_MSGS  || replies.value() < NUMBER_MSGS )
+//   while( requests.get() < NUMBER_MSGS  || replies.get() < NUMBER_MSGS )
    while(1)
    {
       FAKE_MESSAGE *msg = 0;
@@ -307,7 +307,7 @@ int main(int argc, char **argv)
       server[i]->run();
    }
 
-   while( requests.value() < NUMBER_MSGS || replies.value() < NUMBER_MSGS )
+   while( requests.get() < NUMBER_MSGS || replies.get() < NUMBER_MSGS )
    {
       pegasus_sleep(1000);
    }
@@ -331,7 +331,7 @@ int main(int argc, char **argv)
    }
 
    cout << NUMBER_MSGS << " messages using " << NUMBER_CLIENTS << " clients and " << NUMBER_SERVERS << " servers" << endl;
-   cout << endl << "total requests: " << requests.value() << "; total replies: " << replies.value() << endl;
+   cout << endl << "total requests: " << requests.get() << "; total replies: " << replies.get() << endl;
    cout << "unclaimed requests: " <<  rw.outgoing->count() << endl;
    delete rw.incoming;
    delete rw.outgoing;

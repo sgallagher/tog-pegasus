@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,105 +27,88 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek, IBM Corp.
-// Modified by:
-//         Steve Hills (steve.hills@ncr.com)
+// Author: Marek Szermutzky (MSzermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/InternalException.h>
+#ifndef _Pegasus_Common_AtomicInt_ZOS_ZSERIES_IBM_h
+#define _Pegasus_Common_AtomicInt_ZOS_ZSERIES_IBM_h
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+#include <Pegasus/Common/Config.h>
 
-void test01()
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
 {
-    Boolean bad = false;
-    try
+    cs_t n;
+};
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = (cs_t)n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+{
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+{
+    return (Uint32)_rep.n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+{
+    _rep.n = (cs_t)n;
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    Uint32 x = (Uint32)_rep.n;
+    Uint32 old = x;
+    x++;
+    while ( cs( (cs_t*)&old, &(_rep.n), (cs_t)x) )
     {
-        Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-	        
-	AtomicInt i,j,ii,jj;
-
-	if (verbose) {
-		cout << "Testing: i++, ++ii, i--, --i	"<< endl;
-	}
-	i = 5;
-	i++;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i++;
-	PEGASUS_ASSERT( i.get() == 7 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 5 );
-
-	if (verbose) 
-	    cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
+       x = (Uint32)_rep.n;
+       old = x;
+       x++;
     }
-    catch (Exception & e)
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    Uint32 x = (Uint32)_rep.n;
+    Uint32 old = x;
+    x--;
+    while ( cs( (cs_t*)&old, &(_rep.n), (cs_t) x) )
     {
-        cout << "Exception: " << e.getMessage () << endl;
-        exit (1);
+       x = (Uint32) _rep.n;
+       old = x;
+       x--;
     }
 }
 
-static AtomicInt _ai1(0);
-static AtomicInt _ai2(0);
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
-    Thread* thread = (Thread*)parm;
-
-    for (;;)
+    Uint32 x = (Uint32)_rep.n;
+    Uint32 old = x;
+    x--;
+    while ( cs( (cs_t*)&old, &(_rep.n), (cs_t) x) )
     {
-	const size_t N = 10000000;
-
-	for (size_t i = 0; i < N; i++)
-	{
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1++;
-		_ai2++;
-	    }
-
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1.decAndTestIfZero();
-		_ai2.decAndTestIfZero();
-	    }
-	}
-
-	break;
+       x = (Uint32) _rep.n;
+       old = x;
+       x--;
     }
-
-    return 0;
+    return x==0;
 }
 
-void test02()
-{
-    Thread t1(test_thread, 0, false);
-    t1.run();
+PEGASUS_NAMESPACE_END
 
-    Thread t2(test_thread, 0, false);
-    t2.run();
-
-    t1.join();
-    t2.join();
-
-    assert(_ai1.get() == 0);
-    assert(_ai2.get() == 0);
-}
-
-int main(int argc, char** argv)
-{
-    test01();
-    test02();
-
-    cout << argv[0] << " +++++ passed all tests" << endl;
-
-    return 0;
-}
+#endif /* _Pegasus_Common_AtomicInt_ZOS_ZSERIES_IBM_h */

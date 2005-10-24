@@ -70,7 +70,7 @@ public:
 
     CIMInstance getIndicationInstance() const;
 
-    AtomicInt getRetries();
+    Uint32 getRetries();
 
     void increaseRetries();
 

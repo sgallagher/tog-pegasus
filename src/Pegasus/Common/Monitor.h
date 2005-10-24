@@ -59,6 +59,16 @@ public:
   PEGASUS_SOCKET socket;
   Uint32 queueId;
   AtomicInt _status;
+
+  // This copy constructor is inecessary since AtomicInt does not support
+  // copy construction.
+  _MonitorEntry(const _MonitorEntry& x) :
+      socket(x.socket), 
+      queueId(x.queueId), 
+      _status(x._status.get()),
+      _type(x._type) 
+  {
+  }
   int _type;
 
   _MonitorEntry(PEGASUS_SOCKET sock, Uint32 q, int Type)
@@ -91,7 +101,7 @@ public:
       {
 	this->socket = entry.socket;
 	this->queueId = entry.queueId;
-	this->_status = entry._status;
+	this->_status = entry._status.get();
 	this->_type = entry._type;
       }
 

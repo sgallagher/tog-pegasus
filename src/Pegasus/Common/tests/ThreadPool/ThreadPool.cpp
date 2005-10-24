@@ -57,7 +57,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcSleepUntilCancelled(
 {
     AtomicInt* cancelled = static_cast<AtomicInt*>(parm);
 
-    while (cancelled->value() == 0)
+    while (cancelled->get() == 0)
     {
         pegasus_sleep(1);
     }
@@ -100,7 +100,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL funcThrow(void* parm)
 
 void testDestructAsThreadCompletes()
 {
-    AtomicInt cancelled = 0;
+    AtomicInt cancelled(0);
 
     struct timeval deallocateWait = {0, 0};
     ThreadPool* threadPool = new ThreadPool(0, "Tester", 0, 1, deallocateWait);
@@ -270,7 +270,7 @@ void testHighWorkload()
 
     try
     {
-        AtomicInt counter = 0;
+        AtomicInt counter(0);
 
         struct timeval deallocateWait = { 0, 1 };
         ThreadPool* threadPool =
@@ -291,7 +291,7 @@ void testHighWorkload()
 
         delete threadPool;
 
-        assert(counter.value() == 50);
+        assert(counter.get() == 50);
     }
     catch (const Exception& e)
     {

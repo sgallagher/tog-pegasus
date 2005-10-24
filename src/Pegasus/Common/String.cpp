@@ -569,7 +569,7 @@ inline StringRep* StringRep::alloc(size_t cap)
 
 static inline void _reserve(StringRep*& rep, Uint32 cap)
 {
-    if (cap > rep->cap || rep->refs.value() != 1)
+    if (cap > rep->cap || rep->refs.get() != 1)
     {
         size_t n = _roundUpToPow2(cap);
         StringRep* newRep = StringRep::alloc(n);
@@ -749,7 +749,7 @@ String& String::assign(const Char16* str, Uint32 n)
 {
     _checkNullPointer(str);
 
-    if (n > _rep->cap || _rep->refs.value() != 1)
+    if (n > _rep->cap || _rep->refs.get() != 1)
     {
         StringRep::unref(_rep);
         _rep = StringRep::alloc(n);
@@ -766,7 +766,7 @@ String& String::assign(const char* str, Uint32 n)
 {
     _checkNullPointer(str);
 
-    if (n > _rep->cap || _rep->refs.value() != 1)
+    if (n > _rep->cap || _rep->refs.get() != 1)
     {
         StringRep::unref(_rep);
         _rep = StringRep::alloc(n);
@@ -793,7 +793,7 @@ void String::clear()
 {
     if (_rep->size)
     {
-        if (_rep->refs.value() == 1)
+        if (_rep->refs.get() == 1)
         {
             _rep->size = 0;
             _rep->data[0] = '\0';
@@ -888,7 +888,7 @@ void String::remove(Uint32 index, Uint32 n)
 
     _checkBounds(index + n, _rep->size);
 
-    if (_rep->refs.value() != 1)
+    if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
     assert(index + n <= _rep->size);
@@ -1000,7 +1000,7 @@ void String::toLower()
 
     if (InitializeICU::initICUSuccessful())
     {
-        if (_rep->refs.value() != 1)
+        if (_rep->refs.get() != 1)
             _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
@@ -1035,7 +1035,7 @@ void String::toLower()
 
 #endif /* PEGASUS_HAS_ICU */
 
-    if (_rep->refs.value() != 1)
+    if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;
@@ -1054,7 +1054,7 @@ void String::toUpper()
 
     if (InitializeICU::initICUSuccessful())
     {
-        if (_rep->refs.value() != 1)
+        if (_rep->refs.get() != 1)
             _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
@@ -1090,7 +1090,7 @@ void String::toUpper()
 
 #endif /* PEGASUS_HAS_ICU */
 
-    if (_rep->refs.value() != 1)
+    if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
     Uint16* p = _rep->data;

@@ -235,10 +235,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
     AtomicInt * atom = (AtomicInt *)my_thread->get_parm();
 
     (*atom)++;
-    (*atom)+=4;
-    (*atom)-=2;
+    (*atom).set((*atom).get() + 4);
+    (*atom).set((*atom).get() - 2);
     (*atom)--;
-    Boolean zero = atom->DecAndTestIfZero();
+    Boolean zero = atom->decAndTestIfZero();
     assert(zero == false);
 
     my_thread->exit_self(0);
@@ -253,7 +253,7 @@ void test02()
     Thread* threads[numThreads];
 
     (*atom)++;
-    Boolean zero = atom->DecAndTestIfZero();
+    Boolean zero = atom->decAndTestIfZero();
     assert(zero);
 
     for (Uint32 i=0; i<numThreads; i++)
@@ -272,7 +272,7 @@ void test02()
         delete threads[i];
     }
 
-    assert(atom->value() == numThreads);
+    assert(atom->get() == numThreads);
     delete atom;
 }
 

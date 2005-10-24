@@ -343,7 +343,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
 
                   provider->_quantum = quantum;
 
-                  if (provider->_current_operations.value ())
+                  if (provider->_current_operations.get ())
                     {
                       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                                         "CMPIProvider has pending operations: "
@@ -467,7 +467,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL CMPILocalProviderManager::_reaper(voi
 			delete rec;
 		}
     }
-  while (_stopPolling.value() == 0);
+  while (_stopPolling.get() == 0);
   myself->exit_self( (PEGASUS_THREAD_RETURN) 0);
   return (0);
 }
@@ -892,7 +892,7 @@ CMPILocalProviderManager::_unloadProvider (CMPIProvider * provider)
   PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                     "Unloading Provider " + provider->getName());
 
-  if (provider->_current_operations.value ())
+  if (provider->_current_operations.get ())
     {
       PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                         "Provider cannot be unloaded due to pending operations: "

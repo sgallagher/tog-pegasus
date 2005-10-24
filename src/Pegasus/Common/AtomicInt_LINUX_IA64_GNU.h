@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,105 +27,79 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek, IBM Corp.
-// Modified by:
-//         Steve Hills (steve.hills@ncr.com)
+// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/InternalException.h>
+#ifndef _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h
+#define _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+#include <Pegasus/Common/Config.h>
 
-void test01()
+// Note: this lock can be eliminated for single processor systems.
+#define PEGASUS_ATOMIC_LOCK "lock ; "
+
+PEGASUS_NAMESPACE_BEGIN
+
+struct AtomicType
 {
-    Boolean bad = false;
-    try
-    {
-        Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-	        
-	AtomicInt i,j,ii,jj;
+    volatile int n; 
+};
 
-	if (verbose) {
-		cout << "Testing: i++, ++ii, i--, --i	"<< endl;
-	}
-	i = 5;
-	i++;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i++;
-	PEGASUS_ASSERT( i.get() == 7 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 5 );
-
-	if (verbose) 
-	    cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
-    }
-    catch (Exception & e)
-    {
-        cout << "Exception: " << e.getMessage () << endl;
-        exit (1);
-    }
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+{
+    _rep.n = n;
 }
 
-static AtomicInt _ai1(0);
-static AtomicInt _ai2(0);
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
 {
-    Thread* thread = (Thread*)parm;
-
-    for (;;)
-    {
-	const size_t N = 10000000;
-
-	for (size_t i = 0; i < N; i++)
-	{
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1++;
-		_ai2++;
-	    }
-
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1.decAndTestIfZero();
-		_ai2.decAndTestIfZero();
-	    }
-	}
-
-	break;
-    }
-
-    return 0;
 }
 
-void test02()
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 {
-    Thread t1(test_thread, 0, false);
-    t1.run();
-
-    Thread t2(test_thread, 0, false);
-    t2.run();
-
-    t1.join();
-    t2.join();
-
-    assert(_ai1.get() == 0);
-    assert(_ai2.get() == 0);
+    return _rep.n;
 }
 
-int main(int argc, char** argv)
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
-    test01();
-    test02();
-
-    cout << argv[0] << " +++++ passed all tests" << endl;
-
-    return 0;
+    _rep.n = n;
 }
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::inc()
+{
+    asm volatile(
+	PEGASUS_ATOMIC_LOCK "incl %0"
+	:"=m" (_rep.n)
+	:"m" (_rep.n));
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline void AtomicIntTemplate<AtomicType>::dec()
+{
+    asm volatile(
+        PEGASUS_ATOMIC_LOCK "decl %0"
+        :"=m" (_rep.n)
+        :"m" (_rep.n));
+}
+
+PEGASUS_TEMPLATE_SPECIALIZATION
+inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
+{
+    unsigned char c;
+
+    asm volatile(
+	PEGASUS_ATOMIC_LOCK "decl %0; sete %1"
+	:"=m" (_rep.n), "=qm" (c)
+	:"m" (_rep.n) : "memory");
+
+    return c != 0;
+}
+
+PEGASUS_NAMESPACE_END
+
+#endif /* _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h */

@@ -230,7 +230,7 @@ Boolean Provider::pending_operation(void)
 
 Boolean Provider::unload_ok(void)
 {
-   if(_no_unload.value() )
+   if(_no_unload.get() )
       return false;
 
    if(_cimom_handle)

@@ -94,7 +94,7 @@ PEGASUS_STRING_INLINE Char16& String::operator[](Uint32 i)
 {
     _checkBounds(i, _rep->size);
 
-    if (_rep->refs.value() != 1)
+    if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
     return (Char16&)_rep->data[i]; 
@@ -135,7 +135,7 @@ PEGASUS_STRING_INLINE Uint32 String::find(const String& s) const
 
 PEGASUS_STRING_INLINE String& String::append(const Char16& c)
 {
-    if (_rep->size == _rep->cap || _rep->refs.value() != 1)
+    if (_rep->size == _rep->cap || _rep->refs.get() != 1)
         StringAppendCharAux(_rep);
 
     _rep->data[_rep->size++] = c;

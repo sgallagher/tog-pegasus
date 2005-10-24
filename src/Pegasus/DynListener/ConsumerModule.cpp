@@ -141,7 +141,7 @@ void ConsumerModule::unloadModule(void)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerModule::unloadModule");
 
-    if (_ref_count.DecAndTestIfZero())
+    if (_ref_count.decAndTestIfZero())
     {
         if(_libraryHandle != 0)
         {

@@ -87,27 +87,6 @@ Semaphore::~Semaphore()
    CloseHandle(_semaphore.sem);
 }
 
-
-//-----------------------------------------------------------------
-/// Native Windows  implementation of AtomicInt class
-//-----------------------------------------------------------------
-#if defined(PEGASUS_ATOMIC_INT_NATIVE)
-
-AtomicInt::AtomicInt(): _rep(0) { init_crit(&_crit); }
-
-AtomicInt::AtomicInt( Uint32 initial): _rep(initial) { init_crit(&_crit); }
-
-AtomicInt::~AtomicInt() { destroy_crit(&_crit); }
-
-AtomicInt::AtomicInt(const AtomicInt& original) 
-{
-   _rep = original._rep;
-   init_crit(&_crit);
-}
-
-#endif // Native Atomic Type 
-
-
 //-----------------------------------------------------------------
 // Native implementation of Conditional semaphore object
 //-----------------------------------------------------------------

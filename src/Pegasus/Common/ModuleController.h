@@ -102,7 +102,7 @@ private:
 
         Uint32 reference_count() const
         {
-            return _reference_count.value();
+            return _reference_count.get();
         }
 
         const String& get_name() const throw()

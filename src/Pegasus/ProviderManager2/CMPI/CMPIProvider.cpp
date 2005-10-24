@@ -550,7 +550,7 @@ Boolean CMPIProvider::pending_operation(void)
 Boolean CMPIProvider::unload_ok(void)
 {
    if (noUnload==true) return false;
-   if(_no_unload.value() )
+   if(_no_unload.get() )
       return false;
    
    if(_cimom_handle)

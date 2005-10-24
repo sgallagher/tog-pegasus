@@ -53,6 +53,7 @@ SOURCES1 = \
     AnonymousPipe.cpp \
     Array.cpp \
     AsyncOpNode.cpp \
+    AtomicInt.cpp \
     AuthenticationInfoRep.cpp \
     AutoStreamer.cpp \
     Base64.cpp \
@@ -119,6 +120,7 @@ SOURCES2 = \
     HTTPConnector.cpp  \
     HTTPMessage.cpp \
     Indentor.cpp \
+    Mutex.cpp \
     IndicationFormatter.cpp \
     IPC.cpp \
     Logger.cpp \
@@ -128,6 +130,7 @@ SOURCES2 = \
     MessageQueueService.cpp \
     ModuleController.cpp \
     Monitor.cpp \
+    Mutex.cpp \
     ObjectNormalizer.cpp \
     OperationContext.cpp \
     OperationContextInternal.cpp \

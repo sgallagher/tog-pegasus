@@ -52,7 +52,7 @@ Uint32 previousState = 0;
 Uint32 currentState = 0;
 
 
-AtomicInt DynamicIndicationProvider::_refCnt = 0;
+AtomicInt DynamicIndicationProvider::_refCnt(0);
 
 static CIMOMHandle * _cimom = 0;
 
@@ -146,7 +146,7 @@ void DynamicIndicationProvider::enableIndications(IndicationResponseHandler & ha
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "DynamicIndicationProvider::enableIndications");
     _refCnt++;
 
-    if (_refCnt == 1) 
+    if (_refCnt.get() == 1) 
     {
         _pHandler = &handler;
 
@@ -161,7 +161,7 @@ void DynamicIndicationProvider::disableIndications(void)
     PEG_METHOD_ENTER(TRC_CONTROLPROVIDER, "DynamicIndicationProvider::disableIndications");
     _refCnt--;
 
-    if ((_refCnt == 0) && (_pHandler != 0)) 
+    if ((_refCnt.get() == 0) && (_pHandler != 0)) 
     {
         _pHandler->complete();
 

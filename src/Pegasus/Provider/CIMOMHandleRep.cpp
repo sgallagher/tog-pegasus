@@ -128,7 +128,7 @@ void CIMOMHandleRep::update_idle_timer()
 
 Boolean CIMOMHandleRep::pending_operation()
 {
-    if (_pendingOperations.value())
+    if (_pendingOperations.get())
     {
         return true;
     }
@@ -137,7 +137,7 @@ Boolean CIMOMHandleRep::pending_operation()
 
 Boolean CIMOMHandleRep::unload_ok()
 {
-    if (_pendingOperations.value())
+    if (_pendingOperations.get())
     {
         return false;
     }

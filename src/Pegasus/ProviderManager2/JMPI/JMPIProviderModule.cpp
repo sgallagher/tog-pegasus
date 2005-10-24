@@ -98,7 +98,7 @@ ProviderVector JMPIProviderModule::load(const String & providerName)
 
 void JMPIProviderModule::unloadModule(void)
 {
-    if (_ref_count.DecAndTestIfZero())
+    if (_ref_count.decAndTestIfZero())
     {
         if(_library != 0)
         {

@@ -650,7 +650,7 @@ void HTTPAcceptor::destroyConnections()
 
         // Destroy the connection (causing it to close):
 
-        while (connection->refcount.value()) { }
+        while (connection->refcount.get()) { }
         delete connection;
      }
 

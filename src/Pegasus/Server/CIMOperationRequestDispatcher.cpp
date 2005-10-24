@@ -589,7 +589,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    String& provider)
 {
 
-   static AtomicInt _initialized = 0;
+   static AtomicInt _initialized(0);
    static Mutex _monitor;
 
    PEG_METHOD_ENTER(TRC_DISPATCHER,
@@ -600,10 +600,10 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
    provider = String::EMPTY;
    CIMNamespaceName _wild;
    _wild.clear();
-   if(_initialized == 0)
+   if(_initialized.get() == 0)
    {
       AutoMutex autoMut(_monitor);
-      if(_initialized.value() == 0 )
+      if(_initialized.get() == 0 )
       {
          _routing_table.insert_record(PEGASUS_CLASSNAME_CONFIGSETTING,
                           PEGASUS_NAMESPACENAME_CONFIG,

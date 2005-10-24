@@ -67,7 +67,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test4_thread( void* parm );
 #define  THREAD_NR 500
 AtomicInt read_count ;
 AtomicInt write_count ;
-AtomicInt testval1 = 0;
+AtomicInt testval1(0);
 Boolean verbose = false;
 
 struct TestThreadData
@@ -188,8 +188,8 @@ int main(int argc, char **argv)
    }
 
    delete rw;
-   if (verbose) cout << endl << "read operations: " << read_count.value() << endl;
-   if (verbose) cout << "write operations: " << write_count.value() << endl;
+   if (verbose) cout << endl << "read operations: " << read_count.get() << endl;
+   if (verbose) cout << "write operations: " << write_count.get() << endl;
    
    cout << argv[0] << " +++++ passed all tests" << endl;
    return(0);

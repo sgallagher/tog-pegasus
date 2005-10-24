@@ -114,10 +114,10 @@ Boolean cimom::route_async(AsyncOpNode *op)
 {
 
 
-   if( _die.value()> 0 )
+   if( _die.get()> 0 )
       return false;
 
-   if( _routed_queue_shutdown.value() > 0 )
+   if( _routed_queue_shutdown.get() > 0 )
       return false;
    
    _routed_ops.insert_last_wait(op);
@@ -129,7 +129,7 @@ Boolean cimom::route_async(AsyncOpNode *op)
 void cimom::_shutdown_routed_queue()
 {
 
-   if (_routed_queue_shutdown.value() > 0 )
+   if (_routed_queue_shutdown.get() > 0 )
       return ;
    
    AutoPtr<AsyncIoctl> msg(new AsyncIoctl(get_xid(),
@@ -163,7 +163,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
    cimom *dispatcher = reinterpret_cast<cimom *>(myself->get_parm());
    AsyncOpNode *op = 0;
    
-   while( dispatcher->_die.value()  == 0 )
+   while( dispatcher->_die.get()  == 0 )
    {
       try 
       {
@@ -248,11 +248,11 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL cimom::_routing_proc(void *parm)
 		     accepted = true;
 		  }
 		  else // deliver the start or resume message 
-			if (dest_svc->_die.value() == 0)
+			if (dest_svc->_die.get() == 0)
 		     accepted = dest_svc->accept_async(op);
 	       }
 	       else 
-			if (dest_svc->_die.value() == 0)
+			if (dest_svc->_die.get() == 0)
 		  accepted = dest_svc->accept_async(op);
 	    }
 	    if ( accepted == false )
@@ -304,7 +304,7 @@ cimom::cimom()
 Uint32 cimom::get_xid()
 {
    _xid++;
-   return _xid.value();
+   return _xid.get();
 }
 
 cimom::~cimom()
@@ -313,7 +313,7 @@ cimom::~cimom()
 // send STOP messages to all modules
 // shutdown legacy queues; e.g., cim operation dispatcher etc.
    _die++;
-   if (_routed_queue_shutdown.value() == 0 )
+   if (_routed_queue_shutdown.get() == 0 )
       _routed_ops.shutdown_queue();
    _routing_thread.join();
 
@@ -692,7 +692,7 @@ void cimom::ioctl(AsyncIoctl *msg)
 	 // ensure we do not accept any further messages
 
 	 // ensure we don't recurse on IO_CLOSE
-	 if( _routed_queue_shutdown.value() > 0 )
+	 if( _routed_queue_shutdown.get() > 0 )
 	    break;
 	 
 	 // set the closing flag 

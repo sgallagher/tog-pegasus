@@ -165,8 +165,8 @@ public:
      */
     Boolean exists(const L *key);
 
-    Uint32 count(void) { return _actual_count->value() ; }
-    Uint32 size(void) { return _actual_count->value() ; }
+    Uint32 count(void) { return _actual_count->get() ; }
+    Uint32 size(void) { return _actual_count->get() ; }
 } ;
 
 
@@ -542,7 +542,7 @@ template<class L> L * DQueue<L>::remove_first()
 {
     L *ret = 0;
 
-    if( _actual_count->value() )
+    if( _actual_count->get() )
     {
         AutoMutex autoMut(*_mutex.get());
         ret = static_cast<L *>(Base::remove_first());
@@ -556,7 +556,7 @@ template<class L> L * DQueue<L>::remove_first()
 template<class L> L *DQueue<L>::remove_last()
 {
     L * ret = 0;
-    if( _actual_count->value() )
+    if( _actual_count->get() )
     {
         AutoMutex autoMut(*_mutex.get());
         ret = static_cast<L *>(Base::remove_last());
@@ -574,7 +574,7 @@ template<class L> L *DQueue<L>::remove_no_lock(const void *key)
     if( pegasus_thread_self() != _mutex->get_owner())
         throw Permission(pegasus_thread_self());
 
-    if (_actual_count->value() )
+    if (_actual_count->get() )
     {
         L *ret = static_cast<L *>(Base::next(0));
         while( ret != 0 )
@@ -601,7 +601,7 @@ template<class L> L * DQueue<L>::remove_no_lock(const L *key)
     if( pegasus_thread_self() != _mutex->get_owner())
         throw Permission(pegasus_thread_self());
 
-    if (_actual_count->value() )
+    if (_actual_count->get() )
     {
         L *ret = static_cast<L *>(Base::next(0));
         while( ret != 0 )
@@ -626,7 +626,7 @@ template<class L> L * DQueue<L>::remove(const void *key)
 {
     L *ret = 0;
 
-    if( _actual_count->value() > 0 )
+    if( _actual_count->get() > 0 )
     {
         AutoMutex autoMut(*_mutex.get());
         ret = DQueue<L>::remove_no_lock(key);
@@ -639,7 +639,7 @@ template<class L>L *DQueue<L>::remove(const L *key)
 {
     L *ret = 0;
 
-    if( _actual_count->value() > 0 )
+    if( _actual_count->get() > 0 )
     {
         AutoMutex autoMut(*_mutex.get());
         ret = DQueue<L>::remove_no_lock(key);
@@ -656,7 +656,7 @@ template<class L> L *DQueue<L>::reference(const L *key)
     if( pegasus_thread_self() != _mutex->get_owner())
         throw Permission(pegasus_thread_self());
 
-    if( _actual_count->value() )
+    if( _actual_count->get() )
     {
         L *ret = static_cast<L *>(Base::next(0));
         while(ret != 0)
@@ -678,7 +678,7 @@ template<class L> L *DQueue<L>::reference(const void *key)
     if( pegasus_thread_self() != _mutex->get_owner())
         throw Permission(pegasus_thread_self());
 
-    if( _actual_count->value() )
+    if( _actual_count->get() )
     {
         L *ret = static_cast<L *>(Base::next(0));
         while(ret != 0)
@@ -714,7 +714,7 @@ template<class L> Boolean DQueue<L>::exists(const void *key)
         return false;
 
     Boolean ret = false;
-    if(_actual_count->value() > 0)
+    if(_actual_count->get() > 0)
     {
         AutoMutex autoMut(*_mutex.get());
         ret = (DQueue<L>::reference(key) != 0);
@@ -729,7 +729,7 @@ template<class L> Boolean DQueue<L>::exists(const L *key)
         return false;
 
     Boolean ret = false;
-    if(_actual_count->value() > 0)
+    if(_actual_count->get() > 0)
     {
         AutoMutex autoMut(*_mutex.get());
         ret = (DQueue<L>::reference(key) != 0);
@@ -740,7 +740,7 @@ template<class L> Boolean DQueue<L>::exists(const L *key)
 
 template<class L> void AsyncDQueue<L>::_insert_prep()
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -750,7 +750,7 @@ template<class L> void AsyncDQueue<L>::_insert_prep()
     while(true == is_full())
     {
         _slot->unlocked_wait(pegasus_thread_self());
-        if(_disallow->value() > 0)
+        if(_disallow->get() > 0)
         {
             unlock();
             throw ListClosed();
@@ -767,7 +767,7 @@ template<class L> void AsyncDQueue<L>::_insert_recover()
 
 template<class L> void AsyncDQueue<L>::_unlink_prep()
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -776,7 +776,7 @@ template<class L> void AsyncDQueue<L>::_unlink_prep()
     while(true == is_empty())
     {
         _node->unlocked_wait(pegasus_thread_self());
-       if(_disallow->value() > 0)
+       if(_disallow->get() > 0)
        {
            unlock();
            throw ListClosed();
@@ -793,7 +793,7 @@ template<class L> void AsyncDQueue<L>::_unlink_recover()
 
 template<class L> L * AsyncDQueue<L>::_remove_no_lock(const void *key)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -816,7 +816,7 @@ template<class L> L * AsyncDQueue<L>::_remove_no_lock(const void *key)
 
 template<class L> L *AsyncDQueue<L>::_remove_no_lock(const L *key)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -889,17 +889,17 @@ template<class L> Boolean AsyncDQueue<L>::is_full()
     return false;
 
 
-    if( _capacity->value() == 0 )
+    if( _capacity->get() == 0 )
         return false;
 
-    if(_actual_count->value() >= _capacity->value())
+    if(_actual_count->get() >= _capacity->get())
         return true;
     return false;
 }
 
 template<class L> Boolean AsyncDQueue<L>::is_empty()
 {
-    if(_actual_count->value() == 0)
+    if(_actual_count->get() == 0)
        return true;
     return false;
 }
@@ -907,14 +907,14 @@ template<class L> Boolean AsyncDQueue<L>::is_empty()
 
 template<class L> Boolean AsyncDQueue<L>::is_shutdown()
 {
-    if( _disallow->value() > 0)
+    if( _disallow->get() > 0)
         return true;
      return false;
 }
 
 template<class L> void AsyncDQueue<L>::try_lock(PEGASUS_THREAD_TYPE myself)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         throw ListClosed();
     }
@@ -924,7 +924,7 @@ template<class L> void AsyncDQueue<L>::try_lock(PEGASUS_THREAD_TYPE myself)
 
 template<class L> void AsyncDQueue<L>::lock(PEGASUS_THREAD_TYPE myself)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
        throw ListClosed();
     }
@@ -972,7 +972,7 @@ template<class L> void AsyncDQueue<L>::set_capacity(Uint32 capacity)
 
 template<class L> Uint32 AsyncDQueue<L>::get_capacity()
 {
-    return _capacity->value();
+    return _capacity->get();
 }
 
 template<class L> void AsyncDQueue<L>::insert_first(L *element)
@@ -983,7 +983,7 @@ template<class L> void AsyncDQueue<L>::insert_first(L *element)
         if(true == is_full())
         {
             unlock();
-            throw ListFull(_capacity->value());
+            throw ListFull(_capacity->get());
         }
         Base::insert_first(static_cast<void *>(element));
         _insert_recover();
@@ -1008,7 +1008,7 @@ template<class L> void AsyncDQueue<L>::insert_last(L *element)
         if(true == is_full())
         {
             unlock();
-            throw ListFull(_capacity->value());
+            throw ListFull(_capacity->get());
         }
         Base::insert_last(static_cast<void *>(element));
         _insert_recover();
@@ -1112,7 +1112,7 @@ template<class L>L *AsyncDQueue<L>::remove(const L *key)
 
 template<class L> L *AsyncDQueue<L>::remove_no_lock(const void *key)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -1139,7 +1139,7 @@ template<class L> L *AsyncDQueue<L>::remove_no_lock(const void *key)
 
 template<class L> L *AsyncDQueue<L>::remove_no_lock(const L *key)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -1174,13 +1174,13 @@ template<class L> L *AsyncDQueue<L>::remove_wait(const void *key)
     L *ret = _remove_no_lock(key);
     while( ret == 0 )
     {
-        if(_disallow->value() > 0)
+        if(_disallow->get() > 0)
         {
             unlock();
             throw ListClosed();
         }
         _node->unlocked_wait(pegasus_thread_self());
-        if(_disallow->value() > 0)
+        if(_disallow->get() > 0)
        {
           unlock();
           throw ListClosed();
@@ -1214,7 +1214,7 @@ template<class L> L *AsyncDQueue<L>::prev(const L *ref)
 
 template<class L> L *AsyncDQueue<L>::reference(const void *key)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -1242,7 +1242,7 @@ template<class L> L *AsyncDQueue<L>::reference(const void *key)
 
 template<class L> L *AsyncDQueue<L>::reference(const L *key)
 {
-    if(_disallow->value() > 0)
+    if(_disallow->get() > 0)
     {
         unlock();
         throw ListClosed();
@@ -1270,12 +1270,12 @@ template<class L> L *AsyncDQueue<L>::reference(const L *key)
 
 template<class L> Uint32 AsyncDQueue<L>::count()
 {
-    return _actual_count->value();
+    return _actual_count->get();
 }
 
 template<class L> Uint32 AsyncDQueue<L>::size()
 {
-    return _actual_count->value();
+    return _actual_count->get();
 }
 
 

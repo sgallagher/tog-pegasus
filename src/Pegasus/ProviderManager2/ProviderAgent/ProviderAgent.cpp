@@ -589,7 +589,7 @@ void ProviderAgent::_unloadIdleProviders()
     ThreadStatus rtn = PEGASUS_THREAD_OK;
     // Ensure that only one _unloadIdleProvidersHandler thread runs at a time
     _unloadIdleProvidersBusy++;
-    if ((_unloadIdleProvidersBusy.value() == 1) &&
+    if ((_unloadIdleProvidersBusy.get() == 1) &&
         ((rtn =_threadPool.allocate_and_awaken(
              (void*)this, ProviderAgent::_unloadIdleProvidersHandler))==PEGASUS_THREAD_OK))
     {

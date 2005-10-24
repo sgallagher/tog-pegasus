@@ -488,24 +488,24 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 {
 
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
       throw ListClosed();
    _cond_mutex->lock(caller);
 }
 
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
       throw ListClosed();
    _cond_mutex->try_lock(caller);
 }
 
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
 {
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
       throw ListClosed();
    _cond_mutex->timed_lock(milliseconds, caller);
-   if( _disallow.value() > 0 )
+   if( _disallow.get() > 0 )
    {
       _cond_mutex->unlock();
       throw ListClosed();
@@ -527,7 +527,7 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
       throw Permission(_cond_mutex->get_owner());
    }
 
-   if(_disallow.value() > 0)
+   if(_disallow.get() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();
@@ -553,7 +553,7 @@ void Condition::unlocked_timed_wait(
       throw Permission(_cond_mutex->get_owner());
    }
 
-   if (_disallow.value() > 0)
+   if (_disallow.get() > 0)
    {
       _cond_mutex->unlock();
       throw ListClosed();
@@ -965,168 +965,5 @@ int Semaphore::count() const
 }
 
 #endif
-
-
-//-----------------------------------------------------------------
-/// Spin lock implementation of AtomicInt class
-//-----------------------------------------------------------------
-//
-#if defined(PEGASUS_ATOMIC_INT_NATIVE) &&!defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-
-AtomicInt::AtomicInt() { pthread_spin_init(&_crit,0); _rep = 0;}
-
-AtomicInt::AtomicInt( Uint32 initial)
-    {pthread_spin_init(&_crit,0); _rep = initial;}
-
-AtomicInt::~AtomicInt() { pthread_spin_destroy(&_crit);}
-
-AtomicInt::AtomicInt(const AtomicInt& original)
-{
-   pthread_spin_init(&_crit,0);
-   _rep = const_cast<AtomicInt &>(original).value();
-}
-
-AtomicInt& AtomicInt::operator=(Uint32 i)
-{
-   pthread_spin_lock(&_crit);
-   _rep = i;
-   pthread_spin_unlock(&_crit);
-   return *this;
-}
-
-AtomicInt& AtomicInt::operator=(const AtomicInt& original)
-{
-   if(this != &original)
-   {
-      int i = const_cast<AtomicInt &>(original).value();
-      pthread_spin_lock(&_crit);
-      _rep = i;
-      pthread_spin_unlock(&_crit);
-   }
-   return *this;
-}
-
-Uint32 AtomicInt::value() const
-{
-   int i;
-
-   // except for zSeries, i=_rep seems to be atomic even
-   // on multiprocessor systems without spinlock usage
-   pthread_spin_lock(&_crit);
-   i = _rep;
-   pthread_spin_unlock(&_crit);
-
-   return i;
-}
-
-void AtomicInt::operator++()
-{
-    pthread_spin_lock(&_crit);
-    _rep++;
-    pthread_spin_unlock(&_crit);
-}
-
-void AtomicInt::operator--()
-{
-    pthread_spin_lock(&_crit);
-    _rep--;
-    pthread_spin_unlock(&_crit);
-}
-
-void AtomicInt::operator++(int)
-{
-    pthread_spin_lock(&_crit);
-    _rep++;
-    pthread_spin_unlock(&_crit);
-}
-
-void AtomicInt::operator--(int)
-{
-    pthread_spin_lock(&_crit);
-    _rep--;
-    pthread_spin_unlock(&_crit);
-}
-
-
-Uint32 AtomicInt::operator+(const AtomicInt& val)
-{
-    int i = const_cast<AtomicInt &>(val).value();
-    pthread_spin_lock(&_crit);
-    i += _rep;
-    pthread_spin_unlock(&_crit);
-    return i;
-}
-
-Uint32 AtomicInt::operator+(Uint32 val)
-{
-    int i = val;
-    pthread_spin_lock(&_crit);
-    i += _rep;
-    pthread_spin_unlock(&_crit);
-    return i;
-}
-
-Uint32 AtomicInt::operator-(const AtomicInt& val)
-{
-    int i = const_cast<AtomicInt &>(val).value();
-    pthread_spin_lock(&_crit);
-    i = _rep - i;
-    pthread_spin_unlock(&_crit);
-    return i;
-}
-
-Uint32 AtomicInt::operator-(Uint32 val)
-{
-    int i = val;
-    pthread_spin_lock(&_crit);
-    i = _rep - i;
-    pthread_spin_unlock(&_crit);
-    return i;
-}
-
-AtomicInt& AtomicInt::operator+=(const AtomicInt& val)
-{
-    int i = const_cast<AtomicInt &>(val).value();
-    pthread_spin_lock(&_crit);
-    _rep += i;
-    pthread_spin_unlock(&_crit);
-    return *this;
-}
-
-AtomicInt& AtomicInt::operator+=(Uint32 val)
-{
-    pthread_spin_lock(&_crit);
-    _rep += val;
-    pthread_spin_unlock(&_crit);
-    return *this;
-}
-
-AtomicInt& AtomicInt::operator-=(const AtomicInt& val)
-{
-    int i = const_cast<AtomicInt &>(val).value();
-    pthread_spin_lock(&_crit);
-    _rep -= i;
-    pthread_spin_unlock(&_crit);
-    return *this;
-}
-
-AtomicInt& AtomicInt::operator-=(Uint32 val)
-{
-    pthread_spin_lock(&_crit);
-    _rep -= val;
-    pthread_spin_unlock(&_crit);
-    return *this;
-}
-
-Boolean AtomicInt::DecAndTestIfZero()
-{
-    pthread_spin_lock(&_crit);
-    _rep--;
-    Boolean b = ((_rep == 0) ? true : false) ;
-    pthread_spin_unlock(&_crit);
-    return b;
-}
-
-#endif // Native Atomic Type
 
 PEGASUS_NAMESPACE_END

@@ -114,7 +114,7 @@ slp_service_agent::slp_service_agent(void)
    {
       
    }
-   if(_initialized.value() && _lib_handle && _create_client)
+   if(_initialized.get() && _lib_handle && _create_client)
    {
       _rep = _create_client("239.255.255.253",
 			    0,
@@ -143,7 +143,7 @@ slp_service_agent::slp_service_agent(const char *local_interface,
    {
       
    }
-   if(_initialized.value() && _lib_handle && _create_client)
+   if(_initialized.get() && _lib_handle && _create_client)
    {
       _rep = _create_client("239.255.255.253",
 			    local_interface,
@@ -223,7 +223,7 @@ void slp_service_agent::_init(void)
 
 void slp_service_agent::_de_init(void)
 {
-   if(_initialized.value() && _lib_handle)
+   if(_initialized.get() && _lib_handle)
    {
       if(_rep)
       {
@@ -249,7 +249,7 @@ Boolean slp_service_agent::srv_register(const char* url,
 					const char* scopes, 
 					unsigned short lifetime)
 {
-   if(_initialized.value() == 0 )
+   if(_initialized.get() == 0 )
       throw UninitializedObjectException();
 
    if(url == 0 || attributes == 0 || type == 0)
@@ -275,14 +275,14 @@ Boolean slp_service_agent::srv_register(const char* url,
 
 void slp_service_agent::unregister(void)
 {
-   if(_initialized.value() == 0 )
+   if(_initialized.get() == 0 )
       throw UninitializedObjectException();
    _should_listen = 0;
    _listen_thread.join();
    
    while(slp_reg_table::Iterator i = _internal_regs.start())
    {
-      sa_reg_params *rp = i.value();
+      sa_reg_params *rp = i.get();
       _internal_regs.remove(rp->url);
       delete rp;
    }
@@ -296,7 +296,7 @@ Uint32 slp_service_agent::test_registration(const char *url,
  					    const char *scopes)
 {
 
-   if(_initialized.value() == 0 )
+   if(_initialized.get() == 0 )
       throw UninitializedObjectException();
 
    //cout << "test_registration. type= " << type << endl;
@@ -332,7 +332,7 @@ Uint32 slp_service_agent::test_registration(const char *url,
 void slp_service_agent::start_listener(void)
 {
    // see if we need to use an slp directory agent 
-   if(_initialized.value() == 0 )
+   if(_initialized.get() == 0 )
       throw UninitializedObjectException();
    
    _using_das = _find_das(_rep, NULL, "DEFAULT");
@@ -356,7 +356,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
    
    lslpMsg msg_list;
    
-   while(agent->_should_listen.value())
+   while(agent->_should_listen.get())
    {
       Uint32 now, msec;
       System::getCurrentTime(now, msec);
@@ -364,13 +364,13 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
       
       for(slp_reg_table::Iterator i = agent->_internal_regs.start(); i ; i++)
       {
-	 sa_reg_params *rp = i.value();
+	 sa_reg_params *rp = i.get();
 
 	 if(rp->expire == 0 || rp->expire < now - 1)
 	 {
 	    rp->expire = now + rp->lifetime;
 	    
-	    if(agent->_using_das.value())
+	    if(agent->_using_das.get())
 	    { 
 	       agent->_rep->srv_reg_all(
 		  agent->_rep, 

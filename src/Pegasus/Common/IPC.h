@@ -47,36 +47,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
-
-#if !defined(PEGASUS_OS_SOLARIS) && !defined(PEGASUS_OS_LSB) && !defined(PEGASUS_OS_VMS)
-#define PEGASUS_NEED_CRITICAL_TYPE
-#endif
-
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-# include "IPCWindows.h"
-#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-# include "IPCUnix.h"
-#elif defined(PEGASUS_PLATFORM_HPUX_ACC)
-# include "IPCHpux.h"
-#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
-# include "IPCUnix.h"
-#elif defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC)
-# include "IPCSun.h"
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX)
-# include "IPCAix.h"
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
-# include "IPCzOS.h"
-#elif defined(PEGASUS_PLATFORM_TRU64_ALPHA_DECCXX)
-# include "IPCTru64.h"
-#elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
-# include "IPCOs400.h"
-#elif defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
-# include "IPCUnix.h"
-#elif defined(PEGASUS_OS_VMS)
-# include "IPCVms.h"
-#else
-# error "Unsupported platform"
-#endif
+#include <Pegasus/Common/IPCTypes.h>
+#include <Pegasus/Common/Mutex.h>
+#include <Pegasus/Common/AtomicInt.h>
 
 #define PEG_SEM_READ 1
 #define PEG_SEM_WRITE 2
@@ -215,65 +188,6 @@ public:
     }
 };
 
-
-//%////////////////////////////////////////////////////////////////////////////
-class PEGASUS_COMMON_LINKAGE Mutex
-{
-public:
-
-    Mutex();
-    Mutex(int type);
-
-    ~Mutex();
-
-    // block until gaining the lock - throw a deadlock
-    // exception if process already holds the lock
-    // @exception Deadlock
-    // @exception WaitFailed
-    void lock(PEGASUS_THREAD_TYPE caller);
-
-    // try to gain the lock - lock succeeds immediately if the
-    // mutex is not already locked. throws an exception and returns
-    // immediately if the mutex is currently locked.
-    // @exception Deadlock
-    // @exception AlreadyLocked
-    // @exception WaitFailed
-    void try_lock(PEGASUS_THREAD_TYPE caller);
-
-    // wait for milliseconds and throw an exception then return if the wait
-    // expires without gaining the lock. Otherwise return without throwing an
-    // exception.
-    // @exception Deadlock
-    // @exception TimeOut
-    // @exception WaitFailed
-    void timed_lock( Uint32 milliseconds, PEGASUS_THREAD_TYPE caller);
-
-    // unlock the semaphore
-    // @exception Permission
-    void unlock();
-
-    inline PEGASUS_THREAD_TYPE get_owner() { return(_mutex.owner); }
-
-private:
-    inline void _set_owner(PEGASUS_THREAD_TYPE owner) { _mutex.owner = owner; }
-    PEGASUS_MUTEX_HANDLE _mutex;
-    PEGASUS_MUTEX_HANDLE & _get_handle()
-    {
-        return _mutex;
-    }
-
-    // Hide the assignment operator to avoid implicit use of the default
-    // assignment operator.  Do not use this method.
-    Mutex& operator=(const Mutex& original) {return *this;}
-
-    // Hide the copy constructor to avoid implicit use of the default
-    // copy constructor.  Do not use this method.
-    Mutex(const Mutex& _mutex);
-
-    friend class Condition;
-};
-
-
 //%//////////////////////////////////////////////////////////////
 //  AutoMutex - use when you could lose scope due to an exception
 /////////////////////////////////////////////////////////////////
@@ -407,80 +321,20 @@ private:
     // its count
     mutable int _count;
 
+//------------------------------------------------------------------------------
+//
+// AtomicInt inclusion:
+//
+//------------------------------------------------------------------------------
     friend class Condition;
 };
 
 
-#if !defined(PEGASUS_ATOMIC_INT_NATIVE)
-//-----------------------------------------------------------------
-/// Generic definition of Atomic integer
-//-----------------------------------------------------------------
+PEGASUS_NAMESPACE_END
 
-#undef PEGASUS_ATOMIC_TYPE
-typedef struct {
-    Uint32 _value;
-    PEGASUS_MUTABLE Mutex  _mutex;
-} PEGASUS_ATOMIC_TYPE;
+#include <Pegasus/Common/AtomicInt.h>
 
-#endif
-
-
-//-----------------------------------------------------------------
-/// Atomic Integer class definition
-//-----------------------------------------------------------------
-
-class PEGASUS_COMMON_LINKAGE AtomicInt
-{
-public:
-    AtomicInt();
-    AtomicInt(Uint32 initial);
-   ~AtomicInt();
-
-    AtomicInt(const AtomicInt& original); // copy
-
-    AtomicInt& operator=(const AtomicInt& original); // assignment
-
-    //const AtomicInt& operator=(Uint32 val);
-    AtomicInt& operator=(Uint32 val);
-
-    Uint32 value() const;
-
-    void operator++(); // prefix
-    void operator++(int); // postfix
-
-    void operator--(); // prefix
-    void operator--(int) ; // postfix
-
-    Uint32 operator+(const AtomicInt& val);
-    Uint32 operator+(Uint32 val);
-
-    Uint32 operator-(const AtomicInt& val);
-    Uint32 operator-(Uint32 val);
-
-    AtomicInt& operator+=(const AtomicInt& val);
-    AtomicInt& operator+=(Uint32 val);
-    AtomicInt& operator-=(const AtomicInt& val);
-    AtomicInt& operator-=(Uint32 val);
-
-    inline Boolean operator>(Uint32 cmp) const {return (this->value() > cmp);}
-    inline Boolean operator>=(Uint32 cmp) const {return (this->value() >= cmp);}
-    inline Boolean operator<(Uint32 cmp)const {return (this->value() < cmp);}
-    inline Boolean operator<=(Uint32 cmp) const {return (this->value() <= cmp);}
-    inline Boolean operator==(Uint32 cmp) const {return (this->value() == cmp);}
-
-    // This method should ease reference counting
-    Boolean DecAndTestIfZero();
-
-    // Mutex * getMutex(); keep this hidden - it will only exist on platforms
-    // without native atomic types
-
-private:
-    PEGASUS_ATOMIC_TYPE _rep;
-#ifdef PEGASUS_NEED_CRITICAL_TYPE
-    mutable PEGASUS_CRIT_TYPE _crit;
-#endif /* PEGASUS_NEED_CRITICAL_TYPE */
-};
-
+PEGASUS_NAMESPACE_BEGIN
 
 //-----------------------------------------------------------------
 /// Generic definition of read/write semaphore
@@ -731,13 +585,13 @@ public:
 
     void reallow()
     {
-        if(_disallow.value() > 0)
+        if(_disallow.get() > 0)
             _disallow--;
     }
 
     Boolean is_shutdown() const
     {
-        if(_disallow.value() > 0)
+        if(_disallow.get() > 0)
             return true;
         return false;
     }

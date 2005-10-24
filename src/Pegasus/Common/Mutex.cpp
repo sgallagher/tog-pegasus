@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,105 +27,22 @@
 //
 //==============================================================================
 //
-// Author: Konrad Rzeszutek, IBM Corp.
-// Modified by:
-//         Steve Hills (steve.hills@ncr.com)
+// Author: Mike Day (mdday@us.ibm.com)
+//
+// Modified By: Markus Mueller
+//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com)
+//              David Eger (dteger@us.ibm.com)
+//              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, VERITAS Software Corp.
+//                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for BUG# 3518
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/Thread.h>
-#include <Pegasus/Common/InternalException.h>
+#include "Mutex.h"
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
+PEGASUS_NAMESPACE_BEGIN
 
-void test01()
-{
-    Boolean bad = false;
-    try
-    {
-        Boolean verbose = (getenv("PEGASUS_TEST_VERBOSE")) ? true : false;
-	        
-	AtomicInt i,j,ii,jj;
-
-	if (verbose) {
-		cout << "Testing: i++, ++ii, i--, --i	"<< endl;
-	}
-	i = 5;
-	i++;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i++;
-	PEGASUS_ASSERT( i.get() == 7 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 6 );
-	i--;
-	PEGASUS_ASSERT( i.get() == 5 );
-
-	if (verbose) 
-	    cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;
-    }
-    catch (Exception & e)
-    {
-        cout << "Exception: " << e.getMessage () << endl;
-        exit (1);
-    }
-}
-
-static AtomicInt _ai1(0);
-static AtomicInt _ai2(0);
-
-PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
-{
-    Thread* thread = (Thread*)parm;
-
-    for (;;)
-    {
-	const size_t N = 10000000;
-
-	for (size_t i = 0; i < N; i++)
-	{
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1++;
-		_ai2++;
-	    }
-
-	    for (size_t i = 0; i < 3; i++)
-	    {
-		_ai1.decAndTestIfZero();
-		_ai2.decAndTestIfZero();
-	    }
-	}
-
-	break;
-    }
-
-    return 0;
-}
-
-void test02()
-{
-    Thread t1(test_thread, 0, false);
-    t1.run();
-
-    Thread t2(test_thread, 0, false);
-    t2.run();
-
-    t1.join();
-    t2.join();
-
-    assert(_ai1.get() == 0);
-    assert(_ai2.get() == 0);
-}
-
-int main(int argc, char** argv)
-{
-    test01();
-    test02();
-
-    cout << argv[0] << " +++++ passed all tests" << endl;
-
-    return 0;
-}
+PEGASUS_NAMESPACE_END

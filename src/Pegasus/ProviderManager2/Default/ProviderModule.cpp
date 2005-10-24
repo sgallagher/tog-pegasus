@@ -125,7 +125,7 @@ CIMProvider* ProviderModule::load(const String& providerName)
 
 void ProviderModule::unloadModule()
 {
-    if (_refCount.DecAndTestIfZero())
+    if (_refCount.decAndTestIfZero())
     {
         if (_library != 0)
         {

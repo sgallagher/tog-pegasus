@@ -247,7 +247,7 @@ void LocalProviderManager::unloadIdleProviders()
 
             provider->_quantum = quantum;
 
-            if (provider->_current_operations.value())
+            if (provider->_current_operations.get())
             {
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                     "Provider has pending operations: " +
@@ -338,14 +338,14 @@ Sint16 LocalProviderManager::disableProvider(const String& providerName)
         // expires.
         //
         Uint32 waitTime = PROVIDER_DISABLE_TIMEOUT;
-        while ((pr->_current_operations.value() > 0) && (waitTime > 0))
+        while ((pr->_current_operations.get() > 0) && (waitTime > 0))
         {
             System::sleep(1);
             waitTime = waitTime - 1;
         }
 
         // There are still pending requests, do not disable
-        if (pr->_current_operations.value() > 0)
+        if (pr->_current_operations.get() > 0)
         {
             PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                 "Disable failed since there are pending requests.");
@@ -537,7 +537,7 @@ void LocalProviderManager::_unloadProvider(Provider* provider)
     PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
         "Unloading Provider " + provider->_name);
 
-    if (provider->_current_operations.value() > 0)
+    if (provider->_current_operations.get() > 0)
     {
       PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
           "Provider cannot be unloaded due to pending operations: " +

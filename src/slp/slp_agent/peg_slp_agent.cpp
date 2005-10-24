@@ -282,7 +282,7 @@ void slp_service_agent::unregister(void)
    
    while(slp_reg_table::Iterator i = _internal_regs.start())
    {
-      sa_reg_params *rp = i.get();
+      sa_reg_params *rp = i.value();
       _internal_regs.remove(rp->url);
       delete rp;
    }
@@ -364,7 +364,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
       
       for(slp_reg_table::Iterator i = agent->_internal_regs.start(); i ; i++)
       {
-	 sa_reg_params *rp = i.get();
+	 sa_reg_params *rp = i.value();
 
 	 if(rp->expire == 0 || rp->expire < now - 1)
 	 {

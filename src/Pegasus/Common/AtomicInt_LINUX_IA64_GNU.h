@@ -31,75 +31,83 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h
-#define _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h
+#ifndef _Pegasus_Common_AtomicInt_LINUX_IA64_ACC_h
+#define _Pegasus_Common_AtomicInt_LINUX_IA64_ACC_h
 
 #include <Pegasus/Common/Config.h>
-
-// Note: this lock can be eliminated for single processor systems.
-#define PEGASUS_ATOMIC_LOCK "lock ; "
 
 PEGASUS_NAMESPACE_BEGIN
 
 struct AtomicType
 {
-    volatile int n; 
+    volatile int n;
 };
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
-    _rep.n = n;
+    _rep.n = (int)n;
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
 {
+    // Nothing to do!
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 {
-    return _rep.n;
+    return (Uint32)_rep.n;
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
-    _rep.n = n;
+    _rep.n = (int)n;
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
+    unsigned long tmp;
+    volatile int* v = &_rep.n;
+
     asm volatile(
-	PEGASUS_ATOMIC_LOCK "incl %0"
-	:"=m" (_rep.n)
-	:"m" (_rep.n));
+	"fetchadd4.rel %0=[%1],%2"
+	: "=r"(tmp) 
+	: "r"(v), "i"(1) 
+	: "memory");
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
+    unsigned long tmp;
+    volatile int* v = &_rep.n;
+
     asm volatile(
-        PEGASUS_ATOMIC_LOCK "decl %0"
-        :"=m" (_rep.n)
-        :"m" (_rep.n));
+	"fetchadd4.rel %0=[%1],%2"
+	: "=r"(tmp) 
+	: "r"(v), "i"(-1) 
+	: "memory");
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
-    unsigned char c;
+    unsigned long tmp;
+    volatile int* v = &_rep.n;
 
     asm volatile(
-	PEGASUS_ATOMIC_LOCK "decl %0; sete %1"
-	:"=m" (_rep.n), "=qm" (c)
-	:"m" (_rep.n) : "memory");
+	"fetchadd4.rel %0=[%1],%2"
+	: "=r"(tmp) 
+	: "r"(v), "i"(-1) 
+	: "memory");
 
-    return c != 0;
+    return tmp == 1;
 }
 
 PEGASUS_NAMESPACE_END
 
-#endif /* _Pegasus_Common_AtomicInt_LINUX_IA64_GNU_h */
+#endif /* _Pegasus_Common_AtomicInt_LINUX_IA64_ACC_h */

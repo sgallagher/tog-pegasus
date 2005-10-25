@@ -43,17 +43,21 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// the HPUX dynamic library load and unload routines do not keep a reference count.
-// this implies that if a library were loaded multiple times, a single unload will
-// release the library from the process thereby potentially leaving dangling
-// references behind. this is a tenative implementation that encapsulates this
-// behavior from users of the DynamicLibrary object. the goal release the library
-// only after an equal number of loads and unloads have occured.
+// the HPUX dynamic library load and unload routines do not keep a reference 
+// count. this implies that if a library were loaded multiple times, a single 
+// unload will release the library from the process thereby potentially leaving
+// dangling references behind. this is a tenative implementation that 
+// encapsulates this behavior from users of the DynamicLibrary object. the goal
+// release the library only after an equal number of loads and unloads have 
+// occured.
 
-static Array<Pair<DynamicLibrary::LIBRARY_HANDLE, AtomicInt> > _references;
+static Array<Pair<DynamicLibrary::LIBRARY_HANDLE, int> > _references;
+static Mutex _mutex;
 
-Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
+static Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
+    AutoMutex autoMutex(_mutex);
+
     // scoped mutex
 
     // seek and increment
@@ -61,20 +65,21 @@ Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     {
         if(handle == _references[i].first)
         {
-            Uint32 n = (_references[i].second+=1).get();
-
-            return(n);
+	    Uint32 n = ++_references[i].second;
+            return n;
         }
     }
 
     // not found, append and set at 1
-    _references.append(Pair<DynamicLibrary::LIBRARY_HANDLE, AtomicInt>(handle, 1));
+    _references.append(Pair<DynamicLibrary::LIBRARY_HANDLE, int>(handle, 1));
 
-    return(1);
+    return 1;
 }
 
-Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
+static Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
 {
+    AutoMutex autoMutex(_mutex);
+
     // scoped mutex
 
     // seek and decrement
@@ -82,19 +87,19 @@ Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     {
         if(handle == _references[i].first)
         {
-            Uint32 n = (_references[i].second-=1).get();
+	    Uint32 n = --_references[i].second;
 
             if(n == 0)
             {
                 _references.remove(i);
             }
 
-            return(n);
+            return n;
         }
     }
 
     // not found, must be 0
-    return(0);
+    return 0;
 }
 
 Boolean DynamicLibrary::load(void)
@@ -104,7 +109,7 @@ Boolean DynamicLibrary::load(void)
 
     CString cstr = _fileName.getCString();
 
-    //_handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
+    //_handle = shl_load(cstr,BIND_IMMEDIATE|DYNAMIC_PATH|BIND_VERBOSE, 0L);
     _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
 
     // increment handle if valid
@@ -121,7 +126,8 @@ Boolean DynamicLibrary::unload(void)
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
 
-    // decrement handle is valid and release the library only if the handle reference count is 0
+    // decrement handle is valid and release the library only if the handle 
+    // reference count is 0
     if((_handle != 0) && (_decrement_handle(_handle) == 0))
     {
         shl_unload(reinterpret_cast<shl_t>(_handle));
@@ -137,7 +143,8 @@ Boolean DynamicLibrary::isLoaded(void) const
     return(_handle != 0);
 }
 
-DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolName)
+DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
+    const String & symbolName)
 {
     LIBRARY_SYMBOL func = 0;
 

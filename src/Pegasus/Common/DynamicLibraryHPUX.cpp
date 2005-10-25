@@ -61,7 +61,7 @@ Uint32 _increment_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     {
         if(handle == _references[i].first)
         {
-            Uint32 n = (_references[i].second+=1).value();
+            Uint32 n = (_references[i].second+=1).get();
 
             return(n);
         }
@@ -82,7 +82,7 @@ Uint32 _decrement_handle(DynamicLibrary::LIBRARY_HANDLE handle)
     {
         if(handle == _references[i].first)
         {
-            Uint32 n = (_references[i].second-=1).value();
+            Uint32 n = (_references[i].second-=1).get();
 
             if(n == 0)
             {

@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 	//t.run();
 	//t.cancel();
 	//t.join();
-	//if( testval1.value() != 42 )
+	//if( testval1.get() != 42 )
 	//{
 	//	cerr << "Thread probably incorrectly terminated!" << endl;
 	//	return 1;

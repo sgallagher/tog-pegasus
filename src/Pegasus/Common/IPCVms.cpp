@@ -368,11 +368,11 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
     _rwlock.owner = owner;
     throw(Permission(pegasus_thread_self()));
   }
-  if (mode == PEG_SEM_READ && _readers.value() != 0)
+  if (mode == PEG_SEM_READ && _readers.get() != 0)
   {
     _readers--;
   }
-  else if (_writers.value() != 0)
+  else if (_writers.get() != 0)
   {
     _writers--;
   }
@@ -380,12 +380,12 @@ void ReadWriteSem::unlock(Uint32 mode, PEGASUS_THREAD_TYPE caller)
 
 int ReadWriteSem::read_count() const
 {
-  return (_readers.value());
+  return (_readers.get());
 }
 
 int ReadWriteSem::write_count() const
 {
-  return (_writers.value());
+  return (_writers.get());
 }
 
 #endif				// PEGASUS_READWRITE_NATIVE
@@ -469,7 +469,7 @@ void Condition::unlocked_signal(PEGASUS_THREAD_TYPE caller)
 
 void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 {
-  if (_disallow.value() > 0)
+  if (_disallow.get() > 0)
   {
     throw ListClosed();
   }
@@ -478,7 +478,7 @@ void Condition::lock_object(PEGASUS_THREAD_TYPE caller)
 
 void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 {
-  if (_disallow.value() > 0)
+  if (_disallow.get() > 0)
   {
     throw ListClosed();
   }
@@ -487,12 +487,12 @@ void Condition::try_lock_object(PEGASUS_THREAD_TYPE caller)
 
 void Condition::wait_lock_object(PEGASUS_THREAD_TYPE caller, int milliseconds)
 {
-  if (_disallow.value() > 0)
+  if (_disallow.get() > 0)
   {
     throw ListClosed();
   }
   _cond_mutex->timed_lock(milliseconds, caller);
-  if (_disallow.value() > 0)
+  if (_disallow.get() > 0)
   {
     _cond_mutex->unlock();
     throw ListClosed();
@@ -514,7 +514,7 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
     throw Permission(_cond_mutex->get_owner());
   }
 
-  if (_disallow.value() > 0)
+  if (_disallow.get() > 0)
   {
     _cond_mutex->unlock();
     throw ListClosed();
@@ -541,7 +541,7 @@ void Condition::unlocked_timed_wait(
     throw Permission(_cond_mutex->get_owner());
   }
 
-  if (_disallow.value() > 0)
+  if (_disallow.get() > 0)
   {
     _cond_mutex->unlock();
     throw ListClosed();

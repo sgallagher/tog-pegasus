@@ -379,7 +379,7 @@ void MessageQueueClient::send_test_request(char *greeting, Uint32 qid)
    {
       msg_count++; 
       delete response;
-      cout << " test message " << msg_count.value() << endl;
+      cout << " test message " << msg_count.get() << endl;
       
    }
    delete req;
@@ -403,7 +403,7 @@ int main(int argc, char **argv)
   a_third.run();
    
    
-   while( msg_count.value() < 1500 ) 
+   while( msg_count.get() < 1500 ) 
    {
       pegasus_sleep(10);
    }
@@ -431,7 +431,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    MessageQueueClient *q_client = new MessageQueueClient("name_buf");
    
    client_count++;
-   while( client_count.value() < 3 )
+   while( client_count.get() < 3 )
       pegasus_yield();
    
    while( services.size() == 0 )
@@ -442,7 +442,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_func(void *parm)
    
    cout << "found server at " << services[0] << endl;
     
-   while (msg_count.value() < 1500 )
+   while (msg_count.get() < 1500 )
    {
       q_client->send_test_request("i am the test client" , services[0]);
    }
@@ -539,7 +539,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_func(void *parm)
  
 
    
-   while( q_server->dienow.value()  < 3  )
+   while( q_server->dienow.get()  < 3  )
    {
       pegasus_yield();
    }

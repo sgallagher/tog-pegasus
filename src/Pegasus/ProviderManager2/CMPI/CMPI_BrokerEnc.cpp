@@ -56,11 +56,13 @@
 #include <Pegasus/WQL/WQLSelectStatement.h>
 #include <Pegasus/WQL/WQLParser.h>
 
+#ifndef PEGASUS_DISABLE_CQL
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
 #include <Pegasus/CQL/CQLParser.h>
 #include <Pegasus/CQL/CQLChainedIdentifier.h>
 #include <Pegasus/Provider/CMPI/cmpi_cql.h>
+#endif
 
 #include <stdarg.h>
 #include <string.h>
@@ -775,7 +777,7 @@ extern "C" {
             CMSetStatus (st, CMPI_RC_OK);
         return (CMPISelectExp *) new CMPI_SelectExp (stmt);
       }
-
+#ifndef PEGASUS_DISABLE_CQL
     if ((strncmp (lang, "CIMxCQL", CALL_SIGN_CQL_SIZE) == 0) || (strncmp (lang, CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) == 0))
       {
         /* IBMKR: This will have to be removed when the CMPI spec is updated
@@ -885,6 +887,7 @@ extern "C" {
 	  CMSetStatus (st, CMPI_RC_OK);
         return (CMPISelectExp *) new CMPI_SelectExp (selectStatement);
       }
+#endif
     if (st)
       CMSetStatus (st, CMPI_RC_ERR_QUERY_LANGUAGE_NOT_SUPPORTED);
     return NULL;

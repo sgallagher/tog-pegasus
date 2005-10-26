@@ -46,6 +46,15 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+#ifdef PEGASUS_DISABLE_CQL
+#define PEGASUS_ARRAY_T CMPI_term_el
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+#define PEGASUS_ARRAY_T CMPI_TableauRow
+# include <Pegasus/Common/ArrayImpl.h>
+#undef PEGASUS_ARRAY_T
+#endif
+
 #define PEGASUS_ARRAY_T term_el_WQL
 # include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T

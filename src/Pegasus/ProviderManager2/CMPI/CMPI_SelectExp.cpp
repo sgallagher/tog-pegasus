@@ -40,12 +40,15 @@
 #include "CMPI_Value.h"
 #include "CMPI_String.h"
 #include "CMPI_SelectExpAccessor_WQL.h"
+
+#ifndef PEGASUS_DISABLE_CQL
 #include "CMPI_SelectExpAccessor_CQL.h"
+#include <Pegasus/CQL/CQLSelectStatement.h>
+#include <Pegasus/CQL/CQLParser.h>
+#endif
 
 #include <Pegasus/WQL/WQLInstancePropertySource.h>
 #include <Pegasus/Provider/CIMOMHandleQueryContext.h>
-#include <Pegasus/CQL/CQLSelectStatement.h>
-#include <Pegasus/CQL/CQLParser.h>
 #include <Pegasus/WQL/WQLParser.h>
 
 PEGASUS_USING_STD;
@@ -112,6 +115,7 @@ extern "C"
       }                         /* sx->wql_stmt ... */
     return true;
   }
+#ifndef PEGASUS_DISABLE_CQL
   PEGASUS_STATIC CMPIBoolean _check_CQL (CMPI_SelectExp * sx, CMPIStatus * rc)
   {
     Boolean fail = false;
@@ -153,7 +157,7 @@ extern "C"
       }
     return true;
   }
-
+#endif
   PEGASUS_STATIC CMPIBoolean selxEvaluate (const CMPISelectExp * eSx, const CMPIInstance * inst,
                                    CMPIStatus * rc)
   {
@@ -199,6 +203,7 @@ extern "C"
           return false;
       }
     /* CIM:CQL */
+#ifndef PEGASUS_DISABLE_CQL
     if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
         0)
       {
@@ -225,6 +230,7 @@ extern "C"
         else
           return false;
       }
+#endif
     /* Tried some other weird query language which we don't support */
     if (rc)
       CMSetStatus (rc, CMPI_RC_ERR_NOT_SUPPORTED);
@@ -273,6 +279,7 @@ extern "C"
         else
           return false;
       }
+#ifndef PEGASUS_DISABLE_CQL
     if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
         0)
       {
@@ -304,6 +311,7 @@ extern "C"
         else
           return false;
       }
+#endif
     return false;
   }
 
@@ -346,6 +354,7 @@ extern "C"
           }
         sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
       }
+#ifndef PEGASUS_DISABLE_CQL
     if (strncmp (sx->lang.getCString (), CALL_SIGN_CQL, CALL_SIGN_CQL_SIZE) ==
         0)
       {
@@ -381,6 +390,7 @@ extern "C"
           }
         sc = (CMPISelectCond *) new CMPI_SelectCond (sx->tableau, 0);
       }
+#endif
     if (sc)
       {
         if (rc)
@@ -422,9 +432,11 @@ CMPISelectExpFT *CMPI_SelectExp_Ftab = &selx_FT;
 CMPI_SelectExp::~CMPI_SelectExp()
 {
   delete wql_stmt;
-  delete cql_stmt;
   delete wql_dnf;
+#ifndef PEGASUS_DISABLE_CQL
   delete cql_dnf;
+  delete cql_stmt;
+#endif
 }
 CMPI_SelectExp::CMPI_SelectExp (const OperationContext & ct,
                                 QueryContext * context, String cond_,
@@ -440,9 +452,11 @@ persistent(true)
   props = NULL;
   ft = CMPI_SelectExp_Ftab;
   wql_dnf = NULL;
-  cql_dnf = NULL;
   wql_stmt = NULL;
+#ifndef PEGASUS_DISABLE_CQL
   cql_stmt = NULL;
+  cql_dnf = NULL;
+#endif
   tableau = NULL;
 }
 
@@ -455,14 +469,17 @@ wql_stmt (st), persistent(false)
   ft = CMPI_SelectExp_Ftab;
   props = NULL;
   wql_dnf = NULL;
+#ifndef PEGASUS_DISABLE_CQL
   cql_dnf = NULL;
   cql_stmt = NULL;
+#endif
   tableau = NULL;
   _context = NULL;
   cond = st->getQuery ();
   lang = CALL_SIGN_WQL;
 }
 
+#ifndef PEGASUS_DISABLE_CQL
 CMPI_SelectExp::CMPI_SelectExp (CQLSelectStatement * st):ctx (OperationContext ()),
 cql_stmt (st), persistent(false)
 {
@@ -480,4 +497,5 @@ cql_stmt (st), persistent(false)
   lang = CALL_SIGN_CQL;
   classNames = st->getClassPathList ();
 }
+#endif
 PEGASUS_NAMESPACE_END

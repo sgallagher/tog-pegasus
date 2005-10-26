@@ -310,8 +310,18 @@ endif
 
 CMDSFORCE: 
 
+##
+## Although the macros CIMSERVER_STOP_SERVICE and CIMSERVER_START_SERVICE
+## are available and could be invoked directly, their direct usage is
+## discouraged in favor of invoking the cimstop and the cimstart rules
+## as this allows one place where additional checks, delays etc may be 
+## added in the future to control or further test the servers performance
+## in executing these commands.
+##
+
 cimstop: CMDSFORCE
 	$(CIMSERVER_STOP_SERVICE)
+	$(SLEEP) 30
 
 cimstart: CMDSFORCE
 	$(CIMSERVER_START_SERVICE)
@@ -393,11 +403,17 @@ mkdirhier_IgnoreError: CMDSFORCE
 #runTestSuiteTest: CMDSFORCE
 #	$(MAKE) $(MAKEOPTIONS) runTestSuite CIMSERVER_CONFIG_OPTIONS="$(runTestSuiteTest_CONFIG_OPTIONS)" TESTSUITE_CMDS="$(runTestSuiteTest_TEST_CMDS)"
 
+##
+## NOTE: The CIMSERVER_CONFIG_OPTIONS are set in the environment on the 
+##       makefile rule command line invoking the runTestSuite command. 
+##       They are inherted by the next shell which will run the 
+##       cimstart command.
+##
 runTestSuite: CMDSFORCE
-	$(CIMSERVER_START_SERVICE)
+	$(MAKE) -f TestMakefile cimstart 
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
-	$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) -f TestMakefile cimstop
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
   PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)

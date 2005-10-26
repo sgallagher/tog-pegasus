@@ -126,6 +126,15 @@ depend: FORCE
 #
 ############################################################
 
+##
+## Although the macros CIMSERVER_STOP_SERVICE and CIMSERVER_START_SERVICE
+## are available and could be invoked directly, their direct usage is
+## discouraged in favor of invoking the cimstop and the cimstart rules
+## as this allows one place where additional checks, delays etc may be 
+## added in the future to control or further test the servers performance
+## in executing these commands.
+##
+
 #######################
 #
 # doc
@@ -143,7 +152,7 @@ repositoryServer: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(SLEEP) 5
 	$(RMDIRHIER) $(REPOSITORY_ROOT)
-	$(CIMSERVER_START_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
 	$(SLEEP) 5
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
@@ -211,7 +220,7 @@ unittests: FORCE
 #
 
 servertestsclean: FORCE
-	-$(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
@@ -220,7 +229,7 @@ servertestsclean: FORCE
 servertestssetup: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
-	$(CIMSERVER_START_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(SLEEP) 5
 
 servertests: servertestsclean servertestssetup serversuite
@@ -698,10 +707,10 @@ ConfigureAuthorizations:
 	cimauth -a -u guest -n test1/test2/test3/test4/test5 -R -W
 	cimauth -a -u guest -n test1/test2/test3/test4/test5/test6 -R -W
 
-startcimWithoutSSL:
-	$(CIMSERVER_START_SERVICE)
+startcimWithoutSSL: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart
 	$(SLEEP) 5
 
-startcimWithSSL:
-	$(CIMSERVER_START_SERVICE) enableHttpConnection=false enableHttpsConnection=true
+startcimWithSSL: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableHttpConnection=false enableHttpsConnection=true"
 	$(SLEEP) 5

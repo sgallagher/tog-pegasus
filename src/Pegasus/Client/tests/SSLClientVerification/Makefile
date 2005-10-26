@@ -64,7 +64,7 @@ ifdef PEGASUS_HAS_SSL
 	$(TOUCH) $(PEGASUS_HOME)/cimserver_current.conf
 	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf $(PEGASUS_HOME)/cimserver_current.conf.bkup
 	@$(ECHO) Stopping cimserver
-	cd $(PEGASUS_HOME)/bin && $(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 	@$(ECHO) Stopped.
 	@$(ECHO) Creating truststore directory
 	$(MKDIRHIER) $(PEGASUS_HOME)/truststore
@@ -81,20 +81,20 @@ else
 	$(MOVE) $(PEGASUS_HOME)/cimserver_planned.conf.2 $(PEGASUS_HOME)/cimserver_planned.conf
 endif
 	@$(ECHO) Starting cimserver
-	cd $(PEGASUS_HOME)/bin && $(CIMSERVER_START_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	@$(ECHO) Running
 	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStore
 	$(PEGASUS_HOME)/bin/cimconfig -g sslTrustStoreUserName
 	$(PEGASUS_HOME)/bin/cimconfig -g sslClientVerificationMode
 	$(PEGASUS_HOME)/bin/$(PROGRAM)
 	@$(ECHO) Stopping cimserver
-	cd $(PEGASUS_HOME)/bin && $(CIMSERVER_STOP_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
 	@$(ECHO) Stopped.
 	$(COPY) $(PEGASUS_HOME)/cimserver_current.conf.bkup $(PEGASUS_HOME)/cimserver_planned.conf
 	$(RMDIRHIER) $(PEGASUS_HOME)/truststore
 	$(RMDIRHIER) $(PEGASUS_HOME)/clientkeystore
 	@$(ECHO) Starting cimserver with previous configuration
-	cd $(PEGASUS_HOME)/bin && $(CIMSERVER_START_SERVICE)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	@$(ECHO) Running.
 	@$(ECHO) ++++SSLClientVerification test completed.
 endif

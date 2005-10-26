@@ -235,8 +235,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
     AtomicInt * atom = (AtomicInt *)my_thread->get_parm();
 
     (*atom)++;
-    (*atom).set((*atom).get() + 4);
-    (*atom).set((*atom).get() - 2);
+    (*atom)++; (*atom)++; (*atom)++; (*atom)++;
+    (*atom)--; (*atom)--;
     (*atom)--;
     Boolean zero = atom->decAndTestIfZero();
     assert(zero == false);

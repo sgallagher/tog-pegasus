@@ -97,6 +97,8 @@ PEGASUS_NAMESPACE_END
 
 #if defined(PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_IX86_GNU.h>
+#elif defined(PEGASUS_PLATFORM_LINUX_X86_64_GNU)
+# include <Pegasus/Common/AtomicInt_LINUX_X86_64_GNU.h>
 #elif defined(PEGASUS_PLATFORM_LINUX_IA64_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_IA64_GNU.h>
 #elif defined(PEGASUS_PLATFORM_LINUX_PPC_GNU)

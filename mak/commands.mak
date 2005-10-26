@@ -410,10 +410,10 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##       cimstart command.
 ##
 runTestSuite: CMDSFORCE
-	$(MAKE) -f TestMakefile cimstart 
+	$(MAKE) --directory $(PEGASUS_ROOT) -f TestMakefile cimstart 
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
-	$(MAKE) -f TestMakefile cimstop
+	$(MAKE) --directory $(PEGASUS_ROOT) -f TestMakefile cimstop
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
   PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)

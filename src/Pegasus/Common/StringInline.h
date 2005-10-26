@@ -72,6 +72,19 @@ PEGASUS_STRING_INLINE String::String()
 
 PEGASUS_STRING_INLINE String::String(const String& str)
 {
+#ifdef PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
+    // 
+    // Some compilers don't do a good job of initializing global
+    //   constructors in the proper sequence.  This is one such case.
+    // String::EMPTY is not initialized by the time this is first
+    //   called during initialization of the executable.
+    // 
+    if (!str._rep)
+    {
+      _rep = &StringRep::_emptyRep;
+      return;
+    }
+#endif
     StringRep::ref(_rep = str._rep);
 } 
 

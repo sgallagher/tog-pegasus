@@ -1416,8 +1416,10 @@ CMPIResult *CmpiResult::getEnc() const {
 }
 
 void CmpiResult::returnData(const CmpiData& d) {
-   CMPIStatus rc=getEnc()->ft->returnData(getEnc(),&d._data.value,d._data.type);
-   if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
+  CMPIStatus rc=getEnc()->ft->returnData(getEnc(),
+   d._data.type!=CMPI_chars ? &d._data.value : (CMPIValue*)d._data.value.chars,
+   d._data.type);
+  if (rc.rc!=CMPI_RC_OK) throw CmpiStatus(rc);
 }
 
 void CmpiResult::returnData(const CmpiInstance& d) {

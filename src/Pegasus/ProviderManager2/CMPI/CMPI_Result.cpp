@@ -38,6 +38,7 @@
 #include "CMPI_Result.h"
 #include "CMPI_Ftabs.h"
 #include "CMPI_Value.h"
+#include "CMPI_String.h"
 
 #include <Pegasus/ProviderManager2/SimpleResponseHandler.h>
 #include <Pegasus/Common/System.h>
@@ -46,12 +47,16 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
+#define DDD(X)	if (_cmpi_trace) X;
+extern int _cmpi_trace;
+
 extern "C" {
 
    PEGASUS_STATIC CMPIStatus resultReturnData(const CMPIResult* eRes, const CMPIValue* data,  CMPIType type) {
       CMPIrc rc;
       if ((eRes->hdl == NULL) || (data == NULL))
 	     CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	try {
       CIMValue v=value2CIMValue((CMPIValue*)data,type,&rc);
       if (eRes->ft==CMPI_ResultMethOnStack_Ftab) {
          MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
@@ -69,6 +74,11 @@ extern "C" {
          }
          res->deliver(v);
       }
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnData - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 
@@ -80,7 +90,7 @@ extern "C" {
 
 	  if (!eInst->hdl)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
-		
+	try {	
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
@@ -125,6 +135,11 @@ extern "C" {
       }
 
       res->deliver(inst);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnInstance - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 
@@ -136,7 +151,7 @@ extern "C" {
 
 	  if (!eInst->hdl)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
- 
+	try { 
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
@@ -149,6 +164,11 @@ extern "C" {
       iop.setNameSpace(op.getNameSpace());
       inst.setPath(iop);
       res->deliver(inst);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnObject - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 
@@ -159,7 +179,7 @@ extern "C" {
 
 	  if (!eInst->hdl)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
- 
+	try { 
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
@@ -198,6 +218,11 @@ extern "C" {
       }
 
       res->deliver(inst);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnExecQuery - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
    PEGASUS_STATIC CMPIStatus resultReturnObjectPath(const CMPIResult* eRes, const CMPIObjectPath* eRef) {
@@ -208,13 +233,18 @@ extern "C" {
 
 	  if (!eRef->hdl)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
- 
+	try { 
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) {
          res->processing();
          ((CMPI_Result*)eRes)->flags|=RESULT_set;
       }
       CIMObjectPath& ref=*(CIMObjectPath*)(eRef->hdl);
       res->deliver(ref);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnObjectPath - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 
@@ -222,19 +252,32 @@ extern "C" {
       InstanceResponseHandler* res=(InstanceResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
- 
+	try { 
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
-      CMReturn(CMPI_RC_OK)}
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnInstDone - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
+	
+      CMReturn(CMPI_RC_OK)
+	}
 
    PEGASUS_STATIC CMPIStatus resultReturnRefDone(const CMPIResult* eRes) {
       ObjectPathResponseHandler* res=(ObjectPathResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	try {
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnRefDone - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 
@@ -242,9 +285,15 @@ extern "C" {
       ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	 try {
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnDataDone - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 
@@ -252,9 +301,15 @@ extern "C" {
       MethodResultResponseHandler* res=(MethodResultResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	try {
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
    //   res->complete();    // Do not close the handle
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnMethDone - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 
@@ -262,18 +317,31 @@ extern "C" {
       ObjectResponseHandler* res=(ObjectResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	try {
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnObjDone - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
+
    PEGASUS_STATIC CMPIStatus resultReturnExecQueryDone(const CMPIResult* eRes) {
       ExecQueryResponseHandler* res=(ExecQueryResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
+	try {
       if ((((CMPI_Result*)eRes)->flags & RESULT_set)==0) res->processing();
       res->complete();
       ((CMPI_Result*)eRes)->flags|=(RESULT_done | RESULT_set);
+	} catch (const CIMException &e)
+	{
+    	DDD(cout<<"### exception: resultReturnExecQueryDone - msg: "<<e.getMessage()<<endl);
+	    CMReturnWithString(CMPI_RC_ERR_FAILED, (CMPIString*)string2CMPIString(e.getMessage()));
+	}
       CMReturn(CMPI_RC_OK);
    }
 

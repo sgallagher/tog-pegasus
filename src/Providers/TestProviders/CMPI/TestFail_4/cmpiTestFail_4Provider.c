@@ -75,6 +75,9 @@ TestCMPIFail_4ProviderEnumInstances (CMPIInstanceMI * mi,
                                      const CMPIObjectPath * ref,
                                      const char **properties)
 {
+  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
+					  // in which CMReturnDone without a previous CMReturnInstance would
+					  // crash cimserver.
   CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
@@ -85,6 +88,9 @@ TestCMPIFail_4ProviderGetInstance (CMPIInstanceMI * mi,
                                    const CMPIObjectPath * cop,
                                    const char **properties)
 {
+  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
+					  // in which CMReturnDone without a previous CMReturnInstance would
+					  // crash cimserver.
   CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
@@ -95,6 +101,9 @@ TestCMPIFail_4ProviderCreateInstance (CMPIInstanceMI * mi,
                                       const CMPIObjectPath * cop,
                                       const CMPIInstance * ci)
 {
+  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
+					  // in which CMReturnDone without a previous CMReturnInstance would
+					  // crash cimserver.
   CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
@@ -106,6 +115,9 @@ TestCMPIFail_4ProviderModifyInstance (CMPIInstanceMI * mi,
                                       const CMPIInstance * ci,
                                       const char **properties)
 {
+  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
+					  // in which CMReturnDone without a previous CMReturnInstance would
+					  // crash cimserver.
   CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 
@@ -115,6 +127,9 @@ TestCMPIFail_4ProviderDeleteInstance (CMPIInstanceMI * mi,
                                       const CMPIResult * rslt,
                                       const CMPIObjectPath * cop)
 {
+  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
+					  // in which CMReturnDone without a previous CMReturnInstance would
+					  // crash cimserver.
   CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
 }
 

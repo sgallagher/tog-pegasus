@@ -32,42 +32,44 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 import java.util.Vector;
 
 public interface InstanceProvider extends CIMProvider
 {
-    public CIMInstance getInstance (CIMObjectPath op,
-                                    CIMClass      cc,
-                                    boolean localOnly)
-        throws CIMException;
-
-    public CIMObjectPath createInstance (CIMObjectPath op,
-                                         CIMInstance   ci)
-        throws CIMException;
-
-
-    public abstract void setInstance (CIMObjectPath cop,
-                                      CIMInstance   cimInstance)
+    public CIMInstance getInstance          (CIMObjectPath op,
+                                             CIMClass      cimClass,
+                                             boolean       localOnly,
+                                             boolean       includeQualifiers,
+                                             boolean       includeClassOrigin,
+                                             String        propertyList[])
         throws CIMException;
 
 
-    public abstract void deleteInstance (CIMObjectPath cop)
+    public CIMObjectPath createInstance     (CIMObjectPath op,
+                                             CIMInstance   cimInstance)
+        throws CIMException;
+
+
+    public abstract void setInstance        (CIMObjectPath cop,
+                                             CIMInstance   cimInstance)
+        throws CIMException;
+
+
+    public abstract void deleteInstance     (CIMObjectPath cop)
          throws CIMException;
 
-    public abstract Vector enumInstances (CIMObjectPath cop,
-                                          boolean       deep,
-                                          CIMClass      cimClass)
+
+    public abstract Vector enumInstances    (CIMObjectPath cop,
+                                             CIMClass      cimClass,
+                                             boolean       deep,
+                                             boolean       localOnly,
+                                             boolean       includeQualifiers,
+                                             boolean       includeClassOrigin,
+                                             String        propertyList[])
         throws CIMException;
 
-    public abstract Vector enumInstances (CIMObjectPath cop,
-                                          boolean       deep,
-                                          CIMClass      cimClass,
-                                          boolean       localOnly)
-        throws CIMException;
 
     public abstract CIMInstance[] execQuery (CIMObjectPath op,
                                              String        queryStatement,

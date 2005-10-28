@@ -77,34 +77,33 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
 {
    // cd ${PEGAUSE_HOME}/src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/tests/JMPI_TestPropertyTypes
    // javap -s -p JMPI_TestPropertyTypes
-   static const char *methodNames[][2] = {
+   static const char *methodNames[][3] = {
       // CIMProvider
       //   cimom-2003-11-24/org/snia/wbem/provider/CIMProvider.java
       //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/CIMProvider.java
-      {"initialize","(Lorg/pegasus/jmpi/CIMOMHandle;)V"},
-      {"cleanup","()V"},
+      {"","initialize","(Lorg/pegasus/jmpi/CIMOMHandle;)V"},
+      {"","cleanup","()V"},
       // InstanceProvider
       //   cimom-2003-11-24/org/snia/wbem/provider/InstanceProvider.java
       //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/CIMInstanceProvider.java
-      {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
-      {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;"},
-      /* Fix for 4189 */
-      {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Ljava/util/Vector;"},
-      {"enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;"},
-      /* Fix for 4189 */
-      {"getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;"},
-      /* Fix for 4238 */
-      {"getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;"},
-      {"getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;"},
-      /* Fix for 4238 */
-      {"createInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)Lorg/pegasus/jmpi/CIMObjectPath;"},
-      {"setInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V"},
-      {"deleteInstance","(Lorg/pegasus/jmpi/CIMObjectPath;)V"},
-      {"execQuery","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ILorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
+      /* Begin Fix for 4189 */
+      {"pegasus 2.5","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      /* End Fix for 4189 */
+      {"snia 2.0","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;"},
+      {"pegasus 2.4","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
+      /* Begin Fix for 4238 */
+      {"pegasus 2.5","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;"},
+      /* End Fix for 4238 */
+      {"snia 2.0","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;"},
+      {"pegasus 2.4","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)Lorg/pegasus/jmpi/CIMInstance;"},
+      {"","createInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)Lorg/pegasus/jmpi/CIMObjectPath;"},
+      {"","setInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V"},
+      {"","deleteInstance","(Lorg/pegasus/jmpi/CIMObjectPath;)V"},
+      {"","execQuery","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;ILorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
       // MethodProvider
       //   cimom-2003-11-24/org/snia/wbem/provider/MethodProvider.java
       //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/CIMMethodProvider.java
-      {"invokeMethod","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;"},
+      {"","invokeMethod","(Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;Ljava/util/Vector;Ljava/util/Vector;)Lorg/pegasus/jmpi/CIMValue;"},
       // PropertyProvider
       //   cimom-2003-11-24/org/snia/wbem/provider/PropertyProvider.java
       // AssociatorProvider
@@ -115,17 +114,17 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
       // EventProvider
       //   cimom-2003-11-24/org/snia/wbem/provider20/EventProvider.java
       //   src/Pegasus/ProviderManager2/JMPI/org/pegasus/jmpi/EventProvider.java
-      {"authorizeFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)V"},
-      {"mustPoll","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;)Z"},
-      {"activateFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
-      {"deActivateFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
+      {"","authorizeFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Ljava/lang/String;)V"},
+      {"","mustPoll","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;)Z"},
+      {"","activateFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
+      {"","deActivateFilter","(Lorg/pegasus/jmpi/SelectExp;Ljava/lang/String;Lorg/pegasus/jmpi/CIMObjectPath;Z)V"},
       // IndicationHandler
       //   cimom-2003-11-24/org/snia/wbem/provider20/IndicationHandler.java
       // ProviderAdapter
       //   cimom-2003-11-24/org/snia/wbem/provider20/ProviderAdapter.java
       // JMPI_TestPropertyTypes
-      {"findObjectPath","(Lorg/pegasus/jmpi/CIMObjectPath;)I"},
-      {"testPropertyTypesValue","(Lorg/pegasus/jmpi/CIMInstance;)V"}
+      {"","findObjectPath","(Lorg/pegasus/jmpi/CIMObjectPath;)I"},
+      {"","testPropertyTypesValue","(Lorg/pegasus/jmpi/CIMInstance;)V"}
    };
 
    if (!env)
@@ -141,8 +140,8 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
 
    for (int i = 0; i < (int)(sizeof (methodNames)/sizeof (methodNames[0])); i++)
    {
-      jmethodID id = env->GetMethodID(jc,methodNames[i][0], methodNames[i][1]);
-      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugPrintMethodPointers: "<<methodNames[i][0]<<", id = "<<PEGASUS_STD(hex)<<(int)id<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
+      jmethodID id = env->GetMethodID(jc,methodNames[i][1], methodNames[i][2]);
+      DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::debugPrintMethodPointers: "<<methodNames[i][0]<<", "<<methodNames[i][1]<<", id = "<<PEGASUS_STD(hex)<<(int)id<<PEGASUS_STD(dec)<<PEGASUS_STD(endl));
       env->ExceptionClear();
    }
 
@@ -470,8 +469,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
     typedef enum {
        METHOD_UNKNOWN = 0,
        METHOD_PEGASUS_24,
-       METHOD_SNIA_PROVIDER20_VER1,
-       METHOD_SNIA_PROVIDER20_VER2,
+       METHOD_PEGASUS_25,
+       METHOD_SNIA_PROVIDER20,
     } METHOD_VERSION;
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
@@ -531,8 +530,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         if (id != NULL)
         {
-            eMethodFound = METHOD_SNIA_PROVIDER20_VER1;
-            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: found METHOD_SNIA_PROVIDER20_VER1."<<PEGASUS_STD(endl));
+            eMethodFound = METHOD_PEGASUS_25;
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: found METHOD_PEGASUS_25."<<PEGASUS_STD(endl));
         }
         /* Fix for 4238 */
 
@@ -550,8 +549,8 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             if (id != NULL)
             {
-                eMethodFound = METHOD_SNIA_PROVIDER20_VER2;
-                DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: found METHOD_SNIA_PROVIDER20_VER2."<<PEGASUS_STD(endl));
+                eMethodFound = METHOD_SNIA_PROVIDER20;
+                DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: found METHOD_SNIA_PROVIDER20."<<PEGASUS_STD(endl));
             }
         }
 
@@ -632,7 +631,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         }
 
         /* Fix for 4238 */
-        case METHOD_SNIA_PROVIDER20_VER1:
+        case METHOD_PEGASUS_25:
         {
             jint    jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jopRef);
@@ -682,7 +681,7 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         }
         /* Fix for 4238 */
 
-        case METHOD_SNIA_PROVIDER20_VER2:
+        case METHOD_SNIA_PROVIDER20:
         {
             jint    jopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jopRef);
@@ -755,8 +754,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
     typedef enum {
        METHOD_UNKNOWN = 0,
        METHOD_PEGASUS_24,
-       METHOD_SNIA_PROVIDER20_VER1,
-       METHOD_SNIA_PROVIDER20_VER2,
+       METHOD_PEGASUS_25,
+       METHOD_SNIA_PROVIDER20,
     } METHOD_VERSION;
     METHOD_VERSION   eMethodFound  = METHOD_UNKNOWN;
     JNIEnv          *env           = NULL;
@@ -810,8 +809,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
         /* Fix for 4189 */
         // public synchronized Vector enumInstances(CIMObjectPath cop,
-        //                                          boolean       deep,
         //                                          CIMClass      cimClass,
+        //                                          boolean       deep,
         //                                          boolean       localOnly,
         //                                          boolean       includeQualifiers,
         //                                          boolean       includeClassOrigin,
@@ -819,12 +818,12 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         //        throws org.pegasus.jmpi.CIMException
         id = env->GetMethodID((jclass)pr.jProviderClass,
                               "enumInstances",
-                              "(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Ljava/util/Vector;");
+                              "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
         if (id != NULL)
         {
-            eMethodFound = METHOD_SNIA_PROVIDER20_VER1;
-            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_SNIA_PROVIDER20_VER1."<<PEGASUS_STD(endl));
+            eMethodFound = METHOD_PEGASUS_25;
+            DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_PEGASUS_25."<<PEGASUS_STD(endl));
         }
         /* Fix for 4189 */
 
@@ -843,8 +842,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             if (id != NULL)
             {
-                eMethodFound = METHOD_SNIA_PROVIDER20_VER2;
-                DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_SNIA_PROVIDER20_VER2."<<PEGASUS_STD(endl));
+                eMethodFound = METHOD_SNIA_PROVIDER20;
+                DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: found METHOD_SNIA_PROVIDER20."<<PEGASUS_STD(endl));
             }
         }
 
@@ -934,7 +933,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         }
 
         /* Fix for 4189 */
-        case METHOD_SNIA_PROVIDER20_VER1:
+        case METHOD_PEGASUS_25:
         {
             jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);
@@ -961,8 +960,8 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
             jobject      jVec          = env->CallObjectMethod((jobject)pr.jProvider,
                                                                id,
                                                                jcop,
-                                                               request->deepInheritance,
                                                                jcc,
+                                                               request->deepInheritance,
                                                                JMPI_LOCALONLY,
                                                                JMPI_INCLUDE_QUALIFIERS,
                                                                request->includeClassOrigin,
@@ -1010,7 +1009,7 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         }
         /* Fix for 4189 */
 
-        case METHOD_SNIA_PROVIDER20_VER2:
+        case METHOD_SNIA_PROVIDER20:
         {
             jint    jcopRef = DEBUG_ConvertCToJava (CIMObjectPath*, jint, objectPath);
             jobject jcop    = env->NewObject(jv->CIMObjectPathClassRef,jv->CIMObjectPathNewI,jcopRef);

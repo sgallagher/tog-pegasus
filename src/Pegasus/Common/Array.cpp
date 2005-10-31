@@ -90,9 +90,9 @@ PEGASUS_NAMESPACE_BEGIN
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
 
-// Explicitly instantiate the Buffer template.  This is necessary to
+// Explicitly instantiate the Array<char> template.  This is necessary to
 // support binary compatibility with a previous definition of the Sint8 type.
-// It also reduces code size because Buffer is used in many places in
+// It also reduces code size because Array<char> is used in many places in
 // the Pegasus implementation.
 #define PEGASUS_ARRAY_T char
 #include <Pegasus/Common/ArrayImpl.h>

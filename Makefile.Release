@@ -751,7 +751,7 @@ _append_OpenPegasusLicenseToSpecFile: FORCE
 _append_PreambleToSpecFile: FORCE
 	@$(ECHO-E) "%define srcRelease 1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Version: $(PEGASUS_PRODUCT_VERSION)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "Release: 1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Epoch:   1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

@@ -41,7 +41,7 @@
 
 %define srcRelease 1
 Version: 2.5.0
-Release: 1
+Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Epoch:   1
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec

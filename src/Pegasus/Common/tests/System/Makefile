@@ -25,71 +25,21 @@
 #// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
-#//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+#//=============================================================================
 
-DIRS = \
-    Abstract \
-    AnonymousPipe \
-    Array \
-    AutoPtr \
-    async_callback \
-    AtomicInt \
-    Base64 \
-    ClassDecl \
-    Compare \
-    Config \
-    DateTime \
-    Dir \
-    DynLib \
-    DynLoad \
-    DynamicLibrary \
-    FileSystem \
-    Flavor \
-    Formatter \
-    HashTable \
-    IPC \
-    InstanceDecl \
-    IndicationFormatter \
-    L10N \
-    L10N/msg \
-    Logger \
-    MessageSerializer \
-    Method \
-    Object \
-    ObjectNormalizer \
-    OperationContext \
-    ParamValue \
-    Parameter \
-    Property \
-    Qualifier \
-    QualifierDecl \
-    QualifierList \
-    Queue \
-    Reference \
-    Resolve \
-    Scope \
-    Stack \
-    Stopwatch \
-    StrToInstName \
-    String \
-    System \
-    Thread \
-    ThreadPool \
-    TimeValue \
-    ToMof \
-    Tracer \
-    ValidateClass \
-    Value \
-    WebClient \
-    XmlDump \
-    XmlParser \
-    XmlPrint \
-    XmlReader
+ROOT = ../../../../..
+DIR = Pegasus/Common/tests/System
+include $(ROOT)/mak/config.mak
+include ../libraries.mak
 
-ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	StatisticalData
-endif
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+PROGRAM = TestSystem
+SOURCES = System.cpp
+
+include $(ROOT)/mak/program.mak
+
+tests:
+	$(PROGRAM)
+
+poststarttests:

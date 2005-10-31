@@ -104,7 +104,7 @@ struct StrLit
 
 inline Buffer& operator<<(Buffer& out, const StrLit& x)
 {
-    out.append(x.str, x.size-1);
+    out.append(x.str, x.size);
     return out;
 }
 

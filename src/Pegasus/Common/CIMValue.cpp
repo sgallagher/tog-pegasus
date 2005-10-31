@@ -51,7 +51,6 @@
 #include "Buffer.h"
 #include "CIMValueRep.h"
 #include "Buffer.h"
-
 PEGASUS_NAMESPACE_BEGIN
 
 #define PEGASUS_ARRAY_T CIMValue
@@ -133,7 +132,7 @@ void _toString(Buffer& out, const T* p, Uint32 size)
     while (size--)
     {
         _toString(out, *p++);
-        out << " ";
+	out.append(' ');
     }
 }
 
@@ -449,8 +448,7 @@ void CIMValue::assign(const CIMValue& x)
                 break;
 
             case CIMTYPE_STRING:
-                _rep->_u._stringArray =
-                    new Array<String>(*(x._rep->_u._stringArray));
+                new(_rep->_u._stringArray) Array<String>(x._rep->stringArray());
                 break;
 
             case CIMTYPE_DATETIME:
@@ -536,7 +534,8 @@ void CIMValue::assign(const CIMValue& x)
                 break;
 
             case CIMTYPE_STRING:
-                _rep->_u._stringValue = new String(*(x._rep->_u._stringValue));
+                new(_rep->_u._stringValue) String(
+		    *((String*)x._rep->_u._stringValue));
                 break;
 
             case CIMTYPE_DATETIME:
@@ -623,7 +622,7 @@ void CIMValue::clear()
                 break;
 
             case CIMTYPE_STRING:
-                delete _rep->_u._stringArray;
+		_rep->stringArray().~Array<String>();
                 break;
 
             case CIMTYPE_DATETIME:
@@ -661,7 +660,7 @@ void CIMValue::clear()
                 break;
 
             case CIMTYPE_STRING:
-                delete _rep->_u._stringValue;
+                ((String*)_rep->_u._stringValue)->~String();
                 break;
 
             case CIMTYPE_DATETIME:
@@ -757,7 +756,7 @@ Uint32 CIMValue::getArraySize() const
             break;
 
         case CIMTYPE_STRING:
-            return _rep->_u._stringArray->size();
+            return _rep->stringArray().size();
             break;
 
         case CIMTYPE_DATETIME:
@@ -1043,7 +1042,7 @@ void CIMValue::set(const Char16& x)
 void CIMValue::set(const String& x)
 {
     clear();
-    _rep->_u._stringValue = new String(x);
+    new(_rep->_u._stringValue) String(x);
     _rep->_type = CIMTYPE_STRING;
     _rep->_isNull = false;
 }
@@ -1189,7 +1188,7 @@ void CIMValue::set(const Array<Char16>& x)
 void CIMValue::set(const Array<String>& x)
 {
     clear();
-    _rep->_u._stringArray = new Array<String>(x);
+    new(_rep->_u._stringArray) Array<String>(x);
     _rep->_type = CIMTYPE_STRING;
     _rep->_isArray = true;
     _rep->_isNull = false;
@@ -1350,7 +1349,7 @@ void CIMValue::get(String& x) const
         throw TypeMismatchException();
 
     if (!_rep->_isNull)
-        x = *_rep->_u._stringValue;
+        x = *((String*)_rep->_u._stringValue);
 }
 
 void CIMValue::get(CIMDateTime& x) const
@@ -1494,7 +1493,7 @@ void CIMValue::get(Array<String>& x) const
         throw TypeMismatchException();
 
     if (!_rep->_isNull)
-        x = *_rep->_u._stringArray;
+        x = _rep->stringArray();
 }
 
 void CIMValue::get(Array<CIMDateTime>& x) const
@@ -1585,8 +1584,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
                     (*x._rep->_u._char16Array);
 
             case CIMTYPE_STRING:
-                return (*_rep->_u._stringArray) ==
-                    (*x._rep->_u._stringArray);
+                return _rep->stringArray() == x._rep->stringArray();
 
             case CIMTYPE_DATETIME:
                 return (*_rep->_u._dateTimeArray) ==
@@ -1645,8 +1643,9 @@ Boolean CIMValue::equal(const CIMValue& x) const
                 return _rep->_u._char16Value == x._rep->_u._char16Value;
 
             case CIMTYPE_STRING:
-                return String::equal(*_rep->_u._stringValue,
-                                     *x._rep->_u._stringValue);
+                return String::equal(
+		    *((String*)_rep->_u._stringValue),
+                    *((String*)x._rep->_u._stringValue));
 
             case CIMTYPE_DATETIME:
                 return *_rep->_u._dateTimeValue == *x._rep->_u._dateTimeValue;
@@ -1686,7 +1685,7 @@ String CIMValue::toString() const
                 for (Uint32 i = 0; i < size; i++)
                 {
                     _toString(out, Boolean(_rep->_u._booleanArray->getData()[i]));
-                    out << " ";
+		    out.append(' ');
                 }
                 break;
             }
@@ -1747,8 +1746,8 @@ String CIMValue::toString() const
                 break;
 
             case CIMTYPE_STRING:
-                _toString(out, _rep->_u._stringArray->getData(),
-                               _rep->_u._stringArray->size());
+                _toString(out, _rep->stringArray().getData(),
+                               _rep->stringArray().size());
                 break;
 
             case CIMTYPE_DATETIME:
@@ -1823,7 +1822,7 @@ String CIMValue::toString() const
                 break;
 
             case CIMTYPE_STRING:
-                _toString(out, *_rep->_u._stringValue);
+                _toString(out, *((String*)_rep->_u._stringValue));
                 break;
 
             case CIMTYPE_DATETIME:
@@ -1895,5 +1894,10 @@ void CIMValue::get(Array<char>& x) const
 
 #endif
 
+void CIMValue::_get(const String*& data, Uint32& size) const
+{
+    data = _rep->stringArray().getData();
+    size = _rep->stringArray().size();
+}
 
 PEGASUS_NAMESPACE_END

@@ -69,6 +69,16 @@ public:
     Boolean _isArray;
     Boolean _isNull;
     Union _u;
+
+    Array<String>& stringArray()
+    {
+	return *((Array<String>*)_u._stringArray);
+    }
+
+    const Array<String>& stringArray() const
+    {
+	return *((const Array<String>*)_u._stringArray);
+    }
 };
 
 

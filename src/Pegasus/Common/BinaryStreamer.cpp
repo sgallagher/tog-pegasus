@@ -381,7 +381,8 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
 		break;
 
 	    case CIMTYPE_STRING:
-		Packer::packString(out, rep->_u._stringArray->getData(), n);
+		Packer::packString(out, 
+		    ((Array<String>*)rep->_u._stringArray)->getData(), n);
 		break;
 
 	    case CIMTYPE_DATETIME:
@@ -440,7 +441,7 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
 		break;
 
 	    case CIMTYPE_STRING:
-		Packer::packString(out, *rep->_u._stringValue);
+		Packer::packString(out, *((String*)rep->_u._stringValue));
 		break;
 
 	    case CIMTYPE_DATETIME:

@@ -47,6 +47,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+struct StringRep;
+
 /** This union is used to represent the values of properties, qualifiers,
     method return values, and method arguments. All of the types
     defined in CIMType.h are represented by a Union. The 
@@ -66,7 +68,7 @@ union Union
     Real32 _real32Value;
     Real64 _real64Value;
     Uint16 _char16Value;
-    String* _stringValue;
+    char _stringValue[sizeof(String)];
     CIMDateTime* _dateTimeValue;
     CIMObjectPath* _referenceValue;
     CIMObject* _objectValue;
@@ -83,7 +85,7 @@ union Union
     Array<Real32>* _real32Array;
     Array<Real64>* _real64Array;
     Array<Char16>* _char16Array;
-    Array<String>* _stringArray;
+    char _stringArray[sizeof(Array<String>)];
     Array<CIMDateTime>* _dateTimeArray;
     Array<CIMObjectPath>* _referenceArray;
     Array<CIMObject>* _objectArray;

@@ -489,6 +489,8 @@ public:
 
 private:
 
+    void _get(const String*& data, Uint32& size) const;
+
     CIMValueRep* _rep;
 
     friend class CIMMethodRep;
@@ -497,6 +499,7 @@ private:
     friend class CIMQualifierRep;
     friend class CIMQualifierDeclRep;
     friend class BinaryStreamer;
+    friend class XmlWriter;
 };
 
 /** operator == compares two CIMValue objects for equality.

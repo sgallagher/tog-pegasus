@@ -100,26 +100,28 @@ static Boolean _getOSName(String& osName)
 
 static Boolean getUtilGetHostName(String& csName)
 {
-     char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-     struct  hostent *he;
+    char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+    struct  hostent *he;
 
-     if (gethostname(hostName, sizeof(hostName)) != 0)
-     {
-         return false;
-     }
-     hostName[sizeof(hostName)-1] = 0;
+    if (gethostname(hostName, sizeof(hostName)) != 0)
+    {
+        return false;
+    }
+    hostName[sizeof(hostName)-1] = 0;
 
-     // Now get the official hostname.  If this call fails then return
-     // the value from gethostname().                                 
-     
-     if (he=gethostbyname(hostName))
-     {
-         strncpy(hostName, he->h_name, sizeof(hostName)-1);
-     }
+    // Now get the official hostname.  If this call fails then return
+    // the value from gethostname().                                 
 
-     csName.assign(hostName);
+    if (he=gethostbyname(hostName))
+    {
+        csName.assign(he->h_name);
+    }
+    else
+    {
+        csName.assign(hostName);
+    }
 
-     return true;
+    return true;
 }
 
 

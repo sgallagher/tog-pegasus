@@ -1203,8 +1203,7 @@ String Process::getCSName (void)
 
     if (he = gethostbyname (hostName))
     {
-      strncpy(hostName, he->h_name, sizeof(hostName)-1);
-      return String (hostName);
+      return String(he->h_name);
     }
     else
     {

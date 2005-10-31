@@ -531,10 +531,12 @@ void ComputerSystem::initialize(void)
      he=gethostbyname(hostName);
      if (he)
      {
-        strncpy(hostName, he->h_name, sizeof(hostName)-1);
+         _hostName.assign(he->h_name);
      }
-
-     _hostName.assign(hostName);
+     else
+     {
+         _hostName.assign(hostName);
+     }
      return;
 }
 

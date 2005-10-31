@@ -227,7 +227,6 @@ String System::getFullyQualifiedHostName()
 {
   char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
   struct hostent *he;
-  String fqName;
 
   if (gethostname(hostName, sizeof(hostName)) != 0)
   {
@@ -237,12 +236,12 @@ String System::getFullyQualifiedHostName()
 
   if (he = gethostbyname(hostName))
   {
-      strncpy(hostName, he->h_name, sizeof(hostName)-1);
+      return String(he->h_name);
   }
-
-  fqName.assign(hostName);
-
-  return fqName;
+  else
+  {
+      return String(hostName);
+  }
 }
 
 String System::getSystemCreationClassName()

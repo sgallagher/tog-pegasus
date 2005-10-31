@@ -41,9 +41,9 @@
 #include <Pegasus/Common/Buffer.h>
 
 #ifdef PEGASUS_DEBUG
-# define PACKER_ASSERT(COND) assert
+# define PACKER_ASSERT(COND) assert(COND)
 #else
-# define PACKER_ASSERT(COND) /* assert */
+# define PACKER_ASSERT(COND) /* empty */
 #endif
 
 PEGASUS_NAMESPACE_BEGIN

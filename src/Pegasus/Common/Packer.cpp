@@ -110,11 +110,15 @@ void Packer::unpackSize(const Buffer& in, Uint32& pos, Uint32& x)
 
     // Unpack first byte.
 
-    Uint8 byte;
-    Packer::unpackUint8(in, pos, byte);
+    Uint8 byte = Uint8(in[pos++]);
     Uint8 tag = byte & 0xC0;
 
-    if (tag == 0x80)
+    if (!tag)
+    {
+	// One-byte size:
+	x = byte;
+    }
+    else if (tag == 0x80)
     {
 	// Four-byte size:
 	Uint8 b0 = tag ^ byte;
@@ -138,11 +142,6 @@ void Packer::unpackSize(const Buffer& in, Uint32& pos, Uint32& x)
 	x = (tag ^ byte) << 8;
 	Packer::unpackUint8(in, pos, byte);
 	x |= byte;
-    }
-    else if (tag == 0x00)
-    {
-	// One-byte size:
-	x = byte;
     }
     else
     {
@@ -245,8 +244,7 @@ void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
 {
     // Determine whether packed as 8-bit or 16-bit.
 
-    Uint8 bits;
-    unpackUint8(in, pos, bits);
+    Uint8 bits = Uint8(in[pos++]);
 
     PACKER_ASSERT(bits == 16 || bits == 8);
 
@@ -255,17 +253,10 @@ void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
     Uint32 n;
     unpackSize(in, pos, n);
 
-    if (bits == 16)
+    if (bits & 8)
     {
-	x.clear();
-	x.reserveCapacity(n);
-
-	for (size_t i = 0; i < n; i++)
-	{
-	    Char16 tmp;
-	    unpackChar16(in , pos, tmp);
-	    x.append(tmp);
-	}
+	x.assign(&in[pos], n);
+	pos += n;
     }
     else
     {
@@ -274,8 +265,8 @@ void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
 
 	for (size_t i = 0; i < n; i++)
 	{
-	    Uint8 tmp;
-	    unpackUint8(in , pos, tmp);
+	    Char16 tmp;
+	    unpackChar16(in , pos, tmp);
 	    x.append(tmp);
 	}
     }

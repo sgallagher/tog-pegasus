@@ -40,7 +40,11 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Buffer.h>
 
-#define PACKER_ASSERT assert
+#ifdef PEGASUS_DEBUG
+# define PACKER_ASSERT(COND) assert
+#else
+# define PACKER_ASSERT(COND) /* assert */
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

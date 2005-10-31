@@ -41,6 +41,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <iostream>
+#include <cstring>
 #include "HTTPMessage.h"
 
 PEGASUS_USING_STD;
@@ -73,6 +74,17 @@ PEGASUS_NAMESPACE_BEGIN
 static char* _FindSeparator(const char* data, Uint32 size)
 {
     const char* p = data;
+
+    // Short-circuit by using memchr(). This will work whenever there is a
+    // "\r\n" sequence. Some clients may send incorrect headers which are
+    // only separated by "\n". In this case the code below this block 
+    // will handle it.
+    {
+        const char* q = (char*)memchr(data, '\r', size);
+
+        if (q && q[1] == '\n')
+          return (char*)q;
+    }
     const char* end = p + size;
 
     while (p != end)

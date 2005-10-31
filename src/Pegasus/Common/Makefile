@@ -58,6 +58,7 @@ SOURCES1 = \
     AutoStreamer.cpp \
     Base64.cpp \
     BinaryStreamer.cpp \
+    CharSet.cpp \
     LanguageParser.cpp \
     LanguageElement.cpp \
     LanguageElementRep.cpp \

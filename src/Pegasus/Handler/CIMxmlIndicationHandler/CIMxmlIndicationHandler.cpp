@@ -154,15 +154,17 @@ public:
             ConfigManager* configManager = ConfigManager::getInstance();
 
             String certPath;
-            certPath = configManager->getCurrentValue(
-                               PROPERTY_NAME__SSLCERT_FILEPATH);
+            certPath = ConfigManager::getHomedPath(
+                configManager->getCurrentValue(
+                    PROPERTY_NAME__SSLCERT_FILEPATH));
 
             //
             // Get the sslKeyFilePath property from the Config Manager.
             //
             String keyPath;
-            keyPath = configManager->getCurrentValue(
-                               PROPERTY_NAME__SSLKEY_FILEPATH);
+            keyPath = ConfigManager::getHomedPath(
+                configManager->getCurrentValue(
+                    PROPERTY_NAME__SSLKEY_FILEPATH));
 
             String trustPath = String::EMPTY;
 

@@ -141,6 +141,18 @@ int UTF16toUTF8(const Uint16** srcHead,
     Uint8* tgt = *tgtHead;
     while (src < srcEnd)
     {
+	if (*src < 128)
+	{
+	    if (tgt == tgtEnd)
+	    {
+		returnCode = -1;
+		break;
+	    }
+
+	    *tgt++ = *src++;
+	    continue;
+	}
+
     Uint32 tempchar;
     Uint16 numberOfBytes = 0;
     const Uint16* oldsrc = src;
@@ -291,7 +303,7 @@ int UTF8toUTF16 (const Uint8** srcHead,
     return returnCode;
 }
 
-Boolean isUTF8(const char *legal)
+Boolean isUTF8Aux(const char *legal)
 {
     char numBytes = UTF_8_COUNT_TRAIL_BYTES(*legal)+1;
 

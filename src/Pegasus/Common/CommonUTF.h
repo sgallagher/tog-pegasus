@@ -92,7 +92,12 @@ PEGASUS_COMMON_LINKAGE int UTF8toUTF16(
     Uint16** tgtHead,
     Uint16* tgtEnd);
 
-PEGASUS_COMMON_LINKAGE Boolean isUTF8(const char*);
+PEGASUS_COMMON_LINKAGE Boolean isUTF8Aux(const char*);
+
+inline Boolean isUTF8(const char* c)
+{
+    return (unsigned int)c[0] < 128 || isUTF8Aux(c);
+}
 
 PEGASUS_COMMON_LINKAGE Boolean isUTF8Str(const char*);
 

@@ -39,7 +39,7 @@
 #include <cctype>
 #include <Pegasus/Common/Buffer.h>
 
-using namespace std;
+PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 int main(int argc, char** argv)
@@ -200,7 +200,7 @@ int main(int argc, char** argv)
 	assert(b.size() == MEGABYTE);
 
 	for (size_t i = 0; i < MEGABYTE; i++)
-	    assert(b[i] == 'A' + (i % 26));
+	    assert(b[i] == 'A' + int(i % 26));
 
 	Buffer b2 = b;
 	assert(b2.size() == MEGABYTE);

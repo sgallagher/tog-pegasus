@@ -95,9 +95,7 @@ void CGIQueryString::_parseCGIQueryString(
 {
     // First split about the '&' characters:
 
-#if defined(PEGASUS_OS_SOLARIS) || \
-    defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX)
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     char *last;
     for (char* p = strtok_r(queryString, "&", &last); p;
          p = strtok_r(NULL, "&", &last))

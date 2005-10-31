@@ -729,9 +729,8 @@ void HTTPAcceptor::_acceptConnection()
 #endif
 
 
-   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-           "HTTPAcceptor - accept() success.  Socket: $1"
-           ,socket);
+   PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 0,
+       "HTTPAcceptor - accept() success.  Socket: $1" ,socket));
 
    AutoPtr<MP_Socket> mp_socket(new MP_Socket(
        socket, _sslcontext, _sslContextObjectLock, _exportConnection));

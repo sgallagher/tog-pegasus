@@ -199,9 +199,9 @@ void HTTPMessage::parse(
 
 		headers.append(HTTPHeader(name, value));
 
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPMessage - HTTP header name: $0  HTTP header value: $1"
-			    ,name,value);
+		PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 0,
+		    "HTTPMessage - HTTP header name: $0  HTTP header value: $1",
+		    name,value));
 	    }
 	}
 

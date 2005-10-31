@@ -49,13 +49,13 @@ public:
 
    ~XmlStreamer() {}
 
-   void encode(Array<char>& out, const CIMClass& cls);
-   void encode(Array<char>& out, const CIMInstance& inst);
-   void encode(Array<char>& out, const CIMQualifierDecl& qual);
+   void encode(Buffer& out, const CIMClass& cls);
+   void encode(Buffer& out, const CIMInstance& inst);
+   void encode(Buffer& out, const CIMQualifierDecl& qual);
 
-   void decode(const Array<char>& in, unsigned int pos, CIMClass& cls);
-   void decode(const Array<char>& in, unsigned int pos, CIMInstance& inst);
-   void decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual);
+   void decode(const Buffer& in, unsigned int pos, CIMClass& cls);
+   void decode(const Buffer& in, unsigned int pos, CIMInstance& inst);
+   void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual);
 
 };
 

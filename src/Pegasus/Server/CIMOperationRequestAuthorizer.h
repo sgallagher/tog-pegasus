@@ -63,7 +63,7 @@ class PEGASUS_SERVER_LINKAGE CIMOperationRequestAuthorizer : public MessageQueue
       
       void sendResponse(
 	 Uint32 queueId,
-	 Array<char>& message);
+	 Buffer& message);
 
       void sendIMethodError(
 	 Uint32 queueId,

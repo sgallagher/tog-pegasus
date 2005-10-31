@@ -93,7 +93,7 @@ class PEGASUS_SERVER_LINKAGE HTTPAuthenticatorDelegator : public MessageQueueSer
 
       void _sendResponse( 
          Uint32 queueId, 
-         Array<char>& message,
+         Buffer& message,
          Boolean closeConnect); 
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION

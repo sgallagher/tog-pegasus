@@ -85,7 +85,7 @@ static Uint32 getOffset( streampos sp )
 // Gets one line from the given file.
 //
 
-static Boolean _GetLine(fstream& fs, Array<char>& x)
+static Boolean _GetLine(fstream& fs, Buffer& x)
 {
     x.clear();
     x.reserveCapacity(1024);
@@ -146,7 +146,7 @@ Boolean _GetIntField(
 
 static Boolean _GetNextRecord(
     fstream& fs,
-    Array<char>& line,
+    Buffer& line,
     Uint32& freeFlag,
     Uint32& hashCode,
     Uint32& index,
@@ -450,7 +450,7 @@ Boolean InstanceIndexFile::enumerateEntries(
     // Iterate over all instances to build output arrays:
     //
 
-    Array<char> line;
+    Buffer line;
     Uint32 freeFlag;
     Uint32 hashCode;
     const char* instanceName;
@@ -700,7 +700,7 @@ Boolean InstanceIndexFile::_lookupEntry(
     shortInstanceName.setHost(String::EMPTY);
 
     Uint32 targetHashCode = shortInstanceName.makeHashCode();
-    Array<char> line;
+    Buffer line;
     Uint32 freeFlag;
     Uint32 hashCode;
     const char* instanceNameTmp;
@@ -785,7 +785,7 @@ Boolean InstanceIndexFile::compact(
     // Iterate over all instances to build output arrays:
     //
 
-    Array<char> line;
+    Buffer line;
     Uint32 freeFlag;
     Uint32 hashCode;
     const char* instanceName;

@@ -78,10 +78,10 @@ PEGASUS_NAMESPACE_BEGIN
                                  generated for an M-POST request
     @param   useHTTP11           Boolean indicating that headers should be
                                  generated for an HTTP/1.1 request
-    @param   content             Array<char> containing XML request
-    @param   httpHeaders         Array<char> returning the HTTP headers
+    @param   content             Buffer containing XML request
+    @param   httpHeaders         Buffer returning the HTTP headers
   
-    @return  Array<char> containing the XML request encapsulated in an
+    @return  Buffer containing the XML request encapsulated in an
              HTTP request message
   
     @exception  XmlValidationError  if the XML input is invalid
@@ -90,18 +90,18 @@ PEGASUS_NAMESPACE_BEGIN
                                     M-POST or POST method request
   
  */
-Array<char> XMLProcess::encapsulate( XmlParser& parser,
+Buffer XMLProcess::encapsulate( XmlParser& parser,
                                        const String& hostName,
                                        Boolean useMPost,
                                        Boolean useHTTP11,
-                                       Array<char>& content,
-                                       Array<char>& httpHeaders
+                                       Buffer& content,
+                                       Buffer& httpHeaders
                                        )
 throw (XmlValidationError, XmlSemanticError, WbemExecException,
                XmlException, Exception)
 {
     XmlEntry                     entry;
-    Array<char>                    message;
+    Buffer                    message;
     String                       messageId;
     const char*                  cimVersion            = 0;
     const char*                  dtdVersion            = 0;
@@ -109,8 +109,8 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
     CIMName                      className;
     CIMName                      methodName;
     CIMObjectPath                objectName;
-    Array<char>                    encoded;
-    Array<char>                    objPath;
+    Buffer                    encoded;
+    Buffer                    objPath;
     Array<CIMKeyBinding>         keyBindings;
     CIMKeyBinding::Type          type;
     Boolean                      multireq              = false;
@@ -312,7 +312,7 @@ throw (XmlValidationError, XmlSemanticError, WbemExecException,
             << HEADER_VALUE_CONTENTTYPE 
             << HTTP_CRLF;
     message << HEADER_NAME_CONTENTLENGTH << HEADER_SEPARATOR << HTTP_SP 
-            << content.size () << HTTP_CRLF;
+            << (Uint32)content.size () << HTTP_CRLF;
 
     if (useMPost)
     {

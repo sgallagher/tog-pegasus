@@ -78,14 +78,14 @@ void test01()
     //
     // toMof
     //
-    Array<char> mofOut;
+    Buffer mofOut;
 	if(verbose)
 		MofWriter::appendParameterElement(mofOut, p1);
 
     //
     // toXml
     //
-    Array<char> xmlOut;
+    Buffer xmlOut;
 	if(verbose)
 		XmlWriter::appendParameterElement(xmlOut, p1);
 

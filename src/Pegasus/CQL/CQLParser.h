@@ -40,6 +40,7 @@
 #include <Pegasus/CQL/Linkage.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/CQL/CQLSelectStatement.h>
+#include <Pegasus/Common/Buffer.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
@@ -55,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
         // Note that this array must be null-terminated (sizeof(TEXT) includes
         // the null-terminator in the count).
 
-        Array<char> text(TEXT, sizeof(TEXT));
+        Buffer text(TEXT, sizeof(TEXT));
 
         CQLSelectStatement selectStatement;
 
@@ -97,7 +98,7 @@ public:
     /** Version of parse() taking an array of characters.
     */
     static void parse(
-        const Array<char>& text,
+        const Buffer& text,
         CQLSelectStatement& statement);
 
     /** Version of parse() taking a string.

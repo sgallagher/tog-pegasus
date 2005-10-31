@@ -89,7 +89,7 @@ Boolean InstanceDataFile::loadInstance(
     const String& path,
     Uint32 index,
     Uint32 size,
-    Array<char>& data)
+    Buffer& data)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadInstance()");
 
@@ -142,7 +142,7 @@ Boolean InstanceDataFile::loadInstance(
 
 Boolean InstanceDataFile::loadAllInstances(
     const String& path,
-    Array<char>& data)
+    Buffer& data)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::loadAllInstance()");
 
@@ -195,7 +195,7 @@ Boolean InstanceDataFile::loadAllInstances(
 
 Boolean InstanceDataFile::appendInstance(
     const String& path,
-    const Array<char>& data,
+    const Buffer& data,
     Uint32& index)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceDataFile::appendInstance()");
@@ -446,7 +446,7 @@ Boolean InstanceDataFile::compact(
         return false;
     }
 
-    Array<char> data;
+    Buffer data;
 
     //
     // Copy over instances which have not been freed:

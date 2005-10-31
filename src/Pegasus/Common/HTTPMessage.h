@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -65,12 +66,12 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
   
       typedef Message Base;
       
-      HTTPMessage(const Array<char>& message_, Uint32 queueId_ = 0,
+      HTTPMessage(const Buffer& message_, Uint32 queueId_ = 0,
 									const CIMException *cimException_ = 0);
 
       HTTPMessage(const HTTPMessage & msg);
 
-      Array<char> message;
+      Buffer message;
       Uint32 queueId;
       AuthenticationInfo* authInfo;
       AcceptLanguages acceptLanguages;

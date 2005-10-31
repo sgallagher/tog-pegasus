@@ -55,8 +55,8 @@ int main(int argc, char** argv)
 
     // Test a simple decode to determine if decode correct
     {
-        Array<char> in;
-        Array<char> out;
+        Buffer in;
+        Buffer out;
         // Create an array of the character A 4 times.
         in.append('A');
         in.append('A');
@@ -77,8 +77,8 @@ int main(int argc, char** argv)
     }
     // Test a simple decode to determine if decode correct
     {
-        Array<char> in;
-        Array<char> out;
+        Buffer in;
+        Buffer out;
         // Create an array of the character A 4 times.
         in.append('/');
         in.append('/');
@@ -104,8 +104,8 @@ int main(int argc, char** argv)
     // and determine if correct character set created
     {
         // Test for creation of char A
-        Array<char> in;
-        Array<char> out;
+        Buffer in;
+        Buffer out;
 
         // Create Array of 3 zeros.
         in.append(0);
@@ -131,14 +131,14 @@ int main(int argc, char** argv)
         {
             //build an array i characters long with integers 0 - 63
 
-            Array<char> in;
-            Array<char> out;
+            Buffer in;
+            Buffer out;
 
             Uint8 k = 0;
 
             // Build the array from assending set of characters
             in.append(k++);
-            Array<char> temp = Base64::encode(in);
+            Buffer temp = Base64::encode(in);
             out = Base64::decode(temp);
 
             assert(in == out);
@@ -162,13 +162,13 @@ int main(int argc, char** argv)
     if(verbose)
         cout << "Test 2 -Test all zero buffer" << endl;
     {
-        Array<char> in;
-        Array<char> out;
+        Buffer in;
+        Buffer out;
 
         for (Uint32 i = 0; i < maxLength; i++)
         {
             in.append(0);
-            Array<char> temp = Base64::encode(in);
+            Buffer temp = Base64::encode(in);
             out = Base64::decode(temp);
             assert(in == out);
         }
@@ -179,13 +179,13 @@ int main(int argc, char** argv)
     if(verbose)
         cout << "Test 3 -- Test all 1s in buffer" << endl;
     {
-        Array<char> in;
-        Array<char> out;
+        Buffer in;
+        Buffer out;
 
         for (Uint32 i = 0; i < maxLength; i++)
         {
             in.append('\xFF');
-            Array<char> temp = Base64::encode(in);
+            Buffer temp = Base64::encode(in);
             out = Base64::decode(temp);
 
             assert(in == out);
@@ -194,8 +194,8 @@ int main(int argc, char** argv)
 
     // One more
     {
-        Array<char> in;
-        Array<char> out;
+        Buffer in;
+        Buffer out;
 
         for (Uint32 i = 0; i < maxLength; i++)
         {

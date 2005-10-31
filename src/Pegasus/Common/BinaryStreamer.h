@@ -57,79 +57,79 @@ public:
 
     ~BinaryStreamer() { }
 
-    void encode(Array<char>& out, const CIMClass& x);
+    void encode(Buffer& out, const CIMClass& x);
 
-    void encode(Array<char>& out, const CIMInstance& x);
+    void encode(Buffer& out, const CIMInstance& x);
 
-    void encode(Array<char>& out, const CIMQualifierDecl& x);
+    void encode(Buffer& out, const CIMQualifierDecl& x);
 
-    void decode(const Array<char>& in, unsigned int pos, CIMClass& x);
+    void decode(const Buffer& in, unsigned int pos, CIMClass& x);
 
-    void decode(const Array<char>& in, unsigned int pos, CIMInstance& x);
+    void decode(const Buffer& in, unsigned int pos, CIMInstance& x);
 
-    void decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& x);
+    void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& x);
 
 public:
 
     static void _unpackQualifier(
-	const Array<char>& in, Uint32& pos, CIMQualifier& x);
+	const Buffer& in, Uint32& pos, CIMQualifier& x);
 
-    static void _packQualifier(Array<char>& out, const CIMQualifier& x);
+    static void _packQualifier(Buffer& out, const CIMQualifier& x);
 
     static void _unpackProperty(
-	const Array<char>& in, Uint32& pos, CIMProperty& x);
+	const Buffer& in, Uint32& pos, CIMProperty& x);
 
     static void _unpackMethod(
-	const Array<char>& in, Uint32& pos, CIMMethod& x);
+	const Buffer& in, Uint32& pos, CIMMethod& x);
 
 private:
 
-    static void _packName(Array<char>& out, const CIMName& x);
+    static void _packName(Buffer& out, const CIMName& x);
 
-    static void _unpackName(const Array<char>& in, Uint32& pos, CIMName& x);
+    static void _unpackName(const Buffer& in, Uint32& pos, CIMName& x);
 
 
-    static void _packValue(Array<char>& out, const CIMValue& x);
+    static void _packValue(Buffer& out, const CIMValue& x);
 
-    static void _unpackValue(const Array<char>& in, Uint32& pos, CIMValue& x);
+    static void _unpackValue(const Buffer& in, Uint32& pos, CIMValue& x);
 
-    static void _packProperty(Array<char>& out, const CIMProperty& x);
+    static void _packProperty(Buffer& out, const CIMProperty& x);
 
-    static void _packParameter(Array<char>& out, const CIMParameter& x);
+    static void _packParameter(Buffer& out, const CIMParameter& x);
 
     static void _unpackParameter(
-	const Array<char>& in, Uint32& pos, CIMParameter& x);
+	const Buffer& in, Uint32& pos, CIMParameter& x);
 
-    static void _packParameters(Array<char>& out, CIMMethodRep* rep);
+    static void _packParameters(Buffer& out, CIMMethodRep* rep);
 
     static void _unpackParameters(
-	const Array<char>& in, Uint32& pos, CIMMethod& x);
+	const Buffer& in, Uint32& pos, CIMMethod& x);
 
-    static void _packMethod(Array<char>& out, const CIMMethod& x);
+    static void _packMethod(Buffer& out, const CIMMethod& x);
 
-    static void _packObjectPath(Array<char>& out, const CIMObjectPath& x);
+    static void _packObjectPath(Buffer& out, const CIMObjectPath& x);
 
     static void _unpackObjectPath(
-	const Array<char>& in, Uint32& pos, CIMObjectPath& x);
+	const Buffer& in, Uint32& pos, CIMObjectPath& x);
 
-    static void _packProperties(Array<char>& out, CIMObjectRep* rep);
+    static void _packProperties(Buffer& out, CIMObjectRep* rep);
 
-    static void _packMethods(Array<char>& out, CIMClassRep* rep);
+    static void _packMethods(Buffer& out, CIMClassRep* rep);
 
-    static void _packScope(Array<char>& out, const CIMScope& x);
+    static void _packScope(Buffer& out, const CIMScope& x);
 
     static void _unpackScope(
-	const Array<char>& in, Uint32& pos, CIMScope& x);
+	const Buffer& in, Uint32& pos, CIMScope& x);
 
-    static void _packFlavor(Array<char>& out, const CIMFlavor& x);
+    static void _packFlavor(Buffer& out, const CIMFlavor& x);
 
     static void _unpackFlavor(
-	const Array<char>& in, Uint32& pos, CIMFlavor& x);
+	const Buffer& in, Uint32& pos, CIMFlavor& x);
 
-    static void _packType(Array<char>& out, const CIMType& x);
+    static void _packType(Buffer& out, const CIMType& x);
 
     static void _unpackType(
-	const Array<char>& in, Uint32& pos, CIMType& x);
+	const Buffer& in, Uint32& pos, CIMType& x);
 };
 
 class BinException : public Exception

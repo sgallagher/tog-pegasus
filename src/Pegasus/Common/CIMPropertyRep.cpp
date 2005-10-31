@@ -261,7 +261,7 @@ static const char* _toString(Boolean x)
     return x ? "true" : "false";
 }
 
-void CIMPropertyRep::toXml(Array<char>& out) const
+void CIMPropertyRep::toXml(Buffer& out) const
 {
     if (_value.isArray())
     {
@@ -425,7 +425,7 @@ void CIMPropertyRep::toXml(Array<char>& out) const
     Format with qualifiers on one line and declaration on another. Start
     with newline but none at the end.
 */
-void CIMPropertyRep::toMof(Array<char>& out) const  //ATTNKS:
+void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 {
     //Output the qualifier list
     if (_qualifiers.getCount())

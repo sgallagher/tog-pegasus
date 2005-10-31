@@ -141,7 +141,7 @@ void CIMParameterRep::resolve(
 	true);
 }
 
-void CIMParameterRep::toXml(Array<char>& out) const
+void CIMParameterRep::toXml(Buffer& out) const
 {
     if (_isArray)
     {
@@ -231,7 +231,7 @@ void CIMParameterRep::toXml(Array<char>& out) const
 
     Format on a single line.
     */
-void CIMParameterRep::toMof(Array<char>& out) const
+void CIMParameterRep::toMof(Buffer& out) const
 {
     // Output the qualifiers for the parameter
     _qualifiers.toMof(out);

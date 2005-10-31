@@ -50,7 +50,7 @@ static bool _constains16BitChars(const String& x)
     return false;
 }
 
-void Packer::packString(Array<char>& out, const String& x)
+void Packer::packString(Buffer& out, const String& x)
 {
     Uint32 n = x.size();
 
@@ -71,7 +71,7 @@ void Packer::packString(Array<char>& out, const String& x)
     }
 }
 
-void Packer::packSize(Array<char>& out, Uint32 x)
+void Packer::packSize(Buffer& out, Uint32 x)
 {
     // Top two bits indicate the number of bytes used to
     // pack this size:
@@ -98,7 +98,7 @@ void Packer::packSize(Array<char>& out, Uint32 x)
     }
 }
 
-void Packer::unpackSize(const Array<char>& in, Uint32& pos, Uint32& x)
+void Packer::unpackSize(const Buffer& in, Uint32& pos, Uint32& x)
 {
     // Top two bits form a tag that indicates the number of bytes used to
     // pack this size:
@@ -153,7 +153,7 @@ void Packer::unpackSize(const Array<char>& in, Uint32& pos, Uint32& x)
 }
 
 template<class T>
-void _pack_array(Array<char>& out, const T* x, Uint32 n)
+void _pack_array(Buffer& out, const T* x, Uint32 n)
 {
     Uint32 bytes = n * sizeof(T);
     out.reserveCapacity(out.size() + bytes);
@@ -170,7 +170,7 @@ void _pack_array(Array<char>& out, const T* x, Uint32 n)
 	out.append((char*)x, bytes);
 }
 
-void Packer::packBoolean(Array<char>& out, const Boolean* x, Uint32 n)
+void Packer::packBoolean(Buffer& out, const Boolean* x, Uint32 n)
 {
     out.reserveCapacity(out.size() + n);
 
@@ -181,34 +181,34 @@ void Packer::packBoolean(Array<char>& out, const Boolean* x, Uint32 n)
     }
 }
 
-void Packer::packUint8(Array<char>& out, const Uint8* x, Uint32 n)
+void Packer::packUint8(Buffer& out, const Uint8* x, Uint32 n)
 {
     out.append((char*)x, n);
 }
 
-void Packer::packUint16(Array<char>& out, const Uint16* x, Uint32 n)
+void Packer::packUint16(Buffer& out, const Uint16* x, Uint32 n)
 {
     _pack_array(out, x, n);
 }
 
-void Packer::packUint32(Array<char>& out, const Uint32* x, Uint32 n)
+void Packer::packUint32(Buffer& out, const Uint32* x, Uint32 n)
 {
     _pack_array(out, x, n);
 }
 
-void Packer::packUint64(Array<char>& out, const Uint64* x, Uint32 n)
+void Packer::packUint64(Buffer& out, const Uint64* x, Uint32 n)
 {
     _pack_array(out, x, n);
 }
 
-void Packer::packString(Array<char>& out, const String* x, Uint32 n)
+void Packer::packString(Buffer& out, const String* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
 	packString(out, x[i]);
 }
 
 void Packer::unpackUint16(
-    const Array<char>& in, Uint32& pos, Uint16& x)
+    const Buffer& in, Uint32& pos, Uint16& x)
 {
     memcpy(&x, &in[pos], sizeof(x));
     pos += sizeof(x);
@@ -218,7 +218,7 @@ void Packer::unpackUint16(
 }
 
 void Packer::unpackUint32(
-    const Array<char>& in, Uint32& pos, Uint32& x)
+    const Buffer& in, Uint32& pos, Uint32& x)
 {
     memcpy(&x, &in[pos], sizeof(x));
     pos += sizeof(x);
@@ -230,7 +230,7 @@ void Packer::unpackUint32(
 }
 
 void Packer::unpackUint64(
-    const Array<char>& in, Uint32& pos, Uint64& x)
+    const Buffer& in, Uint32& pos, Uint64& x)
 {
     memcpy(&x, &in[pos], sizeof(x));
     pos += sizeof(x);
@@ -241,7 +241,7 @@ void Packer::unpackUint64(
     PACKER_ASSERT(pos <= in.size());
 }
 
-void Packer::unpackString(const Array<char>& in, Uint32& pos, String& x)
+void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
 {
     // Determine whether packed as 8-bit or 16-bit.
 
@@ -284,7 +284,7 @@ void Packer::unpackString(const Array<char>& in, Uint32& pos, String& x)
 }
 
 void Packer::unpackBoolean(
-    Array<char>& in, Uint32& pos, Boolean* x, Uint32 n)
+    Buffer& in, Uint32& pos, Boolean* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
 	unpackBoolean(in, pos, x[i]);
@@ -293,7 +293,7 @@ void Packer::unpackBoolean(
 }
 
 void Packer::unpackUint8(
-    Array<char>& in, Uint32& pos, Uint8* x, Uint32 n)
+    Buffer& in, Uint32& pos, Uint8* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
 	unpackUint8(in, pos, x[i]);
@@ -302,7 +302,7 @@ void Packer::unpackUint8(
 }
 
 void Packer::unpackUint16(
-    Array<char>& in, Uint32& pos, Uint16* x, Uint32 n)
+    Buffer& in, Uint32& pos, Uint16* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
 	unpackUint16(in, pos, x[i]);
@@ -311,7 +311,7 @@ void Packer::unpackUint16(
 }
 
 void Packer::unpackUint32(
-    Array<char>& in, Uint32& pos, Uint32* x, Uint32 n)
+    Buffer& in, Uint32& pos, Uint32* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
 	unpackUint32(in, pos, x[i]);
@@ -320,7 +320,7 @@ void Packer::unpackUint32(
 }
 
 void Packer::unpackUint64(
-    Array<char>& in, Uint32& pos, Uint64* x, Uint32 n)
+    Buffer& in, Uint32& pos, Uint64* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
 	unpackUint64(in, pos, x[i]);
@@ -329,7 +329,7 @@ void Packer::unpackUint64(
 }
 
 void Packer::unpackString(
-    Array<char>& in, Uint32& pos, String* x, Uint32 n)
+    Buffer& in, Uint32& pos, String* x, Uint32 n)
 {
     for (size_t i = 0; i < n; i++)
 	unpackString(in, pos, x[i]);

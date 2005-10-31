@@ -193,7 +193,7 @@ void _Test02()
     // Append some instances:
     //
 
-    Array<char> data;
+    Buffer data;
     Uint32 index;
 
     data.append("AAAAAAAA", 8);

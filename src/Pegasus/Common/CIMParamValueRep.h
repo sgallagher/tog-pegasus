@@ -44,6 +44,7 @@
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -79,7 +80,7 @@ public:
 
     void setIsTyped(Boolean isTyped);
 
-    void toXml(Array<char>& out) const;
+    void toXml(Buffer& out) const;
 
     CIMParamValueRep* clone() const
     {

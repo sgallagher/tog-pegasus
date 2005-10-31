@@ -116,7 +116,7 @@ void test01()
     //
     // toXml
     //
-    Array<char> xmlOut;
+    Buffer xmlOut;
     XmlWriter::appendParamValueElement(xmlOut, a4clone);
 }
 

@@ -94,7 +94,7 @@ static char* _FindSeparator(const char* data, Uint32 size)
 }
 
 HTTPMessage::HTTPMessage(
-    const Array<char>& message_,
+    const Buffer& message_,
     Uint32 queueId_, const CIMException *cimException_)
     :
     Message(HTTP_MESSAGE),

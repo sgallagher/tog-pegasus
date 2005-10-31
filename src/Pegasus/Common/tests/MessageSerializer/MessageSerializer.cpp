@@ -156,7 +156,7 @@ void verifyAssociatorsResponseMessage(
 //
 CIMMessage* serializeDeserializeMessage(CIMMessage* inMessage)
 {
-    Array<char> outBuffer;
+    Buffer outBuffer;
     CIMMessageSerializer::serialize(outBuffer, inMessage);
     outBuffer.append(0);
 

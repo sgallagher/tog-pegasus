@@ -70,7 +70,7 @@ CIMParamValueRep::~CIMParamValueRep()
 //         %ParamType;>
 //
 //------------------------------------------------------------------------------
-void CIMParamValueRep::toXml(Array<char>& out) const
+void CIMParamValueRep::toXml(Buffer& out) const
 {
     out << "<PARAMVALUE NAME=\"" << _parameterName << "\"";
 

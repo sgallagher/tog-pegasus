@@ -66,9 +66,9 @@ public:
 	CIMConstClass& cimClassOut,
 	Boolean propagateQualifiers);
 
-    virtual void toXml(Array<char>& out) const;
+    virtual void toXml(Buffer& out) const;
 
-    virtual void toMof(Array<char>& out) const;
+    virtual void toMof(Buffer& out) const;
 
     virtual CIMObjectRep* clone() const
     {

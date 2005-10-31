@@ -78,7 +78,7 @@ CIMExportRequestDecoder::~CIMExportRequestDecoder()
 
 void CIMExportRequestDecoder::sendResponse(
     Uint32 queueId, 
-    Array<char>& message,
+    Buffer& message,
     Boolean closeConnect)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
@@ -99,7 +99,7 @@ void CIMExportRequestDecoder::sendEMethodError(
    const CIMException& cimException,
    Boolean closeConnect) 
 {
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatSimpleEMethodErrorRspMessage(
         eMethodName,
         messageId,
@@ -116,7 +116,7 @@ void CIMExportRequestDecoder::sendHttpError(
    const String& messageBody,
    Boolean closeConnect)
 {
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,

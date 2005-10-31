@@ -214,7 +214,7 @@ static const char* _toString(Boolean x)
     return x ? "true" : "false";
 }
 
-void CIMMethodRep::toXml(Array<char>& out) const
+void CIMMethodRep::toXml(Buffer& out) const
 {
     out << "<METHOD";
 
@@ -247,7 +247,7 @@ void CIMMethodRep::toXml(Array<char>& out) const
     Format with qualifiers on one line and declaration on another. Start
     with newline but none at the end.
 */
-void CIMMethodRep::toMof(Array<char>& out) const   //ATTNKS:
+void CIMMethodRep::toMof(Buffer& out) const   //ATTNKS:
 {
     // Output the qualifier list starting on new line
     if (_qualifiers.getCount())

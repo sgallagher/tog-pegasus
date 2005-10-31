@@ -93,10 +93,10 @@ public:
                                      authentication headers
         @param   useAuthentication   Boolean indicating that an authentication
                                      header should be added to the request
-        @param   content             Array<char> containing XML request
-        @param   httpHeaders         Array<char> returning the HTTP headers
+        @param   content             Buffer containing XML request
+        @param   httpHeaders         Buffer returning the HTTP headers
       
-        @return  Array<char> containing the XML request encapsulated in an
+        @return  Buffer containing the XML request encapsulated in an
                  HTTP request message
       
         @exception  XmlValidationError  if the XML input is invalid
@@ -109,12 +109,12 @@ public:
         @exception  Exception           internal error 
       
      */
-    static Array<char> encapsulate (XmlParser& parser, 
+    static Buffer encapsulate (XmlParser& parser, 
                                       const String& hostName,
                                       Boolean useMPost,
                                       Boolean useHTTP11,
-                                      Array<char>& content,
-                                      Array<char>& httpHeaders) 
+                                      Buffer& content,
+                                      Buffer& httpHeaders) 
         throw (XmlValidationError, XmlSemanticError, WbemExecException,
                XmlException, Exception);
 };

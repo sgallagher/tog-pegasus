@@ -227,7 +227,7 @@ CIMInstanceRep::CIMInstanceRep(const CIMInstanceRep& x) : CIMObjectRep(x)
 
 }
 
-void CIMInstanceRep::toXml(Array<char>& out) const
+void CIMInstanceRep::toXml(Buffer& out) const
 {
     // Class opening element:
 
@@ -249,7 +249,7 @@ void CIMInstanceRep::toXml(Array<char>& out) const
     out << "</INSTANCE>\n";
 }
 
-void CIMInstanceRep::toMof(Array<char>& out) const
+void CIMInstanceRep::toMof(Buffer& out) const
 {
     // Get and format the class qualifiers
     out << "\n//Instance of Class " << _reference.getClassName();

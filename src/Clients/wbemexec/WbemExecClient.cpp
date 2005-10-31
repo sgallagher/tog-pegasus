@@ -320,8 +320,8 @@ String WbemExecClient::_promptForPassword()
 }
 
 
-Array<char> WbemExecClient::issueRequest(
-    const Array<char>& request
+Buffer WbemExecClient::issueRequest(
+    const Buffer& request
 )
 {
     if (!_connected)
@@ -449,7 +449,7 @@ void WbemExecClient::_addAuthHeader(HTTPMessage*& httpMessage)
         content = (char*) httpMessage->message.getData() +
       httpMessage->message.size() - contentLength;
 
-        Array<char> newMessageBuffer;
+        Buffer newMessageBuffer;
         newMessageBuffer << startLine << HTTP_CRLF;
         newMessageBuffer << authHeader << HTTP_CRLF;
         for (Uint32 i=0; i<headers.size(); i++)

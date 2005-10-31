@@ -125,7 +125,7 @@ static const char* _toString(Boolean x)
     return x ? "true" : "false";
 }
 
-void CIMQualifierRep::toXml(Array<char>& out) const
+void CIMQualifierRep::toXml(Buffer& out) const
 {
     out << "<QUALIFIER";
     out << " NAME=\"" << _name << "\"";
@@ -153,7 +153,7 @@ void CIMQualifierRep::toXml(Array<char>& out) const
     arrayInitializer   = "{" constantValue*( "," constantValue)"}"
     </pre>
 */
-void CIMQualifierRep::toMof(Array<char>& out) const
+void CIMQualifierRep::toMof(Buffer& out) const
 {
     // Output Qualifier name
     out << _name;

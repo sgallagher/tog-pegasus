@@ -274,7 +274,7 @@ void DynamicIndicationProvider::sendIndication(int severity, String classname, S
     CIMObjectPath cop(System::getHostName(), _DynamicIndicationNameSpace, classname, keys);
     instance.setPath(cop);
 
-    Array<char> buffer;
+    Buffer buffer;
     MofWriter::appendInstanceElement(buffer, instance);
 
     PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, buffer.getData());

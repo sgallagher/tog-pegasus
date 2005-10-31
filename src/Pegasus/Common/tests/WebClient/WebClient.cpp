@@ -148,7 +148,7 @@ void GetDocument(
         (const char*)host.getCString(),
         portNumber);
 
-    Array<char> message;
+    Buffer message;
     message.append(buffer, strlen(buffer));
     HTTPMessage* httpMessage = new HTTPMessage(message);
 

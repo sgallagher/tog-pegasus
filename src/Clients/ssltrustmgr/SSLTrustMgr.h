@@ -149,12 +149,12 @@ private:
 
         @param  certFilePath    the certificate file path
 
-        @return  Array<char> containing the certificate content
+        @return  Buffer containing the certificate content
 
         @exception  Exception   if an error is encountered
                                 in reading the certificate file
      */
-    Array<char> _readCertificateContent(const String &certFilePath);
+    Buffer _readCertificateContent(const String &certFilePath);
 
     /**
        Add a new certificate to the trust store

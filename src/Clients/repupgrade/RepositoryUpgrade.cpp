@@ -1858,7 +1858,7 @@ void RepositoryUpgrade::_logRequestToFile(
     Uint32  	                        contentLength = 0;
     Uint32    	                        contentOffset = 0;
     HTTPMessage* 			httpMessage;
-    Array<char> 			data;
+    Buffer 			data;
 
     startMilliseconds = TimeValue::getCurrentTime().toMilliseconds();
     nowMilliseconds = startMilliseconds;

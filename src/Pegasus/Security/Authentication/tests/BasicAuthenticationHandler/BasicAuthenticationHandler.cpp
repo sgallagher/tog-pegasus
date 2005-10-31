@@ -77,7 +77,7 @@ String encodeUserPass(const String& userPass)
     //
     // copy userPass string content to Uint8 array for encoding
     //
-    Array<char> userPassArray;
+    Buffer userPassArray;
 
     Uint32 userPassLength = userPass.size();
 
@@ -92,7 +92,7 @@ String encodeUserPass(const String& userPass)
     //
     // base64 encode the user name and password
     //
-    Array<char> encodedArray;
+    Buffer encodedArray;
 
     encodedArray = Base64::encode( userPassArray );
 

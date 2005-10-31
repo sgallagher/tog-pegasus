@@ -69,7 +69,7 @@ class CIMOperationResponseEncoder : public MessageQueueService
 			void sendResponse(CIMResponseMessage* response,
 												const String &name,
 												Boolean isImplicit,
-												Array<char> *bodygiven = 0);
+												Buffer *bodygiven = 0);
 
       virtual void handleEnqueue(Message *);
       

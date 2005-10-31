@@ -133,7 +133,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 
 	// Load the document into memory:
 
-	Array<char> content;
+	Buffer content;
 
 	try
 	{
@@ -161,7 +161,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 	    char header[256];
 	    sprintf(header, HEADER, strlen(CONTENT));
 
-	    Array<char> buffer;
+	    Buffer buffer;
 	    buffer.append(header, strlen(header));
 	    buffer.append(CONTENT, strlen(CONTENT));
 
@@ -196,7 +196,7 @@ Message* WebServerQueue::handleHTTPMessage(HTTPMessage* requestMessage)
 	char header[sizeof(HEADER) + 32];
 	sprintf(header, HEADER, content.size(), documentType);
 
-	Array<char> buffer;
+	Buffer buffer;
 	buffer.append(header, strlen(header));
 	buffer.append(content.getData(), content.size());
 	return new HTTPMessage(buffer);

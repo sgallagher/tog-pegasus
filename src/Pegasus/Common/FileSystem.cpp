@@ -154,7 +154,7 @@ Boolean FileSystem::removeFile(const String& path)
 }
 
 void FileSystem::loadFileToMemory(
-    Array<char>& array,
+    Buffer& array,
     const String& fileName)
 {
     Uint32 fileSize;

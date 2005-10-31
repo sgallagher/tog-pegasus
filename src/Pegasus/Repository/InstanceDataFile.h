@@ -44,6 +44,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Repository/Linkage.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -108,7 +109,7 @@ public:
 	const String& path, 
 	Uint32 index,
 	Uint32 size,  
-        Array<char>& data);
+        Buffer& data);
     
     /** loads all the instances from the data file into memory. 
 
@@ -118,7 +119,7 @@ public:
     */
     static Boolean loadAllInstances(
 	const String& path, 
-        Array<char>& data);
+        Buffer& data);
     
     /** Appends a new instance to the end of the file.
      
@@ -129,7 +130,7 @@ public:
     */
     static Boolean appendInstance(
 	const String& path, 
-        const Array<char>& data,
+        const Buffer& data,
 	Uint32& index);
 
     /** Begin a transaction to modify this file. The effect of subsequent

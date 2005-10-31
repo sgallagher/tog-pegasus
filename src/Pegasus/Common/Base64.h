@@ -77,6 +77,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -85,22 +86,22 @@ class PEGASUS_COMMON_LINKAGE Base64
 {
 public:
     /**
-        Encodes an Array<char> into a base64 array.
+        Encodes an Buffer into a base64 array.
 
-        @param vby Array<char> with the data to be encoded.
-        @return Array<char> with the encoded data
+        @param vby Buffer with the data to be encoded.
+        @return Buffer with the encoded data
         @exception bad_alloc Thrown if there is insufficient memory.
     */
-    static Array<char> encode(const Array<char>& vby);  
+    static Buffer encode(const Buffer& vby);  
 
     /**
-        Decodes an base64 array into an Array<char>
+        Decodes an base64 array into an Buffer
 
-        @param str Array<char> with the data to be decoded.
-        @return Array<char> with the decoded data
+        @param str Buffer with the data to be decoded.
+        @return Buffer with the decoded data
         @exception bad_alloc Thrown if there is insufficient memory.
     */
-    static Array<char> decode(const Array<char>& str);
+    static Buffer decode(const Buffer& str);
 
 private:
     static char _Encode(Uint8 uc);

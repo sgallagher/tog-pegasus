@@ -213,10 +213,10 @@ void CIMOperationRequestEncoder::handleEnqueue()
 void CIMOperationRequestEncoder::_encodeCreateClassRequest(
     CIMCreateClassRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
     XmlWriter::appendClassIParameter(params, "NewClass", message->newClass);
 	
-	Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+	Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("CreateClass"), message->messageId,
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(), 
@@ -229,7 +229,7 @@ void CIMOperationRequestEncoder::_encodeCreateClassRequest(
 void CIMOperationRequestEncoder::_encodeGetClassRequest(
     CIMGetClassRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendClassNameIParameter(
 	params, "ClassName", message->className);
@@ -247,7 +247,7 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
 	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(
         _hostName, message->nameSpace, CIMName ("GetClass"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -261,12 +261,12 @@ void CIMOperationRequestEncoder::_encodeGetClassRequest(
 void CIMOperationRequestEncoder::_encodeModifyClassRequest(
     CIMModifyClassRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendClassIParameter(
 	params, "ModifiedClass", message->modifiedClass);
 	
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("ModifyClass"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -280,7 +280,7 @@ void CIMOperationRequestEncoder::_encodeModifyClassRequest(
 void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
     CIMEnumerateClassNamesRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     if (!message->className.isNull())
 	XmlWriter::appendClassNameIParameter(
@@ -289,7 +289,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
     if (message->deepInheritance != false)
 	XmlWriter::appendBooleanIParameter(params, "DeepInheritance", true);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("EnumerateClassNames"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -303,7 +303,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassNamesRequest(
 void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
     CIMEnumerateClassesRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     if (!message->className.isNull())
 	XmlWriter::appendClassNameIParameter(
@@ -323,7 +323,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
 	XmlWriter::appendBooleanIParameter(
 	    params, "IncludeClassOrigin", true);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("EnumerateClasses"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -337,13 +337,13 @@ void CIMOperationRequestEncoder::_encodeEnumerateClassesRequest(
 void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
     CIMDeleteClassRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     if (!message->className.isNull())
 	XmlWriter::appendClassNameIParameter(
 	    params, "ClassName", message->className);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("DeleteClass"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -357,12 +357,12 @@ void CIMOperationRequestEncoder::_encodeDeleteClassRequest(
 void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
     CIMCreateInstanceRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendInstanceIParameter(
 	params, "NewInstance", message->newInstance);
 	
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("CreateInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -376,7 +376,7 @@ void CIMOperationRequestEncoder::_encodeCreateInstanceRequest(
 void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
     CIMGetInstanceRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
@@ -397,7 +397,7 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
 	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
-	Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+	Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("GetInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -411,7 +411,7 @@ void CIMOperationRequestEncoder::_encodeGetInstanceRequest(
 void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
     CIMModifyInstanceRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
     XmlWriter::appendNamedInstanceIParameter(
 	params, "ModifiedInstance", message->modifiedInstance);
 	
@@ -423,7 +423,7 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
 	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("ModifyInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -437,13 +437,13 @@ void CIMOperationRequestEncoder::_encodeModifyInstanceRequest(
 void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
     CIMEnumerateInstanceNamesRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendClassNameIParameter(
 	params, "ClassName", message->className);
 
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("EnumerateInstanceNames"), 
         message->messageId, message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -457,7 +457,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstanceNamesRequest(
 void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
     CIMEnumerateInstancesRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendClassNameIParameter(
         params, "ClassName", message->className);
@@ -480,7 +480,7 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
 	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("EnumerateInstances"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -494,12 +494,12 @@ void CIMOperationRequestEncoder::_encodeEnumerateInstancesRequest(
 void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
     CIMDeleteInstanceRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("DeleteInstance"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -513,7 +513,7 @@ void CIMOperationRequestEncoder::_encodeDeleteInstanceRequest(
 void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
     CIMGetPropertyRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
@@ -521,7 +521,7 @@ void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
     XmlWriter::appendPropertyNameIParameter(
 	params, message->propertyName);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("GetProperty"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -535,7 +535,7 @@ void CIMOperationRequestEncoder::_encodeGetPropertyRequest(
 void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
     CIMSetPropertyRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendInstanceNameIParameter(
 	params, "InstanceName", message->instanceName);
@@ -547,7 +547,7 @@ void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
         XmlWriter::appendPropertyValueIParameter(
 	    params, "NewValue", message->newValue);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("SetProperty"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -561,11 +561,11 @@ void CIMOperationRequestEncoder::_encodeSetPropertyRequest(
 void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
     CIMSetQualifierRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
     XmlWriter::appendQualifierDeclarationIParameter(
 	params, "QualifierDeclaration", message->qualifierDeclaration);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("SetQualifier"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -579,13 +579,13 @@ void CIMOperationRequestEncoder::_encodeSetQualifierRequest(
 void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
     CIMGetQualifierRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     if (!message->qualifierName.isNull())
 	XmlWriter::appendStringIParameter(
 	    params, "QualifierName", message->qualifierName.getString());
 	
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("GetQualifier"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -599,9 +599,9 @@ void CIMOperationRequestEncoder::_encodeGetQualifierRequest(
 void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
     CIMEnumerateQualifiersRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName, 
         message->nameSpace, CIMName ("EnumerateQualifiers"), message->messageId,
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(),
@@ -615,13 +615,13 @@ void CIMOperationRequestEncoder::_encodeEnumerateQualifiersRequest(
 void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
     CIMDeleteQualifierRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     if (!message->qualifierName.isNull())
 	XmlWriter::appendStringIParameter(
 	    params, "QualifierName", message->qualifierName.getString());
 	
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("DeleteQualifier"), message->messageId,
         message->getHttpMethod(), 
         _authenticator->buildRequestAuthHeader(),
@@ -635,7 +635,7 @@ void CIMOperationRequestEncoder::_encodeDeleteQualifierRequest(
 void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
     CIMReferenceNamesRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
@@ -653,7 +653,7 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
 	    params, "Role", message->role);
     }
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("ReferenceNames"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -667,7 +667,7 @@ void CIMOperationRequestEncoder::_encodeReferenceNamesRequest(
 void CIMOperationRequestEncoder::_encodeReferencesRequest(
     CIMReferencesRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
@@ -695,7 +695,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
 	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("References"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -709,7 +709,7 @@ void CIMOperationRequestEncoder::_encodeReferencesRequest(
 void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
     CIMAssociatorNamesRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
@@ -740,7 +740,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
 	    params, "ResultRole", message->resultRole);
     }
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("AssociatorNames"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -754,7 +754,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorNamesRequest(
 void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
     CIMAssociatorsRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendObjectNameIParameter(
 	params, "ObjectName", message->objectName);
@@ -795,7 +795,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 	XmlWriter::appendPropertyListIParameter(
 	    params, message->propertyList);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("Associators"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -809,7 +809,7 @@ void CIMOperationRequestEncoder::_encodeAssociatorsRequest(
 void CIMOperationRequestEncoder::_encodeExecQueryRequest(
     CIMExecQueryRequestMessage* message)
 {
-    Array<char> params;
+    Buffer params;
 
     XmlWriter::appendStringIParameter(
 	params, "QueryLanguage", message->queryLanguage);
@@ -817,7 +817,7 @@ void CIMOperationRequestEncoder::_encodeExecQueryRequest(
     XmlWriter::appendStringIParameter(
 	params, "Query", message->query);
 
-    Array<char> buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleIMethodReqMessage(_hostName,
         message->nameSpace, CIMName ("ExecQuery"), message->messageId,
         message->getHttpMethod(),
         _authenticator->buildRequestAuthHeader(),
@@ -831,7 +831,7 @@ void CIMOperationRequestEncoder::_encodeExecQueryRequest(
 void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
     CIMInvokeMethodRequestMessage* message)
 {
-    Array<char> buffer = XmlWriter::formatSimpleMethodReqMessage(_hostName,
+    Buffer buffer = XmlWriter::formatSimpleMethodReqMessage(_hostName,
 	message->nameSpace, message->instanceName, message->methodName,
 	message->inParameters, message->messageId, 
 	message->getHttpMethod(), _authenticator->buildRequestAuthHeader(),
@@ -844,7 +844,7 @@ void CIMOperationRequestEncoder::_encodeInvokeMethodRequest(
 // Enqueue the buffer to the ouptut queue with a conditional display.
 // This function is only enabled if the Pegasus Client trace is enabled.
 // Uses parameter to determine whether to send to console to log.
-void CIMOperationRequestEncoder::_sendRequest(Array<char>& buffer)
+void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 {
 #ifdef PEGASUS_CLIENT_TRACE_ENABLE
     if (_showOutput & 1)

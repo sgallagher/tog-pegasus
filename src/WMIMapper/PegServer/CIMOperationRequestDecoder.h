@@ -72,7 +72,7 @@ class CIMOperationRequestDecoder : public MessageQueueService
 
       void sendResponse(
 	 Uint32 queueId, 
-	 Array<char>& message);
+	 Buffer& message);
 
       void sendIMethodError(
 	 Uint32 queueId, 

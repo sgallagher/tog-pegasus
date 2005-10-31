@@ -71,6 +71,7 @@
 #include "Tracer.h"
 #include <Pegasus/Common/StatisticalData.h>
 #include "CommonUTF.h"
+#include "Buffer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -88,49 +89,49 @@ PEGASUS_NAMESPACE_BEGIN
     out << "content-length: " << contentLengthP << "\r\n";     \
 }
 
-Array<char>& operator<<(Array<char>& out, const char* x)
+Buffer& operator<<(Buffer& out, const char* x)
 {
     XmlWriter::append(out, x);
     return out;
 }
 
-Array<char>& operator<<(Array<char>& out, char x)
+Buffer& operator<<(Buffer& out, char x)
 {
     XmlWriter::append(out, x);
     return out;
 }
 
-Array<char>& operator<<(Array<char>& out, const Char16& x)
+Buffer& operator<<(Buffer& out, const Char16& x)
 {
     XmlWriter::append(out, x);
     return out;
 }
 
-Array<char>& operator<<(Array<char>& out, const String& x)
+Buffer& operator<<(Buffer& out, const String& x)
 {
     XmlWriter::append(out, x);
     return out;
 }
 
-Array<char>& operator<<(Array<char>& out, const Indentor& x)
+Buffer& operator<<(Buffer& out, const Indentor& x)
 {
     XmlWriter::append(out, x);
     return out;
 }
 
-Array<char>& operator<<(Array<char>& out, const Array<char>& x)
+Buffer& operator<<(Buffer& out, const Buffer& x)
 {
-    out.appendArray(x);
+    out.append(x.getData(), x.size());
     return out;
 }
 
-Array<char>& operator<<(Array<char>& out, Uint32 x)
+Buffer& operator<<(Buffer& out, Uint32 x)
 {
     XmlWriter::append(out, x);
     return out;
 }
 
-Array<char>& operator<<(Array<char>& out, const CIMName& name)
+Buffer& operator<<(Buffer& out, const CIMName& name)
 {
     XmlWriter::append(out, name.getString ());
     return out;
@@ -138,14 +139,14 @@ Array<char>& operator<<(Array<char>& out, const CIMName& name)
 
 
 // l10n
-Array<char>& operator<<(Array<char>& out, const AcceptLanguages& al)
+Buffer& operator<<(Buffer& out, const AcceptLanguages& al)
 {
     XmlWriter::append(out, al.toString ());
     return out;
 }
 
 // l10n
-Array<char>& operator<<(Array<char>& out, const ContentLanguages& cl)
+Buffer& operator<<(Buffer& out, const ContentLanguages& cl)
 {
     XmlWriter::append(out, cl.toString ());
     return out;
@@ -170,7 +171,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os,
     return os;
 }
 
-inline void _xmlWritter_appendChar(Array<char>& out, const Char16& c)
+inline void _xmlWritter_appendChar(Buffer& out, const Char16& c)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8
     // character into the array.
@@ -195,7 +196,7 @@ inline void _xmlWritter_appendChar(Array<char>& out, const Char16& c)
     out.append(str, UTF_8_COUNT_TRAIL_BYTES(str[0]) + 1);
 }
 
-inline void _xmlWritter_appendSpecialChar(Array<char>& out, const Char16& c)
+inline void _xmlWritter_appendSpecialChar(Buffer& out, const Char16& c)
 {
     if ( ((c < Char16(0x20)) && (c >= Char16(0x00))) || (c == Char16(0x7f)) )
     {
@@ -257,7 +258,7 @@ inline void _xmlWritter_appendSpecialChar(Array<char>& out, const Char16& c)
     }
 }
 
-inline void _xmlWritter_appendSpecialChar(Array<char>& out, char c)
+inline void _xmlWritter_appendSpecialChar(Buffer& out, char c)
 {
 	if ( ((c < 0x20) && (c >= 0)) || (c == 0x7f) )
     {
@@ -334,7 +335,7 @@ inline void _xmlWritter_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
     }
 }
 
-void _xmlWritter_appendSurrogatePair(Array<char>& out, Uint16 high, Uint16 low)
+void _xmlWritter_appendSurrogatePair(Buffer& out, Uint16 high, Uint16 low)
 {
     char str[6];
     Uint8 charIN[5];
@@ -362,45 +363,45 @@ inline void _xmlWritter_appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
 	_xmlWritter_appendSpecialChar(os, *str++);
 }
 
-void XmlWriter::append(Array<char>& out, const Char16& x)
+void XmlWriter::append(Buffer& out, const Char16& x)
 {
     _xmlWritter_appendChar(out, x);
 }
 
-void XmlWriter::append(Array<char>& out, Boolean x)
+void XmlWriter::append(Buffer& out, Boolean x)
 {
     append(out, (x ? "TRUE" : "FALSE"));
 }
 
-void XmlWriter::append(Array<char>& out, Uint32 x)
+void XmlWriter::append(Buffer& out, Uint32 x)
 {
     char buffer[32];
     sprintf(buffer, "%u", x);
     append(out, buffer);
 }
 
-void XmlWriter::append(Array<char>& out, Sint32 x)
+void XmlWriter::append(Buffer& out, Sint32 x)
 {
     char buffer[32];
     sprintf(buffer, "%d", x);
     append(out, buffer);
 }
 
-void XmlWriter::append(Array<char>& out, Uint64 x)
+void XmlWriter::append(Buffer& out, Uint64 x)
 {
     char buffer[32];  // Should need 21 chars max
     sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
     append(out, buffer);
 }
 
-void XmlWriter::append(Array<char>& out, Sint64 x)
+void XmlWriter::append(Buffer& out, Sint64 x)
 {
     char buffer[32];  // Should need 21 chars max
     sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
     append(out, buffer);
 }
 
-void XmlWriter::append(Array<char>& out, Real32 x)
+void XmlWriter::append(Buffer& out, Real32 x)
 {
     char buffer[128];
     // %.7e gives '[-]m.ddddddde+/-xx', which seems compatible with the format
@@ -410,7 +411,7 @@ void XmlWriter::append(Array<char>& out, Real32 x)
     append(out, buffer);
 }
 
-void XmlWriter::append(Array<char>& out, Real64 x)
+void XmlWriter::append(Buffer& out, Real64 x)
 {
     char buffer[128];
     // %.16e gives '[-]m.dddddddddddddddde+/-xx', which seems compatible with the format
@@ -420,13 +421,13 @@ void XmlWriter::append(Array<char>& out, Real64 x)
     append(out, buffer);
 }
 
-void XmlWriter::append(Array<char>& out, const char* str)
+void XmlWriter::append(Buffer& out, const char* str)
 {
     while (*str)
       XmlWriter::append(out, *str++);
 }
 
-void XmlWriter::append(Array<char>& out, const String& str)
+void XmlWriter::append(Buffer& out, const String& str)
 {
     for (Uint32 i = 0; i < str.size(); i++)
     {
@@ -446,29 +447,29 @@ void XmlWriter::append(Array<char>& out, const String& str)
     }
 }
 
-void XmlWriter::append(Array<char>& out, const Indentor& x)
+void XmlWriter::append(Buffer& out, const Indentor& x)
 {
     for (Uint32 i = 0; i < 4 * x.getLevel(); i++)
 	out.append(' ');
 }
 
-void XmlWriter::appendSpecial(Array<char>& out, const Char16& x)
+void XmlWriter::appendSpecial(Buffer& out, const Char16& x)
 {
     _xmlWritter_appendSpecialChar(out, x);
 }
 
-void XmlWriter::appendSpecial(Array<char>& out, char x)
+void XmlWriter::appendSpecial(Buffer& out, char x)
 {
     _xmlWritter_appendSpecialChar(out, x);
 }
 
-void XmlWriter::appendSpecial(Array<char>& out, const char* str)
+void XmlWriter::appendSpecial(Buffer& out, const char* str)
 {
     while (*str)
 	_xmlWritter_appendSpecialChar(out, *str++);
 }
 
-void XmlWriter::appendSpecial(Array<char>& out, const String& str)
+void XmlWriter::appendSpecial(Buffer& out, const String& str)
 {
     for (Uint32 i = 0; i < str.size(); i++)
     {
@@ -526,7 +527,7 @@ inline void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
     }
 }
 
-String XmlWriter::encodeURICharacters(const Array<char>& uriString)
+String XmlWriter::encodeURICharacters(const Buffer& uriString)
 {
     String encodedString;
 
@@ -553,7 +554,7 @@ String XmlWriter::encodeURICharacters(const String& uriString)
     // 3.3.3, for the treatment of non US-ASCII (UTF-8) chars
 
     // First, convert to UTF-8 (include handling of surrogate pairs)
-    Array<char> utf8;
+    Buffer utf8;
     for (Uint32 i = 0; i < uriString.size(); i++)
     {
         Uint16 c = uriString[i];
@@ -590,7 +591,7 @@ String XmlWriter::encodeURICharacters(const String& uriString)
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendLocalNameSpacePathElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMNamespaceName& nameSpace)
 {
     out << "<LOCALNAMESPACEPATH>\n";
@@ -623,7 +624,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendNameSpacePathElement(
-    Array<char>& out,
+    Buffer& out,
     const String& host,
     const CIMNamespaceName& nameSpace)
 {
@@ -644,7 +645,7 @@ void XmlWriter::appendNameSpacePathElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendClassNameElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& className)
 {
     out << "<CLASSNAME NAME=\"" << className << "\"/>\n";
@@ -661,7 +662,7 @@ void XmlWriter::appendClassNameElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendInstanceNameElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& instanceName)
 {
     out << "<INSTANCENAME CLASSNAME=\"" << instanceName.getClassName() << "\">\n";
@@ -700,7 +701,7 @@ void XmlWriter::appendInstanceNameElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendClassPathElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& classPath)
 {
     out << "<CLASSPATH>\n";
@@ -720,7 +721,7 @@ void XmlWriter::appendClassPathElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendInstancePathElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& instancePath)
 {
     out << "<INSTANCEPATH>\n";
@@ -740,7 +741,7 @@ void XmlWriter::appendInstancePathElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendLocalClassPathElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& classPath)
 {
     out << "<LOCALCLASSPATH>\n";
@@ -758,7 +759,7 @@ void XmlWriter::appendLocalClassPathElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendLocalInstancePathElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& instancePath)
 {
     out << "<LOCALINSTANCEPATH>\n";
@@ -777,7 +778,7 @@ void XmlWriter::appendLocalInstancePathElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendLocalObjectPathElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& objectPath)
 {
     //
@@ -802,88 +803,88 @@ void XmlWriter::appendLocalObjectPathElement(
 //
 //------------------------------------------------------------------------------
 
-inline void _xmlWritter_appendValue(Array<char>& out, Boolean x)
+inline void _xmlWritter_appendValue(Buffer& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Uint8 x)
+inline void _xmlWritter_appendValue(Buffer& out, Uint8 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Sint8 x)
+inline void _xmlWritter_appendValue(Buffer& out, Sint8 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Uint16 x)
+inline void _xmlWritter_appendValue(Buffer& out, Uint16 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Sint16 x)
+inline void _xmlWritter_appendValue(Buffer& out, Sint16 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Uint32 x)
+inline void _xmlWritter_appendValue(Buffer& out, Uint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Sint32 x)
+inline void _xmlWritter_appendValue(Buffer& out, Sint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Uint64 x)
+inline void _xmlWritter_appendValue(Buffer& out, Uint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Sint64 x)
+inline void _xmlWritter_appendValue(Buffer& out, Sint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Real32 x)
+inline void _xmlWritter_appendValue(Buffer& out, Real32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, Real64 x)
+inline void _xmlWritter_appendValue(Buffer& out, Real64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, const Char16& x)
+inline void _xmlWritter_appendValue(Buffer& out, const Char16& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, const String& x)
+inline void _xmlWritter_appendValue(Buffer& out, const String& x)
 {
     XmlWriter::appendSpecial(out, x);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, const CIMDateTime& x)
+inline void _xmlWritter_appendValue(Buffer& out, const CIMDateTime& x)
 {
     out << x.toString();  //ATTN: append() method?
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, const CIMObjectPath& x)
+inline void _xmlWritter_appendValue(Buffer& out, const CIMObjectPath& x)
 {
     XmlWriter::appendValueReferenceElement(out, x, true);
 }
 
-inline void _xmlWritter_appendValue(Array<char>& out, const CIMObject& x)
+inline void _xmlWritter_appendValue(Buffer& out, const CIMObject& x)
 {
     String myStr = x.toString();
     _xmlWritter_appendValue(out, myStr);
 }
 
-void _xmlWritter_appendValueArray(Array<char>& out, const CIMObjectPath* p, Uint32 size)
+void _xmlWritter_appendValueArray(Buffer& out, const CIMObjectPath* p, Uint32 size)
 {
     out << "<VALUE.REFARRAY>\n";
     while (size--)
@@ -894,7 +895,7 @@ void _xmlWritter_appendValueArray(Array<char>& out, const CIMObjectPath* p, Uint
 }
 
 template<class T>
-void _xmlWritter_appendValueArray(Array<char>& out, const T* p, Uint32 size)
+void _xmlWritter_appendValueArray(Buffer& out, const T* p, Uint32 size)
 {
     out << "<VALUE.ARRAY>\n";
 
@@ -922,7 +923,7 @@ void _xmlWritter_appendValueArray(Array<char>& out, const T* p, Uint32 size)
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendValueElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMValue& value)
 {
     if (value.isNull())
@@ -1210,7 +1211,7 @@ void XmlWriter::printValueElement(
     const CIMValue& value,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendValueElement(tmp, value);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1226,7 +1227,7 @@ void XmlWriter::printValueElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendValueObjectWithPathElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObject& objectWithPath)
 {
     out << "<VALUE.OBJECTWITHPATH>\n";
@@ -1248,7 +1249,7 @@ void XmlWriter::appendValueObjectWithPathElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendValueReferenceElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& reference,
     Boolean putValueWrapper)
 {
@@ -1305,7 +1306,7 @@ void XmlWriter::printValueReferenceElement(
     const CIMObjectPath& reference,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendValueReferenceElement(tmp, reference, true);
     tmp.append('\0');
     indentedPrint(os, tmp.getData());
@@ -1320,7 +1321,7 @@ void XmlWriter::printValueReferenceElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendValueNamedInstanceElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMInstance& namedInstance)
 {
     out << "<VALUE.NAMEDINSTANCE>\n";
@@ -1344,7 +1345,7 @@ void XmlWriter::appendValueNamedInstanceElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendClassElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstClass& cimclass)
 {
     cimclass._checkRep();
@@ -1355,7 +1356,7 @@ void XmlWriter::printClassElement(
     const CIMConstClass& cimclass,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendClassElement(tmp, cimclass);
     tmp.append('\0');
     indentedPrint(os, tmp.getData(), 4);
@@ -1373,7 +1374,7 @@ void XmlWriter::printClassElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendInstanceElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstInstance& instance)
 {
     instance._checkRep();
@@ -1384,7 +1385,7 @@ void XmlWriter::printInstanceElement(
     const CIMConstInstance& instance,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendInstanceElement(tmp, instance);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1399,7 +1400,7 @@ void XmlWriter::printInstanceElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendObjectElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstObject& object)
 {
     if (object.isClass())
@@ -1444,7 +1445,7 @@ void XmlWriter::appendObjectElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendPropertyElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstProperty& property)
 {
     property._checkRep();
@@ -1455,7 +1456,7 @@ void XmlWriter::printPropertyElement(
     const CIMConstProperty& property,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendPropertyElement(tmp, property);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1476,7 +1477,7 @@ void XmlWriter::printPropertyElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendMethodElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstMethod& method)
 {
     method._checkRep();
@@ -1487,7 +1488,7 @@ void XmlWriter::printMethodElement(
     const CIMConstMethod& method,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendMethodElement(tmp, method);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1522,7 +1523,7 @@ void XmlWriter::printMethodElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendParameterElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstParameter& parameter)
 {
     parameter._checkRep();
@@ -1533,7 +1534,7 @@ void XmlWriter::printParameterElement(
     const CIMConstParameter& parameter,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendParameterElement(tmp, parameter);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1550,7 +1551,7 @@ void XmlWriter::printParameterElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendParamValueElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMParamValue& paramValue)
 {
     paramValue._checkRep();
@@ -1561,7 +1562,7 @@ void XmlWriter::printParamValueElement(
     const CIMParamValue& paramValue,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendParamValueElement(tmp, paramValue);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1581,7 +1582,7 @@ void XmlWriter::printParamValueElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendQualifierElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstQualifier& qualifier)
 {
     qualifier._checkRep();
@@ -1592,7 +1593,7 @@ void XmlWriter::printQualifierElement(
     const CIMConstQualifier& qualifier,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendQualifierElement(tmp, qualifier);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1613,7 +1614,7 @@ void XmlWriter::printQualifierElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendQualifierDeclElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstQualifierDecl& qualifierDecl)
 {
     qualifierDecl._checkRep();
@@ -1624,7 +1625,7 @@ void XmlWriter::printQualifierDeclElement(
     const CIMConstQualifierDecl& qualifierDecl,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendQualifierDeclElement(tmp, qualifierDecl);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -1642,7 +1643,7 @@ void XmlWriter::printQualifierDeclElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendQualifierFlavorEntity(
-    Array<char>& out,
+    Buffer& out,
     const CIMFlavor & flavor)
 {
     if (!(flavor.hasFlavor (CIMFlavor::OVERRIDABLE)))
@@ -1675,7 +1676,7 @@ void XmlWriter::appendQualifierFlavorEntity(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendScopeElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMScope & scope)
 {
     if (!(scope.equal (CIMScope ())))
@@ -1719,7 +1720,7 @@ void XmlWriter::appendScopeElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendMethodCallHeader(
-    Array<char>& out,
+    Buffer& out,
     const char* host,
     const CIMName& cimMethod,
     const String& cimObject,
@@ -1797,7 +1798,7 @@ void XmlWriter::appendMethodCallHeader(
 
 
 void XmlWriter::appendMethodResponseHeader(
-     Array<char>& out,
+     Buffer& out,
      HttpMethod httpMethod,
      const ContentLanguages & contentLanguages,
      Uint32 contentLength,
@@ -1843,7 +1844,7 @@ void XmlWriter::appendMethodResponseHeader(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendHttpErrorResponseHeader(
-    Array<char>& out,
+    Buffer& out,
     const String& status,
     const String& cimError,
     const String& errorDetail)
@@ -1884,7 +1885,7 @@ void XmlWriter::appendHttpErrorResponseHeader(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendUnauthorizedResponseHeader(
-    Array<char>& out,
+    Buffer& out,
     const String& content)
 {
     out << "HTTP/1.1 " HTTP_STATUS_UNAUTHORIZED "\r\n";
@@ -1923,7 +1924,7 @@ void XmlWriter::appendUnauthorizedResponseHeader(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendOKResponseHeader(
-    Array<char>& out,
+    Buffer& out,
     const String& content)
 {
     out << "HTTP/1.1 " HTTP_STATUS_OK "\r\n";
@@ -1960,7 +1961,7 @@ void XmlWriter::appendOKResponseHeader(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendMessageElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const String& messageId)
 {
     out << "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
@@ -1969,7 +1970,7 @@ void XmlWriter::_appendMessageElementBegin(
 }
 
 void XmlWriter::_appendMessageElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</MESSAGE>\n";
     out << "</CIM>\n";
@@ -1985,13 +1986,13 @@ void XmlWriter::_appendMessageElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendSimpleReqElementBegin(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "<SIMPLEREQ>\n";
 }
 
 void XmlWriter::_appendSimpleReqElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</SIMPLEREQ>\n";
 }
@@ -2007,14 +2008,14 @@ void XmlWriter::_appendSimpleReqElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendMethodCallElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& name)
 {
     out << "<METHODCALL NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendMethodCallElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</METHODCALL>\n";
 }
@@ -2030,14 +2031,14 @@ void XmlWriter::_appendMethodCallElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendIMethodCallElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& name)
 {
     out << "<IMETHODCALL NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendIMethodCallElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</IMETHODCALL>\n";
 }
@@ -2055,14 +2056,14 @@ void XmlWriter::_appendIMethodCallElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendIParamValueElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const char* name)
 {
     out << "<IPARAMVALUE NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendIParamValueElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</IPARAMVALUE>\n";
 }
@@ -2077,13 +2078,13 @@ void XmlWriter::_appendIParamValueElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendSimpleRspElementBegin(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "<SIMPLERSP>\n";
 }
 
 void XmlWriter::_appendSimpleRspElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</SIMPLERSP>\n";
 }
@@ -2099,14 +2100,14 @@ void XmlWriter::_appendSimpleRspElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendMethodResponseElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& name)
 {
     out << "<METHODRESPONSE NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendMethodResponseElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</METHODRESPONSE>\n";
 }
@@ -2122,14 +2123,14 @@ void XmlWriter::_appendMethodResponseElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendIMethodResponseElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& name)
 {
     out << "<IMETHODRESPONSE NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendIMethodResponseElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</IMETHODRESPONSE>\n";
 }
@@ -2141,7 +2142,7 @@ void XmlWriter::_appendIMethodResponseElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendErrorElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMException& cimException)
 {
     Tracer::traceCIMException(TRC_XML_WRITER, Tracer::LEVEL2, cimException);
@@ -2170,7 +2171,7 @@ void XmlWriter::_appendErrorElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendReturnValueElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMValue& value)
 {
     out << "<RETURNVALUE";
@@ -2211,13 +2212,13 @@ void XmlWriter::appendReturnValueElement(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendIReturnValueElementBegin(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "<IRETURNVALUE>\n";
 }
 
 void XmlWriter::_appendIReturnValueElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</IRETURNVALUE>\n";
 }
@@ -2229,7 +2230,7 @@ void XmlWriter::_appendIReturnValueElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendBooleanIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     Boolean flag)
 {
@@ -2247,7 +2248,7 @@ void XmlWriter::appendBooleanIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendStringIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const String& str)
 {
@@ -2265,7 +2266,7 @@ void XmlWriter::appendStringIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendQualifierNameIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const String& qualifierName)
 {
@@ -2289,7 +2290,7 @@ void XmlWriter::appendQualifierNameIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendClassNameIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMName& className)
 {
@@ -2314,7 +2315,7 @@ void XmlWriter::appendClassNameIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendInstanceNameIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMObjectPath& instanceName)
 {
@@ -2324,7 +2325,7 @@ void XmlWriter::appendInstanceNameIParameter(
 }
 
 void XmlWriter::appendObjectNameIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMObjectPath& objectName)
 {
@@ -2353,7 +2354,7 @@ void XmlWriter::appendObjectNameIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendClassIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMConstClass& cimClass)
 {
@@ -2369,7 +2370,7 @@ void XmlWriter::appendClassIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendInstanceIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMConstInstance& instance)
 {
@@ -2385,7 +2386,7 @@ void XmlWriter::appendInstanceIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendNamedInstanceIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMInstance& namedInstance)
 {
@@ -2404,7 +2405,7 @@ void XmlWriter::appendNamedInstanceIParameter(
 //     USE: Create parameter for getProperty operation
 //==========================================================
 void XmlWriter::appendPropertyNameIParameter(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& propertyName)
 {
     _appendIParamValueElementBegin(out, "PropertyName");
@@ -2419,7 +2420,7 @@ void XmlWriter::appendPropertyNameIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendPropertyValueIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMValue& value)
 {
@@ -2435,7 +2436,7 @@ void XmlWriter::appendPropertyValueIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendPropertyListIParameter(
-    Array<char>& out,
+    Buffer& out,
     const CIMPropertyList& propertyList)
 {
     _appendIParamValueElementBegin(out, "PropertyList");
@@ -2464,7 +2465,7 @@ void XmlWriter::appendPropertyListIParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendQualifierDeclarationIParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMConstQualifierDecl& qualifierDecl)
 {
@@ -2479,12 +2480,12 @@ void XmlWriter::appendQualifierDeclarationIParameter(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatHttpErrorRspMessage(
+Buffer XmlWriter::formatHttpErrorRspMessage(
     const String& status,
     const String& cimError,
     const String& errorDetail)
 {
-    Array<char> out;
+    Buffer out;
 
     appendHttpErrorResponseHeader(out, status, cimError, errorDetail);
 
@@ -2500,7 +2501,7 @@ Array<char> XmlWriter::formatHttpErrorRspMessage(
 //------------------------------------------------------------------------------
 
 // ATTN-RK-P1-20020228: Need to complete copy elimination optimization
-Array<char> XmlWriter::formatSimpleMethodReqMessage(
+Buffer XmlWriter::formatSimpleMethodReqMessage(
     const char* host,
     const CIMNamespaceName& nameSpace,
     const CIMObjectPath& path,
@@ -2512,8 +2513,8 @@ Array<char> XmlWriter::formatSimpleMethodReqMessage(
     const AcceptLanguages& httpAcceptLanguages,
     const ContentLanguages& httpContentLanguages)
 {
-    Array<char> out;
-    Array<char> tmp;
+    Buffer out;
+    Buffer tmp;
     CIMObjectPath localObjectPath = path;
     localObjectPath.setNameSpace(nameSpace.getString());
     localObjectPath.setHost(String::EMPTY);
@@ -2546,17 +2547,17 @@ Array<char> XmlWriter::formatSimpleMethodReqMessage(
 }
 
 //PEP 128 adding serverRsponseTime to header
-Array<char> XmlWriter::formatSimpleMethodRspMessage(
+Buffer XmlWriter::formatSimpleMethodRspMessage(
     const CIMName& methodName,
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,
-    const Array<char>& body,
+    const Buffer& body,
 		Uint32 serverResponseTime,
 		Boolean isFirst,
 		Boolean isLast)
 {
-	Array<char> out;
+	Buffer out;
 
 	if (isFirst == true)
 	{
@@ -2592,14 +2593,14 @@ Array<char> XmlWriter::formatSimpleMethodRspMessage(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatSimpleMethodErrorRspMessage(
+Buffer XmlWriter::formatSimpleMethodErrorRspMessage(
     const CIMName& methodName,
     const String& messageId,
     HttpMethod httpMethod,
     const CIMException& cimException)
 {
-    Array<char> out;
-    Array<char> tmp;
+    Buffer out;
+    Buffer tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
@@ -2625,7 +2626,7 @@ Array<char> XmlWriter::formatSimpleMethodErrorRspMessage(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatSimpleIMethodReqMessage(
+Buffer XmlWriter::formatSimpleIMethodReqMessage(
     const char* host,
     const CIMNamespaceName& nameSpace,
     const CIMName& iMethodName,
@@ -2634,10 +2635,10 @@ Array<char> XmlWriter::formatSimpleIMethodReqMessage(
     const String& authenticationHeader,
     const AcceptLanguages& httpAcceptLanguages,
     const ContentLanguages& httpContentLanguages,
-    const Array<char>& body)
+    const Buffer& body)
 {
-    Array<char> out;
-    Array<char> tmp;
+    Buffer out;
+    Buffer tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleReqElementBegin(out);
@@ -2669,17 +2670,17 @@ Array<char> XmlWriter::formatSimpleIMethodReqMessage(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatSimpleIMethodRspMessage(
+Buffer XmlWriter::formatSimpleIMethodRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,
-    const Array<char>& body,
+    const Buffer& body,
     Uint32 serverResponseTime,
     Boolean isFirst,
     Boolean isLast)
 {
-    Array<char> out;
+    Buffer out;
 
 		if (isFirst == true)
 		{
@@ -2724,14 +2725,14 @@ Array<char> XmlWriter::formatSimpleIMethodRspMessage(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatSimpleIMethodErrorRspMessage(
+Buffer XmlWriter::formatSimpleIMethodErrorRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
     HttpMethod httpMethod,
     const CIMException& cimException)
 {
-    Array<char> out;
-    Array<char> tmp;
+    Buffer out;
+    Buffer tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleRspElementBegin(out);
@@ -2766,7 +2767,7 @@ Array<char> XmlWriter::formatSimpleIMethodErrorRspMessage(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendEMethodRequestHeader(
-    Array<char>& out,
+    Buffer& out,
     const char* requestUri,
     const char* host,
     const CIMName& cimMethod,
@@ -2841,7 +2842,7 @@ void XmlWriter::appendEMethodRequestHeader(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendEMethodResponseHeader(
-    Array<char>& out,
+    Buffer& out,
     HttpMethod httpMethod,
     const ContentLanguages& contentLanguages,
     Uint32 contentLength)
@@ -2880,13 +2881,13 @@ void XmlWriter::appendEMethodResponseHeader(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendSimpleExportReqElementBegin(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "<SIMPLEEXPREQ>\n";
 }
 
 void XmlWriter::_appendSimpleExportReqElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</SIMPLEEXPREQ>\n";
 }
@@ -2902,14 +2903,14 @@ void XmlWriter::_appendSimpleExportReqElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendEMethodCallElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& name)
 {
     out << "<EXPMETHODCALL NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendEMethodCallElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</EXPMETHODCALL>\n";
 }
@@ -2926,14 +2927,14 @@ void XmlWriter::_appendEMethodCallElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendEParamValueElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const char* name)
 {
     out << "<EXPPARAMVALUE NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendEParamValueElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</EXPPARAMVALUE>\n";
 }
@@ -2945,7 +2946,7 @@ void XmlWriter::_appendEParamValueElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::appendInstanceEParameter(
-    Array<char>& out,
+    Buffer& out,
     const char* name,
     const CIMInstance& instance)
 {
@@ -2964,13 +2965,13 @@ void XmlWriter::appendInstanceEParameter(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendSimpleExportRspElementBegin(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "<SIMPLEEXPRSP>\n";
 }
 
 void XmlWriter::_appendSimpleExportRspElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</SIMPLEEXPRSP>\n";
 }
@@ -2986,14 +2987,14 @@ void XmlWriter::_appendSimpleExportRspElementEnd(
 //------------------------------------------------------------------------------
 
 void XmlWriter::_appendEMethodResponseElementBegin(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& name)
 {
     out << "<EXPMETHODRESPONSE NAME=\"" << name << "\">\n";
 }
 
 void XmlWriter::_appendEMethodResponseElementEnd(
-    Array<char>& out)
+    Buffer& out)
 {
     out << "</EXPMETHODRESPONSE>\n";
 }
@@ -3004,7 +3005,7 @@ void XmlWriter::_appendEMethodResponseElementEnd(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatSimpleEMethodReqMessage(
+Buffer XmlWriter::formatSimpleEMethodReqMessage(
     const char* requestUri,
     const char* host,
     const CIMName& eMethodName,
@@ -3013,10 +3014,10 @@ Array<char> XmlWriter::formatSimpleEMethodReqMessage(
     const String& authenticationHeader,
     const AcceptLanguages& httpAcceptLanguages,
     const ContentLanguages& httpContentLanguages,
-    const Array<char>& body)
+    const Buffer& body)
 {
-    Array<char> out;
-    Array<char> tmp;
+    Buffer out;
+    Buffer tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleExportReqElementBegin(out);
@@ -3047,15 +3048,15 @@ Array<char> XmlWriter::formatSimpleEMethodReqMessage(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatSimpleEMethodRspMessage(
+Buffer XmlWriter::formatSimpleEMethodRspMessage(
     const CIMName& eMethodName,
     const String& messageId,
     HttpMethod httpMethod,
     const ContentLanguages& httpContentLanguages,
-    const Array<char>& body)
+    const Buffer& body)
 {
-    Array<char> out;
-    Array<char> tmp;
+    Buffer out;
+    Buffer tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleExportRspElementBegin(out);
@@ -3080,14 +3081,14 @@ Array<char> XmlWriter::formatSimpleEMethodRspMessage(
 //
 //------------------------------------------------------------------------------
 
-Array<char> XmlWriter::formatSimpleEMethodErrorRspMessage(
+Buffer XmlWriter::formatSimpleEMethodErrorRspMessage(
     const CIMName& eMethodName,
     const String& messageId,
     HttpMethod httpMethod,
     const CIMException& cimException)
 {
-    Array<char> out;
-    Array<char> tmp;
+    Buffer out;
+    Buffer tmp;
 
     _appendMessageElementBegin(out, messageId);
     _appendSimpleExportRspElementBegin(out);

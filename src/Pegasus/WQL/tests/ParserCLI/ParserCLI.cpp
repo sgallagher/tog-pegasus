@@ -103,7 +103,7 @@ int main(int argc, char** argv)
     // Append all arguments together to from a single string:
     //
 
-    Array<char> text;
+    Buffer text;
     int startArray = 1;
     if (parseErrorTest || evaluateErrorTest || ignoreEvaluation)
         startArray++;

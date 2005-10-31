@@ -49,6 +49,7 @@
 #if defined(PEGASUS_OS_OS400)
 #include "OS400ConvertChar.h"
 #endif
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -168,7 +169,7 @@ public:
 	@exception CannotOpenFile
     */
     static void loadFileToMemory(
-	Array<char>& array,
+	Buffer& array,
 	const String& fileName);
 
     /** Determines whether two files have exactly the same content.

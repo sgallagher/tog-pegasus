@@ -88,7 +88,7 @@ Boolean BasicAuthenticationHandler::authenticate(
     //
     // copy userPass string to char array for decoding
     //
-    Array<char> userPassArray;
+    Buffer userPassArray;
 
     Uint32 length = authHeader.size();
 
@@ -103,7 +103,7 @@ Boolean BasicAuthenticationHandler::authenticate(
     //
     // base64 decode the userPass array
     //
-    Array<char>  decodedArray;
+    Buffer  decodedArray;
 
     decodedArray = Base64::decode( userPassArray );
 

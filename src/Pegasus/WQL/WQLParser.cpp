@@ -94,7 +94,7 @@ void WQLParser::parse(
 }
 
 void WQLParser::parse(
-    const Array<char>& text,
+    const Buffer& text,
     WQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_WQL,"WQLParser::parse");

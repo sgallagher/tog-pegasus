@@ -71,7 +71,7 @@ class PEGASUS_EXPORT_SERVER_LINKAGE CIMExportRequestDecoder
 
       void sendResponse(
           Uint32 queueId, 
-          Array<char>& message,
+          Buffer& message,
           Boolean closeConnect);
 
       void sendEMethodError(

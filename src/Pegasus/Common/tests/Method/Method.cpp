@@ -159,7 +159,7 @@ int main(int argc, char** argv)
             XmlWriter::printMethodElement(m1);
             XmlWriter::printMethodElement(cm1);
         }
-        Array<char> out;
+        Buffer out;
         XmlWriter::appendMethodElement(out, cm1);
         MofWriter::appendMethodElement(out, cm1);
 

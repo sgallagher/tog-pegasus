@@ -148,7 +148,7 @@ private:
     void _encodeInvokeMethodRequest(
 	CIMInvokeMethodRequestMessage* message);
 
-    void _sendRequest(Array<char>& buffer); 
+    void _sendRequest(Buffer& buffer); 
 
     MessageQueue* _outputQueue;
     CString _hostName;

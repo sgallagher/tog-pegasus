@@ -42,6 +42,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -207,7 +208,7 @@ private:
 };
 
 PEGASUS_COMMON_LINKAGE void XmlAppendCString(
-    Array<char>& out, 
+    Buffer& out, 
     const char* str);
 
 PEGASUS_NAMESPACE_END

@@ -229,7 +229,7 @@ void test01()
 		MofWriter::printClassElement(class1);
 	}
 
-    Array<char> out;
+    Buffer out;
     MofWriter::appendClassElement(out, class1);
     out.clear();
     XmlWriter::appendClassElement(out, class1);

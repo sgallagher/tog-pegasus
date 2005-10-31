@@ -116,13 +116,13 @@ void test01(const T& x)
         assert (v5.typeCompatible(v));
 
         // Test toMof
-        Array<char> mofout;
+        Buffer mofout;
         mofout.clear();
         MofWriter::appendValueElement(mofout, v);
         mofout.append('\0');
 
         // Test toXml
-        Array<char> out;
+        Buffer out;
         XmlWriter::appendValueElement(out, v);
         XmlWriter::appendValueElement(out, v);
 
@@ -157,11 +157,11 @@ void test01(const T& x)
 
         // get the String and XML outputs for v
         String valueString2 = v.toString();
-        Array<char> xmlBuffer;
+        Buffer xmlBuffer;
         XmlWriter::appendValueElement(xmlBuffer, v);
         xmlBuffer.append('\0');
 
-        Array<char> mofOutput2;
+        Buffer mofOutput2;
         MofWriter::appendValueElement(mofOutput2, v);
         mofOutput2.append('\0');
 #ifdef IO
@@ -236,13 +236,13 @@ void test02(const Array<T>& x)
 
 
         // Test toMof
-        Array<char> mofOutput;
+        Buffer mofOutput;
         MofWriter::appendValueElement(mofOutput, va);
         mofOutput.append('\0');
 
 
         // Test toXml
-        Array<char> out;
+        Buffer out;
         XmlWriter::appendValueElement(out, va);
         XmlWriter::appendValueElement(out, va);
         // Test toString
@@ -278,11 +278,11 @@ void test02(const Array<T>& x)
 
         // get the String and XML outputs for v
         String valueString2 = va.toString();
-        Array<char> xmlBuffer;
+        Buffer xmlBuffer;
         XmlWriter::appendValueElement(xmlBuffer, va);
         xmlBuffer.append('\0');
 
-        Array<char> mofOutput2;
+        Buffer mofOutput2;
         MofWriter::appendValueElement(mofOutput2, va);
         mofOutput2.append('\0');
 #ifdef IO

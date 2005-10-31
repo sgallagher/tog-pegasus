@@ -48,6 +48,7 @@
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMFlavor.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -117,9 +118,9 @@ public:
 	_propagated = propagated; 
     }
 
-    void toXml(Array<char>& out) const;
+    void toXml(Buffer& out) const;
 
-    void toMof(Array<char>& out) const;
+    void toMof(Buffer& out) const;
 
     Boolean identical(const CIMQualifierRep* x) const;
 

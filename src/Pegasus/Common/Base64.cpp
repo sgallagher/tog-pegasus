@@ -118,9 +118,9 @@ inline Uint8 Base64::_Decode(char c)
     implementation and could be improved if it is required for
     production.  Today it is only for test programs.
 */
-Array<char> Base64::encode(const Array<char>& vby)
+Buffer Base64::encode(const Buffer& vby)
 {
-    Array<char> retArray;
+    Buffer retArray;
     // If nothing in input string, return empty string
     if (vby.size() == 0)
         return retArray;
@@ -179,17 +179,17 @@ The algorithm goes thru each three bytes of data at a time. The first thing I do
 /*  The decode static method takes a base-64 stream and converts it 
     to an array of 8-bit values.
 */
-Array<char> Base64::decode(const Array<char>& strInput)
+Buffer Base64::decode(const Buffer& strInput)
 {
     //Strip any non-base64 characters from the input
-    Array<char> str;
+    Buffer str;
     for (Uint32 j=0;j<strInput.size();j++)
     {
         if (_IsBase64(strInput[j]))
             str.append(strInput[j]);
     }
 
-    Array<char> retArray;
+    Buffer retArray;
 
     // Return if the input is zero length
     if (str.size() == 0)

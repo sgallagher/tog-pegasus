@@ -120,7 +120,7 @@ static int compressMode = 0; // PEP214
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void _LoadFileToMemory(Array<char>& data, const String& path)
+void _LoadFileToMemory(Buffer& data, const String& path)
 {
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
@@ -442,7 +442,7 @@ void _LoadObject(
 
     // Load file into memory:
 
-    Array<char> data;
+    Buffer data;
 
     _LoadFileToMemory(data, realPath);    // PEP214
 
@@ -466,7 +466,7 @@ void _LoadObject(
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void _SaveObject(const String& path, Array<char>& objectXml,
+void _SaveObject(const String& path, Buffer& objectXml,
     ObjectStreamer *streamer)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_SaveObject");
@@ -1276,7 +1276,7 @@ void CIMRepository::_createClass(
 
     // -- Create the class file:
 
-    Array<char> classXml;
+    Buffer classXml;
     streamer->encode(classXml, cimClass);
     //XmlWriter::appendClassElement(classXml, cimClass);
     _SaveObject(classFilePath, classXml,streamer);
@@ -1622,7 +1622,7 @@ CIMObjectPath CIMRepository::_createInstance(
     Uint32 size;
 
     {
-        Array<char> data;
+        Buffer data;
         streamer->encode(data, cimInstance);
         // XmlWriter::appendInstanceElement(data, cimInstance);
         size = data.size();
@@ -1762,7 +1762,7 @@ void CIMRepository::_modifyClass(
     // Create new class file:
     //
 
-    Array<char> classXml;
+    Buffer classXml;
     streamer->encode(classXml, cimClass);
     //XmlWriter::appendClassElement(classXml, cimClass);
     _SaveObject(classFilePath, classXml,streamer);
@@ -2115,7 +2115,7 @@ void CIMRepository::modifyInstance(
     //
 
     {
-        Array<char> out;
+        Buffer out;
         streamer->encode(out, cimInstance);
         //XmlWriter::appendInstanceElement(out, cimInstance);
 
@@ -2258,7 +2258,7 @@ Boolean CIMRepository::_loadAllInstances(
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::_loadAllInstances");
 
     Array<CIMObjectPath> instanceNames;
-    Array<char> data;
+    Buffer data;
     Array<Uint32> indices;
     Array<Uint32> sizes;
 
@@ -3193,7 +3193,7 @@ void CIMRepository::_setQualifier(
 
     // -- Save qualifier:
 
-    Array<char> qualifierDeclXml;
+    Buffer qualifierDeclXml;
     streamer->encode(qualifierDeclXml, qualifierDecl);
      //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
     _SaveObject(qualifierFilePath, qualifierDeclXml,streamer);
@@ -3393,7 +3393,7 @@ Boolean CIMRepository::_loadInstance(
     // Load instance (in XML) from instance file into memory:
     //
 
-    Array<char> data;
+    Buffer data;
 
     if (!InstanceDataFile::loadInstance(path, index, size, data))
     {

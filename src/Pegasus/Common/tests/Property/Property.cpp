@@ -77,12 +77,12 @@ void test01()
     }
 
     // Test toMof
-       Array<char> mofOut;
+       Buffer mofOut;
        MofWriter::appendPropertyElement(mofOut, p1);
        MofWriter::appendPropertyElement(mofOut, p2);
 
     // Test toXml
-       Array<char> xmlOut;
+       Buffer xmlOut;
        XmlWriter::appendPropertyElement(xmlOut, p1);
        XmlWriter::appendPropertyElement(xmlOut, p2);
 
@@ -197,9 +197,9 @@ void test02()
         if(verbose)
 	    XmlWriter::printPropertyElement(cp1, cout);
 
-        Array<char> mofOut;
+        Buffer mofOut;
         MofWriter::appendPropertyElement(mofOut, cp1);
-        Array<char> xmlOut;
+        Buffer xmlOut;
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 
         assert(cp1.getName() == CIMName ("message"));

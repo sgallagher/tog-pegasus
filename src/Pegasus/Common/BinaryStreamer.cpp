@@ -66,12 +66,12 @@ enum BinaryObjectType
     BINARY_QUALIFIER_DECL
 };
 
-static inline void _packMagicByte(Array<char>& out)
+static inline void _packMagicByte(Buffer& out)
 {
     Packer::packUint8(out, MAGIC_BYTE);
 }
 
-static void _checkMagicByte(const Array<char>& in, Uint32& pos)
+static void _checkMagicByte(const Buffer& in, Uint32& pos)
 {
     Uint8 magicByte;
     Packer::unpackUint8(in, pos, magicByte);
@@ -89,14 +89,14 @@ struct Header
     Uint8 objectType; 
 };
 
-static void _packHeader(Array<char>& out, Uint8 objectType)
+static void _packHeader(Buffer& out, Uint8 objectType)
 {
     Packer::packUint8(out, VERSION_NUMBER);
     Packer::packUint8(out, objectType);
 }
 
 static void _checkHeader(
-    const Array<char>& in, Uint32& pos, Uint8 expectedObjectType)
+    const Buffer& in, Uint32& pos, Uint8 expectedObjectType)
 {
     Header header;
     Packer::unpackUint8(in, pos, header.versionNumber);
@@ -109,79 +109,79 @@ static void _checkHeader(
 	throw BinException("Unsupported version");
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Boolean& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Boolean& x)
 {
     Packer::unpackBoolean(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Uint8& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Uint8& x)
 {
     Packer::unpackUint8(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Sint8& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Sint8& x)
 {
     Packer::unpackUint8(in, pos, (Uint8&)x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Uint16& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Uint16& x)
 {
     Packer::unpackUint16(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Sint16& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Sint16& x)
 {
     Packer::unpackUint16(in, pos, (Uint16&)x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Uint32& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Uint32& x)
 {
     Packer::unpackUint32(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Sint32& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Sint32& x)
 {
     Packer::unpackUint32(in, pos, (Uint32&)x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Uint64& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Uint64& x)
 {
     Packer::unpackUint64(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Sint64& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Sint64& x)
 {
     Packer::unpackUint64(in, pos, (Uint64&)x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Real32& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Real32& x)
 {
     Packer::unpackReal32(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Real64& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Real64& x)
 {
     Packer::unpackReal64(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, Char16& x)
+inline void _unpack(const Buffer& in, Uint32& pos, Char16& x)
 {
     Packer::unpackChar16(in, pos, x);
 }
 
-inline void _unpack(const Array<char>& in, Uint32& pos, String& x)
+inline void _unpack(const Buffer& in, Uint32& pos, String& x)
 {
     Packer::unpackString(in, pos, x);
 }
 
-void _unpack(const Array<char>& in, Uint32& pos, CIMDateTime& x)
+void _unpack(const Buffer& in, Uint32& pos, CIMDateTime& x)
 {
     String tmp;
     Packer::unpackString(in, pos, tmp);
     x.set(tmp);
 }
 
-void _unpack(const Array<char>& in, Uint32& pos, CIMObjectPath& x)
+void _unpack(const Buffer& in, Uint32& pos, CIMObjectPath& x)
 {
     String tmp;
     Packer::unpackString(in, pos, tmp);
@@ -192,7 +192,7 @@ template<class T>
 struct UnpackArray
 {
     static void func(
-	const Array<char>& in, Uint32& pos, size_t n, CIMValue& value)
+	const Buffer& in, Uint32& pos, size_t n, CIMValue& value)
     {
 	Array<T> array;
 	array.reserveCapacity(n);
@@ -212,7 +212,7 @@ template<class T>
 struct UnpackScalar
 {
     static void func(
-	const Array<char>& in, Uint32& pos, CIMValue& value)
+	const Buffer& in, Uint32& pos, CIMValue& value)
     {
 	T tmp;
 	_unpack(in, pos, tmp);
@@ -223,7 +223,7 @@ struct UnpackScalar
 template<class OBJECT>
 struct UnpackQualifiers
 {
-    static void func(const Array<char>& in, Uint32& pos, OBJECT& x)
+    static void func(const Buffer& in, Uint32& pos, OBJECT& x)
     {
 	Uint32 n;
 	Packer::unpackSize(in, pos, n);
@@ -241,7 +241,7 @@ struct UnpackQualifiers
 template<class REP>
 struct PackQualifiers
 {
-    static void func(Array<char>& out, REP* rep)
+    static void func(Buffer& out, REP* rep)
     {
 	Uint32 n = rep->getQualifierCount();
 	Packer::packSize(out, n);
@@ -254,7 +254,7 @@ struct PackQualifiers
 template<class OBJECT>
 struct UnpackProperties
 {
-    static void func(const Array<char>& in, Uint32& pos, OBJECT& x)
+    static void func(const Buffer& in, Uint32& pos, OBJECT& x)
     {
 	Uint32 n;
 	Packer::unpackSize(in, pos, n);
@@ -272,7 +272,7 @@ struct UnpackProperties
 template<class OBJECT>
 struct UnpackMethods
 {
-    static void func(const Array<char>& in, Uint32& pos, OBJECT& x)
+    static void func(const Buffer& in, Uint32& pos, OBJECT& x)
     {
 	Uint32 n;
 	Packer::unpackSize(in, pos, n);
@@ -287,20 +287,20 @@ struct UnpackMethods
     }
 };
 
-void BinaryStreamer::_packName(Array<char>& out, const CIMName& x)
+void BinaryStreamer::_packName(Buffer& out, const CIMName& x)
 {
     Packer::packString(out, x.getString());
 }
 
 void BinaryStreamer::_unpackName(
-    const Array<char>& in, Uint32& pos, CIMName& x)
+    const Buffer& in, Uint32& pos, CIMName& x)
 {
     String tmp;
     Packer::unpackString(in, pos, tmp);
     x = tmp.size() ? CIMName(tmp) : CIMName();
 }
 
-void BinaryStreamer::_packQualifier(Array<char>& out, const CIMQualifier& x)
+void BinaryStreamer::_packQualifier(Buffer& out, const CIMQualifier& x)
 {
     CIMQualifierRep* rep = x._rep;
 
@@ -312,7 +312,7 @@ void BinaryStreamer::_packQualifier(Array<char>& out, const CIMQualifier& x)
 }
 
 void BinaryStreamer::_unpackQualifier(
-    const Array<char>& in, Uint32& pos, CIMQualifier& x)
+    const Buffer& in, Uint32& pos, CIMQualifier& x)
 {
     _checkMagicByte(in, pos);
 
@@ -331,7 +331,7 @@ void BinaryStreamer::_unpackQualifier(
     x = CIMQualifier(name, value, flavor, propagated);
 }
 
-void BinaryStreamer::_packValue(Array<char>& out, const CIMValue& x)
+void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
 {
     CIMValueRep* rep = x._rep;
 
@@ -458,7 +458,7 @@ void BinaryStreamer::_packValue(Array<char>& out, const CIMValue& x)
 }
 
 void BinaryStreamer::_unpackValue(
-    const Array<char>& in, Uint32& pos, CIMValue& x)
+    const Buffer& in, Uint32& pos, CIMValue& x)
 {
     _checkMagicByte(in, pos);
 
@@ -630,7 +630,7 @@ void BinaryStreamer::_unpackValue(
     return;
 }
 
-void BinaryStreamer::_packProperty(Array<char>& out, const CIMProperty& x)
+void BinaryStreamer::_packProperty(Buffer& out, const CIMProperty& x)
 {
     CIMPropertyRep* rep = x._rep;
 
@@ -645,7 +645,7 @@ void BinaryStreamer::_packProperty(Array<char>& out, const CIMProperty& x)
 }
 
 void BinaryStreamer::_unpackProperty(
-    const Array<char>& in, Uint32& pos, CIMProperty& x)
+    const Buffer& in, Uint32& pos, CIMProperty& x)
 {
     _checkMagicByte(in, pos);
 
@@ -675,7 +675,7 @@ void BinaryStreamer::_unpackProperty(
     x = cimProperty;
 }
 
-void BinaryStreamer::_packParameter(Array<char>& out, const CIMParameter& x)
+void BinaryStreamer::_packParameter(Buffer& out, const CIMParameter& x)
 {
     CIMParameterRep* rep = x._rep;
 
@@ -689,7 +689,7 @@ void BinaryStreamer::_packParameter(Array<char>& out, const CIMParameter& x)
 }
 
 void BinaryStreamer::_unpackParameter(
-    const Array<char>& in, Uint32& pos, CIMParameter& x)
+    const Buffer& in, Uint32& pos, CIMParameter& x)
 {
     _checkMagicByte(in, pos);
 
@@ -716,7 +716,7 @@ void BinaryStreamer::_unpackParameter(
     x = cimParameter;
 }
 
-void BinaryStreamer::_packParameters(Array<char>& out, CIMMethodRep* rep)
+void BinaryStreamer::_packParameters(Buffer& out, CIMMethodRep* rep)
 {
     Uint32 n = rep->getParameterCount();
     Packer::packSize(out, n);
@@ -726,7 +726,7 @@ void BinaryStreamer::_packParameters(Array<char>& out, CIMMethodRep* rep)
 }
 
 void BinaryStreamer::_unpackParameters(
-    const Array<char>& in, Uint32& pos, CIMMethod& x)
+    const Buffer& in, Uint32& pos, CIMMethod& x)
 {
     Uint32 n;
     Packer::unpackSize(in, pos, n);
@@ -739,7 +739,7 @@ void BinaryStreamer::_unpackParameters(
     }
 }
 
-void BinaryStreamer::_packMethod(Array<char>& out, const CIMMethod& x)
+void BinaryStreamer::_packMethod(Buffer& out, const CIMMethod& x)
 {
     CIMMethodRep* rep = x._rep;
 
@@ -753,7 +753,7 @@ void BinaryStreamer::_packMethod(Array<char>& out, const CIMMethod& x)
 }
 
 void BinaryStreamer::_unpackMethod(
-    const Array<char>& in, Uint32& pos, CIMMethod& x)
+    const Buffer& in, Uint32& pos, CIMMethod& x)
 {
     _checkMagicByte(in, pos);
 
@@ -776,20 +776,20 @@ void BinaryStreamer::_unpackMethod(
     x = cimMethod;
 }
 
-void BinaryStreamer::_packObjectPath(Array<char>& out, const CIMObjectPath& x)
+void BinaryStreamer::_packObjectPath(Buffer& out, const CIMObjectPath& x)
 {
     Packer::packString(out, x.toString());
 }
 
 void BinaryStreamer::_unpackObjectPath(
-    const Array<char>& in, Uint32& pos, CIMObjectPath& x)
+    const Buffer& in, Uint32& pos, CIMObjectPath& x)
 {
     String tmp;
     Packer::unpackString(in, pos, tmp);
     x = CIMObjectPath(tmp);
 }
 
-void BinaryStreamer::_packProperties(Array<char>& out, CIMObjectRep* rep)
+void BinaryStreamer::_packProperties(Buffer& out, CIMObjectRep* rep)
 {
     Uint32 n = rep->getPropertyCount();
     Packer::packSize(out, n);
@@ -798,7 +798,7 @@ void BinaryStreamer::_packProperties(Array<char>& out, CIMObjectRep* rep)
 	BinaryStreamer::_packProperty(out, rep->getProperty(i));
 }
 
-void BinaryStreamer::_packMethods(Array<char>& out, CIMClassRep* rep)
+void BinaryStreamer::_packMethods(Buffer& out, CIMClassRep* rep)
 {
     Uint32 n = rep->getMethodCount();
     Packer::packSize(out, n);
@@ -807,35 +807,35 @@ void BinaryStreamer::_packMethods(Array<char>& out, CIMClassRep* rep)
 	BinaryStreamer::_packMethod(out, rep->getMethod(i));
 }
 
-void BinaryStreamer::_packScope(Array<char>& out, const CIMScope& x)
+void BinaryStreamer::_packScope(Buffer& out, const CIMScope& x)
 {
     Packer::packUint32(out, x.cimScope);
 }
 
 void BinaryStreamer::_unpackScope(
-    const Array<char>& in, Uint32& pos, CIMScope& x)
+    const Buffer& in, Uint32& pos, CIMScope& x)
 {
     Packer::unpackUint32(in, pos, x.cimScope);
 }
 
-void BinaryStreamer::_packFlavor(Array<char>& out, const CIMFlavor& x)
+void BinaryStreamer::_packFlavor(Buffer& out, const CIMFlavor& x)
 {
     Packer::packUint32(out, x.cimFlavor);
 }
 
 void BinaryStreamer::_unpackFlavor(
-    const Array<char>& in, Uint32& pos, CIMFlavor& x)
+    const Buffer& in, Uint32& pos, CIMFlavor& x)
 {
     Packer::unpackUint32(in, pos, x.cimFlavor);
 }
 
-void BinaryStreamer::_packType(Array<char>& out, const CIMType& x)
+void BinaryStreamer::_packType(Buffer& out, const CIMType& x)
 {
     Packer::packUint8(out, Uint8(x));
 }
 
 void BinaryStreamer::_unpackType(
-    const Array<char>& in, Uint32& pos, CIMType& x)
+    const Buffer& in, Uint32& pos, CIMType& x)
 {
     Uint8 tmp;
     Packer::unpackUint8(in, pos, tmp);
@@ -843,7 +843,7 @@ void BinaryStreamer::_unpackType(
 }
 
 void BinaryStreamer::encode(
-    Array<char>& out, 
+    Buffer& out, 
     const CIMClass& x)
 {
     CIMClassRep* rep = x._rep;
@@ -858,7 +858,7 @@ void BinaryStreamer::encode(
 }
 
 void BinaryStreamer::decode(
-    const Array<char>& in, 
+    const Buffer& in, 
     unsigned int pos, 
     CIMClass& x)
 {
@@ -884,7 +884,7 @@ void BinaryStreamer::decode(
 }
 
 void BinaryStreamer::encode(
-    Array<char>& out, 
+    Buffer& out, 
     const CIMInstance& x)
 {
     CIMInstanceRep* rep = x._rep;
@@ -897,7 +897,7 @@ void BinaryStreamer::encode(
 }
 
 void BinaryStreamer::decode(
-    const Array<char>& in, 
+    const Buffer& in, 
     unsigned int pos, 
     CIMInstance& x)
 {
@@ -919,7 +919,7 @@ void BinaryStreamer::decode(
 }
 
 void BinaryStreamer::encode(
-    Array<char>& out, 
+    Buffer& out, 
     const CIMQualifierDecl& x)
 {
     _packMagicByte(out);
@@ -932,7 +932,7 @@ void BinaryStreamer::encode(
 }
 
 void BinaryStreamer::decode(
-    const Array<char>& in, 
+    const Buffer& in, 
     unsigned int pos, 
     CIMQualifierDecl& x)
 {

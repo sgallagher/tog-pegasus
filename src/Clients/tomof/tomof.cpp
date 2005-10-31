@@ -629,7 +629,7 @@ int main(int argc, char** argv)
                     }
                     else
                     {
-                        Array<char> x;
+                        Buffer x;
                         MofWriter::appendQualifierDeclElement(x, tmp);
 
                         x.append('\0');
@@ -693,7 +693,7 @@ int main(int argc, char** argv)
                     XmlWriter::printClassElement(cimClass, cout);
                 else
                 {
-                    Array<char> x;
+                    Buffer x;
                     MofWriter::appendClassElement(x, cimClass);
 
                     x.append('\0');
@@ -746,7 +746,7 @@ int main(int argc, char** argv)
                             XmlWriter::printInstanceElement(instance, cout);
                         else
                         {
-                            Array<char> x;
+                            Buffer x;
                             MofWriter::appendInstanceElement(x, instance);
 
                             x.append('\0');

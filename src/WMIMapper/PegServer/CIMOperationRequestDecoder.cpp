@@ -89,7 +89,7 @@ CIMOperationRequestDecoder::~CIMOperationRequestDecoder()
 
 void CIMOperationRequestDecoder::sendResponse(
    Uint32 queueId, 
-   Array<char>& message)
+   Buffer& message)
 {
    MessageQueue* queue = MessageQueue::lookup(queueId);
 
@@ -107,7 +107,7 @@ void CIMOperationRequestDecoder::sendIMethodError(
    const String& iMethodName,
    const CIMException& cimException)
 {
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
@@ -124,7 +124,7 @@ void CIMOperationRequestDecoder::sendMethodError(
    const String& methodName,
    const CIMException& cimException)
 {
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
         methodName,
         messageId,
@@ -140,7 +140,7 @@ void CIMOperationRequestDecoder::sendHttpError(
    const String& cimError,
    const String& pegasusError) 
 {
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,

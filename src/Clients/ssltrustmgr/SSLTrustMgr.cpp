@@ -1054,14 +1054,14 @@ String SSLTrustMgr::_formatCIMDateTime(const String& cimDateTimeStr)
 
     @param  certFilePath     the certificate file path
 
-    @return  Array<char> containing the certificate content
+    @return  Buffer containing the certificate content
 
     @exception  Exception    if an error is encountered
                              in reading the certificate file
  */
-Array<char> SSLTrustMgr::_readCertificateContent(const String &certFilePath)
+Buffer SSLTrustMgr::_readCertificateContent(const String &certFilePath)
 {
-    Array<char> content;
+    Buffer content;
 
     //
     //  Check that cert file exists
@@ -1114,7 +1114,7 @@ void SSLTrustMgr::_addCertificate (
 {
     try
     {
-        Array<char>              content;
+        Buffer              content;
         Array<CIMKeyBinding>   kbArray;
         CIMKeyBinding          kb;
         Array<CIMParamValue>   inParams;
@@ -1271,7 +1271,7 @@ void SSLTrustMgr::_addCRL(
 {
     try
     {
-        Array<char>              content;
+        Buffer              content;
         Array<CIMKeyBinding>   kbArray;
         CIMKeyBinding          kb;
         Array<CIMParamValue>   inParams;

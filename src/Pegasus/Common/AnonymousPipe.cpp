@@ -64,7 +64,7 @@ AnonymousPipe::Status AnonymousPipe::writeMessage (CIMMessage * message)
     //
     // Serialize the request
     //
-    Array<char> messageBuffer;
+    Buffer messageBuffer;
     messageBuffer.reserveCapacity (4096);
     try
     {

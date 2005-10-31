@@ -127,7 +127,7 @@ private:
 
     void _printContent(
         ostream& oStream,
-        Array<char>& responseMessage,
+        Buffer& responseMessage,
         Uint32 contentOffset);
 
 /**
@@ -191,7 +191,7 @@ private:
     --------------------
     HTTP/1.1 200 OK
  
-    @param   httpResponse        Array<char> containing the reply from cimserver
+    @param   httpResponse        Buffer containing the reply from cimserver
 
     @param   ostream             the ostream to which output should be written
 
@@ -201,7 +201,7 @@ private:
     @return  false = client response has been received
   
     */
-    void _handleResponse( Array<char>          httpResponse,
+    void _handleResponse( Buffer          httpResponse,
    		          ostream&               oStream,
 			  ostream&               eStream
                         );

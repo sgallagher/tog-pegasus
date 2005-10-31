@@ -50,7 +50,7 @@ size_t failures = 0;
 void PutClass(const char* filename, const CIMClass& cimClass)
 {
   //    Array<Sint8> out;
-    Array<char> out;
+    Buffer out;
     XmlStreamer stream;
     stream.encode(out, cimClass);
     out.append('\0');

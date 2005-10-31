@@ -99,9 +99,9 @@ public:
 
     virtual Boolean identical(const CIMObjectRep* x) const;
 
-    void toXml(Array<char>& out) const;
+    void toXml(Buffer& out) const;
 
-    void toMof(Array<char>& out) const;
+    void toMof(Buffer& out) const;
 
     virtual CIMObjectRep* clone() const
     {

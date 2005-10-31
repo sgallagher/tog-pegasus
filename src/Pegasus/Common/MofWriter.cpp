@@ -71,62 +71,62 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //------------------------------------------------------------------------------
 
-inline void _mofWriter_appendValue(Array<char>& out, Boolean x)
+inline void _mofWriter_appendValue(Buffer& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Uint8 x)
+inline void _mofWriter_appendValue(Buffer& out, Uint8 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Sint8 x)
+inline void _mofWriter_appendValue(Buffer& out, Sint8 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Uint16 x)
+inline void _mofWriter_appendValue(Buffer& out, Uint16 x)
 {
     XmlWriter::append(out, Uint32(x));
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Sint16 x)
+inline void _mofWriter_appendValue(Buffer& out, Sint16 x)
 {
     XmlWriter::append(out, Sint32(x));
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Uint32 x)
+inline void _mofWriter_appendValue(Buffer& out, Uint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Sint32 x)
+inline void _mofWriter_appendValue(Buffer& out, Sint32 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Uint64 x)
+inline void _mofWriter_appendValue(Buffer& out, Uint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Sint64 x)
+inline void _mofWriter_appendValue(Buffer& out, Sint64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Real32 x)
+inline void _mofWriter_appendValue(Buffer& out, Real32 x)
 {
     XmlWriter::append(out, Real64(x));
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Real64 x)
+inline void _mofWriter_appendValue(Buffer& out, Real64 x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, Char16 x)
+inline void _mofWriter_appendValue(Buffer& out, Char16 x)
 {
     XmlWriter::appendSpecial(out, x);
 }
@@ -146,7 +146,7 @@ inline void _mofWriter_appendValue(Array<char>& out, Char16 x)
 */
 /* ATTN:KS - We need to account for characters greater than x'7f
 */
-inline void _mofWriter_appendValue(Array<char>& out, const String& x)
+inline void _mofWriter_appendValue(Buffer& out, const String& x)
 {
     out << "\"";
     const Uint32 size = x.size();
@@ -194,17 +194,17 @@ inline void _mofWriter_appendValue(Array<char>& out, const String& x)
     out << "\"";
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, const CIMDateTime& x)
+inline void _mofWriter_appendValue(Buffer& out, const CIMDateTime& x)
 {
     _mofWriter_appendValue(out, x.toString());
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, const CIMObjectPath& x)
+inline void _mofWriter_appendValue(Buffer& out, const CIMObjectPath& x)
 {
     _mofWriter_appendValue(out, x.toString());
 }
 
-inline void _mofWriter_appendValue(Array<char>& out, const CIMObject& x)
+inline void _mofWriter_appendValue(Buffer& out, const CIMObject& x)
 {
     _mofWriter_appendValue(out, x.toString());
 }
@@ -214,7 +214,7 @@ inline void _mofWriter_appendValue(Array<char>& out, const CIMObject& x)
 */
 template<class T>
 
-void _mofWriter_appendValueArrayMof(Array<char>& out, const T* p, Uint32 size)
+void _mofWriter_appendValueArrayMof(Buffer& out, const T* p, Uint32 size)
 {
     Boolean isFirstEntry = true;
     // if there are any entries in the array output them
@@ -242,7 +242,7 @@ void _mofWriter_appendValueArrayMof(Array<char>& out, const T* p, Uint32 size)
 //------------------------------------------------------------------------------
 
 void MofWriter::appendValueElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMValue& value)
 {
     // if the CIMValue is Null we return the Null indicator.
@@ -533,7 +533,7 @@ void MofWriter::appendValueElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendValueReferenceElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& reference)
 {
     _mofWriter_appendValue(out, reference);
@@ -546,7 +546,7 @@ void MofWriter::appendValueReferenceElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendClassElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstClass& cimclass)
 {
     cimclass._checkRep();
@@ -557,7 +557,7 @@ void MofWriter::printClassElement(
     const CIMConstClass& cimclass,
     PEGASUS_STD(ostream)& os)
 {
-    Array<char> tmp;
+    Buffer tmp;
     appendClassElement(tmp, cimclass);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);
@@ -570,7 +570,7 @@ void MofWriter::printClassElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendInstanceElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstInstance& instance)
 {
     instance._checkRep();
@@ -584,7 +584,7 @@ void MofWriter::appendInstanceElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendPropertyElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstProperty& property)
 {
     property._checkRep();
@@ -598,7 +598,7 @@ void MofWriter::appendPropertyElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendMethodElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstMethod& method)
 {
     method._checkRep();
@@ -612,7 +612,7 @@ void MofWriter::appendMethodElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendParameterElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstParameter& parameter)
 {
     parameter._checkRep();
@@ -626,7 +626,7 @@ void MofWriter::appendParameterElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendQualifierElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstQualifier& qualifier)
 {
     qualifier._checkRep();
@@ -640,7 +640,7 @@ void MofWriter::appendQualifierElement(
 //------------------------------------------------------------------------------
 
 void MofWriter::appendQualifierDeclElement(
-    Array<char>& out,
+    Buffer& out,
     const CIMConstQualifierDecl& qualifierDecl)
 {
     qualifierDecl._checkRep();

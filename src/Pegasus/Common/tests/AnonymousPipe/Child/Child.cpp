@@ -129,7 +129,7 @@ int main (int argc, char * argv [])
 
         PEGASUS_ASSERT (strcmp (requestBuffer.get (), "Hello world") == 0);
 
-        Array<char> responseBuffer;
+        Buffer responseBuffer;
         char buffer [16];
         sprintf (buffer, "%s", "Good-bye");
         responseBuffer.append (buffer, strlen (buffer));

@@ -662,7 +662,7 @@ void PrintClass(
     {
     cout << "<h2>Display MOF for Class " << cimClass.getClassName() << "</h2>";
     cout << "<pre>";
-    Array<char> x;
+    Buffer x;
     MofWriter::appendClassElement(x, cimClass);
     x.append('\0');
 
@@ -716,7 +716,7 @@ const CIMNamespaceName& nameSpace,
     //KSREVIEWKS: Add showMof here
     cout << "<h2>Display MOF for Instance</h2>";
     cout << "<pre>";
-    Array<char> x;
+    Buffer x;
     MofWriter::appendInstanceElement(x, cimInstance);
     x.append('\0');
 
@@ -1066,7 +1066,7 @@ void PrintGetQualifier(
 
     cout << "\n<h2>MOF</h2>\n";
     cout << "<pre>";
-    Array<char> x;
+    Buffer x;
     MofWriter::appendQualifierDeclElement(x, qualifierDecl);
     x.append('\0');
     mofFormat(cout, x.getData(), 4);
@@ -1619,7 +1619,7 @@ static void EnumerateInstances(const CGIQueryString& qs)
             //ALAGS : MOF disp can be put into a function
             cout << "<h2>Display MOF for Instance " << i+1 << "</h2>";
             cout << "<pre>";
-            Array<char> x;
+            Buffer x;
             MofWriter::appendInstanceElement(x, instances[i]);
             x.append('\0');
 

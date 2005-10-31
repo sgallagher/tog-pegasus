@@ -105,7 +105,7 @@ int main(int argc, char **argv)
         {
           for (int files = 1 ; files < argc; files++)
             {
-              Array<char> slpRegInfo;
+              Buffer slpRegInfo;
               String fileName(argv[files]);
               String attributeString;
               String url;

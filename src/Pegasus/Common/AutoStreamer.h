@@ -60,15 +60,15 @@ public:
 
    void addReader(ObjectStreamer *primary, Uint8 marker);
 
-   void encode(Array<char>& out, const CIMClass& cls);
-   void encode(Array<char>& out, const CIMInstance& inst);
-   void encode(Array<char>& out, const CIMQualifierDecl& qual);
+   void encode(Buffer& out, const CIMClass& cls);
+   void encode(Buffer& out, const CIMInstance& inst);
+   void encode(Buffer& out, const CIMQualifierDecl& qual);
 
-   void decode(const Array<char>& in, unsigned int pos, CIMClass& cls);
-   void decode(const Array<char>& in, unsigned int pos, CIMInstance& inst);
-   void decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual);
+   void decode(const Buffer& in, unsigned int pos, CIMClass& cls);
+   void decode(const Buffer& in, unsigned int pos, CIMInstance& inst);
+   void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual);
 
-   void write(PEGASUS_STD(ostream)& os, Array<char>& in);
+   void write(PEGASUS_STD(ostream)& os, Buffer& in);
 };
 
 

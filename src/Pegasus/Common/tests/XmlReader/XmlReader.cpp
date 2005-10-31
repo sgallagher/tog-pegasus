@@ -50,7 +50,7 @@ static const char * verbose;
 static void testGetErrorElement()
 {
     CIMException cimException;
-    Array<char> text;
+    Buffer text;
     FileSystem::loadFileToMemory(text, "./getErrorElement.xml");
     text.append('\0');
 
@@ -77,7 +77,7 @@ static void testGetInstanceElement(const char* testDataFile)
     //--------------------------------------------------------------------------
 
     CIMInstance cimInstance;
-    Array<char> text;
+    Buffer text;
     FileSystem::loadFileToMemory(text, testDataFile);
     text.append('\0');
 
@@ -147,7 +147,7 @@ static void testGetInstanceElement(const char* testDataFile)
 static void testGetInstanceElement2(const char* testDataFile)
 {
     CIMInstance cimInstance;
-    Array<char> text;
+    Buffer text;
     FileSystem::loadFileToMemory(text, testDataFile);
     text.append('\0');
 

@@ -48,7 +48,7 @@ static void _parseFile(const char* fileName)
 {
     // cout << "Parsing: " << fileName << endl;
 
-    Array<char> text;
+    Buffer text;
     FileSystem::loadFileToMemory(text, fileName);
     text.append('\0');
 

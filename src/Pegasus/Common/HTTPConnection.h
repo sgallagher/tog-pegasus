@@ -57,6 +57,7 @@
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -173,7 +174,7 @@ private:
 
     Sint32 _contentOffset;
     Sint32 _contentLength;
-    Array<char> _incomingBuffer;
+    Buffer _incomingBuffer;
     AutoPtr<AuthenticationInfo> _authInfo;
     static AtomicInt _requestCount;
 

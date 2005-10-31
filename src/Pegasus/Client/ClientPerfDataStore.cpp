@@ -138,7 +138,7 @@ Boolean ClientPerfDataStore::checkMessageIDandType(const String& messageID, Uint
  
 String ClientPerfDataStore::toString() const
 {
-    Array<char> out;
+    Buffer out;
     /*XMLWriter::append(out, String(" serverTime = ");
     XMLWriter::append(out, _serverTime);
      << "\r\n";  */

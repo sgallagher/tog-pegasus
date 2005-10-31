@@ -92,7 +92,7 @@ void HTTPAuthenticatorDelegator::enqueue(Message* message)
 
 void HTTPAuthenticatorDelegator::_sendResponse(
     Uint32 queueId,
-    Array<char>& message)
+    Buffer& message)
 {
     PEG_METHOD_ENTER(TRC_HTTP,
         "HTTPAuthenticatorDelegator::_sendResponse");
@@ -142,7 +142,7 @@ void HTTPAuthenticatorDelegator::_sendChallenge(
     // build unauthorized (401) response message
     //
 
-    Array<char> message;
+    Buffer message;
     XmlWriter::appendUnauthorizedResponseHeader(message, authResponse);
 
     _sendResponse(queueId, message);
@@ -163,7 +163,7 @@ void HTTPAuthenticatorDelegator::_sendHttpError(
     // build error response message
     //
 
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(
         status,
         cimError,

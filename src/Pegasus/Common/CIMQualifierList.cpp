@@ -344,7 +344,7 @@ void CIMQualifierList::resolve(
     }
 }
 
-void CIMQualifierList::toXml(Array<char>& out) const
+void CIMQualifierList::toXml(Buffer& out) const
 {
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
 	XmlWriter::appendQualifierElement(out, _qualifiers[i]);
@@ -358,7 +358,7 @@ void CIMQualifierList::toXml(Array<char>& out) const
     </pre>
     Produces qualifiers as a string on without nl.
     */
-void CIMQualifierList::toMof(Array<char>& out) const
+void CIMQualifierList::toMof(Buffer& out) const
 {
     // if no qualifiers, return
     if (_qualifiers.size() == 0)
@@ -383,7 +383,7 @@ void CIMQualifierList::toMof(Array<char>& out) const
 
 void CIMQualifierList::print(PEGASUS_STD(ostream) &os) const
 {
-    Array<char> tmp;
+    Buffer tmp;
     toXml(tmp);
     tmp.append('\0');
     os << tmp.getData() << PEGASUS_STD(endl);

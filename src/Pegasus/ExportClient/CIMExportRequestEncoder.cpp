@@ -107,7 +107,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
    CIMExportIndicationRequestMessage* message)
 {
    PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportRequestEncoder::_encodeExportIndicationRequest()");
-   Array<char> params;
+   Buffer params;
 
    XmlWriter::appendInstanceEParameter(
       params, "NewIndication", message->indicationInstance);
@@ -115,7 +115,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
 // l10n
    // Note:  Accept-Language will not be set in the request	
    // We will accept the default language of the export server.
-   Array<char> buffer = XmlWriter::formatSimpleEMethodReqMessage(
+   Buffer buffer = XmlWriter::formatSimpleEMethodReqMessage(
       message->destinationPath.getCString(),
       _hostName,
       CIMName ("ExportIndication"), 

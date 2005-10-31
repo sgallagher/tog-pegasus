@@ -62,6 +62,7 @@
 #include "HTTPMessage.h"
 #include "Signal.h"
 #include "Tracer.h"
+#include "Buffer.h"
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -333,7 +334,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
     static const char func[] = "HTTPConnection::_handleWriteEvent";
     String httpStatus;
     HTTPMessage& httpMessage = *(HTTPMessage*)&message;
-    Array<char>& buffer = httpMessage.message;
+    Buffer& buffer = httpMessage.message;
     Boolean isFirst = message.isFirst();
     Boolean isLast = message.isComplete();
     Sint32 totalBytesWritten = 0;
@@ -423,7 +424,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         char s[21];
                         sprintf(s, "%u", code);
                         String httpStatus(s);
-                        Array<char> message = XmlWriter::formatHttpErrorRspMessage
+                        Buffer message = XmlWriter::formatHttpErrorRspMessage
                             (httpStatus, String(), httpDetail);
                         messageLength = message.size();
                         message.reserveCapacity(messageLength+1);
@@ -440,7 +441,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
 
                     messageLength += _incomingBuffer.size();
                     _incomingBuffer.reserveCapacity(messageLength+1);
-                    _incomingBuffer.appendArray(buffer);
+                    _incomingBuffer.append(buffer.getData(), buffer.size());
                     buffer.clear();
                     // null terminate
                     messageStart = (char *) _incomingBuffer.getData();
@@ -614,7 +615,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                         if (contentLanguages != ContentLanguages::EMPTY)
                         {
                             // we must insert the content-language into the header
-                            Array<char> contentLanguagesString;
+                            Buffer contentLanguagesString;
 
                             // this is the keyword:value(s) + header line terminator
                             contentLanguagesString << headerNameContentLanguage <<
@@ -723,7 +724,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             bytesRemaining -= bytesWritten;
 
             // put in trailer header.
-            Array<char> trailer;
+            Buffer trailer;
             trailer << headerNameTrailer << headerNameTerminator <<
                 _mpostPrefix << headerNameCode <<    headerValueSeparator <<
                 _mpostPrefix << headerNameDescription << headerValueSeparator <<
@@ -787,7 +788,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
             {
                 // send chunk terminator, on the last chunk, it is the chunk body
                 // terminator
-                Array<char> trailer;
+                Buffer trailer;
                 trailer << chunkLineTerminator;
 
                 // on the last chunk, attach the last chunk termination sequence:
@@ -1416,7 +1417,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                     _throwEventFailure(HTTP_STATUS_BADREQUEST,
                         "No chunk trailer terminator received");
 
-                Array<char> trailer;
+                Buffer trailer;
                 // add a dummy startLine so that the parser works
                 trailer << " " << headerLineTerminator;
 
@@ -1449,7 +1450,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                     // we have a cim error. parse the header to get the original http
                     // level error if any, otherwise, we have to make one up.
 
-                    Array<char> header(messageStart, headerLength);
+                    Buffer header(messageStart, headerLength);
                     String startLine;
                     Array<HTTPHeader> headers;
                     Uint32 contentLength = 0;
@@ -1609,7 +1610,7 @@ void HTTPConnection::_handleReadEventFailure(String &httpStatusWithDetail,
 
     Tracer::trace(__FILE__, __LINE__, TRC_HTTP, Tracer::LEVEL2, combined);
     _requestCount++;
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatHttpErrorRspMessage(httpStatus, cimError,
         httpDetail);
     HTTPMessage* httpMessage = new HTTPMessage(message);

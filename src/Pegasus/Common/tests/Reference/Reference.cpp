@@ -73,7 +73,7 @@ void test01()
         cout << r.toString() << endl;
     }
 
-    Array<char> mofOut;
+    Buffer mofOut;
     MofWriter::appendValueReferenceElement(mofOut, r);
     r.clear();
     }

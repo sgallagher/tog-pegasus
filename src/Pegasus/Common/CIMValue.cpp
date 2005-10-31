@@ -48,8 +48,9 @@
 #include "Indentor.h"
 #include "XmlWriter.h"
 #include "CommonUTF.h"
-
+#include "Buffer.h"
 #include "CIMValueRep.h"
+#include "Buffer.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -64,23 +65,23 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-inline void _toString(Array<char>& out, Boolean x)
+inline void _toString(Buffer& out, Boolean x)
 {
     XmlWriter::append(out, x);
 }
 
-inline void _toString(Array<char>& out, Uint8 x) { XmlWriter::append(out, Uint32(x)); }
-inline void _toString(Array<char>& out, Sint8 x) { XmlWriter::append(out, Sint32(x)); }
-inline void _toString(Array<char>& out, Uint16 x) { XmlWriter::append(out, Uint32(x)); }
-inline void _toString(Array<char>& out, Sint16 x) { XmlWriter::append(out, Sint32(x)); }
-inline void _toString(Array<char>& out, Uint32 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<char>& out, Sint32 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<char>& out, Uint64 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<char>& out, Sint64 x) { XmlWriter::append(out, x); }
-inline void _toString(Array<char>& out, Real32 x) { XmlWriter::append(out, Real64(x)); }
-inline void _toString(Array<char>& out, Real64 x) { XmlWriter::append(out, x); }
+inline void _toString(Buffer& out, Uint8 x) { XmlWriter::append(out, Uint32(x)); }
+inline void _toString(Buffer& out, Sint8 x) { XmlWriter::append(out, Sint32(x)); }
+inline void _toString(Buffer& out, Uint16 x) { XmlWriter::append(out, Uint32(x)); }
+inline void _toString(Buffer& out, Sint16 x) { XmlWriter::append(out, Sint32(x)); }
+inline void _toString(Buffer& out, Uint32 x) { XmlWriter::append(out, x); }
+inline void _toString(Buffer& out, Sint32 x) { XmlWriter::append(out, x); }
+inline void _toString(Buffer& out, Uint64 x) { XmlWriter::append(out, x); }
+inline void _toString(Buffer& out, Sint64 x) { XmlWriter::append(out, x); }
+inline void _toString(Buffer& out, Real32 x) { XmlWriter::append(out, Real64(x)); }
+inline void _toString(Buffer& out, Real64 x) { XmlWriter::append(out, x); }
 
-inline void _toString(Array<char>& out, Char16 x)
+inline void _toString(Buffer& out, Char16 x)
 {
     // We need to convert the Char16 to UTF8 then append the UTF8
     // character into the array.
@@ -106,28 +107,28 @@ inline void _toString(Array<char>& out, Char16 x)
     out.append(str, UTF_8_COUNT_TRAIL_BYTES(str[0]) +1);
 }
 
-inline void _toString(Array<char>& out, const String& x)
+inline void _toString(Buffer& out, const String& x)
 {
     out << x;
 }
 
-inline void _toString(Array<char>& out, const CIMDateTime& x)
+inline void _toString(Buffer& out, const CIMDateTime& x)
 {
     out << x.toString();
 }
 
-inline void _toString(Array<char>& out, const CIMObjectPath& x)
+inline void _toString(Buffer& out, const CIMObjectPath& x)
 {
     out << x.toString();
 }
 
-inline void _toString(Array<char>& out, const CIMObject& x)
+inline void _toString(Buffer& out, const CIMObject& x)
 {
     out << x.toString();
 }
 
 template<class T>
-void _toString(Array<char>& out, const T* p, Uint32 size)
+void _toString(Buffer& out, const T* p, Uint32 size)
 {
     while (size--)
     {
@@ -1668,7 +1669,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
 
 String CIMValue::toString() const
 {
-    Array<char> out;
+    Buffer out;
 
     //ATTN: Not sure what we should do with getstring for Null CIMValues
     //Choice return empty string or exception out.

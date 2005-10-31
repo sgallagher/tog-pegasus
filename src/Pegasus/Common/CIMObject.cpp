@@ -197,7 +197,7 @@ Boolean CIMObject::isUninitialized() const
 
 String CIMObject::toString () const
 {
-    Array<char> out;
+    Buffer out;
     
     _checkRep();
     _rep->toXml(out);
@@ -362,7 +362,7 @@ Boolean CIMConstObject::isUninitialized() const
 
 String CIMConstObject::toString () const
 {
-    Array<char> out;
+    Buffer out;
     
     _checkRep();
     _rep->toXml(out);

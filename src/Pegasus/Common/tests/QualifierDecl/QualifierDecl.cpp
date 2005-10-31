@@ -120,7 +120,7 @@ void test01()
     //
     // Test toMof 
     //
-    Array<char> mofOut;
+    Buffer mofOut;
     MofWriter::appendQualifierDeclElement(mofOut, qual1);
 
     CIMConstQualifierDecl cq1; 

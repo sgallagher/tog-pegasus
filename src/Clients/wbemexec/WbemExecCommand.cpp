@@ -361,7 +361,7 @@ WbemExecCommand::WbemExecCommand ()
  */
 void WbemExecCommand::_printContent(
     ostream& oStream,
-    Array<char>& responseMessage,
+    Buffer& responseMessage,
     Uint32 contentOffset)
 {
     //
@@ -374,7 +374,7 @@ void WbemExecCommand::_printContent(
         //
         //  Print XML response to the ostream
         //
-        ((Array<char>&) responseMessage).append ('\0');
+        ((Buffer&) responseMessage).append ('\0');
         const char* content = responseMessage.getData () + contentOffset;
         XmlWriter::indentedPrint (oStream, content, 0);
       }
@@ -384,7 +384,7 @@ void WbemExecCommand::_printContent(
 
     Process HTTP response message from cimserver
 
-    @param   httpResponse        Array<char> reply from cimserver
+    @param   httpResponse        Buffer reply from cimserver
 
     @param   ostream             the ostream to which output should be written
 
@@ -394,7 +394,7 @@ void WbemExecCommand::_printContent(
     @return  false = client response has been received
 
  */
-void WbemExecCommand::_handleResponse( Array<char>           responseMessage,
+void WbemExecCommand::_handleResponse( Buffer           responseMessage,
                                           ostream&           oStream,
                                           ostream&           eStream
                                        )
@@ -474,11 +474,11 @@ void WbemExecCommand::_executeHttp (ostream& outPrintWriter,
                                     ostream& errPrintWriter)
 {
     Uint32                       size;
-    Array<char>                    content;
-    Array<char>                    contentCopy;
-    Array<char>                    message;
-    Array<char>                    httpHeaders;
-    Array<char>                    httpResponse;
+    Buffer                    content;
+    Buffer                    contentCopy;
+    Buffer                    message;
+    Buffer                    httpHeaders;
+    Buffer                    httpResponse;
     WbemExecClient client;
 
     client.setTimeout( _timeout );

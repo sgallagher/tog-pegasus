@@ -215,7 +215,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 //
                 // copy userPass string content to Uint8 array for encoding
                 //
-                Array<char> userPassArray;
+                Buffer userPassArray;
 
                 Uint32 userPassLength = userPass.size();
 
@@ -230,7 +230,7 @@ String ClientAuthenticator::buildRequestAuthHeader()
                 //
                 // base64 encode the user name and password
                 //
-                Array<char> encodedArray;
+                Buffer encodedArray;
 
                 encodedArray = Base64::encode( userPassArray );
 

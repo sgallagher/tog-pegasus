@@ -731,7 +731,7 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
     String fileName = FileSystem::getAbsolutePath((const char*)_consumerConfigDir.getCString(), String(consumerName + ".dat"));
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer dat file: " + fileName);
 
-    Array<char> buffer;
+    Buffer buffer;
 
     // Open the log file and serialize remaining 
     FILE* fileHandle = 0;
@@ -780,7 +780,7 @@ Array<CIMInstance> ConsumerManager::_deserializeOutstandingIndications(const Str
     // Open the log file and serialize remaining indications
     if (FileSystem::exists(fileName)  && FileSystem::canRead(fileName))
     {
-        Array<char> text;
+        Buffer text;
         CIMInstance cimInstance;
         XmlEntry entry;
 

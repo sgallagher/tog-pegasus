@@ -317,7 +317,7 @@ void outputFormatInstance(const OutputType format, CIMInstance& instance)
             p.setPropagated(false);
         }
 
-        Array<char> x;
+        Buffer x;
         MofWriter::appendInstanceElement(x, instance);
 
         x.append('\0');
@@ -369,7 +369,7 @@ void outputFormatClass(const OutputType format, CIMClass& myClass)
             CIMMethod m = myClass.getMethod(i);
             m.setPropagated(false);
         }
-        Array<char> x;
+        Buffer x;
         MofWriter::appendClassElement(x, myClass);
 
         x.append('\0');
@@ -403,7 +403,7 @@ void outputFormatQualifierDecl(const OutputType format, const CIMQualifierDecl& 
         XmlWriter::printQualifierDeclElement(myQualifierDecl, cout);
     else if (format == OUTPUT_MOF)
     {
-        Array<char> x;
+        Buffer x;
         MofWriter::appendQualifierDeclElement(x, myQualifierDecl);
 
         x.append('\0');
@@ -420,7 +420,7 @@ void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
         XmlWriter::printValueElement(myValue, cout);
     else if (format == OUTPUT_MOF)
     {
-        Array<char> x;
+        Buffer x;
         MofWriter::appendValueElement(x, myValue);
 
         x.append('\0');

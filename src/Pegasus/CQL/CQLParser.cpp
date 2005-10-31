@@ -110,7 +110,7 @@ void CQLParser::parse(
 }
 
 void CQLParser::parse(
-    const Array<char>& text,
+    const Buffer& text,
     CQLSelectStatement& statement)
 {
     PEG_METHOD_ENTER(TRC_CQL,"CQLParser::parse");

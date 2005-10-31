@@ -51,6 +51,7 @@
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -59,15 +60,15 @@ class PEGASUS_COMMON_LINKAGE MofWriter
 public:
 
     static void appendValueElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMValue& value);
 
     static void appendValueReferenceElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMObjectPath& reference);
 
     static void appendClassElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMConstClass& cimclass);
 
     static void printClassElement(
@@ -75,27 +76,27 @@ public:
         PEGASUS_STD(ostream)& os=PEGASUS_STD(cout));
 
     static void appendInstanceElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMConstInstance& instance);
 
     static void appendPropertyElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMConstProperty& property);
 
     static void appendMethodElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMConstMethod& method);
 
     static void appendParameterElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMConstParameter& parameter);
 
     static void appendQualifierElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMConstQualifier& qualifier);
 
     static void appendQualifierDeclElement(
-        Array<char>& out,
+        Buffer& out,
         const CIMConstQualifierDecl& qualifierDecl);
 
     static String getQualifierFlavor(const CIMFlavor & flavor);

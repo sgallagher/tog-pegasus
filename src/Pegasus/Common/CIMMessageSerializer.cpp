@@ -45,7 +45,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-void CIMMessageSerializer::serialize(Array<char>& out, CIMMessage* cimMessage)
+void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
 {
     if (cimMessage == 0)
     {
@@ -90,7 +90,7 @@ void CIMMessageSerializer::serialize(Array<char>& out, CIMMessage* cimMessage)
 // _serializeCIMRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMRequestMessage* cimMessage)
 {
     PEGASUS_ASSERT(cimMessage != 0);
@@ -310,7 +310,7 @@ void CIMMessageSerializer::_serializeCIMRequestMessage(
 // _serializeCIMResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMResponseMessage* cimMessage)
 {
     PEGASUS_ASSERT(cimMessage != 0);
@@ -504,7 +504,7 @@ void CIMMessageSerializer::_serializeCIMResponseMessage(
 // _serializeUserInfo consolidates encoding of these common message attributes
 //
 void CIMMessageSerializer::_serializeUserInfo(
-    Array<char>& out,
+    Buffer& out,
     const String& authType,
     const String& userName)
 {
@@ -516,7 +516,7 @@ void CIMMessageSerializer::_serializeUserInfo(
 // _serializeQueueIdStack
 //
 void CIMMessageSerializer::_serializeQueueIdStack(
-    Array<char>& out,
+    Buffer& out,
     const QueueIdStack& queueIdStack)
 {
     QueueIdStack stackCopy = queueIdStack;
@@ -536,7 +536,7 @@ void CIMMessageSerializer::_serializeQueueIdStack(
 // _serializeOperationContext
 //
 void CIMMessageSerializer::_serializeOperationContext(
-    Array<char>& out,
+    Buffer& out,
     const OperationContext& operationContext)
 {
     // Use a PGOP element to encapsulate the OperationContext encoding
@@ -719,7 +719,7 @@ void CIMMessageSerializer::_serializeOperationContext(
 // _serializeContentLanguages
 //
 void CIMMessageSerializer::_serializeContentLanguages(
-    Array<char>& out,
+    Buffer& out,
     const ContentLanguages& contentLanguages)
 {
     Array<ContentLanguageElement> elements;
@@ -738,7 +738,7 @@ void CIMMessageSerializer::_serializeContentLanguages(
 // _serializeAcceptLanguages
 //
 void CIMMessageSerializer::_serializeAcceptLanguages(
-    Array<char>& out,
+    Buffer& out,
     const AcceptLanguages& acceptLanguages)
 {
     Array<AcceptLanguageElement> elements;
@@ -758,7 +758,7 @@ void CIMMessageSerializer::_serializeAcceptLanguages(
 // _serializeCIMException
 //
 void CIMMessageSerializer::_serializeCIMException(
-    Array<char>& out,
+    Buffer& out,
     const CIMException& cimException)
 {
     TraceableCIMException e(cimException);
@@ -781,7 +781,7 @@ void CIMMessageSerializer::_serializeCIMException(
 // _serializeCIMPropertyList
 //
 void CIMMessageSerializer::_serializeCIMPropertyList(
-    Array<char>& out,
+    Buffer& out,
     const CIMPropertyList& cimPropertyList)
 {
     // Need IPARAMVALUE wrapper because the value can be null.
@@ -792,7 +792,7 @@ void CIMMessageSerializer::_serializeCIMPropertyList(
 // _serializeCIMObjectPath
 //
 void CIMMessageSerializer::_serializeCIMObjectPath(
-    Array<char>& out,
+    Buffer& out,
     const CIMObjectPath& cimObjectPath)
 {
     // Use a PGPATH element to encapsulate the CIMObjectPath encoding
@@ -809,7 +809,7 @@ void CIMMessageSerializer::_serializeCIMObjectPath(
 // _serializeCIMInstance
 //
 void CIMMessageSerializer::_serializeCIMInstance(
-    Array<char>& out,
+    Buffer& out,
     const CIMInstance& cimInstance)
 {
     // Use a PGINST element to encapsulate the CIMInstance encoding
@@ -827,7 +827,7 @@ void CIMMessageSerializer::_serializeCIMInstance(
 // _serializeCIMNamespaceName
 //
 void CIMMessageSerializer::_serializeCIMNamespaceName(
-    Array<char>& out,
+    Buffer& out,
     const CIMNamespaceName& cimNamespaceName)
 {
     // Encode CIMNamespaceName as a String for efficiency and so that null
@@ -839,7 +839,7 @@ void CIMMessageSerializer::_serializeCIMNamespaceName(
 // _serializeCIMName
 //
 void CIMMessageSerializer::_serializeCIMName(
-    Array<char>& out,
+    Buffer& out,
     const CIMName& cimName)
 {
     // Encode CIMName as a String so that null values can be handled
@@ -850,7 +850,7 @@ void CIMMessageSerializer::_serializeCIMName(
 // _serializeCIMObject
 //
 void CIMMessageSerializer::_serializeCIMObject(
-    Array<char>& out,
+    Buffer& out,
     const CIMObject& object)
 {
     // Use a PGOBJ element to encapsulate the CIMObject encoding
@@ -880,7 +880,7 @@ void CIMMessageSerializer::_serializeCIMObject(
 // _serializeCIMGetInstanceRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMGetInstanceRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMGetInstanceRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -896,7 +896,7 @@ void CIMMessageSerializer::_serializeCIMGetInstanceRequestMessage(
 // _serializeCIMDeleteInstanceRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMDeleteInstanceRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMDeleteInstanceRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -908,7 +908,7 @@ void CIMMessageSerializer::_serializeCIMDeleteInstanceRequestMessage(
 // _serializeCIMCreateInstanceRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMCreateInstanceRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMCreateInstanceRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -920,7 +920,7 @@ void CIMMessageSerializer::_serializeCIMCreateInstanceRequestMessage(
 // _serializeCIMModifyInstanceRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMModifyInstanceRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMModifyInstanceRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -934,7 +934,7 @@ void CIMMessageSerializer::_serializeCIMModifyInstanceRequestMessage(
 // _serializeCIMEnumerateInstancesRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMEnumerateInstancesRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMEnumerateInstancesRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -950,7 +950,7 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstancesRequestMessage(
 // _serializeCIMEnumerateInstanceNamesRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMEnumerateInstanceNamesRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMEnumerateInstanceNamesRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -962,7 +962,7 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstanceNamesRequestMessage(
 // _serializeCIMExecQueryRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMExecQueryRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMExecQueryRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -975,7 +975,7 @@ void CIMMessageSerializer::_serializeCIMExecQueryRequestMessage(
 // _serializeCIMAssociatorsRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMAssociatorsRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMAssociatorsRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -994,7 +994,7 @@ void CIMMessageSerializer::_serializeCIMAssociatorsRequestMessage(
 // _serializeCIMAssociatorNamesRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMAssociatorNamesRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMAssociatorNamesRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1010,7 +1010,7 @@ void CIMMessageSerializer::_serializeCIMAssociatorNamesRequestMessage(
 // _serializeCIMReferencesRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMReferencesRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMReferencesRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1027,7 +1027,7 @@ void CIMMessageSerializer::_serializeCIMReferencesRequestMessage(
 // _serializeCIMReferenceNamesRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMReferenceNamesRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMReferenceNamesRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1041,7 +1041,7 @@ void CIMMessageSerializer::_serializeCIMReferenceNamesRequestMessage(
 // _serializeCIMGetPropertyRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMGetPropertyRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMGetPropertyRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1054,7 +1054,7 @@ void CIMMessageSerializer::_serializeCIMGetPropertyRequestMessage(
 // _serializeCIMSetPropertyRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMSetPropertyRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMSetPropertyRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1072,7 +1072,7 @@ void CIMMessageSerializer::_serializeCIMSetPropertyRequestMessage(
 // _serializeCIMInvokeMethodRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMInvokeMethodRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMInvokeMethodRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1100,7 +1100,7 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodRequestMessage(
 // _serializeCIMCreateSubscriptionRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMCreateSubscriptionRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMCreateSubscriptionRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1129,7 +1129,7 @@ void CIMMessageSerializer::_serializeCIMCreateSubscriptionRequestMessage(
 // _serializeCIMModifySubscriptionRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMModifySubscriptionRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMModifySubscriptionRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1158,7 +1158,7 @@ void CIMMessageSerializer::_serializeCIMModifySubscriptionRequestMessage(
 // _serializeCIMDeleteSubscriptionRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMDeleteSubscriptionRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMDeleteSubscriptionRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1187,7 +1187,7 @@ void CIMMessageSerializer::_serializeCIMDeleteSubscriptionRequestMessage(
 // _serializeCIMExportIndicationRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMExportIndicationRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMExportIndicationRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1200,7 +1200,7 @@ void CIMMessageSerializer::_serializeCIMExportIndicationRequestMessage(
 // _serializeCIMProcessIndicationRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMProcessIndicationRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMProcessIndicationRequestMessage* message)
 {
     _serializeCIMNamespaceName(out, message->nameSpace);
@@ -1222,7 +1222,7 @@ void CIMMessageSerializer::_serializeCIMProcessIndicationRequestMessage(
 // _serializeCIMDisableModuleRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMDisableModuleRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMDisableModuleRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1252,7 +1252,7 @@ void CIMMessageSerializer::_serializeCIMDisableModuleRequestMessage(
 // _serializeCIMEnableModuleRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMEnableModuleRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMEnableModuleRequestMessage* message)
 {
     _serializeUserInfo(out, message->authType, message->userName);
@@ -1264,7 +1264,7 @@ void CIMMessageSerializer::_serializeCIMEnableModuleRequestMessage(
 // _serializeCIMStopAllProvidersRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMStopAllProvidersRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMStopAllProvidersRequestMessage* message)
 {
     // No additional attributes to serialize!
@@ -1274,7 +1274,7 @@ void CIMMessageSerializer::_serializeCIMStopAllProvidersRequestMessage(
 // _serializeCIMInitializeProviderRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMInitializeProviderRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMInitializeProviderRequestMessage* message)
 {
     // No additional attributes to serialize!
@@ -1284,7 +1284,7 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderRequestMessage(
 // _serializeCIMInitializeProviderAgentRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMInitializeProviderAgentRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMInitializeProviderAgentRequestMessage* message)
 {
     XmlWriter::appendValueElement(out, message->pegasusHome);
@@ -1307,7 +1307,7 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderAgentRequestMessage(
 // _serializeCIMNotifyConfigChangeRequestMessage
 //
 void CIMMessageSerializer::_serializeCIMNotifyConfigChangeRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMNotifyConfigChangeRequestMessage* message)
 {
     XmlWriter::appendValueElement(out, message->propertyName);
@@ -1320,7 +1320,7 @@ void CIMMessageSerializer::_serializeCIMNotifyConfigChangeRequestMessage(
 //
 void 
 CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteRequestMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMSubscriptionInitCompleteRequestMessage* message)
 {
     // No additional attributes to serialize!
@@ -1342,7 +1342,7 @@ CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteRequestMessage(
 // _serializeCIMGetInstanceResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMGetInstanceResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMGetInstanceResponseMessage* message)
 {
     _serializeCIMInstance(out, message->cimInstance);
@@ -1352,7 +1352,7 @@ void CIMMessageSerializer::_serializeCIMGetInstanceResponseMessage(
 // _serializeCIMDeleteInstanceResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMDeleteInstanceResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMDeleteInstanceResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1362,7 +1362,7 @@ void CIMMessageSerializer::_serializeCIMDeleteInstanceResponseMessage(
 // _serializeCIMCreateInstanceResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMCreateInstanceResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMCreateInstanceResponseMessage* message)
 {
     _serializeCIMObjectPath(out, message->instanceName);
@@ -1372,7 +1372,7 @@ void CIMMessageSerializer::_serializeCIMCreateInstanceResponseMessage(
 // _serializeCIMModifyInstanceResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMModifyInstanceResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMModifyInstanceResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1382,7 +1382,7 @@ void CIMMessageSerializer::_serializeCIMModifyInstanceResponseMessage(
 // _serializeCIMEnumerateInstancesResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMEnumerateInstancesResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMEnumerateInstancesResponseMessage* message)
 {
     // Use PGINSTARRAY element to encapsulate the CIMInstance elements
@@ -1398,7 +1398,7 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstancesResponseMessage(
 // _serializeCIMEnumerateInstanceNamesResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMEnumerateInstanceNamesResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMEnumerateInstanceNamesResponseMessage* message)
 {
     // Use PGPATHARRAY element to encapsulate the object path elements
@@ -1414,7 +1414,7 @@ void CIMMessageSerializer::_serializeCIMEnumerateInstanceNamesResponseMessage(
 // _serializeCIMExecQueryResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMExecQueryResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMExecQueryResponseMessage* message)
 {
     // Use PGOBJARRAY element to encapsulate the CIMObject elements
@@ -1430,7 +1430,7 @@ void CIMMessageSerializer::_serializeCIMExecQueryResponseMessage(
 // _serializeCIMAssociatorsResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMAssociatorsResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMAssociatorsResponseMessage* message)
 {
     // Use PGOBJARRAY element to encapsulate the CIMObject elements
@@ -1446,7 +1446,7 @@ void CIMMessageSerializer::_serializeCIMAssociatorsResponseMessage(
 // _serializeCIMAssociatorNamesResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMAssociatorNamesResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMAssociatorNamesResponseMessage* message)
 {
     // Use PGPATHARRAY element to encapsulate the object path elements
@@ -1462,7 +1462,7 @@ void CIMMessageSerializer::_serializeCIMAssociatorNamesResponseMessage(
 // _serializeCIMReferencesResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMReferencesResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMReferencesResponseMessage* message)
 {
     // Use PGOBJARRAY element to encapsulate the CIMObject elements
@@ -1478,7 +1478,7 @@ void CIMMessageSerializer::_serializeCIMReferencesResponseMessage(
 // _serializeCIMReferenceNamesResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMReferenceNamesResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMReferenceNamesResponseMessage* message)
 {
     // Use PGPATHARRAY element to encapsulate the object path elements
@@ -1494,7 +1494,7 @@ void CIMMessageSerializer::_serializeCIMReferenceNamesResponseMessage(
 // _serializeCIMGetPropertyResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMGetPropertyResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMGetPropertyResponseMessage* message)
 {
     // Use PARAMVALUE element so we can preserve the CIMType information
@@ -1507,7 +1507,7 @@ void CIMMessageSerializer::_serializeCIMGetPropertyResponseMessage(
 // _serializeCIMSetPropertyResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMSetPropertyResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMSetPropertyResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1517,7 +1517,7 @@ void CIMMessageSerializer::_serializeCIMSetPropertyResponseMessage(
 // _serializeCIMInvokeMethodResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMInvokeMethodResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMInvokeMethodResponseMessage* message)
 {
     // Use PARAMVALUE element so we can preserve the CIMType information
@@ -1547,7 +1547,7 @@ void CIMMessageSerializer::_serializeCIMInvokeMethodResponseMessage(
 // _serializeCIMCreateSubscriptionResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMCreateSubscriptionResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMCreateSubscriptionResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1557,7 +1557,7 @@ void CIMMessageSerializer::_serializeCIMCreateSubscriptionResponseMessage(
 // _serializeCIMModifySubscriptionResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMModifySubscriptionResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMModifySubscriptionResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1567,7 +1567,7 @@ void CIMMessageSerializer::_serializeCIMModifySubscriptionResponseMessage(
 // _serializeCIMDeleteSubscriptionResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMDeleteSubscriptionResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMDeleteSubscriptionResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1584,7 +1584,7 @@ void CIMMessageSerializer::_serializeCIMDeleteSubscriptionResponseMessage(
 // _serializeCIMExportIndicationResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMExportIndicationResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMExportIndicationResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1594,7 +1594,7 @@ void CIMMessageSerializer::_serializeCIMExportIndicationResponseMessage(
 // _serializeCIMProcessIndicationResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMProcessIndicationResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMProcessIndicationResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1604,7 +1604,7 @@ void CIMMessageSerializer::_serializeCIMProcessIndicationResponseMessage(
 // _serializeCIMDisableModuleResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMDisableModuleResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMDisableModuleResponseMessage* message)
 {
     // Use PGUINT16ARRAY element to encapsulate the Uint16 elements
@@ -1620,7 +1620,7 @@ void CIMMessageSerializer::_serializeCIMDisableModuleResponseMessage(
 // _serializeCIMEnableModuleResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMEnableModuleResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMEnableModuleResponseMessage* message)
 {
     // Use PGUINT16ARRAY element to encapsulate the Uint16 elements
@@ -1636,7 +1636,7 @@ void CIMMessageSerializer::_serializeCIMEnableModuleResponseMessage(
 // _serializeCIMStopAllProvidersResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMStopAllProvidersResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMStopAllProvidersResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1646,7 +1646,7 @@ void CIMMessageSerializer::_serializeCIMStopAllProvidersResponseMessage(
 // _serializeCIMInitializeProviderResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMInitializeProviderResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMInitializeProviderResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1656,7 +1656,7 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderResponseMessage(
 // _serializeCIMInitializeProviderAgentResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMInitializeProviderAgentResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMInitializeProviderAgentResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1666,7 +1666,7 @@ void CIMMessageSerializer::_serializeCIMInitializeProviderAgentResponseMessage(
 // _serializeCIMNotifyConfigChangeResponseMessage
 //
 void CIMMessageSerializer::_serializeCIMNotifyConfigChangeResponseMessage(
-    Array<char>& out,
+    Buffer& out,
     CIMNotifyConfigChangeResponseMessage* message)
 {
     // No additional attributes to serialize!
@@ -1677,7 +1677,7 @@ void CIMMessageSerializer::_serializeCIMNotifyConfigChangeResponseMessage(
 //
 void 
 CIMMessageSerializer::_serializeCIMSubscriptionInitCompleteResponseMessage
-   (Array<char>& out,
+   (Buffer& out,
     CIMSubscriptionInitCompleteResponseMessage* message)
 {
     // No additional attributes to serialize!

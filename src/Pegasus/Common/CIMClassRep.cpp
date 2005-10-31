@@ -540,7 +540,7 @@ CIMInstance CIMClassRep::buildInstance(Boolean includeQualifiers,
     return(newInstance);
 }
 
-void CIMClassRep::toXml(Array<char>& out) const
+void CIMClassRep::toXml(Buffer& out) const
 {
     // Class opening element:
 
@@ -583,7 +583,7 @@ void CIMClassRep::toXml(Array<char>& out) const
 
 */
 
-void CIMClassRep::toMof(Array<char>& out) const
+void CIMClassRep::toMof(Buffer& out) const
 {
     // Get and format the class qualifiers
     out << "\n//    Class " << _reference.getClassName();

@@ -88,7 +88,7 @@ CIMOperationRequestAuthorizer::~CIMOperationRequestAuthorizer()
 
 void CIMOperationRequestAuthorizer::sendResponse(
    Uint32 queueId,
-   Array<char>& message)
+   Buffer& message)
 {
    PEG_METHOD_ENTER(TRC_SERVER, "CIMOperationRequestAuthorizer::sendResponse");
 
@@ -114,7 +114,7 @@ void CIMOperationRequestAuthorizer::sendIMethodError(
     PEG_METHOD_ENTER(TRC_SERVER,
                      "CIMOperationRequestAuthorizer::sendIMethodError");
 
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatSimpleIMethodErrorRspMessage(
         iMethodName,
         messageId,
@@ -137,7 +137,7 @@ void CIMOperationRequestAuthorizer::sendMethodError(
     PEG_METHOD_ENTER(TRC_SERVER,
                      "CIMOperationRequestAuthorizer::sendMethodError");
 
-    Array<char> message;
+    Buffer message;
     message = XmlWriter::formatSimpleMethodErrorRspMessage(
         methodName,
         messageId,
@@ -191,7 +191,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    //
    if (_serverTerminating)
    {
-       Array<char> message;
+       Buffer message;
        message = XmlWriter::formatHttpErrorRspMessage(
            HTTP_STATUS_SERVICEUNAVAILABLE,
            String::EMPTY,

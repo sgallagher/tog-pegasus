@@ -251,7 +251,7 @@ int main ()
         //
         //  Send a request buffer to the child via the anonymous pipe
         //
-        Array<char> requestBuffer;
+        Buffer requestBuffer;
         char buffer [32];
         sprintf (buffer, "%s", "Hello world");
         requestBuffer.append (buffer, strlen (buffer));

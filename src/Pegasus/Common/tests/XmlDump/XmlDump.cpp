@@ -47,7 +47,7 @@ Boolean verbose = false;
 
 static void _processFile(const char* fileName)
 {
-    Array<char> text;
+    Buffer text;
     FileSystem::loadFileToMemory(text, fileName);
     text.append('\0');
 

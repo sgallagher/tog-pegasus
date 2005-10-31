@@ -198,7 +198,7 @@ static void _processFile(const char* repositoryRoot, const char* xmlFileName)
 {
     // Create the parser:
 
-    Array<char> text;
+    Buffer text;
     text.reserveCapacity(1024 * 1024);
     FileSystem::loadFileToMemory(text, xmlFileName);
     text.append('\0');

@@ -46,6 +46,7 @@
 #include <Pegasus/Common/CIMScope.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/Pair.h>
+#include <Pegasus/Common/Buffer.h>
 
 
 /* ATTN: P2 KS 25 Mar 2002 - The function names are a mismash of local and taken
@@ -177,10 +178,10 @@ public:
 	Boolean propagateQualifiers);
 
     ///
-    void toXml(Array<char>& out) const;
+    void toXml(Buffer& out) const;
 
     ///
-    void toMof(Array<char>& out) const;
+    void toMof(Buffer& out) const;
 
     ///
     void print(PEGASUS_STD(ostream) &o=PEGASUS_STD(cout)) const;

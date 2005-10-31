@@ -113,7 +113,7 @@ static const char* _toString(Boolean x)
     return x ? "true" : "false";
 }
 
-void CIMQualifierDeclRep::toXml(Array<char>& out) const
+void CIMQualifierDeclRep::toXml(Buffer& out) const
 {
     out << "<QUALIFIER.DECLARATION";
     out << " NAME=\"" << _name << "\"";
@@ -156,7 +156,7 @@ void CIMQualifierDeclRep::toXml(Array<char>& out) const
     ")"
     </pre>
 */
-void CIMQualifierDeclRep::toMof(Array<char>& out) const
+void CIMQualifierDeclRep::toMof(Buffer& out) const
 {
     out << "\n";
 

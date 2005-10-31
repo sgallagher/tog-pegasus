@@ -45,7 +45,7 @@ PEGASUS_USING_STD;
 
 static void _processFile(const char* fileName)
 {
-    Array<char> text;
+    Buffer text;
     FileSystem::loadFileToMemory(text, fileName);
     text.append('\0');
 

@@ -41,6 +41,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/WQL/Linkage.h>
 #include <Pegasus/WQL/WQLSelectStatement.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -55,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 	// Note that this array must be null-terminated (sizeof(TEXT) includes
 	// the null-terminator in the count).
 
-	Array<char> text(TEXT, sizeof(TEXT));
+	Buffer text(TEXT, sizeof(TEXT));
 
 	WQLSelectStatement selectStatement;
 
@@ -185,7 +186,7 @@ public:
     /** Version of parse() taking an array of characters.
     */
     static void parse(
-	const Array<char>& text,
+	const Buffer& text,
 	WQLSelectStatement& statement);
 
     /** Version of parse() taking a string.

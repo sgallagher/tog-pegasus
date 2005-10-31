@@ -189,7 +189,7 @@ public:
         @exception ConnectionTimeoutException
         @exception UnauthorizedAccess
     */
-    Array<char> issueRequest(const Array<char>& request);
+    Buffer issueRequest(const Buffer& request);
 
 private:
 

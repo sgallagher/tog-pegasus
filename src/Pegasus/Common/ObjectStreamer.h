@@ -41,6 +41,7 @@
 #include "CIMInstance.h"
 #include "DeclContext.h"
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,15 +53,15 @@ public:
 
    virtual ~ObjectStreamer() {}
 
-   virtual void encode(Array<char>& out, const CIMClass& cls) = 0;
-   virtual void encode(Array<char>& out, const CIMInstance& inst) = 0;
-   virtual void encode(Array<char>& out, const CIMQualifierDecl& qual) = 0;
+   virtual void encode(Buffer& out, const CIMClass& cls) = 0;
+   virtual void encode(Buffer& out, const CIMInstance& inst) = 0;
+   virtual void encode(Buffer& out, const CIMQualifierDecl& qual) = 0;
 
-   virtual void decode(const Array<char>& in, unsigned int pos, CIMClass& cls) = 0;
-   virtual void decode(const Array<char>& in, unsigned int pos, CIMInstance& inst) = 0;
-   virtual void decode(const Array<char>& in, unsigned int pos, CIMQualifierDecl& qual) = 0;
+   virtual void decode(const Buffer& in, unsigned int pos, CIMClass& cls) = 0;
+   virtual void decode(const Buffer& in, unsigned int pos, CIMInstance& inst) = 0;
+   virtual void decode(const Buffer& in, unsigned int pos, CIMQualifierDecl& qual) = 0;
 
-   virtual void write(PEGASUS_STD(ostream)& os, Array<char>& in)
+   virtual void write(PEGASUS_STD(ostream)& os, Buffer& in)
    {
       os.write((char*)in.getData(), in.size());
    }

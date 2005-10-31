@@ -364,7 +364,7 @@ int main(int argc, char** argv)
         XmlWriter::printInstanceElement(instance, cout);
         else
         {
-        Array<char> x;
+        Buffer x;
         MofWriter::appendInstanceElement(x, instance);
 
                 x.append('\0');

@@ -48,6 +48,7 @@
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
+#include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -106,9 +107,9 @@ public:
 	return _arraySize; 
     }
 
-    void toXml(Array<char>& out) const;
+    void toXml(Buffer& out) const;
 
-    void toMof(Array<char>& out) const;
+    void toMof(Buffer& out) const;
 
     Boolean identical(const CIMQualifierDeclRep* x) const;
 

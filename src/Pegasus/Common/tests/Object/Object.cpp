@@ -162,7 +162,7 @@ void test01()
 
     if (verbose)
     {
-        Array<char> xmlOut;
+        Buffer xmlOut;
         XmlWriter::appendObjectElement(xmlOut, oinstance1);
     }
 
@@ -225,7 +225,7 @@ void test02()
 
     if (verbose)
     {
-        Array<char> xmlOut;
+        Buffer xmlOut;
         XmlWriter::appendObjectElement(xmlOut, ccloneObj);
     }
 
@@ -297,7 +297,7 @@ void test03()
 
     if(verbose)
     {
-        Array<char> xmlOut;
+        Buffer xmlOut;
         XmlWriter::appendObjectElement(xmlOut, myObj);
     }
 }

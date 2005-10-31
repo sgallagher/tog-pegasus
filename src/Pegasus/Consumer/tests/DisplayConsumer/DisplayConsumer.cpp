@@ -63,7 +63,7 @@ public:
 	const String& url,
 	const CIMInstance& indicationInstance)
     {
-	Array<char> buffer;
+	Buffer buffer;
 	XmlWriter::appendInstanceElement(buffer, indicationInstance);
 	cout << buffer.getData() << endl;
     }

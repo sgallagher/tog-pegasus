@@ -70,26 +70,13 @@ PEGASUS_TEMPLATE_SPECIALIZATION struct HashFunc <CIMObjectPath>
     }
 };
 
-/*
-    Hash function object that converts to lowercase.
-
-    This function can be used for hash table keys constructed from strings that
-    should be treated as case insensitive (e.g. class names, namespace names,
-    system names).
-
-    Note: this function converts to lower case based on the process locale.
-*/
-struct HashLowerCaseFunc
+//
+// Computes a hash code for a string without regard to case. For example, it
+// yields the same hash code for "AB", "ab", "Ab", and "aB".
+//
+struct PEGASUS_COMMON_LINKAGE HashLowerCaseFunc
 {
-    static Uint32 hash (const String & str)
-    {
-        String cpy (str);
-        cpy.toLower ();
-        Uint32 h = 0;
-        for (Uint32 i = 0, n = cpy.size (); i < n; i++)
-            h = 5 * h + cpy [i];
-        return h;
-    }
+    static Uint32 hash(const String& str);
 };
 
 /*  This is a function object used by the HashTable to compare keys. This is

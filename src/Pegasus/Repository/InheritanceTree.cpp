@@ -77,9 +77,17 @@ struct InheritanceTreeNode;
 
 struct InheritanceTreeRep
 {
-    typedef HashTable<String, InheritanceTreeNode*,
-          NoCaseEqualFunc, HashFunc<String> > Table;
+    typedef HashTable<
+	String, InheritanceTreeNode*, NoCaseEqualFunc, HashLowerCaseFunc> Table;
     Table table;
+
+    // Tradeoff: chosing a larger value decreases hash lookup time but
+    // increases iteration (which seems to be the dominant operations).
+    // This power of two (256) seems to produce the best results.
+
+    InheritanceTreeRep() : table(256)
+    {
+    }
 };
 
 ////////////////////////////////////////////////////////////////////////////////

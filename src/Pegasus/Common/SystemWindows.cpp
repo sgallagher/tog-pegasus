@@ -333,38 +333,55 @@ String System::getEffectiveUserName()
 #if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
 
 	//Bug 3076 fix
-	char fullUserName[UNLEN+1];
+	wchar_t fullUserName[UNLEN+1];
 	DWORD userNameSize = sizeof(fullUserName);
-	char computerName[MAX_COMPUTERNAME_LENGTH+1];
+	wchar_t computerName[MAX_COMPUTERNAME_LENGTH+1];
     DWORD computerNameSize = sizeof(computerName);    
-	char userName[UNLEN+1];
-    char userDomain[UNLEN+1];
+	wchar_t userName[UNLEN+1];
+    wchar_t userDomain[UNLEN+1];
 	String userId;
 
-	if (!GetUserNameEx(NameSamCompatible, fullUserName, &userNameSize))
+	if (!GetUserNameExW(NameSamCompatible, fullUserName, &userNameSize))
 	{
 		return String();
 	}
 
-	char* index = strchr(fullUserName, '\\');
-	*index = '\0';
-	strcpy(userDomain, fullUserName);
-	strcpy(userName, index + 1);
+	wchar_t* index = wcschr(fullUserName, '\\');
+	*index = 0;
+	wcscpy(userDomain, fullUserName);
+	wcscpy(userName, index + 1);
  
 	//The above function will return the system name as the domain if
 	//the user is not on a real domain.  Strip this out so that the rest of
 	//our windows user functions work.  What if the system name and the domain
 	//name are the same?
-    GetComputerName(computerName, &computerNameSize);
+    GetComputerNameW(computerName, &computerNameSize);
 		
-	if (strcmp(computerName, userDomain) != 0) 
+	if (wcscmp(computerName, userDomain) != 0) 
 	{
-		userId.append(userDomain);
+        //userId.append(userDomain);
+        Uint32 n = wcslen(userDomain);
+        for(unsigned long i = 0; i < n; i++)
+        {
+            userId.append(Char16(userDomain[i]));
+        }
 		userId.append("\\");
-		userId.append(userName);
+		//userId.append(userName);
+        n = wcslen(userName);
+        for(unsigned long i = 0; i < n; i++)
+        {
+            userId.append(Char16(userName[i]));
+        }
+
 	} else
 	{
-		userId.append(userName);
+		//userId.append(userName);
+        Uint32 n = wcslen(userName);
+        for(unsigned long i = 0; i < n; i++)
+        {
+            userId.append(Char16(userName[i]));
+        }
+
 	}
 
 	return userId;
@@ -374,17 +391,24 @@ String System::getEffectiveUserName()
     int retcode = 0;
 
     // UNLEN (256) is the limit, not including null
-    char pUserName[256+1] = {0};
+    wchar_t pUserName[256+1] = {0};
     DWORD nSize = sizeof(pUserName);
 
-    retcode = GetUserName(pUserName, &nSize);
+    retcode = GetUserNameW(pUserName, &nSize);
     if (retcode == 0)
     {
         // zero is failure
         return String();
     }
+    String userId();
+    Uint32 n = wcslen(pUserName);
+    for(unsigned long i = 0; i < n; i++)
+    {
+        userId.append(Char16(pUserName[i]));
+    }
 
-    return String(pUserName);
+
+    return userId;
 #endif
 }
 

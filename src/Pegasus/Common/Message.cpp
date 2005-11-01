@@ -35,10 +35,12 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Arthur Pichlkostner (via Markus: sedgewick_de@yahoo.de)
 //				Willis White (whiwill@us.ibm.com) PEP 127 and 128
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Message.h"
+#include "Tracer.h"
 
 PEGASUS_USING_STD;
 
@@ -376,53 +378,124 @@ void Message::startServer()
     _timeServerStart = TimeValue::getCurrentTime();
 }
 
+#define SS  8          // Has server start time
+#define SE  4          // Has server end time (they all have this)
+#define PS  2          // Has Provider start time
+#define PE  1          // Has Provider end time
+
+// 
+// These are the only states in which the times are processed.
+// Of these the following two states are suspect:
+//        HAS_TIME_SERVER1 because it has a provider start time 
+//                         but not a finish time. 
+//        HAS_TIME_PROVIDER because it does not have a server start time.
+//
+// There are other errors as well as I also see state 04 
+// (only a server end time) reported in the DEBUG_LOG.
+//      JRW Oct 23 2005
+//
+#define HAS_TIME_ALL      (SS | SE | PS | PE)  // 15
+#define HAS_TIME_SERVER1  (SS | SE | PS )      // 14
+#define HAS_TIME_SERVER2  (SS | SE )           // 12
+#define HAS_TIME_PROVIDER (SE | PS | PE )      // 7
+
 void Message::endServer()
 {
-	_timeServerEnd = TimeValue::getCurrentTime();
+  _timeServerEnd = TimeValue::getCurrentTime();
     
-    Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
-       _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
+  Uint16 statType = (Uint16)((_type >= CIM_GET_CLASS_RESPONSE_MESSAGE) ?
+			     _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
-   Uint32 _provTi, _totTi, _servTi;
+  Uint32 State;
+  Uint32 _provTi, _totTi, _servTi;
 
-	Uint32 timeServerStartMilli = _timeServerStart.toMilliseconds();
-    Uint32 timeServerEndMilli = _timeServerEnd.toMilliseconds();
-    Uint32 timeProviderStartMilli = _timeProviderStart.toMilliseconds();
-    Uint32 timeProviderEndMilli = _timeProviderEnd.toMilliseconds();
+  Uint32 timeServerStartMilli = _timeServerStart.toMilliseconds();
+  Uint32 timeServerEndMilli = _timeServerEnd.toMilliseconds();
+  Uint32 timeProviderStartMilli = _timeProviderStart.toMilliseconds();
+  Uint32 timeProviderEndMilli = _timeProviderEnd.toMilliseconds(); 
+
+  State = SE;
+
+  if (timeServerStartMilli != 0)
+    State |= SS;
+  if (timeProviderStartMilli != 0)
+    State |= PS;
+  if (timeProviderEndMilli != 0)
+    State |= PE;
+
+  switch(State)
+    {
+    case (HAS_TIME_ALL):
+      {
+	_totTi = timeServerEndMilli - timeServerStartMilli;
+	_provTi = timeProviderEndMilli - timeProviderStartMilli;
+	_servTi =  _totTi - _provTi;
+	break;
+	 
+      }
+    case (HAS_TIME_PROVIDER):
+      {
+	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+		      "Message::endserver(): Invalid statistical data - Missing server start time. State = %d = 0x%x",
+		      State, State);
+
+	_totTi = _provTi = timeProviderEndMilli - timeProviderStartMilli;
+	_servTi =  _totTi - _provTi;
+	break;
+
+      }
+    case (HAS_TIME_SERVER1):
+      {
+	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+		      "Message::endserver(): Invalid statistical data - Missing provider end time. State = %d = 0x%x",
+		      State, State);
+
+	_totTi = _servTi = timeServerEndMilli - timeServerStartMilli;
+	_provTi = 0;
+	break;
+      }
+
+    case (HAS_TIME_SERVER2):
+      { 
+	_totTi = _servTi = timeServerEndMilli - timeServerStartMilli;
+	_provTi = 0;
+	break;
+
+      }
+    default:
+      {
+	Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+		    "Message::endserver(): Invalid statistical data - discarding data. State = %d = 0x%x",
+		      State, State);
 
 
-	if (timeServerEndMilli < timeServerStartMilli) 
-         _totTi = 0;
-     else
-         _totTi = timeServerEndMilli - timeServerStartMilli;
-    
+
+	return;
+      }
+    }
+
+  totServerTime = _totTi * 1000;
+   
+     
+  _servTi = _servTi*1000;
+  _provTi = _provTi*1000;
+
+   
+  StatisticalData::current()->addToValue((_servTi), statType, 
+					 StatisticalData::PEGASUS_STATDATA_SERVER );
+   
+  StatisticalData::current()->addToValue((_provTi), statType, 
+					 StatisticalData::PEGASUS_STATDATA_PROVIDER );
+
+  /*This adds the number of bytes read to the total.the request size 
+    value must be stored (requSize) and passed to the StatisticalData 
+    object at the end of processing other wise it will be the ONLY vlaue 
+    that is passed to the client which reports the current state of the 
+    object, not the pevious (one command ago) state */
  
-     if (timeProviderEndMilli < timeProviderStartMilli) 
-         _provTi = 0;
-     else
-         _provTi = timeProviderEndMilli - timeProviderStartMilli;
-
-	totServerTime = _totTi * 1000;
-		
-	// totoal time subtract the provider time equall the server time
-
-     _servTi =  _totTi-_provTi;
-
-    StatisticalData::current()->addToValue((_servTi*1000),
-        statType, StatisticalData::PEGASUS_STATDATA_SERVER );
-
-    StatisticalData::current()->addToValue((_provTi*1000),
-        statType, StatisticalData::PEGASUS_STATDATA_PROVIDER );
-
-    /*This adds the number of bytes read to the total.the request size 
-      value must be stored (requSize) and passed to the StatisticalData 
-     object at the end of processing other wise it will be the ONLY vlaue 
-     that is passed to the client which reports the current state of the 
-     object, not the pevious (one command ago) state */
- 
-    StatisticalData::current()->addToValue(StatisticalData::current()->requSize,
-        statType, StatisticalData::PEGASUS_STATDATA_BYTES_READ);
-  }
+  StatisticalData::current()->addToValue(StatisticalData::current()->requSize,
+					 statType, StatisticalData::PEGASUS_STATDATA_BYTES_READ);
+}
 
 void Message::startProvider()
 {

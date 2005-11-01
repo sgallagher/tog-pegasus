@@ -400,7 +400,7 @@ String System::getEffectiveUserName()
         // zero is failure
         return String();
     }
-    String userId();
+    String userId;
     Uint32 n = wcslen(pUserName);
     for(unsigned long i = 0; i < n; i++)
     {

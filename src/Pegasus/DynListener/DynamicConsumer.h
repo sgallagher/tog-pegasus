@@ -65,6 +65,8 @@ public:
                             String url,
                             CIMInstance instance);
 
+    IndicationDispatchEvent(const IndicationDispatchEvent &event);
+
     ~IndicationDispatchEvent();
 
     OperationContext getContext() const;

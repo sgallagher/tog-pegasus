@@ -379,7 +379,7 @@ Boolean DynamicConsumer::isIdle()
     getIdleTimer(&timeout);
 
 	//if no consumer is currently being served and there's no consumer that has pending indications, we are idle
-    if (!_current_operations.value() && !getPendingIndications())
+    if (!_current_operations.get() && !getPendingIndications())
     {
         PEG_METHOD_EXIT();
         return true;
@@ -486,6 +486,15 @@ _lastAttemptTime(CIMDateTime())
 {
 }
 
+IndicationDispatchEvent::IndicationDispatchEvent(const IndicationDispatchEvent &event)
+{
+    _context = event._context;
+    _url = event._url;
+    _instance = event._instance;
+    _retries = event._retries.get();
+    _lastAttemptTime = event._lastAttemptTime;
+}
+
 IndicationDispatchEvent::~IndicationDispatchEvent()
 {
 }
@@ -529,7 +538,7 @@ IndicationDispatchEvent& IndicationDispatchEvent::operator=(const IndicationDisp
 	_context = event._context;
 	_url = event._url;
 	_instance = event._instance;
-	_retries = event._retries;
+	_retries = event._retries.get();
 	_lastAttemptTime = event._lastAttemptTime;
 
     return *this;

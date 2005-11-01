@@ -111,13 +111,14 @@ sources.
 %endif
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec
-%package sdk
+%package devel
 Summary: The OpenPegasus Software Development Kit
 Group: Systems Management/Base
 Autoreq: 0
 Requires: tog-pegasus >= %{version}
+Obsoletes: tog-pegasus-sdk
 
-%description sdk
+%description devel
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenPegasus WBEM
 Services for Linux release. It provides Linux C++ developers with the WBEM files required to
 build WBEM Clients and Providers. It also supports C provider developers via the CMPI interface.
@@ -331,7 +332,7 @@ if [ $1 -eq 0 ]; then
    /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;
 fi
 
-%preun sdk
+%preun devel
 make --directory /opt/tog-pegasus/samples -s clean
 
 %if %{PEGASUS_BUILD_TEST_RPM}
@@ -586,7 +587,7 @@ fi
 /opt/tog-pegasus/providers/lib/libOSProvider.so
 /opt/tog-pegasus/providers/lib/libProcessProvider.so
 
-%files sdk
+%files devel
 
 # SDK Include Files
 #

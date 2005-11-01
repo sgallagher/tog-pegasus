@@ -999,7 +999,7 @@ String CertificateProvider::_getCRLFileName(String crlStore, unsigned long hashV
     //The files are looked up by the CA issuer name hash value. 
     //Since only one CRL should exist for a given CA, the extension .r0 is appended to the CA hash
     char hashBuffer[32];
-    sprintf(hashBuffer, "%lx", hashVal);
+    sprintf(hashBuffer, "%08lx", hashVal);
 
     String hashString = "";
     for (int j = 0; j < 32; j++)
@@ -1056,7 +1056,7 @@ String CertificateProvider::_getNewCertificateFileName(String trustStore, unsign
     //If more than one CA certificate with the same name hash value exists, 
     //the extension must be different (e.g. 9d66eef0.0, 9d66eef0.1 etc)
     char hashBuffer[32];
-    sprintf(hashBuffer, "%lx", hashVal);
+    sprintf(hashBuffer, "%08lx", hashVal);
 
     String hashString = "";
     for (int j = 0; j < 32; j++)

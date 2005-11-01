@@ -125,9 +125,9 @@ private:
 
     void _init();
 
-    Array<CIMInstance> _deserializeOutstandingIndications(const String& consumerName);
+    Array<IndicationDispatchEvent> _deserializeOutstandingIndications(const String& consumerName);
 
-    void _serializeOutstandingIndications(const String& consumerName, Array<CIMInstance> indications);
+    void _serializeOutstandingIndications(const String& consumerName, Array<IndicationDispatchEvent> indications);
 
 };
 

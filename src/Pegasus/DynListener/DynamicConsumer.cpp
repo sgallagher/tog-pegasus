@@ -378,7 +378,8 @@ Boolean DynamicConsumer::isIdle()
     struct timeval timeout = {0,0};
     getIdleTimer(&timeout);
 
-    if (!_current_operations.get())
+	//if no consumer is currently being served and there's no consumer that has pending indications, we are idle
+    if (!_current_operations.value() && !getPendingIndications())
     {
         PEG_METHOD_EXIT();
         return true;
@@ -405,17 +406,19 @@ void DynamicConsumer::waitForEventThread()
  * manager needs to check the .dat files upon startup and load if they are not empty.
  * 
  */ 
-void DynamicConsumer::_loadOutstandingIndications(Array<CIMInstance> indications)
+void DynamicConsumer::_loadOutstandingIndications(Array<IndicationDispatchEvent> indications)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::_loadOutstandingIndications");
 
     //create dispatch events from the instances
-    IndicationDispatchEvent* event;
+    IndicationDispatchEvent* event = 0;
     for (Uint32 i=0; i < indications.size(); i++)
     {
+		
         event = new IndicationDispatchEvent(OperationContext(),  //ATTN: Do we need to store this?
-                                            _name,
-                                            indications[i]);
+                                            indications[i].getURL(),
+                                            indications[i].getIndicationInstance());
+		
         _eventqueue.insert_last(event);
     }
 
@@ -435,11 +438,11 @@ void DynamicConsumer::_loadOutstandingIndications(Array<CIMInstance> indications
  * 
  * ATTN: Should we let another method delete the instances?
  */ 
-Array<CIMInstance> DynamicConsumer::_retrieveOutstandingIndications()
+Array<IndicationDispatchEvent> DynamicConsumer::_retrieveOutstandingIndications()
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "DynamicConsumer::_retrieveOutstandingIndications");
 
-    Array<CIMInstance> indications;
+    Array<IndicationDispatchEvent> indications;
     IndicationDispatchEvent* temp = 0;
 
     try
@@ -449,7 +452,7 @@ Array<CIMInstance> DynamicConsumer::_retrieveOutstandingIndications()
         while (temp)
         {
             PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "retrieving");
-            indications.append(temp->getIndicationInstance());
+			indications.append(*temp);
             temp = _eventqueue.next(temp);
         }
         _eventqueue.unlock();
@@ -467,6 +470,10 @@ Array<CIMInstance> DynamicConsumer::_retrieveOutstandingIndications()
 ////////////////////////////////
 // IndicationDispatchEvent
 ////////////////////////////////
+
+IndicationDispatchEvent::IndicationDispatchEvent()
+{
+}
 
 IndicationDispatchEvent::IndicationDispatchEvent(OperationContext context,
                                                  String url,
@@ -514,6 +521,18 @@ void IndicationDispatchEvent::increaseRetries()
 CIMDateTime IndicationDispatchEvent::getLastAttemptTime()
 {
     return _lastAttemptTime;
+}
+
+
+IndicationDispatchEvent& IndicationDispatchEvent::operator=(const IndicationDispatchEvent &event)
+{
+	_context = event._context;
+	_url = event._url;
+	_instance = event._instance;
+	_retries = event._retries;
+	_lastAttemptTime = event._lastAttemptTime;
+
+    return *this;
 }
 
 Boolean IndicationDispatchEvent::operator==(const IndicationDispatchEvent& event) const

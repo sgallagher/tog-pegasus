@@ -64,6 +64,8 @@ const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
 static const Uint32 DEFAULT_MAX_RETRY_COUNT = 5;
 static const Uint32 DEFAULT_RETRY_LAPSE = 300000;  //ms = 5 minutes
 
+//constant for fake property that is added to instances when serializing to track the full URL
+static const String URL_PROPERTY = "URLString";
 
 
 ConsumerManager::ConsumerManager(const String& consumerDir, const String& consumerConfigDir, Boolean enableConsumerUnload, Uint32 idleTimeout) : 
@@ -364,7 +366,7 @@ void ConsumerManager::_initConsumer(const String& consumerName, DynamicConsumer*
         consumer->waitForEventThread();
 
         //load any outstanding requests
-        Array<CIMInstance> outstandingIndications = _deserializeOutstandingIndications(consumerName);
+        Array<IndicationDispatchEvent> outstandingIndications = _deserializeOutstandingIndications(consumerName);
         if (outstandingIndications.size())
         {
             //the consumer will signal itself in _loadOustandingIndications
@@ -718,7 +720,7 @@ void ConsumerManager::_unloadConsumers(Array<DynamicConsumer*> consumersToUnload
 
 /** Serializes oustanding indications to a <MyConsumer>.dat file
  */
-void ConsumerManager::_serializeOutstandingIndications(const String& consumerName, Array<CIMInstance> indications)
+void ConsumerManager::_serializeOutstandingIndications(const String& consumerName, Array<IndicationDispatchEvent> indications)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_serializeOutstandingIndications");
 
@@ -751,10 +753,18 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
         //we have to put the array of instances under a valid root element or the parser complains 
         XmlWriter::append(buffer, "<IRETURNVALUE>\n");
 
+		CIMInstance cimInstance;
         for (Uint32 i = 0; i < indications.size(); i++)
         {
-            XmlWriter::appendValueNamedInstanceElement(buffer, indications[i]);
-        }
+			//set the URL string property on the serializable instance
+			CIMValue cimValue(CIMTYPE_STRING, false);
+			cimValue.set(indications[i].getURL());
+			cimInstance = indications[i].getIndicationInstance();
+			CIMProperty cimProperty(URL_PROPERTY, cimValue);
+			cimInstance.addProperty(cimProperty);
+
+            XmlWriter::appendValueNamedInstanceElement(buffer, cimInstance);
+		}
 
         XmlWriter::append(buffer, "</IRETURNVALUE>\0");
 
@@ -768,7 +778,7 @@ void ConsumerManager::_serializeOutstandingIndications(const String& consumerNam
 
 /** Reads outstanding indications from a <MyConsumer>.dat file
  */ 
-Array<CIMInstance> ConsumerManager::_deserializeOutstandingIndications(const String& consumerName)
+Array<IndicationDispatchEvent> ConsumerManager::_deserializeOutstandingIndications(const String& consumerName)
 {
     PEG_METHOD_ENTER(TRC_LISTENER, "ConsumerManager::_deserializeOutstandingIndications");
 
@@ -776,12 +786,17 @@ Array<CIMInstance> ConsumerManager::_deserializeOutstandingIndications(const Str
     PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "Consumer dat file: " + fileName);
 
     Array<CIMInstance> cimInstances;
+	Array<String>      urlStrings;
+	Array<IndicationDispatchEvent> indications;
 
     // Open the log file and serialize remaining indications
     if (FileSystem::exists(fileName)  && FileSystem::canRead(fileName))
     {
         Buffer text;
         CIMInstance cimInstance;
+		CIMProperty cimProperty;
+		CIMValue cimValue;
+		String urlString;
         XmlEntry entry;
 
         try
@@ -795,7 +810,17 @@ Array<CIMInstance> ConsumerManager::_deserializeOutstandingIndications(const Str
 
             while (XmlReader::getNamedInstanceElement(parser, cimInstance))
             {
-                cimInstances.append(cimInstance);
+				Uint32 index = cimInstance.findProperty(URL_PROPERTY);
+				if (index != PEG_NOT_FOUND)
+				{
+					//get the URL string property from the serialized instance and remove the property
+					cimProperty = cimInstance.getProperty(index);
+					cimValue = cimProperty.getValue();
+					cimValue.get(urlString);
+					cimInstance.removeProperty(index);
+				}
+				IndicationDispatchEvent* indicationEvent = new IndicationDispatchEvent(OperationContext(), urlString, cimInstance);
+                indications.append(*indicationEvent);
             }
 
             XmlReader::expectEndTag(parser, "IRETURNVALUE");
@@ -803,7 +828,7 @@ Array<CIMInstance> ConsumerManager::_deserializeOutstandingIndications(const Str
             Tracer::trace(__FILE__,__LINE__,TRC_LISTENER,Tracer::LEVEL3,
                           "Consumer %s has %d outstanding indications",
                           (const char*)consumerName.getCString(),
-                          cimInstances.size());
+                          indications.size());
 
             //delete the file 
             FileSystem::removeFile(fileName);
@@ -819,7 +844,7 @@ Array<CIMInstance> ConsumerManager::_deserializeOutstandingIndications(const Str
     }
 
     PEG_METHOD_EXIT();
-    return cimInstances;
+    return indications;
 }
 
 

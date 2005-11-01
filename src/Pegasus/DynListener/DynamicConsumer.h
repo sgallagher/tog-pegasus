@@ -37,6 +37,7 @@
 #define Pegasus_Dynamic_Consumer_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/DQueue.h>
@@ -58,6 +59,8 @@ class PEGASUS_DYNLISTENER_LINKAGE IndicationDispatchEvent
 {
 public:
     
+	IndicationDispatchEvent();
+
     IndicationDispatchEvent(OperationContext context,
                             String url,
                             CIMInstance instance);
@@ -75,6 +78,8 @@ public:
     void increaseRetries();
 
     CIMDateTime getLastAttemptTime();
+
+	IndicationDispatchEvent& operator=(const IndicationDispatchEvent &event);
 
     Boolean operator==(const IndicationDispatchEvent &event) const;
 
@@ -207,9 +212,9 @@ private:
     Semaphore* _shutdownSemaphore;
 
     //these functions are used to serialize and deserialize outstanding indications
-    void _loadOutstandingIndications(Array<CIMInstance> indications);
+    void _loadOutstandingIndications(Array<IndicationDispatchEvent> indications);
 
-    Array<CIMInstance> _retrieveOutstandingIndications();
+    Array<IndicationDispatchEvent> _retrieveOutstandingIndications();
 
 };
 

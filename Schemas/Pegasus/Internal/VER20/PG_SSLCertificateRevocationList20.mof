@@ -64,7 +64,7 @@ class PG_SSLCertificateRevocationList
     datetime RevocationDates[];
 
     [static, Description ("User to create or update a CRL")]
-    Boolean addCertificateRevocationList(String CRLContents);
+    Boolean addCertificateRevocationList([in] String CRLContents);
 
 };
 

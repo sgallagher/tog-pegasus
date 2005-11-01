@@ -1037,25 +1037,75 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
     PEGASUS_ASSERT(request != 0);
 
     CIMValue cimValue;
+    CIMException cimException;
+    ContentLanguages contentLangs;
 
-    // l10n
+    try
+    {
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->instanceName.getClassName(),
+            request->instanceName.getKeyBindings());
+
+        Array<CIMName> propertyListArray;
+        propertyListArray.append(request->propertyName);
+        CIMPropertyList propertyList(propertyListArray);
+
+        SimpleInstanceResponseHandler handler;
+
+        getInstance(
+            request->operationContext,
+            objectPath,
+            false,
+            false,
+            propertyList,
+            handler);
+
+        if (handler.size() == 1)
+        {
+            // Retrieve the requested property
+            CIMInstance cimInstance = handler.getObjects()[0];
+            Uint32 pos = cimInstance.findProperty(request->propertyName);
+            if (pos != PEG_NOT_FOUND)
+            {
+                cimValue = cimInstance.getProperty(pos).getValue();
+            }
+        }
+        else
+        {
+            PEGASUS_ASSERT(0);
+        }
+
+        contentLangs = handler.getLanguages();
+    }
+    catch (CIMException& e)
+    {
+        cimException = e;
+    }
+    catch (Exception& e)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch (...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
+    }
 
     // create response message
     AutoPtr<CIMGetPropertyResponseMessage> response(
-	new CIMGetPropertyResponseMessage(
-	request->messageId,
-	PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
-	request->queueIds.copyAndPop(),
-	cimValue));
-
-    // CIMGetPropertyResponseMessage * response =
-    // new CIMGetPropertyResponseMessage(
-    //request->messageId,
-    //PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-    //request->queueIds.copyAndPop(),
-    //cimValue);
+        new CIMGetPropertyResponseMessage(
+            request->messageId,
+            cimException,
+            request->queueIds.copyAndPop(),
+            cimValue));
 
     STAT_PMS_PROVIDEREND
+
+    response->operationContext.set(ContentLanguageListContainer(contentLangs));
 
     // preserve message key
     response->setKey(request->getKey());
@@ -1072,25 +1122,60 @@ Message * ProviderMessageFacade::_handleSetPropertyRequest(Message * message)
 
     PEGASUS_ASSERT(request != 0);
 
-    // l10n
+    CIMException cimException;
+
+    try
+    {
+        // make target object path
+        CIMObjectPath objectPath(
+            System::getHostName(),
+            request->nameSpace,
+            request->instanceName.getClassName(),
+            request->instanceName.getKeyBindings());
+
+        CIMInstance cimInstance;
+        cimInstance.addProperty(
+            CIMProperty(request->propertyName, request->newValue));
+
+        Array<CIMName> propertyListArray;
+        propertyListArray.append(request->propertyName);
+        CIMPropertyList propertyList(propertyListArray);
+
+        SimpleResponseHandler handler;
+
+        modifyInstance(
+            request->operationContext,
+            objectPath,
+            cimInstance,
+            false,
+            propertyList,
+            handler);
+    }
+    catch (CIMException& e)
+    {
+        cimException = e;
+    }
+    catch (Exception& e)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, e.getMessage());
+    }
+    catch (...)
+    {
+        cimException = PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
+            MessageLoaderParms("Server.ProviderMessageFacade.UNKNOWN_ERROR",
+                "Unknown Error"));
+    }
 
     // create response message
     AutoPtr<CIMSetPropertyResponseMessage> response(
-	new CIMSetPropertyResponseMessage(
-	    request->messageId,
-	    PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, MessageLoaderParms("Server.ProviderMessageFacade.NOT_IMPLEMENTED", "not implemented")),
-	    request->queueIds.copyAndPop()));
-
-    // CIMSetPropertyResponseMessage * response =
-    // new CIMSetPropertyResponseMessage(
-    //    request->messageId,
-    //    PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, "not implemented"),
-    //    request->queueIds.copyAndPop());
-
-    // preserve message key
+        new CIMSetPropertyResponseMessage(
+            request->messageId,
+            cimException,
+            request->queueIds.copyAndPop()));
 
     STAT_PMS_PROVIDEREND
 
+    // preserve message key
     response->setKey(request->getKey());
 
     return response.release();

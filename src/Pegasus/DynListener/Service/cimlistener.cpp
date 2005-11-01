@@ -623,21 +623,25 @@ int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOp
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) \
     || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_SOLARIS) \
     || defined(PEGASUS_OS_VMS)
-        //
-        // create a file to indicate that the cimserver has started and
-        // save the process id of the cimserver process in the file
-        //
-        // remove the old file if it exists
-        System::removeFile(LISTENER_STOP_FILE);
 
-        // open the file
-        FILE *pid_file = fopen(LISTENER_STOP_FILE, "w");
-
-        if (pid_file)
+        // Check to see if the CIM Listener is running. No need to stop if not running.
+        if(_cimListenerProcess->isCIMServerRunning())
         {
-            // save the pid in the file
-            fprintf(pid_file, "%ld\n", _cimListenerProcess->get_server_pid());
-            fclose(pid_file);
+            // remove the old file if it exists
+            System::removeFile(LISTENER_STOP_FILE);
+
+            // open the file
+            FILE *pid_file = fopen(LISTENER_STOP_FILE, "w");
+
+            if (pid_file)
+            {
+                // save the pid in the file
+                fprintf(pid_file, "%ld\n", _cimListenerProcess->get_server_pid());
+                fclose(pid_file);
+            }
+        } else {
+            printf("CIM Listener may not be running.\n");
+            return(0);
         }
 #endif
 

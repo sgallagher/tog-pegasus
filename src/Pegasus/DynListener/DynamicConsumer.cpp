@@ -291,9 +291,8 @@ void DynamicConsumer::enqueueEvent(IndicationDispatchEvent* event)
     try
     {
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "enqueueEvent before " + _name);
-        //always insert new events at the head of the queue to be processed immediately
-        //we put unsuccessful indications at the back of the queue to be processed after all new indications
-        _eventqueue.insert_first(event);
+        // Our event queue is first in first out.
+        _eventqueue.insert_last(event);
         _check_queue->signal();
 
         PEG_TRACE_STRING(TRC_LISTENER, Tracer::LEVEL4, "enqueueEvent after " + _name);

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -41,21 +41,23 @@ public class TestJavaProvider1 implements InstanceProvider
    public TestJavaProvider1() {
       System.err.println("~~~ TestProvider::TestProvider()");
    }
+
+
    public void initialize(CIMOMHandle ch)
                 throws CIMException {
       System.err.println("~~~ TestProvider::Initialize()");
       this.ch=ch;
    }
 
+
    public void cleanup()
-                throws CIMException { 
+                throws CIMException {
    }
 
 
-
    public CIMObjectPath createInstance(CIMObjectPath op,
-                               CIMInstance ci)
-                        throws CIMException {
+                                       CIMInstance   ci)
+                throws CIMException {
       System.err.println("~~~ TestProvider::createInstance()");
       CIMProperty cpk=ci.getProperty("Identifier");
       Object k=cpk.getValue().getValue();
@@ -72,10 +74,12 @@ public class TestJavaProvider1 implements InstanceProvider
    }
 
 
-
    public CIMInstance getInstance(CIMObjectPath op,
-                               CIMClass cc,
-                               boolean localOnly)
+                                  CIMClass      cc,
+                                  boolean       localOnly,
+                                  boolean       includeQualifiers,
+                                  boolean       includeClassOrigin,
+                                  String        propertyList[])
                         throws CIMException {
 //      System.err.println("~~~ TestProvider::getInstance()");
       Vector vec=op.getKeys();
@@ -96,7 +100,7 @@ public class TestJavaProvider1 implements InstanceProvider
 
 
    public void setInstance(CIMObjectPath cop,
-                               CIMInstance cimInstance)
+                           CIMInstance cimInstance)
                         throws CIMException  {
       System.err.println("~~~ TestProvider::setInstance()");
       CIMProperty cpk=cimInstance.getProperty("Identifier");
@@ -127,9 +131,8 @@ public class TestJavaProvider1 implements InstanceProvider
 
 
 
-   public Vector enumInstances(CIMObjectPath cop,
-                               boolean deep,
-                               CIMClass cimClass)
+   public Vector enumerateInstanceNames (CIMObjectPath cop,
+                                         CIMClass      cimClass)
                         throws CIMException {
       Enumeration en=data.keys();
       Vector vec=new Vector();
@@ -146,10 +149,13 @@ public class TestJavaProvider1 implements InstanceProvider
 
 
 
-   public Vector enumInstances(CIMObjectPath cop,
-                               boolean deep,
-                               CIMClass cimClass,
-                               boolean localOnly)
+   public Vector enumerateInstances (CIMObjectPath cop,
+                                     CIMClass      cimClass,
+                                     boolean       deep,
+                                     boolean       localOnly,
+                                     boolean       includeQualifiers,
+                                     boolean       includeClassOrigin,
+                                     String        propertyList[])
                         throws CIMException {
       Enumeration en=data.keys();
       Vector vec=new Vector();
@@ -166,18 +172,11 @@ public class TestJavaProvider1 implements InstanceProvider
 
 
 
-   public Vector execQuery(CIMObjectPath op,
-                               String queryStatement,
-                               int ql,
-                               CIMClass cimClass)
+   public Vector execQuery (CIMObjectPath cop,
+                            CIMClass      cimClass,
+                            String        queryStatement,
+                            String        queryLanguage)
                         throws CIMException {
       return null;
    }
-
 }
-
-
-
-
-
-

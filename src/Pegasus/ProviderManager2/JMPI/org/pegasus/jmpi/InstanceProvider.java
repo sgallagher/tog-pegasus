@@ -38,42 +38,47 @@ import java.util.Vector;
 
 public interface InstanceProvider extends CIMProvider
 {
-    public CIMInstance getInstance          (CIMObjectPath op,
-                                             CIMClass      cimClass,
-                                             boolean       localOnly,
-                                             boolean       includeQualifiers,
-                                             boolean       includeClassOrigin,
-                                             String        propertyList[])
+    public CIMInstance getInstance                         (CIMObjectPath cop,
+                                                            CIMClass      cimClass,
+                                                            boolean       localOnly,
+                                                            boolean       includeQualifiers,
+                                                            boolean       includeClassOrigin,
+                                                            String        propertyList[])
         throws CIMException;
 
 
-    public CIMObjectPath createInstance     (CIMObjectPath op,
-                                             CIMInstance   cimInstance)
+    public CIMObjectPath createInstance                    (CIMObjectPath cop,
+                                                            CIMInstance   cimInstance)
         throws CIMException;
 
 
-    public abstract void setInstance        (CIMObjectPath cop,
-                                             CIMInstance   cimInstance)
+    public abstract void setInstance                       (CIMObjectPath cop,
+                                                            CIMInstance   cimInstance)
         throws CIMException;
 
 
-    public abstract void deleteInstance     (CIMObjectPath cop)
+    public abstract void deleteInstance                    (CIMObjectPath cop)
          throws CIMException;
 
 
-    public abstract Vector enumInstances    (CIMObjectPath cop,
-                                             CIMClass      cimClass,
-                                             boolean       deep,
-                                             boolean       localOnly,
-                                             boolean       includeQualifiers,
-                                             boolean       includeClassOrigin,
-                                             String        propertyList[])
+    public abstract Vector enumerateInstances              (CIMObjectPath cop,
+                                                            CIMClass      cimClass,
+                                                            boolean       deep,
+                                                            boolean       localOnly,
+                                                            boolean       includeQualifiers,
+                                                            boolean       includeClassOrigin,
+                                                            String        propertyList[])
         throws CIMException;
 
 
-    public abstract CIMInstance[] execQuery (CIMObjectPath op,
-                                             String        queryStatement,
-                                             String        queryLanguage,
-                                             CIMClass      cimClass)
+    public abstract Vector enumerateInstanceNames          (CIMObjectPath cop,
+                                                            CIMClass      cimClass)
+        throws CIMException;
+
+
+    public abstract Vector execQuery                       (CIMObjectPath cop,
+                                                            CIMClass      cimClass,
+                                                            String        queryStatement,
+                                                            String        queryLanguage)
         throws CIMException;
 };

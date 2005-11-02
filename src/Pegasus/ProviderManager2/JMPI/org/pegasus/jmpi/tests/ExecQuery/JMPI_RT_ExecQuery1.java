@@ -170,14 +170,17 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
     }
 
     public CIMInstance getInstance (CIMObjectPath cop,
-                                    CIMClass      cc,
-                                    boolean       localOnly)
+                                    CIMClass      cimClass,
+                                    boolean       localOnly,
+                                    boolean       includeQualifiers,
+                                    boolean       includeClassOrigin,
+                                    String        propertyList[])
        throws CIMException
     {
         if (this.fDebug)
         {
             System.out.println ("JMPI_RT_ExecQuery1::getInstance: cop       = " + cop);
-            System.out.println ("JMPI_RT_ExecQuery1::getInstance: cc        = " + cc);
+            System.out.println ("JMPI_RT_ExecQuery1::getInstance: cimClass  = " + cimClass);
             System.out.println ("JMPI_RT_ExecQuery1::getInstance: localOnly = " + localOnly);
         }
 
@@ -260,15 +263,13 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
             throw new CIMException (CIMException.CIM_ERR_NOT_FOUND);
     }
 
-    public Vector enumInstances (CIMObjectPath cop,
-                                 boolean       deep,
-                                 CIMClass      cimClass)
+    public Vector enumerateInstanceNames (CIMObjectPath cop,
+                                          CIMClass      cimClass)
        throws CIMException
     {
         if (this.fDebug)
         {
             System.out.println ("JMPI_RT_ExecQuery1::enumInstances: cop      = " + cop);
-            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: deep     = " + deep);
             System.out.println ("JMPI_RT_ExecQuery1::enumInstances: cimClass = " + cimClass);
         }
 
@@ -283,10 +284,13 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
         return paths;
     }
 
-    public Vector enumInstances (CIMObjectPath cop,
-                                 boolean       deep,
-                                 CIMClass      cimClass,
-                                 boolean       localOnly)
+    public Vector enumerateInstances (CIMObjectPath cop,
+                                      CIMClass      cimClass,
+                                      boolean       deep,
+                                      boolean       localOnly,
+                                      boolean       includeQualifiers,
+                                      boolean       includeClassOrigin,
+                                      String        propertyList[])
        throws CIMException
     {
         if (this.fDebug)
@@ -330,13 +334,13 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
     /**
      * Pegasus 2.4 version
      */
-    public CIMInstance[] execQuery (CIMObjectPath cop,
-                                    String        queryStatement,
-                                    String        queryLanguage,
-                                    CIMClass      cimClass)
+    public Vector execQuery (CIMObjectPath cop,
+                             CIMClass      cimClass,
+                             String        queryStatement,
+                             String        queryLanguage)
        throws CIMException
     {
-        CIMInstance[] ret = null;
+        ConvertibleVector returnVector = new ConvertibleVector ();
 
         if (this.fDebug)
         {
@@ -348,8 +352,6 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
 
         if (instances.size () > 0)
         {
-            ConvertibleVector returnVector = new ConvertibleVector ();
-
             if (queryLanguage.equalsIgnoreCase ("WQL"))
             {
                 if (  queryStatement.equalsIgnoreCase ("Select * from " + className + " where InstanceId = 1")
@@ -365,14 +367,9 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
                     returnVector.addElement ((CIMInstance)instances.elementAt (1));
                 }
             }
-
-            if (returnVector.size () > 0)
-            {
-                ret = (CIMInstance[])returnVector.buildArray ();
-            }
         }
 
-        return ret;
+        return returnVector;
     }
 
     int findObjectPath (CIMObjectPath path)

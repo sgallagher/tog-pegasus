@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -54,7 +54,7 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 {
    CIMOMHandle ch;
 
-   Vector pathes=new Vector();
+   Vector paths=new Vector();
    Vector instances=new Vector();
 
    public JMPI_TestPropertyTypes() {
@@ -107,7 +107,7 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
          new CIMValue(new CIMDateTime("20010515104354.000000:000")));
 
       instances.addElement(instance1);
-      pathes.addElement(cop1);
+      paths.addElement(cop1);
 
       CIMInstance instance2=new CIMInstance("JMPI_TestPropertyTypes");
       CIMObjectPath cop2=new CIMObjectPath("JMPI_TestPropertyTypes","test/static");
@@ -148,13 +148,13 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
          new CIMValue(new CIMDateTime("20010515104354.000000:000")));
 
       instances.addElement(instance2);
-      pathes.addElement(cop2);
+      paths.addElement(cop2);
    }
 
    int findObjectPath(CIMObjectPath path) {
       String p=path.toString();
-      for (int i=0; i<pathes.size(); i++) {
-        if (((CIMObjectPath)pathes.elementAt(i)).toString().equalsIgnoreCase(p))
+      for (int i=0; i<paths.size(); i++) {
+        if (((CIMObjectPath)paths.elementAt(i)).toString().equalsIgnoreCase(p))
             return i;
       }
       return -1;
@@ -242,36 +242,38 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
       }
    }
 
-   public CIMObjectPath createInstance(CIMObjectPath op,
-                               CIMInstance ci)
+   public CIMObjectPath createInstance(CIMObjectPath cop,
+                                       CIMInstance   cimInstance)
                         throws CIMException {
 
       // ensure the Namespace is valid
-      if (!op.getNameSpace().equalsIgnoreCase("test/static"))
+      if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_NAMESPACE);
 
       // ensure the class existing in the specified namespace
-      if (!op.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
+      if (!cop.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_CLASS);
 
       // ensure the InstanceId key is valid
-      CIMProperty prop=ci.getProperty("InstanceId");
+      CIMProperty prop = cimInstance.getProperty("InstanceId");
+
       if (prop==null)
          throw new CIMException(CIMException.CIM_ERR_INVALID_PARAMETER);
 
-      CIMObjectPath rop=new CIMObjectPath("JMPI_TestPropertyTypes","test/static");
+      CIMObjectPath rop = new CIMObjectPath("JMPI_TestPropertyTypes","test/static");
+
       rop.addKey("InstanceId",prop.getValue());
       rop.addKey("CreationClassName", new CIMValue("JMPI_TestPropertyTypes"));
 
       // ensure the property values are valid
-      testPropertyTypesValue(ci);
+      testPropertyTypesValue(cimInstance);
 
       // Determine if a property exists in the class
-      if (ci.getProperty("PropertyUint8")==null)
+      if (cimInstance.getProperty("PropertyUint8")==null)
          throw new CIMException(CIMException.CIM_ERR_INVALID_PARAMETER);
 
       // ensure the requested object do not exist
-      if (findObjectPath(op) >= 0)
+      if (findObjectPath(cop) >= 0)
          throw new CIMException(CIMException.CIM_ERR_ALREADY_EXISTS);
 
       return rop;
@@ -279,13 +281,17 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
 
 
-   public CIMInstance getInstance(CIMObjectPath op,
-                               CIMClass cc,
-                               boolean localOnly)
+   public CIMInstance getInstance(CIMObjectPath cop,
+                                  CIMClass      cimClass,
+                                  boolean       localOnly,
+                                  boolean       includeQualifiers,
+                                  boolean       includeClassOrigin,
+                                  String        propertyList[])
                         throws CIMException {
       // ensure the InstanceId key is valid
-      Vector keys=op.getKeys();
+      Vector keys=cop.getKeys();
       int i;
+
       for (i=0; i<keys.size() && !((CIMProperty)keys.elementAt(i)).getName().
              equalsIgnoreCase("InstanceId");
            i++);
@@ -294,15 +300,15 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
          throw new CIMException(CIMException.CIM_ERR_INVALID_PARAMETER);
 
       // ensure the Namespace is valid
-      if (!op.getNameSpace().equalsIgnoreCase("test/static"))
+      if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_NAMESPACE);
 
       // ensure the class existing in the specified namespace
-      if (!op.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
+      if (!cop.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_CLASS);
 
       // ensure the request object exists
-      int index=findObjectPath(op);
+      int index=findObjectPath(cop);
       if (index<0)
          throw new CIMException(CIMException.CIM_ERR_NOT_FOUND);
 
@@ -311,75 +317,86 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
 
 
-   public void setInstance(CIMObjectPath op,
-                               CIMInstance cimInstance)
+   public void setInstance(CIMObjectPath cop,
+                           CIMInstance   cimInstance)
                         throws CIMException  {
 
       // ensure the Namespace is valid
-      if (!op.getNameSpace().equalsIgnoreCase("test/static"))
+      if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_NAMESPACE);
 
       // ensure the class existing in the specified namespace
-      if (!op.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
+      if (!cop.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_CLASS);
 
       // ensure the property values are valid
       testPropertyTypesValue(cimInstance);
 
       // ensure the request object exists
-      int index=findObjectPath(op);
+      int index=findObjectPath(cop);
       if (index<0)
          throw new CIMException(CIMException.CIM_ERR_NOT_FOUND);
    }
 
 
 
-   public void deleteInstance(CIMObjectPath op)
+   public void deleteInstance(CIMObjectPath cop)
                         throws CIMException  {
       // ensure the Namespace is valid
-      if (!op.getNameSpace().equalsIgnoreCase("test/static"))
+      if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_NAMESPACE);
 
       // ensure the class existing in the specified namespace
-      if (!op.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
+      if (!cop.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_CLASS);
 
       // ensure the request object exists
-      int index=findObjectPath(op);
+      int index=findObjectPath(cop);
       if (index<0)
          throw new CIMException(CIMException.CIM_ERR_NOT_FOUND);
    }
 
 
 
-   public Vector enumInstances(CIMObjectPath op,
-                               boolean deep,
-                               CIMClass cimClass)
+   public Vector enumerateInstanceNames (CIMObjectPath cop,
+                                         CIMClass      cimClass)
                         throws CIMException {
       // ensure the Namespace is valid
-      if (!op.getNameSpace().equalsIgnoreCase("test/static"))
+      if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_NAMESPACE);
 
       // ensure the class existing in the specified namespace
-      if (!op.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
+      if (!cop.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_CLASS);
 
-      return pathes;
+      return paths;
    }
 
 
 
-   public Vector enumInstances(CIMObjectPath op,
-                               boolean deep,
-                               CIMClass cimClass,
-                               boolean localOnly)
+   public Vector enumerateInstances (CIMObjectPath cop,
+                                     CIMClass      cimClass,
+                                     boolean       deep,
+                                     boolean       localOnly,
+                                     boolean       includeQualifiers,
+                                     boolean       includeClassOrigin,
+                                     String        propertyList[])
                         throws CIMException {
+//////System.out.println ("enumerateInstances");
+//////System.out.println ("enumerateInstances: cop = " + cop);
+//////System.out.println ("enumerateInstances: cimClass = " + cimClass);
+//////System.out.println ("enumerateInstances: deep = " + deep);
+//////System.out.println ("enumerateInstances: localOnly = " + localOnly);
+//////System.out.println ("enumerateInstances: includeQualifiers = " + includeQualifiers);
+//////System.out.println ("enumerateInstances: includeClassOrigin = " + includeClassOrigin);
+//////System.out.println ("enumerateInstances: propertyList = " + propertyList);
+
       // ensure the Namespace is valid
-      if (!op.getNameSpace().equalsIgnoreCase("test/static"))
+      if (!cop.getNameSpace().equalsIgnoreCase("test/static"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_NAMESPACE);
 
       // ensure the class existing in the specified namespace
-      if (!op.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
+      if (!cop.getObjectName().equalsIgnoreCase("JMPI_TestPropertyTypes"))
          throw new CIMException(CIMException.CIM_ERR_INVALID_CLASS);
 
       return instances;
@@ -387,10 +404,10 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
 
 
-   public CIMInstance[] execQuery (CIMObjectPath cop,
-                                   String        queryStatement,
-                                   String        queryLanguage,
-                                   CIMClass      cimClass)
+   public Vector execQuery (CIMObjectPath cop,
+                            CIMClass      cimClass,
+                            String        queryStatement,
+                            String        queryLanguage)
                         throws CIMException {
       return null;
    }
@@ -399,9 +416,9 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
 
    public CIMValue invokeMethod(CIMObjectPath op,
-                               String method,
-                               Vector in,
-                               Vector out)
+                                String        method,
+                                Vector        in,
+                                Vector        out)
                         throws CIMException {
 
       if (method.equalsIgnoreCase("SayHello"))
@@ -413,33 +430,33 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
 
 
-    public void authorizeFilter(SelectExp filter,
-                                String eventType,
+    public void authorizeFilter(SelectExp     filter,
+                                String        eventType,
                                 CIMObjectPath classPath,
-                                String owner)
+                                String        owner)
                         throws CIMException {
     }
 
-    public boolean mustPoll(SelectExp filter,
-                            String eventType,
+    public boolean mustPoll(SelectExp     filter,
+                            String        eventType,
                             CIMObjectPath classPath)
                         throws CIMException {
         return false;
     }
 
 
-    public void activateFilter(SelectExp filter,
-                               String eventType,
+    public void activateFilter(SelectExp     filter,
+                               String        eventType,
                                CIMObjectPath classPath,
-                               boolean firstActivation)
+                               boolean       firstActivation)
                         throws CIMException {
     }
 
 
-    public void deActivateFilter(SelectExp filter,
-                                 String eventType,
+    public void deActivateFilter(SelectExp     filter,
+                                 String        eventType,
                                  CIMObjectPath classPath,
-                                 boolean lastActivation)
+                                 boolean       lastActivation)
                         throws CIMException {
     }
 

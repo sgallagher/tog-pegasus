@@ -30,19 +30,21 @@ ROOT = $(PEGASUS_ROOT)
 
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
-DIR = Providers/TestProviders/CIMOMHandleTestProvider/testclient
+DIR = Providers/TestProviders/InstanceProvider/testclient
 
 include $(ROOT)/mak/config.mak
 
+#LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARIES = \
-    pegcommon \
-    pegclient
+    pegclient \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = CIMOMHandleTestProviderClient
+PROGRAM = TestInstanceProviderClient
 
-SOURCES = CIMOMHandleTestProviderClient.cpp
+SOURCES = TestInstanceProviderClient.cpp
 
 include $(ROOT)/mak/program.mak
 

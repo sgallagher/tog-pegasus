@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,16 +29,15 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
-//                  (carolann_graves@hp.com)
-//              Mike Day, IBM (mdday@us.ibm.com)
-//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+// Modified By:
+//      Carol Ann Krug Graves, Hewlett-Packard Company (carolann_graves@hp.com)
+//      Mike Day, IBM (mdday@us.ibm.com)
+//      Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Message.h>
+#include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/DQueue.h>
@@ -55,19 +54,37 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+class InternalCIMOMHandleMessageQueue : public MessageQueue
+{
+public:
+    InternalCIMOMHandleMessageQueue();
+    virtual ~InternalCIMOMHandleMessageQueue();
+
+    virtual void handleEnqueue();
+
+    CIMResponseMessage * sendRequest(CIMRequestMessage * request);
+
+private:
+    Uint32 _output_qid;
+    Uint32 _return_qid;
+
+    Mutex _mutex;
+    AsyncDQueue<Message> _response;
+
+};
+
 /**
     InternalCIMOMHandleRep is the default, in-process CIMOMHandle
     implementation.  The code was extracted from CIMOMHandle.cpp to allow
     for polymorphic CIMOMHandleRep implementations.
  */
-class InternalCIMOMHandleRep : public CIMOMHandleRep, public MessageQueue
+class InternalCIMOMHandleRep : public CIMOMHandleRep
 {
 public:
     InternalCIMOMHandleRep();
-    InternalCIMOMHandleRep(Uint32 out_qid, Uint32 ret_qid);
-#ifdef PEGASUS_OS_OS400
+    #ifdef PEGASUS_OS_OS400
     InternalCIMOMHandleRep(Uint32 os400key);
-#endif
+    #endif
     virtual ~InternalCIMOMHandleRep();
 
     virtual CIMClass getClass(
@@ -220,51 +237,24 @@ public:
     virtual void allowProviderUnload();  // Overload for OS/400
     virtual OperationContext getResponseContext();
 
-#ifdef PEGASUS_OS_OS400
+    #ifdef PEGASUS_OS_OS400
     virtual void setOS400ProfileHandle(const char* profileHandle);
-#endif
+    #endif
 
 private:
-    Uint32 get_output_qid();
-    void set_output_qid(Uint32);
-    Uint32 get_return_qid();
-    void set_return_qid(Uint32);
-    Uint32 get_qid();
-
-    virtual void handleEnqueue(Message*);
-    virtual void handleEnqueue();
-
-    Message* do_request(
-        Message* request,
-        Uint32 responseType,
-        const OperationContext & context) ;
-
-    static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _dispatch(void*);
-    MessageQueue* q_exists(Uint32 qid) const
-    {
-        return MessageQueue::lookup(qid);
-    }
-
-    // Unimplemented
     InternalCIMOMHandleRep(const InternalCIMOMHandleRep& rep);
-    // Unimplemented
     InternalCIMOMHandleRep& operator=(const InternalCIMOMHandleRep& rep);
 
-    Uint32 _output_qid;
-    Uint32 _return_qid;
-    AtomicInt _response_type;
-    Mutex _recursion;
-    Mutex _qid_mutex;
+    CIMResponseMessage* do_request(CIMRequestMessage* request);
 
-    AtomicInt _server_terminating;
-    Semaphore _msg_avail;
-    AsyncDQueue<Message> _response;
-    Message* _request;
-
-#ifdef PEGASUS_OS_OS400
+private:
+    #ifdef PEGASUS_OS_OS400
     char os400PH[12];
     CIMOMHandleOS400UserState _chOS400;
-#endif
+    #endif
+
+    InternalCIMOMHandleMessageQueue _queue;
+
 };
 
 PEGASUS_NAMESPACE_END

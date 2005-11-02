@@ -40,7 +40,7 @@
 Summary: OpenPegasus WBEM Services for Linux
 Name: tog-pegasus
 Version: 2.4.2
-Release: 1
+Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}
 Group: Systems Management/Base
 Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}

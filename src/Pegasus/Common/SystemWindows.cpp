@@ -334,9 +334,9 @@ String System::getEffectiveUserName()
 
 	//Bug 3076 fix
 	wchar_t fullUserName[UNLEN+1];
-	DWORD userNameSize = sizeof(fullUserName);
+	DWORD userNameSize = sizeof(fullUserName)/sizeof(fullUserName[0]);
 	wchar_t computerName[MAX_COMPUTERNAME_LENGTH+1];
-    DWORD computerNameSize = sizeof(computerName);    
+    DWORD computerNameSize = sizeof(computerName)/sizeof(computerName[0]);    
 	wchar_t userName[UNLEN+1];
     wchar_t userDomain[UNLEN+1];
 	String userId;
@@ -392,7 +392,7 @@ String System::getEffectiveUserName()
 
     // UNLEN (256) is the limit, not including null
     wchar_t pUserName[256+1] = {0};
-    DWORD nSize = sizeof(pUserName);
+    DWORD nSize = sizeof(pUserName)/sizeof(pUserName[0]);
 
     retcode = GetUserNameW(pUserName, &nSize);
     if (retcode == 0)

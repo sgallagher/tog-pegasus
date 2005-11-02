@@ -179,6 +179,11 @@ int main(int argc, char** argv)
 
         // Initialize all of the function input parameters.
         opts.location =  String::EMPTY;
+#ifdef PEGASUS_HAS_SSL
+        opts.ssl = false;
+        opts.clientCert = String::EMPTY;
+        opts.clientKey = String::EMPTY;
+#endif
         opts.nameSpace = "root/cimv2";
         opts.cimCmd = "unknown";
         opts.className = CIMName();
@@ -332,8 +337,31 @@ int main(int argc, char** argv)
                          << " password = " << opts.password
                          << endl;
                 }
-
+#ifdef PEGASUS_HAS_SSL
+                if (opts.ssl) //connect over HTTPS
+                {
+                    if (!String::equal(opts.clientCert, String::EMPTY) && !String::equal(opts.clientKey, String::EMPTY))
+                    {
+                        client.connect(host,
+                                       portNumber,
+                                       SSLContext("", opts.clientCert, opts.clientKey, NULL, "ssl.rnd"),
+                                       opts.user,
+                                       opts.password);
+                    } else
+                    {
+                        client.connect(host,
+                                       portNumber,
+                                       SSLContext("", NULL, "ssl.rnd"),
+                                       opts.user,
+                                       opts.password);
+                    }
+                } else //connect over HTTP
+                {
+                    client.connect(host, portNumber, opts.user, opts.password);
+                }
+#else
                 client.connect(host, portNumber, opts.user, opts.password);
+#endif
             }
         }
     }    

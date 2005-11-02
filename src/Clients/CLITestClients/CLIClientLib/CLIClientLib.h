@@ -168,6 +168,11 @@ static const Uint32 NUM_COMMANDS = sizeof(CommandTable) / sizeof(CommandTable[0]
 struct  OPTION_STRUCT
 {
     String location;
+#ifdef PEGASUS_HAS_SSL
+    Boolean ssl;
+    String clientCert;
+    String clientKey;
+#endif
     String nameSpace;
     CIMName className;
     String objectName;

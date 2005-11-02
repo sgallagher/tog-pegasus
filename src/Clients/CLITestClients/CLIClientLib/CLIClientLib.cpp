@@ -1766,7 +1766,16 @@ void GetOptions(
 
         {"location", "", false, Option::STRING, 0, 0, "l",
                             "specifies system and port (HostName:port). Port is optional" },
+#ifdef PEGASUS_HAS_SSL
+        {"ssl", "false", false, Option::BOOLEAN, 0, 0, "s",
+                            "specifies to connect over HTTPS" },
 
+        {"clientCert", "", false, Option::STRING, 0, 0, "-cert",
+                            "specifies a client certificate to present to the server.  This is optional and only has an effect on connections made over HTTPS using -s" },
+
+		{"clientKey", "", false, Option::STRING, 0, 0, "-key",
+                            "specifies a client private key.  This is optional and only has an effect on connections made over HTTPS using -s" },
+#endif
         {"User", "", false, Option::STRING, 0, 0, "u",
                                         "Defines User Name for authentication" },
 
@@ -1838,7 +1847,7 @@ void GetOptions(
                             "Verbose Display. Includes Detailed Param Input display "},
 
 
-        {"summary", "false", false, Option::BOOLEAN, 0, 0, "s",
+        {"summary", "false", false, Option::BOOLEAN, 0, 0, "-sum",
                             "Displays only summary count for enumerations, associators, etc. "},
 
         {"help", "false", false, Option::BOOLEAN, 0, 0, "h",
@@ -2075,6 +2084,27 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     // Get value for location, i.e. host, etc.
     om.lookupValue("location", opts.location);
+
+#ifdef PEGASUS_HAS_SSL
+    // Determine whether to connect over HTTPS
+    opts.ssl = om.isTrue("ssl");
+
+    // Get value for client certificate
+    om.lookupValue("clientCert", opts.clientCert);
+
+    // Get value for client key
+    om.lookupValue("clientKey", opts.clientKey);
+
+    if (verboseTest && debug && opts.ssl)
+    {
+        cout << "ssl = true" << endl;
+        if (opts.clientCert != "" && opts.clientKey != "")
+        {
+            cout << "clientCert = " << opts.clientCert << endl;
+            cout << "clientKey = " << opts.clientKey << endl;
+        }
+    }
+#endif
 
     // Assign the result class
     if(om.lookupValue("resultClass", opts.resultClassName))

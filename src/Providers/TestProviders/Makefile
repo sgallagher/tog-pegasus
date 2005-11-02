@@ -51,7 +51,9 @@ DIRS = \
 	PG_TestPropertyTypes \
 	ProcessIndicationProvider \
 	UserContextTestProvider \
-	UserContextTestProvider/testclient
+	UserContextTestProvider/testclient \
+	CIMOMHandleTestProvider \
+	CIMOMHandleTestProvider/testclient
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \

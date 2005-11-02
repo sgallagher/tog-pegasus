@@ -85,6 +85,16 @@ void System::getCurrentTime(Uint32& seconds, Uint32& milliseconds)
     milliseconds = milliseconds / 1000;
 }
 
+void System::getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds)
+{
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    ULARGE_INTEGER largeInt = { ft.dwLowDateTime, ft.dwHighDateTime };
+    largeInt.QuadPart -= 0x19db1ded53e8000;
+    seconds = long(largeInt.QuadPart / (10000 * 1000));
+    microseconds = long((largeInt.QuadPart % (10000 * 1000)) / 10);
+}
+
 String System::getCurrentASCIITime()
 {
     char tmpbuf[128];

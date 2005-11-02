@@ -100,6 +100,11 @@ public:
     */
     static void getCurrentTime(Uint32& seconds, Uint32& milliseconds);
 
+    /** Similar to getCurrentTime() above but get microseconds (rather than
+	milliseconds).
+    */
+    static void getCurrentTimeUsec(Uint32& seconds, Uint32& microseconds);
+
     /** getCurrentASCIITime Gets time/date in a fixed format. The format is
         YY MM DD-HH:MM:SS
 	@return Returns String with the ASCII time date.

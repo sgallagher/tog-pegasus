@@ -48,15 +48,13 @@ Stopwatch::Stopwatch(void) : _start(0), _stop(0), _total(0)
 
 void Stopwatch::start(void)
 {
-    _start = TimeValue::getCurrentTime().toMilliseconds();
+    _start = TimeValue::getCurrentTime().toMicroseconds();
 }
 
 void Stopwatch::stop(void)
 {
-    _stop = TimeValue::getCurrentTime().toMilliseconds();
-
-    // update total
-    _total += double(_stop - _start);
+    _stop = TimeValue::getCurrentTime().toMicroseconds();
+    _total += _stop - _start;
 }
 
 void Stopwatch::reset(void)
@@ -68,7 +66,12 @@ void Stopwatch::reset(void)
 
 double Stopwatch::getElapsed(void) const
 {
-    return(_total / 1000.0);
+    return(double(_total) / double(1000000.0));
+}
+
+Uint64 Stopwatch::getElapsedUsec(void) const
+{
+    return _total;
 }
 
 void Stopwatch::printElapsed(void)

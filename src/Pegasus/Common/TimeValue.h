@@ -72,6 +72,11 @@ public:
 	return _microseconds;
     }
 
+    Uint64 toMicroseconds() const 
+    {
+	return (Uint64(_seconds) * Uint64(1000000)) + Uint64(_microseconds);
+    }
+
     void setMicroseconds(Uint32 microseconds)
     {
 	_microseconds = microseconds;
@@ -91,9 +96,9 @@ public:
     static TimeValue getCurrentTime()
     {
 	Uint32 seconds;
-	Uint32 milliseconds;
-	System::getCurrentTime(seconds, milliseconds);
-	return TimeValue(seconds, milliseconds * 1000);
+	Uint32 microseconds;
+	System::getCurrentTimeUsec(seconds, microseconds);
+	return TimeValue(seconds, microseconds);
     }
 
 private:

@@ -74,9 +74,13 @@ public:
 
     /** getElapsed - Get the elapsed time for the defined stopwatch. This
     method should only be called if it is currently stopped.
-    @return Returns the elapsed time value as a double
+    @return Returns the elapsed time value as a double (in milliseconds).
     */
     double getElapsed(void) const;
+
+    /** Get number of elapsed microseconds
+    */
+    Uint64 getElapsedUsec(void) const;
 
     /** printElapsed method gets the current value of the timer and
     sends it to standard out as a string with the word seconds attached
@@ -84,11 +88,9 @@ public:
     void printElapsed(void);
 
 private:
-    Uint32 _start;
-    Uint32 _stop;
-
-    double _total;
-
+    Uint64 _start;
+    Uint64 _stop;
+    Uint64 _total;
 };
 
 PEGASUS_NAMESPACE_END

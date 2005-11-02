@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,21 +30,19 @@ ROOT = $(PEGASUS_ROOT)
 
 PEGASUS_ZOS_PROGRAM_OBJECT = yes
 
-DIR = Providers/TestProviders/InstanceProvider/testclient
+DIR = Providers/TestProviders/CIMOMHandleTestProvider/testclient
 
 include $(ROOT)/mak/config.mak
 
-#LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
-
 LIBRARIES = \
-    pegclient \
-    pegcommon
+    pegcommon \
+    pegclient
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = TestInstanceProviderClient
+PROGRAM = CIMOMHandleTestProviderClient
 
-SOURCES = TestInstanceProviderClient.cpp
+SOURCES = CIMOMHandleTestProviderClient.cpp
 
 include $(ROOT)/mak/program.mak
 

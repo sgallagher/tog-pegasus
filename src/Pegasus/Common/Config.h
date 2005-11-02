@@ -36,6 +36,8 @@
 # include <Pegasus/Common/Platform_WIN32_IX86_MSVC.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
 # include <Pegasus/Common/Platform_LINUX_IX86_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
+# include <Pegasus/Common/Platform_LINUX_XSCALE_GNU.h>
 #elif defined (PEGASUS_PLATFORM_AIX_RS_IBMCXX)
 # include <Pegasus/Common/Platform_AIX_RS_IBMCXX.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
@@ -75,6 +77,8 @@
 # include <Pegasus/Common/Platform_VMS_ALPHA_DECCXX.h>
 #elif defined (PEGASUS_PLATFORM_VMS_IA64_DECCXX)
 # include <Pegasus/Common/Platform_VMS_IA64_DECCXX.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
+# include <Pegasus/Common/Platform_LINUX_XSCALE_GNU.h>
 #else
 # error "<Pegasus/Common/Config.h>: Unsupported Platform"
 #endif

@@ -31,4 +31,5 @@
 include $(ROOT)/mak/config-linux.mak
 
 ARCHITECTURE = iX86
-RPATH=-Xlinker -rpath-link -Xlinker
+LINK_RPATH=-Xlinker -rpath-link
+CC=gcc

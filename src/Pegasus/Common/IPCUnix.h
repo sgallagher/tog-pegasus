@@ -146,6 +146,11 @@ typedef struct {
   typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE;
 #endif
 
+#if defined(PEGASUS_PLATFORM_LINUX_XSCALE_GNU) && !defined(PEGASUS_OS_LSB)
+#define PEGASUS_ATOMIC_INT_NATIVE
+  typedef pthread_spinlock_t PEGASUS_ATOMIC_TYPE;
+#endif
+
 //-----------------------------------------------------------------
 /// Conditionals to support native or generic read/write semaphores
 //-----------------------------------------------------------------

@@ -1,0 +1,49 @@
+#pragma locale("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "A test provider to test CIMOMHandle function.";
+    Caption = "Pegasus CIMOMHandle Test Provider Module";
+    Name = "CIMOMHandleTestProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.5.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.5.0";
+    Location = "CIMOMHandleTestProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "CIMOMHandleTestProviderModule";
+    Name = "TestProviderA";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "CIMOMHandleTestProviderModule";
+    ProviderName = "TestProviderA";
+    CapabilityID = "001";
+    ClassName = "TST_InstanceA";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "CIMOMHandleTestProviderModule";
+    Name = "TestProviderB";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "CIMOMHandleTestProviderModule";
+    ProviderName = "TestProviderB";
+    CapabilityID = "001";
+    ClassName = "TST_InstanceB";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

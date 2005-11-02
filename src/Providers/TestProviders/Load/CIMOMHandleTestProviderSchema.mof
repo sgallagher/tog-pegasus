@@ -1,0 +1,45 @@
+#pragma locale("en_US")
+
+class TST_InstanceZ
+{
+    [key]
+    string Name;
+
+    string s;
+};
+
+
+class TST_InstanceA
+{
+    [key]
+    string Name;
+
+    string s;
+};
+
+class TST_InstanceB
+{
+    [key]
+    string Name;
+
+    string s;
+};
+
+
+instance of TST_InstanceZ
+{
+    Name = "001";
+    s = "TST_InstanceZ.Name=\"001\"";
+};
+
+instance of TST_InstanceZ
+{
+    Name = "002";
+    s = "TST_InstanceZ.Name=\"002\"";
+};
+
+instance of TST_InstanceZ
+{
+    Name = "003";
+    s = "TST_InstanceZ.Name=\"003\"";
+};

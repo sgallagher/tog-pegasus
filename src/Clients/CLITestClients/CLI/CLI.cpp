@@ -33,6 +33,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Adrian Schuur (schuur@de.ibm.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4065
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -368,7 +369,7 @@ int main(int argc, char** argv)
     catch(Exception &e)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
-              ". Trying to connect to " << opts.location << endl;
+              " Trying to connect to " << opts.location << endl;
         exit(1);
     }                                                       ;
     if (opts.delay != 0)

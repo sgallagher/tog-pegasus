@@ -36,7 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 
-#if defined (XPEGASUS_PLATFORM_HPUX_PARISC_ACC)
+#if defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # include <Pegasus/Common/SpinLock_HPUX_PARISC_ACC.h>
 #elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
 # include <Pegasus/Common/SpinLock_SOLARIS_SPARC_GNU.h>

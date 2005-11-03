@@ -72,6 +72,7 @@
 #include "InstanceDataFile.h"
 #include "AssocInstTable.h"
 #include "AssocClassTable.h"
+#include "ObjectCache.h"
 
 #ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
 // #define win32
@@ -104,6 +105,27 @@ static int compressMode = 0; // PEP214
 #endif
 
 // #define TEST_OUTPUT
+
+//==============================================================================
+//
+// This is the class cache, which caches up PEGASUS_CLASS_CACHE_SIZE classes
+// into memory. To override the default, define PEGASUS_CLASS_CACHE_SIZE in
+// your environment. To supress the cache (and not compile it in at all)
+// define PEGASUS_CLASS_CACHE_SIZE to 0.
+//
+//==============================================================================
+
+#if !defined(PEGASUS_CLASS_CACHE_SIZE)
+# define PEGASUS_CLASS_CACHE_SIZE 8
+#endif
+
+#if (PEGASUS_CLASS_CACHE_SIZE != 0)
+# define PEGASUS_USE_CLASS_CACHE
+#endif
+
+#ifdef PEGASUS_USE_CLASS_CACHE
+static ObjectCache<CIMClass> _classCache(PEGASUS_CLASS_CACHE_SIZE);
+#endif /* PEGASUS_USE_CLASS_CACHE */
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -684,7 +706,26 @@ CIMClass CIMRepository::_getClass(
 
     try
     {
+#ifdef PEGASUS_USE_CLASS_CACHE
+
+        // Check the cache first:
+
+        if (!_classCache.get(classFilePath, cimClass))
+        {
+            // Not in cache so load from disk:
+
+            _LoadObject(classFilePath, cimClass, streamer);
+
+            // Put in cache:
+
+            _classCache.put(classFilePath, cimClass);
+        }
+
+#else /* PEGASUS_USE_CLASS_CACHE */
+
         _LoadObject(classFilePath, cimClass, streamer);
+
+#endif /* PEGASUS_USE_CLASS_CACHE */
     }
     catch (Exception& e)
     {
@@ -933,6 +974,13 @@ void CIMRepository::deleteClass(
     //
     try
     {
+#ifdef PEGASUS_USE_CLASS_CACHE
+
+        _classCache.evict(_nameSpaceManager.getClassFilePath(
+            nameSpace, className, NameSpaceRead));
+
+#endif /* PEGASUS_USE_CLASS_CACHE */
+
         _nameSpaceManager.deleteClass(nameSpace, className);
     }
     catch (const CIMException&)
@@ -1739,6 +1787,11 @@ void CIMRepository::_modifyClass(
     // an enumerate instance names at a higher level (above the repository).
     //
 
+#ifdef PEGASUS_USE_CLASS_CACHE
+
+    _classCache.evict(classFilePath);
+
+#endif /* PEGASUS_USE_CLASS_CACHE */
 
     //
     // Delete the old file containing the class:
@@ -1782,6 +1835,17 @@ void CIMRepository::_modifyClass(
           throw CannotOpenFile(assocFileName[0]);
       }
     }
+
+
+    //
+    // Cache this class:
+    //
+
+#ifdef PEGASUS_USE_CLASS_CACHE
+
+    _classCache.put(classFilePath, cimClass);
+
+#endif /* PEGASUS_USE_CLASS_CACHE */
 
     PEG_METHOD_EXIT();
 }

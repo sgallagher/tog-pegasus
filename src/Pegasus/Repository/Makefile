@@ -113,6 +113,7 @@ SOURCES = \
     AssocClassTable.cpp \
     AssocInstTable.cpp \
     NameSpaceManager.cpp \
+    ObjectCache.cpp \
     InheritanceTree.cpp \
     RepositoryDeclContext.cpp \
     RepositoryQueryContext.cpp

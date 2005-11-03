@@ -558,6 +558,22 @@ endif
 
 ################################################################################
 ##
+## PEGASUS_CLASS_CACHE_SIZE
+##
+##     This environment variable gives the size of the class cache used by
+##     the CIM repository. When it is undefined, the size defaults to something
+##     relatively small (see src/Pegasus/Repository/CIMRepository.cpp). If
+##     defined, it gives the size of the class cache. If it is 0 , the class
+##     cache is not defined compiled in at all.
+##
+################################################################################
+
+ifdef PEGASUS_CLASS_CACHE_SIZE
+DEFINES += -DPEGASUS_CLASS_CACHE_SIZE=$(PEGASUS_CLASS_CACHE_SIZE)
+endif
+
+################################################################################
+##
 ## Additional build flags passed in through environment variables.
 ## These flags are added to the compile/link commands.
 ##

@@ -100,6 +100,7 @@
 #include "XmlParser.h"
 #include "Logger.h"
 #include "ExceptionRep.h"
+#include "CharSet.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -155,13 +156,10 @@ static EntityReference _references[] =
 // Section 2.3 of XML 1.0 Standard (http://www.w3.org/TR/REC-xml)
 // defines white space as:
 // S    ::=    (#x20 | #x9 | #xD | #xA)+
-static int _isspace(char c)
+static inline int _isspace(char c)
 {
-        if (c == ' ' || c == '\r' || c == '\t' || c == '\n')
-                return 1;
-        return 0;
+    return CharSet::isSpace((Uint8)c);
 }
-
 
 static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));
 
@@ -402,6 +400,17 @@ XmlParser::XmlParser(char* text) : _line(1), _text(text), _current(text),
 
 }
 
+inline void _skipWhitespace(Uint32& line, char*& p)
+{
+    while (*p && _isspace(*p))
+    {
+        if (*p == '\n')
+            line++;
+
+        p++;
+    }
+}
+
 Boolean XmlParser::next(XmlEntry& entry)
 {
     if (!_putBackStack.isEmpty())
@@ -426,7 +435,7 @@ Boolean XmlParser::next(XmlEntry& entry)
 
     // Skip over any whitespace:
 
-    _skipWhitespace(_current);
+    _skipWhitespace(_line, _current);
 
     if (!*_current)
     {
@@ -498,17 +507,6 @@ XmlParser::~XmlParser()
     // Nothing to do!
 }
 
-void XmlParser::_skipWhitespace(char*& p)
-{
-    while (*p && _isspace(*p))
-    {
-        if (*p == '\n')
-            _line++;
-
-        p++;
-    }
-}
-
 Boolean XmlParser::_getElementName(char*& p)
 {
     if (!(((*p >= 'A') && (*p <= 'Z')) ||
@@ -529,7 +527,7 @@ Boolean XmlParser::_getElementName(char*& p)
     if (_isspace(*p))
     {
         *p++ = '\0';
-        _skipWhitespace(p);
+        _skipWhitespace(_line, p);
     }
 
     if (*p == '>')
@@ -563,7 +561,7 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
     if (_isspace(*p))
     {
         *p++ = '\0';
-        _skipWhitespace(p);
+        _skipWhitespace(_line, p);
     }
 
     if (*p == '>')
@@ -600,14 +598,14 @@ void XmlParser::_getAttributeNameAndEqual(char*& p)
 
     char* term = p;
 
-    _skipWhitespace(p);
+    _skipWhitespace(_line, p);
 
     if (*p != '=')
         throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
 
     p++;
 
-    _skipWhitespace(p);
+    _skipWhitespace(_line, p);
 
     *term = '\0';
 }
@@ -983,7 +981,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
             throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
         }
 
-        _skipWhitespace(p);
+        _skipWhitespace(_line, p);
 
         if (entry.attributeCount == XmlEntry::MAX_ATTRIBUTES)
             throw XmlException(XmlException::TOO_MANY_ATTRIBUTES, _line);

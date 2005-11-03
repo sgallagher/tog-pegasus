@@ -176,8 +176,6 @@ public:
 
 private:
 
-    void _skipWhitespace(char*& p);
-
     Boolean _getElementName(char*& p);
 
     Boolean _getOpenElementName(char*& p, Boolean& openCloseElement);

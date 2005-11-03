@@ -73,7 +73,7 @@ template<class PEGASUS_ARRAY_T>
 #endif
 Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
 {
-    Array_rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
+    _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
 
     if (!_rep)
         throw NullPointer();
@@ -131,7 +131,8 @@ Array<PEGASUS_ARRAY_T>& Array<PEGASUS_ARRAY_T>::operator=(
     if (x._rep != Array_rep)
     {
 	ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
-	ArrayRep<PEGASUS_ARRAY_T>::ref(Array_rep = x._rep);
+	_rep = x._rep;
+	ArrayRep<PEGASUS_ARRAY_T>::ref(Array_rep);
     }
 
     return *this;
@@ -203,7 +204,7 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::swap(Array<PEGASUS_ARRAY_T>& x)
 {
     ArrayRep<PEGASUS_ARRAY_T>* tmp = Array_rep;
-    Array_rep = x._rep;
+    _rep = x._rep;
     x._rep = tmp;
 }
 
@@ -309,7 +310,7 @@ template<class PEGASUS_ARRAY_T>
 void Array<PEGASUS_ARRAY_T>::remove(Uint32 index, Uint32 size)
 {
     if (Array_refs.get() != 1)
-	Array_rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
+	_rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
 
     // Case 1: attempting to remove last element (this is an optimization
     // for when the array is used as a stack; see Stack class).
@@ -360,7 +361,7 @@ PEGASUS_ARRAY_T& Array<PEGASUS_ARRAY_T>::operator[](
 #endif
 
     if (Array_refs.get() != 1)
-	Array_rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
+	_rep = ArrayRep<PEGASUS_ARRAY_T>::copy_on_write(Array_rep);
 
     return Array_data[index];
 }

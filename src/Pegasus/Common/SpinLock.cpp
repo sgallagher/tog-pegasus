@@ -32,13 +32,22 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "SpinLock.h"
-#include "IPC.h"
+
+#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
+# include <pthread.h>
+#else
+# include "IPC.h"
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
 SpinLock sharedSpinLocks[PEGASUS_NUM_SHARED_SPIN_LOCKS];
 
+#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
+pthread_mutex_t _spinLockInitMutex = PTHREAD_MUTEX_INITIALIZER;
+#else
 static Mutex _spinLockInitMutex;
+#endif
 
 void SpinLockConditionalCreate(SpinLock& lock)
 {
@@ -46,12 +55,20 @@ void SpinLockConditionalCreate(SpinLock& lock)
 
     if (lock.initialized == 0)
     {
+#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
+	pthread_mutex_lock(&_spinLockInitMutex);
+#else
 	_spinLockInitMutex.lock(pegasus_thread_self());
+#endif
 
 	if (lock.initialized == 0)
 	    SpinLockCreate(lock);
 
+#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
+	pthread_mutex_unlock(&_spinLockInitMutex);
+#else
 	_spinLockInitMutex.unlock();
+#endif
     }
 }
 

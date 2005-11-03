@@ -39,6 +39,8 @@
 #include <sched.h>
 #include <errno.h>
 
+#define PEGASUS_SPINLOCK_USE_PTHREADS
+
 PEGASUS_NAMESPACE_BEGIN
 
 // This type implements a spinlock. It is deliberately not a class since we 
@@ -54,8 +56,8 @@ inline void SpinLockCreate(SpinLock& x)
 {
     pthread_mutexattr_init(&x.attr);
     pthread_mutexattr_setspin_np(&x.attr, PTHREAD_MUTEX_SPINONLY_NP);
-    pthread_mutex_init(&lock.mutex, &x.attr);
-    lock.initialized = 1;
+    pthread_mutex_init(&x.mutex, &x.attr);
+    x.initialized = 1;
 }
 
 inline void SpinLockDestroy(SpinLock& x)

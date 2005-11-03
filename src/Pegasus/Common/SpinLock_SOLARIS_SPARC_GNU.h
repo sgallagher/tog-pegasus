@@ -38,6 +38,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Mutex.h>
 
+#define PEGASUS_SPINLOCK_USE_PTHREADS
+
 PEGASUS_NAMESPACE_BEGIN
 
 // This type implements a spinlock. It is deliberately not a class since we 

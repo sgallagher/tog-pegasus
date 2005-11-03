@@ -61,7 +61,7 @@ poststarttests: wql_10_1  cql_10_1
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 
 wql_10_1:
-	$(PROGRAM) setup WQL
+	$(PROGRAM) setup WQL $p
 	$(PROGRAM) run 1
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
@@ -74,70 +74,80 @@ wql_10_1:
 ## make wql_i_t i=20 t=3 
 ##        will run 20 iterations in 3 threads
 ##
+
+## You can use the -p option to select the protocol used, 
+## by the CIM-XML Indication Handler, to send Indications
+## to the embedded Indication Consumer.
+##
+##  make cql_i_t i=10 t=2 p=HTTPS
+##        will send 20 Indications to the embedded Indication
+##        Consumer over HTTPS using port 5989.
+
+
 cql_i_t:
-	$(PROGRAM) setup CIM:CQL
+	$(PROGRAM) setup CIM:CQL $p
 	$(PROGRAM) run $i $t
 	$(PROGRAM) cleanup
 
 wql_i_t: 
-	$(PROGRAM) setup WQL
+	$(PROGRAM) setup WQL $p
 	$(PROGRAM) run $i $t
 	$(PROGRAM) cleanup
 
 
 wql_10_10:
-	$(PROGRAM) setup WQL
+	$(PROGRAM) setup WQL $p
 	$(PROGRAM) run 10 10
 	$(PROGRAM) cleanup
 
 wql_10_100:
-	$(PROGRAM) setup WQL
+	$(PROGRAM) setup WQL $p
 	$(PROGRAM) run 10 100
 	$(PROGRAM) cleanup
 
 wql_100_10:
-	$(PROGRAM) setup WQL
+	$(PROGRAM) setup WQL $p
 	$(PROGRAM) run 100 10
 	$(PROGRAM) cleanup
 
 wql_100_100:
-	$(PROGRAM) setup WQL
+	$(PROGRAM) setup WQL $p
 	$(PROGRAM) run 100 100
 	$(PROGRAM) cleanup
 
 wql_1000_100:
-	$(PROGRAM) setup WQL
+	$(PROGRAM) setup WQL $p
 	$(PROGRAM) run 1000 100
 	$(PROGRAM) cleanup
 
 cql_10_1:
-	$(PROGRAM) setup CIM:CQL
+	$(PROGRAM) setup CIM:CQL $p
 	$(PROGRAM) run 1
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
 
 cql_10_10:
-	$(PROGRAM) setup CIM:CQL
+	$(PROGRAM) setup CIM:CQL $p
 	$(PROGRAM) run 10 10
 	$(PROGRAM) cleanup
 
 cql_10_100:
-	$(PROGRAM) setup CIM:CQL
+	$(PROGRAM) setup CIM:CQL $p
 	$(PROGRAM) run 10 100
 	$(PROGRAM) cleanup
 
 cql_100_10:
-	$(PROGRAM) setup CIM:CQL
+	$(PROGRAM) setup CIM:CQL $p
 	$(PROGRAM) run 100 10
 	$(PROGRAM) cleanup
 
 cql_100_100:
-	$(PROGRAM) setup CIM:CQL
+	$(PROGRAM) setup CIM:CQL $p
 	$(PROGRAM) run 100 100
 	$(PROGRAM) cleanup
 
 cql_1000_100:
-	$(PROGRAM) setup CIM:CQL
+	$(PROGRAM) setup CIM:CQL $p
 	$(PROGRAM) run 1000 100
 	$(PROGRAM) cleanup
 

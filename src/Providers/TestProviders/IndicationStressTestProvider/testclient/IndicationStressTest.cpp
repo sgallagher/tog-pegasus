@@ -57,6 +57,8 @@ PEGASUS_USING_STD;
 const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
 const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("test/TestProvider");
 
+const String INDICATION_CONSUMER_CLASS_NAME = "PG_IndicationStressTestConsumer";
+
 const String INDICATION_NAME = String ("IndicationStressTestClass");
 AtomicInt receivedIndicationCount(0);
 
@@ -72,6 +74,10 @@ int sendRecvDeltaTimeMin = 0x7fffffff;
 
 AtomicInt errorsEncountered(0);
 
+enum indicationHandleProtocol {
+                 PROTOCOL_CIMXML_INTERNAL = 1,
+                 PROTOCOL_CIMXML_HTTP     = 2,
+                 PROTOCOL_CIMXML_HTTPS    = 3};
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -136,8 +142,7 @@ void MyIndicationConsumer::consumeIndication(
   if (receivedIndicationCount.get() % 200 == 0)
     cout << "+++++     received indications = " 
          << receivedIndicationCount.get() 
-         << " of " << indicationSendCountTotal 
-         << " sent, waiting for more ..." << endl;
+         << " of " << indicationSendCountTotal << endl; 
 
   // cout << "IndicationStressTest consumer - recvd indication = " << ((CIMObject)indicationInstance).toString() << endl;
 
@@ -472,17 +477,91 @@ void _usage ()
 {
    cerr << endl
         << "Usage:" << endl
-        << "\tTestIndicationStressTest setup [ WQL | CIM:CQL ]" << endl
-        << "\tTestIndicationStressTest run <indicationSendCount> [<threads>]" << endl
-        << "\tTestIndicationStressTest cleanup" << endl
-        << "where: " << endl
-        << "\t<indicationSendCount> is the number of indications to generate," << endl
-        << "\t\tand can be zero to measure the overhead in calling the provider." << endl
-        << "\t<threads> is an optional number of client threads to create, default is one," << endl
-        << "\t\tThese parameters are only required for the \"run\" option." << endl <<endl;
+        << "    TestIndicationStressTest setup [ WQL | CIM:CQL ]\n"
+        << "                           [INTERNAL | HTTP | HTTPS]\n"
+        << "    where: " << endl
+        << "       [INTERNAL | HTTP | HTTPS] is used to select the protocol\n"
+        << "            used, by the CIM-XML Indication Handler, to send\n"
+        << "            Indications to the embedded Indication Consumer.\n"
+        << "            INTERNAL is the default value."
+        << endl << endl 
+        << "    TestIndicationStressTest run <indicationSendCount> "
+        << "[<threads>]\n"
+        << "    where: " << endl
+        << "       <indicationSendCount> is the number of indications to\n"
+        << "            generate, and can be zero to measure the overhead in\n"
+        << "            calling the provider." << endl
+        << "       <threads> is an optional number of client threads to create,\n"
+        << "            default is one."
+        << endl << endl
+        << "    TestIndicationStressTest cleanup"
+        << endl << endl;
 }
 
-void _setup (CIMClient & client, String& qlang)
+Sint32 _getServerResidentIndicationCount(CIMClient &client)
+{
+   Uint32 count;
+   try
+   {
+       const CIMObjectPath classPath = CIMObjectPath
+           (INDICATION_CONSUMER_CLASS_NAME);
+       Array<CIMParamValue> inParams;
+       Array<CIMParamValue> outParams;
+
+       CIMValue retValue = client.invokeMethod(
+           SOURCE_NAMESPACE,
+           classPath,
+           CIMName("getIndicationCount"),
+           inParams,
+           outParams);
+
+       retValue.get(count);
+       return(count);
+   }
+   catch (Exception & e)
+   {
+       cerr << "----- _getServerResidentIndicationCount failure"
+            << e.getMessage () << endl;
+       return(-1);
+   }
+}
+
+Sint32 _resetServerResidentIndicationCount(CIMClient &client)
+{
+   Sint32 status;
+   try
+   {
+       const CIMObjectPath classPath = CIMObjectPath
+           (INDICATION_CONSUMER_CLASS_NAME);
+       Array<CIMParamValue> inParams;
+       Array<CIMParamValue> outParams;
+
+       CIMValue retValue = client.invokeMethod(
+           SOURCE_NAMESPACE,
+           classPath,
+           CIMName("resetIndicationCount"),
+           inParams,
+           outParams);
+
+       retValue.get(status);
+       if (status < 0)
+       {
+          cerr << "----- _resetServerResidentIndicationCount failure, "
+               << "error number = " << status << endl;
+       }
+       return(status);
+   }
+   catch (Exception & e)
+   {
+       cerr << "----- _resetIndicationIndicationCount failure" 
+            << e.getMessage () << endl;
+       return(-1);
+   }
+}
+
+
+void _setup (CIMClient & client, String& qlang,
+    indicationHandleProtocol handleProtocol)
 {
     try
     {
@@ -498,8 +577,26 @@ void _setup (CIMClient & client, String& qlang)
     try
     {
         // Create the handler for the internal consumer
+        String destinationProtocol;
+        if (handleProtocol == PROTOCOL_CIMXML_INTERNAL)
+        {
+           destinationProtocol = "localhost";
+        }
+        else if (handleProtocol == PROTOCOL_CIMXML_HTTP)
+        {
+           destinationProtocol = "http://localhost:5988";
+        }
+        else if (handleProtocol == PROTOCOL_CIMXML_HTTPS)
+        {
+           destinationProtocol = "https://localhost:5989";
+        }
+        else
+        {
+           PEGASUS_ASSERT(0);
+        }
         _createHandlerInstance (client, String ("IPHandler01"),
-            String ("localhost/CIMListener/Pegasus_SimpleDisplayConsumer"));
+            destinationProtocol +
+            String ("/CIMListener/Pegasus_IndicationStressTestConsumer"));
     }
     catch (Exception & e)
     {
@@ -701,7 +798,29 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
             return -1;
         }
         String qlang(optTwo);
-        _setup(workClient, qlang);
+
+        indicationHandleProtocol handleProtocol = PROTOCOL_CIMXML_INTERNAL;
+        if ((optThree == NULL) || (String::equal(optThree, "INTERNAL")))
+        {
+           handleProtocol = PROTOCOL_CIMXML_INTERNAL;
+        }
+        else if (String::equal(optThree, "HTTP"))
+        {
+           handleProtocol = PROTOCOL_CIMXML_HTTP;
+        }
+        else if (String::equal(optThree, "HTTPS"))
+        {
+           handleProtocol = PROTOCOL_CIMXML_HTTPS;
+        }
+        else
+        {
+           cerr << "Invalid Indication Handler Protocol: '" <<
+                optThree << "'" << endl;
+           _usage();
+           return -1;
+        }
+
+        _setup(workClient, qlang, handleProtocol);
         cout << "+++++ setup completed successfully" << endl;
     }
     else if (String::equalNoCase(opt, "run"))
@@ -726,12 +845,12 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         String previousIndicationFile, oldIndicationFile;
 
         previousIndicationFile = INDICATION_DIR;
-        previousIndicationFile.append ("/indicationLog");
+        previousIndicationFile.append ("/IndicationStressTestLog");
 
         if (FileSystem::exists (previousIndicationFile))
         {
             oldIndicationFile = INDICATION_DIR;
-            oldIndicationFile.append ("/oldIndicationFile");
+            oldIndicationFile.append ("/oldIndicationStressTestLog");
             if (FileSystem::exists (oldIndicationFile))
             {
                 FileSystem::removeFile (oldIndicationFile);
@@ -740,6 +859,12 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
             {
                 FileSystem::removeFile (previousIndicationFile);
             }
+        }
+
+        // Initialize Indication Stress Test Consumer
+        if (_resetServerResidentIndicationCount(workClient) < 0)
+        {
+           return(-1);
         }
 
         // Construct our CIMListener
@@ -835,24 +960,68 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         //
 
 #define SLEEP_SEC 1
-#define MSG_SEC 30
+#define COUT_TIME_INTERVAL 30
+#define MAX_NO_CHANGE_ITERATIONS COUT_TIME_INTERVAL*3
 
-        Uint32 sleep_nbr = 30 +
-	    indicationSendCountTotal/(MSG_PER_SEC*SLEEP_SEC);
+        Uint32 noChangeIterations = 0;
+        Uint32 priorClientResidentIndicationCount = 0;
+        Uint32 priorServerResidentIndicationCount = 0;
+        Uint32 currentClientResidentIndicationCount = 0;
+        Uint32 currentServerResidentIndicationCount = 0;
+        Uint32 totalIterations = 0;
 
-        // cout << "+++++ sleep_iterations = " << sleep_nbr << endl;
+        //
+        // Wait for the Consumers to received the expected
+        // number of Indications, indicationSendCountTotal. 
+        //
+        // We will continue to wait until either indicationSendCountTotal
+        // Indications have been received by the Consumers or no new
+        // Indications have been received in the previous
+        // MAX_NO_CHANGE_ITERATIONS.
+        // iterations. 
+        //
 
-        for (Uint32 i = 1; i <= sleep_nbr; i++)
+        while (noChangeIterations <= MAX_NO_CHANGE_ITERATIONS)
         {
+            totalIterations++;
             System::sleep (SLEEP_SEC);
-            if (indicationSendCountTotal == receivedIndicationCount.get())
+            currentClientResidentIndicationCount =
+                receivedIndicationCount.get();
+            currentServerResidentIndicationCount =
+                _getServerResidentIndicationCount(workClient);
+            if ((indicationSendCountTotal ==
+                    currentClientResidentIndicationCount) &&
+                (indicationSendCountTotal ==
+                    currentServerResidentIndicationCount))
                 break;
-            if (i % (MSG_SEC/SLEEP_SEC) == 1)
-              cout << "+++++     received indications = " 
-                   << receivedIndicationCount.get() 
-                   << " of " << indicationSendCountTotal 
-                   << " sent, waiting for more ...." << endl;
+            if (totalIterations % COUT_TIME_INTERVAL == 1)
+            {
+              cout << "** The Client-resident Consumer has received "
+                   << currentClientResidentIndicationCount << " of "
+                   << indicationSendCountTotal << " Indications."
+                   << endl 
+                   << "** The Server-resident Consumer has received "
+                   << currentServerResidentIndicationCount << " of "
+                   << indicationSendCountTotal << " Indications."
+                   << endl;
+            }
+            if ((priorClientResidentIndicationCount ==
+                   currentClientResidentIndicationCount) &&
+               (priorServerResidentIndicationCount ==
+                    currentServerResidentIndicationCount)) 
+            {
+               noChangeIterations++;
+            }
+            else
+            {
+               noChangeIterations = 0;
+               priorClientResidentIndicationCount =
+                   currentClientResidentIndicationCount;
+               priorServerResidentIndicationCount =
+                   currentServerResidentIndicationCount;
+            }
         }
+
         elapsedTime.stop();
 
         cout << "+++++ Stopping the listener"  << endl;
@@ -860,13 +1029,13 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         listener.removeConsumer(consumer1);
         delete consumer1;
         cout << "+++++ TEST RESULTS: " << endl;
-        cout << "+++++     Number of send threads =    "
+        cout << "+++++     Number of send threads = "
              << runClientThreadCount << endl;
-        cout << "+++++     Sent indications =          " 
-             << indicationSendCountTotal << endl;
-        cout << "+++++     Received indications =      " 
-             << receivedIndicationCount.get() << endl;
-        cout << "+++++     Out of Sequence =           "
+        cout << "+++++     Sent Indications = " 
+             << indicationSendCountTotal <<endl;
+        cout << "+++++     Client-resident Consumer received Indications = "  
+             << currentClientResidentIndicationCount << endl;
+        cout << "+++++     Out of Sequence = "
              << seqNumberErrors.get() << endl;
         cout << "+++++     Avg. Send-Recv Delta time = "
              << (long)(sendRecvDeltaTimeTotal/1000)/sendRecvDeltaTimeCnt
@@ -875,19 +1044,25 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
              << sendRecvDeltaTimeMin/1000
              << " milli-seconds" << endl;
         cout << "+++++     Max. Send-Recv Delta time = "
-             << sendRecvDeltaTimeMax/1000
+             << (long)(sendRecvDeltaTimeMax/1000)
              << " milli-seconds" << endl;
-        cout << "+++++     Elapsed time =              "
+        cout << "+++++     Elapsed time = "
              << elapsedTime.getElapsed()
              << " seconds, or  " 
              << elapsedTime.getElapsed()/60
              << " minutes." << endl;
-        cout << "+++++     Rate =                      " 
+        cout << "+++++     Rate = " 
              << receivedIndicationCount.get()/elapsedTime.getElapsed()
-             << " indications per second." << endl;
+             << " indications per second." << endl << endl;
+        cout << "+++++     Server-resident Consumer received Indications = " 
+             << currentServerResidentIndicationCount << endl << endl;
 
         // assert that all indications sent have been received.
-        assert((indicationSendCount * runClientThreadCount) == receivedIndicationCount.get());
+        assert(indicationSendCountTotal ==
+            currentClientResidentIndicationCount);
+
+        assert(indicationSendCountTotal ==
+            currentServerResidentIndicationCount);
 
         // if error encountered then fail the test.
         if (errorsEncountered.get())

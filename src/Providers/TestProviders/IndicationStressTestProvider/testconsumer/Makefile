@@ -26,63 +26,29 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# Recurse the directories defined in DIRS
-# This makefile simply recurses all of the toplevel provider directories
+ROOT = ../../../../..
 
-ROOT = ../../..
+DIR = Providers/TestProviders/IndicationStressTestProvider/testconsumer
 
 include $(ROOT)/mak/config.mak
 
-#Directories to recurse
-DIRS = \
-	AlertIndicationProvider \
-	ClientProvider \
-	DefaultInstanceProvider \
-	DynamicIndicationProvider \
-	FamilyProvider \
-	FamilyProvider/tests \
-	IndicationStressTestProvider \
-	IndicationStressTestProvider/testclient \
-	IndicationStressTestProvider/testconsumer \
-	InstanceProvider \
-	InstanceProvider/testclient \
-	MethodTestProvider \
-	MethodTestProvider/testclient \
-	MCCA_TestAssocProvider \
-	PG_TestPropertyTypes \
-	ProcessIndicationProvider \
-	UserContextTestProvider \
-	UserContextTestProvider/testclient \
-	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient
+LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL -DPEGASUS_INTERNALONLY -DINDICATION_DIR=\"$(DISPLAYCONSUMER_DIR)\"
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
-	CMPI/TestUtilLib \
-	CMPI/TestMethod \
-	CMPI/TestMethod/tests \
-	CMPI/TestFail_1 \
-	CMPI/TestFail_1/tests \
-	CMPI/TestFail_2 \
-	CMPI/TestFail_2/tests\
-	CMPI/TestFail_3 \
-	CMPI/TestFail_3/tests \
-	CMPI/TestFail_4 \
-	CMPI/TestProviderThreaded
-#	CMPI/TestProviderThreaded/tests   temporarily disabled, see bug 4334
-#	CMPI/TestFail_4/tests \           temporarily disabled, see bug 4334
+LIBRARY = IndicationStressTestConsumer
 
-ifndef PEGASUS_DISABLE_CQL
-#DIRS += \
-#	CMPI/TestIndications \
-#	CMPI/TestIndications/tests        temporarily disabled, see bug 4280
+LIBRARIES = \
+    pegprovider \
+    pegcommon
+	
+SOURCES = \
+   IndicationStressTestConsumerMain.cpp \
+   IndicationStressTestConsumer.cpp
 
-ifdef PEGASUS_ENABLE_EXECQUERY
-DIRS += \
-	CMPI/TestExecQuery \
-	CMPI/TestExecQuery/tests
-endif
-endif
+ifeq ($(OS),VMS)
+#
+# VMS uses different escape characters for including double quotes.
+#
+LOCAL_DEFINES = -DPEGASUS_CONSUMER_INTERNAL -DINDICATION_DIR="""$(DISPLAYCONSUMER_DIR)""" -DPEGASUS_INTERNALONLY
 endif
 
-include $(ROOT)/mak/recurse.mak
+include $(ROOT)/mak/dynamic-library.mak

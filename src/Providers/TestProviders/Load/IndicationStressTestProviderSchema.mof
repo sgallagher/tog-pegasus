@@ -7,3 +7,9 @@ class IndicationStressTestClass : CIM_Indication
   [Static]
   uint32 SendTestIndicationNormal(uint32 indicationSendCount);
 };
+
+class PG_IndicationStressTestConsumer
+{
+  [Static] sint32 resetIndicationCount();
+  [Static] sint32 getIndicationCount();
+};

@@ -1,0 +1,40 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Indication Stress Test Consumer Provider";
+    Caption = "Indication Stress Test Consumer Provider";
+    Name = "IndicationStressTestConsumerModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.3.0";
+    Location = "IndicationStressTestConsumer";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "IndicationStressTestConsumerModule";
+    Name = "IndicationStressTestConsumer";
+};
+
+instance of PG_ConsumerCapabilities
+{
+    ProviderModuleName = "IndicationStressTestConsumerModule";
+    ProviderName = "IndicationStressTestConsumer";
+    CapabilityID = "1";
+    ProviderType = { 6 };  // Consumer
+    Destinations = {"/Pegasus_IndicationStressTestConsumer"};
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "IndicationStressTestConsumerModule";
+    ProviderName = "IndicationStressTestConsumer";
+    CapabilityID = "2";
+    ClassName = "PG_IndicationStressTestConsumer";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 5 };
+    SupportedProperties = NULL;
+    SupportedMethods = { "resetIndicationCount", "getIndicationCount" };
+};

@@ -191,7 +191,8 @@ inline void Buffer::append(const char* data, size_t size)
 
 inline void Buffer::clear()
 {
-    _rep->size = 0;
+    if (_rep != &_empty_rep)
+	_rep->size = 0;
 }
 
 inline void Buffer::remove(size_t pos)

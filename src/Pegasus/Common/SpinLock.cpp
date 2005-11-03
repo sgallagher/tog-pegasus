@@ -33,6 +33,10 @@
 
 #include "SpinLock.h"
 
+#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+# define PEGASUS_SPINLOCK_USE_PTHREADS
+#endif
+
 #ifdef PEGASUS_SPINLOCK_USE_PTHREADS
 # include <pthread.h>
 #else

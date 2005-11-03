@@ -154,7 +154,7 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::alloc(Uint32 size)
 template<class T>
 inline void ArrayRep<T>::ref(const ArrayRep<T>* rep)
 {
-    if (rep != &ArrayRepBase::_empty_rep)
+    if ((void*)rep != (void*)&ArrayRepBase::_empty_rep)
 	((ArrayRep<T>*)rep)->refs.inc();
 }
 

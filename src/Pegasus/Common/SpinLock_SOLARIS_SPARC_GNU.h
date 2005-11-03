@@ -47,11 +47,13 @@ PEGASUS_NAMESPACE_BEGIN
 struct SpinLock
 {
     volatile unsigned char lock;
+    bool initialized;
 };
 
 inline void SpinLockCreate(SpinLock& x)
 {
     x.lock = 0;
+    x.initialized = 1;
 }
 
 inline void SpinLockDestroy(SpinLock& x)

@@ -66,7 +66,8 @@ void Stopwatch::reset(void)
 
 double Stopwatch::getElapsed(void) const
 {
-    return(double(Sint64(_total)) / double(1000000.0));
+    Sint64 tmp = (Sint64)_total;
+    return((double)tmp / (double)1000000.0);
 }
 
 Uint64 Stopwatch::getElapsedUsec(void) const

@@ -30,6 +30,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,8 +44,40 @@
 #include <new>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Memory.h>
+#include <Pegasus/Common/AtomicInt.h>
+#include <Pegasus/Common/Linkage.h>
+
+#define Array_rep (static_cast<ArrayRep<PEGASUS_ARRAY_T>*>(_rep))
+#define Array_size (Array_rep)->size
+#define Array_data (Array_rep)->data()
+#define Array_capacity (Array_rep)->capacity
+#define Array_refs (Array_rep)->refs
 
 PEGASUS_NAMESPACE_BEGIN
+
+struct PEGASUS_COMMON_LINKAGE ArrayRepBase
+{
+    // We put this first to avoid gaps in this structure. Some compilers may
+    // align it on a large boundary.
+    AtomicInt refs;
+
+    Uint32 size;
+
+    union
+    {
+	Uint32 capacity;
+	Uint64 alignment;
+    };
+
+    // Called only only _empty_rep object. We set the reference count to
+    // two and it will remain two for the lifetime of the process. Anything
+    // other than one will do. If the _empty_rep.refs were one, an Array
+    // object may think it is the sole owner and attempt to modify it.
+
+    ArrayRepBase() : refs(2), size(0), capacity(0) { }
+
+    static ArrayRepBase _empty_rep;
+};
 
 /*  ArrayRep<T>
     The ArrayRep object represents the array size, capacity,
@@ -54,58 +87,37 @@ PEGASUS_NAMESPACE_BEGIN
     a private class and should not be accessed directly by the user.
 */
 template<class T>
-#ifdef PEGASUS_OS_OS400
-/* For OS/400, this forces the alignment mentioned above. */
-__align(16) 
-#endif
-struct ArrayRep
+struct ArrayRep : public ArrayRepBase
 {
-    Uint32 size;
-
-    /* This union forces the first element (which follows this structure
-        in memory) to be aligned on a 64 bit boundary. It is a requirement
-        that even an array of characters be aligned for any purpose (as malloc()
-        does). That way, arrays of characters can be used for alignement
-        sensitive data.
-    */
-    union
-    {
-        Uint32 capacity;
-        Uint64 alignment;
-    };
-
     // Obtains a pointer to the first element in the array.
     T* data() { return (T*)(void*)(this + 1); }
 
     // Same as method above but returns a constant pointer.
     const T* data() const { return (const T*)(void*)(this + 1); }
 
-    /* Creates a clone of the current */
-    ArrayRep<T>* clone() const;
+    /* Make a new copy */
+    static ArrayRep<T>* copy_on_write(ArrayRep<T>* rep);
 
     /* Create and initialize a ArrayRep instance. Note that the
         memory for the elements is unitialized and must be initialized by
         the caller.
     */
-    static ArrayRep<T>* PEGASUS_STATIC_CDECL create(Uint32 size);
+    static ArrayRep<T>* PEGASUS_STATIC_CDECL alloc(Uint32 size);
 
-    /* Disposes of the object.
-    */
-    static void PEGASUS_STATIC_CDECL destroy(ArrayRep<T>* rep);
+    static void ref(const ArrayRep<T>* rep);
+
+    static void unref(const ArrayRep<T>* rep);
 };
 
 template<class T>
-ArrayRep<T>* ArrayRep<T>::clone() const
+ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::alloc(Uint32 size)
 {
-    ArrayRep<T>* rep = ArrayRep<T>::create(capacity);
-    rep->size = size;
-    CopyToRaw(rep->data(), data(), size);
-    return rep;
-}
+    // ATTN-MEB: throw out raising to next power of two (put this
+    // logic in reserveCapacity().
 
-template<class T>
-ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
-{
+    if (!size)
+	return (ArrayRep<T>*)&ArrayRepBase::_empty_rep;
+
     // Calculate capacity (size rounded to the next power of two).
 
     Uint32 initialCapacity = 8;
@@ -129,27 +141,44 @@ ArrayRep<T>* PEGASUS_STATIC_CDECL ArrayRep<T>::create(Uint32 size)
 
     // Create object:
 
-
     ArrayRep<T>* rep = (ArrayRep<T>*)operator new(
         sizeof(ArrayRep<T>) + sizeof(T) * initialCapacity);
 
     rep->size = size;
     rep->capacity = initialCapacity;
+    new(&rep->refs) AtomicInt(1);
 
     return rep;
 }
 
 template<class T>
-void PEGASUS_STATIC_CDECL ArrayRep<T>::destroy(ArrayRep<T>* rep)
+inline void ArrayRep<T>::ref(const ArrayRep<T>* rep)
 {
-    if (rep)
+    if (rep != &ArrayRepBase::_empty_rep)
+	((ArrayRep<T>*)rep)->refs.inc();
+}
+
+template<class T>
+inline void ArrayRep<T>::unref(const ArrayRep<T>* rep_)
+{
+    ArrayRep<T>* rep = (ArrayRep<T>*)rep_;
+
+    if (rep != &ArrayRepBase::_empty_rep && rep->refs.decAndTestIfZero())
     {
         Destroy(rep->data(), rep->size);
-
-        operator delete(rep);
-
-        return;
+	rep->refs.~AtomicInt();
+	::operator delete(rep);
     }
+}
+
+template<class T>
+ArrayRep<T>* ArrayRep<T>::copy_on_write(ArrayRep<T>* rep)
+{
+    ArrayRep<T>* new_rep = ArrayRep<T>::alloc(rep->size);
+    new_rep->size = rep->size;
+    CopyToRaw(new_rep->data(), rep->data(), rep->size);
+    unref(rep);
+    return new_rep;
 }
 
 PEGASUS_NAMESPACE_END

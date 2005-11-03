@@ -31,12 +31,16 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "Array.h"
+#include "ArrayRep.h"
 
 PEGASUS_NAMESPACE_BEGIN
+
+ArrayRepBase ArrayRepBase::_empty_rep;
 
 #define PEGASUS_ARRAY_T Boolean
 #include <Pegasus/Common/ArrayImpl.h>
@@ -97,5 +101,10 @@ PEGASUS_NAMESPACE_BEGIN
 #define PEGASUS_ARRAY_T char
 #include <Pegasus/Common/ArrayImpl.h>
 #undef PEGASUS_ARRAY_T
+
+void ArrayThrowIndexOutOfBoundsException()
+{
+    throw IndexOutOfBoundsException();
+}
 
 PEGASUS_NAMESPACE_END

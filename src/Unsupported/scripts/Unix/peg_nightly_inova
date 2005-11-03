@@ -1,0 +1,689 @@
+#!/bin/bash
+
+####    bash shell
+
+##############################################################################
+##############################################################################
+##
+## pegasus nightly run script
+##
+## This script presumes that CVS, Complier and GNU make are all installed 
+## and pathed.
+##
+## It will checkout the tree, build it, and run test.
+##
+## There is a status output file that is output to during the running of 
+## the script (running_status_file) and the results are summarized in the 
+## mail file (mail_file) that will be mailed to the selected destination.
+## 
+## The nightly directory will contain the following after the script has 
+## been run.
+## 
+## all_out              pegasus              runtime
+## cvs_co_out           poststarttests_out   standardtests_out
+## mail_file            perftests_out
+## patch_out            running_status_file  tests_out
+##  
+## There are sevearl execution steps within the script that can be 
+## configured to TO_RUN or NOT_TO_RUN. Each step outputs to a file based on 
+## its name by appending "_out"
+## 
+## The steps are:
+## 
+## STEP NAME        OUTPUT FILE                DESCRIPTION
+## ----------       ----------------------     ------------
+## cvs_co           cvs_co_out                 file checkout
+## all              all_out                    build source tree
+## tests            test_out                   runs the unit tests
+## perftests        perftests_out              runs perftest
+## poststarttests   poststarttests_out         runs server tests
+## standardtests    standardtests_out          runs more server tests
+## 
+#############################################################################
+#############################################################################
+##
+## Set up the configuration for the nightly build
+##
+## There are three configuration areas.
+## 1. The variables that may be changed between runs to test different things
+## 2. Tha variables to be changed to set this script up for a particular system
+## 3. The variables to be changed to contrl the PEGASUS build evironment
+##
+
+#############################################################################
+#############################################################################
+## CONFIG area 1 - Variables to control the run charecteristics
+##
+##
+## The starting status of each step is set to TO_RUN. This string is
+## also used to initialize the respective output file 
+## for that step.
+##
+## If the step status is set to the special string "NOT_TO_RUN" then 
+## that step will be skipped.
+##
+
+cvs_co_status=TO_RUN
+patch_status=TO_RUN
+all_status=TO_RUN
+tests_status=TO_RUN
+perftests_status=TO_RUN
+poststarttests_status=TO_RUN
+standardtests_status=TO_RUN
+
+
+status=NOT_DONE
+
+##
+## The RUN_NUM string is appended to theoutput files name and can be used to 
+## prevent overwriting output files from previous runs.
+##
+RUN_NUM=""                          # string appended to the output files 
+###RUN_NUM="2" 
+
+##############################################################################
+##############################################################################
+## CONFIG area 2 - Variables to setup this script to run on a particular system
+##
+
+##
+## export the CVS repository info
+##
+## for user anon the password is anon you will have to do a cvs login
+## one time on your machine. After that CVS will remember the password
+##
+## CVS_USER_PASSWD=anon 
+##
+CVS_USER=anon         
+
+export CVSROOT=:pserver:${CVS_USER}@cvs.opengroup.org:/cvs/MSB
+
+MOD_NAME="pegasus"         # module to checkout to name pegasus
+
+
+##
+## Set up the diretory names and export the PEGASUS env variables
+##
+PEG_LOC_ROOT=~wunder/peg           ## directory where the nightly directory is 
+
+dirName=TOGnightly               ## nightly directory name
+##dirName=INnightly                  ## nightly directory name
+
+cd $PEG_LOC_ROOT
+
+BASE_DIR=$PEG_LOC_ROOT/$dirName
+
+OS_NAME_VER="SUSE 9.2 Pro"         # set the OS name for the report
+## OS_NAME_VER="SunOS 5.8"
+CPU_TYPE="Intel Pentium III"     # set the CPU type for the report
+CPU_FREQ="800 Mhz"               # set the CPU freq for the report
+CPU_CNT="1"                      # set the number of CPU's for the report
+
+export PEGASUS_PLATFORM=LINUX_IX86_GNU
+## export PEGSUS_PLATFORM=SOLARIS_SPARC_GNU
+
+export PEGASUS_ROOT=$BASE_DIR/pegasus
+export PEGASUS_HOME=$BASE_DIR/runtime
+
+export PATH=$PATH:$PEGASUS_HOME/bin   ## set path to include the pegaus bin dir
+
+
+PATCH_FILE=$BASE_DIR/../SW_changes_TOG    ## set the Patch File location
+PATCH_ERRORS=$BASE_DIR/patching_errors_TOG ## set the patch errors file location
+
+MAIL_TO="pegasus-build-status@opengroup.org"
+
+###############################################################################
+###############################################################################
+## CONFIG area 3 - Variables to control the pegasus build charecteristics
+##
+
+
+######################################################
+## PEGASUS_HAS_SSL specifies SSL is to be compiled on 
+##   OPENSSL_BIN specifies the location of the OpenSSL binary.
+##    OPENSSL_HOME Specifies the location of the OpenSSL SDK directory. 
+##      This directory must contain the OpenSSL include and library directory.
+##
+## export PEGASUS_HAS_SSL=true
+## export OPENSSL_BIN=TBD_PATH
+## export OPENSSL_HOME=TBD_PATH
+## PEGASUS_ENABLE_SSLV2=true
+##
+## export PEGASUS_HAS_SSL=true
+## export OPENSSL_HOME=/usr                ## needed on SUSE Linux 
+
+######################################################
+## Controls how repository is built.
+##
+## PEGASUS_REPOSITORY_MODE= XML or BIN
+## PEGASUS_ENABLE_COMPRESSED_REPOSITORY Enables compressed repository
+## PEGASUS_ENABLE_COMPRESSED_REPOSITORY=true
+##
+
+######################################################
+## Controls Service Locator Protocol
+##
+## PEGASUS_ENABLE_SLP Enables Service Locator Protocol. 
+## SLP is used in discovery of CIMOMs location.
+##
+## PEGASUS_ENABLE_SLP=true
+##
+
+######################################################
+## Controls Debugging Capabilities
+##
+## PEGASUS_NOASSERTS         Remove asserts
+## PEGASUS_DEBUG             enables build with symble tables
+## PEGASUS_DISABLE_DEPRECATED_INTERFACES Removes deprecated symbol definitions
+## PEGASUS_EXTRA_C_FLAGS     Extra C compiler flags,
+## PEGASUS_EXTRA_CXX_FLAGS   Extra C++ compiler flags
+## PEGASUS_EXTRA_LINK_FLAGS  Extra link flag,
+## PEGASUS_TEST_VERBOSE      Sets verbose mode for most of the tests
+##
+## export PEGASUS_DEBUG=true
+## export PEGASUS_NOASSERTS=true
+## export PEGASUS_DISABLE_DEPRECATED_INTERFACES=true
+## export PEGASUS_TEST_VERBOSE=true
+##
+export PEGASUS_DEBUG=true
+
+######################################################
+## Internationalization support 
+##
+## PEGASUS_HAS_MESSAGES Enable localization support,
+## ICU_INSTALL          Directory with ICU libraries
+## ICU_ROOT             Directory with ICU source code,
+## 
+## export PEGASUS_HAS_MESSAGES=true
+##
+
+#####################################################
+## CQL language support
+##
+## PEGASUS_DISABLE_CQL Disables CQL language support
+##
+## export PEGASUS_DISABLE_CQL=true
+##
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+#####
+##### DO NOT MAKE EDITS BELOW THIS POINT 
+#####
+##### The rest of the file should not need to be edited.
+#####
+##### All the speciic configuration parameters should be above this 
+##### demarcation point. Everthing below uses the configuration data 
+##### and runs the requested tests outputing the results to the output files
+##### and the "running_status_file" and the summary "mail_file"
+#####
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+
+
+
+##############################################################################
+##############################################################################
+##
+## Function defintions
+##
+
+##################
+# function to put output to the $status_file
+#
+function STATUS_OUT() 
+{ 
+  echo "$1"  ;
+  echo "$1" >> $status_file ;
+  return 0 ; 
+}
+
+##################
+# function to put output to the $MAIL_FILE
+#
+function MAIL_OUT() 
+{ 
+  echo "$1" >> $MAIL_FILE ;
+  return 0 ; 
+}
+
+##################
+# Function to initialise the step file name and to initialze the file
+#
+# Creates the output file and the assigns its name to a variable
+#
+#  eg: for the step called tests the following will be created
+#          $tests_out_file set to $BASE_DIR/tests_out$RUN_NUM
+#          and the initial step status will be output to the file
+# 
+# create the output file names
+# tests_out_file=$BASE_DIR/tests_out$RUN_NUM
+# create the output files
+# echo "$tests_status" > $tests_out_file
+#
+function INIT_STEP_FILE()
+{
+CMD=$1
+out_file=${CMD}_out_file
+name=${CMD}_out
+step_status=${CMD}_status 
+step_start_time=${CMD}_start_time
+step_stop_time=${CMD}_stop_time
+
+export $step_start_time=NA
+export $step_stop_time=NA
+
+#create the output file name
+export $out_file=$BASE_DIR/$name$RUN_NUM
+
+#create the output file
+echo ${!step_status} > ${!out_file}
+}
+
+
+##################
+# function to execute the step for a Makefile step
+#
+function EXEC_MAKE_STEP()
+{
+CMD=$1
+out_file=${CMD}_out_file
+step_status=${CMD}_status
+step_start_time=${CMD}_start_time
+step_stop_time=${CMD}_stop_time
+
+if [ "${!step_status}" != "NOT_TO_RUN" ] ; then
+
+STATUS_OUT "make -s $CMD started at `$TIME_CMD` "
+
+export $step_start_time=`$TIME_CMD`
+
+    if make -s $CMD 1>${!out_file} 2>&1
+          then
+                  export $step_status="SUCCESS"
+          else
+                  export $step_status="FAILURE"
+          fi
+
+export $step_stop_time=`$TIME_CMD`
+
+fi
+
+STATUS_OUT "make $CMD ${!step_status} at `$TIME_CMD` "
+
+}
+
+##################
+# function to execute the step for a TestMakefile step
+#
+function EXEC_TESTMAKE_STEP()
+{
+CMD=$1
+out_file=${CMD}_out_file
+step_status=${CMD}_status
+step_start_time=${CMD}_start_time
+step_stop_time=${CMD}_stop_time
+
+
+if [ "${!step_status}" != "NOT_TO_RUN" ] ; then
+STATUS_OUT "make $CMD started at `$TIME_CMD` "
+
+export $step_start_time=`$TIME_CMD`
+
+    if time make -f TestMakefile -s $CMD 1>>${!out_file} 2>&1
+          then
+                  export $step_status="SUCCESS"
+          else
+                  export $step_status="FAILURE"
+          fi
+
+export $step_stop_time=`$TIME_CMD`
+
+fi
+
+STATUS_OUT "make $CMD ${!step_status} at `$TIME_CMD` "
+
+}
+
+##################
+# function to output status for a step
+#
+function REPORT_STEP_STATUS ()
+{
+CMD=$1
+out_file=${CMD}_out_file
+step_status=${CMD}_status
+step_start_time=${CMD}_start_time
+step_stop_time=${CMD}_stop_time
+
+MAIL_OUT "Make $CMD Status:     ${!step_status}"
+MAIL_OUT "Make $CMD Start Time: ${!step_start_time}"
+MAIL_OUT "Make $CMD Stop  Time: ${!step_stop_time}"
+MAIL_OUT " "
+
+}
+
+##################
+# function to output report for a step
+#
+function REPORT_STEP ()
+{
+CMD=$1
+CNT=$2
+out_file=${CMD}_out_file
+step_status=${CMD}_status
+
+MAIL_OUT "-------------------------------------------------------"
+MAIL_OUT "Make $CMD output: "
+MAIL_OUT " "
+tail -${CNT} ${!out_file} >> $MAIL_FILE
+MAIL_OUT " "
+
+}
+
+##################
+# function to output report for a step
+#
+function REPORT_STEP_ALL ()
+{
+CMD=$1
+out_file=${CMD}_out_file
+step_status=${CMD}_status
+
+MAIL_OUT "-------------------------------------------------------"
+MAIL_OUT "Make $CMD output: "
+MAIL_OUT " "
+cat ${!out_file} >> $MAIL_FILE
+MAIL_OUT " "
+
+}
+
+###########################################################################
+###########################################################################
+##
+## Configuration is now complete 
+## Begin execution
+##
+
+if [ ! -e "$PEG_LOC_ROOT" ] ; then
+   mkdir $PEG_LOC_ROOT
+fi
+
+
+TIME_CMD="date -u +%H%M%S"
+
+platform="$PEGASUS_PLATFORM ($OS_NAME_VER)"
+branch="MAIN"
+datestamp=`date -u +%y%m%d`
+timestamp=`date -u +%H%M`
+endtimestamp="NOT_DONE"
+header="UNKNOWN STATUS: $branch: $platform: $datestamp"
+
+if [ "$cvs_co_status" != "NOT_TO_RUN" ] ; then
+
+  rm -rf $BASE_DIR
+  mkdir $BASE_DIR
+fi
+
+cd $BASE_DIR
+
+
+INIT_STEP_FILE cvs_co
+INIT_STEP_FILE patch
+INIT_STEP_FILE all
+INIT_STEP_FILE tests
+INIT_STEP_FILE perftests
+INIT_STEP_FILE poststarttests
+INIT_STEP_FILE standardtests
+
+# create the running status file
+touch $BASE_DIR/test_running
+
+# Create new make output file for mail message.
+MAIL_FILE=$BASE_DIR/mail_file$RUN_NUM
+echo " " > $MAIL_FILE
+
+status_file=$BASE_DIR/running_status_file$RUN_NUM
+echo " " > $status_file
+
+STATUS_OUT "Starting nightly test" 
+STATUS_OUT "platform=$platform"
+STATUS_OUT "Date: $datestamp "
+STATUS_OUT "Time: $timestamp GMT"
+STATUS_OUT "Current User=`whoami`"
+STATUS_OUT "BASE_DIR=$BASE_DIR"
+STATUS_OUT "CVSROOT=$CVSROOT"
+STATUS_OUT "PEGASUS_HOME=$PEGASUS_HOME"
+STATUS_OUT "PEGASUS_ROOT=$PEGASUS_ROOT"
+STATUS_OUT "PEGASUS_PLATFORM=$PEGASUS_PLATFORM"
+STATUS_OUT " "
+STATUS_OUT "cvs_co_file=$cvs_co_out_file"
+STATUS_OUT "patch_file=$patch_out_file"
+STATUS_OUT "make_file=$all_out_file" 
+STATUS_OUT "tests_file=$tests_out_file"
+STATUS_OUT "perftests_file=$perftests_out_file"
+STATUS_OUT "poststarttests_file=$poststarttests_out_file"
+STATUS_OUT "standardtests_file=$standardtests_out_file"
+
+
+STATUS_OUT " "
+STATUS_OUT "cvs_co_status=$cvs_co_status"
+STATUS_OUT "patch_status=$patch_status"
+STATUS_OUT "all_status=$all_status"
+STATUS_OUT "tests_status=$tests_status"
+STATUS_OUT "poststarttests_status=$poststarttests_status"
+STATUS_OUT "standardtests_status=$standardtests_status"
+STATUS_OUT "perftests_status=$perftests_status"
+
+# checkout a new tree 
+if [ "$cvs_co_status" != "NOT_TO_RUN" ] ; then
+
+  STATUS_OUT "checkout of $MOD_NAME module started at `$TIME_CMD` "
+
+  cvs co -d pegasus $MOD_NAME 1>$cvs_co_out_file 2>&1  
+fi
+
+if [ -d pegasus ] ; then
+     cvs_co_status="SUCCESS"
+     cd pegasus/src/utils
+     make 1>>$cvs_co_out_file 2>&1
+     cd mu
+     make 1>>$cvs_co_out_file 2>&1
+     cd $BASE_DIR
+   else
+     cvs_co_status="FAILURE"
+fi
+
+STATUS_OUT "checkout of file $cvs_co_status at `$TIME_CMD` "
+
+cd pegasus
+
+if [ "$patch_status" != "NOT_TO_RUN" ] ; then
+  if [ -e $PATCH_FILE ] ; then
+    STATUS_OUT "SW changes needed, applying $PATCH_FILE patches"
+    patch -p0 -b -r $PATCH_ERRORS < $PATCH_FILE 1>$patch_out_file 2>&1  
+
+    if [ -e $PATCH_ERRORS ] ; then
+      STATUS_OUT echo "ERROR applying patch $PATCH_FILE: see $PATCH_ERRORS file "
+      exit
+    fi
+  else
+    STATUS_OUT "SW changes not needed, no file $PATCH_FILE"
+   
+  fi
+fi
+
+if [ "$cvs_co_status" == "SUCCESS" ] ; then
+
+EXEC_MAKE_STEP all
+
+fi
+
+if  [ "$cvs_co_status" == "SUCCESS" ]                       \
+        || [ "$cvs_co_status" == "NOT_TO_RUN" ]             \
+        && [ "$all_status" == "SUCCESS" ]                   \
+        || [ "$all_status" == "NOT_TO_RUN" ]
+    then
+	EXEC_MAKE_STEP tests
+
+##
+## The setupdevserver rule is available in 2.5.1 but not in 2.5
+##
+
+	make setupdevserver 1>>../all_out 2>&1
+
+##
+## use the following on 2.5. They will also work on 2.5.1
+## On 2.5 you have to build the repository or run the prestarttests rule
+## rather than then tests rule above. The prestarttests rule built the 
+## repositories and then ran the unit functional tests.
+##
+##
+##	make --directory=./src/Server -f Makefile install_run 1>>$poststarttests_out_file 2>&1
+##	make --directory=./src/Clients/ssltrustmgr/tests -f Makefile test_setup 1>>$poststarttests_out_file 2>&1
+##
+##
+
+	EXEC_TESTMAKE_STEP perftests
+	EXEC_TESTMAKE_STEP poststarttests
+	EXEC_TESTMAKE_STEP standardtests
+fi
+
+# Build the test report for mailing
+
+endtimestamp=`date -u +%H%M`      ## get the completion time
+
+# Determine the overall status of the tests
+
+if  [ "$cvs_co_status" == "SUCCESS" ]                       \
+        || [ "$cvs_co_status" == "NOT_TO_RUN" ]             \
+        && [ "$all_status" == "SUCCESS" ]                   \
+        || [ "$all_status" == "NOT_TO_RUN" ]                \
+        && [ "$tests_status" == "SUCCESS" ]                 \
+        || [ "$tests_status" == "NOT_TO_RUN" ]              \
+        && [ "$perftests_status" == "SUCCESS" ]             \
+        || [ "$perftests_status" == "NOT_TO_RUN" ]          \
+        && [ "$poststarttests_status" == "SUCCESS" ]        \
+        || [ "$poststarttests_status" == "NOT_TO_RUN" ]     \
+        && [ "$standardtests_status" == "SUCCESS" ]         \
+        || [ "$standardtests_status" == "NOT_TO_RUN" ]
+  then
+     status="SUCCESS"
+  else
+     status="FAILURE"
+  fi
+
+header="$status: $branch: $platform: $datestamp"
+
+MAIL_OUT "Platform: $platform"
+MAIL_OUT "Branch: $branch"
+MAIL_OUT "Date: $datestamp"
+MAIL_OUT "Time: $timestamp GMT"
+MAIL_OUT "Status: $status "
+MAIL_OUT "End Time: $endtimestamp GMT"
+MAIL_OUT " "
+MAIL_OUT "-------------------------------------------------------"
+MAIL_OUT "Mail_To: $MAIL_TO"
+MAIL_OUT "The_Subject: $header"
+MAIL_OUT "-------------------------------------------------------"
+MAIL_OUT " "
+MAIL_OUT "SW changes:"
+if [ -e $PATCH_FILE ] ; then
+        MAIL_OUT "Yes SW changes used, and attached below"
+        else
+        MAIL_OUT "No SW  changes needed"
+        fi
+
+MAIL_OUT " "
+MAIL_OUT "The Time Format is HHMMSS GMT time"
+MAIL_OUT " "
+REPORT_STEP_STATUS all
+REPORT_STEP_STATUS tests
+REPORT_STEP_STATUS perftests
+REPORT_STEP_STATUS poststarttests
+REPORT_STEP_STATUS standardtests
+
+MAIL_OUT "-------------------------------------------------------"
+MAIL_OUT "Pegasus Environment Variables:"
+printenv | grep PEGASUS >> $MAIL_FILE
+printenv | grep OPENSSL >> $MAIL_FILE
+MAIL_OUT " "
+MAIL_OUT " "
+MAIL_OUT "-------------------------------------------------------"
+MAIL_OUT "Additional Configuration Information:"
+MAIL_OUT " "
+MAIL_OUT "Current User: `whoami`"
+MAIL_OUT "CPU Type:     $CPU_TYPE"
+MAIL_OUT "CPU Freq:     $CPU_FREQ"
+MAIL_OUT "CPU Count:    $CPU_CNT"
+MAIL_OUT " "
+MAIL_OUT "------------------------------"
+MAIL_OUT "Make version (make -v output):"
+MAIL_OUT " "
+make -v >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+MAIL_OUT "------------------------------"
+MAIL_OUT "Compiler version (c++ -v output):"
+MAIL_OUT " "
+c++ -v >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+MAIL_OUT "------------------------------"
+MAIL_OUT "SSL version ( openssl version output):"
+MAIL_OUT " "
+openssl version >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+MAIL_OUT "------------------------------"
+MAIL_OUT "uname -a output:"
+MAIL_OUT " "
+uname -a >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+MAIL_OUT "------------------------------"
+MAIL_OUT "OS Details (cimserver startup & osinfo output):"
+MAIL_OUT " "
+cimserver >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+osinfo >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+MAIL_OUT "------------------------------"
+MAIL_OUT "ending cimserver configuration (cimconfig -lc output):"
+MAIL_OUT " "
+cimconfig -lc >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+cimserver -s >> $MAIL_FILE 2>&1
+MAIL_OUT " "
+
+## if [ -e $PATCH_FILE ] ; then
+        MAIL_OUT "-------------------------------------------------------"
+        MAIL_OUT "SW Changes used: "
+        MAIL_OUT " "
+##      cat $PATCH_FILE >> $MAIL_FILE
+        cvs diff 1>> $MAIL_FILE 2>&1
+        MAIL_OUT " "
+## fi
+
+REPORT_STEP all 30
+REPORT_STEP tests 30
+REPORT_STEP perftests 150
+REPORT_STEP poststarttests 30
+REPORT_STEP standardtests 30
+
+MAIL_OUT "-------------------------------------------------------"
+MAIL_OUT " "
+
+
+# Mail the report
+
+#cat $MAIL_FILE | mail -s "$header" $MAIL_TO
+
+
+# remove the running status file
+
+rm $BASE_DIR/test_running
+
+STATUS_OUT "+++++ nightly test all done ++++++++++++++++++++++++++"
+

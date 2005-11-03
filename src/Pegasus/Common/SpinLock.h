@@ -27,89 +27,51 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
+// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Pegasus_Common_SpinLock_h
-#define _Pegasus_Common_SpinLock_h
+#ifndef Pegasus_SpinLock_h
+#define Pegasus_SpinLock_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/SpinLock.h>
+
+#if defined (XPEGASUS_PLATFORM_HPUX_PARISC_ACC)
+# include <Pegasus/Common/SpinLock_HPUX_PARISC_ACC.h>
+#elif defined (PEGASUS_PLATFORM_SOLARIS_SPARC_GNU)
+# include <Pegasus/Common/SpinLock_SOLARIS_SPARC_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_IX86_GNU)
+# include <Pegasus/Common/SpinLock_LINUX_IX86_GNU.h>
+#elif defined (PEGASUS_PLATFORM_LINUX_IX86_64_GNU)
+# include <Pegasus/Common/SpinLock_LINUX_IX86_GNU.h>
+#else
+# include <Pegasus/Common/SpinLock_Generic.h>
+#endif
+
+#define PEGASUS_NUM_SHARED_SPIN_LOCKS 64
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Represents the atomic type counter.
-struct AtomicType
-{
-    Uint32 n;
-};
+// This array defines spin locks shared across the system. Note that these
+// are initialized in a lazy fashion. Before using one, check the initialized
+// member. If zero, then call SpinLockConditionalCreate().
+extern SpinLock sharedSpinLocks[PEGASUS_NUM_SHARED_SPIN_LOCKS];
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
-{
-    _rep.n = n;
-    size_t i = SpinLockIndex(&_rep);
+// Calls SpinLockCreate() on the given lock if lock.initialized is zero. The
+// function uses a mutex so it is safe to call this function from multiple
+// threads on the very same lock (only one of the calls will succeed.
+void SpinLockConditionalCreate(SpinLock& lock);
 
-    if (sharedSpinLocks[i].initialized == 0)
-	SpinLockConditionalCreate(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+// Maps an address into the sharedSpinLocks[] array defined above. This is used
+// to assign objects (by their addresses) to a shared lock. Collisions are 
+// okay.
+inline size_t SpinLockIndex(const void* x)
 {
-    // Nothing to do.
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline Uint32 AtomicIntTemplate<AtomicType>::get() const
-{
-    Uint32 tmp;
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    tmp = _rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-    return tmp;
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
-{
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n = n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::inc()
-{
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n++;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::dec()
-{
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n--;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
-{
-    Uint32 tmp;
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    tmp = --_rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-    return tmp == 0;
+    // Throw away the lower two bits since they are almost always zero
+    // anyway due to alignment properties.
+    return ((unsigned long)x >> 2) % PEGASUS_NUM_SHARED_SPIN_LOCKS;
 }
 
 PEGASUS_NAMESPACE_END
 
-#endif /* _Pegasus_Common_SpinLock_h */
+#endif /* Pegasus_SpinLock_h */

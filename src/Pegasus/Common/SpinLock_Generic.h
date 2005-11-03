@@ -27,89 +27,52 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
+// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Pegasus_Common_SpinLock_h
-#define _Pegasus_Common_SpinLock_h
+#ifndef Pegasus_SpinLock_Generic_h
+#define Pegasus_SpinLock_Generic_h
 
+#include <new>
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/SpinLock.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Represents the atomic type counter.
-struct AtomicType
+// This type implements a spinlock. It is deliberately not a class since we 
+// wish to avoid automatic construction/destruction.
+struct SpinLock
 {
-    Uint32 n;
+    union
+    {
+	char mutex[sizeof(Mutex)];
+	Uint64 alignment8;
+    };
+    Uint32 initialized;
 };
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+inline void SpinLockCreate(SpinLock& x)
 {
-    _rep.n = n;
-    size_t i = SpinLockIndex(&_rep);
-
-    if (sharedSpinLocks[i].initialized == 0)
-	SpinLockConditionalCreate(sharedSpinLocks[i]);
+    new(&x.mutex) Mutex;
+    x.initialized = 1;
 }
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+inline void SpinLockDestroy(SpinLock& x)
 {
-    // Nothing to do.
+    ((Mutex*)&x.mutex)->~Mutex();
 }
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+inline void SpinLockLock(SpinLock& x)
 {
-    Uint32 tmp;
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    tmp = _rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-    return tmp;
+    ((Mutex*)&x.mutex)->lock(pegasus_thread_self());
 }
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+inline void SpinLockUnlock(SpinLock& x)
 {
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n = n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::inc()
-{
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n++;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::dec()
-{
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n--;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
-{
-    Uint32 tmp;
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    tmp = --_rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-    return tmp == 0;
+    ((Mutex*)&x.mutex)->unlock();
 }
 
 PEGASUS_NAMESPACE_END
 
-#endif /* _Pegasus_Common_SpinLock_h */
+#endif /* Pegasus_SpinLock_Generic_h */

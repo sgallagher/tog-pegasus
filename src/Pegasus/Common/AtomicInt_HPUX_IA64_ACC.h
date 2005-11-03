@@ -74,9 +74,9 @@ inline void AtomicIntTemplate<AtomicType>::inc()
     _Asm_fetchadd(
 	(_Asm_fasz)_FASZ_W,
 	(_Asm_sem)_SEM_ACQ,
-	(volatile uint32*)&_rep.n,
+	(volatile Uint32*)&_rep.n,
 	(int)1,
-	(_Asm_ldhint)LDHINT_NONE);
+	(_Asm_ldhint)_LDHINT_NONE);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
@@ -85,20 +85,20 @@ inline void AtomicIntTemplate<AtomicType>::dec()
     _Asm_fetchadd(
 	(_Asm_fasz)_FASZ_W,
 	(_Asm_sem)_SEM_ACQ,
-	(volatile uint32*)&_rep.n,
+	(volatile Uint32*)&_rep.n,
 	(int)-1,
-	(_Asm_ldhint)LDHINT_NONE);
+	(_Asm_ldhint)_LDHINT_NONE);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
-    uint32 x = _Asm_fetchadd(
+    Uint32 x = _Asm_fetchadd(
 	(_Asm_fasz)_FASZ_W,
 	(_Asm_sem)_SEM_ACQ,
-	(volatile uint32*)&_rep.n,
+	(volatile Uint32*)&_rep.n,
 	(int)-1,
-	(_Asm_ldhint)LDHINT_NONE);
+	(_Asm_ldhint)_LDHINT_NONE);
 
     return x == 1;
 }

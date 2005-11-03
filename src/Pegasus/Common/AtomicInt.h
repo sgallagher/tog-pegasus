@@ -110,7 +110,7 @@ PEGASUS_NAMESPACE_END
 #elif defined (PEGASUS_PLATFORM_HPUX_PARISC_ACC)
 # include <Pegasus/Common/AtomicInt_Generic.h>
 #elif defined (PEGASUS_PLATFORM_HPUX_IA64_ACC)
-# include <Pegasus/Common/AtomicInt_Generic.h>
+# include <Pegasus/Common/AtomicInt_HPUX_IA64_ACC.h>
 #elif defined (PEGASUS_PLATFORM_LINUX_XSCALE_GNU)
 # include <Pegasus/Common/AtomicInt_LINUX_XSCALE_GNU.h>
 #else

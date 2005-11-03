@@ -146,6 +146,7 @@ SOURCES2 = \
     Sharable.cpp \
     Signal.cpp \
     Socket.cpp \
+    SpinLock.cpp \
     Stack.cpp \
     StatisticalData.cpp \
     Stopwatch.cpp \

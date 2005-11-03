@@ -70,6 +70,7 @@ DIRS = \
     Reference \
     Resolve \
     Scope \
+    SpinLock \
     Stack \
     Stopwatch \
     StrToInstName \

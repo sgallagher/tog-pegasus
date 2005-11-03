@@ -27,89 +27,79 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mike-brasher@austin.rr.com) - Inova Europe
+// Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef _Pegasus_Common_SpinLock_h
-#define _Pegasus_Common_SpinLock_h
+#ifndef Pegasus_SpinLock_LINUX_IX86_GNU_h
+#define Pegasus_SpinLock_LINUX_IX86_GNU_h
+
+// Note: this lock can be eliminated for single processor systems.
+#define PEGASUS_ATOMIC_LOCK "lock ; "
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/SpinLock.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Represents the atomic type counter.
-struct AtomicType
+struct SpinLock
 {
-    Uint32 n;
+    // Available when zero.
+    volatile int lock;
+    Uint32 initialized;
 };
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
+inline void SpinLockCreate(SpinLock& x)
 {
-    _rep.n = n;
-    size_t i = SpinLockIndex(&_rep);
-
-    if (sharedSpinLocks[i].initialized == 0)
-	SpinLockConditionalCreate(sharedSpinLocks[i]);
+    // Available when one.
+    x.lock = 1;
+    x.initialized = 1;
 }
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline AtomicIntTemplate<AtomicType>::~AtomicIntTemplate()
+inline void SpinLockDestroy(SpinLock& x)
 {
-    // Nothing to do.
 }
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline Uint32 AtomicIntTemplate<AtomicType>::get() const
+inline void SpinLockLock(SpinLock& x)
 {
-    Uint32 tmp;
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    tmp = _rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-    return tmp;
+    // Spin until we are able to obtain a lock.
+
+    for (;;)
+    {
+	// Wait until the lock is available then try to grab it before another
+	// thread gets it.
+
+	if (x.lock == 1)
+	{
+	    unsigned char isZero;
+
+	    asm volatile(
+		PEGASUS_ATOMIC_LOCK "decl %0; sete %1"
+		:"=m" (x.lock), "=qm" (isZero)
+		:"m" (x.lock) : "memory");
+
+	    // If it became zero, then we must have locked it.
+
+	    if (isZero)
+		return;
+
+	    // Some other thread locked it. Increment and keep trying.
+
+	    asm volatile(
+		PEGASUS_ATOMIC_LOCK "incl %0"
+		:"=m" (x.lock)
+		:"m" (x.lock));
+	}
+    }
 }
 
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
+inline void SpinLockUnlock(SpinLock& x)
 {
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n = n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::inc()
-{
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n++;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline void AtomicIntTemplate<AtomicType>::dec()
-{
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    _rep.n--;
-    SpinLockUnlock(sharedSpinLocks[i]);
-}
-
-PEGASUS_TEMPLATE_SPECIALIZATION
-inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
-{
-    Uint32 tmp;
-    size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
-    tmp = --_rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
-    return tmp == 0;
+    asm volatile(
+        PEGASUS_ATOMIC_LOCK "incl %0"
+        :"=m" (x.lock)
+        :"m" (x.lock));
 }
 
 PEGASUS_NAMESPACE_END
 
-#endif /* _Pegasus_Common_SpinLock_h */
+#endif /* Pegasus_SpinLock_LINUX_IX86_GNU_h */

@@ -179,14 +179,12 @@ void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
 
 	rep->size = Array_size;
 
-#if 0
 	if (Array_refs.get() == 1)
 	{
 	    memcpy(rep->data(), Array_data, Array_size*sizeof(PEGASUS_ARRAY_T));
 	    Array_size = 0;
 	}
 	else
-#endif
 	    CopyToRaw(rep->data(), Array_data, Array_size);
 
 	ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);

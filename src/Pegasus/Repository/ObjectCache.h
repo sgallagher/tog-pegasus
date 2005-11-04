@@ -248,9 +248,13 @@ bool ObjectCache<OBJECT>::evict(const String& path)
 
 	    if (p->queuePrev)
 		p->queuePrev->queueNext = p->queueNext;
+	    else
+		_front = p->queueNext;
 
 	    if (p->queueNext)
 		p->queueNext->queuePrev = p->queuePrev;
+	    else
+		_back = p->queuePrev;
 
 	    // Delete the entry and update the number of entries.
 

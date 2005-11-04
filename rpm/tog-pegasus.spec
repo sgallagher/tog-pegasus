@@ -56,13 +56,14 @@ independent DMTF standard that defines a common information model and
 communication protocol for monitoring and controlling resources from diverse
 sources.
 
-%package sdk
+%package devel
 Summary:      The OpenPegasus Software Development Kit
 Group:        Systems Management/Base
 Autoreq: 0
 Requires: tog-pegasus >= 2.4
+Obsoletes: tog-pegasus-sdk
 
-%description sdk
+%description devel
 The OpenPegasus WBEM Services for Linux SDK is the developer's kit for the OpenPegasus WBEM
 Services for Linux release. It provides Linux C++ developers with the WBEM files required to
 build WBEM Clients and Providers. It also supports C provider developers via the CMPI interface.
@@ -975,7 +976,7 @@ fi
 %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libProcessProvider.so.1
 
 
-%files sdk
+%files devel
 %defattr(0444,root,root)
 %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClientException.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClient.h

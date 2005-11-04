@@ -76,7 +76,9 @@ Array<PEGASUS_ARRAY_T>::Array(Uint32 size)
     _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
 
     if (!_rep)
+    {
         throw NullPointer();
+    }
 
     InitializeRaw(Array_data, size);
 }
@@ -89,7 +91,9 @@ Array<PEGASUS_ARRAY_T>::Array(Uint32 size, const PEGASUS_ARRAY_T& x)
     _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
 
     if (!_rep)
+    {
         throw NullPointer();
+    }
 
     PEGASUS_ARRAY_T* data = Array_data;
 
@@ -109,7 +113,9 @@ Array<PEGASUS_ARRAY_T>::Array(const PEGASUS_ARRAY_T* items, Uint32 size)
     _rep = ArrayRep<PEGASUS_ARRAY_T>::alloc(size);
 
     if (!_rep)
+    {
         throw NullPointer();
+    }
 
     CopyToRaw(Array_data, items, size);
 }
@@ -146,7 +152,10 @@ void Array<PEGASUS_ARRAY_T>::clear()
     if (Array_size)
     {
 	if (Array_refs.get() == 1)
+	{
+	    Destroy(Array_data, Array_size);
 	    Array_size = 0;
+	}
 	else
 	{
 	    ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
@@ -170,12 +179,14 @@ void Array<PEGASUS_ARRAY_T>::reserveCapacity(Uint32 capacity)
 
 	rep->size = Array_size;
 
+#if 0
 	if (Array_refs.get() == 1)
 	{
 	    memcpy(rep->data(), Array_data, Array_size*sizeof(PEGASUS_ARRAY_T));
 	    Array_size = 0;
 	}
 	else
+#endif
 	    CopyToRaw(rep->data(), Array_data, Array_size);
 
 	ArrayRep<PEGASUS_ARRAY_T>::unref(Array_rep);
@@ -278,7 +289,9 @@ void Array<PEGASUS_ARRAY_T>::insert(
     Uint32 index, const PEGASUS_ARRAY_T* x, Uint32 size)
 {
     if (index > Array_size)
+    {
         throw IndexOutOfBoundsException();
+    }
 
     reserveCapacity(Array_size + size);
 
@@ -325,7 +338,9 @@ void Array<PEGASUS_ARRAY_T>::remove(Uint32 index, Uint32 size)
     // Case 2: not attempting to remove last element:
 
     if (index + size - 1 > Array_size)
+    {
         throw IndexOutOfBoundsException();
+    }
 
     Destroy(Array_data + index, size);
     Uint32 rem = Array_size - (index + size);

@@ -35,7 +35,6 @@
 
 #include <cassert>
 #include <iostream>
-#include <pthread.h>
 #include <Pegasus/Common/SpinLock.h>
 #include <Pegasus/Common/Thread.h>
 

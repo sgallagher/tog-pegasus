@@ -35,8 +35,8 @@ DIR = Providers/TestProviders/CIMOMHandleTestProvider/testclient
 include $(ROOT)/mak/config.mak
 
 LIBRARIES = \
-    pegcommon \
-    pegclient
+    pegclient \
+    pegcommon
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 

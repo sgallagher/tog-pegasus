@@ -36,6 +36,9 @@ LIBRARY = IndicationStressTestProvider
 
 LIBRARIES = \
 	pegqueryexpression \
+	pegwql \
+	pegcql \
+	pegquerycommon \
 	pegprovider \
 	pegclient \
 	pegcommon

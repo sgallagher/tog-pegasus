@@ -250,9 +250,34 @@ serverquicktests: servertestsclean servertestssetup serverquicksuite
 	@ $(ECHO) "+++++ TestMakefile serverquicktests complete"
 
 serverquicksuite: FORCE
-	$(PEGASUS_HOME)/bin/TestClient
 	$(PEGASUS_HOME)/bin/Client
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests
+	$(PEGASUS_HOME)/bin/TestClient
+
+####################
+#
+# perftests - simple performance test until we have better
+#
+# - Turns statistics on (uses TestInterop until we have better)
+# - runs and times serverquicktests suite 
+# - runs cimperf to displat the statistics
+# - turns statistics off 
+#
+perftests: servertestsclean servertestssetup perfsuite
+
+perfsuite: FORCE
+	$(PEGASUS_HOME)/bin/TestInterop on
+	$(TIME_CMD) $(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests
+	@ $(ECHO) " "
+	$(TIME_CMD) $(PEGASUS_HOME)/bin/TestClient
+	@ $(ECHO) " "
+	$(TIME_CMD) $(PEGASUS_HOME)/bin/benchmarkTest
+	@ $(ECHO) " "
+	@ $(ECHO) " "
+	$(TIME_CMD) $(PEGASUS_HOME)/bin/cimperf
+	@ $(ECHO) " "
+	$(PEGASUS_HOME)/bin/TestInterop off
+
 
 ####################
 #

@@ -33,62 +33,75 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-
 PEGASUS_NAMESPACE_BEGIN
 
-static sigset_t *block_signal_mask(sigset_t *sig)
+static sigset_t *block_signal_mask(sigset_t * sig)
 {
-    sigemptyset(sig);
-    // should not be used for main()
-    sigaddset(sig, SIGHUP);
-    sigaddset(sig, SIGINT);
-    // maybe useless, since KILL can't be blocked according to POSIX
-    sigaddset(sig, SIGKILL);
+  sigemptyset(sig);
+  // should not be used for main()
+  sigaddset(sig, SIGHUP);
+  sigaddset(sig, SIGINT);
+  // maybe useless, since KILL can't be blocked according to POSIX
+  sigaddset(sig, SIGKILL);
 
-    sigaddset(sig, SIGABRT);
-    sigaddset(sig, SIGALRM);
-    sigaddset(sig, SIGPIPE);
+  sigaddset(sig, SIGABRT);
+  sigaddset(sig, SIGALRM);
+  sigaddset(sig, SIGPIPE);
 
-
-    sigprocmask(SIG_BLOCK, sig, NULL);
-    return sig;
+  sigprocmask(SIG_BLOCK, sig, NULL);
+  return sig;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////
 
 Thread::Thread(
-    PEGASUS_THREAD_RETURN (PEGASUS_THREAD_CDECL *start)(void *),
-    void *parameter,
-    Boolean detached)
-    : _is_detached(detached),
-      _cancel_enabled(true),
-      _cancelled(false),
-      _suspend_count(),
-      _start(start),
-      _cleanup(true),
-      _tsd(true),
-      _thread_parm(parameter),
-      _exit_code(0)
+	PEGASUS_THREAD_RETURN(PEGASUS_THREAD_CDECL * start) (void *),
+	void *parameter,
+	Boolean detached)
+        : _is_detached(detached),
+          _cancel_enabled(true),
+          _cancelled(false),
+          _suspend_count(),
+          _start(start),
+          _cleanup(true),
+          _tsd(true),
+          _thread_parm(parameter),
+          _exit_code(0)
 {
-    pthread_attr_init(&_handle.thatt);
+  pthread_attr_init(&_handle.thatt);
+  size_t stacksize;
 
-    _handle.thid = 0;
+  // 
+  // Get the system default thread stack size
+  // 
+  if (pthread_attr_getstacksize(&_handle.thatt, &stacksize) == 0)
+  {
+    // 
+    // replace it with the Pegasus VMS default thread stack size.
+    // 
+    int rc = pthread_attr_setstacksize(&_handle.thatt, stacksize * 2);
+    // 
+    // Make sure it succeeded
+    // 
+    PEGASUS_ASSERT(rc == 0);
+  }
+
+  _handle.thid = 0;
 }
 
 Thread::~Thread()
 {
-    try
-    {
-        join();
-        pthread_attr_destroy(&_handle.thatt);
+  try
+  {
+    join();
+    pthread_attr_destroy(&_handle.thatt);
 
-        empty_tsd();
-    }
-    catch (...)
-    {
-        // Do not allow the destructor to throw an exception
-    }
+    empty_tsd();
+  }
+  catch(...)
+  {
+    // Do not allow the destructor to throw an exception
+  }
 }
 
 PEGASUS_NAMESPACE_END

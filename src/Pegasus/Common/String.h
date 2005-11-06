@@ -265,11 +265,33 @@ public:
         String test = "abc";
             printf("test = %s\n", (const char*)test.getCString());
 
-            NOTE:  Do not do the following:
-            const char * p = (const char *)test.getCString();
+            USAGE WARNING:  Do not do the following:
+
+              const char * p = (const char *)test.getCString();
+
             The pointer p will be invalid.  This is because
-            the CString object is destructed, which deletes
-            the heap space for p.
+            the Compiler casues the CString object to be created on the
+            callers stack as a temporary object. The deletion is therefore
+            also the responsibility of the Compiler. The Compiler may cause
+            it to be deleted at anytime after the return. Typically it is
+            done at the closeof the next scope. When it is deleted the 
+            "const char *p" above will become a dangling pointer. 
+
+	    The correct usage to achieve the "const char * p" is
+            as follows:
+
+              String str = "hello";
+              ...
+              CString cstr = str.getCString();
+
+              const char* p = (const char*)cstr;
+
+            This tells the compiler to create a CString object on the callers
+            stack that is the deleted at the discretion of the caller rather
+            than the compiler. The "const char *p" above will be good until
+            the caller explicity deletes the CString object.
+
+
     </pre>
     @exception bad_alloc Thrown if there is insufficient memory.
     */

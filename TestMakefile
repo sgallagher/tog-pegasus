@@ -64,6 +64,7 @@ usage: FORCE
 	$(USAGE)"serverquicktests   - Executes a brief server test"
 	$(USAGE)
 	$(USAGE)"usage2             - usage on secondary test targets"
+	$(USAGE)"usagetrace         - usage on trace targets"
 	$(USAGE)
 
 usage2: FORCE
@@ -250,34 +251,9 @@ serverquicktests: servertestsclean servertestssetup serverquicksuite
 	@ $(ECHO) "+++++ TestMakefile serverquicktests complete"
 
 serverquicksuite: FORCE
+	$(PEGASUS_HOME)/bin/TestClient
 	$(PEGASUS_HOME)/bin/Client
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests
-	$(PEGASUS_HOME)/bin/TestClient
-
-####################
-#
-# perftests - simple performance test until we have better
-#
-# - Turns statistics on (uses TestInterop until we have better)
-# - runs and times serverquicktests suite 
-# - runs cimperf to displat the statistics
-# - turns statistics off 
-#
-perftests: servertestsclean servertestssetup perfsuite
-
-perfsuite: FORCE
-	$(PEGASUS_HOME)/bin/TestInterop on
-	$(TIME_CMD) $(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests
-	@ $(ECHO) " "
-	$(TIME_CMD) $(PEGASUS_HOME)/bin/TestClient
-	@ $(ECHO) " "
-	$(TIME_CMD) $(PEGASUS_HOME)/bin/benchmarkTest
-	@ $(ECHO) " "
-	@ $(ECHO) " "
-	$(TIME_CMD) $(PEGASUS_HOME)/bin/cimperf
-	@ $(ECHO) " "
-	$(PEGASUS_HOME)/bin/TestInterop off
-
 
 ####################
 #
@@ -593,6 +569,109 @@ TestRegBuild: FORCE
 ##
 ## Trace Configuration
 ##
+## Options: see usagetrace rule
+##
+###############################################################################
+
+usagetrace: FORCE
+	$(USAGE)
+	$(USAGE)"TestMakefile Trace Commands: (cimserver should be running)"
+	$(USAGE)
+	$(USAGE)
+	$(USAGE)" traceon:                  Enables all tracing."
+	$(USAGE)" traceoff:                 Disables all tracing."
+	$(USAGE)" tracesettings:            Displays trace settings."
+	$(USAGE)" tracecomp:                Displays a trace componenets list."
+	$(USAGE)" traceon-CL C=[comp] L=[level(1,2,3,4)]:  "
+	$(USAGE)"                           Enables tracing on component C at trace level L."
+	$(USAGE)"                           Usage example:"
+	$(USAGE)"                           Turns tracing on for DiscardedData at level 3"
+	$(USAGE)"                           traceon-CL C=DiscardedData L=3"
+	$(USAGE)
+	$(USAGE)
+
+traceon: FORCE
+	@ cimconfig -s traceComponents=ALL
+	@ cimconfig -s traceLevel=3 -c
+	@ cimconfig -g traceComponents
+	@ cimconfig -g traceLevel
+
+traceoff: FORCE
+	@ cimconfig -s traceComponents=
+	@ cimconfig -g traceComponents
+	@ cimconfig -g traceLevel
+
+
+tracesettings: FORCE
+	@ $(ECHO) " "
+	cimconfig -g traceComponents
+	@ $(ECHO) " "
+	cimconfig -g traceLevel
+	@ $(ECHO) " "
+	cimconfig -g traceFilePath
+	@ $(ECHO) " "
+
+traceon-CL: FORCE
+	@ cimconfig -s traceComponents=$C -c
+	@ cimconfig -s traceLevel=$L -c
+	@ cimconfig -g traceComponents
+	@ cimconfig -g traceLevel
+
+tracecomp: FORCE
+	$(USAGE)
+	$(USAGE)"Trace component list:"
+	$(USAGE)
+	$(USAGE)"Channel"
+	$(USAGE)"XmlParser"
+	$(USAGE)"XmlWriter"
+	$(USAGE)"XmlReader"
+	$(USAGE)"XmlIO"
+	$(USAGE)"Http"
+	$(USAGE)"CimData"
+	$(USAGE)"ProvManager"
+	$(USAGE)"Repository"
+	$(USAGE)"Dispatcher"
+	$(USAGE)"OsAbstraction"
+	$(USAGE)"Config"
+	$(USAGE)"IndDelivery"
+	$(USAGE)"IndHandler"
+	$(USAGE)"Authentication"
+	$(USAGE)"Authorization"
+	$(USAGE)"UserManager"
+	$(USAGE)"SubscriptionService"
+	$(USAGE)"Registration"
+	$(USAGE)"Shutdown"
+	$(USAGE)"Server"
+	$(USAGE)"IndicationService"
+	$(USAGE)"IndicationServiceInternal"
+	$(USAGE)"ConfigurationManager"
+	$(USAGE)"MessageQueueService"
+	$(USAGE)"ProviderManager"
+	$(USAGE)"ObjectResolution"
+	$(USAGE)"WQL"
+	$(USAGE)"CQL"
+	$(USAGE)"Thread"
+	$(USAGE)"MetaDispatcher"
+	$(USAGE)"IPC"
+	$(USAGE)"IndicationHandlerService"
+	$(USAGE)"CIMExportRequestDispatcher"
+	$(USAGE)"Memory"
+	$(USAGE)"SSL"
+	$(USAGE)"ControlProvider"
+	$(USAGE)"AsyncOpNode"
+	$(USAGE)"CIMOMHandle"
+	$(USAGE)"BinaryMessageHandler"
+	$(USAGE)"L10N"
+	$(USAGE)"ExportClient"
+	$(USAGE)"Listener"
+	$(USAGE)"DiscardedData"
+	$(USAGE)"ProviderAgent"
+	$(USAGE)
+
+###############################################################################
+##
+## Trace Configuration - Old rules being deprecated
+##
 ## Options:
 ##      XMLTraceOn: Enables XML request and response tracing.
 ##      ProviderLoadTraceOn: Enables Provider load tracing.
@@ -622,21 +701,12 @@ XML+ProviderLoadTraceOn:
 	cimconfig -g traceComponents
 	cimconfig -g traceLevel
 
-AllTraceOn:
-	cimconfig -s traceComponents=ALL
-	cimconfig -s traceLevel=3 -c
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
+AllTraceOn: traceon
 
-AllTraceOff:
-	cimconfig -s traceComponents=
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
+AllTraceOff: traceoff
 
-list:
-	cimconfig -g traceComponents
-	cimconfig -g traceLevel
-	cimconfig -g traceFilePath
+list: tracesettings
+
 
 # More options...
 

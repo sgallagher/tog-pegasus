@@ -167,7 +167,7 @@ void printPropertyList(CIMPropertyList& pl)
 {
     cout << buildPropertyListString(pl);
 }
-static const char * version = "2.1";
+static const char * version = "2.2";
 static const char * usage = "This command executes single CIM Operations.";
 
 
@@ -761,7 +761,6 @@ int getInstance(CIMClient& client, Options& opts)
     }
     else
         outputFormatInstance(opts.outputType, cimInstance);
-
     return(0);
 }
 

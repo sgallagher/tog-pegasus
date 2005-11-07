@@ -222,6 +222,7 @@ public:
 //            Main
 
 ///////////////////////////////////////////////////////////////////////
+
 int main(int argc, char** argv)
 {
     // If no arguments, simply print usage message and terminate.
@@ -380,8 +381,9 @@ int main(int argc, char** argv)
         if ((opts.cimCmd == CommandTable[cmdIndex].CommandName) ||
             (opts.cimCmd == CommandTable[cmdIndex].ShortCut))
             // Break if found
-            break;
+                    break;
     }
+
     Stopwatch totalElapsedExecutionTime;
 
     totalElapsedExecutionTime.start();
@@ -454,7 +456,7 @@ int main(int argc, char** argv)
     catch(Exception &e)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
-              " Trying to connect to " << opts.location << endl;
+              ". Trying to connect to " << opts.location << endl;
         exit(1);
     }
 
@@ -706,6 +708,14 @@ int main(int argc, char** argv)
                     executeQuery(client, opts);
                     break;
 
+                case ID_StatisticsOn:
+                    setObjectManagerStatistics(client, true);
+                    break;
+
+                case ID_StatisticsOff:
+                    setObjectManagerStatistics(client, false);
+                    break;
+
                 //case ID_Unknown :
                 default:
                     cout << "Invalid Command. Command name must be first parm or --c parameter."
@@ -718,7 +728,7 @@ int main(int argc, char** argv)
             if (opts.repeat > 0)
             {
                 if (opts.verboseTest)
-                    {
+                {
                     cout << "Repetitition " << opts.repeat << endl;
                 }
                 opts.repeat--;

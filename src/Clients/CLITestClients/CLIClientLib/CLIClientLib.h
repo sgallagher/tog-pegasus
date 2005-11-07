@@ -89,7 +89,9 @@ const CommandID ID_ModifyInstance               = 24;
 const CommandID ID_EnumerateAllInstanceNames    = 25;
 const CommandID ID_EnumerateNamespaces          = 26;
 const CommandID ID_ShowOptions                  = 27;
-const CommandID ID_Unknown                      = 28;
+const CommandID ID_StatisticsOn                 = 28;
+const CommandID ID_StatisticsOff                = 29;
+const CommandID ID_Unknown                      = 30;
 
 struct  OUTPUT_STRUCT
 {
@@ -151,12 +153,11 @@ static CMD_STRUCT CommandTable[] =
     {ID_References,              "references",      2,      "r",  "Enum References <classname>|<instancename> "  },
     {ID_ReferenceNames,          "referencenames",2 ,       "rn", "Enum Reference Names <classname>|<instancename> "  },
     {ID_InvokeMethod,            "InvokeMethod",  2 ,       "im", "im <object> <method> {<inputParams>} "  },
-    {ID_ExecQuery,               "execquery",     2 ,       "xq", 
-        "Execute Query <query-expresssion> [<query-language>]"  },
-    {ID_EnumerateNamespaces,     "enumeratenamespaces",2 ,  "ns",
-        "Enumerate all namespaces on the server. "  },
+    {ID_ExecQuery,               "execquery",     2 ,       "xq", "Execute Query <query-expresssion> [<query-language>]"  },
+    {ID_EnumerateNamespaces,     "enumeratenamespaces",2 ,  "ns", "Enumerate all namespaces on the server. "  },
+    {ID_StatisticsOn,            "Turn On Statistics",2 ,   "son", "Turn on CIM Server Statistics Gathering "  },
+    {ID_StatisticsOff,           "Turn Off Statistics",2 ,  "soff", "Turn off CIM Server Statistics Gathering "  },
     {ID_ShowOptions,             "show command options",2 ,  "?", "Show List of Commands "  },
-   
 };
 
 static const Uint32 NUM_COMMANDS = sizeof(CommandTable) / sizeof(CommandTable[0]);

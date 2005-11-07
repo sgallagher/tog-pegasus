@@ -58,7 +58,7 @@
 //              &apos - apostrophe
 //
 //             as well as character (numeric) references:
-
+//
 //              &#49; - decimal reference for character '1'
 //              &#x31; - hexadecimal reference for character '1'
 //
@@ -81,8 +81,8 @@
 //
 // TODO:
 //
-//      ATTN: KS P1 4 Mar 2002. Review the following TODOs to see if there is work.
-//      Handle <!DOCTYPE...> sections which are complicated (containing
+//      ATTN: KS P1 4 Mar 2002. Review the following TODOs to see if there is 
+//      work. Handle <!DOCTYPE...> sections which are complicated (containing
 //        rules rather than references to files).
 //
 //      Remove newlines from string literals:
@@ -507,19 +507,26 @@ XmlParser::~XmlParser()
     // Nothing to do!
 }
 
+// A-Za-z0-9_-:.
+static unsigned char _isInnerElementChar[] = 
+{
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+};
+
 Boolean XmlParser::_getElementName(char*& p)
 {
-    if (!(((*p >= 'A') && (*p <= 'Z')) ||
-          ((*p >= 'a') && (*p <= 'z')) ||
-          (*p == '_')))
+    if (!CharSet::isAlNumUnder(Uint8(*p)))
         throw XmlException(XmlException::BAD_START_TAG, _line);
+
     p++;
 
-    while ((*p) &&
-           (((*p >= 'A') && (*p <= 'Z')) ||
-            ((*p >= 'a') && (*p <= 'z')) ||
-            ((*p >= '0') && (*p <= '9')) ||
-            *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while (*p && _isInnerElementChar[Uint8(*p)])
         p++;
 
     // The next character must be a space:
@@ -543,17 +550,12 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 {
     openCloseElement = false;
 
-    if (!(((*p >= 'A') && (*p <= 'Z')) ||
-          ((*p >= 'a') && (*p <= 'z')) ||
-          (*p == '_')))
+    if (!CharSet::isAlNumUnder(Uint8(*p)))
         throw XmlException(XmlException::BAD_START_TAG, _line);
+
     p++;
 
-    while ((*p) &&
-           (((*p >= 'A') && (*p <= 'Z')) ||
-            ((*p >= 'a') && (*p <= 'z')) ||
-            ((*p >= '0') && (*p <= '9')) ||
-            *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while (*p && _isInnerElementChar[Uint8(*p)])
         p++;
 
     // The next character must be a space:
@@ -583,17 +585,12 @@ Boolean XmlParser::_getOpenElementName(char*& p, Boolean& openCloseElement)
 
 void XmlParser::_getAttributeNameAndEqual(char*& p)
 {
-    if (!(((*p >= 'A') && (*p <= 'Z')) ||
-          ((*p >= 'a') && (*p <= 'z')) ||
-          (*p == '_')))
+    if (!CharSet::isAlNumUnder((Uint8)*p))
         throw XmlException(XmlException::BAD_ATTRIBUTE_NAME, _line);
+
     p++;
 
-    while ((*p) &&
-           (((*p >= 'A') && (*p <= 'Z')) ||
-            ((*p >= 'a') && (*p <= 'z')) ||
-            ((*p >= '0') && (*p <= '9')) ||
-            *p == '_' || *p == '-' || *p == ':' || *p == '.'))
+    while (*p && _isInnerElementChar[Uint8(*p)])
         p++;
 
     char* term = p;

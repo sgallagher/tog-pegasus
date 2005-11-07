@@ -69,6 +69,7 @@
 #include <Pegasus/Common/ContentLanguages.h>  // l10n
 #include <Pegasus/Common/AcceptLanguages.h>   // l10n
 #include <Pegasus/Common/Buffer.h>
+#include <Pegasus/Common/StrLit.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -558,7 +559,17 @@ PEGASUS_COMMON_LINKAGE Buffer& operator<<(
     Buffer& out, 
     const char* x);
 
-PEGASUS_COMMON_LINKAGE Buffer& operator<<(Buffer& out, char x);
+inline Buffer& operator<<(Buffer& out, char x)
+{
+    out.append(x);
+    return out;
+}
+
+inline Buffer& operator<<(Buffer& out, const char* s)
+{
+    out.append(s, strlen(s));
+    return out;
+}
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(Buffer& out, const Char16& x);
 

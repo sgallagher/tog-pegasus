@@ -41,6 +41,7 @@
 #include <cstdio>
 #include "XmlWriter.h"
 #include "CIMParamValueRep.h"
+#include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -72,7 +73,8 @@ CIMParamValueRep::~CIMParamValueRep()
 //------------------------------------------------------------------------------
 void CIMParamValueRep::toXml(Buffer& out) const
 {
-    out << "<PARAMVALUE NAME=\"" << _parameterName << "\"";
+    out << STRLIT("<PARAMVALUE NAME=\"") << _parameterName;
+    out.append('"');
 
     CIMType type = _value.getType();
 
@@ -85,19 +87,19 @@ void CIMParamValueRep::toXml(Buffer& out) const
         //   output the real type
         if (type == CIMTYPE_OBJECT)
         {
-            out << " PARAMTYPE=\"string\"";
-            out << " EMBEDDEDOBJECT=\"object\"";
+            out << STRLIT(" PARAMTYPE=\"string\" EMBEDDEDOBJECT=\"object\"");
         }
         else
         {
-            out << " PARAMTYPE=\"" << cimTypeToString (type) << "\"";
+            out << STRLIT(" PARAMTYPE=\"") << cimTypeToString (type);
+	    out.append('"');
         }
     }
 
-    out << ">\n";
+    out << STRLIT(">\n");
     XmlWriter::appendValueElement(out, _value);
 
-    out << "</PARAMVALUE>\n";
+    out << STRLIT("</PARAMVALUE>\n");
 }
 
 CIMParamValueRep::CIMParamValueRep()

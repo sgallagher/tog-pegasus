@@ -49,6 +49,7 @@
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -544,13 +545,13 @@ void CIMClassRep::toXml(Buffer& out) const
 {
     // Class opening element:
 
-    out << "<CLASS ";
-    out << " NAME=\"" << _reference.getClassName() << "\" ";
+    out << STRLIT("<CLASS ");
+    out << STRLIT(" NAME=\"") << _reference.getClassName() << STRLIT("\" ");
 
     if (!_superClassName.isNull())
-	out << " SUPERCLASS=\"" << _superClassName << "\" ";
+	out << STRLIT(" SUPERCLASS=\"") << _superClassName << STRLIT("\" ");
 
-    out << ">\n";
+    out << STRLIT(">\n");
 
     // Qualifiers:
 
@@ -568,7 +569,7 @@ void CIMClassRep::toXml(Buffer& out) const
 
     // Class closing element:
 
-    out << "</CLASS>\n";
+    out << STRLIT("</CLASS>\n");
 }
 /** toMof prepares an 8-bit string with the MOF for the class.
     The BNF for this is:
@@ -586,22 +587,22 @@ void CIMClassRep::toXml(Buffer& out) const
 void CIMClassRep::toMof(Buffer& out) const
 {
     // Get and format the class qualifiers
-    out << "\n//    Class " << _reference.getClassName();
+    out << STRLIT("\n//    Class ") << _reference.getClassName();
     if (_qualifiers.getCount())
-	out << "\n";
-    out << "\n";
+	out.append('\n');
+    out.append('\n');
     _qualifiers.toMof(out);
 
     // Separate qualifiers from Class Name
-    out << "\n";
+    out.append('\n');
 
     // output class statement
-    out << "class " << _reference.getClassName();
+    out << STRLIT("class ") << _reference.getClassName();
 
     if (!_superClassName.isNull())
-	out << " : " << _superClassName;
+	out << STRLIT(" : ") << _superClassName;
 
-    out << "\n{";
+    out << STRLIT("\n{");
 
     // format the Properties:
     for (Uint32 i = 0, n = _properties.size(); i < n; i++)
@@ -622,7 +623,7 @@ void CIMClassRep::toMof(Buffer& out) const
     }
 
     // Class closing element:
-    out << "\n};\n";
+    out << STRLIT("\n};\n");
 }
 
 

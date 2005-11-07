@@ -44,6 +44,7 @@
 #include "InternalException.h"
 #include "XmlWriter.h"
 #include "MofWriter.h"
+#include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -115,30 +116,31 @@ static const char* _toString(Boolean x)
 
 void CIMQualifierDeclRep::toXml(Buffer& out) const
 {
-    out << "<QUALIFIER.DECLARATION";
-    out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    out << STRLIT("<QUALIFIER.DECLARATION NAME=\"") << _name;
+    out.append('"');
+    out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
+    out.append('"');
 
     if (_value.isArray())
     {
-	out << " ISARRAY=\"true\"";
+	out << STRLIT(" ISARRAY=\"true\"");
 
 	if (_arraySize)
 	{
 	    char buffer[64];
-	    sprintf(buffer, " ARRAYSIZE=\"%d\"", _arraySize);
-	    out << buffer;
+	    int n = sprintf(buffer, " ARRAYSIZE=\"%d\"", _arraySize);
+	    out.append(buffer, n);
 	}
     }
 
     XmlWriter::appendQualifierFlavorEntity(out, _flavor);
 
-    out << ">\n";
+    out << STRLIT(">\n");
 
     XmlWriter::appendScopeElement(out, _scope);
     XmlWriter::appendValueElement(out, _value);
 
-    out << "</QUALIFIER.DECLARATION>\n";
+    out << STRLIT("</QUALIFIER.DECLARATION>\n");
 }
 
 /** toMof - Generate the MOF output for the Qualifier Declaration object.
@@ -158,13 +160,13 @@ void CIMQualifierDeclRep::toXml(Buffer& out) const
 */
 void CIMQualifierDeclRep::toMof(Buffer& out) const
 {
-    out << "\n";
+    out.append('\n');
 
     // output the "Qualifier" keyword and name
-    out << "Qualifier " << _name;
+    out << STRLIT("Qualifier ") << _name;
 
     // output the qualifiertype
-    out << " : " << cimTypeToString (_value.getType ());
+    out << STRLIT(" : ") << cimTypeToString(_value.getType());
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())
@@ -172,11 +174,11 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
 	if (_arraySize)
 	{
 	    char buffer[32];
-	    sprintf(buffer, "[%d]", _arraySize);
-	    out << buffer;
+	    int n = sprintf(buffer, "[%d]", _arraySize);
+	    out.append(buffer, n);
 	}
 	else
-	    out << "[]";
+	    out << STRLIT("[]");
     }
 
     Boolean hasValueField = false;
@@ -184,7 +186,7 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     //if (!_value.isNull() || !(_value.getType() == CIMTYPE_BOOLEAN) )
     //{
         // KS With CIM Qualifier, this should be =
-	out << " = ";
+	out << STRLIT(" = ");
 	hasValueField = true;
 	MofWriter::appendValueElement(out, _value);
     //}
@@ -194,17 +196,19 @@ void CIMQualifierDeclRep::toMof(Buffer& out) const
     scopeString = MofWriter::getQualifierScope(_scope);
     //if (scopeString.size())
     //{
-	out << ", Scope(" << scopeString << ")";
+	out << STRLIT(", Scope(") << scopeString;
+	out.append(')');
     //}
     // Output Flavor Information
     String flavorString;
     flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
-    out << ", Flavor(" << flavorString << ")";
+	out << STRLIT(", Flavor(") << flavorString;
+	out.append(')');
     }
     // End each qualifier declaration with newline
-    out << ";\n";
+    out << STRLIT(";\n");
 }
 
 

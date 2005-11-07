@@ -47,6 +47,7 @@
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -365,19 +366,19 @@ void CIMQualifierList::toMof(Buffer& out) const
 	return;
 
     // Qualifier leading bracket.
-    out <<"[";
+    out.append('[');
 
     // Loop to list qualifiers
     for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
     {
 	// if second or greater, add comma separator
 	if (i > 0)
-	    out << ", \n";
+	    out << STRLIT(", \n");
 	MofWriter::appendQualifierElement(out, _qualifiers[i]);
     }
     
     // Terminating bracket
-    out << "]";
+    out.append(']');
 }
 
 

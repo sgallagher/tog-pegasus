@@ -44,6 +44,7 @@
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include "DeclContext.h"
+#include "StrLit.h"
 
 PEGASUS_USING_STD;
 
@@ -265,9 +266,7 @@ void CIMPropertyRep::toXml(Buffer& out) const
 {
     if (_value.isArray())
     {
-	out << "<PROPERTY.ARRAY";
-
-	out << " NAME=\"" << _name << "\" ";
+	out << STRLIT("<PROPERTY.ARRAY NAME=\"") << _name << STRLIT("\" ");
 
     // If the property array type is CIMObject, then
     //   encode the property in CIM-XML as a string array with the EMBEDDEDOBJECT attribute
@@ -278,10 +277,10 @@ void CIMPropertyRep::toXml(Buffer& out) const
     {
         Array<CIMObject> a;
         _value.get(a);
-        out << " TYPE=\"string\"";
+        out << STRLIT(" TYPE=\"string\"");
         // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
         if (a.size() > 0 && a[0].isInstance())
-            out << " EMBEDDEDOBJECT=\"object\"";
+            out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
         // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
         // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
         // the EmbeddedObject qualifier will always be added, whether it's a class or
@@ -304,65 +303,85 @@ void CIMPropertyRep::toXml(Buffer& out) const
     }
     else
     {
-        out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+        out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
+	out.append('"');
     }
 
     if (_arraySize)
 	{
 	    char buffer[32];
 	    sprintf(buffer, "%d", _arraySize);
-	    out << " ARRAYSIZE=\"" << buffer << "\"";
+	    out << STRLIT(" ARRAYSIZE=\"") << buffer;
+	    out.append('"');
 	}
 
 	if (!_classOrigin.isNull())
-	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+	{
+	    out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
+	    out.append('"');
+	}
 
 	if (_propagated != false)
-	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+	{
+	    out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+	    out.append('"');
+	}
 
-	out << ">\n";
+	out << STRLIT(">\n");
 
 	_qualifiers.toXml(out);
 
 	XmlWriter::appendValueElement(out, _value);
 
-	out << "</PROPERTY.ARRAY>\n";
+	out << STRLIT("</PROPERTY.ARRAY>\n");
     }
     else if (_value.getType() == CIMTYPE_REFERENCE)
     {
-	out << "<PROPERTY.REFERENCE";
+	out << STRLIT("<PROPERTY.REFERENCE");
 
-	out << " NAME=\"" << _name << "\" ";
+	out << STRLIT(" NAME=\"") << _name << STRLIT("\" ");
 
         if (!_referenceClassName.isNull())
         {
-            out << " REFERENCECLASS=\"" << _referenceClassName << "\"";
+            out << STRLIT(" REFERENCECLASS=\"") << _referenceClassName;
+	    out.append('"');
         }
 
 	if (!_classOrigin.isNull())
-	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+	{
+	    out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
+	    out.append('"');
+	}
 
 	if (_propagated != false)
-	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+	{
+	    out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+	    out.append('"');
+	}
 
-	out << ">\n";
+	out << STRLIT(">\n");
 
 	_qualifiers.toXml(out);
 
 	XmlWriter::appendValueElement(out, _value);
 
-	out << "</PROPERTY.REFERENCE>\n";
+	out << STRLIT("</PROPERTY.REFERENCE>\n");
     }
     else
     {
-	out << "<PROPERTY";
-	out << " NAME=\"" << _name << "\" ";
+	out << STRLIT("<PROPERTY NAME=\"") << _name << STRLIT("\" ");
 
 	if (!_classOrigin.isNull())
-	    out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+	{
+	    out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
+	    out.append('"');
+	}
 
 	if (_propagated != false)
-	    out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+	{
+	    out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+	    out.append('"');
+	}
 
     // If the property type is CIMObject, then
     //   encode the property in CIM-XML as a string with the EMBEDDEDOBJECT attribute
@@ -373,10 +392,10 @@ void CIMPropertyRep::toXml(Buffer& out) const
     {
         CIMObject a;
         _value.get(a);
-        out << " TYPE=\"string\"";
+        out << STRLIT(" TYPE=\"string\"");
         // If the Embedded Object is an instance, always add the EMBEDDEDOBJECT attribute.
         if (a.isInstance())
-            out << " EMBEDDEDOBJECT=\"object\"";
+            out << STRLIT(" EMBEDDEDOBJECT=\"object\"");
         // Else the Embedded Object is a class, always add the EmbeddedObject qualifier.
         // Note that if the macro PEGASUS_SNIA_INTEROP_COMPATIBILITY is defined, then
         // the EmbeddedObject qualifier will always be added, whether it's a class or
@@ -399,16 +418,17 @@ void CIMPropertyRep::toXml(Buffer& out) const
     }
     else
     {
-        out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+        out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType());
+	out.append('"');
     }
 
-	out << ">\n";
+	out << STRLIT(">\n");
 
 	_qualifiers.toXml(out);
 
 	XmlWriter::appendValueElement(out, _value);
 
-	out << "</PROPERTY>\n";
+	out << STRLIT("</PROPERTY>\n");
     }
 }
 
@@ -429,11 +449,13 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 {
     //Output the qualifier list
     if (_qualifiers.getCount())
-	out << "\n";
+	out.append('\n');
     _qualifiers.toMof(out);
 
     // Output the Type and name on a new line
-    out << "\n" << cimTypeToString (_value.getType ()) << " " << _name;
+    out << '\n' << cimTypeToString(_value.getType ());
+    out.append(' ');
+    out << _name;
 
     // If array put the Array indicator "[]" and possible size after name.
     if (_value.isArray())
@@ -441,17 +463,17 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 	if (_arraySize)
 	{
 	    char buffer[32];
-	    sprintf(buffer, "[%d]", _arraySize);
-	    out << buffer;
+	    int n = sprintf(buffer, "[%d]", _arraySize);
+	    out.append(buffer, n);
 	}
 	else
-	    out << "[]";
+	    out << STRLIT("[]");
     }
 
     // If the property value is not Null, add value after "="
     if (!_value.isNull())
     {
-	out << " = ";
+	out << STRLIT(" = ");
 	if (_value.isArray())
 	{
 	    // Insert any property values
@@ -467,7 +489,7 @@ void CIMPropertyRep::toMof(Buffer& out) const  //ATTNKS:
 	}
     }
     // Close the property MOF
-    out << ";";
+    out.append(';');
 
 }
 

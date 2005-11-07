@@ -43,6 +43,7 @@
 #include "InternalException.h"
 #include "XmlWriter.h"
 #include "MofWriter.h"
+#include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -127,20 +128,24 @@ static const char* _toString(Boolean x)
 
 void CIMQualifierRep::toXml(Buffer& out) const
 {
-    out << "<QUALIFIER";
-    out << " NAME=\"" << _name << "\"";
-    out << " TYPE=\"" << cimTypeToString (_value.getType ()) << "\"";
+    out << STRLIT("<QUALIFIER NAME=\"") << _name;
+    out.append('"');
+    out << STRLIT(" TYPE=\"") << cimTypeToString(_value.getType ());
+    out.append('"');
 
     if (_propagated != false)
-	out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+    {
+	out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+	out.append('"');
+    }
 
     XmlWriter::appendQualifierFlavorEntity(out, _flavor);
 
-    out << ">\n";
+    out << STRLIT(">\n");
 
     XmlWriter::appendValueElement(out, _value);
 
-    out << "</QUALIFIER>\n";
+    out << STRLIT("</QUALIFIER>\n");
 }
 
 /** toMof Generates MOF output for a qualifier.
@@ -173,14 +178,14 @@ void CIMQualifierRep::toMof(Buffer& out) const
 		    Boolean b;
 			_value.get(b);
 		    if(!b)
-				out << " (false)";
+			out << STRLIT(" (false)");
 	   }
 	   else
 	   {
-		   out << " (";
+		   out << STRLIT(" (");
 		   hasValueField = true;
 		   MofWriter::appendValueElement(out, _value);
-		   out << ")";
+		   out.append(')');
 	   }
     }
 
@@ -189,7 +194,7 @@ void CIMQualifierRep::toMof(Buffer& out) const
     flavorString = MofWriter::getQualifierFlavor(_flavor);
     if (flavorString.size())
     {
-		out << " : ";
+		out << STRLIT(" : ");
 		out << flavorString;
     }
 }

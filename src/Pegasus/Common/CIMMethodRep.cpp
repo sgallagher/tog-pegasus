@@ -46,6 +46,7 @@
 #include "XmlWriter.h"
 #include "MofWriter.h"
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -216,26 +217,32 @@ static const char* _toString(Boolean x)
 
 void CIMMethodRep::toXml(Buffer& out) const
 {
-    out << "<METHOD";
+    out << STRLIT("<METHOD NAME=\"") << _name;
+    out.append('"');
 
-    out << " NAME=\"" << _name << "\"";
-
-    out << " TYPE=\"" << cimTypeToString (_type) << "\"";
+    out << STRLIT(" TYPE=\"") << cimTypeToString(_type);
+    out.append('"');
 
     if (!_classOrigin.isNull())
-        out << " CLASSORIGIN=\"" << _classOrigin << "\"";
+    {
+        out << STRLIT(" CLASSORIGIN=\"") << _classOrigin;
+	out.append('"');
+    }
 
     if (_propagated != false)
-        out << " PROPAGATED=\"" << _toString(_propagated) << "\"";
+    {
+        out << STRLIT(" PROPAGATED=\"") << _toString(_propagated);
+	out.append('"');
+    }
 
-    out << ">\n";
+    out << STRLIT(">\n");
 
     _qualifiers.toXml(out);
 
     for (Uint32 i = 0, n = _parameters.size(); i < n; i++)
         XmlWriter::appendParameterElement(out, _parameters[i]);
 
-    out << "</METHOD>\n";
+    out << STRLIT("</METHOD>\n");
 }
 
 /**
@@ -251,12 +258,16 @@ void CIMMethodRep::toMof(Buffer& out) const   //ATTNKS:
 {
     // Output the qualifier list starting on new line
     if (_qualifiers.getCount())
-        out << "\n";
+        out.append('\n');
 
     _qualifiers.toMof(out);
 
     // output the type, MethodName and ParmeterList left enclosure
-    out << "\n" << cimTypeToString (_type) << " " << _name << "(";
+    out.append('\n');
+    out << cimTypeToString(_type);
+    out.append(' ');
+    out << _name;
+    out.append('(');
 
     // output the param list separated by commas.
 
@@ -264,13 +275,13 @@ void CIMMethodRep::toMof(Buffer& out) const   //ATTNKS:
     {
         // If not first, output comma separator
         if (i)
-            out << ", ";
+            out << STRLIT(", ");
 
         MofWriter::appendParameterElement(out, _parameters[i]);
     }
 
     // output the parameterlist and method terminator
-    out << ");";
+    out << STRLIT(");");
 }
 
 

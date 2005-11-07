@@ -86,8 +86,10 @@ PEGASUS_NAMESPACE_BEGIN
 #define OUTPUT_CONTENTLENGTH                                   		   \
 {                                                              		   \
     char contentLengthP[11];                                   		   \
-    sprintf(contentLengthP,"%.10u", contentLength);            		   \
-    out << STRLIT("content-length: ") << contentLengthP << STRLIT("\r\n"); \
+    int n = sprintf(contentLengthP,"%.10u", contentLength);            	   \
+    out << STRLIT("content-length: ");					   \
+    out.append(contentLengthP, n);					   \
+    out << STRLIT("\r\n"); 						   \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -252,18 +254,6 @@ static const int _isSpecialChar7[] =
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
-Buffer& operator<<(Buffer& out, const char* x)
-{
-    XmlWriter::append(out, x);
-    return out;
-}
-
-Buffer& operator<<(Buffer& out, char x)
-{
-    XmlWriter::append(out, x);
-    return out;
-}
 
 Buffer& operator<<(Buffer& out, const Char16& x)
 {

@@ -34,6 +34,7 @@
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//              Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug# 4106
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +97,10 @@ LinuxNetworkAdapterProvider::getInstance(const OperationContext& context,
  
    for (i = 0; i < keys.size(); i++)
       if (keys[i].getName() == CIMName("Name"))
-         unique_name = keys[i].getValue();
+	  {
+          unique_name = keys[i].getValue();
+          break;
+	  }
  
    handler.processing();
  

@@ -34,6 +34,7 @@
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
+//              Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug# 4106
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +74,10 @@ LinuxPCIControllerProvider::getInstance(const OperationContext& context,
    /* Get the unique ID of the controller that was requested */
    for (i = 0; i < keys.size(); i++)
       if(keys[i].getName() == CIMName("DeviceID"))
-         uniqueKeyID = keys[i].getValue();
+	  {
+          uniqueKeyID = keys[i].getValue();
+          break;
+	  }
  
    if (i == keys.size())
       return;   // didn't find the key

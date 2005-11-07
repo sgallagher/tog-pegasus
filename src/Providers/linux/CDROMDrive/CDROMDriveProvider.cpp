@@ -33,6 +33,7 @@
 // Modified By: David Kennedy       <dkennedy@linuxcare.com>
 //              Christopher Neufeld <neufeld@linuxcare.com>
 //              Al Stone            <ahs3@fc.hp.com>
+//              Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug# 4106
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +80,10 @@ void LinuxCDROMDriveProvider::getInstance(const OperationContext& context,
    while(i < keys.size())
    {
       if(keys[i].getName() == CIMName("Name"))
-         nameString = keys[i].getValue();
+	  {
+          nameString = keys[i].getValue();
+          break;
+	  }
       i++;
    }
    if(nameString != String::EMPTY)

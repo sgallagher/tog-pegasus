@@ -34,6 +34,7 @@
 //     David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
 //     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3666
 //     Michael Brasher (mike-brasher@austin.rr.com)
+//     Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -354,54 +355,59 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
 	switch (x.getType()) 
 	{
 	    case CIMTYPE_BOOLEAN:
-		Packer::packBoolean(out, rep->_u._booleanArray->getData(), n);
+		Packer::packBoolean(
+		    out, CIMValueType<Boolean>::aref(rep).getData(), n);
 		break;
 
 	    case CIMTYPE_SINT8:
 	    case CIMTYPE_UINT8:
-		Packer::packUint8(out, rep->_u._uint8Array->getData(), n);
+		Packer::packUint8(
+		    out, CIMValueType<Uint8>::aref(rep).getData(), n);
 		break;
 
 	    case CIMTYPE_SINT16:
 	    case CIMTYPE_UINT16:
 	    case CIMTYPE_CHAR16:
-		Packer::packUint16(out, rep->_u._uint16Array->getData(), n);
+		Packer::packUint16(
+		    out, CIMValueType<Uint16>::aref(rep).getData(), n);
 		break;
 
 	    case CIMTYPE_SINT32:
 	    case CIMTYPE_UINT32:
 	    case CIMTYPE_REAL32:
-		Packer::packUint32(out, rep->_u._uint32Array->getData(), n);
+		Packer::packUint32(
+		    out, CIMValueType<Uint32>::aref(rep).getData(), n);
 		break;
 
 	    case CIMTYPE_SINT64:
 	    case CIMTYPE_UINT64:
 	    case CIMTYPE_REAL64:
-		Packer::packUint64(out, rep->_u._uint64Array->getData(), n);
+		Packer::packUint64(
+		    out, CIMValueType<Uint64>::aref(rep).getData(), n);
 		break;
 
 	    case CIMTYPE_STRING:
 		Packer::packString(out, 
-		    ((Array<String>*)rep->_u._stringArray)->getData(), n);
+		    CIMValueType<String>::aref(rep).getData(), n);
 		break;
 
 	    case CIMTYPE_DATETIME:
 	    {
+		const Array<CIMDateTime>& a = 
+		    CIMValueType<CIMDateTime>::aref(rep);
+
 		for (Uint32 i = 0; i < n; i++) 
-	        {
-		    Packer::packString(out,
-			(*(rep->_u._dateTimeArray))[i].toString());
-                }
+		    Packer::packString(out, a[i].toString());
 		break;
 	    }
 
 	    case CIMTYPE_REFERENCE:
 	    {
+		const Array<CIMObjectPath>& a = 
+		    CIMValueType<CIMObjectPath>::aref(rep);
+
 		for (Uint32 i = 0; i < n; i++) 
-	        {
-		    Packer::packString(out,
-			(*(rep->_u._referenceArray))[i].toString());
-                }
+		    Packer::packString(out, a[i].toString());
 		break;
 	    }
 
@@ -414,42 +420,44 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
 	switch (x.getType()) 
 	{
 	    case CIMTYPE_BOOLEAN:
-		Packer::packBoolean(out, rep->_u._booleanValue ? true : false);
+		Packer::packBoolean(out, rep->u._booleanValue);
 		break;
 
 	    case CIMTYPE_SINT8:
 	    case CIMTYPE_UINT8:
-		Packer::packUint8(out, rep->_u._uint8Value);
+		Packer::packUint8(out, rep->u._uint8Value);
 		break;
 
 	    case CIMTYPE_SINT16:
 	    case CIMTYPE_UINT16:
 	    case CIMTYPE_CHAR16:
-		Packer::packUint16(out, rep->_u._uint16Value);
+		Packer::packUint16(out, rep->u._uint16Value);
 		break;
 
 	    case CIMTYPE_SINT32:
 	    case CIMTYPE_UINT32:
 	    case CIMTYPE_REAL32:
-		Packer::packUint32(out, rep->_u._uint32Value);
+		Packer::packUint32(out, rep->u._uint32Value);
 		break;
 
 	    case CIMTYPE_SINT64:
 	    case CIMTYPE_UINT64:
 	    case CIMTYPE_REAL64:
-		Packer::packUint64(out, rep->_u._uint64Value);
+		Packer::packUint64(out, rep->u._uint64Value);
 		break;
 
 	    case CIMTYPE_STRING:
-		Packer::packString(out, *((String*)rep->_u._stringValue));
+		Packer::packString(out, CIMValueType<String>::ref(rep));
 		break;
 
 	    case CIMTYPE_DATETIME:
-		Packer::packString(out, rep->_u._dateTimeValue->toString());
+		Packer::packString(
+		    out, CIMValueType<CIMDateTime>::ref(rep).toString());
 		break;
 
 	    case CIMTYPE_REFERENCE:
-		Packer::packString(out, rep->_u._referenceValue->toString());
+		Packer::packString(
+		    out, CIMValueType<CIMObjectPath>::ref(rep).toString());
 		break;
 
 	    case CIMTYPE_OBJECT:

@@ -27,14 +27,62 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//
-// Modified By: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
-//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include "Union.h"
+/* If neither of these defined, suppress compilation of this header. */
+#if !defined(PEGASUS_INTERNALONLY) && !defined(Pegasus_ValueInline_cxx)
+# define Pegasus_ValueInline_h
+#endif
+
+#ifndef Pegasus_ValueInline_h
+#define Pegasus_ValueInline_h
+
+#include <Pegasus/Common/CIMValue.h>
+#include <Pegasus/Common/CIMValueRep.h>
+
+#ifdef Pegasus_ValueInline_cxx
+# define PEGASUS_CIM_VALUE_INLINE /* empty */
+#else
+# define PEGASUS_CIM_VALUE_INLINE inline
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 
+PEGASUS_CIM_VALUE_INLINE
+CIMValue::CIMValue() : _rep(&CIMValueRep::_emptyRep)
+{
+}
+
+PEGASUS_CIM_VALUE_INLINE
+CIMValue::CIMValue(const CIMValue& x)
+{
+    CIMValueRep::ref(_rep = x._rep);
+}
+
+PEGASUS_CIM_VALUE_INLINE
+CIMValue::~CIMValue()
+{
+    CIMValueRep::unref(_rep);
+}
+
+PEGASUS_CIM_VALUE_INLINE
+Boolean CIMValue::isArray() const
+{
+    return _rep->isArray;
+}
+
+PEGASUS_CIM_VALUE_INLINE
+Boolean CIMValue::isNull() const
+{
+    return _rep->isNull;
+}
+
+PEGASUS_CIM_VALUE_INLINE
+CIMType CIMValue::getType() const
+{
+    return CIMType(_rep->type);
+}
+
 PEGASUS_NAMESPACE_END
+
+#endif /* Pegasus_ValueInline_h */

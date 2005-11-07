@@ -31,6 +31,7 @@
 //
 // Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
+//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,12 +39,6 @@
 #define Pegasus_Union_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/CIMType.h>
-#include <Pegasus/Common/String.h>
-#include <Pegasus/Common/CIMDateTime.h>
-#include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/Array.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -56,7 +51,7 @@ struct StringRep;
 */
 union Union
 {
-    Uint8 _booleanValue;
+    Boolean _booleanValue;
     Uint8 _uint8Value;
     Sint8 _sint8Value;
     Uint16 _uint16Value;
@@ -68,27 +63,28 @@ union Union
     Real32 _real32Value;
     Real64 _real64Value;
     Uint16 _char16Value;
-    char _stringValue[sizeof(String)];
-    CIMDateTime* _dateTimeValue;
-    CIMObjectPath* _referenceValue;
-    CIMObject* _objectValue;
+    char _stringValue[sizeof(void*)];
+    char _dateTimeValue[sizeof(void*)];
+    char _referenceValue[sizeof(void*)];
+    char _objectValue[sizeof(void*)];
 
-    Array<Boolean>* _booleanArray;
-    Array<Uint8>* _uint8Array;
-    Array<Sint8>* _sint8Array;
-    Array<Uint16>* _uint16Array;
-    Array<Sint16>* _sint16Array;
-    Array<Uint32>* _uint32Array;
-    Array<Sint32>* _sint32Array;
-    Array<Uint64>* _uint64Array;
-    Array<Sint64>* _sint64Array;
-    Array<Real32>* _real32Array;
-    Array<Real64>* _real64Array;
-    Array<Char16>* _char16Array;
-    char _stringArray[sizeof(Array<String>)];
-    Array<CIMDateTime>* _dateTimeArray;
-    Array<CIMObjectPath>* _referenceArray;
-    Array<CIMObject>* _objectArray;
+    char _booleanArray[sizeof(void*)];
+    char _uint8Array[sizeof(void*)];
+    char _sint8Array[sizeof(void*)];
+    char _uint16Array[sizeof(void*)];
+    char _sint16Array[sizeof(void*)];
+    char _uint32Array[sizeof(void*)];
+    char _sint32Array[sizeof(void*)];
+    char _uint64Array[sizeof(void*)];
+    char _sint64Array[sizeof(void*)];
+    char _real32Array[sizeof(void*)];
+    char _real64Array[sizeof(void*)];
+    char _char16Array[sizeof(void*)];
+    char _stringArray[sizeof(void*)];
+    char _dateTimeArray[sizeof(void*)];
+    char _referenceArray[sizeof(void*)];
+    char _objectArray[sizeof(void*)];
+    void* _voidPtr;
 };
 
 PEGASUS_NAMESPACE_END

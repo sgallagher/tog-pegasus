@@ -524,4 +524,8 @@ PEGASUS_COMMON_LINKAGE Boolean operator!=(const CIMValue& x, const CIMValue& y);
 
 PEGASUS_NAMESPACE_END
 
+#ifdef PEGASUS_INTERNALONLY
+#include <Pegasus/Common/CIMValueInline.h>
+#endif
+
 #endif /* Pegasus_Value_h */

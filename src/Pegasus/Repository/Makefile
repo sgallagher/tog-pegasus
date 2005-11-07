@@ -111,6 +111,7 @@ SOURCES = \
     InstanceDataFile.cpp \
     CIMRepository.cpp \
     AssocClassTable.cpp \
+    AssocClassCache.cpp \
     AssocInstTable.cpp \
     NameSpaceManager.cpp \
     ObjectCache.cpp \

@@ -653,6 +653,8 @@ CIMRepository::~CIMRepository()
     delete streamer;
     delete _context;
 
+    AssocClassTable::removeCaches();
+
     PEG_METHOD_EXIT();
 }
 
@@ -1273,6 +1275,7 @@ void CIMRepository::_createAssocClassEntries(
 
                     AssocClassTable::append(
                         os,
+                        assocFileName[0],
                         assocClassName,
                         fromClassName,
                         fromPropertyName,

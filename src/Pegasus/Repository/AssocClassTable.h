@@ -35,6 +35,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Robert Kieninger, IBM (kieningr@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +46,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/ArrayInternal.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Repository/Linkage.h>
+#include "AssocClassCache.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -61,6 +64,7 @@ public:
     */
     static void append(
         PEGASUS_STD(ofstream)& os,
+        const String& path,
         const CIMName& assocClassName,
         const CIMName& fromClassName,
         const CIMName& fromPropertyName,
@@ -110,9 +114,17 @@ public:
         const String& role,
         Array<String>& referenceNames);
 
+
+    static void removeCaches();
+
 private:
 
+    static Boolean _InitializeCache(
+        AssocClassCache *cache,
+        const String& path);
+
     AssocClassTable() { /* private */ }
+    static ReadWriteSem _classCacheLock;
 };
 
 PEGASUS_NAMESPACE_END

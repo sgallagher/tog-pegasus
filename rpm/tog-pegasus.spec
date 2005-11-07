@@ -312,6 +312,11 @@ if [ $1 -eq 1 ]; then
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
 
 elif [ $1 -gt 1 ]; then
+   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]
+   then
+     # Running Repository Upgrade utility
+     %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG
+   fi
 /sbin/service tog-pegasus condrestart
 :;
 fi

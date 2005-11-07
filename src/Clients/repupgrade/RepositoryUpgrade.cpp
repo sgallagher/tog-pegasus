@@ -272,10 +272,16 @@ const char* RepositoryUpgrade::_ALL = "a";
     const String OLD_REPOSITORY_PATH = "/var/opt/wbem/prev_repository";
     const String NEW_REPOSITORY_PATH = "/var/opt/wbem/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/wbem/upgrade";
+#define REPUPGRADE_USE_RELEASE_DIRS true
 #elif defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_VMS)
     const String OLD_REPOSITORY_PATH = "/wbem_var/opt/wbem/prev_repository";
     const String NEW_REPOSITORY_PATH = "/wbem_var/opt/wbem/repository";
     const String RepositoryUpgrade::_LOG_PATH  = "/wbem_var/opt/wbem/upgrade";
+#elif defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LINUX)
+    const String OLD_REPOSITORY_PATH = "/var/opt/tog-pegasus/prev_repository";
+    const String NEW_REPOSITORY_PATH = "/var/opt/tog-pegasus/repository";
+    const String RepositoryUpgrade::_LOG_PATH  = "/var/opt/tog-pegasus/log/upgrade";
+#define REPUPGRADE_USE_RELEASE_DIRS true
 #else
     const String RepositoryUpgrade::_LOG_PATH
                                               = "./";
@@ -342,7 +348,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _usage = String (_USAGE);
     _usage.append (COMMAND_NAME);
 
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
+#if !(defined(REPUPGRADE_USE_RELEASE_DIRS))
     _usage.append (" -").append (_OPTION_OLD_REPOSITORY_PATH);
     _usage.append (" old_repository_path");
     _usage.append (" -").append (_OPTION_NEW_REPOSITORY_PATH);
@@ -371,7 +377,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
     // Options description
     //
     _usage.append("Options : \n");
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
+#if !(defined(REPUPGRADE_USE_RELEASE_DIRS))
     _usage.append("    -o              ");
     _usage.append("- Specifies the old repository path\n");
 
@@ -383,10 +389,10 @@ RepositoryUpgrade::RepositoryUpgrade ()
     _usage.append("    -v, --version   - Display CIM Server version number\n");
 
     //l10n localize usage
-#if defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX)
+#if (defined(REPUPGRADE_USE_RELEASE_DIRS))
     MessageLoaderParms menuparms(
         "Clients.repupgrade.RepositoryUpgradeRelease.MENU.STANDARD", _usage);
-#else
+# else
 
     MessageLoaderParms menuparms(
         "Clients.repupgrade.RepositoryUpgrade.MENU.STANDARD", _usage);
@@ -404,7 +410,7 @@ RepositoryUpgrade::RepositoryUpgrade ()
    // If the PEGASUS_USE_RELEASE_DIRS is set make the old and new
    // repository paths fixed.
    //
-#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX)
+#if (defined(REPUPGRADE_USE_RELEASE_DIRS))
        _oldRepositoryPath = OLD_REPOSITORY_PATH;
        _newRepositoryPath = NEW_REPOSITORY_PATH;
        _oldRepositoryPathSet = true;
@@ -462,7 +468,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
     //
     //  Construct optString
     //
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
+#if !(defined(REPUPGRADE_USE_RELEASE_DIRS))
     optString.append (_OPTION_OLD_REPOSITORY_PATH);
     optString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     optString.append (_OPTION_NEW_REPOSITORY_PATH);
@@ -545,7 +551,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
 
             switch (c)
             {
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_HPUX))
+#if !(defined(REPUPGRADE_USE_RELEASE_DIRS))
                 case _OPTION_OLD_REPOSITORY_PATH:
                 {
                     if (getOpts.isSet (_OPTION_OLD_REPOSITORY_PATH) > 1)
@@ -664,7 +670,7 @@ void RepositoryUpgrade::setCommand (Uint32 argc, char* argv [])
     }
 
     // Check if an operation type was not specified.
-#if !(defined(PEGASUS_USE_RELEASE_DIRS) && defined (PEGASUS_OS_HPUX))
+#if !(defined(REPUPGRADE_USE_RELEASE_DIRS))
     if ( _optionType == _OPTION_TYPE_UNINITIALIZED )
     {
         //

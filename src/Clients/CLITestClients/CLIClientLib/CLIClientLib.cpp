@@ -758,7 +758,6 @@ int getInstance(CIMClient& client, Options& opts)
     {
         if (opts.time)
             cout << opts.saveElapsedTime << endl;
-
     }
     else
         outputFormatInstance(opts.outputType, cimInstance);
@@ -1025,7 +1024,13 @@ int getClass(CIMClient& client, Options& opts)
         opts.saveElapsedTime = opts.elapsedTime.getElapsed();
     }
 
-    outputFormatClass(opts.outputType, cimClass);
+    if (opts.summary)
+    {
+        if (opts.time)
+            cout << opts.saveElapsedTime << endl;
+    }
+    else
+        outputFormatClass(opts.outputType, cimClass);
 
     return(0);
 }

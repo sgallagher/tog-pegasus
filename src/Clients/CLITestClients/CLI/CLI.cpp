@@ -131,19 +131,105 @@ Boolean _getQualifierNameInput(int argc, char** argv, Options& opts)
     return(true);
 }
 
+Boolean setObjectManagerStatistics(CIMClient & client, Boolean newState)
+{
+
+    CIMName gathStatName ("GatherStatisticalData");
+    Array<CIMInstance> instancesObjectManager;
+    CIMInstance instObjectManager;
+    Uint32 prop_num;
+    Array<CIMName> plA;
+    plA.append(gathStatName);
+    CIMPropertyList statPropertyList(plA);
+    // Create property list that represents correct request
+    // get instance.  Get only the gatherstatitistics property
+    instancesObjectManager  = client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
+            "CIM_ObjectManager",
+            true, false, false, false, statPropertyList);
+    assert(instancesObjectManager.size() == 1);
+    instObjectManager = instancesObjectManager[0];
+    instObjectManager.setPath(instancesObjectManager[0].getPath());         // set correct path into instance
+    
+    prop_num = instObjectManager.findProperty(gathStatName);
+    assert(prop_num != PEG_NOT_FOUND);
+    
+    instObjectManager.getProperty(prop_num).setValue(CIMValue(newState));
+    
+    client.modifyInstance(PEGASUS_NAMESPACENAME_INTEROP, instObjectManager,
+         false, statPropertyList);
+    CIMInstance updatedInstance = client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
+        instObjectManager.getPath(), false, false, false, statPropertyList);
+    prop_num = updatedInstance.findProperty(gathStatName);
+    assert(prop_num != PEG_NOT_FOUND);
+    CIMProperty p = updatedInstance.getProperty(prop_num);
+    CIMValue v = p.getValue();
+    Boolean rtn;
+    v.get(rtn);
+    //// Need to get it again
+    cout << "Updated Status= " << ((rtn)? "true" : "false") << endl;
+    return(rtn);
+}
+ClientOpPerformanceData returnedPerformanceData;
+class ClientStatistics : public ClientOpPerformanceDataHandler
+{
+public:
+
+    virtual void handleClientOpPerformanceData (const ClientOpPerformanceData & item)
+    {
+        if (!(0 <= item.operationType) || !(39 >= item.operationType))
+        {
+           cerr << "Operation type out of expected range in ClientOpPerformanceData " << endl;
+           exit(1);
+        }
+        returnedPerformanceData.operationType =  item.operationType;
+        if (item.roundTripTime == 0)
+        {
+           cerr << "roundTripTime is incorrect in ClientOpPerformanceData " << endl;
+           //exit(1);
+        }
+        returnedPerformanceData.roundTripTime =  item.roundTripTime;
+
+        if (item.requestSize == 0)
+        {
+            cerr << "requestSize is incorrect in ClientOpPerformanceData " << endl;
+            //exit(1);
+        }
+        returnedPerformanceData.requestSize =  item.requestSize;
+
+        if (item.responseSize == 0)
+        {
+            cerr << "responseSize is incorrect in ClientOpPerformanceData " << endl;
+            //exit(1);
+        }
+        returnedPerformanceData.responseSize =  item.responseSize;
+
+        if (item.serverTimeKnown) 
+        {
+            if (item.serverTime == 0)
+            {
+                cerr << "serverTime is incorrect in ClientOpPerformanceData " << endl;
+                //exit(1);
+            }
+            returnedPerformanceData.serverTime =  item.serverTime;
+            returnedPerformanceData.serverTimeKnown =  item.serverTimeKnown;
+            returnedPerformanceData.roundTripTime =  item.roundTripTime;
+        }
+   }
+   //returnedPerformanceData = item;   // Copy the data to public place
+};
+
 ///////////////////////////////////////////////////////////////////////
 //            Main
+
 ///////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv)
 {
-
     // If no arguments, simply print usage message and terminate.
     if (argc == 1)
     {
         showUsage(argv[0]);
         exit(0);
     }
-
 
     // The following is a temporary hack to get around the fact that I cannot input the
     // double quote character from the commandline, either with or without the escape
@@ -296,7 +382,6 @@ int main(int argc, char** argv)
             // Break if found
             break;
     }
-
     Stopwatch totalElapsedExecutionTime;
 
     totalElapsedExecutionTime.start();
@@ -371,7 +456,12 @@ int main(int argc, char** argv)
         cerr << "Pegasus Exception: " << e.getMessage() <<
               " Trying to connect to " << opts.location << endl;
         exit(1);
-    }                                                       ;
+    }
+
+    // Register for Client statistics.
+    ClientStatistics statistics = ClientStatistics();
+    client.registerClientOpPerformanceDataHandler(statistics);
+
     if (opts.delay != 0)
     {
         // This was a test because of some delay caused problems.
@@ -384,10 +474,21 @@ int main(int argc, char** argv)
         client.setTimeout(opts.connectionTimeout * 1000);
     }
 
+    // Save the total connect time.
+    double totalConnectTime = opts.elapsedTime.getElapsed();
+
     double totalTime = 0;
     Uint32 repeatCount = opts.repeat;
     double maxTime = 0;
     double minTime = 10000000;
+
+    Uint64 serverTotalTime = 0;
+    Uint64 maxServerTime = 0;
+    Uint64 minServerTime = 10000000;
+
+    Uint64 rtTotalTime = 0;
+    Uint64 maxRtTime = 0;
+    Uint64 minRtTime = 10000000;
 
     // Process the input command within a try block.
     try
@@ -603,7 +704,8 @@ int main(int argc, char** argv)
                     if (argc==4)
                         opts.queryLanguage = argv[3];
                     executeQuery(client, opts);
-            break;
+                    break;
+
                 //case ID_Unknown :
                 default:
                     cout << "Invalid Command. Command name must be first parm or --c parameter."
@@ -616,7 +718,7 @@ int main(int argc, char** argv)
             if (opts.repeat > 0)
             {
                 if (opts.verboseTest)
-                {
+                    {
                     cout << "Repetitition " << opts.repeat << endl;
                 }
                 opts.repeat--;
@@ -625,6 +727,16 @@ int main(int argc, char** argv)
                     totalTime += opts.saveElapsedTime;
                     maxTime = LOCAL_MAX(maxTime, opts.saveElapsedTime);
                     minTime = LOCAL_MIN(minTime, opts.saveElapsedTime);
+                    rtTotalTime += (returnedPerformanceData.roundTripTime/1000);
+                    maxRtTime = LOCAL_MAX(maxRtTime, returnedPerformanceData.roundTripTime/1000);
+                    minRtTime = LOCAL_MIN(minRtTime, returnedPerformanceData.roundTripTime/1000);
+
+                    if (returnedPerformanceData.serverTimeKnown)
+                    {
+                        serverTotalTime += (returnedPerformanceData.serverTime/1000);
+                        maxServerTime = LOCAL_MAX(maxServerTime, returnedPerformanceData.serverTime/1000);
+                        minServerTime = LOCAL_MIN(minServerTime, returnedPerformanceData.serverTime/1000);
+                    }
                 }
             }
         } while (opts.repeat > 0  );
@@ -632,12 +744,25 @@ int main(int argc, char** argv)
         if (opts.time)
         {
             if (repeatCount == 0)
-                cout << "Time " << opts.saveElapsedTime << " Seconds" << endl;
+                cout << CommandTable[cmdIndex].CommandName <<  " Time= " 
+                << opts.saveElapsedTime << " Sec. "
+                << " SvrTime= " << returnedPerformanceData.serverTime/1000 << " ms. "
+                << " RtTime= " << returnedPerformanceData.roundTripTime/1000 << " ms. "
+                << "Req size= " << returnedPerformanceData.requestSize
+                << " b. Resp size= " << returnedPerformanceData.responseSize << " b"
+                << endl;
             else
             {
-                cout << "Total Time " << totalTime << " for "
-                    << repeatCount << " operations. Avg.= " << totalTime/repeatCount
-                    << " min= " << minTime << " max= " << maxTime << endl;
+                cout << CommandTable[cmdIndex].CommandName << " Total Op Time " << totalTime << " for "
+                    << repeatCount << " ops. Avg.= " << totalTime/repeatCount
+                    << " sec. min= " << minTime << " sec. max= " << maxTime 
+                    << " sec. SvrTime avg= " << serverTotalTime/repeatCount
+                    << " ms. SvrTime min= " << minServerTime 
+                    << " ms. SvrTime max= " << maxServerTime << " ms"
+                    << " RtTime avg= " << rtTotalTime/repeatCount
+                    << " ms. RtTime min= " << minRtTime 
+                    << " ms. RtTime max= " << maxRtTime << " ms"
+                    << endl;
             }
         }
     }
@@ -668,16 +793,16 @@ int main(int argc, char** argv)
         // if abnormal term, dump all times
         if (opts.termCondition == 1)
         {
-            cout << "Prev Time " << opts.saveElapsedTime << " Seconds" << endl;
+            cout << "Exception" << endl;
+            cout << "Prev Time " << opts.saveElapsedTime << " Sec" << endl;
             opts.saveElapsedTime = opts.elapsedTime.getElapsed();
-            cout << "Last Time " << opts.saveElapsedTime << " Seconds" << endl;
+            cout << "Last Time " << opts.saveElapsedTime << " Sec" << endl;
             cout << "Total Time " << totalTime << " for "
                 << repeatCount << " operations. Avg.= " << totalTime/repeatCount
                 << " min= " << minTime << " max= " << maxTime << endl;
         }
 
-
-        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << " Terminated at " << System::getCurrentASCIITime() << endl;
+        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << " seconds. Terminated at " << System::getCurrentASCIITime() << endl;
     }
     if (opts.delay != 0)
     {

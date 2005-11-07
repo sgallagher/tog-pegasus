@@ -34,6 +34,7 @@
 //	   Seema Gupta (gseema@in.ibm.com) for PEP135
 //     Carol Ann Krug Graves, Hewlett-Packard Company 
 //         (carolann_graves@hp.com)
+//     Muni S Reddy, IBM (mreddy@in.ibm.com) for Bug# 4056
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -99,10 +100,11 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
 		CIMRequestMessage &request = *poA->getRequest();
 		AutoPtr<CIMExecQueryResponseMessage> query
 			(new CIMExecQueryResponseMessage(request.messageId,
-																			 CIMException(),
-																			 request.queueIds.copyAndPop(),
-																			 Array<CIMObject>()));
-		toResponse = query.release();
+                                             CIMException(),
+                                             request.queueIds.copyAndPop(),
+                                             Array<CIMObject>()));
+        query->setStartServerTime(request.getStartServerTime());
+        toResponse = query.release();
 	}
 	else
 	{

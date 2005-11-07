@@ -74,16 +74,17 @@ private:
 
 inline void Inc(Sharable* x)
 {
-  if (x)
+    if (x)
     {
-      // A sharable object should never be incremented from zero.
-      // If so, there is a double delete being cause by impropoer use
-      // of sharable assignment or copy constructors somewhere
-      // << Wed Nov  6 12:46:52 2002 mdd >>
-      assert(((Sharable*)x)->_ref.get());
-      x->_ref++;
+#ifdef PEGASUS_DEBUG
+	// A sharable object should never be incremented from zero.
+	// If so, there is a double delete being cause by impropoer use
+	// of sharable assignment or copy constructors somewhere
+	// << Wed Nov  6 12:46:52 2002 mdd >>
+	assert(((Sharable*)x)->_ref.get());
+#endif
+	x->_ref++;
     }
-  
 }
 
 

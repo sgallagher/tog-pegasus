@@ -104,7 +104,7 @@ SOURCES1 = \
     CIMScope.cpp \
     CIMStatusCode.cpp \
     CIMType.cpp \
-    CIMValue.cpp \
+    CIMValueInline.cpp \
     Config.cpp \
     DeclContext.cpp \
     Dir.cpp \

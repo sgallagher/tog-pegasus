@@ -103,7 +103,9 @@ void WQLOperationRequestDispatcher::handleQueryResponseAggregation(
                                              CIMException(),
                                              request.queueIds.copyAndPop(),
                                              Array<CIMObject>()));
+#ifndef PEGASUS_DISABLE_PERFINST
         query->setStartServerTime(request.getStartServerTime());
+#endif
         toResponse = query.release();
 	}
 	else

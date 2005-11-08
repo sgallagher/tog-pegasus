@@ -29,9 +29,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* If neither of these defined, suppress compilation of this header. */
-#if !defined(PEGASUS_INTERNALONLY) && !defined(Pegasus_ValueInline_cxx)
-# define Pegasus_ValueInline_h
+#if !defined(Pegasus_ValueInline_cxx)
+# if !defined(PEGASUS_INTERNALONLY) || defined(PEGASUS_DISABLE_INTERNAL_INLINES)
+#   define Pegasus_ValueInline_h
+# endif
 #endif
 
 #ifndef Pegasus_ValueInline_h

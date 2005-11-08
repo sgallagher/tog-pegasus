@@ -398,6 +398,14 @@ ifdef PEGASUS_OVERRIDE_PRODUCT_ID
 endif
 
 #
+# PEP 72
+# Allow Out-of-Process Providers to be disabled by default
+#
+ifdef PEGASUS_DEFAULT_OOP_FALSE
+    DEFINES += -DPEGASUS_DEFAULT_OOP_FALSE
+endif
+
+#
 # PEP 197
 # Allow the Provider User Context feature to be disabled.
 #

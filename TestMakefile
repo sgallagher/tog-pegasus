@@ -277,6 +277,11 @@ endif
 ##
 ###############################################################################
 OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=true
+ifndef PEGASUS_DEFAULT_OOP_FALSE
+    ifeq ($(OS),HPUX)
+        OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
+    endif
+endif
 OOP_TS1_TEST_CMDS = \
         TestClient
 

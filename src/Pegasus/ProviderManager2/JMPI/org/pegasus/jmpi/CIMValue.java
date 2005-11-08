@@ -32,8 +32,6 @@
 // Modified By:  Adrian Duta
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 import java.util.*;
@@ -82,7 +80,12 @@ public class CIMValue
 
    public CIMValue(Object o) {
 
-     cInst=-1;
+      cInst=-1;	 
+
+      /* Fix for 4019 */
+      if (o == null)
+         return;
+      /* Fix for 4019 */	  
 
       if (o instanceof Vector) {
          Vector v=(Vector)o;
@@ -211,17 +214,30 @@ public class CIMValue
          System.err.println("+++ CIMValue(): unsupported type: "+o.getClass());
    }
 
-   public CIMValue(Object val, CIMDataType type) throws Exception {
-      CIMValue nv=new CIMValue(val);
-      cInst=nv.cInst;
-      nv.cInst=0;
+   public CIMValue (Object val, CIMDataType type) throws Exception {
+      cInst = -1;
+
+      CIMValue nv = new CIMValue (val);
+
+      if (nv == null)
+         return;
+
+      cInst = nv.cInst;
+
+      nv.cInst = 0; // @TBD - memory leak?
    }
 
    public Object getValue() throws CIMException {
+      if (cInst == -1)
+         return null;
+
       return getValue(true);
    }
 
    public Object getValue(boolean toVector) throws CIMException {
+      if (cInst == -1)
+         return null;
+
       Object resp=null;
       Object o=null;
 
@@ -355,13 +371,20 @@ public class CIMValue
       return resp;
    }
 
+   public boolean isArray() {	   
+      if (cInst == -1)
+         return false;
 
-   public boolean isArray() {
       return _isArray(cInst);
    }
 
-   public String toString() {
-      return _toString(cInst);
+   public String toString() {	   
+      /* Fix for 4019 */
+      if (cInst == -1)
+         return null;	   
+      /* Fix for 4019 */
+
+      return _toString(cInst);	   
    }
 
    public int cInst(){
@@ -373,8 +396,3 @@ public class CIMValue
    }
 
 };
-
-
-
-
-

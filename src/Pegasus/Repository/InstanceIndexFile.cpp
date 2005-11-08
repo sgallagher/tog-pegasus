@@ -888,19 +888,51 @@ Boolean InstanceIndexFile::beginTransaction(const String& path)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "InstanceIndexFile::beginTransaction()");
 
+    String rollbackPath = path;
+    rollbackPath.append(".rollback");
+
+    //
+    // If the index file does not exist, then create a rollback file with
+    // freecount of 0.
+    //
+    if (!FileSystem::existsNoCase(path))
+    {
+        // Make sure the rollback file does not exist.
+        if (FileSystem::existsNoCase(rollbackPath))
+        {
+            if (!FileSystem::removeFileNoCase(rollbackPath))
+            {
+                PEG_METHOD_EXIT();
+                return false;
+            }
+        }
+
+	    // Create the rollback file, and write the freecount of 0.
+        fstream fs;
+        if (!_openFile(rollbackPath, fs, true))
+        {
+            // Make sure no rollback file is left over.
+            FileSystem::removeFileNoCase(rollbackPath);
+
+            PEG_METHOD_EXIT();
+	        return false;
+        }
+        fs.close();
+
+        PEG_METHOD_EXIT();
+        return true;
+    }
+
     //
     // Create a rollback file which is a copy of the index file. The
     // new filename is formed by appending ".rollback" to the name of
     // the index file.
     //
-
-    String rollbackPath = path;
-    rollbackPath.append(".rollback");
-
-    // ATTN-SF-P3-20020517: FUTURE: Need to look in to this. Empty rollback
-    // files are getting created in some error conditions.
     if (!FileSystem::copyFile(path, rollbackPath))
     {
+        // Make sure no rollback file is left over.
+        FileSystem::removeFileNoCase(rollbackPath);
+
         PEG_METHOD_EXIT();
 	return false;
     }

@@ -1026,8 +1026,8 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%config(noreplace) %attr($(Prw_r__r__),$(CIMSERVER_USR),$(CIMSERVER_GRP)) \
                    $(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config %attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config(noreplace) %attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config(noreplace) %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_ADMIN_CMDS), \
                    $(ECHO-E) "%attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 

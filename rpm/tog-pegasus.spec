@@ -526,8 +526,8 @@ fi
 %attr(444,root,root) /opt/tog-pegasus/mof/Pegasus/PG_UnixProcess20R.mof
 
 %config(noreplace) %attr(644,root,root)  /var/opt/tog-pegasus/cimserver_planned.conf
-%config %attr(500,root,root) /etc/init.d/tog-pegasus
-%config %attr(444,root,root) %PAM_CONFIG_DIR/wbem
+%config(noreplace) %attr(500,root,root) /etc/init.d/tog-pegasus
+%config(noreplace) %attr(444,root,root) %PAM_CONFIG_DIR/wbem
 
 %attr(500,root,root) /opt/tog-pegasus/sbin/cimauth
 %attr(500,root,root) /opt/tog-pegasus/sbin/cimconfig

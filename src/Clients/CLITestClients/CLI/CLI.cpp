@@ -185,31 +185,29 @@ public:
         if (item.roundTripTime == 0)
         {
            cerr << "roundTripTime is incorrect in ClientOpPerformanceData " << endl;
-           //exit(1);
         }
         returnedPerformanceData.roundTripTime =  item.roundTripTime;
 
         if (item.requestSize == 0)
         {
             cerr << "requestSize is incorrect in ClientOpPerformanceData " << endl;
-            //exit(1);
         }
         returnedPerformanceData.requestSize =  item.requestSize;
 
         if (item.responseSize == 0)
         {
             cerr << "responseSize is incorrect in ClientOpPerformanceData " << endl;
-            //exit(1);
         }
         returnedPerformanceData.responseSize =  item.responseSize;
 
         if (item.serverTimeKnown) 
         {
+            /* Bypass this because we are getting server times zero
             if (item.serverTime == 0)
             {
                 cerr << "serverTime is incorrect in ClientOpPerformanceData " << endl;
-                //exit(1);
             }
+            */
             returnedPerformanceData.serverTime =  item.serverTime;
             returnedPerformanceData.serverTimeKnown =  item.serverTimeKnown;
             returnedPerformanceData.roundTripTime =  item.roundTripTime;

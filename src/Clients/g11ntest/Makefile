@@ -62,7 +62,15 @@ include $(ROOT)/mak/program.mak
 
 tests:
 
+#
+# Note:  The cimserver must have forceProviderProcesses=false configured for
+# this test to be successful, because the LocalizedProvider that is exercised
+# by this test modifies cimserver global settings.
+#
 poststarttests:
+	@$(ECHO) "Skipping g11ntest.  Use 'make g11ntest' to run this test."
+
+g11ntest:
 ifdef PEGASUS_HAS_MESSAGES
 	$(PROGRAM_ICU)
 else

@@ -92,6 +92,7 @@ usage2: FORCE
 	$(USAGE)
 	$(USAGE)"run_SSL_TS1             - Executes the SSL tests"
 	$(USAGE)"run_OOP_TS1             - Executes the Out Of Process Provider tests"
+	$(USAGE)"run_G11N_TS1            - Executes the Globalization tests"
 	$(USAGE)
 	$(USAGE)"The following require the repository to be pre-built and the server to be started."
 	$(USAGE)
@@ -243,6 +244,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
 
 ####################
 #
@@ -361,6 +363,23 @@ run_SSL_TS1: FORCE
 	@ $(ECHO) "PEGASUS_HAS_SSL not defined: Skipping run_SSL_TS1 poststarttest"
 
 endif
+
+###############################################################################
+##  G11N Test Suite 1: Globalization Tests 
+##
+##  Configuration Options: forceProviderProcesses=false
+##
+###############################################################################
+G11N_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
+G11N_TS1_TEST_CMDS = \
+        $(MAKE) --directory $(PEGASUS_ROOT)/src/Clients/g11ntest \
+            -f Makefile g11ntest
+
+run_G11N_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(G11N_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(G11N_TS1_TEST_CMDS)"
+###############################################################################
 
 
 ###############################################################################

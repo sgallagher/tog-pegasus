@@ -407,28 +407,28 @@ void Message::endServer()
 			     _type-CIM_GET_CLASS_RESPONSE_MESSAGE:_type-1);
 
   Uint32 State;
-  Uint32 _provTi, _totTi, _servTi;
+  Uint64 _provTi, _totTi, _servTi;
 
-  Uint32 timeServerStartMilli = _timeServerStart.toMilliseconds();
-  Uint32 timeServerEndMilli = _timeServerEnd.toMilliseconds();
-  Uint32 timeProviderStartMilli = _timeProviderStart.toMilliseconds();
-  Uint32 timeProviderEndMilli = _timeProviderEnd.toMilliseconds(); 
+  Uint64 timeServerStartMicro = _timeServerStart.toMicroseconds();
+  Uint64 timeServerEndMicro = _timeServerEnd.toMicroseconds();
+  Uint64 timeProviderStartMicro = _timeProviderStart.toMicroseconds();
+  Uint64 timeProviderEndMicro = _timeProviderEnd.toMicroseconds(); 
 
   State = SE;
 
-  if (timeServerStartMilli != 0)
+  if (timeServerStartMicro != 0)
     State |= SS;
-  if (timeProviderStartMilli != 0)
+  if (timeProviderStartMicro != 0)
     State |= PS;
-  if (timeProviderEndMilli != 0)
+  if (timeProviderEndMicro != 0)
     State |= PE;
 
   switch(State)
     {
     case (HAS_TIME_ALL):
       {
-	_totTi = timeServerEndMilli - timeServerStartMilli;
-	_provTi = timeProviderEndMilli - timeProviderStartMilli;
+	_totTi = timeServerEndMicro - timeServerStartMicro;
+	_provTi = timeProviderEndMicro - timeProviderStartMicro;
 	_servTi =  _totTi - _provTi;
 	break;
 	 
@@ -439,7 +439,7 @@ void Message::endServer()
 		      "Message::endserver(): Invalid statistical data - Missing server start time. State = %d = 0x%x",
 		      State, State);
 
-	_totTi = _provTi = timeProviderEndMilli - timeProviderStartMilli;
+	_totTi = _provTi = timeProviderEndMicro - timeProviderStartMicro;
 	_servTi =  _totTi - _provTi;
 	break;
 
@@ -450,14 +450,14 @@ void Message::endServer()
 		      "Message::endserver(): Invalid statistical data - Missing provider end time. State = %d = 0x%x",
 		      State, State);
 
-	_totTi = _servTi = timeServerEndMilli - timeServerStartMilli;
+	_totTi = _servTi = timeServerEndMicro - timeServerStartMicro;
 	_provTi = 0;
 	break;
       }
 
     case (HAS_TIME_SERVER2):
       { 
-	_totTi = _servTi = timeServerEndMilli - timeServerStartMilli;
+	_totTi = _servTi = timeServerEndMicro - timeServerStartMicro;
 	_provTi = 0;
 	break;
 
@@ -468,17 +468,11 @@ void Message::endServer()
 		    "Message::endserver(): Invalid statistical data - discarding data. State = %d = 0x%x",
 		      State, State);
 
-
-
 	return;
       }
     }
 
-  totServerTime = _totTi * 1000;
-   
-     
-  _servTi = _servTi*1000;
-  _provTi = _provTi*1000;
+  totServerTime = _totTi;
 
    
   StatisticalData::current()->addToValue((_servTi), statType, 

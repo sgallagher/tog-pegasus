@@ -98,5 +98,30 @@
 // Suppress this warning : "'this' : used in base member initializer list"
 #pragma warning ( disable : 4355 )
 
+//
+// Prior to Microsoft Visual Studio 7.0, there were no stream inserters for
+// __int64 and unsigned __int64. We declare them if the _MSC_VER is less than
+// 1300 (subtract 600 to get the version of Visual Studio). Look in 
+// SystemWindows.cpp for the definitions.
+//
+#if (_MSC_VER < 1300)
+# include <iostream>
+namespace std
+{
+    inline ostream& operator<<(ostream& os, unsigned __int64 x)
+    {
+	char buffer[64];
+	sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
+	return os << buffer;
+    }
+
+    inline ostream& operator<<(ostream& os, __int64 x)
+    {
+	char buffer[64];
+	sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
+	return os << buffer;
+    }
+}
+#endif /* _MSC_VER < 1300 */
 
 #endif /* Pegasus_Platform_WIN32_IX86_MSVC_h */

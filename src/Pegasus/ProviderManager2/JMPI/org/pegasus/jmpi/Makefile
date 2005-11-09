@@ -96,7 +96,9 @@ PACKAGEDIR = org/pegasus/jmpi
 
 PFXCLASSES=$(addprefix -C ../../.. org/pegasus/jmpi/,$(CLASSES))
 
-all: $(PEGASUS_HOME)/lib/JMPIImpl.jar $(CLASSES)
+all build: $(PEGASUS_HOME)/lib/JMPIImpl.jar $(CLASSES)
+
+depend:
 
 clean:
 	-$(RM) *.class

@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,19 +27,12 @@
 #//
 #//==============================================================================
 
-all:
-	$(MAKE) -f jmpi.mak
-	$(MAKE) -C org/pegasus/jmpi
-	$(MAKE) -C org/pegasus/jmpi/tests/JMPI_TestPropertyTypes
-	$(MAKE) -C org/pegasus/jmpi/tests/ProcessIndication
-	$(MAKE) -C org/pegasus/jmpi/tests/Client
-
-clean:
-	$(MAKE) -f jmpi.mak clean
-	$(MAKE) -C org/pegasus/jmpi clean
-	$(MAKE) -C org/pegasus/jmpi/tests/ProcessIndication clean
-	$(MAKE) -C org/pegasus/jmpi/tests/JMPI_TestPropertyTypes clean
-	$(MAKE) -C org/pegasus/jmpi/tests/Client clean
+all clean depend build:
+	$(MAKE) -f jmpi.mak $(MFLAGS) $@
+	$(MAKE) -C org/pegasus/jmpi $(MFLAGS) $@
+	$(MAKE) -C org/pegasus/jmpi/tests/JMPI_TestPropertyTypes $(MFLAGS) $@
+	$(MAKE) -C org/pegasus/jmpi/tests/ProcessIndication $(MFLAGS) $@
+	$(MAKE) -C org/pegasus/jmpi/tests/Client $(MFLAGS) $@
 
 messages:
 

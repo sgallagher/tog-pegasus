@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -56,7 +56,7 @@ SOURCES = TestJMPIIndicationSubscription.cpp
 FILES_TO_CLEAN = $(CLASSES1) $(JAR1) \
                  $(CLASSES2) $(JAR2)
 
-all: $(CLASSES1) $(JAR1) $(CLASSES2) $(JAR2)
+all build: $(CLASSES1) $(JAR1) $(CLASSES2) $(JAR2)
 
 $(JAR1): $(CLASSES1)
 	jar -cf $@ $(addprefix -C ../../../../.. org/pegasus/jmpi/tests/ProcessIndication/,$^)
@@ -66,3 +66,5 @@ $(JAR2): $(CLASSES2)
 
 clean:
 	$(RM) $(FILES_TO_CLEAN)
+
+depend:

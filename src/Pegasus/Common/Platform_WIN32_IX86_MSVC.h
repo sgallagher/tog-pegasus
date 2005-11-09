@@ -108,14 +108,14 @@
 # include <iostream>
 namespace std
 {
-    inline ostream& operator<<(ostream& os, unsigned __int64 x)
+    inline ostream& operator<<(ostream& os, const unsigned __int64& x)
     {
 	char buffer[64];
 	sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
 	return os << buffer;
     }
 
-    inline ostream& operator<<(ostream& os, __int64 x)
+    inline ostream& operator<<(ostream& os, const __int64& x)
     {
 	char buffer[64];
 	sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);

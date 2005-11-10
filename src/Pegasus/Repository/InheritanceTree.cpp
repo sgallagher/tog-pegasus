@@ -40,6 +40,7 @@
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/CommonUTF.h>
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "InheritanceTree.h"
 
 #if 0
@@ -272,14 +273,15 @@ void InheritanceTree::insert(
 
     if ((superClassName.size()) &&
     	!parentTree._rep->table.lookup(superClassName, superClassNode)) {
-        	superClassNode = new InheritanceTreeNode(superClassName);
+        	superClassNode = 
+		    new InheritanceTreeNode(CIMNameUnchecked(superClassName));
         	parentTree._rep->table.insert(superClassName, superClassNode);
     }
 
     InheritanceTreeNode* extNode = 0;
 
     if (!parentTree._rep->table.lookup(className, extNode)) {
-    	extNode = new InheritanceTreeNode(className);
+    	extNode = new InheritanceTreeNode(CIMNameUnchecked(className));
     	parentTree._rep->table.insert(className, extNode);
     	extNode->extension=true;
     	extNode->extNodes=new Array<InheritanceTreeExt*>;
@@ -325,7 +327,8 @@ void InheritanceTree::insert(
     if ((superClassName.size()) &&
 	!_rep->table.lookup(superClassName, superClassNode))
     {
-	superClassNode = new InheritanceTreeNode(superClassName);
+	superClassNode = 
+	    new InheritanceTreeNode(CIMNameUnchecked(superClassName));
 	_rep->table.insert(superClassName, superClassNode);
     }
 
@@ -335,7 +338,7 @@ void InheritanceTree::insert(
 
     if (!_rep->table.lookup(className, classNode))
     {
-	classNode = new InheritanceTreeNode(className);
+	classNode = new InheritanceTreeNode(CIMNameUnchecked(className));
 	_rep->table.insert(className, classNode);
     }
 
@@ -452,11 +455,11 @@ Boolean InheritanceTree::getSubClassNames(
                if (itx->tag==ns) {
                   InheritanceTreeNode *itn=itx->node;
                   if (deepInheritance) {
-	             subClassNames.append(i.key());
+	             subClassNames.append(CIMNameUnchecked(i.key()));
 		     itn->getSubClassNames(subClassNames, deepInheritance, ns);
 		  }
 	          else if (!i.value()->superClass)
-	             subClassNames.append(i.key());
+	             subClassNames.append(CIMNameUnchecked(i.key()));
                   break;
                }
             }
@@ -464,11 +467,11 @@ Boolean InheritanceTree::getSubClassNames(
 
          else if (deepInheritance) {
 	    // Append all classes:
-	    subClassNames.append(i.key());
+	    subClassNames.append(CIMNameUnchecked(i.key()));
 	 }
 	 else if (!i.value()->superClass) {
 	    // Just append root classes:
-	    subClassNames.append(i.key());
+	    subClassNames.append(CIMNameUnchecked(i.key()));
 	 }
       }
       return true;
@@ -478,7 +481,7 @@ Boolean InheritanceTree::getSubClassNames(
    // -- the given class.
 
    for (InheritanceTreeRep::Table::Iterator i = _rep->table.start(); i; i++) {
-      if (className.equal (i.key())) {
+      if (className.equal (CIMNameUnchecked(i.key()))) {
          i.value()->getSubClassNames(subClassNames, deepInheritance, ns);
 	 return true;
       }

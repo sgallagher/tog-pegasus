@@ -36,6 +36,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_Instance.h"
@@ -167,7 +168,7 @@ extern "C" {
 
    ok:
       CIMValue v=value2CIMValue(data,type,&rc);
-      CIMName sName(name);
+      CIMNameUnchecked sName(name);
       Uint32 pos;
       int count=0;
 

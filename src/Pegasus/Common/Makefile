@@ -83,6 +83,7 @@ SOURCES1 = \
     CIMMethod.cpp \
     CIMMethodRep.cpp \
     CIMName.cpp \
+    CIMNameInline.cpp \
     CIMObject.cpp \
     CIMObjectRep.cpp \
     CIMObjectPath.cpp \

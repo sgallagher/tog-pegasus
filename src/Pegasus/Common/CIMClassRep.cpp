@@ -49,6 +49,7 @@
 #include "MofWriter.h"
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
+#include "CIMNameUnchecked.h"
 #include "StrLit.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -692,7 +693,8 @@ void CIMClassRep::getKeyNames(Array<CIMName>& keyNames) const
 	CIMConstProperty property = getProperty(i);
 
         Uint32 index;
-        if ((index = property.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
+        if ((index = property.findQualifier(
+	    CIMNameUnchecked("key"))) != PEG_NOT_FOUND)
         {
             CIMValue value;
             value = property.getQualifier (index).getValue ();
@@ -714,7 +716,8 @@ Boolean CIMClassRep::hasKeys() const
 	CIMConstProperty property = getProperty(i);
 
         Uint32 index;
-        if ((index = property.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
+        if ((index = property.findQualifier(
+	    CIMNameUnchecked("key"))) != PEG_NOT_FOUND)
         {
             CIMValue value;
             value = property.getQualifier (index).getValue ();

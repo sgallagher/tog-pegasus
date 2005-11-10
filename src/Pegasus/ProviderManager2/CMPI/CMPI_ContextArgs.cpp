@@ -33,6 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CMPI_Version.h" 
 
 #include "CMPI_ContextArgs.h"
@@ -126,7 +127,7 @@ extern "C" {
 
    static CMPIData argsGetArg(const CMPIArgs* eArg, const char *name, CMPIStatus* rc) {
       Array<CIMParamValue>* arg=(Array<CIMParamValue>*)eArg->hdl;
-      CIMName eName(name);
+      CIMNameUnchecked eName(name);
 
       long i=locateArg(*arg,eName);
       if (i>=0) return argsGetArgAt(eArg,i,NULL,rc);

@@ -61,6 +61,7 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/AutoPtr.h>
+#include "CIMNameUnchecked.h"
 
 #define PEGASUS_SINT64_MIN (PEGASUS_SINT64_LITERAL(0x8000000000000000))
 #define PEGASUS_UINT64_MAX PEGASUS_UINT64_LITERAL(0xFFFFFFFFFFFFFFFF)
@@ -477,7 +478,7 @@ CIMName XmlReader::getCimNameAttribute(
 
 #endif
     }
-    return CIMName (name);
+    return CIMNameUnchecked(name);
 }
 
 //------------------------------------------------------------------------------

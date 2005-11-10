@@ -33,6 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#include <Pegasus/Common/CIMNameUnchecked.h>
 #include "CMPI_Version.h"
 
 #include "CMPI_Object.h"
@@ -204,7 +205,7 @@ static inline CIMName Name(const char *n) {
     CIMName name;
     if (n==NULL) return name;
     try {
-       name =CIMName(n);
+       name = CIMNameUnchecked(n);
      } catch ( ...)
      {
      }

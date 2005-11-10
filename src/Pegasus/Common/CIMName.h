@@ -158,7 +158,7 @@ public:
         Clears the CIMName.
 
         <pre>
-        CIMMame n("name");
+        CIMName n("name");
         n.clear();
         assert(n.isNull());
         </pre>
@@ -199,8 +199,17 @@ public:
     */
     static Boolean legal(const String& name);
 
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    Boolean equal(const char* name) const;
+
+    CIMName& operator=(const char* name);
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
+
 private:
     String cimName;
+    friend class CIMNameUnchecked;
 };
 
 /**
@@ -361,7 +370,7 @@ public:
             object contains no name so that accessing it with getString
             should return an empty String
             <pre>
-                        CIMMamespaceName ns("root/test");
+                        CIMNamespaceName ns("root/test");
                         ns.clear();
                         assert(ns.isNull());
             </pre>
@@ -372,8 +381,8 @@ public:
                 @return true if the name passed is equal to the name in this
         class. CIM names are case insensitive and so is this method.
                 <pre>
-                CIMMamespaceName ns("root/test");
-                CIMMamespaceName ns1("root/test");
+                CIMNamespaceName ns("root/test");
+                CIMNamespaceName ns1("root/test");
                 assert( ns.equal(ns1);
             </pre>
     */
@@ -388,6 +397,14 @@ public:
         </pre>
     */
     static Boolean legal(const String& name);
+
+#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+
+    Boolean equal(const char* name) const;
+
+    CIMNamespaceName& operator=(const char* name);
+
+#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
 private:
     String cimNamespaceName;
@@ -406,5 +423,9 @@ PEGASUS_COMMON_LINKAGE Boolean operator!=(
 #undef PEGASUS_ARRAY_T
 
 PEGASUS_NAMESPACE_END
+
+#ifdef PEGASUS_INTERNALONLY
+# include "CIMNameInline.h"
+#endif
 
 #endif /* Pegasus_Name_h */

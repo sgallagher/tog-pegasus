@@ -40,6 +40,7 @@
 #include <cctype>
 #include "CIMName.h"
 #include "CommonUTF.h"
+#include "CharSet.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -53,112 +54,84 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-CIMName::CIMName()
-{
-}
-
-CIMName::CIMName(const String& name)
-    : cimName(name)
+CIMName::CIMName(const String& name) : cimName(name)
 {
     if (!legal(name))
-    {
         throw InvalidNameException(name);
-    }
 }
 
-CIMName::CIMName(const char* name)
-    : cimName(name)
+CIMName::CIMName(const char* name) : cimName(name)
 {
     if (!legal(name))
-    {
         throw InvalidNameException(name);
-    }
-}
-
-CIMName& CIMName::operator=(const CIMName& name)
-{
-    cimName=name.cimName;
-    return *this;
 }
 
 CIMName& CIMName::operator=(const String& name)
 {
     if (!legal(name))
-    {
         throw InvalidNameException(name);
-    }
+
     cimName=name;
     return *this;
 }
 
-const String& CIMName::getString() const
+CIMName& CIMName::operator=(const char* name)
 {
-    return cimName;
-}
+    if (!legal(name))
+        throw InvalidNameException(name);
 
-Boolean CIMName::isNull() const
-{
-    return (cimName.size() == 0);
-}
-
-void CIMName::clear()
-{
-    cimName.clear();
+    cimName = name;
+    return *this;
 }
 
 Boolean CIMName::legal(const String& name)
 {
-    Uint32 length = name.size();
-    Uint16 chkchr;
+    // Check first character.
 
-    if (length == 0)
-        return false;
+    const Uint16* p = (const Uint16*)name.getChar16Data();
+    size_t n = name.size();
 
-    chkchr = name[0];
-
-    // First character must be alphabetic or '_' if ASCII
-    if(!(
-         (chkchr == 0x005F) ||
-         ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-         ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-         ((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
+    if (!(*p < 128 && CharSet::isAlphaUnder(*p)))
     {
-        return false;
+	if (!(*p >= 0x0080 && *p <= 0xFFEF))
+            return false;
     }
 
-    // Remaining characters must be alphanumeric or '_' if ASCII
-    for(Uint32 i = 1; i < length; ++i)
+    p++;
+    n--;
+
+    // Use loop unrolling to skip over good ASCII 7-bit characters.
+
+    while (n >= 4)
     {
-        chkchr = name[i];
-        if(!(
-             (chkchr == 0x005F) ||
-             ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-             ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-             ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
-             ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
-        {
-            return false;
-        }
+	if (p[0] < 128 && CharSet::isAlNumUnder(p[0]) &&
+	    p[1] < 128 && CharSet::isAlNumUnder(p[1]) &&
+	    p[2] < 128 && CharSet::isAlNumUnder(p[2]) &&
+	    p[3] < 128 && CharSet::isAlNumUnder(p[3]))
+	{
+	    p += 4;
+	    n -= 4;
+	    continue;
+	}
+
+	break;
+    }
+
+    // Process remaining charcters.
+
+    while (n)
+    {
+	if (!(*p < 128 && CharSet::isAlNumUnder(*p)))
+	{
+	    if (!(*p >= 0x0080 && *p <= 0xFFEF))
+		return false;
+	}
+	p++;
+	n--;
     }
 
     return true;
 }
-
-Boolean CIMName::equal(const CIMName& name) const
-{
-    return String::equalNoCase(cimName, name.cimName);
-}
-
-Boolean operator==(const CIMName& name1, const CIMName& name2)
-{
-    return name1.equal(name2);
-}
-
-Boolean operator!=(const CIMName& name1, const CIMName& name2)
-{
-    return !name1.equal(name2);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -170,60 +143,45 @@ Boolean operator!=(const CIMName& name1, const CIMName& name2)
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-CIMNamespaceName::CIMNamespaceName()
-    : cimNamespaceName(String::EMPTY)
+inline void _check_namespace_name(String& name)
 {
+    if (!CIMNamespaceName::legal(name))
+        throw InvalidNamespaceNameException(name);
+
+    if (name[0] == '/')
+        name.remove(0, 1);
 }
 
-CIMNamespaceName::CIMNamespaceName(const String& name)
+CIMNamespaceName::CIMNamespaceName(const String& name) 
+    : cimNamespaceName(name)
 {
-    *this = name;
+    _check_namespace_name(cimNamespaceName);
 }
 
-CIMNamespaceName::CIMNamespaceName(const char* name)
+CIMNamespaceName::CIMNamespaceName(const char* name) 
+    : cimNamespaceName(name)
 {
-    *this = String(name);
+    _check_namespace_name(cimNamespaceName);
 }
 
 CIMNamespaceName& CIMNamespaceName::operator=(const CIMNamespaceName& name)
 {
-    cimNamespaceName=name.cimNamespaceName;
+    cimNamespaceName = name.cimNamespaceName;
     return *this;
 }
 
 CIMNamespaceName& CIMNamespaceName::operator=(const String& name)
 {
-    if (!legal(name))
-    {
-        throw InvalidNamespaceNameException(name);
-    }
-
-    if (name[0] == '/')
-    {
-        // Strip off the meaningless leading '/'
-        cimNamespaceName=name.subString(1);
-    }
-    else
-    {
-        cimNamespaceName=name;
-    }
-
+    cimNamespaceName = name;
+    _check_namespace_name(cimNamespaceName);
     return *this;
 }
 
-const String& CIMNamespaceName::getString() const
+CIMNamespaceName& CIMNamespaceName::operator=(const char* name)
 {
-    return cimNamespaceName;
-}
-
-Boolean CIMNamespaceName::isNull() const
-{
-    return (cimNamespaceName.size() == 0);
-}
-
-void CIMNamespaceName::clear()
-{
-    cimNamespaceName.clear();
+    cimNamespaceName = name;
+    _check_namespace_name(cimNamespaceName);
+    return *this;
 }
 
 Boolean CIMNamespaceName::legal(const String& name)
@@ -249,48 +207,31 @@ Boolean CIMNamespaceName::legal(const String& name)
             return false;
         }
 
-        Uint16 chkchr = name[index++];
+        Uint16 ch = name[index++];
 
         // First character must be alphabetic or '_' if ASCII
-        if(!(
-             (chkchr == 0x005F) ||
-             ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-             ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-             ((chkchr >= 0x0080) && (chkchr <= 0xFFEF))))
-        {
+
+        if (!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlphaUnder(ch)))
             return false;
-        }
 
         // Remaining characters must be alphanumeric or '_' if ASCII
         while (index < length)
         {
-            chkchr = name[index++];
+            ch = name[index++];
 
             // A '/' indicates another namespace element follows
-            if (chkchr == '/')
+            if (ch == '/')
             {
                 moreElements = true;
                 break;
             }
 
-            if(!(
-                 (chkchr == 0x005F) ||
-                 ((chkchr >= 0x0041) && (chkchr <= 0x005A)) ||
-                 ((chkchr >= 0x0061) && (chkchr <= 0x007A)) ||
-                 ((chkchr >= 0x0080) && (chkchr <= 0xFFEF)) ||
-                 ((chkchr >= 0x0030) && (chkchr <= 0x0039))))
-            {
+	    if(!((ch >= 0x0080 && ch <= 0xFFEF) || CharSet::isAlNumUnder(ch)))
                 return false;
-            }
         }
     }
 
     return true;
-}
-
-Boolean CIMNamespaceName::equal(const CIMNamespaceName& name) const
-{
-    return String::equalNoCase(cimNamespaceName, name.cimNamespaceName);
 }
 
 Boolean operator==(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
@@ -298,9 +239,45 @@ Boolean operator==(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
     return name1.equal(name2);
 }
 
+Boolean operator==(const CIMNamespaceName& name1, const char* name2)
+{
+    return name1.equal(name2);
+}
+
+Boolean operator==(const char* name1, const CIMNamespaceName& name2)
+{
+    return name2.equal(name1);
+}
+
 Boolean operator!=(const CIMNamespaceName& name1, const CIMNamespaceName& name2)
 {
     return !name1.equal(name2);
 }
 
+Boolean operator!=(const CIMNamespaceName& name1, const char* name2)
+{
+    return !name1.equal(name2);
+}
+
+Boolean operator!=(const char* name1, const CIMNamespaceName& name2)
+{
+    return !name2.equal(name1);
+}
+
 PEGASUS_NAMESPACE_END
+
+/*
+================================================================================
+
+Optimizations:
+
+    1. Optimized legal().
+    2. Implmented "char*" version of operator=().
+    3. Added conditional inlining (for Pegaus internal use).
+    4. Added comparison functions for "char*".
+    5. Implemented "unchecked" version of constructors and assignment operators
+       that take String or "char*".
+    6. Added loop unrolling to CIMName::legal()
+
+================================================================================
+*/

@@ -928,9 +928,9 @@ fi
 %attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_OperatingSystem20R.mof
 %attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_UnixProcess20.mof
 %attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus/PG_UnixProcess20R.mof
-%config %attr(-,root,root) %PEGASUS_VARDATA_DIR/%PEGASUS_PLANNED_CONFIG_FILE
-%config %attr(-,root,root) /etc/init.d/tog-pegasus
-%config %attr(-,root,root) %PAM_CONF/wbem
+%config(noreplace) %attr(-,root,root) %PEGASUS_VARDATA_DIR/%PEGASUS_PLANNED_CONFIG_FILE
+%config(noreplace) %attr(-,root,root) /etc/init.d/tog-pegasus
+%config(noreplace) %attr(-,root,root) %PAM_CONF/wbem
 %attr(0544,root,root) %PEGASUS_SBIN_DIR/cimauth
 %attr(0544,root,root) %PEGASUS_SBIN_DIR/cimserver
 %attr(0544,root,root) %PEGASUS_SBIN_DIR/cimservera

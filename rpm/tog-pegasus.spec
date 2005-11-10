@@ -654,7 +654,7 @@ then
   then
       if [[ -d %PEGASUS_PREV_REPOSITORY_DIR ]]
       then
-          rm -rf %PEGASUS_PREV_REPOSITORY_DIR
+        mv %PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR`date '+%Y-%m-%d-%s.%N'`.rpmsave;
       fi
 
       mv %PEGASUS_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR

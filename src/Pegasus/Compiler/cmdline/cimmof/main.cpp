@@ -151,7 +151,11 @@ main(int argc, char ** argv) {
   } catch (ArgumentErrorsException &e) {
    String msg(e.getMessage());
 
-   cerr << argv[0] << ": " << msg ;
+
+   cerr << argv[0] << ": " << msg << endl;
+
+ 
+
 
         if (msg.find(String("Unknown flag")) != PEG_NOT_FOUND)
          {

@@ -426,6 +426,9 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
   int type = -1;
   setCmdLineOpts(cmdline, getType(argv[0]));
   cmdline.parse(argc, argv);
+#ifdef PEGASUS_OS_OS400
+  String os400MarkerFile("/QIBM/USERDATA/OS400/CIM/QYCM53PTF");
+#endif
   switch (getType(argv[0])) {
   case 1: cmdlinedata.set_is_local();
     #ifdef PEGASUS_OS_OS400
@@ -434,7 +437,7 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       // if we ARE then call ycmServerIsActive without the quiet option
 #pragma convert(37)
       if( getenv("SHLVL") == NULL ){  // native mode
-	  if(ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL, 1)) {
+	  if(!FileSystem::exists(os400MarkerFile) && ycmServerIsActive(YCMSERVER_ACTIVE, YCMCIMMOFL, 1)) {
 	      // previous call's message was suppressed,
               // server is running, send escape message and return
 	      ycmSend_Message_Escape(CPFDF81_RC, "01", "QYCMMOFL", "*CTLBDY   ", 1);
@@ -496,7 +499,13 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       case REPOSITORYMODE:
 	{
 	  cmdlinedata.set_repository_mode(arg.optarg());
-
+// prevent using binary repository since we do not support that in 2.5
+#ifdef PEGASUS_OS_OS400
+	  if (String::equalNoCase(arg.optarg(), "BIN"))
+	  {
+	      throw ArgumentErrorsException("ERROR: THE VALUE BIN IS NOT SUPPORTED FOR THE REPOSITORY MODE."); 
+	  }
+#endif
 	  if(String::equalNoCase(arg.optarg(), "XML") ||
 	     String::equalNoCase(arg.optarg(), "BIN")) {}
 	  else

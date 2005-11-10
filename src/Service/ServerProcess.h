@@ -36,7 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
-#include "Linkage.h"
+#include <Service/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

@@ -45,11 +45,6 @@
 #include <Pegasus/Common/Char16.h>
 #include <Pegasus/Common/Linkage.h>
 
-// Locale constants
-// These constants need to be defined as follows:
-// lower case language; underscore; Uppercase Country
-const char ENGLISH_US[] = "en_US";
-
 PEGASUS_NAMESPACE_BEGIN
 
 class String;

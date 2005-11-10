@@ -99,6 +99,8 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		//String resbundl_path_ICU;
 		CString resbundl_path_ICU;
 
+		const int size_locale_ICU = 50;
+
 		// the static AcceptLangauges takes precedence over what parms.acceptlangauges has
 		AcceptLanguages acceptlanguages;
 		acceptlanguages = (_acceptlanguages.size() > 0) ? _acceptlanguages : parms.acceptlanguages;
@@ -141,14 +143,16 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				}
     			msg = extractICUMessage(resbundl,parms);
 
-			String cl_str(ures_getLocale(resbundl,&status));
+			const char * _locale = ures_getLocale(resbundl,&status);
 #ifdef PEGASUS_OS_OS400
-			   CString cstr = cl_str.getCString();
-		           const char *etoa = cstr;
-			   EtoA((char*)etoa);
-			   cl_str = etoa;
+			char tmplcl[size_locale_ICU];	
+			strcpy(tmplcl, _locale);		
+			EtoA(tmplcl);			
+			String localeStr(tmplcl);	
+#else
+			String localeStr(_locale);	
 #endif
-    			parms.contentlanguages.append(ContentLanguageElement(cl_str));
+    			parms.contentlanguages.append(ContentLanguageElement(localeStr));
     			ures_close(resbundl);
 			} else {
 				//cout << "PROCESS_LOCALE: could not open resouce, formatting default message" << endl;
@@ -169,7 +173,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			 }
 		}
 
-		const int size_locale_ICU = 50;
+	
 		char locale_ICU[size_locale_ICU];
 		AcceptLanguageElement language_element = AcceptLanguageElement::EMPTY;
 
@@ -182,8 +186,8 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		        CString cstr = language_element.getTag().getCString();
 			const char *atoe = cstr;
 			AtoE((char*)atoe);
-			String tag(atoe);
-		        uloc_getName((const char*)tag.getCString(), locale_ICU, size_locale_ICU, &status);
+		
+		         uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
 #else
 			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);
 #endif
@@ -219,15 +223,17 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 						//cout << "ACCEPTLANGUAGES LOOP: acceptlanguages.size == 1 or useICUfallback true, using ICU fallback behaviour..." << endl;
 						PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: acceptlanguages.size == 1 or useICUfallback true, using ICU fallback behaviour...");
 						msg = extractICUMessage(resbundl,parms);
-
-						String cl_str(ures_getLocale(resbundl,&status));
+						const char * _locale = ures_getLocale(resbundl,&status);
+					
 #ifdef PEGASUS_OS_OS400
-                  CString cstr = cl_str.getCString();
-                  const char *etoa = cstr;
-                  EtoA((char*)etoa);
-                  cl_str = etoa;
+						char tmplcl[size_locale_ICU];	
+						strcpy(tmplcl, _locale);		
+						EtoA(tmplcl);			
+						String localeStr(tmplcl);
+#else
+						String localeStr(_locale);
 #endif
-						parms.contentlanguages.append(ContentLanguageElement(cl_str));
+						parms.contentlanguages.append(ContentLanguageElement(localeStr));
 						ures_close(resbundl);
 						break;
 					}
@@ -258,15 +264,15 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		        CString cstr = language_element.getTag().getCString();
 			const char *atoe = cstr;
 			AtoE((char*)atoe);
-			String tag(atoe);
-         uloc_getName((const char*)tag.getCString(), locale_ICU, size_locale_ICU, &status);
+			
+			uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
 #else
 			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);
 #endif
 			//cout << "locale_ICU in fallback = " << locale_ICU << endl;
 			status = U_ZERO_ERROR;
 			resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
-			String cl_str_;
+			const char * _locale = NULL;
 			if(U_SUCCESS(status)) {
 				if(status == U_USING_DEFAULT_WARNING){
 					//cout << "PRIORITY ICU FALLBACK: using default resource bundle with " << language_element.getTag() << endl;
@@ -279,21 +285,28 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 					resbundl = ures_open((const char*)resbundl_path_ICU, "", &status);
 					if(U_SUCCESS(status)) {
 						msg = extractICUMessage(resbundl,parms);
-			    		cl_str_ = ures_getLocale(resbundl,&status);
+			    		_locale = ures_getLocale(resbundl,&status);
 					}
 				}else{
 			    	msg = extractICUMessage(resbundl,parms);
-			    	cl_str_ = ures_getLocale(resbundl,&status);
+			    	_locale = ures_getLocale(resbundl,&status);
 			    }
+				String localeStr;	
+
+				if (_locale != NULL)	
+				{
 #ifdef PEGASUS_OS_OS400
-			    CString cstr_ = cl_str_.getCString();
-			    const char *etoa = cstr_;
-			    EtoA((char*)etoa);
-			    cl_str_ = etoa;
+				    char tmplcl[size_locale_ICU];	
+				    strcpy(tmplcl, _locale);			
+				    EtoA(tmplcl);			
+				    localeStr.assign(tmplcl);		
+#else
+				    localeStr.assign(_locale);
 #endif
-			    if(cl_str_ != "root")
-               parms.contentlanguages.append(ContentLanguageElement(cl_str_));
-			    ures_close(resbundl);
+				}
+				    if(localeStr != "root")					   
+				      parms.contentlanguages.append(ContentLanguageElement(localeStr)); 
+				    ures_close(resbundl);
 			}
 		}
 

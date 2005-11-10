@@ -230,6 +230,15 @@ String System::getHostIP(const String &hostName)
         {
             ipAddress.assign(gottenIPAdress);
         }
+#elif defined(PEGASUS_OS_OS400)
+        char * gottenIPAdress = NULL;
+        gottenIPAdress = ::inet_ntoa( inaddr );
+        
+        if (gottenIPAdress != NULL)
+        {
+	    EtoA(gottenIPAdress);
+            ipAddress.assign(gottenIPAdress);
+        }
 #else
         ipAddress = ::inet_ntoa( inaddr );
 #endif

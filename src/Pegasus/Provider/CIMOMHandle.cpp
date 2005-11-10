@@ -65,18 +65,10 @@ CIMOMHandle::CIMOMHandle(void)
 #ifdef PEGASUS_OS_OS400
 CIMOMHandle::CIMOMHandle(Uint32 os400UserStateKey)
 {
-    // The existence of a BinaryMessageHandler determines which Rep to use
-    MessageQueue* bmh = MessageQueue::lookup(PEGASUS_QUEUENAME_BINARY_HANDLER);
-    if (bmh != 0)
-    {
-        // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
-        _rep = new InternalCIMOMHandleRep(os400UserStateKey);
-    }
-    else
-    {
-        // No BinaryMessageHandler exists.  We must use ClientCIMOMHandleRep
-        _rep = new ClientCIMOMHandleRep();
-    }
+
+  // A BinaryMessageHandler exists.  We can use InternalCIMOMHandleRep
+  _rep = new InternalCIMOMHandleRep(os400UserStateKey);
+   
 }
 
 void CIMOMHandle::setOS400ProfileHandle(const char * profileHandle)

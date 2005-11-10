@@ -68,7 +68,7 @@ static struct ConfigPropertyRow properties[] =
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #else
-#ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
+#if defined (PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_OS_OS400)
     {"traceLevel", "1", IS_DYNAMIC, 0, 0, IS_HIDDEN},
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_HIDDEN},
 #else
@@ -76,7 +76,11 @@ static struct ConfigPropertyRow properties[] =
     {"traceComponents", "", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
 #endif
+#ifdef PEGASUS_OS_OS400
+    {"traceFilePath", "/qibm/userdata/os400/cim/cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+#else
     {"traceFilePath", "cimserver.trc", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+#endif
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

@@ -534,7 +534,13 @@ void Condition::unlocked_wait(PEGASUS_THREAD_TYPE caller)
    }
 
    // pthread_cond_timedwait will release the Mutex
+#ifdef PEGASUS_OS_OS400
+   PEGASUS_THREAD_TYPE tmp;
+   tmp =0;
+   _cond_mutex->_set_owner(tmp);
+#else
    _cond_mutex->_set_owner(0);
+#endif
 
    pthread_cond_wait(&_condition, &_cond_mutex->_mutex.mut);
 
@@ -569,7 +575,13 @@ void Condition::unlocked_timed_wait(
    waittime.tv_nsec = waittime.tv_nsec * 1000;  // convert to nanoseconds
 
    // pthread_cond_timedwait will release the Mutex
+#ifdef PEGASUS_OS_OS400
+   PEGASUS_THREAD_TYPE tmp;
+   tmp =0;
+   _cond_mutex->_set_owner(tmp);
+#else
    _cond_mutex->_set_owner(0);
+#endif
 
    int retcode = pthread_cond_timedwait(
       &_condition, &_cond_mutex->_mutex.mut, &waittime);

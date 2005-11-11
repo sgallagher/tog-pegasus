@@ -86,7 +86,7 @@ YACC = bison
 
 RM = mu rm
 
-DIFF = mu diff
+DIFF = mu compare
 
 SORT = mu sort
 

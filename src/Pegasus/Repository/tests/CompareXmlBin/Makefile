@@ -110,7 +110,7 @@ repo_clean:
 	@ $(RMREPOSITORY) $(REPO_DIR)/$(REPO_BIN)
 
 local-clean: repo_clean
-	@ - rm -rf file1 file2
+	@ - $(RM) -rf file1 file2
 
 run_test:
 	$(PROGRAM) $(REPO_DIR)/$(REPO_XML) $(REPO_DIR)/$(REPO_BIN) 

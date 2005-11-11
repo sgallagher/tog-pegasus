@@ -39,11 +39,11 @@ DEPEND_MAK = $(OBJ_DIR)/depend.mak
 ##
 
 ifdef SOURCES1
-depend:
+depend: $(OBJ_DIR)/target $(ERROR)
 	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES1) > $(DEPEND_MAK)
 	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES2) >> $(DEPEND_MAK)
 else
-depend:
+depend: $(OBJ_DIR)/target $(ERROR)
 	mu depend -O$(OBJ_DIR) $(INCLUDES) $(SOURCES) > $(DEPEND_MAK)
 endif
 

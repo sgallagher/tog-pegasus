@@ -29,9 +29,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-/* If neither of these defined, suppress compilation of this header. */
-#if !defined(PEGASUS_INTERNALONLY) && !defined(Pegasus_CIMNameInline_cxx)
-# define Pegasus_CIMNameInline_h
+#if !defined(Pegasus_CIMNameInline_cxx)
+# if !defined(PEGASUS_INTERNALONLY) || defined(PEGASUS_DISABLE_INTERNAL_INLINES)
+#   define Pegasus_CIMNameInline_h
+# endif
 #endif
 
 #ifndef Pegasus_CIMNameInline_h

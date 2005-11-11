@@ -104,7 +104,7 @@
 // 1300 (subtract 600 to get the version of Visual Studio). Look in 
 // SystemWindows.cpp for the definitions.
 //
-#if (_MSC_VER < 1300)
+#if (_MSC_VER < 1300) && defined(PEGASUS_INTERNALONLY) && defined(__cplusplus)
 # include <iostream>
 namespace std
 {

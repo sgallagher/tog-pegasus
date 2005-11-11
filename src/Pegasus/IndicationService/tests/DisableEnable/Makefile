@@ -45,69 +45,69 @@ tests:
 
 poststarttests:
 	@$(ECHO) "TestDisableEnable setup WQL"
-	@$(PROGRAM) setup WQL
+	@$(PROGRAM) setup "WQL"
 	@$(ECHO) "TestDisableEnable create WQL"
-	@$(PROGRAM) create WQL
-	cimprovider -d -m ProcessIndicationProviderModule
+	@$(PROGRAM) create "WQL"
+	cimprovider -d -m "ProcessIndicationProviderModule"
 	@$(ECHO) "TestDisableEnable delete WQL"
-	@$(PROGRAM) delete WQL
-	cimprovider -e -m ProcessIndicationProviderModule
+	@$(PROGRAM) delete "WQL"
+	cimprovider -e -m "ProcessIndicationProviderModule"
 	@$(ECHO) "TestDisableEnable create WQL"
-	@$(PROGRAM) create WQL
-	cimprovider -d -m ProcessIndicationProviderModule
-	cimprovider -e -m ProcessIndicationProviderModule
+	@$(PROGRAM) create "WQL"
+	cimprovider -d -m "ProcessIndicationProviderModule"
+	cimprovider -e -m "ProcessIndicationProviderModule"
 	@$(ECHO) "TestDisableEnable delete WQL"
-	@$(PROGRAM) delete WQL
+	@$(PROGRAM) delete "WQL"
 	@$(ECHO) "TestDisableEnable create WQL"
-	@$(PROGRAM) create WQL
+	@$(PROGRAM) create "WQL"
 	@$(ECHO) "TestDisableEnable create2 WQL"
-	@$(PROGRAM) create2 WQL
+	@$(PROGRAM) create2 "WQL"
 	@$(ECHO) "TestDisableEnable addProvider WQL"
-	@$(PROGRAM) addProvider WQL
+	@$(PROGRAM) addProvider "WQL"
 	@$(ECHO) "TestDisableEnable modifyProvider1 WQL"
-	@$(PROGRAM) modifyProvider1 WQL
+	@$(PROGRAM) modifyProvider1 "WQL"
 	@$(ECHO) "TestDisableEnable modifyProvider2 WQL"
-	@$(PROGRAM) modifyProvider2 WQL
+	@$(PROGRAM) modifyProvider2 "WQL"
 	@$(ECHO) "TestDisableEnable deleteProvider WQL"
-	@$(PROGRAM) deleteProvider WQL
+	@$(PROGRAM) deleteProvider "WQL"
 	@$(ECHO) "TestDisableEnable delete2 WQL"
-	@$(PROGRAM) delete2 WQL
+	@$(PROGRAM) delete2 "WQL"
 	@$(ECHO) "TestDisableEnable delete WQL"
-	@$(PROGRAM) delete WQL
+	@$(PROGRAM) delete "WQL"
 	@$(ECHO) "TestDisableEnable cleanup WQL"
-	@$(PROGRAM) cleanup WQL
+	@$(PROGRAM) cleanup "WQL"
 ifndef PEGASUS_DISABLE_CQL
 	@$(ECHO) "TestDisableEnable setup CIM:CQL"
-	@$(PROGRAM) setup CIM:CQL
+	@$(PROGRAM) setup "CIM:CQL"
 	@$(ECHO) "TestDisableEnable create CIM:CQL"
-	@$(PROGRAM) create CIM:CQL
-	cimprovider -d -m ProcessIndicationProviderModule
+	@$(PROGRAM) create "CIM:CQL"
+	cimprovider -d -m "ProcessIndicationProviderModule"
 	@$(ECHO) "TestDisableEnable delete CIM:CQL"
-	@$(PROGRAM) delete CIM:CQL
-	cimprovider -e -m ProcessIndicationProviderModule
+	@$(PROGRAM) delete "CIM:CQL"
+	cimprovider -e -m "ProcessIndicationProviderModule"
 	@$(ECHO) "TestDisableEnable create CIM:CQL"
-	@$(PROGRAM) create CIM:CQL
-	cimprovider -d -m ProcessIndicationProviderModule
-	cimprovider -e -m ProcessIndicationProviderModule
+	@$(PROGRAM) create "CIM:CQL"
+	cimprovider -d -m "ProcessIndicationProviderModule"
+	cimprovider -e -m "ProcessIndicationProviderModule"
 	@$(ECHO) "TestDisableEnable delete CIM:CQL"
-	@$(PROGRAM) delete CIM:CQL
+	@$(PROGRAM) delete "CIM:CQL"
 	@$(ECHO) "TestDisableEnable create CIM:CQL"
-	@$(PROGRAM) create CIM:CQL
+	@$(PROGRAM) create "CIM:CQL"
 	@$(ECHO) "TestDisableEnable create2 CIM:CQL"
-	@$(PROGRAM) create2 CIM:CQL
+	@$(PROGRAM) create2 "CIM:CQL"
 	@$(ECHO) "TestDisableEnable addProvider CIM:CQL"
-	@$(PROGRAM) addProvider CIM:CQL
+	@$(PROGRAM) addProvider "CIM:CQL"
 	@$(ECHO) "TestDisableEnable modifyProvider1 CIM:CQL"
-	@$(PROGRAM) modifyProvider1 CIM:CQL
+	@$(PROGRAM) modifyProvider1 "CIM:CQL"
 	@$(ECHO) "TestDisableEnable modifyProvider2 CIM:CQL"
-	@$(PROGRAM) modifyProvider2 CIM:CQL
+	@$(PROGRAM) modifyProvider2 "CIM:CQL"
 	@$(ECHO) "TestDisableEnable deleteProvider CIM:CQL"
-	@$(PROGRAM) deleteProvider CIM:CQL
+	@$(PROGRAM) deleteProvider "CIM:CQL"
 	@$(ECHO) "TestDisableEnable delete2 CIM:CQL"
-	@$(PROGRAM) delete2 CIM:CQL
+	@$(PROGRAM) delete2 "CIM:CQL"
 	@$(ECHO) "TestDisableEnable delete CIM:CQL"
-	@$(PROGRAM) delete CIM:CQL
+	@$(PROGRAM) delete "CIM:CQL"
 	@$(ECHO) "TestDisableEnable cleanup CIM:CQL"
-	@$(PROGRAM) cleanup CIM:CQL
-	@$(ECHO) "+++++ TestDisableEnable passed all tests"
+	@$(PROGRAM) cleanup "CIM:CQL"
 endif
+	@$(ECHO) "+++++ TestDisableEnable passed all tests"

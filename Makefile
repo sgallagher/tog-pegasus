@@ -74,6 +74,11 @@ usage: FORCE
 	$(USAGE)"world               - build unittests servertests"
 	$(USAGE)
 	$(USAGE)"Functional rules - Other rules to achieve specified results"
+	$(USAGE)"clobber             -removes objects built during compile"
+	$(USAGE)"                     specifically the following directories are removed:"
+	$(USAGE)"                      $(PEGASUS_HOME)/bin"
+	$(USAGE)"                      $(PEGASUS_HOME)/lib"
+	$(USAGE)"                      $(PEGASUS_HOME)/obj"
 	$(USAGE)"buildmu             - builds the mu utility"
 	$(USAGE)"setupdevserver      - setup the development server env"
 	$(USAGE)"cleandevserver      - cleans the development server env"
@@ -88,6 +93,7 @@ usage: FORCE
 	$(USAGE)"unittests           - runs the unit functional test"
 	$(USAGE)"serverquicktests    - runs quick server tests"
 	$(USAGE)"servertests         - runs basic server tests"
+	$(USAGE)"perftests           - runs basic server performance tests"
 	$(USAGE)"standardtests       - runs server extended tests"
 	$(USAGE)"testusage           - TestMakefile usage"
 	$(USAGE)"testusage2          - TestMakefile usage2"
@@ -191,6 +197,9 @@ shortsleep: FORCE
 servertests: FORCE
 	@ $(MAKE) -f TestMakefile servertests
 
+perftests: FORCE
+	@ $(MAKE) -f TestMakefile perftests
+
 s_unittests: FORCE
 	@ $(MAKE) -f TestMakefile -s unittests
 
@@ -211,6 +220,7 @@ testusage: FORCE
 
 testusage2: FORCE
 	@ $(MAKE) -f TestMakefile usage2
+
 
 
 ##########################################################################
@@ -235,6 +245,11 @@ setupdevserver: FORCE
 
 cleandevserver: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run_clean
+
+clobber: FORCE
+	- $(RMDIRHIER) $(PEGASUS_HOME)/bin
+	- $(RMDIRHIER) $(PEGASUS_HOME)/lib
+	- $(RMDIRHIER) $(PEGASUS_HOME)/obj
 
 
 #---------------------

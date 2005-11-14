@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -82,6 +82,9 @@ const Uint32 Tracer::_STRLEN_MAX_UNSIGNED_INT = 21;
 
 // Set the max PID and Thread ID Length
 const Uint32 Tracer::_STRLEN_MAX_PID_TID = 20;
+
+// Initialize public indicator of trace state
+Uint32 Tracer::_traceOn=0;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tracer constructor
@@ -336,7 +339,7 @@ void Tracer::_traceEnter(
         //
 	message = new char[ strlen(fileName) +
 			    _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
-	
+
 #if defined(PEGASUS_OS_VMS)
         //
         // pegasus_thread_self returns long-long-unsigned.
@@ -387,7 +390,7 @@ void Tracer::_traceExit(
         //
 	message = new char[ strlen(fileName) +
 			    _STRLEN_MAX_UNSIGNED_INT + (_STRLEN_MAX_PID_TID * 2) + 8 ];
-	
+
 #if defined(PEGASUS_OS_VMS)
         //
         // pegasus_thread_self returns long-long-unsigned.
@@ -490,12 +493,12 @@ void Tracer::_trace(
 #endif
 	msgHeader = new char [ strlen(timeStamp) + strlen(TRACE_COMPONENT_LIST[traceComponent]) +
 			       strlen(tmpBuffer) + 1  + 5 ];
-	
+
         sprintf(msgHeader,"%s: %s %s ",(const char*)timeStamp,
             TRACE_COMPONENT_LIST[traceComponent] ,tmpBuffer );
         delete []tmpBuffer;
         //delete [] msgHeader;
-	
+
     }
 
     // Call trace file handler to write message
@@ -711,38 +714,41 @@ void Tracer::setTraceComponents(const String& traceComponents)
         {
             for (index=0; index < _NUM_COMPONENTS;
                     (_getInstance()->_traceComponentMask.get())[index++] = true);
+            _traceOn = 1;
             return ;
         }
 
         // initialise ComponentMask array to False
         for (index = 0;index < _NUM_COMPONENTS;
-	        (_getInstance()->_traceComponentMask.get())[index++] = false);
+              (_getInstance()->_traceComponentMask.get())[index++] = false);
+        _traceOn = 0;
 
- 	// Append _COMPONENT_SEPARATOR to the end of the traceComponents
+        // Append _COMPONENT_SEPARATOR to the end of the traceComponents
         componentStr.append(_COMPONENT_SEPARATOR);
 
         while (componentStr != String::EMPTY)
         {
             // Get the Component name from traceComponents.
-	    // Components are separated by _COMPONENT_SEPARATOR
+            // Components are separated by _COMPONENT_SEPARATOR
             position = componentStr.find(_COMPONENT_SEPARATOR);
- 	    componentName = componentStr.subString(0,(position));
+            componentName = componentStr.subString(0,(position));
 
-	    // Lookup the index for Component name in TRACE_COMPONENT_LIST
+            // Lookup the index for Component name in TRACE_COMPONENT_LIST
             index = 0;
-	    while (index < _NUM_COMPONENTS)
-	    {
-	        if (String::equalNoCase(
-		       componentName,TRACE_COMPONENT_LIST[index]))
-	        {
+            while (index < _NUM_COMPONENTS)
+            {
+                if (String::equalNoCase(
+                    componentName,TRACE_COMPONENT_LIST[index]))
+                {
                     (_getInstance()->_traceComponentMask.get())[index]=true;
+                    _traceOn = 1;
 
                     // Found component, break from the loop
                     break;
-	        }
-	        else
-	        {
-	 	    index++;
+                }
+                else
+                {
+                    index++;
                 }
             }
 

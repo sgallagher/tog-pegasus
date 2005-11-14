@@ -33,6 +33,7 @@
 //                (carolann_graves@hp.com)
 //              Karl Schopmeyer
 //              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4006
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -308,7 +309,14 @@ int main(int argc, char** argv)
         {
             Boolean returnValue;
             returnValue = (statement.evaluateWhereClause(&source) == true);
-            assert(returnValue || evaluateErrorTest);
+            if (evaluateErrorTest)
+            {
+                assert(!returnValue);
+            }
+            else
+            {
+                assert(returnValue);
+            }
         }
         catch (Exception& e)
         {

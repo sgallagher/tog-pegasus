@@ -36,6 +36,7 @@
 //                  (david.dillard@veritas.com)
 //              Josephine Eskaline Joyce(jojustin@in.ibm.com) for Bug #1664
 //              Amit K Arora (amita@in.ibm.com) for Bug#2926
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4349, #4228
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
@@ -257,7 +258,7 @@ Boolean _tokenPair(const String& input, String& key, String& value)
     Array<String> pair = _tokenize(input, '=');
     if (pair.size() < 2)
     {
-        cout << "Input Parameter error. Expected name=value. Received  " << input << input;
+        cout << "Input Parameter error. Expected name=value. Received  " << input << endl;
         return(false);
     }
     // If there is more than 1 "=" it is part of the reference and we
@@ -792,7 +793,10 @@ int createInstance(CIMClient& client, Options& opts)
     // ATTN: Need to account for returning key without value here.
     if (opts.extraParams != 0)
     {
-        for (Uint32 i = 0 ; i < opts.extraParams.size() ; i++)
+        /* Here loop starts from 1, since the Class Name is coming as first parameter and
+           we want only the property name and value here
+        */
+        for (Uint32 i = 1 ; i < opts.extraParams.size() ; i++)
         {
             String key;
             String value;
@@ -805,9 +809,13 @@ int createInstance(CIMClient& client, Options& opts)
 
         if (opts.verboseTest)
         {
-            cout << "Property: " << propertyNameList[propertyNameList.size()]
-            << " value: " << propertyValueList[propertyValueList.size()]
-            << endl;
+            // This loop gives all the property names and property values of the instance
+            for (Uint32 i=0; i < propertyNameList.size(); i++)
+            {
+                cout << "Property: " << propertyNameList[i]
+                     << " value: " << propertyValueList[i]
+                     << endl;
+            }
         }
     }
 
@@ -815,6 +823,11 @@ int createInstance(CIMClient& client, Options& opts)
     // create the instance with the defined properties
     CIMInstance newInstance = thisClass.buildInstance(true, true, myPropertyList);
 
+    // Set all the property Values to the instance
+    for (Uint32 i=0; i < propertyValueList.size(); i++)
+    {
+        newInstance.getProperty(i).setValue(CIMValue( propertyValueList[i]));
+    }
     // Now add the parameters from the input. Array.
     //Note that we do NO checking.  Each input parameter is a simple
     //name=value.

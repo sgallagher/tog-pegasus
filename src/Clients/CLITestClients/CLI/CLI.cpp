@@ -33,7 +33,7 @@
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Adrian Schuur (schuur@de.ibm.com)
-//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4065
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4065,#4228
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,6 @@
 #include <Pegasus/Common/IPC.h>             // used for pegasus_sleep
 #include <Pegasus/Client/CIMClient.h>
 #include <Clients/CLITestClients/CLIClientLib/CLIClientLib.h>
-#include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Stopwatch.h>
 
@@ -247,10 +246,6 @@ int main(int argc, char** argv)
         for (int i = 0; i < argc; i++)
             cout << "argv[" << i << "] = " << argv[i] << endl;
     }
-
-    // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments from the command
-    // line.
 
     // Get options (from command line and from configuration file); this
     // removes corresponding options and their arguments from the command

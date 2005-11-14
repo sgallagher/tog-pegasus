@@ -31,6 +31,7 @@
 //
 // Modified By:
 //        Bapu Patil, Hewlett-Packard Company (bapu_patil@hp.com)
+//        Aruran, IBM (ashanmug@in.ibm.com) for Bug#4228
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +45,6 @@
 #      define PEGASUS_CLI_LINKAGE PEGASUS_IMPORT
 #    endif
 #  else
-#    define PEGASUS_CLI_LINKAGE
 #    define PEGASUS_CLI_LINKAGE
 #  endif
 #endif

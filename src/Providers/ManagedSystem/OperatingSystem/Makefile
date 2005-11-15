@@ -15,7 +15,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -47,7 +47,7 @@ LIBRARY = OSProvider
 SOURCES = \
 	OperatingSystemProvider.cpp \
 	OperatingSystemProviderMain.cpp \
-        OperatingSystem.cpp
+	OperatingSystem.cpp
 
 LIBRARIES = \
     pegprovider \
@@ -57,6 +57,13 @@ LIBRARIES = \
 DYNAMIC_LIBRARIES = \
 	-lpegcommon \
 	-lpegprovider
+
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+SYS_LIBS += \
+	psapi.lib \
+	pdh.lib \
+	advapi32.lib
+endif
 
 include $(ROOT)/mak/dynamic-library.mak
 

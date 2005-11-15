@@ -37,6 +37,8 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
+#include <psapi.h>
+#include <pdh.h>
 
 #include "OperatingSystem.h"
 
@@ -92,16 +94,21 @@ Boolean OperatingSystem::getName(String& osName)
         case VER_PLATFORM_WIN32_NT:
 
             if ( osvi.dwMajorVersion <= 4 )
+            {
                 versionName.assign("Microsoft Windows NT");
-
-            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
+            }
+            else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
+            {
                 versionName.assign("Microsoft Windows 2000");
-
-            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )
+            }
+            else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )
+            {
                 versionName.assign("Microsoft Windows XP");
-
-            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
+            }
+            else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
+            {
                 versionName.assign("Microsoft Windows Server 2003");
+            }
 
             break;
 
@@ -114,18 +121,17 @@ Boolean OperatingSystem::getName(String& osName)
                      osvi.szCSDVersion[1] == 'B' )
                      versionName.append("OSR2");
             }
-
-            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
+            else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
             {
                 versionName.assign("Microsoft Windows 98");
                 if ( osvi.szCSDVersion[1] == 'A' )
                     versionName.append("SE" );
             }
-
-            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
+            else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
             {
                 versionName.assign("Microsoft Windows Me");
             }
+
             break;
 
         case VER_PLATFORM_WIN32s:
@@ -297,12 +303,29 @@ Boolean OperatingSystem::getOtherTypeDescription(String& otherTypeDescription)
 
 Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
 {
+    Uint64 sysUpTime = 0;
 
-   // May involve GetTickCount subtracted from local time and
-   // formatted as CIMDateTime
-   // DWORD dw = ::GetTickCount();
+    if(getSystemUpTime(sysUpTime))
+    {
+        // convert sysUpTime to microseconds
+        sysUpTime *= (1000 * 1000);
 
-   return false;
+        CIMDateTime currentTime = CIMDateTime::getCurrentDateTime();
+        CIMDateTime bootTime = CIMDateTime(currentTime.toMicroSeconds() - sysUpTime, false);
+
+        // adjust UTC offset
+        String s1 = currentTime.toString();
+        String s2 = bootTime.toString();
+
+        s2[20] = s1[20];
+        s2[21] = s1[21];
+        s2[22] = s1[22];
+        s2[23] = s1[23];
+
+        lastBootUpTime = CIMDateTime(s2);
+    }
+
+    return(true);
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
@@ -348,10 +371,13 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
    switch(::GetTimeZoneInformation(&timezone)) {
    case TIME_ZONE_ID_UNKNOWN:
       currentTimeZone = (Sint16)timezone.Bias;
+      break;
    case TIME_ZONE_ID_STANDARD:
       currentTimeZone = (Sint16)timezone.Bias + (Sint16)timezone.StandardBias;
+      break;
    case TIME_ZONE_ID_DAYLIGHT:
       currentTimeZone = (Sint16)timezone.Bias + (Sint16)timezone.DaylightBias;
+      break;
    default:
       break;
    }
@@ -377,7 +403,23 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32& numberOfUsers)
 
 Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 {
-    return false;
+    numberOfProcesses = 0;
+
+    DWORD processHandles[1024];
+    DWORD size = 0;
+
+    BOOL rc =
+        ::EnumProcesses(
+            processHandles,
+            sizeof(processHandles),
+            &size);
+
+    if((rc == TRUE) && (sizeof(processHandles) != size))
+    {
+        numberOfProcesses = size / sizeof(processHandles[0]);
+    }
+
+    return(numberOfProcesses == 0 ? false : true);
 }
 
 Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
@@ -535,7 +577,51 @@ Boolean OperatingSystem::getMaxProcsPerUser(Uint32& maxProcsPerUser)
 
 Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 {
-    return false;
+    mUpTime = 0;
+
+    HANDLE query = 0;
+
+    LONG rc =
+        ::PdhOpenQuery(
+            0,
+            0,
+            &query);
+
+    if(rc == ERROR_SUCCESS)
+    {
+        HANDLE counter = 0;
+
+        rc = ::PdhAddCounter(
+                query,
+                "\\System\\System Up Time",
+                0,
+                &counter);
+
+        if(rc == ERROR_SUCCESS)
+        {
+            ::PdhCollectQueryData(query);
+
+            PDH_FMT_COUNTERVALUE value;
+            ::memset(&value, 0, sizeof(value));
+
+            rc = ::PdhGetFormattedCounterValue(
+                    counter,
+                    PDH_FMT_LARGE,
+                    0,
+                    &value);
+
+            if(rc == ERROR_SUCCESS)
+            {
+                mUpTime = value.largeValue;
+            }
+
+            ::PdhRemoveCounter(query);
+        }
+
+        ::PdhCloseQuery(query);
+    }
+
+    return(mUpTime == 0 ? false : true);
 }
 
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)

@@ -48,6 +48,7 @@ Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{srcRelease}.tar
 Requires: openssl >= 0.9.6 lsb >= 1.3
 Provides: cimserver tog-pegasus-2.4
 BuildRequires: openssl-devel >= 0.9.6
+BuildConflicts: tog-pegasus
 
 %description
 OpenPegasus WBEM Services for Linux enables management solutions that deliver

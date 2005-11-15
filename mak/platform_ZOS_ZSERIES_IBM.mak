@@ -36,7 +36,7 @@ COMPILER = ibm
 
 #SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include -I$(ROOT)/src/StandardIncludes/zOS
 SYS_INCLUDES = -I/usr/lpp/tcpip/include -I/usr/lpp/ioclib/include
-DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_OPEN_SOURCE=3
+DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_OPEN_SOURCE=3 -D_ENHANCED_ASCII_EXT=0xFFFFFFFF
 
 ifdef PEGASUS_KERBEROS_AUTHENTICATION
   DEFINES += -DPEGASUS_KERBEROS_AUTHENTICATION
@@ -46,11 +46,11 @@ endif
 DEPEND_DEFINES = -D__IBMCPP__=400
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS
-FLAGS = -g -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
-PR_FLAGS = -g -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
+FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),float(ieee),goff"
+PR_FLAGS = -W "c,debug,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),FLOAT(IEEE),goff" -W "l,XPLINK,dll"
 else
-FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,rtti(dynamiccast),langlvl(extended),float(ieee)"
-PR_FLAGS = -O2 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),FLOAT(IEEE)" -W "l,XPLINK,dll"
+FLAGS = -O3 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),float(ieee),goff"
+PR_FLAGS = -O3 -W "c,ASCII,XPLINK,dll,expo,langlvl(extended),rtti(dynamiccast),FLOAT(IEEE),goff" -W "l,XPLINK,dll,EDIT=NO"
 endif
 
 ifdef PEGASUS_ZOS_SECURITY
@@ -65,6 +65,10 @@ endif
 ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
   DEFINES += -DPEGASUS_ZOS_THREADLEVEL_SECURITY
 endif
+
+#ifdef PEGASUS_ZOS_USE_LONG_ARRAYS
+  DEFINES += -DPEGASUS_ZOS_USE_LONG_ARRAYS
+#endif
 
 # Local domain sockets, or an equivalent, is not currently supported on z/OS. Bug 2147
 PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET=1

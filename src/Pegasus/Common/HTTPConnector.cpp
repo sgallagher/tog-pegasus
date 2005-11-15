@@ -122,12 +122,8 @@ static Boolean _MakeAddress(
 #ifdef PEGASUS_OS_OS400
    unsigned long tmp_addr = inet_addr(ebcdicHost);
 #else
-    #ifdef PEGASUS_OS_ZOS
-   unsigned long tmp_addr = inet_addr_ebcdic((char *)hostname);
-    #else
    unsigned long tmp_addr = inet_addr((char *)hostname);
     #endif
-#endif
 
    struct hostent *entry;
 

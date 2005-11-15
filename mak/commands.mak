@@ -215,7 +215,7 @@ ifeq ($(OS),zos)
     STRIPCRS =
     DIFF = diff
     SORT = sort
-    REDIRECTERROR =
+    REDIRECTERROR = 2>&1
     CIMSERVER_START_SERVICE = $(CIMSERVER_PATH)cimserver $(CIMSERVER_CONFIG_OPTIONS)
     CIMSERVER_STOP_SERVICE = $(CIMSERVER_PATH)cimserver -s
     SLEEP = sleep
@@ -225,12 +225,43 @@ ifeq ($(OS),zos)
     RM = rm -f
     MKDIRHIER = mkdir -p
     RMDIRHIER = rm -rf
-    ECHO =
-    ECHO-E =
+    CPDIRHIER = cp -R
+    ECHO = echo
+    ECHO-E = echo
     COPY = cp
-    CHMOD =
-    CHOWN =
-    CHGRP =
+    TOUCH = touch
+
+    Prwxrwxrwx = 777
+    Prwxrwxrwt = 1777
+    Prwxr_xr_x = 755
+    Pr_xr__r__ = 744
+    Pr__r__r__ = 444
+    Pr________ = 400
+    Pr_xr_xr_x = 555
+    Pr_x______ = 500
+    Prw_r__r__ = 644
+    CHMODDIRHIER = chmod -R
+
+    INSTALL_USR = root
+    INSTALL_GRP = root
+    CIMSERVER_USR = root
+    CIMSERVER_GRP = root
+    CHMOD = chmod
+    CHOWN = chown
+    CHGRP = chgrp
+    CHOWNDIRHIER = chown -R
+    CHGRPDIRHIER = chgrp -R
+	
+    GET_HOSTNAME = `host \`hostname\`|cut -d" " -f1`
+
+    LIB_LINK_SUFFIX = .so
+
+    CURRENT_USER=`whoami`
+
+
+    SYMBOLIC_LINK_CMD = ln -f -s
+    CAT = cat	
+
 endif
 
 ifeq ($(OS),VMS)

@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,8 +6,6 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,31 +25,14 @@
 //
 //==============================================================================
 //
-// Author: Marek Szermutzky (MSzermutzky@de.ibm.com)
+// Author: Marek Szermutzky (mszermutzky@de.ibm.com)
 //
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <arpa/inet.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-
-extern "C" in_addr_t inet_addr_in_ebcdic(const char * ip_inptr)
-{
-    in_addr_t return_addr;
-	char* ip_ptr2 = strdup(ip_inptr);
-    __atoe(ip_ptr2);
-    return_addr = inet_addr(ip_ptr2);
-    free(ip_ptr2);
-    return return_addr;
-}
-             
-extern "C" char* inet_ntoa_in_ebcdic(const struct in_addr &input)
-{
-    char* ip_string = inet_ntoa(input);
-    __etoa(ip_string);
-    return ip_string;
-}
+#ifdef PEGASUS_ZOS_SECURITY
+    {"enableAuthentication",                     "true"},
+#else
+    {"enableAuthentication",                     "false"},
+#endif

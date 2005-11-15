@@ -82,20 +82,6 @@ extern CMPIBrokerExtFT *CMPI_BrokerExt_Ftab;
 static int _die = 0;
 /****************************************************************************/
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-in_addr_t inet_addr_ebcdic(const char * ip_inptr)
-{
-    in_addr_t return_addr;
-	char* ip_ptr2 = strdup(ip_inptr);
-	fprintf(stderr,"--ms-->inet_addr_ebcdic(%s)\n",ip_inptr);
-    __atoe(ip_ptr2);
-    return_addr = inet_addr(ip_ptr2);
-    free(ip_ptr2);
-	fprintf(stderr,"--ms-->inet_addr_ebcdic()=%x\n",return_addr);
-    return return_addr;
-}
-#endif
-
 int open_connection ( const char * address, int port )
 {
 	int sockfd;
@@ -105,7 +91,7 @@ int open_connection ( const char * address, int port )
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
 	extern int h_errno;
 	in_addr_t broker_ip_address;
-	broker_ip_address = inet_addr_ebcdic(address);
+	broker_ip_address = inet_addr(address);
 
 if ( broker_ip_address != INADDR_NONE )
 {

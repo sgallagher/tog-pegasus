@@ -62,6 +62,8 @@ static struct ConfigPropertyRow properties[] =
 {
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
     {"providerDir", "lib;bin", IS_STATIC, 0, 0, IS_VISIBLE},
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    {"providerDir", "lib:provider", IS_STATIC, 0, 0, IS_VISIBLE},
 #else
     {"providerDir", "lib", IS_STATIC, 0, 0, IS_VISIBLE},
 #endif
@@ -101,6 +103,9 @@ Boolean isProviderDirValid(const String& dirName)
 		token = 1;
 	}
 	path = temp.subString(0,pos);
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    path.assign(ConfigManager::getHomedPath(path));
+#endif
 	if (FileSystem::canWrite(path)) {
 		Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,
                         Logger::WARNING,

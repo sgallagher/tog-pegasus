@@ -170,7 +170,14 @@ slp_service_agent::~slp_service_agent(void)
 
 void slp_service_agent::_init(void)
 {
-
+#if defined(PEGASUS_OS_ZOS)
+    char * pegasusHome;
+    if (pegasusHome = getenv("PEGASUS_HOME"))
+    {
+        _lib_fileName.append(pegasusHome);
+        _lib_fileName.append("/lib/");
+    }
+#endif
    _initialized = 0;
 #ifdef PEGASUS_OS_TYPE_WINDOWS
    _lib_fileName.append("pegslp_client.dll");

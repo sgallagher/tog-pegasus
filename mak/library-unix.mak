@@ -102,7 +102,7 @@ endif
 
 ifeq ($(COMPILER),ibm)
   LINK_COMMAND = $(CXX) $(FLAGS)
-  LINK_ARGUMENTS = -W "l,XPLINK,dll"
+  LINK_ARGUMENTS = -W "l,XPLINK,dll,EDIT=NO"
   LINK_OUT = -o
 endif
 

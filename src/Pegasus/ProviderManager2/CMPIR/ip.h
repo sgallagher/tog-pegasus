@@ -46,10 +46,6 @@
 
 #include "proxy.h"
 
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-in_addr_t inet_addr_ebcdic(const char * ip_inptr);
-#endif
-
 void accept_connections ( int port,
 			  void (* __connection_handler) ( int ),
 			  int multithreaded );

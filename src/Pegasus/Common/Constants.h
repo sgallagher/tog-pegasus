@@ -429,6 +429,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 // Constant defines for path to icu resource bundles
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/QIBM/ProdData/OS400/CIM/msg"
+#elif PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define PEGASUS_DEFAULT_MESSAGE_SOURCE  "/usr/lpp/wbem/msg"
 #else
 #undef PEGASUS_DEFAULT_MESSAGE_SOURCE
 #endif

@@ -245,9 +245,27 @@ define NL
 
 endef
 
+ifndef FORCE_NOCASE	    
+	    
 DIFFSORT = $(SORT) $(1) > $(1).tmp $(NL) \
 $(SORT) $(2) > $(2).tmp $(NL) \
 $(DIFF) $(1).tmp $(2).tmp $(NL) \
+$(RM) -f $(1).tmp $(NL) \
+$(RM) -f $(2).tmp $(NL)
+
+else
+
+DIFFSORT = $(SORT) -f $(1) > $(1).tmp $(NL) \
+$(SORT) -f $(2) > $(2).tmp $(NL) \
+$(DIFF) -i $(1).tmp $(2).tmp $(NL) \
+$(RM) -f $(1).tmp $(NL) \
+$(RM) -f $(2).tmp $(NL)
+
+endif
+
+DIFFSORTNOCASE = $(SORT) $(1) > $(1).tmp $(NL) \
+$(SORT) $(2) > $(2).tmp $(NL) \
+$(DIFF) -i $(1).tmp $(2).tmp $(NL) \
 $(RM) -f $(1).tmp $(NL) \
 $(RM) -f $(2).tmp $(NL)
 

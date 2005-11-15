@@ -58,6 +58,10 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) && defined(PEGASUS_USE_RELEASE_DIRS)
+    {"logdir", "/var/wbem/logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
+    {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
+#else
 #if defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_OS_OS400)
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_HIDDEN},
@@ -68,6 +72,7 @@ static struct ConfigPropertyRow properties[] =
     {"logdir", "./logs", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 #endif
     {"logLevel", "INFORMATION", IS_DYNAMIC, 0, 0, IS_VISIBLE}
+#endif
 #endif
 };
 

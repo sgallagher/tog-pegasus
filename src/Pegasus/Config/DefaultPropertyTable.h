@@ -47,6 +47,20 @@
 #include "DefaultPropertyTableOS400.h"
 #elif defined (PEGASUS_OS_VMS)
 #include "DefaultPropertyTableVms.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    {"httpPort", "5988", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"httpsPort", "5989", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpConnection", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableHttpsConnection", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"home", "/usr/lpp/wbem", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"daemon", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"slp", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableAssociationTraversal", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+    // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
+    {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+    {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
     {"httpsPort", "", IS_STATIC, 0, 0, IS_VISIBLE},

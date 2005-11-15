@@ -222,15 +222,7 @@ String System::getHostIP(const String &hostName)
 #endif
     {
         ::memcpy( &inaddr, phostent->h_addr,4);
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-        char * gottenIPAdress = NULL;
-        gottenIPAdress = ::inet_ntoa( inaddr );
-        __etoa(gottenIPAdress);
-        if (gottenIPAdress != NULL)
-        {
-            ipAddress.assign(gottenIPAdress);
-        }
-#elif defined(PEGASUS_OS_OS400)
+#if defined(PEGASUS_OS_OS400)
         char * gottenIPAdress = NULL;
         gottenIPAdress = ::inet_ntoa( inaddr );
         
@@ -277,8 +269,6 @@ Uint32 System::_acquireIP(const char* hostname)
 
 #ifdef PEGASUS_OS_OS400
 	Uint32 tmp_addr = inet_addr(ebcdicHost);
-#elif defined(PEGASUS_OS_ZOS)
-	Uint32 tmp_addr = inet_addr_ebcdic((char *)hostname);
 #else
 	Uint32 tmp_addr = inet_addr((char *) hostname);
 #endif

@@ -78,6 +78,8 @@
 
 #define PEGASUS_HAVE_TEMPLATE_SPECIALIZATION
 
+#define PEGASUS_HAVE_INTERNAL_INLINES
+
 // removed as Pegasus will work with Native ASCII support on zOS
 // #define PEGASUS_HAVE_EBCDIC
 
@@ -92,6 +94,7 @@
 
 //#define snprintf(sptr,len,form,data) sprintf(sptr,form,data)
 
+#define ZOS_SECURITY_NAME "CIMServer Security"
 inline int snprintf(char *sptr, size_t len, const char* form, ...)
 {
     int returnvalue;
@@ -102,5 +105,6 @@ inline int snprintf(char *sptr, size_t len, const char* form, ...)
     return returnvalue;
 }
 
+#define ZOS_DEFAULT_PEGASUS_REPOSITORY "/var/wbem"
 
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

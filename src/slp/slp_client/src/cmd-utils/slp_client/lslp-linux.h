@@ -33,7 +33,7 @@
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdd@us.ibm.com
  *
- *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.6 2005/02/26 05:47:04 david.dillard Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/slp/slp_client/src/cmd-utils/slp_client/lslp-linux.h,v 1.7 2005/11/15 14:40:31 marek Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -103,9 +103,6 @@ typedef unsigned long long uint64;
 typedef uint32 BOOL;
 #ifdef __cplusplus
 extern "C" {
-#endif
-#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
-#include "configzOS_inline.h"
 #endif
 #ifdef PEGASUS_OS_SOLARIS
 #include "lslp-solaris.h"

@@ -47,6 +47,8 @@
 #include "FixedPropertyTableAix.h"
 #elif defined (PEGASUS_OS_VMS)
 #include "FixedPropertyTableVms.h"
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#include "FixedPropertyTablezOS.h"
 #else
     {"bogus", "MyBogusValue"} // Remove this line if others are added
 #endif

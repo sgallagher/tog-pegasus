@@ -11,5 +11,5 @@ class IndicationStressTestClass : CIM_Indication
 class PG_IndicationStressTestConsumer
 {
   [Static] sint32 resetIndicationCount();
-  [Static] sint32 getIndicationCount();
+  [Static] uint32 getIndicationCount();
 };

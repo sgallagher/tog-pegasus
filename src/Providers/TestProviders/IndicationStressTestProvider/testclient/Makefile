@@ -55,13 +55,13 @@ include $(ROOT)/mak/program.mak
 
 tests:
 
-## poststarttests: wql_10_1  cql_10_1 wql_10_10 cql_10_10 wql_10_100 cql_10_100 wql_100_10 cql_100_10 
+## poststarttests: wql_10_1  cql_10_1 wql_10_10 cql_10_10 wql_10_100 cql_10_100 wql_100_10 cql_100_10
 
-poststarttests: wql_10_1  cql_10_1 
+poststarttests: wql_10_1  cql_10_1
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 
 wql_10_1:
-	$(PROGRAM) setup WQL $p
+	$(PROGRAM) setup$L WQL $p
 	$(PROGRAM) run 1
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
@@ -75,79 +75,84 @@ wql_10_1:
 ##        will run 20 iterations in 3 threads
 ##
 
-## You can use the -p option to select the protocol used, 
+## You can use the "p" option to select the protocol used, 
 ## by the CIM-XML Indication Handler, to send Indications
-## to the embedded Indication Consumer.
+## to the Server-resident Listener.
 ##
 ##  make cql_i_t i=10 t=2 p=HTTPS
 ##        will send 20 Indications to the embedded Indication
 ##        Consumer over HTTPS using port 5989.
 
+## By default, setup configures both a Client-resident
+## and Server-resider Listener. You can use the "L"
+## option to test a single Listener. Valid values for
+## L are either CL to test the Client-resident Listener,
+## setupCL, or SL the Server-resident Listener, setupSL. 
 
 cql_i_t:
-	$(PROGRAM) setup CIM:CQL $p
+	$(PROGRAM) setup$L CIM:CQL $p
 	$(PROGRAM) run $i $t
 	$(PROGRAM) cleanup
 
 wql_i_t: 
-	$(PROGRAM) setup WQL $p
+	$(PROGRAM) setup$L WQL $p
 	$(PROGRAM) run $i $t
 	$(PROGRAM) cleanup
 
 
 wql_10_10:
-	$(PROGRAM) setup WQL $p
+	$(PROGRAM) setup$L WQL $p
 	$(PROGRAM) run 10 10
 	$(PROGRAM) cleanup
 
 wql_10_100:
-	$(PROGRAM) setup WQL $p
+	$(PROGRAM) setup$L WQL $p
 	$(PROGRAM) run 10 100
 	$(PROGRAM) cleanup
 
 wql_100_10:
-	$(PROGRAM) setup WQL $p
+	$(PROGRAM) setup$L WQL $p
 	$(PROGRAM) run 100 10
 	$(PROGRAM) cleanup
 
 wql_100_100:
-	$(PROGRAM) setup WQL $p
+	$(PROGRAM) setup$L WQL $p
 	$(PROGRAM) run 100 100
 	$(PROGRAM) cleanup
 
 wql_1000_100:
-	$(PROGRAM) setup WQL $p
+	$(PROGRAM) setup$L WQL $p
 	$(PROGRAM) run 1000 100
 	$(PROGRAM) cleanup
 
 cql_10_1:
-	$(PROGRAM) setup CIM:CQL $p
+	$(PROGRAM) setup$L CIM:CQL $p
 	$(PROGRAM) run 1
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
 
 cql_10_10:
-	$(PROGRAM) setup CIM:CQL $p
+	$(PROGRAM) setup$L CIM:CQL $p
 	$(PROGRAM) run 10 10
 	$(PROGRAM) cleanup
 
 cql_10_100:
-	$(PROGRAM) setup CIM:CQL $p
+	$(PROGRAM) setup$L CIM:CQL $p
 	$(PROGRAM) run 10 100
 	$(PROGRAM) cleanup
 
 cql_100_10:
-	$(PROGRAM) setup CIM:CQL $p
+	$(PROGRAM) setup$L CIM:CQL $p
 	$(PROGRAM) run 100 10
 	$(PROGRAM) cleanup
 
 cql_100_100:
-	$(PROGRAM) setup CIM:CQL $p
+	$(PROGRAM) setup$L CIM:CQL $p
 	$(PROGRAM) run 100 100
 	$(PROGRAM) cleanup
 
 cql_1000_100:
-	$(PROGRAM) setup CIM:CQL $p
+	$(PROGRAM) setup$L CIM:CQL $p
 	$(PROGRAM) run 1000 100
 	$(PROGRAM) cleanup
 

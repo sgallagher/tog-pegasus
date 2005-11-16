@@ -42,7 +42,7 @@
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/FileSystem.h>
-#include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -58,8 +58,13 @@ const CIMNamespaceName INTEROP_NAMESPACE = CIMNamespaceName ("root/PG_InterOp");
 const CIMNamespaceName SOURCE_NAMESPACE = CIMNamespaceName ("test/TestProvider");
 
 const String INDICATION_CONSUMER_CLASS_NAME = "PG_IndicationStressTestConsumer";
+const String INDICATION_CLASS_NAME = String ("IndicationStressTestClass");
 
-const String INDICATION_NAME = String ("IndicationStressTestClass");
+const String SERVER_RESIDENT_HANDLER_NAME = String ("IPHandler01");
+const String CLIENT_RESIDENT_HANDLER_NAME = String ("IPHandler02");
+const String FILTER_NAME = String ("IPFilter01");
+
+
 AtomicInt receivedIndicationCount(0);
 
 #define MAX_UNIQUE_IDS 10000
@@ -138,13 +143,14 @@ void MyIndicationConsumer::consumeIndication(
   // Increment the count of indications received
   //
   receivedIndicationCount++;
-  assert(indicationInstance.getClassName().getString() == INDICATION_NAME);
+  assert(indicationInstance.getClassName().getString() == INDICATION_CLASS_NAME);
   if (receivedIndicationCount.get() % 200 == 0)
     cout << "+++++     received indications = " 
          << receivedIndicationCount.get() 
          << " of " << indicationSendCountTotal << endl; 
 
-  // cout << "IndicationStressTest consumer - recvd indication = " << ((CIMObject)indicationInstance).toString() << endl;
+  // cout << "IndicationStressTest consumer - recvd indication = "
+  //     << ((CIMObject)indicationInstance).toString() << endl;
 
   //
   // Get the date and time from the indication
@@ -300,7 +306,88 @@ void MyIndicationConsumer::consumeIndication(
 
 ///////////////////////////////////////////////////////////////////////////
 
-void _createHandlerInstance
+CIMObjectPath _getFilterObjectPath
+    (CIMClient & client,
+     const String & name)
+{
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("SystemName",
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("CreationClassName",
+        PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("Name", name,
+        CIMKeyBinding::STRING));
+    return(CIMObjectPath("", CIMNamespaceName (),
+        PEGASUS_CLASSNAME_INDFILTER, keyBindings));
+}
+
+CIMObjectPath _getHandlerObjectPath
+    (CIMClient & client,
+     const String & name)
+{
+    Array<CIMKeyBinding> keyBindings;
+    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
+        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("SystemName",
+        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("CreationClassName",
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
+        CIMKeyBinding::STRING));
+    keyBindings.append (CIMKeyBinding ("Name", name,
+        CIMKeyBinding::STRING));
+    return(CIMObjectPath("", CIMNamespaceName (),
+        PEGASUS_CLASSNAME_INDHANDLER_CIMXML, keyBindings));
+}
+
+CIMObjectPath _getSubscriptionObjectPath
+    (CIMClient & client,
+     const String & filterName,
+     const String & handlerName)
+{
+    CIMObjectPath filterObjectPath = 
+        _getFilterObjectPath(client, filterName);
+
+    CIMObjectPath handlerObjectPath = 
+        _getHandlerObjectPath(client, handlerName);
+
+    Array<CIMKeyBinding> subscriptionKeyBindings;
+    subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
+        CIMValue(filterObjectPath)));
+    subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
+        CIMValue(handlerObjectPath)));
+    return(CIMObjectPath("", CIMNamespaceName (),
+        PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings));
+}
+
+Boolean _subscriptionExists
+    (CIMClient & client,
+     const String & filterName,
+     const String & handlerName)
+{
+    try
+    {
+        CIMObjectPath subscriptionObjectPath =
+             _getSubscriptionObjectPath(client, filterName, handlerName);
+        client.getInstance (INTEROP_NAMESPACE, subscriptionObjectPath);
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() == CIM_ERR_NOT_FOUND)
+        {
+           return(false);
+        }
+        else
+        {
+            cerr << "----- Error: subscriptionExists failed: " << endl; 
+            throw(e);
+        }
+    }
+    return(true);
+}
+
+CIMObjectPath _createHandlerInstance
     (CIMClient & client,
      const String & name,
      const String & destination)
@@ -316,10 +403,10 @@ void _createHandlerInstance
     handlerInstance.addProperty (CIMProperty (CIMName ("Destination"),
         destination));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, handlerInstance);
+    return(client.createInstance (INTEROP_NAMESPACE, handlerInstance));
 }
 
-void _createFilterInstance
+CIMObjectPath _createFilterInstance
     (CIMClient & client,
      const String & name,
      const String & query,
@@ -339,10 +426,10 @@ void _createFilterInstance
     filterInstance.addProperty (CIMProperty (CIMName ("SourceNamespace"),
         SOURCE_NAMESPACE.getString ()));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE, filterInstance);
+    return(client.createInstance (INTEROP_NAMESPACE, filterInstance));
 }
 
-void _createSubscriptionInstance
+CIMObjectPath _createSubscriptionInstance
     (CIMClient & client,
      const CIMObjectPath & filterPath,
      const CIMObjectPath & handlerPath)
@@ -355,8 +442,7 @@ void _createSubscriptionInstance
     subscriptionInstance.addProperty (CIMProperty
         (CIMName ("SubscriptionState"), CIMValue ((Uint16) 2)));
 
-    CIMObjectPath path = client.createInstance (INTEROP_NAMESPACE,
-        subscriptionInstance);
+    return(client.createInstance (INTEROP_NAMESPACE, subscriptionInstance));
 }
 
 void _sendTestIndication(CIMClient* client, const CIMName & methodName, Uint32 indicationSendCount)
@@ -393,7 +479,8 @@ void _sendTestIndication(CIMClient* client, const CIMName & methodName, Uint32 i
 
 void _sendTestIndicationNormal(CIMClient* client, Uint32 indicationSendCount)
 {
-    _sendTestIndication (client, CIMName ("SendTestIndicationNormal"), indicationSendCount);
+    _sendTestIndication (client, CIMName ("SendTestIndicationNormal"),
+        indicationSendCount);
 }
 
 void _deleteSubscriptionInstance
@@ -401,88 +488,42 @@ void _deleteSubscriptionInstance
      const String & filterName,
      const String & handlerName)
 {
-    Array<CIMKeyBinding> filterKeyBindings;
-    filterKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("CreationClassName",
-        PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    filterKeyBindings.append (CIMKeyBinding ("Name", filterName,
-        CIMKeyBinding::STRING));
-    CIMObjectPath filterPath ("", CIMNamespaceName (),
-        PEGASUS_CLASSNAME_INDFILTER, filterKeyBindings);
-
-    Array<CIMKeyBinding> handlerKeyBindings;
-    handlerKeyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("CreationClassName",
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
-        CIMKeyBinding::STRING));
-    handlerKeyBindings.append (CIMKeyBinding ("Name", handlerName,
-        CIMKeyBinding::STRING));
-    CIMObjectPath handlerPath ("", CIMNamespaceName (),
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML, handlerKeyBindings);
-
-    Array<CIMKeyBinding> subscriptionKeyBindings;
-    subscriptionKeyBindings.append (CIMKeyBinding ("Filter",
-        filterPath.toString (), CIMKeyBinding::REFERENCE));
-    subscriptionKeyBindings.append (CIMKeyBinding ("Handler",
-        handlerPath.toString (), CIMKeyBinding::REFERENCE));
-    CIMObjectPath subscriptionPath ("", CIMNamespaceName (),
-        PEGASUS_CLASSNAME_INDSUBSCRIPTION, subscriptionKeyBindings);
-    client.deleteInstance (INTEROP_NAMESPACE, subscriptionPath);
+    CIMObjectPath subscriptionObjectPath =
+       _getSubscriptionObjectPath(client, filterName, handlerName);
+    client.deleteInstance (INTEROP_NAMESPACE, subscriptionObjectPath);
 }
 
 void _deleteHandlerInstance
     (CIMClient & client,
      const String & name)
 {
-    Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CreationClassName",
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML.getString(),
-        CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name,
-        CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName (),
-        PEGASUS_CLASSNAME_INDHANDLER_CIMXML, keyBindings);
-    client.deleteInstance (INTEROP_NAMESPACE, path);
+    CIMObjectPath handlerObjectPath = _getHandlerObjectPath(client, name);
+    client.deleteInstance (INTEROP_NAMESPACE, handlerObjectPath);
 }
 
 void _deleteFilterInstance
     (CIMClient & client,
      const String & name)
 {
-    Array<CIMKeyBinding> keyBindings;
-    keyBindings.append (CIMKeyBinding ("SystemCreationClassName",
-        System::getSystemCreationClassName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("SystemName",
-        System::getFullyQualifiedHostName (), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("CreationClassName",
-        PEGASUS_CLASSNAME_INDFILTER.getString(), CIMKeyBinding::STRING));
-    keyBindings.append (CIMKeyBinding ("Name", name,
-        CIMKeyBinding::STRING));
-    CIMObjectPath path ("", CIMNamespaceName (),
-        PEGASUS_CLASSNAME_INDFILTER, keyBindings);
-    client.deleteInstance (INTEROP_NAMESPACE, path);
+    CIMObjectPath filterObjectPath = _getFilterObjectPath(client, name);
+    client.deleteInstance (INTEROP_NAMESPACE, filterObjectPath);
 }
 
 void _usage ()
 {
    cerr << endl
         << "Usage:" << endl
-        << "    TestIndicationStressTest setup [ WQL | CIM:CQL ]\n"
-        << "                           [INTERNAL | HTTP | HTTPS]\n"
+        << "    TestIndicationStressTest [setup | setupCL | setupSL]\n"
+        << "                  [ WQL | CIM:CQL ]\n"
+        << "                  [INTERNAL | HTTP | HTTPS]\n"
         << "    where: " << endl
+        << "       setup configures both the Client-resident Listener and\n"
+        << "            the Server-resident Lister.\n"
+        << "       setupCL configures only the Client-resident Listener.\n"
+        << "       setupSL configures only the Server-resident Listener.\n"
         << "       [INTERNAL | HTTP | HTTPS] is used to select the protocol\n"
         << "            used, by the CIM-XML Indication Handler, to send\n"
-        << "            Indications to the embedded Indication Consumer.\n"
+        << "            Indications to the Server-resident Listener.\n"
         << "            INTERNAL is the default value."
         << endl << endl 
         << "    TestIndicationStressTest run <indicationSendCount> "
@@ -491,168 +532,238 @@ void _usage ()
         << "       <indicationSendCount> is the number of indications to\n"
         << "            generate, and can be zero to measure the overhead in\n"
         << "            calling the provider." << endl
-        << "       <threads> is an optional number of client threads to create,\n"
-        << "            default is one."
+        << "       <threads> is an optional number of client threads to\n"
+        << "            create, default is one."
         << endl << endl
         << "    TestIndicationStressTest cleanup"
         << endl << endl;
 }
 
-Sint32 _getServerResidentIndicationCount(CIMClient &client)
+Uint32 _getServerResidentIndicationCount(CIMClient &client)
 {
    Uint32 count;
-   try
-   {
-       const CIMObjectPath classPath = CIMObjectPath
-           (INDICATION_CONSUMER_CLASS_NAME);
-       Array<CIMParamValue> inParams;
-       Array<CIMParamValue> outParams;
+   const CIMObjectPath classPath = CIMObjectPath
+       (INDICATION_CONSUMER_CLASS_NAME);
+   Array<CIMParamValue> inParams;
+   Array<CIMParamValue> outParams;
 
-       CIMValue retValue = client.invokeMethod(
-           SOURCE_NAMESPACE,
-           classPath,
-           CIMName("getIndicationCount"),
-           inParams,
-           outParams);
+   CIMValue retValue = client.invokeMethod(
+       SOURCE_NAMESPACE,
+       classPath,
+       CIMName("getIndicationCount"),
+       inParams,
+       outParams);
 
-       retValue.get(count);
-       return(count);
-   }
-   catch (Exception & e)
-   {
-       cerr << "----- _getServerResidentIndicationCount failure"
-            << e.getMessage () << endl;
-       return(-1);
-   }
+   retValue.get(count);
+   return(count);
 }
 
-Sint32 _resetServerResidentIndicationCount(CIMClient &client)
+void _resetServerResidentIndicationCount(CIMClient &client)
 {
    Sint32 status;
-   try
-   {
-       const CIMObjectPath classPath = CIMObjectPath
-           (INDICATION_CONSUMER_CLASS_NAME);
-       Array<CIMParamValue> inParams;
-       Array<CIMParamValue> outParams;
+   const CIMObjectPath classPath = CIMObjectPath
+       (INDICATION_CONSUMER_CLASS_NAME);
+   Array<CIMParamValue> inParams;
+   Array<CIMParamValue> outParams;
 
-       CIMValue retValue = client.invokeMethod(
-           SOURCE_NAMESPACE,
-           classPath,
-           CIMName("resetIndicationCount"),
-           inParams,
-           outParams);
+   CIMValue retValue = client.invokeMethod(
+       SOURCE_NAMESPACE,
+       classPath,
+       CIMName("resetIndicationCount"),
+       inParams,
+       outParams);
 
-       retValue.get(status);
-       if (status < 0)
-       {
-          cerr << "----- _resetServerResidentIndicationCount failure, "
-               << "error number = " << status << endl;
-       }
-       return(status);
-   }
-   catch (Exception & e)
+   retValue.get(status);
+   if (status < 0)
    {
-       cerr << "----- _resetIndicationIndicationCount failure" 
-            << e.getMessage () << endl;
-       return(-1);
+      throw Exception("----- _resetServerResidentIndicationCount failure");
    }
 }
 
 
-void _setup (CIMClient & client, String& qlang,
-    indicationHandleProtocol handleProtocol)
+void _setupServerResidentListener(CIMClient &client)
 {
+
+    //
+    //  Remove previous indication log file, if there
+    //
+    String previousIndicationFile, oldIndicationFile;
+
+    previousIndicationFile = INDICATION_DIR;
+    previousIndicationFile.append ("/IndicationStressTestLog");
+
+    if (FileSystem::exists (previousIndicationFile))
+    {
+        oldIndicationFile = INDICATION_DIR;
+        oldIndicationFile.append ("/oldIndicationStressTestLog");
+        if (FileSystem::exists (oldIndicationFile))
+        {
+            FileSystem::removeFile (oldIndicationFile);
+        }
+        if (!FileSystem::renameFile (previousIndicationFile, oldIndicationFile))
+        {
+            FileSystem::removeFile (previousIndicationFile);
+        }
+    }
+
+    // Initialize Indication Stress Test Consumer
+    _resetServerResidentIndicationCount(client);
+}
+
+void _setup (CIMClient & client, String& qlang,
+    indicationHandleProtocol handleProtocol,
+    Boolean configureServerResidentListener,
+    Boolean configureClientResidentListener)
+{
+    CIMObjectPath filterObjectPath;
+    CIMObjectPath serverHandlerObjectPath;
+    CIMObjectPath clientHandlerObjectPath;
+
+    Boolean instanceAlreadyExists;
+
     try
     {
-        _createFilterInstance (client, String ("IPFilter01"),
+        instanceAlreadyExists = false;
+        filterObjectPath = _createFilterInstance (client, FILTER_NAME,
             String ("SELECT * FROM IndicationStressTestClass"),
             qlang);
     }
-    catch (Exception & e)
+    catch (CIMException& e)
     {
-        cerr << "----- setup 1 failed: " << e.getMessage () << endl;
-    }
-
-    try
-    {
-        // Create the handler for the internal consumer
-        String destinationProtocol;
-        if (handleProtocol == PROTOCOL_CIMXML_INTERNAL)
+        if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
         {
-           destinationProtocol = "localhost";
-        }
-        else if (handleProtocol == PROTOCOL_CIMXML_HTTP)
-        {
-           destinationProtocol = "http://localhost:5988";
-        }
-        else if (handleProtocol == PROTOCOL_CIMXML_HTTPS)
-        {
-           destinationProtocol = "https://localhost:5989";
+            instanceAlreadyExists = true;
+            cerr << "----- Warning: Filter Instance Not Created: "
+                << e.getMessage () << endl;
         }
         else
         {
-           PEGASUS_ASSERT(0);
+            cerr << "----- Error: Filter Instance Not Created: " << endl;
+            throw(e);
         }
-        _createHandlerInstance (client, String ("IPHandler01"),
-            destinationProtocol +
-            String ("/CIMListener/Pegasus_IndicationStressTestConsumer"));
     }
-    catch (Exception & e)
+    if (instanceAlreadyExists)
     {
-        cerr << "----- setup 2 failed: " << e.getMessage () << endl;
+        filterObjectPath = _getFilterObjectPath(client, FILTER_NAME);
+        instanceAlreadyExists = false;
     }
 
-    try
+    if (configureServerResidentListener)
     {
-        // Create the handler with this program as the CIMListener
-        _createHandlerInstance (client, String ("IPHandler02"),
-            String ("http://localhost:2005/TestIndicationStressTest"));
-    }
-    catch (Exception & e)
-    {
-        cerr << "----- setup 3 failed: " << e.getMessage () << endl;
+        try
+        {
+            // Create the handler for the Server-resident Listener 
+            String destinationProtocol;
+            if (handleProtocol == PROTOCOL_CIMXML_INTERNAL)
+            {
+               destinationProtocol = "localhost";
+            }
+            else if (handleProtocol == PROTOCOL_CIMXML_HTTP)
+            {
+               destinationProtocol = "http://localhost:5988";
+            }
+            else if (handleProtocol == PROTOCOL_CIMXML_HTTPS)
+            {
+               destinationProtocol = "https://localhost:5989";
+            }
+            else
+            {
+               PEGASUS_ASSERT(0);
+            }
+            serverHandlerObjectPath = _createHandlerInstance (client,
+                SERVER_RESIDENT_HANDLER_NAME, destinationProtocol +
+                String ("/CIMListener/Pegasus_IndicationStressTestConsumer"));
+        }
+        catch (CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
+            {
+                instanceAlreadyExists = true;
+                cerr << "----- Warning: Server Handler Instance Not Created: "
+                    << e.getMessage () << endl;
+            }
+            else
+            {
+                cerr << "----- Error: Server Handler Instance Not Created: "
+                    << endl;
+                throw(e);
+            }
+        }
+        if (instanceAlreadyExists)
+        {
+            serverHandlerObjectPath = _getHandlerObjectPath(client,
+                SERVER_RESIDENT_HANDLER_NAME);
+            instanceAlreadyExists = false;
+        }
+
+        try
+        {
+            _createSubscriptionInstance (client, filterObjectPath,
+                 serverHandlerObjectPath);
+        }
+        catch (CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
+            {
+                cerr << "----- Warning: Server Subscription Instance: "
+                    << e.getMessage () << endl;
+            }
+            else
+            {
+                cerr << "----- Error: Server Subscription Instance: " << endl;
+                throw(e);
+            }
+        }
     }
 
-    String filterPathString;
-    filterPathString.append ("CIM_IndicationFilter.CreationClassName=\"CIM_IndicationFilter\",Name=\"IPFilter01\",SystemCreationClassName=\"");
-    filterPathString.append (System::getSystemCreationClassName ());
-    filterPathString.append ("\",SystemName=\"");
-    filterPathString.append (System::getFullyQualifiedHostName ());
-    filterPathString.append ("\"");
-
-    String handlerPathString01;
-    handlerPathString01.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"IPHandler01\",SystemCreationClassName=\"");
-    handlerPathString01.append (System::getSystemCreationClassName ());
-    handlerPathString01.append ("\",SystemName=\"");
-    handlerPathString01.append (System::getFullyQualifiedHostName ());
-    handlerPathString01.append ("\"");
-
-    String handlerPathString02;
-    handlerPathString02.append ("CIM_IndicationHandlerCIMXML.CreationClassName=\"CIM_IndicationHandlerCIMXML\",Name=\"IPHandler02\",SystemCreationClassName=\"");
-    handlerPathString02.append (System::getSystemCreationClassName ());
-    handlerPathString02.append ("\",SystemName=\"");
-    handlerPathString02.append (System::getFullyQualifiedHostName ());
-    handlerPathString02.append ("\"");
-
-    try
+    if (configureClientResidentListener)
     {
-        _createSubscriptionInstance (client, CIMObjectPath (filterPathString),
-            CIMObjectPath (handlerPathString01));
-    }
-    catch (Exception & e)
-    {
-        cerr << "----- setup 4 failed: " << e.getMessage () << endl;
-    }
-
-    try
-    {
-        _createSubscriptionInstance (client, CIMObjectPath (filterPathString),
-            CIMObjectPath (handlerPathString02));
-    }
-    catch (Exception & e)
-    {
-        cerr << "----- setup 5 failed: " << e.getMessage () << endl;
+        try
+        {
+            // Create the handler with this program as the CIMListener
+            clientHandlerObjectPath = _createHandlerInstance (client,
+                CLIENT_RESIDENT_HANDLER_NAME,
+                String ("http://localhost:2005/TestIndicationStressTest"));
+        }
+        catch (CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
+            {
+                instanceAlreadyExists = true;
+                cerr << "----- Warning: Client Handler Instance Not Created: "
+                    << e.getMessage () << endl;
+            }
+            else
+            {
+                cerr << "----- Error: Client Handler Instance Not Created: "
+                    << endl;
+                throw(e);
+            }
+        }
+        if (instanceAlreadyExists)
+        {
+            clientHandlerObjectPath = _getHandlerObjectPath(client,
+                CLIENT_RESIDENT_HANDLER_NAME);
+            instanceAlreadyExists = false;
+        }
+        try
+        {
+            _createSubscriptionInstance (client, filterObjectPath,
+                 clientHandlerObjectPath);
+        }
+        catch (CIMException& e)
+        {
+            if (e.getCode() == CIM_ERR_ALREADY_EXISTS)
+            {
+                cerr << "----- Warning: Client Subscription Instance: "
+                    << e.getMessage () << endl;
+            }
+            else
+            {
+                cerr << "----- Error: Client Subscription Instance: " << endl;
+                throw(e);
+            }
+        }
     }
 }
 
@@ -675,49 +786,70 @@ void _cleanup (CIMClient & client)
 {
     try
     {
-        _deleteSubscriptionInstance (client, String ("IPFilter01"),
-            String ("IPHandler01"));
+        _deleteSubscriptionInstance (client, FILTER_NAME,
+            SERVER_RESIDENT_HANDLER_NAME);
     }
-    catch (Exception & e)
+    catch (CIMException& e)
     {
-        cerr << "----- cleanup 1 failed: " << e.getMessage () << endl;
-    }
-
-    try
-    {
-        _deleteSubscriptionInstance (client, String ("IPFilter01"),
-            String ("IPHandler02"));
-    }
-    catch (Exception & e)
-    {
-        cerr << "----- cleanup 2 failed: " << e.getMessage () << endl;
+        if (e.getCode() != CIM_ERR_NOT_FOUND)
+        {
+            cerr << "----- Error: deleteSubscriptionInstance failure: "
+                 << endl;
+            throw(e);
+        }
     }
 
     try
     {
-        _deleteFilterInstance (client, String ("IPFilter01"));
+        _deleteSubscriptionInstance (client, FILTER_NAME,
+            CLIENT_RESIDENT_HANDLER_NAME);
     }
-    catch (Exception & e)
+    catch (CIMException& e)
     {
-        cerr << "----- cleanup 3 failed: " << e.getMessage () << endl;
+        if (e.getCode() != CIM_ERR_NOT_FOUND)
+        {
+            cerr << "----- Error: deleteSubscriptionInstance failure: "
+                 << endl;
+            throw(e);
+        }
+    }
+    try
+    {
+        _deleteFilterInstance (client, FILTER_NAME);
+    }
+    catch (CIMException& e)
+    {
+        if (e.getCode() != CIM_ERR_NOT_FOUND)
+        {
+            cerr << "----- Error: deleteFilterInstance failure: " << endl;
+            throw(e);
+        }
     }
 
     try
     {
-        _deleteHandlerInstance (client, String ("IPHandler01"));
+        _deleteHandlerInstance (client, SERVER_RESIDENT_HANDLER_NAME);
     }
-    catch (Exception & e)
+    catch (CIMException& e)
     {
-        cerr << "----- cleanup 4 failed: " << e.getMessage () << endl;
+        if (e.getCode() != CIM_ERR_NOT_FOUND)
+        {
+            cerr << "----- Error: deleteHandlerInstance failusre: " << endl;
+            throw(e);
+        }
     }
 
     try
     {
-        _deleteHandlerInstance (client, String ("IPHandler02"));
+        _deleteHandlerInstance (client, CLIENT_RESIDENT_HANDLER_NAME);
     }
-    catch (Exception & e)
+    catch (CIMException& e)
     {
-        cerr << "----- cleanup 5 failed: " << e.getMessage () << endl;
+        if (e.getCode() != CIM_ERR_NOT_FOUND)
+        {
+            cerr << "----- Error: deleteHandlerInstance failure: " << endl;
+            throw(e);
+        }
     }
 }
 
@@ -732,7 +864,8 @@ static void _testStart(const String& uniqueID, const String& message)
 
 static void _testEnd(const String& uniqueID, const double elapsedTime)
 {
-    cout << "+++++ thread" << uniqueID << ": passed in " << elapsedTime << " seconds" << endl;
+    cout << "+++++ thread" << uniqueID << ": passed in " << elapsedTime
+        << " seconds" << endl;
 }
 
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeTests(void *parm)
@@ -752,7 +885,8 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL _executeTests(void *parm)
     {
         Stopwatch elapsedTime;
 
-        _testStart(uniqueID, "Calling client->invokeMethod to start indication generation");
+        _testStart(uniqueID,
+            "Calling client->invokeMethod to start indication generation");
         elapsedTime.reset();
         elapsedTime.start();
         _sendNormal(client, indicationSendCount);
@@ -785,9 +919,31 @@ Thread * _runTestThreads(
     return t.release();
 }
 
-int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const char* optThree)
+int _beginTest(CIMClient& workClient, const char* opt,
+     const char* optTwo, const char* optThree)
 {
+
+    Boolean setupCommand =  false;
+    Boolean configureServerResidentListener = false;
+    Boolean configureClientResidentListener = false;
+
     if (String::equalNoCase(opt, "setup"))
+    {
+       setupCommand = true;
+       configureServerResidentListener = true;
+       configureClientResidentListener = true;
+    }
+    else if (String::equalNoCase(opt, "setupSL"))
+    {
+       setupCommand = true;
+       configureServerResidentListener = true;
+    }
+    else if (String::equalNoCase(opt, "setupCL"))
+    {
+       setupCommand = true;
+       configureClientResidentListener = true;
+    }
+    if (setupCommand)
     {
         if ((optTwo == NULL) ||
             (!(String::equal(optTwo, "WQL") ||
@@ -820,7 +976,8 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
            return -1;
         }
 
-        _setup(workClient, qlang, handleProtocol);
+        _setup(workClient, qlang, handleProtocol,
+            configureServerResidentListener, configureClientResidentListener);
         cout << "+++++ setup completed successfully" << endl;
     }
     else if (String::equalNoCase(opt, "run"))
@@ -839,60 +996,54 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
             runClientThreadCount = atoi(optThree);
         }
 
-        //
-        //  Remove previous indication log file, if there
-        //
-        String previousIndicationFile, oldIndicationFile;
+        Boolean monitorClientResidentListener = _subscriptionExists(
+            workClient, FILTER_NAME, CLIENT_RESIDENT_HANDLER_NAME);
 
-        previousIndicationFile = INDICATION_DIR;
-        previousIndicationFile.append ("/IndicationStressTestLog");
+        Boolean monitorServerResidentListener = _subscriptionExists(
+            workClient, FILTER_NAME, SERVER_RESIDENT_HANDLER_NAME);
 
-        if (FileSystem::exists (previousIndicationFile))
+        if (!monitorServerResidentListener &&
+                !monitorClientResidentListener)
         {
-            oldIndicationFile = INDICATION_DIR;
-            oldIndicationFile.append ("/oldIndicationStressTestLog");
-            if (FileSystem::exists (oldIndicationFile))
-            {
-                FileSystem::removeFile (oldIndicationFile);
-            }
-            if (!FileSystem::renameFile (previousIndicationFile, oldIndicationFile))
-            {
-                FileSystem::removeFile (previousIndicationFile);
-            }
+            cerr << "Error: No Listeners Configured" << endl;
+            return -1;
         }
 
-        // Initialize Indication Stress Test Consumer
-        if (_resetServerResidentIndicationCount(workClient) < 0)
+        if (monitorServerResidentListener)
         {
-           return(-1);
+            _setupServerResidentListener(workClient);
         }
 
-        // Construct our CIMListener
 
         Uint32 portNumber = 2005;
-
         CIMListener listener(portNumber);
-
-        // Add our consumer
         MyIndicationConsumer* consumer1 = new MyIndicationConsumer("1");
-        listener.addConsumer(consumer1);
 
-        // Finish starting the CIMListener
-        try
+        if (monitorClientResidentListener)
         {
-            cout << "+++++ Starting the CIMListener at destination"
-                 << " http://localhost:2005/TestIndicationStressTest" << endl;
+            // Add our consumer
+            listener.addConsumer(consumer1);
 
-            // Start the listener
-            listener.start();
-        }
-        catch (BindFailedException & bfe)
-        {
-            // Got a bind error.  The port is probably already in use.
-            // Put out a message and fail.
-            cerr << endl << "==>WARNING: unable to bind to listener port 2005" << endl;
-            cerr << "The listener port may be in use." << endl;
-            throw;
+            // Finish starting the CIMListener
+            try
+            {
+                cout << "+++++ Starting the CIMListener at destination\n"
+                     << "       http://localhost:2005/TestIndicationStressTest"
+                     << endl;
+
+                // Start the listener
+                listener.start();
+            }
+            catch (BindFailedException & bfe)
+            {
+                // Got a bind error.  The port is probably already in use.
+                // Put out a message and fail.
+                cerr << endl
+                     << "==>WARNING: unable to bind to listener port 2005"
+                     << endl;
+                cerr << "The listener port may be in use." << endl;
+                throw;
+            }
         }
 
         Array<CIMClient *> clientConnections;
@@ -927,13 +1078,24 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         // run tests
         Array<Thread *> clientThreads;
 
-        Stopwatch elapsedTime;
-        elapsedTime.reset();
-        elapsedTime.start();
+        Stopwatch serverResidentListenerElapsedTime;
+        if (monitorServerResidentListener)
+        {
+            serverResidentListenerElapsedTime.reset();
+            serverResidentListenerElapsedTime.start();
+        }
+
+        Stopwatch clientResidentListenerElapsedTime;
+        if (monitorClientResidentListener)
+        {
+            clientResidentListenerElapsedTime.reset();
+            clientResidentListenerElapsedTime.start();
+        }
 
         for(Uint32 i = 0; i < clientConnections.size(); i++)
         {
-            clientThreads.append(_runTestThreads(clientConnections[i], indicationSendCount, i));
+            clientThreads.append(_runTestThreads(clientConnections[i],
+                indicationSendCount, i));
         }
 
         for(Uint32 i=0; i< clientThreads.size(); i++)
@@ -971,7 +1133,7 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         Uint32 totalIterations = 0;
 
         //
-        // Wait for the Consumers to received the expected
+        // Wait for the Listeners to received the expected
         // number of Indications, indicationSendCountTotal. 
         //
         // We will continue to wait until either indicationSendCountTotal
@@ -981,88 +1143,155 @@ int _beginTest(CIMClient& workClient, const char* opt, const char* optTwo, const
         // iterations. 
         //
 
+        Boolean clientResidentCountComplete = !monitorClientResidentListener;
+        Boolean serverResidentCountComplete = !monitorServerResidentListener;
+        Boolean clientResidentNoChange;
+        Boolean serverResidentNoChange;
+
         while (noChangeIterations <= MAX_NO_CHANGE_ITERATIONS)
         {
             totalIterations++;
             System::sleep (SLEEP_SEC);
-            currentClientResidentIndicationCount =
-                receivedIndicationCount.get();
-            currentServerResidentIndicationCount =
-                _getServerResidentIndicationCount(workClient);
-            if ((indicationSendCountTotal ==
-                    currentClientResidentIndicationCount) &&
-                (indicationSendCountTotal ==
-                    currentServerResidentIndicationCount))
-                break;
-            if (totalIterations % COUT_TIME_INTERVAL == 1)
+
+            if (monitorClientResidentListener)
             {
-              cout << "** The Client-resident Consumer has received "
-                   << currentClientResidentIndicationCount << " of "
-                   << indicationSendCountTotal << " Indications."
-                   << endl 
-                   << "** The Server-resident Consumer has received "
-                   << currentServerResidentIndicationCount << " of "
-                   << indicationSendCountTotal << " Indications."
-                   << endl;
+                currentClientResidentIndicationCount =
+                    receivedIndicationCount.get();
+                if (totalIterations % COUT_TIME_INTERVAL == 1)
+                {
+                    cout << "*+*+ The Client Resident Listener has received "
+                    << currentClientResidentIndicationCount << " of "
+                    << indicationSendCountTotal << " Indications."
+                    << endl;
+                }
+                if (indicationSendCountTotal ==
+                     currentClientResidentIndicationCount)
+                {
+                     clientResidentCountComplete = true;
+                     clientResidentListenerElapsedTime.stop();
+                }
+                if (!(clientResidentNoChange =
+                        (priorClientResidentIndicationCount ==
+                        currentClientResidentIndicationCount)))
+                {
+                     priorClientResidentIndicationCount =
+                         currentClientResidentIndicationCount;
+                }
             }
-            if ((priorClientResidentIndicationCount ==
-                   currentClientResidentIndicationCount) &&
-               (priorServerResidentIndicationCount ==
-                    currentServerResidentIndicationCount)) 
+            if (monitorServerResidentListener)
+            {
+                currentServerResidentIndicationCount =
+                    _getServerResidentIndicationCount(workClient);
+                if (totalIterations % COUT_TIME_INTERVAL == 1)
+                {
+                     cout << "+*+* The Server Resident Listener has received "
+                     << currentServerResidentIndicationCount << " of "
+                     << indicationSendCountTotal << " Indications."
+                     << endl;
+                }
+                if (indicationSendCountTotal ==
+                        currentServerResidentIndicationCount)
+                {
+                     serverResidentCountComplete = true;
+                     serverResidentListenerElapsedTime.stop();
+                }
+                if (!(serverResidentNoChange =
+                        (priorServerResidentIndicationCount ==
+                        currentServerResidentIndicationCount)))
+                {
+                     priorServerResidentIndicationCount =
+                         currentServerResidentIndicationCount;
+                }
+            }
+            if (clientResidentCountComplete && serverResidentCountComplete)
+            {
+                break;
+            }
+            if (clientResidentNoChange && serverResidentNoChange)
             {
                noChangeIterations++;
             }
             else
             {
                noChangeIterations = 0;
-               priorClientResidentIndicationCount =
-                   currentClientResidentIndicationCount;
-               priorServerResidentIndicationCount =
-                   currentServerResidentIndicationCount;
             }
         }
 
-        elapsedTime.stop();
+        if (!serverResidentCountComplete)
+        {
+            serverResidentListenerElapsedTime.stop();
+        }
 
-        cout << "+++++ Stopping the listener"  << endl;
-        listener.stop();
-        listener.removeConsumer(consumer1);
-        delete consumer1;
-        cout << "+++++ TEST RESULTS: " << endl;
-        cout << "+++++     Number of send threads = "
-             << runClientThreadCount << endl;
-        cout << "+++++     Sent Indications = " 
-             << indicationSendCountTotal <<endl;
-        cout << "+++++     Client-resident Consumer received Indications = "  
-             << currentClientResidentIndicationCount << endl;
-        cout << "+++++     Out of Sequence = "
-             << seqNumberErrors.get() << endl;
-        cout << "+++++     Avg. Send-Recv Delta time = "
-             << (long)(sendRecvDeltaTimeTotal/1000)/sendRecvDeltaTimeCnt
-             << " milli-seconds" << endl;
-        cout << "+++++     Min. Send-Recv Delta time = "
-             << sendRecvDeltaTimeMin/1000
-             << " milli-seconds" << endl;
-        cout << "+++++     Max. Send-Recv Delta time = "
-             << (long)(sendRecvDeltaTimeMax/1000)
-             << " milli-seconds" << endl;
-        cout << "+++++     Elapsed time = "
-             << elapsedTime.getElapsed()
-             << " seconds, or  " 
-             << elapsedTime.getElapsed()/60
-             << " minutes." << endl;
-        cout << "+++++     Rate = " 
-             << receivedIndicationCount.get()/elapsedTime.getElapsed()
-             << " indications per second." << endl << endl;
-        cout << "+++++     Server-resident Consumer received Indications = " 
-             << currentServerResidentIndicationCount << endl << endl;
+        if (!clientResidentCountComplete)
+        {
+            clientResidentListenerElapsedTime.stop();
+        }
 
-        // assert that all indications sent have been received.
-        assert(indicationSendCountTotal ==
-            currentClientResidentIndicationCount);
+        if (monitorClientResidentListener)
+        {
+            cout << "+++++ Stopping the listener"  << endl;
+            listener.stop();
+            listener.removeConsumer(consumer1);
+            delete consumer1;
 
-        assert(indicationSendCountTotal ==
-            currentServerResidentIndicationCount);
+            cout << endl;
+            cout << "+++++ TEST RESULTS: Client Resident Listener " << endl;
+            cout << "+++++     Number of Test Threads = "
+                 << runClientThreadCount << endl;
+            cout << "+++++     Expected Number of Indications = " 
+                 << indicationSendCountTotal <<endl;
+            cout << "+++++     Indications Received  = "  
+                 << currentClientResidentIndicationCount << endl;
+            cout << "+++++     Out of Sequence = "
+                 << seqNumberErrors.get() << endl;
+            cout << "+++++     Avg. Send-Recv Delta time = "
+                 << (long)(sendRecvDeltaTimeTotal/1000)/sendRecvDeltaTimeCnt
+                 << " milli-seconds" << endl;
+            cout << "+++++     Min. Send-Recv Delta time = "
+                 << sendRecvDeltaTimeMin/1000
+                 << " milli-seconds" << endl;
+            cout << "+++++     Max. Send-Recv Delta time = "
+                 << (long)(sendRecvDeltaTimeMax/1000)
+                 << " milli-seconds" << endl;
+            double eTime =  clientResidentListenerElapsedTime.getElapsed();
+            cout << "+++++     Elapsed time = " << eTime
+                 << " seconds, or  " << eTime/60
+                 << " minutes." << endl;
+            cout << "+++++     Rate = " 
+                 << currentClientResidentIndicationCount/eTime
+                 << " indications per second." << endl << endl;
+        }   
+        if (monitorServerResidentListener)
+        {
+            cout << "+++++ TEST RESULTS: Server Resident Listener " << endl;
+            cout << "+++++     Number of Test Threads = "
+                 << runClientThreadCount << endl;
+            cout << "+++++     Expected Number of Indications = " 
+                 << indicationSendCountTotal <<endl;
+            cout << "+++++     Number of Indications Received  = "  
+                 << currentServerResidentIndicationCount << endl;
+            cout << "+++++     Elapsed time = "
+                 << serverResidentListenerElapsedTime.getElapsed()
+                 << " seconds, or  " 
+                 << serverResidentListenerElapsedTime.getElapsed()/60
+                 << " minutes." << endl;
+            cout << "+++++     Rate = " 
+                 << currentServerResidentIndicationCount/serverResidentListenerElapsedTime.getElapsed()
+                 << " indications per second." << endl << endl;
+        }
+
+        // assert that all indications sent have been received. 
+        if (monitorClientResidentListener)
+        {
+            assert(indicationSendCountTotal ==
+               currentClientResidentIndicationCount);
+        }
+
+        if (monitorServerResidentListener)
+        {
+            assert(indicationSendCountTotal ==
+                currentServerResidentIndicationCount);
+        }
 
         // if error encountered then fail the test.
         if (errorsEncountered.get())
@@ -1130,10 +1359,16 @@ int main (int argc, char** argv)
             optThree = NULL;
         }
 
-        int rc = _beginTest(workClient, opt, optTwo, optThree);
-
-	return rc;
+        try
+        {
+            int rc = _beginTest(workClient, opt, optTwo, optThree);
+	    return rc;
+        }
+        catch (Exception & e)
+        {
+            cerr << e.getMessage () << endl;
+            return -1;
+        }
     }
-
     PEGASUS_UNREACHABLE( return 0; )
 }

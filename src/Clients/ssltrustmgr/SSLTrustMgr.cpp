@@ -269,6 +269,13 @@ static const CIMName PROPERTY_NAME_TRUSTTYPE    = CIMName ("TruststoreType");
 static const CIMName PROPERTY_NAME_SUBJECTNAME  = CIMName ("SubjectName");
 
 /**
+    This constant represents the name of the RegisteredUserName
+    property in the schema
+*/
+static const CIMName PROPERTY_NAME_REGISTERED_USER_NAME  
+                                            = CIMName ("RegisteredUserName");
+
+/**
     This constant represents the name of the notBefore type
     property in the schema
 */
@@ -1400,6 +1407,7 @@ void SSLTrustMgr::_listCertificates (
             String issuerName;
             String serialNumber;
             String subjectName;
+            String registeredUserName;
             String truststorePath;
             CIMDateTime notBefore;
             CIMDateTime notAfter;
@@ -1409,7 +1417,7 @@ void SSLTrustMgr::_listCertificates (
             //
             Uint32 pos =
                 certificateInstance.findProperty(PROPERTY_NAME_TRUSTTYPE);
-            CIMProperty prop = (CIMProperty)certificateInstance.getProperty(pos);
+            CIMConstProperty prop = certificateInstance.getProperty(pos);
             prop.getValue().get(trustType);
 
             if ( (String::equal(_trustStore, CIMSERVER_TRUST_NAME) &&
@@ -1426,8 +1434,8 @@ void SSLTrustMgr::_listCertificates (
             //
             //
             pos = certificateInstance.findProperty(PROPERTY_NAME_TRUSTPATH);
-            prop = (CIMProperty)certificateInstance.getProperty(pos);
-            truststorePath.assign(prop.getValue().toString());
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(truststorePath);
 
             if ( _trustPathSet && trustType == CLIENT_TRUST )
             {
@@ -1442,12 +1450,12 @@ void SSLTrustMgr::_listCertificates (
             // and they match
             //
             pos = certificateInstance.findProperty(PROPERTY_NAME_ISSUERNAME);
-            prop = (CIMProperty)certificateInstance.getProperty(pos);
-            issuerName.assign(prop.getValue().toString());
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(issuerName);
 
             pos = certificateInstance.findProperty(PROPERTY_NAME_SERIALNUMBER);
-            prop = (CIMProperty)certificateInstance.getProperty(pos);
-            serialNumber.assign(prop.getValue().toString());
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(serialNumber);
 
             if ( _issuerNameSet )
             {
@@ -1469,17 +1477,22 @@ void SSLTrustMgr::_listCertificates (
             // Get the remaining properties and display them.
             //
             pos = certificateInstance.findProperty(PROPERTY_NAME_SUBJECTNAME);
-            prop = (CIMProperty)certificateInstance.getProperty(pos);
-            subjectName.assign(prop.getValue().toString());
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(subjectName);
+
+            pos = certificateInstance.findProperty(
+                            PROPERTY_NAME_REGISTERED_USER_NAME);
+            prop = certificateInstance.getProperty(pos);
+            prop.getValue().get(registeredUserName);
 
             pos = certificateInstance.findProperty(PROPERTY_NAME_NOTBEFORE);
-            prop = (CIMProperty)certificateInstance.getProperty(pos);
+            prop = certificateInstance.getProperty(pos);
             prop.getValue().get(notBefore);
 
             String notBeforeStr = _formatCIMDateTime(notBefore.toString());
 
             pos = certificateInstance.findProperty(PROPERTY_NAME_NOTAFTER);
-            prop = (CIMProperty)certificateInstance.getProperty(pos);
+            prop = certificateInstance.getProperty(pos);
             prop.getValue().get(notAfter);
 
             String notAfterStr = _formatCIMDateTime(notAfter.toString());
@@ -1490,6 +1503,8 @@ void SSLTrustMgr::_listCertificates (
             outPrintWriter << "Issuer: " << issuerName << endl;
             outPrintWriter << "Serial Number: " << serialNumber << endl;
             outPrintWriter << "Subject: " << subjectName << endl;
+            outPrintWriter << "Registered User Name: " 
+                           << registeredUserName << endl;
             outPrintWriter << "Validity:" << endl;
             outPrintWriter << "    NotBefore: " << notBeforeStr << endl;
             outPrintWriter << "    NotAfter : " << notAfterStr << endl ;
@@ -1545,8 +1560,8 @@ void SSLTrustMgr::_listCRL (
             // Check if issuer name is specified
             //
             Uint32 pos = crlInstance.findProperty(PROPERTY_NAME_ISSUERNAME);
-            CIMProperty prop = (CIMProperty)crlInstance.getProperty(pos);
-            issuerName.assign(prop.getValue().toString());
+            CIMConstProperty prop = crlInstance.getProperty(pos);
+            prop.getValue().get(issuerName);
 
             if ( _issuerNameSet && !String::equal(_issuerName, issuerName) )
             {
@@ -1557,13 +1572,13 @@ void SSLTrustMgr::_listCRL (
             // Get the remaining properties and display them.
             //
             pos = crlInstance.findProperty(PROPERTY_NAME_LASTUPDATE);
-            prop = (CIMProperty)crlInstance.getProperty(pos);
+            prop = crlInstance.getProperty(pos);
             prop.getValue().get(lastUpdate);
 
             String lastUpdateStr = _formatCIMDateTime(lastUpdate.toString());
 
             pos = crlInstance.findProperty(PROPERTY_NAME_NEXTUPDATE);
-            prop = (CIMProperty)crlInstance.getProperty(pos);
+            prop = crlInstance.getProperty(pos);
             prop.getValue().get(nextUpdate);
 
             String nextUpdateStr = _formatCIMDateTime(nextUpdate.toString());
@@ -1579,11 +1594,11 @@ void SSLTrustMgr::_listCRL (
             Array<CIMDateTime> revocationDates;
 
             pos = crlInstance.findProperty(PROPERTY_NAME_REVOKED_SERIAL_NUMBERS);
-            prop = (CIMProperty)crlInstance.getProperty(pos);
+            prop = crlInstance.getProperty(pos);
             prop.getValue().get(revokedSerialNumbers);
 
             pos = crlInstance.findProperty(PROPERTY_NAME_REVOCATION_DATES);
-            prop = (CIMProperty)crlInstance.getProperty(pos);
+            prop = crlInstance.getProperty(pos);
             prop.getValue().get(revocationDates);
 
             outPrintWriter << "Revoked Certificates:" << endl;

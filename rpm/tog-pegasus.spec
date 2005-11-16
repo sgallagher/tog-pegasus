@@ -54,6 +54,7 @@ License: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{srcRelease}.tar.gz
 Requires: openssl >= 0.9.6 lsb >= 1.3
+Conflicts: openwbem
 Provides: tog-pegasus-cimserver
 BuildRequires: openssl-devel >= 0.9.6
 BuildConflicts: tog-pegasus

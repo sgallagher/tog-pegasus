@@ -721,30 +721,30 @@ MessageLoaderParms::MessageLoaderParms()
 MessageLoaderParms::MessageLoaderParms(
     const String& id,
     const String& msg,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1,
-    const Formatter::Arg& arg2,
-    const Formatter::Arg& arg3,
-    const Formatter::Arg& arg4,
-    const Formatter::Arg& arg5,
-    const Formatter::Arg& arg6,
-    const Formatter::Arg& arg7,
-    const Formatter::Arg& arg8,
-    const Formatter::Arg& arg9)
+    const Formatter::Arg& arg0_,
+    const Formatter::Arg& arg1_,
+    const Formatter::Arg& arg2_,
+    const Formatter::Arg& arg3_,
+    const Formatter::Arg& arg4_,
+    const Formatter::Arg& arg5_,
+    const Formatter::Arg& arg6_,
+    const Formatter::Arg& arg7_,
+    const Formatter::Arg& arg8_,
+    const Formatter::Arg& arg9_)
 {
     msg_id = id;
     default_msg = msg;
     _init();
-    this->arg0 = arg0;
-    this->arg1 = arg1;
-    this->arg2 = arg2;
-    this->arg3 = arg3;
-    this->arg4 = arg4;
-    this->arg5 = arg5;
-    this->arg6 = arg6;
-    this->arg7 = arg7;
-    this->arg8 = arg8;
-    this->arg9 = arg9;
+    arg0 = arg0_;
+    arg1 = arg1_;
+    arg2 = arg2_;
+    arg3 = arg3_;
+    arg4 = arg4_;
+    arg5 = arg5_;
+    arg6 = arg6_;
+    arg7 = arg7_;
+    arg8 = arg8_;
+    arg9 = arg9_;
 }
 
 MessageLoaderParms::MessageLoaderParms(
@@ -759,57 +759,57 @@ MessageLoaderParms::MessageLoaderParms(
 MessageLoaderParms::MessageLoaderParms(
     const String& id,
     const String& msg,
-    const Formatter::Arg& arg0)
+    const Formatter::Arg& arg0_)
 {
     msg_id = id;
     default_msg = msg;
     _init();
-    this->arg0 = arg0;
+    arg0 = arg0_;
 }
 
 MessageLoaderParms::MessageLoaderParms(
     const String& id,
     const String& msg,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1)
+    const Formatter::Arg& arg0_,
+    const Formatter::Arg& arg1_)
 {
     msg_id = id;
     default_msg = msg;
     _init();
-    this->arg0 = arg0;
-    this->arg1 = arg1;
+    arg0 = arg0_;
+    arg1 = arg1_;
 }
 
 MessageLoaderParms::MessageLoaderParms(
     const String& id,
     const String& msg,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1,
-    const Formatter::Arg& arg2)
+    const Formatter::Arg& arg0_,
+    const Formatter::Arg& arg1_,
+    const Formatter::Arg& arg2_)
 {
     msg_id = id;
     default_msg = msg;
     _init();
-    this->arg0 = arg0;
-    this->arg1 = arg1;
-    this->arg2 = arg2;
+    arg0 = arg0_;
+    arg1 = arg1_;
+    arg2 = arg2_;
 }
 
 MessageLoaderParms::MessageLoaderParms(
     const String& id,
     const String& msg,
-    const Formatter::Arg& arg0,
-    const Formatter::Arg& arg1,
-    const Formatter::Arg& arg2,
-    const Formatter::Arg& arg3)
+    const Formatter::Arg& arg0_,
+    const Formatter::Arg& arg1_,
+    const Formatter::Arg& arg2_,
+    const Formatter::Arg& arg3_)
 {
     msg_id = id;
     default_msg = msg;
     _init();
-    this->arg0 = arg0;
-    this->arg1 = arg1;
-    this->arg2 = arg2;
-    this->arg3 = arg3;
+    arg0 = arg0_;
+    arg1 = arg1_;
+    arg2 = arg2_;
+    arg3 = arg3_;
 }
 
 MessageLoaderParms::MessageLoaderParms(
@@ -824,25 +824,25 @@ MessageLoaderParms::MessageLoaderParms(
 MessageLoaderParms::MessageLoaderParms(
     const char* id,
     const char* msg,
-    const String& arg0)
+    const String& arg0_)
 {
     msg_id = id;
     default_msg = msg;
     _init();
-    this->arg0 = arg0;
+    arg0 = arg0_;
 }
 
 MessageLoaderParms::MessageLoaderParms(
     const char* id,
     const char* msg,
-    const String& arg0,
-    const String& arg1)
+    const String& arg0_,
+    const String& arg1_)
 {
     msg_id = id;
     default_msg = msg;
     _init();
-    this->arg0 = arg0;
-    this->arg1 = arg1;
+    arg0 = arg0_;
+    arg1 = arg1_;
 }
 
 void MessageLoaderParms::_init()
@@ -857,16 +857,16 @@ void MessageLoaderParms::_init()
     acceptlanguages = AcceptLanguages::EMPTY;
     contentlanguages = ContentLanguages::EMPTY;
 
-    this->arg0 = Formatter::DEFAULT_ARG;
-    this->arg1 = Formatter::DEFAULT_ARG;
-    this->arg2 = Formatter::DEFAULT_ARG;
-    this->arg3 = Formatter::DEFAULT_ARG;
-    this->arg4 = Formatter::DEFAULT_ARG;
-    this->arg5 = Formatter::DEFAULT_ARG;
-    this->arg6 = Formatter::DEFAULT_ARG;
-    this->arg7 = Formatter::DEFAULT_ARG;
-    this->arg8 = Formatter::DEFAULT_ARG;
-    this->arg9 = Formatter::DEFAULT_ARG;
+    arg0 = Formatter::DEFAULT_ARG;
+    arg1 = Formatter::DEFAULT_ARG;
+    arg2 = Formatter::DEFAULT_ARG;
+    arg3 = Formatter::DEFAULT_ARG;
+    arg4 = Formatter::DEFAULT_ARG;
+    arg5 = Formatter::DEFAULT_ARG;
+    arg6 = Formatter::DEFAULT_ARG;
+    arg7 = Formatter::DEFAULT_ARG;
+    arg8 = Formatter::DEFAULT_ARG;
+    arg9 = Formatter::DEFAULT_ARG;
 }
 
 String MessageLoaderParms::toString()

@@ -115,6 +115,8 @@ static int compressMode = 0; // PEP214
 //
 //==============================================================================
 
+#define PEGASUS_QUALIFIER_CACHE_SIZE 80
+
 #if !defined(PEGASUS_CLASS_CACHE_SIZE)
 # define PEGASUS_CLASS_CACHE_SIZE 8
 #endif
@@ -126,6 +128,9 @@ static int compressMode = 0; // PEP214
 #ifdef PEGASUS_USE_CLASS_CACHE
 static ObjectCache<CIMClass> _classCache(PEGASUS_CLASS_CACHE_SIZE);
 #endif /* PEGASUS_USE_CLASS_CACHE */
+
+static ObjectCache<CIMQualifierDecl> 
+    _qualifierCache(PEGASUS_QUALIFIER_CACHE_SIZE);
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -3212,7 +3217,18 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 
     try
     {
-        _LoadObject(qualifierFilePath, qualifierDecl, streamer);
+        // Check the cache first:
+
+        if (!_qualifierCache.get(qualifierFilePath, qualifierDecl))
+        {
+            // Not in cache so load from disk:
+
+	    _LoadObject(qualifierFilePath, qualifierDecl, streamer);
+
+            // Put in cache:
+
+            _qualifierCache.put(qualifierFilePath, qualifierDecl);
+        }
     }
     catch (const CannotOpenFile&)
     {
@@ -3265,6 +3281,7 @@ void CIMRepository::_setQualifier(
      //XmlWriter::appendQualifierDeclElement(qualifierDeclXml, qualifierDecl);
     _SaveObject(qualifierFilePath, qualifierDeclXml,streamer);
 
+    _qualifierCache.put(qualifierFilePath, (CIMQualifierDecl&)qualifierDecl);
 
     PEG_METHOD_EXIT();
 }
@@ -3290,6 +3307,8 @@ void CIMRepository::deleteQualifier(
         throw PEGASUS_CIM_EXCEPTION
             (CIM_ERR_NOT_FOUND, qualifierName.getString());
     }
+
+    _qualifierCache.evict(qualifierFilePath);
 
     PEG_METHOD_EXIT();
 }

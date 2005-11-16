@@ -40,6 +40,9 @@ FULL_PROGRAM=$(BIN_DIR)/$(PROGRAM)$(EXE)
 
 $(FULL_PROGRAM): $(CIMMOF)
 	$(COPY) $(CIMMOF) "$(FULL_PROGRAM)"
+ifneq ($(wildcard $(CIMMOF).manifest), )
+	$(COPY) $(CIMMOF).manifest "$(FULL_PROGRAM).manifest"
+endif
 
 clean:
 	$(RM) $(FULL_PROGRAM)

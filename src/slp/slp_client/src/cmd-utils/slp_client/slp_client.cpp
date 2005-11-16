@@ -57,7 +57,13 @@
  *  DEALINGS IN THE SOFTWARE.
  *
  *****************************************************************************/
-
+/*****************************************************************************
+ *
+ *
+ *
+ * modified by: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
+ *
+ *****************************************************************************/
 
 
 
@@ -69,6 +75,66 @@
 
 #include "slp_client.h"
 
+/*********************************************************************/
+/*********************************************************************/
+
+
+/*********** #define SLP_CLIENT_DEBUG 1 *********************/
+
+#ifdef SLP_CLIENT_DEBUG
+
+/*
+** DEBUG_PRINT_CONTROL values
+*/
+#define DEBUG_ENTER  1
+#define DEBUG_EXIT   2
+#define DEBUG_LEVEL1 4 
+#define DEBUG_LEVEL2 8
+#define DEBUG_LEVEL3 16
+#define DEBUG_LEVEL4 32
+
+#define ALL DEBUG_ENTER | DEBUG_EXIT | DEBUG_LEVEL1 | DEBUG_LEVEL2 | DEBUG_LEVEL3 | DEBUG_LEVEL4
+
+/*
+** DEBUG_PRINT_CONTROL is set to the control what is printed
+*/
+int DEBUG_PRINT_CONTROL = ALL;
+
+  /* int DEBUG_PRINT_CONTROL = 0; */
+
+/*
+** DEBUG_PRINT (DC, FS, AS)
+**
+** args:
+**    DC = Debug Control 
+**    FS = Format String
+**    AS = Arg String 
+*/
+
+#define DEBUG_PRINT(DC, FS, AS)                                 \
+{                                                               \
+  if (DEBUG_PRINT_CONTROL & (DC))				\
+    {                                                           \
+      printf("SLP_CLIENT: line= %5d",__LINE__);			\
+      if (DEBUG_ENTER & (DC)) printf(" ENTER -- ");		\
+      else if (DEBUG_EXIT & (DC)) printf(" EXIT  -- ");		\
+      else printf(" DATA --------\n");				\
+      printf((FS), (AS));					\
+      printf("\n");						\
+    }                                                           \
+}
+
+
+
+#else /* SLP_CLIENT_DEBUG */
+
+#define DEBUG_PRINT(DC, FS, AS)
+
+#endif /* SLP_CLIENT_DEBUG */
+/*********************************************************************/
+/*********************************************************************/
+
+
 #ifdef _WIN32
  int _winsock_count = 0;
  WSADATA _wsa_data ;
@@ -77,6 +143,8 @@
 
 struct da_list *alloc_da_node(BOOL head)
 {
+  DEBUG_PRINT(DEBUG_ENTER, "decode_attr_rply %s", " ");
+
   struct da_list *node = (struct da_list *)calloc(1, sizeof(struct da_list));
   if(node != NULL && head == TRUE){
     node->isHead = TRUE;
@@ -529,6 +597,8 @@ int errcode;
   if ( *list != NULL )
     free( *list );
 
+  DEBUG_PRINT(DEBUG_ENTER, "slp_get_local_interfaces %s", " ");
+
 #if defined ( _WIN32 )
 
   if ( INVALID_SOCKET != ( sock  = WSASocket(AF_INET,
@@ -536,8 +606,10 @@ int errcode;
 	int bytes_returned;
     char *output_buf = (char *)calloc(1, buf_size);
     if (output_buf == NULL)
-      return 0;
-
+      {
+	DEBUG_PRINT(DEBUG_EXIT, "slp_get_local_interfaces:err %s", " ");
+	return 0;
+      }
 
     if ( 0 == (errcode = WSAIoctl( sock, SIO_ADDRESS_LIST_QUERY, NULL, 0,
 			output_buf, buf_size, &bytes_returned, NULL, NULL)) ) {
@@ -635,30 +707,40 @@ errcode = WSAGetLastError();
     *list = (uint32 *)malloc(sizeof(uint32)) ;
     *list[0] = INADDR_ANY;
   }
-
+  DEBUG_PRINT(DEBUG_EXIT, "slp_get_local_interfaces:ok %s", " ");
   return(interfaces);
 }
 
 BOOL  slp_join_multicast(SOCKETD sock, uint32 addr)      //jeb
 {
 
+  DEBUG_PRINT(DEBUG_ENTER, "slp_join_multicast %s", " ");
+
 #if defined(NUCLEUS )    //jeb
   //don't support for now
+  DEBUG_PRINT(DEBUG_EXIT, "slp_join_multicast:no support %s", " ");
   return(FALSE);         //jeb
 
 #else
  struct ip_mreq mreq;
   // don't join on the loopback interface
   if (addr == inet_addr("127.0.0.1") )
-    return(FALSE);
+    {
+      DEBUG_PRINT(DEBUG_EXIT, "slp_join_multicast:err2 %s", " ");
+      return(FALSE);
+    }
 
 
   mreq.imr_multiaddr.s_addr = inet_addr("239.255.255.253");
   mreq.imr_interface.s_addr = addr;
 
   if(SOCKET_ERROR == setsockopt(sock,IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq)))
-    return(FALSE);
+    {
+      DEBUG_PRINT(DEBUG_EXIT, "slp_join_multicast:err3 %s", " ");
+      return(FALSE);
+    }
 
+  DEBUG_PRINT(DEBUG_EXIT, "slp_join_multicast:ok %s", " ");
   return(TRUE);    //jeb
 #endif
 }
@@ -671,6 +753,8 @@ int slp_join_multicast_all(SOCKETD sock)
   uint32 *list = NULL , *lptr = NULL;
   int interface_counter;
 
+  DEBUG_PRINT(DEBUG_ENTER, "slp_join_multicast_all %s", " ");
+
   int num_interfaces = slp_get_local_interfaces(&list);
   interface_counter = num_interfaces;
 
@@ -680,6 +764,7 @@ int slp_join_multicast_all(SOCKETD sock)
     lptr++;
   }
   free(list);
+  DEBUG_PRINT(DEBUG_EXIT, "slp_join_multicast_all %s", " ");
   return(num_interfaces);
 }
 
@@ -690,6 +775,8 @@ SOCKETD slp_open_listen_sock( void )       //jeb
   SOCKETD sock  = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0) ;   //jeb
   int err = 1;
 
+  DEBUG_PRINT(DEBUG_ENTER, "slp_open_listen_sock %s", " ");
+
 #ifndef NUCLEUS    //jeb not supported
   _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&err, sizeof(err));
 #endif
@@ -698,6 +785,7 @@ SOCKETD slp_open_listen_sock( void )       //jeb
   local.sin_addr.s_addr  = INADDR_ANY;
   if( 0 == _LSLP_BIND(sock, (struct sockaddr *)&local, sizeof(local)) )
     slp_join_multicast_all(sock);
+  DEBUG_PRINT(DEBUG_EXIT, "slp_open_listen_sock %s", " ");
   return(sock);
 }
 
@@ -778,6 +866,9 @@ BOOL prepare_query( struct slp_client *client,
 {
   int16 len, total_len, buf_len;
   char *bptr, *bptrSave;
+
+  DEBUG_PRINT(DEBUG_ENTER, "prepare_query %s", " ");
+
   if(xid != client->_xid) {
     /* this is a new request */
     memset(client->_pr_buf, 0x00, LSLP_MTU);
@@ -870,12 +961,14 @@ BOOL prepare_query( struct slp_client *client,
 	  }
 	  /* now go back and set the length for the entire message */
 	  _LSLP_SETLENGTH(client->_msg_buf, total_len );
+	  DEBUG_PRINT(DEBUG_EXIT, "prepare_query:ok %s", " ");
 	  return(TRUE);
 
 	} /*  room for predicate  */
       } /* room for the scope  */
     } /* room for the service type  */
   } /* room for the pr list  */
+  DEBUG_PRINT(DEBUG_EXIT, "prepare_query:err %s", " ");
   return(FALSE);
 }
 
@@ -909,6 +1002,8 @@ BOOL prepare_attr_query( struct slp_client *client,
   char *bptr;
   const char *scopeptr;
   static char default_scope[] = "DEFAULT";
+
+  DEBUG_PRINT(DEBUG_ENTER, "prepare_attr_query %s", " ");
 
   if(url == NULL)
     return FALSE;
@@ -994,6 +1089,7 @@ BOOL prepare_attr_query( struct slp_client *client,
 	
 	  /* now go back and set the length for the entire message */
 	  _LSLP_SETLENGTH(client->_msg_buf, total_len );
+	  DEBUG_PRINT(DEBUG_EXIT, "prepare_attr_query:ok %s", " ");
 	  return(TRUE);
 
 	} /* if tags list fits */
@@ -1001,6 +1097,7 @@ BOOL prepare_attr_query( struct slp_client *client,
     } /* if the url fits */
   } /* if pr buffer fits */
 
+  DEBUG_PRINT(DEBUG_EXIT, "prepare_attr_query:err %s", " ");
   return FALSE;
 }
 
@@ -1089,6 +1186,7 @@ void converge_srv_req(struct slp_client *client,
   uint16 convergence;
   uint32 loopback ;
 
+  DEBUG_PRINT(DEBUG_ENTER, "converge_srv_req %s", " ");
 
   //  old_target_addr = client->_target_addr;
   old_local_addr = client->_local_addr;
@@ -1127,6 +1225,7 @@ void converge_srv_req(struct slp_client *client,
 
     //  client->_target_addr = old_target_addr;
   client->_local_addr = old_local_addr;
+  DEBUG_PRINT(DEBUG_EXIT, "converge_srv_req %s", " ");
   return ;
 }
 
@@ -1144,6 +1243,8 @@ void unicast_srv_req( struct slp_client *client,
   uint16 target_port_save;
   struct timeval tv_save;
   int retries ;
+
+  DEBUG_PRINT(DEBUG_ENTER, "unicast_srv_req %s", " ");
 
   target_addr_save = client->_target_addr;
   local_addr_save = client->_local_addr;
@@ -1169,6 +1270,7 @@ void unicast_srv_req( struct slp_client *client,
   client->_local_addr = local_addr_save;
   client->_target_port = target_port_save;
   client->_tv.tv_sec = tv_save.tv_sec;
+  DEBUG_PRINT(DEBUG_EXIT, "unicast_srv_req %s", " ");
   return;
 }
 
@@ -1187,6 +1289,8 @@ void local_srv_req( struct slp_client *client,
   uint16 target_port_save;
 
   struct timeval tv_save;
+
+  DEBUG_PRINT(DEBUG_ENTER, "local_srv_req %s", " ");
 
   target_addr_save = client->_target_addr;
   target_port_save = client->_target_port;
@@ -1215,6 +1319,7 @@ void local_srv_req( struct slp_client *client,
   client->_tv.tv_sec = tv_save.tv_sec;
   client->_tv.tv_usec = tv_save.tv_usec;
 
+  DEBUG_PRINT(DEBUG_EXIT, "local_srv_req %s", " ");
   return;
 }
 
@@ -1226,6 +1331,7 @@ void srv_req( struct slp_client *client,
 	      const char *scopes,
 	      BOOL retry )
 {
+  DEBUG_PRINT(DEBUG_ENTER, "srv_req %s", " ");
   if ((TRUE == prepare_query(client, (retry == TRUE) ? client->_xid : client->_xid + 1,
 			     type,
 			     scopes,
@@ -1235,6 +1341,7 @@ void srv_req( struct slp_client *client,
     }
     send_rcv_udp( client , retry) ;
   } /* prepared query  */
+  DEBUG_PRINT(DEBUG_EXIT, "srv_req %s", " ");
   return ;
 }
 
@@ -1254,6 +1361,7 @@ void converge_attr_req( struct slp_client *client,
   uint16 convergence;
   uint32 loopback ;
 
+  DEBUG_PRINT(DEBUG_ENTER, "converge_attr_req %s", " ");
 
   //  old_target_addr = client->_target_addr;
   old_local_addr = client->_local_addr;
@@ -1291,6 +1399,7 @@ void converge_attr_req( struct slp_client *client,
 
     //  client->_target_addr = old_target_addr;
   client->_local_addr = old_local_addr;
+  DEBUG_PRINT(DEBUG_EXIT, "converge_attr_req %s", " ");
   return ;
 
 }
@@ -1309,6 +1418,8 @@ void unicast_attr_req( struct slp_client *client,
   uint16 target_port_save;
   struct timeval tv_save;
   int retries ;
+
+  DEBUG_PRINT(DEBUG_ENTER, "unicast_attr_req %s", " ");
 
   target_addr_save = client->_target_addr;
   local_addr_save = client->_local_addr;
@@ -1334,6 +1445,8 @@ void unicast_attr_req( struct slp_client *client,
   client->_local_addr = local_addr_save;
   client->_target_port = target_port_save;
   client->_tv.tv_sec = tv_save.tv_sec;
+
+  DEBUG_PRINT(DEBUG_EXIT, "unicast_attr_req %s", " ");
   return;
 }
 
@@ -1349,6 +1462,8 @@ void local_attr_req( struct slp_client *client,
   uint16 target_port_save;
 
   struct timeval tv_save;
+
+  DEBUG_PRINT(DEBUG_ENTER, "local_attr_req %s", " ");
 
   target_addr_save = client->_target_addr;
   target_port_save = client->_target_port;
@@ -1374,6 +1489,7 @@ void local_attr_req( struct slp_client *client,
   client->_tv.tv_sec = tv_save.tv_sec;
   client->_tv.tv_usec = tv_save.tv_usec;
 
+  DEBUG_PRINT(DEBUG_EXIT, "local_attr_req %s", " ");
   return;
 
 }
@@ -1389,6 +1505,7 @@ void attr_req( struct slp_client *client,
 	       BOOL retry)
 {
 
+  DEBUG_PRINT(DEBUG_ENTER, "attr_req %s", " ");
   if(TRUE == prepare_attr_query(client, (retry == TRUE) ? client->_xid : client->_xid + 1,
 				url, scopes, tags)) {
     /* check for the multicast address and set the mcast flag if necessary */
@@ -1399,6 +1516,7 @@ void attr_req( struct slp_client *client,
     send_rcv_udp( client , retry);
   }
 
+  DEBUG_PRINT(DEBUG_EXIT, "attr_req %s", " ");
   return;
 }
 
@@ -1423,6 +1541,8 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
   lslpMsg *reply;
 
   int32 total_len, purported_len;
+
+  DEBUG_PRINT(DEBUG_ENTER, "decode_attr_rply %s", " ");
 
   bptr = client->_rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
@@ -1460,6 +1580,8 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
   } /* hdr len checks out */
   /* link the response to the client */
   _LSLP_INSERT(reply, &(client->replies));
+
+  DEBUG_PRINT(DEBUG_EXIT, "decode_attr_rply %s", " ");
 }
 
 
@@ -1470,18 +1592,24 @@ void decode_attr_rply( struct slp_client *client, SOCKADDR_IN *remote)
 
 void message_sanity_check(struct slp_client *client)
 {
+  DEBUG_PRINT(DEBUG_ENTER, "message_sanity_check %s", " ");
   if( _LSLP_GETLENGTH(client->_rcv_buf) > LSLP_MTU ) {
+    DEBUG_PRINT(DEBUG_EXIT, "message_sanity_check:err %s", " ");
     return;
   }
 
   if( _LSLP_GETVERSION(client->_rcv_buf) != LSLP_PROTO_VER ) {
+    DEBUG_PRINT(DEBUG_EXIT, "message_sanity_check:err2 %s", " ");
     return;
   }
 
   if ( _LSLP_GETFUNCTION(client->_rcv_buf) < LSLP_SRVRQST ||
        _LSLP_GETFUNCTION(client->_rcv_buf) > LSLP_SAADVERT) {
+    DEBUG_PRINT(DEBUG_EXIT, "message_sanity_check:err3 %s", " ");
     return;
   }
+
+  DEBUG_PRINT(DEBUG_EXIT, "message_sanity_check:ok %s", " ");
   return;
 
 }
@@ -1493,6 +1621,7 @@ void decode_msg( struct slp_client *client,
 {
   char function, response;
 
+  DEBUG_PRINT(DEBUG_ENTER, "decode_msg %s", " ");
   message_sanity_check(client);
 
 
@@ -1513,20 +1642,26 @@ void decode_msg( struct slp_client *client,
   switch(function) {
   case LSLP_DAADVERT:
     decode_daadvert( client, remote );
+    DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", "LSLP_DAADVERT ");
     return;		
   case LSLP_SRVRQST:
     decode_srvreq( client, remote );
+    DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", "LSLP_SRVRQST ");
     return;
   case LSLP_SRVRPLY:
     decode_srvrply( client, remote );
+    DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", "LSLP_SRVRPLY ");
     return;
   case LSLP_SRVACK:
+    DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", "LSLP_SRVACK ");
     return;
   case LSLP_ATTRREQ:
     decode_attrreq( client, remote );
+    DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", "LSLP_ATTRREQ ");
     return;
   case LSLP_ATTRRPLY:
     decode_attr_rply( client, remote);
+    DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", "LSLP_ATTRRPLY ");
     return;
 
   case LSLP_SRVTYPERQST:
@@ -1534,6 +1669,7 @@ void decode_msg( struct slp_client *client,
     break;
   case LSLP_SRVREG:
     decode_srvreg(client, remote);
+    DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", "LSLP_SRVREG ");
     return;
   case LSLP_SRVDEREG:
   default:
@@ -1541,6 +1677,8 @@ void decode_msg( struct slp_client *client,
     break;
   }
   make_srv_ack(client, remote, response, LSLP_MSG_NOT_SUPPORTED);
+
+  DEBUG_PRINT(DEBUG_EXIT, "decode_msg %s", " ");
   return;
 }
 
@@ -1556,6 +1694,8 @@ void decode_srvreg(struct slp_client *client,
   int32 total_len, purported_len;
   BOOL mcast;
   int16 str_len;
+
+  DEBUG_PRINT(DEBUG_ENTER, "decode_srvreg %s", " ");
 
   mcast = ( ((_LSLP_GETFLAGS( client->_rcv_buf )) & (LSLP_FLAGS_MCAST) ) ? TRUE : FALSE   ) ;
   bptr = client->_rcv_buf;
@@ -1613,6 +1753,7 @@ void decode_srvreg(struct slp_client *client,
 		  free(scopes);
 		  free(type_string);
 		  lslpFreeURL(decoded_url);
+		  DEBUG_PRINT(DEBUG_EXIT, "decode_srvreg:1 %s", " ");
 		  return;
 		} /* malloced attr_string */
 	      } /* attr string sanity check */
@@ -1624,10 +1765,13 @@ void decode_srvreg(struct slp_client *client,
       } /* srv type sanity check */
       lslpFreeURL(decoded_url);
       make_srv_ack(client, remote, LSLP_SRVACK, LSLP_INTERNAL_ERROR);
+      DEBUG_PRINT(DEBUG_EXIT, "decode_srvreg:2 %s", " ");
       return;
     } /* decoded the url entry */
   } /* initial length sanity check OK */
   make_srv_ack(client, remote, LSLP_SRVACK, LSLP_PARSE_ERROR);
+
+  DEBUG_PRINT(DEBUG_EXIT, "decode_srvreg:3 %s", " ");
   return;
 }
 
@@ -1640,6 +1784,8 @@ void decode_srvrply( struct slp_client *client,
 
   int16 err, count, buf_len;
   int32 total_len, purported_len;
+
+  DEBUG_PRINT(DEBUG_ENTER, "decode_srvrply %s", " ");
 
   bptr = client->_rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
@@ -1758,6 +1904,7 @@ void decode_srvrply( struct slp_client *client,
     /* link the response to the client */
     _LSLP_INSERT(reply, &(client->replies));
   }
+  DEBUG_PRINT(DEBUG_EXIT, "decode_srvrply %s", " ");
   return;
 }
 
@@ -1766,6 +1913,8 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
   char *bptr;
   int16 str_len;
   int32 total_len, purported_len;
+
+  DEBUG_PRINT(DEBUG_ENTER, "decode_daadvert %s", " ");
 
   bptr = client->_rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
@@ -1832,6 +1981,7 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
 	    /* need code here to handle authenticated urls */
 	    strcpy(&(adv->remote[0]), inet_ntoa(remote->sin_addr)) ;
 	    _LSLP_INSERT(adv, &(client->das))
+	      DEBUG_PRINT(DEBUG_EXIT, "decode_daadvert:1 %s", " ");
 	    return;
 	  } /*  spi length field is consistent with hdr */
 	} /* attr length field is consistent with hdr */
@@ -1839,6 +1989,7 @@ void decode_daadvert(struct slp_client *client, SOCKADDR_IN *remote)
     }
     free_da_list_node(adv);
   }
+  DEBUG_PRINT(DEBUG_EXIT, "decode_daadvert:2 %s", " ");
   return;
 }
 
@@ -1853,6 +2004,8 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
   struct lslp_srv_rply_out *rp_out = NULL;
   struct lslp_srv_req *rq = NULL;
   int16 str_len, buf_len, err = LSLP_PARSE_ERROR ;
+
+  DEBUG_PRINT(DEBUG_ENTER, "decode_srvreq %s", " ");
 
   mcast = ( ((_LSLP_GETFLAGS( client->_rcv_buf )) & (LSLP_FLAGS_MCAST) ) ? TRUE : FALSE   ) ;
   bptr = client->_rcv_buf;
@@ -1876,6 +2029,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
 	      rq->srvcType = (char *)malloc(str_len + 1);
 	      if(rq->srvcType == NULL) {
 		free(rq);
+		DEBUG_PRINT(DEBUG_EXIT, "decode_srvreq:1 %s", " ");
 		return ;
 		}
 	      memcpy(rq->srvcType, bptr + 2, str_len);
@@ -2080,6 +2234,7 @@ void decode_srvreq(struct slp_client *client, SOCKADDR_IN *remote )
       free(rp_out);
     }
   } /* header sanity check */
+  DEBUG_PRINT(DEBUG_EXIT, "decode_srvreq %s", " ");
 }
 
 BOOL  srv_reg(struct slp_client *client,
@@ -2093,6 +2248,8 @@ BOOL  srv_reg(struct slp_client *client,
   int16 str_len, buf_len;
   char *bptr;
   lslpURL *url_entry = NULL;
+
+  DEBUG_PRINT(DEBUG_ENTER, "srvreq %s", " ");
 
   /* this is always a new request */
   memset( client->_pr_buf, 0x00, LSLP_MTU);
@@ -2112,7 +2269,10 @@ BOOL  srv_reg(struct slp_client *client,
 
   url_entry = (lslpURL *)calloc(1, sizeof(lslpURL));
   if(url_entry == NULL)
-    return FALSE;
+    {
+      DEBUG_PRINT(DEBUG_EXIT, "srvreq:err %s", " ");
+      return FALSE;
+    }
   url_entry->lifetime = lifetime + time(NULL);
   url_entry->len = (uint16)strlen(url);
   url_entry->url = strdup(url);
@@ -2173,6 +2333,7 @@ BOOL  srv_reg(struct slp_client *client,
 		  memset(client->_msg_buf, 0x00, LSLP_MTU);
 		  if(url_entry != NULL)
 		    lslpFreeURL(url_entry);
+		  DEBUG_PRINT(DEBUG_EXIT, "srvreq:ok %s", " ");
 		  return(TRUE);
 		}
 	      }
@@ -2185,6 +2346,7 @@ BOOL  srv_reg(struct slp_client *client,
   memset( client->_msg_buf, 0x00, LSLP_MTU);
   if(url_entry != NULL)
     lslpFreeURL(url_entry);
+  DEBUG_PRINT(DEBUG_EXIT, "srvreq:err2 %s", " ");
   return(FALSE);
 }
 
@@ -2195,6 +2357,8 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
   SOCKETD sock;               //jeb
   SOCKADDR_IN target, local;
   BOOL ccode = FALSE;
+
+  DEBUG_PRINT(DEBUG_ENTER, "send_rcv_udp %s", " ");
 
   if(INVALID_SOCKET != (sock = _LSLP_SOCKET(AF_INET, SOCK_DGRAM, 0))) {
     int err = 1;
@@ -2223,6 +2387,7 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
 	    (SOCKET_ERROR == _LSLP_SETSOCKOPT(sock, SOL_SOCKET, SO_BROADCAST, (const char *)&bcast, sizeof(bcast)))) {
 #endif
 	  _LSLP_CLOSESOCKET(sock);
+	  DEBUG_PRINT(DEBUG_EXIT, "send_rcv_udp:err %s", " ");
 	  return(FALSE);
 	}
 	if(client->_local_addr != INADDR_ANY ) {
@@ -2240,6 +2405,7 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
 #endif
 */
 	    _LSLP_CLOSESOCKET(sock);
+	    DEBUG_PRINT(DEBUG_EXIT, "send_rcv_udp:err2 %s", " ");
 	    return(FALSE);
 	  }
 	}
@@ -2255,6 +2421,7 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
 					     0,
 					     &target, sizeof(target) ))) {
 	_LSLP_CLOSESOCKET(sock);
+	DEBUG_PRINT(DEBUG_EXIT, "send_rcv_udp %s", " ");
 	return(FALSE);
       } /* oops - error sending data */
 
@@ -2270,6 +2437,8 @@ BOOL send_rcv_udp( struct slp_client *client, BOOL retry)
     } // bound the socket
     _LSLP_CLOSESOCKET(sock);
   } /*  got the socket */
+
+    DEBUG_PRINT(DEBUG_EXIT, "send_rcv_udp:%s", (ccode == FALSE ? "err3" : "ok"));
   return(ccode);
 }
 
@@ -2282,12 +2451,16 @@ int32 service_listener_wait(struct slp_client *client,
 {
   int32 ccode = 0;
 
+  DEBUG_PRINT(DEBUG_ENTER, "service_listener_wait %s", " ");
+
   if(list != NULL) {
     list->isHead = TRUE;
     list->prev = list->next = list;
     ccode = __service_listener_wait(client, wait, extra_sock, one_only);
     get_response(client, list);
   }
+
+  DEBUG_PRINT(DEBUG_EXIT, "service_listener_wait ccode = %d", ccode);
   return(ccode);
 }
 
@@ -2298,15 +2471,22 @@ int32 __service_listener_wait(struct slp_client *client, time_t wait, SOCKETD ex
   time_t now;
   time_t start = time(NULL);
 
+  DEBUG_PRINT(DEBUG_ENTER, "__service_listener_wait %s", " ");
+
   while( time(&now) && ((now - wait ) <= start )  ) {
     rcv += __service_listener(client, extra_sock);
     if(rcv > 0)
       if(one_only == TRUE)
-	return(rcv);
+	{
+	  DEBUG_PRINT(DEBUG_EXIT, "__service_listener_wait1 rcv = %d", rcv);
+	  return(rcv);
+	}
 
     _LSLP_SLEEP(10);
   }
   rcv += __service_listener(client, extra_sock);
+
+  DEBUG_PRINT(DEBUG_EXIT, "__service_listener_wait rcv = %d", rcv);
   return(rcv);
 }
 
@@ -2315,6 +2495,8 @@ int32 service_listener(struct slp_client *client, SOCKETD extra_sock, lslpMsg *l
 {
   int32 ccode = 0;
 
+  DEBUG_PRINT(DEBUG_ENTER, "service_listener %s", " ");
+
   if(list != NULL ) {
     list->isHead = TRUE;
     list->prev = list->next = list;
@@ -2322,6 +2504,8 @@ int32 service_listener(struct slp_client *client, SOCKETD extra_sock, lslpMsg *l
     ccode = __service_listener(client, extra_sock);
     get_response(client, list);
   }
+
+  DEBUG_PRINT(DEBUG_EXIT, "service_listener ccode = %d", ccode);
   return(ccode);
 }
 
@@ -2333,6 +2517,9 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
   int32 err;
   LSLP_FD_SET fds;
   _LSLP_FD_ZERO(&fds);
+
+  DEBUG_PRINT(DEBUG_ENTER, "__service_listener %s", " ");
+
   if(client->_rcv_sock != INVALID_SOCKET) {
     _LSLP_FD_SET(client->_rcv_sock, &fds);
   }
@@ -2366,6 +2553,8 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
         {
           //go decode the inbound message
           decode_msg( client, &remote );
+
+	  DEBUG_PRINT(DEBUG_EXIT, "__service_listener 1 err = %d", err);
           return(err);
         }
         else //error on receive or invalid socket
@@ -2381,6 +2570,7 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
       	        client->_rcv_sock = slp_open_listen_sock();
           }
 
+	  DEBUG_PRINT(DEBUG_EXIT, "__service_listener 2 err = %d", err);
           return(err);
         }
     }
@@ -2388,6 +2578,7 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
     else if (err == NU_NO_DATA)
     {
       //This is OK just return to retry select again later
+      DEBUG_PRINT(DEBUG_EXIT, "__service_listener 3 err = %d", err);
       return(err);
     }
     //see if other than we time-out with no data
@@ -2408,6 +2599,7 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
       }
     }
 
+    DEBUG_PRINT(DEBUG_EXIT, "__service_listener 4 err = %d", err);
  return(err);
 
 #else //all other OS's
@@ -2446,6 +2638,8 @@ int32 __service_listener(struct slp_client *client, SOCKETD extra_sock )     //j
 	 client->_rcv_sock = slp_open_listen_sock();
      }
    }
+
+   DEBUG_PRINT(DEBUG_EXIT, "__service_listener err = %d", err);
    return(err);
 #endif
 
@@ -2461,12 +2655,17 @@ int srv_reg_all( struct slp_client *client,
   uint32 target_addr_save;
   int convergence_save;
 
+  DEBUG_PRINT(DEBUG_ENTER, "srv_reg_all %s", " ");
+
   // keep track of how many times we register
   int registrations = 0;
 
   assert(client != NULL && url != NULL && attributes != NULL && service_type != NULL && scopes != NULL);
   if(client == NULL || url == NULL || attributes == NULL || service_type == NULL || scopes == NULL )
-    return(0);
+    {
+      DEBUG_PRINT(DEBUG_EXIT, "srv_reg_all:err %s", " ");
+      return(0);
+    }
 
   // save target and convergence parameters
   target_addr_save = client->_target_addr;
@@ -2493,6 +2692,7 @@ int srv_reg_all( struct slp_client *client,
     if( TRUE == srv_reg( client, url, attributes, service_type, scopes, lifetime) )
       registrations++;
   }
+  DEBUG_PRINT(DEBUG_EXIT, "srv_reg_all:ok %s", " ");
   return(registrations);
 }
 
@@ -2506,11 +2706,16 @@ int  srv_reg_local(struct slp_client *client,
 {
   int count = 0;
 
+  DEBUG_PRINT(DEBUG_ENTER, "srv_reg_local %s", " ");
+
   uint32 target_addr_save;
   int convergence_save;
   assert(client != NULL && url != NULL && attributes != NULL && service_type != NULL && scopes != NULL);
   if(client == NULL || url == NULL || attributes == NULL || service_type == NULL || scopes == NULL )
-    return 0;
+    {
+      DEBUG_PRINT(DEBUG_EXIT, "srv_reg_local:err %s", " ");
+      return 0;
+    }
 
   target_addr_save = client->_target_addr;
   convergence_save = client->_convergence;
@@ -2521,6 +2726,8 @@ int  srv_reg_local(struct slp_client *client,
 
   client->_convergence = convergence_save;
   client->_target_addr = target_addr_save;
+
+  DEBUG_PRINT(DEBUG_ENTER, "srv_reg_local count=%d", count);
   return count;
 
 }
@@ -2552,6 +2759,8 @@ void __srv_reg_local ( struct slp_client *client,
   char *url_copy;
   lslpSrvRegList *reg;
 
+  DEBUG_PRINT(DEBUG_ENTER, "__srv_reg_local %s", " ");
+
   assert(client != NULL && url != NULL && attributes != NULL && \
 	 service_type != NULL && scopes != NULL);
 
@@ -2569,6 +2778,7 @@ void __srv_reg_local ( struct slp_client *client,
       if(reg->attrList != NULL)
 	lslpFreeAttrList(reg->attrList, LSLP_DESTRUCTOR_DYNAMIC);
       reg->attrList = _lslpDecodeAttrString((char *)attributes);
+      DEBUG_PRINT(DEBUG_EXIT, "__srv_reg_local %s", "1 ");
       return;
     }
     reg = reg->next;
@@ -2579,6 +2789,7 @@ void __srv_reg_local ( struct slp_client *client,
     char *scope_copy = strdup(scopes);
     if(scope_copy == NULL){
        free(reg);
+       DEBUG_PRINT(DEBUG_ENTER, "srv_reg_local %s", "2 ");
        return;
     }
     if(NULL == (reg->url = lslpAllocURL()))
@@ -2596,6 +2807,7 @@ void __srv_reg_local ( struct slp_client *client,
     reg->attrList  = _lslpDecodeAttrString((char *)attributes);
     _LSLP_INSERT(reg, (lslpSrvRegList *)&(client->regs));
   }
+  DEBUG_PRINT(DEBUG_ENTER, "srv_reg_local %s", "3 ");
   return;
 }
 
@@ -2634,13 +2846,20 @@ struct slp_client *create_slp_client(const char *target_addr,
   struct slp_client *client;
   char *scope_copy;
 
+  DEBUG_PRINT(DEBUG_ENTER, "create_slp_client %s", " ");
 
   if(spi == NULL || scopes == NULL )
-    return NULL;
+    {
+      DEBUG_PRINT(DEBUG_EXIT, "create_slp_client:err %s", " ");
+      return NULL;
+    }
 
   client = (struct slp_client *)calloc(1, sizeof(struct slp_client)); //jeb
   if(client == NULL)
-    return NULL;
+    {
+      DEBUG_PRINT(DEBUG_EXIT, "create_slp_client:err2 %s", " ");
+      return NULL;
+    }
 
 #ifdef _WIN32
   WindowsStartNetwork();
@@ -2673,6 +2892,7 @@ struct slp_client *create_slp_client(const char *target_addr,
   scope_copy = strdup(spi);
   if(scope_copy == NULL){
     free(client);
+    DEBUG_PRINT(DEBUG_EXIT, "create_slp_client:err3 %s", " ");
     return NULL;
   }
 
@@ -2682,6 +2902,7 @@ struct slp_client *create_slp_client(const char *target_addr,
   scope_copy = strdup(scopes);
   if(scope_copy == NULL){
     free(client);
+    DEBUG_PRINT(DEBUG_EXIT, "create_slp_client:err4 %s", " ");
     return NULL;
   }
   len = (int16)strlen(scope_copy) + 1;
@@ -2761,14 +2982,18 @@ struct slp_client *create_slp_client(const char *target_addr,
   client->service_listener_wait = service_listener_wait;
   client->slp_previous_responder = slp_previous_responder;
 
+  DEBUG_PRINT(DEBUG_EXIT, "create_slp_client:ok %s", " ");
   return client;
 }
 
 void destroy_slp_client(struct slp_client *client)
 {
-
+  DEBUG_PRINT(DEBUG_ENTER, "destroy_slp_client %s", " ");
   if(client == NULL)
+    {
+    DEBUG_PRINT(DEBUG_EXIT, "destroy_slp_client:err %s", " ");
     return;
+    }
 
   _LSLP_CLOSESOCKET(client->_rcv_sock);
   _LSLP_FREE_DEINIT(client->_local_addr_list);
@@ -2776,6 +3001,7 @@ void destroy_slp_client(struct slp_client *client)
   lslpFreeScopeList(client->_scopes);
   _LSLP_FREE_DEINIT(client->_crypto_context);
   free(client);
+  DEBUG_PRINT(DEBUG_EXIT, "destroy_slp_client:ok %s", " ");
   return;
 }
 
@@ -2916,6 +3142,8 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
   lslpAttrList *attr_tags, *attr_return;
   lslpSrvRegList *regs;
 
+  DEBUG_PRINT(DEBUG_ENTER, "decode_attrreq %s", " ");
+
   int16 str_len, buf_len, err = 0, parse_err;
   int32 total_len, purported_len;
   uint32 local_address;
@@ -2924,7 +3152,10 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
   bptr = client->_rcv_buf;
   purported_len = _LSLP_GETLENGTH(bptr);
   if(purported_len > LSLP_MTU )
+    {
+    DEBUG_PRINT(DEBUG_EXIT, "decode_attrreq:err %s", " ");
     return;
+    }
 
   bptr += (total_len = _LSLP_HDRLEN(bptr));
 
@@ -3068,6 +3299,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
       } /* not on the pr list */
     }
   }
+  DEBUG_PRINT(DEBUG_EXIT, "decode_attrreq:ok %s", " ");
 }
 
 
@@ -3116,6 +3348,9 @@ BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   BOOL ccode = FALSE, hit = TRUE;
   assert(buf != NULL);
   assert(len != NULL && *len > 3);
+
+  DEBUG_PRINT(DEBUG_ENTER, "lslpStuffAttrList %s", " ");
+
 /*   assert(list != NULL); */
   if (buf == NULL || len == NULL || *len < 3 )
     return(FALSE);
@@ -3125,6 +3360,7 @@ BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list, lslpAttrList 
     _LSLP_SETSHORT((*buf), 0, 0);
     (*buf) += 2;
     (*len) -= 2;
+    DEBUG_PRINT(DEBUG_EXIT, "lslpStuffAttrList:ok %s", " ");
     return(TRUE);
   }
   /* attr list */
@@ -3295,6 +3531,7 @@ BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list, lslpAttrList 
       (*len) = lenSave;
       memset(*buf, 0x00, *len);
     }
+  DEBUG_PRINT(DEBUG_EXIT, "lslpStuffAttrList:ok %s", " ");
   return(ccode);
 }
 
@@ -3307,6 +3544,9 @@ lslpAttrList *lslpUnstuffAttr(char **buf, int16 *len, int16 *err)
   assert(len != NULL);
   assert(err != NULL);
   *err = 0;
+
+  DEBUG_PRINT(DEBUG_ENTER, "lslpUnstuffAttr %s", " ");
+
   tempLen = _LSLP_GETSHORT(*buf, 0);
   if(tempLen > 0) {
     (*buf) += sizeof(int16);
@@ -3318,6 +3558,7 @@ lslpAttrList *lslpUnstuffAttr(char **buf, int16 *len, int16 *err)
       } else {*err = LSLP_PARSE_ERROR; }
     } else {*err = LSLP_INTERNAL_ERROR; }
   }
+  DEBUG_PRINT(DEBUG_EXIT, "lslpStuffAttrList:ok %s", " ");
   return(temp);
 }
 
@@ -3385,6 +3626,9 @@ BOOL  lslpStuffURL(char **buf, int16 *len, lslpURL *url)
   assert((buf != NULL) && (*buf != NULL));
   assert((len != NULL) && (*len > 8));
   assert((url != NULL) && (! _LSLP_IS_HEAD(url)));
+
+  DEBUG_PRINT(DEBUG_ENTER, "lslpStuffURL %s", " ");
+
   if(_LSLP_IS_HEAD(url))
     return(FALSE);
   memset(*buf, 0x00, *len);
@@ -3403,6 +3647,7 @@ BOOL  lslpStuffURL(char **buf, int16 *len, lslpURL *url)
   memcpy(*buf, url->url, url->len);
   (*buf) += url->len;
   (*len) -= url->len;
+  DEBUG_PRINT(DEBUG_EXIT, "lslpStuffURL %s", " ");
   return(lslpStuffAuthList(buf, len, url->authBlocks));
 }
 
@@ -3413,12 +3658,16 @@ BOOL lslpStuffURLList(char **buf, int16 *len, lslpURL *list)
   assert((buf != NULL) && (*buf != NULL));
   assert((len != NULL) && (*len > 8));
   assert((list != NULL) && (_LSLP_IS_HEAD(list)));
+
+  DEBUG_PRINT(DEBUG_ENTER, "lslpStuffURLList %s", " ");
+
   if(! _LSLP_IS_HEAD(list))
     return(FALSE);
   while((ccode == TRUE) && (! _LSLP_IS_HEAD(list->next))) {
     list = list->next;
     ccode = lslpStuffURL(buf, len, list);
   }
+  DEBUG_PRINT(DEBUG_EXIT, "lslpStuffURLList:ok %s", " ");
   return(ccode);
 }
 
@@ -3431,6 +3680,9 @@ lslpURL *lslpUnstuffURL(char **buf, int16 *len, int16 *err)
   assert(len != NULL && *len > 8);
   assert(err != NULL);
   *err = 0;
+
+  DEBUG_PRINT(DEBUG_ENTER, "lslpUnstuffURL %s", " ");
+
   if(NULL != (temp = lslpAllocURL())) {
     temp->lifetime = _LSLP_GETSHORT((*buf), 1);
     temp->len = _LSLP_GETSHORT((*buf), 3);
@@ -3453,6 +3705,7 @@ lslpURL *lslpUnstuffURL(char **buf, int16 *len, int16 *err)
     lslpFreeURL(temp);
     temp = NULL;
   }
+  DEBUG_PRINT(DEBUG_EXIT, "lslpUnstuffURL:ok %s", " ");
   return(temp);
 }
 
@@ -4420,6 +4673,9 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
   int16 ext_offset;
   char *extptr, *next_extptr;
   BOOL pile_up_attrs = FALSE;
+
+  DEBUG_PRINT(DEBUG_ENTER, "_lslpProcessSrvReq %s", " ");
+
 
   struct lslp_srv_rply_out *temp_rply =
     (struct lslp_srv_rply_out *)calloc(1, sizeof(struct lslp_srv_rply_out));

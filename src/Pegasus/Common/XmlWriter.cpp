@@ -36,11 +36,10 @@
 //                  (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//				 Willis White (whiwill@us.ibm.com) PEP 127 and 128
+//              Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com)
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
+//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //              Vijay Eli, vijayeli@in.ibm.com, fix for #2571
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -98,7 +97,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-// Note: we cannot use StrLit here since it has a constructur (forbits 
+// Note: we cannot use StrLit here since it has a constructur (forbits
 // structure initialization).
 
 struct SpecialChar
@@ -245,7 +244,7 @@ static const SpecialChar _specialChars[] =
 // If _isSpecialChar7[ch] is true, then ch is a special character, which must
 // have a special encoding in XML. But only use 7-bit ASCII characters to
 // index this array.
-static const int _isSpecialChar7[] = 
+static const int _isSpecialChar7[] =
 {
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,
     0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -645,7 +644,7 @@ void XmlWriter::appendSpecial(Buffer& out, const String& str)
 	    break;
     }
 
-    // Process remaining characters. A UTF8 character must have been 
+    // Process remaining characters. A UTF8 character must have been
     // encountered or this would have never been reached.
 
     while (n--)
@@ -695,7 +694,7 @@ static const char _is_uri[128] =
     1,1,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,
-}; 
+};
 
 static void _xmlWritter_encodeURIChar(String& outString, Sint8 char8)
 {
@@ -1972,7 +1971,7 @@ void XmlWriter::appendMethodCallHeader(
         out << nn << STRLIT("-CIMOperation: MethodCall\r\n");
         out << nn << STRLIT("-CIMMethod: ")
             << encodeURICharacters(cimMethod.getString()) << STRLIT("\r\n");
-        out << nn << STRLIT("-CIMObject: ") << encodeURICharacters(cimObject) 
+        out << nn << STRLIT("-CIMObject: ") << encodeURICharacters(cimObject)
 	    << STRLIT("\r\n");
     }
     else
@@ -1980,7 +1979,7 @@ void XmlWriter::appendMethodCallHeader(
         out << STRLIT("CIMOperation: MethodCall\r\n");
         out << STRLIT("CIMMethod: ") << encodeURICharacters(cimMethod.getString())
             << STRLIT("\r\n");
-        out << STRLIT("CIMObject: ") << encodeURICharacters(cimObject) 
+        out << STRLIT("CIMObject: ") << encodeURICharacters(cimObject)
 	    << STRLIT("\r\n");
     }
 
@@ -1998,7 +1997,7 @@ void XmlWriter::appendMethodResponseHeader(
      HttpMethod httpMethod,
      const ContentLanguages & contentLanguages,
      Uint32 contentLength,
-     Uint32 serverResponseTime)
+     Uint64 serverResponseTime)
 {
      char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
      out << STRLIT("HTTP/1.1 " HTTP_STATUS_OK "\r\n");
@@ -2752,7 +2751,7 @@ Buffer XmlWriter::formatSimpleMethodRspMessage(
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,
     const Buffer& body,
-		Uint32 serverResponseTime,
+		Uint64 serverResponseTime,
 		Boolean isFirst,
 		Boolean isLast)
 {
@@ -2875,7 +2874,7 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
     HttpMethod httpMethod,
     const ContentLanguages & httpContentLanguages,
     const Buffer& body,
-    Uint32 serverResponseTime,
+    Uint64 serverResponseTime,
     Boolean isFirst,
     Boolean isLast)
 {

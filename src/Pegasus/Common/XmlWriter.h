@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,16 +29,16 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By: 
+// Modified By:
 //         Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
 //         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //         Carol Ann Krug Graves, Hewlett-Packard Company
 //             (carolann_graves@hp.com)
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase1
-//		   Willis White (whiwill@us.ibm.com) PEP 127 and 128
+//         Willis White (whiwill@us.ibm.com) PEP 127 and 128
 //         Brian G. Campbell, EMC (campbell_brian@emc.com) - PEP140/phase2
-//         David Dillard, VERITAS Software Corp.  (david.dillard@veritas.com)
+//         David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //              Vijay Eli, vijayeli@in.ibm.com, fix for #2571
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -118,41 +118,41 @@ public:
     static String encodeURICharacters(const String& uriString);
 
     static void appendLocalNameSpacePathElement(
-	Buffer& out, 
-	const CIMNamespaceName& nameSpace);
+        Buffer& out,
+        const CIMNamespaceName& nameSpace);
 
     static void appendNameSpacePathElement(
-	Buffer& out, 
-	const String& host,
-	const CIMNamespaceName& nameSpace);
+        Buffer& out,
+        const String& host,
+        const CIMNamespaceName& nameSpace);
 
     static void appendClassNameElement(
-	Buffer& out,
-	const CIMName& className);
+        Buffer& out,
+        const CIMName& className);
 
     static void appendInstanceNameElement(
-	Buffer& out,
-	const CIMObjectPath& instanceName);
+        Buffer& out,
+        const CIMObjectPath& instanceName);
 
     static void appendClassPathElement(
-	Buffer& out,
-	const CIMObjectPath& classPath);
+        Buffer& out,
+        const CIMObjectPath& classPath);
 
     static void appendInstancePathElement(
-	Buffer& out,
-	const CIMObjectPath& instancePath);
+        Buffer& out,
+        const CIMObjectPath& instancePath);
 
     static void appendLocalClassPathElement(
-	Buffer& out,
-	const CIMObjectPath& classPath);
+        Buffer& out,
+        const CIMObjectPath& classPath);
 
     static void appendLocalInstancePathElement(
-	Buffer& out,
-	const CIMObjectPath& instancePath);
+        Buffer& out,
+        const CIMObjectPath& instancePath);
 
     static void appendLocalObjectPathElement(
-	Buffer& out,
-	const CIMObjectPath& objectPath);
+        Buffer& out,
+        const CIMObjectPath& objectPath);
 
     static void appendValueElement(
         Buffer& out,
@@ -256,219 +256,219 @@ public:
         const CIMScope & scope);
 
     static void appendMethodCallHeader(
-	Buffer& out,
-	const char* host,
-	const CIMName& cimMethod,
-	const String& cimObject,
-	const String& authenticationHeader,
+        Buffer& out,
+        const char* host,
+        const CIMName& cimMethod,
+        const String& cimObject,
+        const String& authenticationHeader,
         HttpMethod httpMethod,
-    const AcceptLanguages & acceptLanguages,    
-    const ContentLanguages & contentLanguages,        
-	Uint32 contentLength);
+        const AcceptLanguages & acceptLanguages,
+        const ContentLanguages & contentLanguages,
+        Uint32 contentLength);
 
-	// added to accommodate sending WBEMServerResponseTime PEP #128
+    // added to accommodate sending WBEMServerResponseTime PEP #128
     static void appendMethodResponseHeader(
         Buffer& out,
         HttpMethod httpMethod,
-    const ContentLanguages & contentLanguages,
+        const ContentLanguages & contentLanguages,
         Uint32 contentLength,
-	Uint32 serverResponseTime = 0);
+        Uint64 serverResponseTime = 0);
 
     static void appendHttpErrorResponseHeader(
-	Buffer& out,
-	const String& status,
-	const String& cimError = String::EMPTY,
-	const String& errorDetail = String::EMPTY);
+        Buffer& out,
+        const String& status,
+        const String& cimError = String::EMPTY,
+        const String& errorDetail = String::EMPTY);
 
     static void appendUnauthorizedResponseHeader(
-	Buffer& out,
+        Buffer& out,
         const String& content);
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
     static void appendOKResponseHeader(
-	Buffer& out,
+        Buffer& out,
         const String& content);
 #endif
 
     static void appendReturnValueElement(
-	Buffer& out,
-	const CIMValue& value);
+        Buffer& out,
+        const CIMValue& value);
 
     static void appendBooleanIParameter(
-	Buffer& out,
-	const char* name,
-	Boolean flag);
+        Buffer& out,
+        const char* name,
+        Boolean flag);
 
     static void appendStringIParameter(
-	Buffer& out,
-	const char* name,
-	const String& str);
+        Buffer& out,
+        const char* name,
+        const String& str);
 
     static void appendQualifierNameIParameter(
-	Buffer& out,
-	const char* name,
-	const String& qualifierName);
+        Buffer& out,
+        const char* name,
+        const String& qualifierName);
 
     static void appendClassNameIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMName& className);
+        Buffer& out,
+        const char* name,
+        const CIMName& className);
 
     static void appendInstanceNameIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMObjectPath& instanceName);
+        Buffer& out,
+        const char* name,
+        const CIMObjectPath& instanceName);
 
     static void appendObjectNameIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMObjectPath& objectName);
+        Buffer& out,
+        const char* name,
+        const CIMObjectPath& objectName);
 
     static void appendClassIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMConstClass& cimClass);
+        Buffer& out,
+        const char* name,
+        const CIMConstClass& cimClass);
 
     static void appendInstanceIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMConstInstance& instance);
+        Buffer& out,
+        const char* name,
+        const CIMConstInstance& instance);
 
     static void appendNamedInstanceIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMInstance& namedInstance) ;
+        Buffer& out,
+        const char* name,
+        const CIMInstance& namedInstance) ;
 
     static void appendPropertyNameIParameter(
-	Buffer& out,
-	const CIMName& propertyName);
+        Buffer& out,
+        const CIMName& propertyName);
 
     static void appendPropertyValueIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMValue& value);
+        Buffer& out,
+        const char* name,
+        const CIMValue& value);
 
     static void appendPropertyListIParameter(
-	Buffer& out,
-	const CIMPropertyList& propertyList);
+        Buffer& out,
+        const CIMPropertyList& propertyList);
 
     static void appendQualifierDeclarationIParameter(
-	Buffer& out,
-	const char* name,
-	const CIMConstQualifierDecl& qualifierDecl);
+        Buffer& out,
+        const char* name,
+        const CIMConstQualifierDecl& qualifierDecl);
 
     static Buffer formatHttpErrorRspMessage(
-	const String& status,
-	const String& cimError = String::EMPTY,
-	const String& errorDetail = String::EMPTY);
+        const String& status,
+        const String& cimError = String::EMPTY,
+        const String& errorDetail = String::EMPTY);
 
     static Buffer formatSimpleMethodReqMessage(
-	const char* host,
-	const CIMNamespaceName& nameSpace,
-	const CIMObjectPath& path,
-	const CIMName& methodName,
-	const Array<CIMParamValue>& parameters,
-	const String& messageId,
-        HttpMethod httpMethod,
-        const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages);
-
-	//PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
-	static Buffer formatSimpleMethodRspMessage(
-	const CIMName& methodName,
+        const char* host,
+        const CIMNamespaceName& nameSpace,
+        const CIMObjectPath& path,
+        const CIMName& methodName,
+        const Array<CIMParamValue>& parameters,
         const String& messageId,
         HttpMethod httpMethod,
-        const ContentLanguages & httpContentLanguages,          
-	const Buffer& body,
-	Uint32 serverResponseTime,
-	Boolean isFirst = true,
-	Boolean isLast = true);
-
-    static Buffer formatSimpleMethodErrorRspMessage(
-	const CIMName& methodName,
-	const String& messageId,
-        HttpMethod httpMethod,
-	const CIMException& cimException);
-
-    static Buffer formatSimpleIMethodReqMessage(
-	const char* host,
-	const CIMNamespaceName& nameSpace,
-	const CIMName& iMethodName,
-	const String& messageId,
-        HttpMethod httpMethod,
         const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages,        
-	const Buffer& body);
+        const AcceptLanguages& httpAcceptLanguages,
+        const ContentLanguages& httpContentLanguages);
 
     //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
-	static Buffer formatSimpleIMethodRspMessage(
-	const CIMName& iMethodName,
+    static Buffer formatSimpleMethodRspMessage(
+        const CIMName& methodName,
         const String& messageId,
         HttpMethod httpMethod,
-        const ContentLanguages & httpContentLanguages,  
-	const Buffer& body,
-	Uint32 serverResponseTime,
-	Boolean isFirst = true,
-	Boolean isLast = true);
+        const ContentLanguages & httpContentLanguages,
+        const Buffer& body,
+        Uint64 serverResponseTime,
+        Boolean isFirst = true,
+        Boolean isLast = true);
 
-    static Buffer formatSimpleIMethodErrorRspMessage(
-	const CIMName& iMethodName,
-	const String& messageId,
+    static Buffer formatSimpleMethodErrorRspMessage(
+        const CIMName& methodName,
+        const String& messageId,
         HttpMethod httpMethod,
-	const CIMException& cimException);
+        const CIMException& cimException);
 
-    static void appendInstanceEParameter(
-	Buffer& out,
-	const char* name,
-	const CIMInstance& instance);
-
-    static void appendEMethodRequestHeader(
-    	Buffer& out,
-        const char* requestUri,
-    	const char* host,
-    	const CIMName& cimMethod,
+    static Buffer formatSimpleIMethodReqMessage(
+        const char* host,
+        const CIMNamespaceName& nameSpace,
+        const CIMName& iMethodName,
+        const String& messageId,
         HttpMethod httpMethod,
         const String& authenticationHeader,
-    const AcceptLanguages& acceptLanguages,      
-    const ContentLanguages& contentLanguages,           
-	Uint32 contentLength);
+        const AcceptLanguages& httpAcceptLanguages,
+        const ContentLanguages& httpContentLanguages,
+        const Buffer& body);
+
+    //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
+    static Buffer formatSimpleIMethodRspMessage(
+        const CIMName& iMethodName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const ContentLanguages & httpContentLanguages,
+        const Buffer& body,
+        Uint64 serverResponseTime,
+        Boolean isFirst = true,
+        Boolean isLast = true);
+
+    static Buffer formatSimpleIMethodErrorRspMessage(
+        const CIMName& iMethodName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const CIMException& cimException);
+
+    static void appendInstanceEParameter(
+        Buffer& out,
+        const char* name,
+        const CIMInstance& instance);
+
+    static void appendEMethodRequestHeader(
+        Buffer& out,
+        const char* requestUri,
+        const char* host,
+        const CIMName& cimMethod,
+        HttpMethod httpMethod,
+        const String& authenticationHeader,
+        const AcceptLanguages& acceptLanguages,
+        const ContentLanguages& contentLanguages,
+        Uint32 contentLength);
 
     static void appendEMethodResponseHeader(
-	Buffer& out,
+        Buffer& out,
         HttpMethod httpMethod,
-    const ContentLanguages& contentLanguages,           
-	Uint32 contentLength);
+        const ContentLanguages& contentLanguages,
+        Uint32 contentLength);
 
     static Buffer formatSimpleEMethodReqMessage(
         const char* requestUri,
-	const char* host,
-	const CIMName& eMethodName,
-	const String& messageId,
-        HttpMethod httpMethod,
-	const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages,  	
-	const Buffer& body);
-
-    static Buffer formatSimpleEMethodRspMessage(
-	const CIMName& eMethodName,
+        const char* host,
+        const CIMName& eMethodName,
         const String& messageId,
         HttpMethod httpMethod,
-    const ContentLanguages& httpContentLanguages,        
-	const Buffer& body);
+        const String& authenticationHeader,
+        const AcceptLanguages& httpAcceptLanguages,
+        const ContentLanguages& httpContentLanguages,
+        const Buffer& body);
+
+    static Buffer formatSimpleEMethodRspMessage(
+        const CIMName& eMethodName,
+        const String& messageId,
+        HttpMethod httpMethod,
+        const ContentLanguages& httpContentLanguages,
+        const Buffer& body);
 
     static Buffer formatSimpleEMethodErrorRspMessage(
-	const CIMName& eMethodName,
-	const String& messageId,
+        const CIMName& eMethodName,
+        const String& messageId,
         HttpMethod httpMethod,
-	const CIMException& cimException);
+        const CIMException& cimException);
 
     static void indentedPrint(
-	PEGASUS_STD(ostream)& os,
-	const char* text, 
-	Uint32 indentChars = 2);
+        PEGASUS_STD(ostream)& os,
+        const char* text,
+        Uint32 indentChars = 2);
 
     static String getNextMessageId();
 
@@ -480,50 +480,51 @@ public:
 private:
 
     static void _appendMessageElementBegin(
-	Buffer& out,
-	const String& messageId);
-    static void _appendMessageElementEnd(
-	Buffer& out);
+        Buffer& out,
+        const String& messageId);
+        static void _appendMessageElementEnd(
+        Buffer& out);
 
     static void _appendSimpleReqElementBegin(Buffer& out);
     static void _appendSimpleReqElementEnd(Buffer& out);
 
     static void _appendMethodCallElementBegin(
-	Buffer& out,
-	const CIMName& name);
+        Buffer& out,
+        const CIMName& name);
+
     static void _appendMethodCallElementEnd(
-	Buffer& out);
+        Buffer& out);
 
     static void _appendIMethodCallElementBegin(
-	Buffer& out,
-	const CIMName& name);
-    static void _appendIMethodCallElementEnd(
-	Buffer& out);
+        Buffer& out,
+        const CIMName& name);
+        static void _appendIMethodCallElementEnd(
+        Buffer& out);
 
     static void _appendIParamValueElementBegin(
-	Buffer& out,
-	const char* name);
-    static void _appendIParamValueElementEnd(
-	Buffer& out);
+        Buffer& out,
+        const char* name);
+        static void _appendIParamValueElementEnd(
+        Buffer& out);
 
     static void _appendSimpleRspElementBegin(Buffer& out);
     static void _appendSimpleRspElementEnd(Buffer& out);
 
     static void _appendMethodResponseElementBegin(
-	Buffer& out,
-	const CIMName& name);
-    static void _appendMethodResponseElementEnd(
-	Buffer& out);
+        Buffer& out,
+        const CIMName& name);
+        static void _appendMethodResponseElementEnd(
+        Buffer& out);
 
     static void _appendIMethodResponseElementBegin(
-	Buffer& out,
-	const CIMName& name);
-    static void _appendIMethodResponseElementEnd(
-	Buffer& out);
+        Buffer& out,
+        const CIMName& name);
+        static void _appendIMethodResponseElementEnd(
+        Buffer& out);
 
     static void _appendErrorElement(
-	Buffer& out,
-	const CIMException& cimException);
+        Buffer& out,
+        const CIMException& cimException);
 
     static void _appendIReturnValueElementBegin(Buffer& out);
     static void _appendIReturnValueElementEnd(Buffer& out);
@@ -532,31 +533,33 @@ private:
     static void _appendSimpleExportReqElementEnd(Buffer& out);
 
     static void _appendEMethodCallElementBegin(
-    	Buffer& out,
-    	const CIMName& name);
+        Buffer& out,
+        const CIMName& name);
+
     static void _appendEMethodCallElementEnd(
-    	Buffer& out);
+        Buffer& out);
 
     static void _appendEParamValueElementBegin(
-	Buffer& out,
-	const char* name);
-    static void _appendEParamValueElementEnd(
-	Buffer& out);
+        Buffer& out,
+        const char* name);
+        static void _appendEParamValueElementEnd(
+        Buffer& out);
 
     static void _appendSimpleExportRspElementBegin(Buffer& out);
     static void _appendSimpleExportRspElementEnd(Buffer& out);
 
     static void _appendEMethodResponseElementBegin(
-    	Buffer& out,
-    	const CIMName& name);
+        Buffer& out,
+        const CIMName& name);
+
     static void _appendEMethodResponseElementEnd(
-    	Buffer& out);
+        Buffer& out);
 
     XmlWriter() { }
 };
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     const char* x);
 
 inline Buffer& operator<<(Buffer& out, char x)
@@ -574,23 +577,23 @@ inline Buffer& operator<<(Buffer& out, const char* s)
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(Buffer& out, const Char16& x);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     const String& x);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     const Indentor& x);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     const Buffer& x);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     Uint32 x);
 
 PEGASUS_COMMON_LINKAGE Buffer& operator<<(
-    Buffer& out, 
+    Buffer& out,
     const CIMName& name);
 
 PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(

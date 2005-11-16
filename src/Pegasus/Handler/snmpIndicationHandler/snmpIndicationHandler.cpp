@@ -47,6 +47,8 @@
 
 #ifdef HPUX_EMANATE
 #include "snmpDeliverTrap_emanate.h"
+#elif defined (PEGASUS_USE_NET_SNMP)
+#include "snmpDeliverTrap_netsnmp.h"
 #else
 #include "snmpDeliverTrap_stub.h"
 #endif
@@ -151,6 +153,8 @@ void snmpIndicationHandler::handleIndication(
 
 #ifdef HPUX_EMANATE
         static snmpDeliverTrap_emanate emanateTrap;
+#elif defined (PEGASUS_USE_NET_SNMP)
+        static snmpDeliverTrap_netsnmp emanateTrap;
 #else
         static snmpDeliverTrap_stub emanateTrap;
 #endif

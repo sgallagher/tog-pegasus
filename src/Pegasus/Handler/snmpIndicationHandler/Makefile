@@ -53,7 +53,16 @@ LOCAL_DEFINES += -DSETS -DSR_SNMPv1 -DSR_SNMPv2c -DSR_SNMPv2  -DEMANATE -DSR_ANS
 
  SOURCES += snmpDeliverTrap_emanate.cpp
 else
- SOURCES += snmpDeliverTrap_stub.cpp
+# Controls snmp indication handler to use NET-SNMP to deliver trap
+  ifdef PEGASUS_USE_NET_SNMP
+    EXTRA_LIBRARIES += -L$(PEGASUS_NET_SNMP_LIB_DIR) -lnetsnmp
+
+    EXTRA_INCLUDES = -I$(PEGASUS_NET_SNMP_INCLUDE_DIR)
+
+    SOURCES += snmpDeliverTrap_netsnmp.cpp
+  else
+    SOURCES += snmpDeliverTrap_stub.cpp
+  endif
 endif
 
 LIBRARY = snmpIndicationHandler

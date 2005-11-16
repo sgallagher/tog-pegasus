@@ -471,6 +471,11 @@ ifdef PEGASUS_ENABLE_EMAIL_HANDLER
   DEFINES += -DPEGASUS_ENABLE_EMAIL_HANDLER
 endif
 
+# Controls snmp indication handler to use NET-SNMP to deliver trap
+ifdef PEGASUS_USE_NET_SNMP
+  DEFINES += -DPEGASUS_USE_NET_SNMP
+endif
+
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
 #

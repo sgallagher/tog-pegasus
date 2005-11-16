@@ -160,7 +160,7 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 																 HttpMethod httpMethod,
 																 const ContentLanguages &httpContentLanguages, 
 																 const Buffer& body,
-																 Uint32 serverResponseTime,
+																 Uint64 serverResponseTime,
 																 Boolean isFirst,
 																 Boolean isLast);
 

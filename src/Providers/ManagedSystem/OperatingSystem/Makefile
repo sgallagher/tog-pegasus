@@ -59,10 +59,12 @@ DYNAMIC_LIBRARIES = \
 	-lpegprovider
 
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
-SYS_LIBS += \
-	psapi.lib \
-	pdh.lib \
-	advapi32.lib
+# Note that PEGASUS_WINDOWS_SDK_HOME only needs to be specified if using VC6.
+  ifdef PEGASUS_WINDOWS_SDK_HOME
+    FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
+    SYS_INCLUDES += -I$(PEGASUS_WINDOWS_SDK_HOME)/include
+	EXTRA_LIBRARIES += $(PEGASUS_WINDOWS_SDK_HOME)/lib/psapi.lib $(PEGASUS_WINDOWS_SDK_HOME)/lib/pdh.lib
+  endif
 endif
 
 include $(ROOT)/mak/dynamic-library.mak

@@ -41,6 +41,7 @@ LIBRARY = pegdynlistener
 LIBRARIES = \
     pegexportserver \
     pegcommon \
+    pegclient \
     pegprovider
 
 PRE_DEPEND_INCLUDES = -I./depends

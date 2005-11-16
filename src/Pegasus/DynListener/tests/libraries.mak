@@ -33,4 +33,5 @@ LIBRARIES= \
     pegdynlistener \
     pegexportserver \
     pegprovider \
+    pegclient \
     pegcommon 

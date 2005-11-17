@@ -57,7 +57,11 @@ tests:
 
 ## poststarttests: wql_10_1  cql_10_1 wql_10_10 cql_10_10 wql_10_100 cql_10_100 wql_100_10 cql_100_10
 
-poststarttests: wql_10_1  cql_10_1
+poststarttests:
+	$(MAKE) wql_10_1
+	$(MAKE) cql_10_1
+	$(MAKE) wql_10_1 p=HTTP
+	$(MAKE) cql_10_1 p=HTTP
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 
 wql_10_1:

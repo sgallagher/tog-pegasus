@@ -243,6 +243,7 @@ serversuite: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_INDSSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_G11N_TS1
 
@@ -339,6 +340,34 @@ run_IndInit_TS1:
             CIMSERVER_CONFIG_OPTIONS="$(IndInit_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(IndInit_TS1b_TEST_CMDS)"
 
+###############################################################################
+##  Indication SSL Test Suite 1: Indication Testing over HTTPS
+##
+##  Configuration Options: (none)
+##
+###############################################################################
+INDSSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true
+INDSSL_TS1a_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient@@-f@@Makefile@@wql_10_1@@p=HTTPS
+INDSSL_TS1b_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient@@-f@@Makefile@@cql_10_1@@p=HTTPS
+
+ifdef PEGASUS_HAS_SSL
+run_INDSSL_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(INDSSL_TS1a_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(INDSSL_TS1b_TEST_CMDS)"
+else
+run_INDSSL_TS1: FORCE
+	@ $(ECHO) "PEGASUS_HAS_SSL not defined: Skipping run_INDSSL_TS1"
+endif
+
+
+###############################################################################
+ 
 ###############################################################################
 ##  SSL Test Suite 1: SSL Tests
 ##

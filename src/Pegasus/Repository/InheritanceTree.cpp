@@ -388,7 +388,8 @@ void InheritanceTree::insertFromPath(const String& path,
 	#if defined(PEGASUS_PLATFORM_DARWIN_PPC_GNU)
                 // To do on Mac OS X for rearranging classNames sorted on Inode
                 fileInodes.append(fileInode);
-                for ( Sint32 index = fileInodes.size() - 2; index >= 0 && fileInode < fileInodes[index]; --index )
+                Sint32 index = 0;
+                for (index = fileInodes.size() - 2; index >= 0 && fileInode < fileInodes[index]; --index )
                         fileInodes[index+1] = fileInodes[index];
                 // Insert the className and superClassName sorted on Inode values
                 fileInodes[index + 1] = fileInode;

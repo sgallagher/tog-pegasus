@@ -207,7 +207,7 @@ void ShutdownService::shutdown(
     catch(...)
     {
         PEG_TRACE_STRING(TRC_SHUTDOWN, Tracer::LEVEL4,
-            "Unexpected error occured during CIMServer shutdown. ");
+            "Unexpected error occurred during CIMServer shutdown. ");
     }
 
     //
@@ -251,7 +251,7 @@ void ShutdownService::_shutdownCIMServer()
 
 void ShutdownService::shutdownCimomServices()
 {
-    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::_shutdownCimomServices");
+    PEG_METHOD_ENTER(TRC_SHUTDOWN, "ShutdownService::shutdownCimomServices");
 
     //
     // Shutdown the Indication Service
@@ -337,7 +337,7 @@ void ShutdownService::_sendShutdownRequestToService(const char * serviceName)
     // and then with a AsyncIoctl::IO_CLOSE which closes the incoming queue.
 
     // All of these messages MUST be sequential. Do not use SendForget or SendAsync as those
-    // are asynchronous and their receival is guaranteed to be undeterministic and possibly
+    // are asynchronous and their receipt is guaranteed to be undeterministic and possibly
     // out of sequence (which is something we do not want).
 
     CimServiceStop stop_message (_mqs->get_next_xid(),
@@ -411,7 +411,7 @@ void ShutdownService::_shutdownProviders()
             stopRequest,
             _queueId);
 
-   // Use SendWait, which is serialiazed and waits. Do not use asynchronous callback
+   // Use SendWait, which is serialized and waits. Do not use asynchronous callback
    // as the response might be received _after_ the provider or this service has 
    // been deleted. 
 

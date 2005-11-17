@@ -132,7 +132,8 @@ public:
     */
     void shutdown();
 
-    /** Return true if the server has shutdown, false otherwise.
+    /** Returns true if the server is in the process of shutting down,
+        false otherwise.
     */
     Boolean terminated() { return _dieNow; };
 

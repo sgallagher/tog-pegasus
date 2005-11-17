@@ -54,7 +54,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// Notes on deamon operation (Unix) and service operation (Win 32):
+// Notes on daemon operation (Unix) and service operation (Win 32):
 //
 // To run pegasus as a daemon on Unix platforms:
 //
@@ -323,6 +323,15 @@ void deleteCIMServer()
     {
         delete _cimServer;
         _cimServer = 0;
+
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) \
+|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
+|| defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
+        //
+        //  Remove the PID file to indicate CIMServer termination
+        //
+        FileSystem::removeFile(_cimServerProcess->getPIDFileName());
+#endif
     }
    if (_monitor)
    {
@@ -345,6 +354,61 @@ void deleteCIMServer()
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL dummyThreadFunc(void *parm)
 {
    return((PEGASUS_THREAD_RETURN)0);
+}
+
+//
+//  Waits until either the CIM Server has terminated, or the shutdown timeout
+//  has expired.  If the shutdown timeout has expired, and the CIM Server is
+//  still running, kills the cimserver process.
+//
+void _waitForTerminationOrTimeout (Uint32 maxWaitTime)
+{
+    //
+    //  If the CIM Server is still running, and the shutdown timeout has not
+    //  expired, loop and wait one second until either the CIM Server has
+    //  terminated, or the shutdown timeout has expired
+    //
+    Boolean running = _cimServerProcess->isCIMServerRunning ();
+    while (running && (maxWaitTime > 0))
+    {
+        System::sleep (1);
+        running = _cimServerProcess->isCIMServerRunning ();
+        maxWaitTime--;
+    }
+
+    //
+    //  If the shutdown timeout has expired, and the CIM Server is still
+    //  running, kill the cimserver process
+    //
+    if (running)
+    {
+        int kill_rc = _cimServerProcess->cimserver_kill (0);
+
+#ifdef PEGASUS_OS_OS400
+        if (kill_rc == -1)
+        {
+            _cimServerProcess->cimserver_exitRC (2);
+        }
+        _cimServerProcess->cimserver_exitRC (1);
+#endif
+
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
+|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_SOLARIS) \
+|| defined (PEGASUS_OS_VMS)
+        if (kill_rc != -1)
+        {
+            //l10n - TODO
+            Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                "src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
+                "Shutdown timeout expired.  Forced shutdown initiated.");
+            MessageLoaderParms parms
+                ("src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
+                "Shutdown timeout expired.  Forced shutdown initiated.");
+            cout << MessageLoader::getMessage(parms) << endl;
+            exit (0);
+        }
+#endif
+    }
 }
 
 void shutdownCIMOM(Uint32 timeoutValue)
@@ -504,56 +568,20 @@ void shutdownCIMOM(Uint32 timeoutValue)
         // (client timeout value) to terminate, causing this client to
         // timeout with a "connection timeout" exception.
         //
-        // Check to see if CIM Server is still running.  If CIM Server
-        // is still running and the shutdown timeout has not expired,
-        // loop and wait one second until either the CIM Server is
-        // terminated or timeout expires.  If timeout expires and
-        // the CIM Server is still running, kill the CIMServer process.
+        //  Wait until either the CIM Server has terminated, or the shutdown
+        //  timeout has expired.  If the timeout has expired and the CIM Server
+        //  is still running, kill the cimserver process.
         //
-        Uint32 maxWaitTime = timeoutValue - 2;
-        Boolean running = _cimServerProcess->isCIMServerRunning();
-        while ( running && maxWaitTime > 0 )
-        {
-            System::sleep(1);
-            running = _cimServerProcess->isCIMServerRunning();
-            maxWaitTime = maxWaitTime - 1;
-        }
-
-        if (running)
-        {
-       int kill_rc = _cimServerProcess->cimserver_kill(0);
-
-#ifdef PEGASUS_OS_OS400
-        if(kill_rc == -1)
-        _cimServerProcess->cimserver_exitRC(2);
-        _cimServerProcess->cimserver_exitRC(1);
-#endif
-
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
-|| defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_SOLARIS) \
-|| defined (PEGASUS_OS_VMS)
-        if (kill_rc != -1)
-            {
-                //l10n - TODO
-                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-                    "src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
-                    "Shutdown timeout expired.  Forced shutdown initiated.");
-                MessageLoaderParms parms("src.Server.cimserver.TIMEOUT_EXPIRED_SERVER_KILLED",
-                    "Shutdown timeout expired.  Forced shutdown initiated.");
-                cout << MessageLoader::getMessage(parms) << endl;
-                exit(0);
-            }
-#endif
-        }
+        _waitForTerminationOrTimeout (timeoutValue - 2);
     }
 
-    // Make sure the cimserver has time to actually shut down
-    Uint32 maxWaitTime = timeoutValue;
-    while ((maxWaitTime-- > 0) && _cimServerProcess->isCIMServerRunning())
-    {
-        System::sleep(1);
-    }
-
+    //
+    //  InvokeMethod succeeded.
+    //  Wait until either the CIM Server has terminated, or the shutdown
+    //  timeout has expired.  If the timeout has expired and the CIM Server
+    //  is still running, kill the cimserver process.
+    //
+    _waitForTerminationOrTimeout (timeoutValue);
     return;
 }
 
@@ -756,7 +784,7 @@ setlocale(LC_ALL, "");
     ConfigManager::setPegasusHome(pegasusHome);
 
     //
-    // Do the plaform specific run
+    // Do the platform specific run
     //
 
     return _cimServerProcess->platform_run( argc, argv, shutdownOption );
@@ -774,10 +802,10 @@ void CIMServerProcess::cimserver_stop()
 // will fail to shutdown properly/cleanly.
 //
 // TODO: Current change minimal for platform "service" shutdown bug fixes.
-// Perhpas further extract out common stuff and put into main(), put
+// Perhaps further extract out common stuff and put into main(), put
 // daemon stuff into platform specific platform_run(), etc.
 // Note: make sure to not put error handling stuff that platform
-// specific runs may need to deal with bettter (instead of exit(), etc).
+// specific runs may need to deal with better (instead of exit(), etc).
 //
 
 int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOption )
@@ -1370,14 +1398,13 @@ MessageLoader::_useProcessLocale = false;
             Logger::INFORMATION, "src.Server.cimserver.STOPPED",
             "$0 stopped.", _cimServerProcess->getProductName());
 
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) \
 || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
 || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_VMS)
         //
-        // close the file created at startup time to indicate that the
-        // cimserver has terminated normally.
+        //  Note: do not remove the PID file created at startup time, since
+        //  shutdown is not complete until the CIMServer destructor completes.
         //
-        FileSystem::removeFile(_cimServerProcess->getPIDFileName());
 #endif
     }
     catch(Exception& e)

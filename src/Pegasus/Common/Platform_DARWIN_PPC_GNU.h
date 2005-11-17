@@ -35,6 +35,7 @@
 #include <limits.h>
 #include <cstdio>
 #include <cstddef>
+#include <sys/param.h>    // for MAXHOSTNAMELEN
 
 #define PEGASUS_OS_TYPE_UNIX
 

@@ -36,8 +36,14 @@ LIBRARY = IndicationStressTestProvider
 
 LIBRARIES = \
 	pegqueryexpression \
-	pegwql \
-	pegcql \
+	pegwql
+
+ifndef PEGASUS_DISABLE_CQL
+LIBRARIES += \
+	pegcql
+endif
+
+LIBRARIES += \
 	pegquerycommon \
 	pegprovider \
 	pegclient \

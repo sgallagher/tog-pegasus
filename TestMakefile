@@ -310,7 +310,7 @@ ifndef PEGASUS_DEFAULT_OOP_FALSE
     ifeq ($(OS),HPUX)
         OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
     endif
-    ifeq ($(OS),LINUX)
+    ifeq ($(OS),linux)
         OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
     endif
 endif

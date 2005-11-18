@@ -33,6 +33,7 @@
 #// Modified By: David Kennedy       <dkennedy@linuxcare.com>
 #//              Christopher Neufeld <neufeld@linuxcare.com>
 #//              Sean Keenan Hewlett-Packard Company <sean.keenan@hp.com>
+#//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 #//
 #//%////////////////////////////////////////////////////////////////////////////
 
@@ -61,10 +62,11 @@ DYNAMIC_LIBRARIES = \
 ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 # Note that PEGASUS_WINDOWS_SDK_HOME only needs to be specified if using VC6.
   ifdef PEGASUS_WINDOWS_SDK_HOME
-    FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
     SYS_INCLUDES += -I$(PEGASUS_WINDOWS_SDK_HOME)/include
-	EXTRA_LIBRARIES += $(PEGASUS_WINDOWS_SDK_HOME)/lib/psapi.lib $(PEGASUS_WINDOWS_SDK_HOME)/lib/pdh.lib
+    EXTRA_LIBRARIES += -LIBPATH:$(PEGASUS_WINDOWS_SDK_HOME)/lib
   endif
+
+  EXTRA_LIBRARIES += psapi.lib pdh.lib
 endif
 
 include $(ROOT)/mak/dynamic-library.mak

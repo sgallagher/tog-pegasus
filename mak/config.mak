@@ -471,6 +471,11 @@ ifdef PEGASUS_ENABLE_EMAIL_HANDLER
   DEFINES += -DPEGASUS_ENABLE_EMAIL_HANDLER
 endif
 
+# Allow qualifiers to be disabled for instance operations
+ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
+  DEFINES += -DPEGASUS_DISABLE_INSTANCE_QUALIFIERS
+endif
+
 # Controls snmp indication handler to use NET-SNMP to deliver trap
 ifdef PEGASUS_USE_NET_SNMP
   DEFINES += -DPEGASUS_USE_NET_SNMP

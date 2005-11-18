@@ -506,7 +506,7 @@ ExpressionOpType Cql2Dnf::_convertOpType(OperationType op){
 					 case CQL_LIKE: return LIKE;
                 default: return EQ; // should never get here
         }
-	return EQ; // should never get here
+	PEGASUS_UNREACHABLE(return EQ;) // should never get here
 }
 
 void Cql2Dnf::_destruct(CQLPredicate& _p){

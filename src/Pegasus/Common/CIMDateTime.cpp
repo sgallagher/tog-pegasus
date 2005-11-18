@@ -1168,11 +1168,11 @@ Uint64 CIMDateTime::_toMicroSeconds()
             default:
                // cout << "error calculating months" << endl;
                // cout << "this is data " << (String)_rep->data << endl;
-                throw InvalidDateTimeFormatException();
                 Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                               "Code should never reach this point in \
                               CIMDateTime::_toMicroSecdonds() ");
-                assert(false);
+                PEGASUS_ASSERT(false);
+                throw InvalidDateTimeFormatException();
             }
         } // end of if(!interval) block
 

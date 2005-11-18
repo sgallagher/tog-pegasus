@@ -380,6 +380,8 @@ public:
      */
     static void setModuleName(const String& moduleName);
 
+    static bool isTraceOn() { return _traceOn; }
+
 private:
 
     /** A static single indicator if tracing is turned on allowing to
@@ -585,7 +587,13 @@ private:
         @param    traceString     the string to be traced
      */
     #define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) \
-	Tracer::trace(__FILE__, __LINE__,traceComponent,traceLevel,traceString)
+	do \
+	{ \
+	    if (Tracer::isTraceOn()) \
+		Tracer::trace( \
+		    __FILE__, __LINE__,traceComponent,traceLevel,traceString); \
+	} \
+	while (0)
 
 #endif
 

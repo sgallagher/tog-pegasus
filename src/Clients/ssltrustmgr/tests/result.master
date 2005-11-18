@@ -1,3 +1,19 @@
+Connect with an expired certificate -- should get a 401
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Add the expired certificate to the truststore -- should get an expiration error
+Failed to add certificate.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate has expired."
+
+Connect with a not yet valid certificate -- should get a 401
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Add the not yet valid certificate to the truststore -- should get a not yet valid error
+Failed to add certificate.
+CIM_ERR_FAILED: A general error occurred that is not covered by a more specific error code: "The certificate is not valid yet.  Check the timestamps on your machine."
+
 Connect with an untrusted certificate -- should get a 401
 TestCertClient::Connecting to 127.0.0.1:5989
 Exception: HTTP Error (401 Unauthorized).

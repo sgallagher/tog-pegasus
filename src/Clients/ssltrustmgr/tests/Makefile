@@ -52,6 +52,10 @@ clean:
 	@$(RM) $(PEGASUS_HOME)/testdn3.key
 	@$(RM) $(PEGASUS_HOME)/testdn4.cert
 	@$(RM) $(PEGASUS_HOME)/testdn4.key
+	@$(RM) $(PEGASUS_HOME)/testexpired1.cert
+	@$(RM) $(PEGASUS_HOME)/testexpired1.key
+	@$(RM) $(PEGASUS_HOME)/testnotyetvalid1.cert
+	@$(RM) $(PEGASUS_HOME)/testnotyetvalid1.key 
 	@$(RM) $(PEGASUS_HOME)/testca1.cert
 	@$(RM) $(PEGASUS_HOME)/testca1.key
 	@$(RM) $(PEGASUS_HOME)/testca1.srl
@@ -69,10 +73,20 @@ clean:
 #
 test_setup: $(PEGASUS_HOME)/ssltest_setup 
 
-$(PEGASUS_HOME)/ssltest_setup: $(OPENSSL_CNF) testca1.txt testdn1.txt testdn2.txt testdn3.txt testdn4.txt
+$(PEGASUS_HOME)/ssltest_setup: $(OPENSSL_CNF) testca1.txt testdn1.txt testdn2.txt testdn3.txt testdn4.txt testexpired1.cert testexpired1.key testnotyetvalid1.cert testnotyetvalid1.key
 	@$(MAKE) -i -s clean
 	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
 ifdef PEGASUS_HAS_SSL
+	@#
+	@# Copy the expired certificate to the staging area
+	@#
+	@$(COPY) testexpired1.cert $(PEGASUS_HOME)/testexpired1.cert
+	@$(COPY) testexpired1.key $(PEGASUS_HOME)/testexpired1.key
+	@#
+	@# Create the not yet valid certificate to the staging area
+	@#   
+	@$(COPY) testnotyetvalid1.cert $(PEGASUS_HOME)/testnotyetvalid1.cert
+	@$(COPY) testnotyetvalid1.key $(PEGASUS_HOME)/testnotyetvalid1.key
 	@#
 	@# Create a self-signed certificate
 	@#
@@ -143,6 +157,23 @@ ifndef PEGASUS_PAM_AUTHENTICATION
 	cimuser -a -u $(CURRENT_USER) -w $(CURRENT_USER)
     endif
 endif	
+	
+	@$(ECHO) "Connect with an expired certificate -- should get a 401" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testexpired1.cert $(PEGASUS_HOME)/testexpired1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+	
+	@$(ECHO) "Add the expired certificate to the truststore -- should get an expiration error" >> $(RESULTFILE)
+	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testexpired1.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)	
+	
+	@$(ECHO) "Connect with a not yet valid certificate -- should get a 401" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testnotyetvalid1.cert $(PEGASUS_HOME)/testnotyetvalid1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)  
+	
+	@$(ECHO) "Add the not yet valid certificate to the truststore -- should get a not yet valid error" >> $(RESULTFILE)
+	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testnotyetvalid1.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)  
+
 	@$(ECHO) "Connect with an untrusted certificate -- should get a 401" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)

@@ -26,9 +26,12 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-# commands.mak is a helper Makefile that is intended to be included in an upper level Makefile.
+# commands.mak is a helper Makefile that is intended to be
+# included in an upper level Makefile.
 
-# Ensure that config.mak is included (so that the ROOT variable is set correctly)
+# Ensure that config.mak is included (so that the ROOT
+# variable is set correctly)
+
 
 ifndef ROOT
     ifdef PEGASUS_ROOT
@@ -102,6 +105,7 @@ ifeq ($(OS),HPUX)
     endif
 
     Prwxr_xr_x = 755
+    Prwx______ = 700
     Prwxrwxrwx = 777
     Prwxrwxrwt = 1777
     Pr_xr__r__ = 744
@@ -109,6 +113,7 @@ ifeq ($(OS),HPUX)
     Pr________ = 400
     Pr_xr_xr_x = 555
     Prw_r__r__ = 644
+    Prw_______ = 640
     CHMODDIRHIER = chmod -R
 
     INSTALL_USR = bin
@@ -188,18 +193,21 @@ ifeq ($(OS),linux)
     Prwxrwxrwx = 777
     Prwxrwxrwt = 1777
     Prwxr_xr_x = 755
+    Prwxr_x___ = 750
     Pr_xr__r__ = 744
+    Prwx______ = 700
     Pr__r__r__ = 444
     Pr________ = 400
     Pr_xr_xr_x = 555
     Pr_x______ = 500
     Prw_r__r__ = 644
+    Prw_______ = 640
     CHMODDIRHIER = chmod -R
 
     INSTALL_USR = root
-    INSTALL_GRP = root
+    INSTALL_GRP = pegasus
     CIMSERVER_USR = root
-    CIMSERVER_GRP = root
+    CIMSERVER_GRP = pegasus
     CHMOD = chmod
     CHOWN = chown
     CHGRP = chgrp
@@ -347,6 +355,7 @@ ifndef TMP_DIR
     endif
 endif
 
+
 CMDSFORCE: 
 
 ##
@@ -414,7 +423,6 @@ rmdirhier_IgnoreError: CMDSFORCE
 mkdirhier_IgnoreError: CMDSFORCE
 	@$(MAKE) $(MAKEOPTIONS) -i mkdirhier
 
-
 # The runTestSuite option starts the CIM Server
 # with a designated set of configuration options (i.e.,
 # CIMSERVER_CONFIG_OPTIONS) and then runs a specified
@@ -448,10 +456,10 @@ mkdirhier_IgnoreError: CMDSFORCE
 ##       cimstart command.
 ##
 runTestSuite: CMDSFORCE
-	$(MAKE) --directory $(PEGASUS_ROOT) -f TestMakefile cimstart 
+	$(CIMSERVER_START_SERVICE)
 	$(WINDOWS_ONLY_SLEEP)
 	$(foreach i, $(TESTSUITE_CMDS), $(subst @@, ,$(i)))
-	$(MAKE) --directory $(PEGASUS_ROOT) -f TestMakefile cimstop
+	$(CIMSERVER_STOP_SERVICE)
 
 ifndef PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN
   PEGASUS_SSLCNF_FULLY_QUALIFIED_DSN=$(GET_HOSTNAME)

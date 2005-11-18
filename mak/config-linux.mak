@@ -76,12 +76,6 @@ DEFINES += -DPEGASUS_HAS_SIGNALS
 
 SYS_LIBS = -ldl -lpthread
 
-# Build using fixed release settings
-#
-ifdef PEGASUS_USE_RELEASE_DIRS
-  PEGASUS_DEST_LIB_DIR=/opt/tog-pegasus/lib
-endif
-
 # PAM support
 ifdef PEGASUS_PAM_AUTHENTICATION
    ifeq ($(HPUX_IA64_VERSION), yes)

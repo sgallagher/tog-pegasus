@@ -62,6 +62,8 @@ stage: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release prestage_cleanup
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusDirectories 
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusFiles 
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusEmptyFiles 
+	$(MAKE) -f $(ROOT)/Makefile.Release stage_genOpenPegasusSSLCertsFile
 	$(MAKE) -f $(ROOT)/mak/SDKMakefile stageSDK
 ifdef PEGASUS_BUILD_TEST_RPM
 	$(MAKE) -f $(ROOT)/Makefile.ReleaseTest stageTEST
@@ -165,6 +167,19 @@ PEGASUS_USER_CMDS = \
    cimprovider \
    osinfo \
    wbemexec
+
+PEGASUS_GENERATED_SCRIPTS = \
+   genOpenPegasusSSLCerts
+
+ifeq ($(OS),linux)
+   PEGASUS_CVS_SCRIPTS += \
+      settogpath
+endif
+
+PEGASUS_SCRIPT_FILES = \
+   $(PEGASUS_GENERATED_SCRIPTS) \
+   $(PEGASUS_CVS_SCRIPTS)
+ 
 
 PEGASUS_REPOSITORY_DIRS = \
    root \
@@ -440,11 +455,6 @@ MANAGEDSYSTEM_MOF_FILES = \
    PG_UnixProcess20.mof \
    PG_UnixProcess20R.mof
 
-ifeq ($(OS),linux)
-   INSTALL_SCRIPT_FILES = \
-      settogpath
-endif
-
 prestage_verifyInstallEnabled: FORCE
 ifndef PEGASUS_ENABLE_MAKE_INSTALL
 	@$(ECHO) "Makefile.Release is not enabled."
@@ -457,10 +467,10 @@ prestage_cleanup: FORCE
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_AUTH_DIR)
 
 stage_PegasusProductDirectories: FORCE
-	$(foreach i, $(PRODUCT_DIRECTORY_STRUCTURE), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(i);)
+	$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(i);)
 
 setpermissions_PegasusProductDirectories: FORCE
-	$(foreach i, $(PRODUCT_DIRECTORY_STRUCTURE), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
+	$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
 
 stage_PegasusProductDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_LICENSE), $(COPY) $(ROOT)/doc/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROD_DIR)/$(i);)
@@ -495,7 +505,7 @@ setpermissions_PegasusProviderLibraryDirectoryFiles: FORCE
 
 stage_PegasusAdminCmdsDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(COPY) $(PEGASUS_HOME)/bin/$(i)$(EXE) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
-	$(foreach i, $(INSTALL_SCRIPT_FILES), $(COPY) $(PEGASUS_ROOT)/installs/scripts/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_CVS_SCRIPTS), $(COPY) $(PEGASUS_ROOT)/installs/scripts/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/$(i);)
 	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/init_repository
 	@$(ECHO-E) "PEGASUS_MOF_DIR=$(PEGASUS_MOF_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/init_repository
 	@$(ECHO-E) "PEGASUS_CIMXX_MOF_DIR=$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/init_repository
@@ -506,7 +516,7 @@ stage_PegasusAdminCmdsDirectoryFiles: FORCE
 
 setpermissions_PegasusAdminCmdsDirectoryFiles: FORCE
 	$(foreach i, $(PEGASUS_ADMIN_CMDS), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i)$(EXE);)
-	$(foreach i, $(INSTALL_SCRIPT_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SBIN_DIR)/$(i);)
+	$(foreach i, $(PEGASUS_SCRIPT_FILES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/$(i);)
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr__r__)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_BIN_DIR)/init_repository
 
 stage_PegasusUserCmdsDirectoryFiles: FORCE
@@ -578,22 +588,26 @@ stage_PegasusVarDataDirectoryFiles: FORCE
 setpermissions_PegasusVarDataDirectoryFiles: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)
 
-stage_SSLConfigurationFile: FORCE
-	$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "[ req ]" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "distinguished_name     = req_distinguished_name"  >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "prompt                 = no"  >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "[ req_distinguished_name ]" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "C                      = UK" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "ST                     = Berkshire" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "L                      = Reading" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "O                      = The Open Group" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "OU                     = The OpenPegasus Project" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-	$(ECHO) "CN                     = \`uname -n\`" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
-
-setpermissions_SSLConfigurationFile: FORCE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr________)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
+stage_genOpenPegasusSSLCertsFile: FORCE
+	@$(RM) $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "#!/bin/bash" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "#" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "PEGASUS_PEM_DIR=$(PEGASUS_PEM_DIR)" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "PEGASUS_CONFIG_DIR=$(PEGASUS_CONFIG_DIR)" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "PEGASUS_INSTALL_LOG=$(PEGASUS_INSTALL_LOG)" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "PEGASUS_SSL_CERT_FILE=$(PEGASUS_SSL_CERT_FILE)" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "PEGASUS_SSL_KEY_FILE=$(PEGASUS_SSL_KEY_FILE)" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(ECHO-E) "PEGASUS_SSL_TRUSTSTORE=$(PEGASUS_SSL_TRUSTSTORE)" >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-genSSLCerts.spec >> \
+             $(PEGASUS_STAGING_DIR)$(PEGASUS_SCRIPT_DIR)/genOpenPegasusSSLCerts
 
 stage_SSLRandomSeedFiles: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release createrandomseed FILENAME=$(PEGASUS_STAGING_DIR)$(PEGASUS_VARDATA_DIR)/$(PEGASUS_CIMSERVER_RANDOMFILE)
@@ -641,7 +655,6 @@ stage_PegasusFiles: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusUnixManPageDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusDocFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusMOFDirectoryFiles
-	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusSSLFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release stage_PegasusSystemFiles
 
 setpermissions_PegasusFiles: FORCE
@@ -655,35 +668,14 @@ setpermissions_PegasusFiles: FORCE
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusUnixManPageDirectoryFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusDocFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusMOFDirectoryFiles
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusSSLFiles
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_PegasusSystemFiles
-
-stage_PegasusSSLFiles: FORCE
-ifdef PEGASUS_HAS_SSL
-	$(MAKE) -f $(ROOT)/Makefile.Release stage_SSLConfigurationFile
-ifdef PEGASUS_SSL_RANDOMFILE
-	$(MAKE) -f $(ROOT)/Makefile.Release stage_SSLRandomSeedFiles
-endif
-	$(MAKE) -f $(ROOT)/Makefile.Release stage_ServerCertificateFiles
-	$(MAKE) -f $(ROOT)/Makefile.Release stage_ClientCertificateFiles
-endif
-
-setpermissions_PegasusSSLFiles: FORCE
-ifdef PEGASUS_HAS_SSL
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_SSLConfigurationFile
-ifdef PEGASUS_SSL_RANDOMFILE
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_SSLRandomSeedFiles
-endif
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_ServerCertificateFiles
-	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions_ClientCertificateFiles
-endif
-
 
 stage_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
 ifdef PEGASUS_PAM_AUTHENTICATION
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)
 	$(COPY) $(ROOT)/rpm/wbem $(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
+	$(COPY) $(ROOT)/rpm/access.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)/etc/init.d
 	$(COPY) $(ROOT)/rpm/tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
@@ -693,9 +685,17 @@ setpermissions_PegasusSystemFiles: FORCE
 ifeq ($(OS),linux)
 ifdef PEGASUS_PAM_AUTHENTICATION
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_r__r__)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PAM_CONFIG_DIR)/wbem
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prw_______)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
 	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(CIMSERVER_USR)" GROUP="$(CIMSERVER_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)etc/init.d/tog-pegasus
 endif
+
+stage_PegasusEmptyFiles: FORCE
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/ssl.cnf
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE)
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE)
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)
+	$(TOUCH) $(PEGASUS_STAGING_DIR)$(PEGASUS_INSTALL_LOG)
 
 create_ProductVersionFile: FORCE
 ifdef PEGASUS_OVERRIDE_PRODUCT_ID
@@ -723,7 +723,6 @@ create_OpenPegasusRPMSpecFile: FORCE
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_PreambleToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_PackagesToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_prepSectionToSpecFile
-	@$(MAKE) -f $(ROOT)/Makefile.Release _append_setupSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_buildSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_installSectionToSpecFile
 	@$(MAKE) -f $(ROOT)/Makefile.Release _append_cleanSectionToSpecFile
@@ -743,191 +742,129 @@ _append_OpenPegasusLicenseToSpecFile: FORCE
 	@$(ECHO-E) "#" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "# WARNING: This file is automatically generated by executing " >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#   make -f pegasus/Makefile.Release create_OpenPegasusRPMSpecFile" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# Any changes made directly to this file will be lost the next " >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# time this file is generated." >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# Any changes made directly to this file in the OpenPegasus source will" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# be lost the next time this file is regenerated and submitted to CVS." >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "#" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_PreambleToSpecFile: FORCE
-	@$(ECHO-E) "%define srcRelease 1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Version: $(PEGASUS_PRODUCT_VERSION)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Release: 1%{?LINUX_VERSION:.%{LINUX_VERSION}}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "Epoch:   1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-intro.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-intro.spec \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global OPENSSL_HOME $(OPENSSL_HOME)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global OPENSSL_BIN $(OPENSSL_BIN)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_PEM_DIR $(PEGASUS_PEM_DIR)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_SSL_CERT_FILE $(PEGASUS_SSL_CERT_FILE)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_SSL_KEY_FILE $(PEGASUS_SSL_KEY_FILE)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_SSL_TRUSTSTORE $(PEGASUS_SSL_TRUSTSTORE)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_SSL_TRUSTSTORE $(PEGASUS_SSL_TRUSTSTORE)" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PAM_CONFIG_DIR /etc/pam.d" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_CONFIG_DIR $(PEGASUS_CONFIG_DIR)" >> \
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_VARDATA_DIR $(PEGASUS_VARDATA_DIR)" >> \
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) \
+            "%global PEGASUS_VARDATA_CACHE_DIR $(PEGASUS_VARDATA_CACHE_DIR)" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_LOCAL_DOMAIN_SOCKET_PATH " \
+             "$(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH)" >> \
+             $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_CIMSERVER_START_FILE $(PEGASUS_CIMSERVER_START_FILE)" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_REPOSITORY_DIR $(PEGASUS_REPOSITORY_DIR)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_REPOSITORY_DIR $(PEGASUS_REPOSITORY_DIR)" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_PREV_REPOSITORY_DIR_NAME \
+             $(PEGASUS_PREV_REPOSITORY_DIR_NAME)" >> \
+             $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_REPOSITORY_PARENT_DIR \
+             $(PEGASUS_REPOSITORY_PARENT_DIR)" >> \
+             $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_PREV_REPOSITORY_DIR $(PEGASUS_PREV_REPOSITORY_DIR)" >> \
                     $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_SBIN_DIR $(PEGASUS_SBIN_DIR)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+             $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_DOC_DIR $(PEGASUS_DOC_DIR)" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+             $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_RPM_ROOT \044RPM_BUILD_DIR/\044RPM_PACKAGE_NAME-\044RPM_PACKAGE_VERSION" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_RPM_HOME \044RPM_BUILD_ROOT/build/tog-pegasus" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG $(PEGASUS_LOG_DIR)/install.log" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_RPM_ROOT "\
+             "\044RPM_BUILD_DIR/\044RPM_PACKAGE_NAME-\044RPM_PACKAGE_VERSION"\
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) \
+             "%global PEGASUS_RPM_HOME \044RPM_BUILD_ROOT/build/tog-pegasus"\
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG $(PEGASUS_LOG_DIR)/install.log"\
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch ia64" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_IA64_GNU" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%else" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch x86_64" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_X86_64_GNU" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%else" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch ppc" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_PPC_GNU" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%else" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch ppc64 pseries" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_PPC64_GNU" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%else" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch s390" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_ZSERIES_GNU" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%else" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch s390x zseries" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_ZSERIES64_GNU" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%else" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%global PEGASUS_HARDWARE_PLATFORM LINUX_IX86_GNU" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_PackagesToSpecFile: FORCE
-	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-packages.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-packages.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_prepSectionToSpecFile: FORCE
 	@$(ECHO-E) "%prep" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "[ \"\044RPM_BUILD_ROOT\" != \"/\" ] && [ -d \044RPM_BUILD_ROOT ] && rm -rf \044RPM_BUILD_ROOT;" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	
-_append_setupSectionToSpecFile: FORCE
-	@$(ECHO-E) "%setup -n %{name}-%{version}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "export PEGASUS_ROOT=%PEGASUS_RPM_ROOT" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%setup -q -n %{name}-%{version}" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_buildSectionToSpecFile: FORCE
 	@$(ECHO-E) "%build" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%ifarch s390 s390x zseries" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "export PEGASUS_EXTRA_C_FLAGS=\"\044PEGASUS_EXTRA_C_FLAGS -fsigned-char\"" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%endif" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-build.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-build.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-build.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_installSectionToSpecFile: FORCE
 	@$(ECHO-E) "%install" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-install.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-install.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-install.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "[ \"\044PEGASUS_STAGING_DIR\" != \"/\" ] && [ -d \044PEGASUS_STAGING_DIR ] && \
-                    [ -d \044PEGASUS_STAGING_DIR%PEGASUS_PEM_DIR ] && \
-                    rm -f \044PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_TRUSTSTORE \
-                    \044PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_CERT_FILE \
-                    \044PEGASUS_STAGING_DIR/%PEGASUS_PEM_DIR/%PEGASUS_SSL_KEY_FILE \
-                    \044PEGASUS_STAGING_DIR/%PEGASUS_CONFIG_DIR/ssl.cnf;" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "[ \"\044PEGASUS_HOME\" != \"/\" ] && [ -d \044PEGASUS_HOME ] && rm -rf \044PEGASUS_HOME;" >> \
-                    $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-install.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_cleanSectionToSpecFile: FORCE
 	@$(ECHO-E) "%clean" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-clean.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-clean.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-clean.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-clean.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_preSectionToSpecFile: FORCE
 	@$(ECHO-E) "%pre" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-pre.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-pre.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-pre.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-pre.spec \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
  
 _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "%post" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "if [ \044\061 -eq 1 ]; then" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postSectionToSpecFile_createLog
-	@$(MAKE) -f $(ROOT)/Makefile.Release _append_postSectionToSpecFile_createSymbolicLinks
+	@$(ECHO-E) "if [ \044\061 -eq 1 ]; then" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(MAKE) -f $(ROOT)/Makefile.Release \
+            _append_postSectionToSpecFile_createLog
+	@$(MAKE) -f $(ROOT)/Makefile.Release \
+            _append_postSectionToSpecFile_createSymbolicLinks
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# Start of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-post.spec >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "# End of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-post.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "elif [ \044\061 -gt 1 ]; then" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   then" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "     # Running Repository Upgrade utility" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "     %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "/sbin/service tog-pegasus condrestart" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ":;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   /sbin/service tog-pegasus condrestart" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_postSectionToSpecFile_createSymbolicLinks: FORCE
 	@$(ECHO-E) "   # Create Symbolic Links for SDK Libraries" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -943,108 +880,81 @@ _append_postSectionToSpecFile_createSymbolicLinks: FORCE
 
 _append_postSectionToSpecFile_createLog: FORCE
 	@$(ECHO-E) "   echo \`date\` > %PEGASUS_INSTALL_LOG 2>&1" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   %define PEGASUS_CONFIG_DIR $(PEGASUS_CONFIG_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   %define PEGASUS_CONFIG_DIR $(PEGASUS_CONFIG_DIR)" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   %define PEGASUS_PEM_DIR $(PEGASUS_PEM_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   %define PEGASUS_SSL_CERT_FILE $(PEGASUS_SSL_CERT_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   %define PEGASUS_SSL_KEY_FILE $(PEGASUS_SSL_KEY_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   %define PEGASUS_SSL_TRUSTSTORE $(PEGASUS_SSL_TRUSTSTORE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   %define PEGASUS_SSL_CERT_FILE $(PEGASUS_SSL_CERT_FILE)" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   %define PEGASUS_SSL_KEY_FILE $(PEGASUS_SSL_KEY_FILE)" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "   %define PEGASUS_SSL_TRUSTSTORE $(PEGASUS_SSL_TRUSTSTORE)" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_preunSectionToSpecFile: FORCE
 	@$(ECHO-E) "%preun" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "if [ \044\061 -eq 0 ]; then" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   # Check if the cimserver is running" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   isRunning=\140ps -el | grep cimserver | grep -v \"grep cimserver\"\140" \
-                      >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   if [ \"\044isRunning\" ]; then"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "      $(PEGASUS_SBIN_DIR)/cimserver -s"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -f $(PEGASUS_VARDATA_DIR)/$(PEGASUS_CURRENT_CONFIG_FILE) ] && \
-                       rm $(PEGASUS_VARDATA_DIR)/$(PEGASUS_CURRENT_CONFIG_FILE);" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -f %PEGASUS_INSTALL_LOG ] && rm %PEGASUS_INSTALL_LOG;" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -d $(PEGASUS_REPOSITORY_DIR) ] && rm -rf $(PEGASUS_REPOSITORY_DIR);" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -d $(PEGASUS_VARDATA_CACHE_DIR) ] && rm -rf $(PEGASUS_VARDATA_CACHE_DIR);" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   rm -f $(PEGASUS_LOCAL_DOMAIN_SOCKET_PATH);" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   rm -f $(PEGASUS_CIMSERVER_START_FILE)" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   # Delete the Link to the rc.* Startup Directories" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-preun.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
 _append_postunSectionToSpecFile: FORCE
 	@$(ECHO-E) "%postun" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "if [ \044\061 -eq 0 ]; then" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -f %PEGASUS_PEM_DIR/key-2048.pem ] && rm %PEGASUS_PEM_DIR/key-2048.pem;" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -f %PEGASUS_PEM_DIR/cert-2048.pem ] && rm %PEGASUS_PEM_DIR/cert-2048.pem;" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   [ -f %PEGASUS_PEM_DIR/truststore-2048.pem ] && rm %PEGASUS_PEM_DIR/truststore-2048.pem;" >> \
-                       $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "if [ \044\061 -eq 0 ]; then" \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   export LC_ALL=C">> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-postun.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+
+# %defattr(file permissions, owner, group, directory permissions)
+# The %ghost directive instructs RPM not to install the specified file(s).
+#     They will be owned by that package and removed if they exists when
+#     the package is removed. This can be useful for things like log files
+#     and state files. 
 
 _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%files" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(PRODUCT_DIRECTORY_STRUCTURE), if [ $(i) != $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR) ]; then \
+	@$(ECHO-E) "%defattr($(Prw_______),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_x___))" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), if [ $(i) != $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR) ]; then \
                                                       if [ $(i) != $(PEGASUS_REPOSITORY_DIR) ]; then \
                                                       if [ $(i) != $(PEGASUS_TRACE_DIR) ]; then \
-                   $(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi;) 
+                   $(ECHO-E) "%dir $(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi;) 
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr(1555,$(CIMSERVER_USR),$(CIMSERVER_GRP)) $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr($(Prwxrwxrwt),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_TRACE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%attr(-,$(CIMSERVER_USR),$(CIMSERVER_GRP)) $(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_REPOSITORY_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/*" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_MOF_DIR)/Pegasus/*" \
+            >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config %attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP)) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config(noreplace) $(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config(noreplace) $(PEGASUS_CONFIG_DIR)/access.conf" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%config(noreplace) $(PAM_CONFIG_DIR)/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost %config(noreplace) $(PEGASUS_CONFIG_DIR)/ssl.cnf" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost %config(noreplace) $(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_TRUSTSTORE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost %config(noreplace) $(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_CERT_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost %config(noreplace) $(PEGASUS_PEM_DIR)/$(PEGASUS_SSL_KEY_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%ghost $(PEGASUS_INSTALL_LOG)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_BIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_DEST_LIB_DIR)/*$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_PROVIDER_LIB_DIR)/*$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "$(PEGASUS_MANUSER_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
+	@$(ECHO-E) "$(PEGASUS_MANADMIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_LICENSE), \
 	           $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_PROD_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(foreach i, $(PEGASUS_UNIX_MAN_USER_PAGES), \
-                   $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MANUSER_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
-	@$(foreach i, $(PEGASUS_UNIX_MAN_ADMIN_PAGES), \
-                   $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MANADMIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_DOC_FILES), \
                    $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_DOC_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $($(PEGASUS_CIM_SCHEMA)_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/$(PEGASUS_CIM_SCHEMA)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(INTERNAL_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(foreach i, $(INTEROP_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(foreach i, $(MANAGEDSYSTEM_MOF_FILES), \
-                   $(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_MOF_DIR)/Pegasus/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace) %attr($(Prw_r__r__),$(CIMSERVER_USR),$(CIMSERVER_GRP)) \
-                   $(PEGASUS_VARDATA_DIR)/$(PEGASUS_PLANNED_CONFIG_FILE)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace) %attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) /etc/init.d/tog-pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%config(noreplace) %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) %PAM_CONFIG_DIR/wbem" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(PEGASUS_ADMIN_CMDS), \
-                   $(ECHO-E) "%attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
-	@$(ECHO-E) "%attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/init_repository" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(INSTALL_SCRIPT_FILES), \
-                   $(ECHO-E) "%attr($(Pr_x______),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SBIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(PEGASUS_USER_CMDS), \
-                   $(ECHO-E) "%attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_BIN_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(PEGASUS_LIBRARIES), \
-                   $(ECHO-E) "%attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
                    $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
-	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(foreach i, $(PEGASUS_PROVIDERS), \
-                   $(ECHO-E) "%attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
                    $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

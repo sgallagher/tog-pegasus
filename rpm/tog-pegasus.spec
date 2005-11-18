@@ -174,6 +174,7 @@ make --directory=$PEGASUS_ROOT -f Makefile.ReleaseTest stageTEST \
 %define PEGASUS_MANADMIN_DIR   %PEGASUS_MAN_DIR/man8
 %define PEGASUS_VARDATA_DIR    /var/opt/tog-pegasus
 %define PEGASUS_REPOSITORY_DIR      %PEGASUS_VARDATA_DIR/repository
+%define PEGASUS_NEW_REPOSITORY_DIR  %PEGASUS_VARDATA_DIR/new_repository
 %define PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_VARDATA_DIR/prev_repository
 %define PEGASUS_VARDATA_CACHE_DIR   %PEGASUS_VARDATA_DIR/cache
 %define PEGASUS_LOCAL_AUTH_DIR      %PEGASUS_VARDATA_CACHE_DIR/localauth
@@ -201,7 +202,7 @@ make --directory=$PEGASUS_ROOT -f Makefile.ReleaseTest stageTEST \
 
 #
 # Make directories
-mkdir -p $RPM_BUILD_ROOT%PEGASUS_VARDATA_DIR/{log,cache,repository}
+mkdir -p $RPM_BUILD_ROOT%PEGASUS_VARDATA_DIR/{log,cache}
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_LOCAL_AUTH_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_PROVIDER_LIB_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_CONFIG_DIR 
@@ -414,8 +415,8 @@ install -D -m 0444  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixPro
 #
 # Initial Repository
 #
-mkdir -p  $RPM_BUILD_ROOT%PEGASUS_REPOSITORY_DIR
-cp -rf $PEGASUS_HOME/repository/*  $RPM_BUILD_ROOT%PEGASUS_REPOSITORY_DIR
+mkdir -p  $RPM_BUILD_ROOT%PEGASUS_NEW_REPOSITORY_DIR
+cp -rf $PEGASUS_HOME/repository/*  $RPM_BUILD_ROOT%PEGASUS_NEW_REPOSITORY_DIR
 
 #
 # cimserver config files
@@ -646,7 +647,7 @@ rm -Rf $PEGASUS_HOME
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
 
 %pre
-if [ -d %PEGASUS_REPOSITORY_DIR"/root#PG_Internal" ]
+if [ -d %PEGASUS_REPOSITORY_DIR ]
 then
   #
   # Save the current repository to prev_repository.
@@ -659,7 +660,6 @@ then
       fi
 
       mv %PEGASUS_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR
-      mkdir %PEGASUS_REPOSITORY_DIR
   fi
 fi
 
@@ -747,6 +747,13 @@ echo " Stop it:"
 echo " /etc/init.d/tog-pegasus stop"
 echo " To set up PATH and MANPATH in /etc/profile"
 echo " run /opt/tog-pegasus/sbin/settogpath.";
+mv %PEGASUS_NEW_REPOSITORY_DIR %PEGASUS_REPOSITORY_DIR
+fi
+
+%triggerpostun -- tog-pegasus < 2.4.3
+if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]
+then
+  mv %PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_REPOSITORY_DIR
 fi
 
 %if %{PEGASUS_BUILD_TEST_RPM}
@@ -774,9 +781,6 @@ fi
 
 %postun
 if [ $1 -eq 0 ]; then
-        rm -rf %PEGASUS_VARDATA_DIR
-        rm -rf %PEGASUS_PROD_DIR
-        rm -rf %PEGASUS_CONFIG_DIR
         export LC_ALL=C
 fi
 
@@ -790,7 +794,7 @@ fi
 %dir %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR
 %dir %attr(1555,root,root) %PEGASUS_LOCAL_DOMAIN_SOCKET_DIR
 %defattr(-,root,root)
-%PEGASUS_REPOSITORY_DIR
+%PEGASUS_NEW_REPOSITORY_DIR
 %doc %PEGASUS_PROD_DIR/%PEGASUS_LICENSE_FILE
 %doc %PEGASUS_DOC_DIR/Admin_Guide_Release_2.4.pdf
 %doc %PEGASUS_MANUSER_DIR/cimmof.1

@@ -1145,8 +1145,8 @@ int _beginTest(CIMClient& workClient, const char* opt,
 
         Boolean clientResidentCountComplete = !monitorClientResidentListener;
         Boolean serverResidentCountComplete = !monitorServerResidentListener;
-        Boolean clientResidentNoChange;
-        Boolean serverResidentNoChange;
+        Boolean clientResidentNoChange = true;
+        Boolean serverResidentNoChange = true;
 
         while (noChangeIterations <= MAX_NO_CHANGE_ITERATIONS)
         {

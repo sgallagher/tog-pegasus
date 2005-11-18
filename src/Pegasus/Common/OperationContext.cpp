@@ -100,21 +100,17 @@ void OperationContext::clear(void)
 const OperationContext::Container & OperationContext::get(
     const String& containerName) const
 {
-    for(Uint32 i = 0, n = _rep->containers.size(); i < n; i++)
-    {
-        if(containerName == _rep->containers[i]->getName())
-        {
-            Container * p = _rep->containers[i];
+    Uint32 size = _rep->containers.size();
+    Container** data = (Container**)_rep->containers.getData();
 
-            return(*p);
-        }
-    }
+    for (; size--; data++)
+	if (data[0]->getName() == containerName)
+	    return *(data[0]);
 
-	//l10n
-	MessageLoaderParms parms("Common.OperationContext.OBJECT_NOT_FOUND",
-							 "object not found");
-    throw Exception(parms);
-    //throw Exception("object not found");
+    static Exception _exception(MessageLoaderParms(
+	"Common.OperationContext.OBJECT_NOT_FOUND", "object not found"));
+
+    throw Exception(_exception);
 }
 
 void OperationContext::set(const OperationContext::Container & container)

@@ -335,6 +335,18 @@ void ProviderAgentContainer::_startAgentProcess()
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::_startAgentProcess");
 
+    //
+    // Serialize the starting of agent processes.  If two agent processes are
+    // started at the same time, they may get copies of each other's pipe
+    // descriptors.  If this happens, the cimserver will not get a pipe read
+    // error when one of the agent processes exits, because the pipe will
+    // still be writable by the other process.  This locking control needs to
+    // cover the period from where the pipes are created to where the agent
+    // ends of the pipes are closed by the cimserver.
+    //
+    static Mutex agentStartupMutex;
+    AutoMutex lock(agentStartupMutex);
+
     AutoPtr<AnonymousPipe> pipeFromAgent(new AnonymousPipe());
     AutoPtr<AnonymousPipe> pipeToAgent(new AnonymousPipe());
 

@@ -46,6 +46,7 @@ Copyright: Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}
 Source: ftp://www.opengroup.org/pegasus/tog-pegasus-%{version}-%{srcRelease}.tar.gz
 Requires: openssl >= 0.9.6 lsb >= 1.3
+Conflicts: openwbem
 Provides: cimserver tog-pegasus-2.4
 BuildRequires: openssl-devel >= 0.9.6
 BuildConflicts: tog-pegasus

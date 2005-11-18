@@ -2102,7 +2102,11 @@ CIMGetInstanceRequestMessage* CIMOperationRequestDecoder::decodeGetInstanceReque
       nameSpace,
       instanceName,
       false,    // Bug 1985 localOnly is deprecated
+#ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
+      false,
+#else
       includeQualifiers,
+#endif
       includeClassOrigin,
       propertyList,
       QueueIdStack(queueId, _returnQueueId),
@@ -2316,7 +2320,11 @@ CIMEnumerateInstancesRequestMessage* CIMOperationRequestDecoder::decodeEnumerate
 	 className,
 	 deepInheritance,
      false,    // Bug 1985 localOnly is deprecated
-	 includeQualifiers,
+#ifdef PEGASUS_DISABLE_INSTANCE_QUALIFIERS
+     false,
+#else
+     includeQualifiers,
+#endif
 	 includeClassOrigin,
 	 propertyList,
 	 QueueIdStack(queueId, _returnQueueId),

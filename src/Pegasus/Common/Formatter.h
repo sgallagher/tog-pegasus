@@ -35,6 +35,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
+#include <Pegasus/Common/StrLit.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
@@ -81,8 +82,8 @@ public:
     {
     public:
 
-	enum Type { VOIDT, STRING, BOOLEAN, INTEGER, UINTEGER, LINTEGER, 
-			ULINTEGER, REAL };
+	enum Type { VOIDT, STRING, CSTRLIT, BOOLEAN, INTEGER, 
+	    UINTEGER, LINTEGER, ULINTEGER, REAL };
 
 	Arg() : _type(VOIDT)
 	{
@@ -93,6 +94,10 @@ public:
 	}
 
 	Arg(const char* x) : _string(x), _type(STRING)
+	{
+	}
+
+	Arg(const StrLit& x) : _cstrlit(&x), _type(CSTRLIT)
 	{
 	}
 
@@ -120,6 +125,8 @@ public:
 	}
 
 	String toString() const;
+
+	void appendToString(String& out) const;
 	
 	friend class MessageLoader;  //l10n
 
@@ -135,6 +142,7 @@ public:
 	    int _boolean;
 	    Sint64 _lInteger;
 	    Uint64 _lUInteger;
+	    const StrLit* _cstrlit;
 	};
 
 	Type _type;

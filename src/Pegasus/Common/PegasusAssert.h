@@ -27,71 +27,34 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
+// Author: Jim Wunderlich, (Jim_Wunderlich@prodigy.net)
 //
-// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
-//              David Eger (dteger@us.ibm.com)
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
+#ifndef Pegasus_Assert_h
+#define Pegasus_Assert_h
 
-#ifndef Pegasus_Sharable_h
-#define Pegasus_Sharable_h
+#include <assert.h>
 
-#include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/PegasusAssert.h>
 
-PEGASUS_NAMESPACE_BEGIN
 
-/** 
-    The Sharable class implements a simple reference counting scheme. 
-    The static Inc() method increments the reference count member. 
-    The static Dec() method decrements the reference count and deletes
-    the object when the reference count becomes zero.
+/* define PEGASUS_DEBUG_ASSERT() assertion statement. This statement tests the
+   condition defined by the parameters and if not True executes an assert. 
+   It only generates code if PEGASUS_DEBUG is defined and NDEBUG is not
+   defined. 
+   See also the man page for assert().
 
-    Other classes may inherit this reference counting behavior simply
-    by deriving from this class.
+   NOTE: if NDEBUG is set then the assert() macro will generate no code, 
+         and hence do nothing at all.  
+
 */
-class PEGASUS_COMMON_LINKAGE Sharable
-{
-public:
 
-    Sharable() : _ref(1) { }
-
-    virtual ~Sharable();
-    Uint32 getRef() const { return _ref.get(); }
-
-    friend void Inc(Sharable* sharable); 
-
-    friend void Dec(Sharable* sharable);
-
-private:
-    Sharable(const Sharable &s) : _ref(1) {PEGASUS_DEBUG_ASSERT(0);} 
-    // we should never copy a counter, so we make this private - dte
-    AtomicInt _ref;
-};
-
-inline void Inc(Sharable* x)
-{
-    if (x)
-    {
-	// A sharable object should never be incremented from zero.
-	// If so, there is a double delete being cause by impropoer use
-	// of sharable assignment or copy constructors somewhere
-	// << Wed Nov  6 12:46:52 2002 mdd >>
-	PEGASUS_DEBUG_ASSERT(((Sharable*)x)->_ref.get());
-	x->_ref++;
-    }
-}
+#ifdef PEGASUS_DEBUG
+#define PEGASUS_DEBUG_ASSERT(COND) assert(COND)
+#else
+#define PEGASUS_DEBUG_ASSERT(COND)
+#endif
 
 
-inline void Dec(Sharable* x)
-{
-  if (x && x->_ref.decAndTestIfZero())
-    delete x;
-}
-
-PEGASUS_NAMESPACE_END
-
-#endif /* Pegasus_Sharable_h */
+#endif  /* Pegasus_Assert_h */

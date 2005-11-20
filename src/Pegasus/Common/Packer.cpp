@@ -145,10 +145,10 @@ void Packer::unpackSize(const Buffer& in, Uint32& pos, Uint32& x)
     }
     else
     {
-	PACKER_ASSERT(0);
+	PEGASUS_DEBUG_ASSERT(0);
     }
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 template<class T>
@@ -225,7 +225,7 @@ void Packer::unpackUint32(
     if (isLittleEndian())
 	x = Packer::swapUint32(x);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackUint64(
@@ -237,7 +237,7 @@ void Packer::unpackUint64(
     if (isLittleEndian())
 	x = Packer::swapUint64(x);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
@@ -246,7 +246,7 @@ void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
 
     Uint8 bits = Uint8(in[pos++]);
 
-    PACKER_ASSERT(bits == 16 || bits == 8);
+    PEGASUS_DEBUG_ASSERT(bits == 16 || bits == 8);
 
     // Unpack array size.
 
@@ -271,7 +271,7 @@ void Packer::unpackString(const Buffer& in, Uint32& pos, String& x)
 	}
     }
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackBoolean(
@@ -280,7 +280,7 @@ void Packer::unpackBoolean(
     for (size_t i = 0; i < n; i++)
 	unpackBoolean(in, pos, x[i]);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackUint8(
@@ -289,7 +289,7 @@ void Packer::unpackUint8(
     for (size_t i = 0; i < n; i++)
 	unpackUint8(in, pos, x[i]);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackUint16(
@@ -298,7 +298,7 @@ void Packer::unpackUint16(
     for (size_t i = 0; i < n; i++)
 	unpackUint16(in, pos, x[i]);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackUint32(
@@ -307,7 +307,7 @@ void Packer::unpackUint32(
     for (size_t i = 0; i < n; i++)
 	unpackUint32(in, pos, x[i]);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackUint64(
@@ -316,7 +316,7 @@ void Packer::unpackUint64(
     for (size_t i = 0; i < n; i++)
 	unpackUint64(in, pos, x[i]);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 void Packer::unpackString(
@@ -325,7 +325,7 @@ void Packer::unpackString(
     for (size_t i = 0; i < n; i++)
 	unpackString(in, pos, x[i]);
 
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 PEGASUS_NAMESPACE_END

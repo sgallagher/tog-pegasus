@@ -39,12 +39,7 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Buffer.h>
-
-#ifdef PEGASUS_DEBUG
-# define PACKER_ASSERT(COND) assert(COND)
-#else
-# define PACKER_ASSERT(COND) /* empty */
-#endif
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -206,53 +201,53 @@ inline void Packer::unpackBoolean(
     const Buffer& in, Uint32& pos, Boolean& x)
 {
     x = in[pos++] ? true : false;
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline void Packer::unpackUint8(
     const Buffer& in, Uint32& pos, Uint8& x)
 {
     x = Uint8(in[pos++]);
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline void Packer::unpackReal32(const Buffer& in, Uint32& pos, Real32& x)
 {
     Packer::unpackUint32(in, pos, *((Uint32*)&x));
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline void Packer::unpackReal64(const Buffer& in, Uint32& pos, Real64& x)
 {
     Packer::unpackUint64(in, pos, *((Uint64*)&x));
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline void Packer::unpackChar16(const Buffer& in, Uint32& pos, Char16& x)
 {
     Packer::unpackUint16(in, pos, *((Uint16*)&x));
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline void Packer::unpackReal32(
     Buffer& in, Uint32& pos, Real32* x, Uint32 n)
 {
     unpackUint32(in, pos, (Uint32*)x, n);
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline void Packer::unpackReal64(
     Buffer& in, Uint32& pos, Real64* x, Uint32 n)
 {
     unpackUint64(in, pos, (Uint64*)x, n);
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline void Packer::unpackChar16(
     Buffer& in, Uint32& pos, Char16* x, Uint32 n)
 {
     unpackUint16(in, pos, (Uint16*)x, n);
-    PACKER_ASSERT(pos <= in.size());
+    PEGASUS_DEBUG_ASSERT(pos <= in.size());
 }
 
 inline Uint16 Packer::swapUint16(Uint16 x)

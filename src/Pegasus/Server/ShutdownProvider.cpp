@@ -90,7 +90,7 @@ void ShutdownProvider::invokeMethod(
         PEG_METHOD_EXIT();
         throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, String::EMPTY);
     }
-
+#ifndef PEGASUS_ZOS_SECURITY
     // Only privileged user can execute this operation
     if ((userName != String::EMPTY) && !System::isPrivilegedUser(userName))
     {
@@ -101,6 +101,7 @@ void ShutdownProvider::invokeMethod(
             "Must be a privileged user to execute this CIM operation.");
         throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_ACCESS_DENIED, parms);
     }
+#endif
 
     // Begin processing the request
     handler.processing();

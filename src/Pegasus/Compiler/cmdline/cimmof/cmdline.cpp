@@ -331,6 +331,9 @@ catagorize(const Optarg &arg, int progtype) {
 static void
 applyDefaults(mofCompilerOptions &cmdlinedata) {
   if (cmdlinedata.is_local()) {
+#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    cmdlinedata.set_repository_name(ZOS_DEFAULT_PEGASUS_REPOSITORY);
+#else
     char *peghome = getenv(PEGASUS_HOME);
     if (peghome) {
 #if defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
@@ -351,6 +354,7 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
       cmdlinedata.set_repository(OS400_DEFAULT_PEGASUS_HOME);
 #endif
     }
+#endif // end of #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
   } else {
     cmdlinedata.set_repository(DEFAULT_SERVER_AND_PORT);
   }

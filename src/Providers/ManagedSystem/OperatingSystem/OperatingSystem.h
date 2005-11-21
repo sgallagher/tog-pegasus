@@ -58,7 +58,7 @@ class OperatingSystem
            BSDUNIX, FreeBSD, NetBSD, GNU_Hurd, OS9, MACH_Kernel, 
            Inferno, QNX, EPOC, IxWorks, VxWorks, MiNT, BeOS, HP_MPE, 
            NextStep, PalmPilot, Rhapsody, Windows_2000, Dedicated,
-           OS390, VSE, TPF, Windows_Me
+           OS_390, VSE, TPF, Windows_Me
            };
 
    public:

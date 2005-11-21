@@ -52,6 +52,10 @@
 # error "Unsupported platform"
 #endif
 
+#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+#include "IPCzOS.cpp"
+#endif
+
 #include "InternalException.h"
 //#include "NativeCleanup.h"
 

@@ -414,7 +414,6 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMGetInstanceRequestMessage * req = dynamic_cast<CIMGetInstanceRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -534,7 +533,6 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMEnumerateInstancesRequestMessage * req = dynamic_cast<CIMEnumerateInstancesRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -647,7 +645,6 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMEnumerateInstanceNamesRequestMessage * req = dynamic_cast<CIMEnumerateInstanceNamesRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -763,7 +760,6 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMCreateInstanceRequestMessage * req = dynamic_cast<CIMCreateInstanceRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -882,7 +878,6 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMModifyInstanceRequestMessage * req = dynamic_cast<CIMModifyInstanceRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -995,7 +990,6 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMDeleteInstanceRequestMessage * req = dynamic_cast<CIMDeleteInstanceRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -1120,7 +1114,6 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMExecQueryRequestMessage * req = dynamic_cast<CIMExecQueryRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -1254,7 +1247,6 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMAssociatorsRequestMessage * req = dynamic_cast<CIMAssociatorsRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -1382,7 +1374,6 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMAssociatorNamesRequestMessage * req = dynamic_cast<CIMAssociatorNamesRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -1511,7 +1502,6 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMReferencesRequestMessage * req = dynamic_cast<CIMReferencesRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -1635,7 +1625,6 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMReferenceNamesRequestMessage * req = dynamic_cast<CIMReferenceNamesRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -1759,7 +1748,6 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMInvokeMethodRequestMessage * req = dynamic_cast<CIMInvokeMethodRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -1945,7 +1933,6 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMCreateSubscriptionRequestMessage * req = dynamic_cast<CIMCreateSubscriptionRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {
@@ -2119,7 +2106,6 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         CMPIProvider::pm_service_op_lock op_lock(&pr);
 
 #ifdef PEGASUS_ZOS_THREADLEVEL_SECURITY
-                CIMDeleteSubscriptionRequestMessage * req = dynamic_cast<CIMDeleteSubscriptionRequestMessage *>(const_cast<Message *>(message));
                 int err_num=enablePThreadSecurity(context);
                 if (err_num!=0)
                 {

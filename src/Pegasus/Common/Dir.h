@@ -48,6 +48,9 @@
 # include <sys/param.h>
 # include <dirent.h>
 #endif
+#ifdef PEGASUS_OS_ZOS
+#include <dirent.h>
+#endif
 
 PEGASUS_NAMESPACE_BEGIN
 

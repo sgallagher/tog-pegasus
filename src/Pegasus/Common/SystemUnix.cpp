@@ -73,8 +73,12 @@
 #endif
 
 #ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#define _OPEN_SYS_SOCK_IPV6
+#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <__ftp.h>
+//#include <__ftp.h>
+#define _OPEN_SYS_EXT
+#include <sys/ps.h>
 #endif
 
 #if defined(PEGASUS_USE_SYSLOGS)
@@ -588,24 +592,41 @@ String System::getFullyQualifiedHostName ()
     return fqName;
 #elif defined(PEGASUS_OS_ZOS)
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-    char *domainName;
     String fqName;
+    struct addrinfo *resolv;
+    struct addrinfo hint;
+    struct hostent *he;
     // receive short name of the local host
-    if (gethostname(hostName, sizeof(hostName)) != 0)
+    if (gethostname(hostName, PEGASUS_MAXHOSTNAMELEN) != 0)
     {
         return String::EMPTY;
     }
-    hostName[sizeof(hostName)-1] = 0;
-    // get domain name of the local host
-    domainName= __ipDomainName();
-    if (domainName == 0)
+    resolv = new struct addrinfo;
+    hint.ai_flags = AI_CANONNAME;
+    hint.ai_family = AF_UNSPEC; // any family
+    hint.ai_socktype = 0;       // any socket type
+    hint.ai_protocol = 0;       // any protocol
+    int success = getaddrinfo(hostName,
+                NULL,
+                &hint,
+                &resolv);
+    if (success==0)
     {
-        return String::EMPTY;
-    }
-    // build fully qualified hostname
+        // assign fully qualified hostname
+        fqName.assign(resolv->ai_canonname);
+    } else
+    {
+        if ((he = gethostbyname(hostName)))
+        {
+            strcpy (hostName, he->h_name);
+        }
+        // assign hostName
+        // if gethostbyname was successful assign that result
+        // else assign unqualified hostname
     fqName.assign(hostName);
-    fqName.append(".");
-    fqName.append(domainName);
+    }
+    freeaddrinfo(resolv);
+    delete resolv;
 
     return fqName;
 #else
@@ -760,6 +781,12 @@ String System::getEffectiveUserName()
         //Logger::put(Logger::STANDARD_LOG, "CIMServer", Logger::WARNING,
         //                          errorMsg);
     }
+#elif defined(PEGASUS_OS_ZOS)
+    char effective_username[9];
+    __getuserid(effective_username, 9);
+    __etoa_l(effective_username,9);
+    userName.assign(effective_username);
+    return userName;
 #else
     //
     //  get the currently logged in user's UID.

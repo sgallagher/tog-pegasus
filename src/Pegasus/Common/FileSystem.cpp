@@ -480,6 +480,13 @@ Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
     line.clear();
 
     Boolean gotChar = false;
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    char input[1000];
+    is.getline(input,1000);
+    line.assign(input);
+
+    gotChar = !(is.rdstate() & PEGASUS_STD(istream)::failbit);
+#else
     char c;
 
     while (is.get(c))
@@ -491,6 +498,7 @@ Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 
         line.append(c);
     }
+#endif
 
     return gotChar;
 }

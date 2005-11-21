@@ -48,6 +48,9 @@
 #endif
 #include <sys/time.h>
 #endif
+#if defined(CMPI_PLATFORM_ZOS_ZSERIES_IBM)
+#include <pthread.h>
+#endif
 
 /* ---------------------------------------------------------------------------*/
 /* private declarations                                                       */

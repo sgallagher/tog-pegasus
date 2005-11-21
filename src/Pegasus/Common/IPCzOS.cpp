@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2004////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -6,8 +6,6 @@
 // IBM Corp.; EMC Corporation, The Open Group.
 // Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
-// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
-// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -15,7 +13,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -27,34 +25,15 @@
 //
 //==============================================================================
 //
-// Author: Mike Brasher (mbrasher@bmc.com)
-//       : Denise Eckstein (denise_eckstein@hp.com)
-//
-// Modified By:  Susan Campbell, Hewlett-Packard Company <scampbell@hp.com>
-//               k. v. le   <ikhanh@us.ibm.com>
-//              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
-//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
-//               Marek Szermutzky, IBM, (mszermutzky@de.ibm.com)
+// Author: Marek Szermutzky (mszermutzky@de.ibm.com)
+//         Robert Kieninger (kieningr@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#include "OperatingSystem.h"
 
-#if defined(PEGASUS_PLATFORM_HPUX_ACC)
-# include "OperatingSystem_HPUX.cpp"
-#elif defined (PEGASUS_OS_TYPE_WINDOWS)
-# include "OperatingSystem_Windows.cpp"
-#elif defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-# include "OperatingSystem_Linux.cpp"
-#elif defined (PEGASUS_OS_AIX)
-# include "OperatingSystem_AIX.cpp"
-#elif defined (PEGASUS_OS_DARWIN)
-#include "OperatingSystem_DARWIN.cpp"
-#elif defined (PEGASUS_OS_VMS)
-# include "OperatingSystem_Vms.cpp"
-#elif defined (PEGASUS_OS_SOLARIS)
-# include "OperatingSystem_Solaris.cpp" 
-#elif defined (PEGASUS_OS_ZOS)
-#include "OperatingSystem_zOS.cpp"
-#else
-# include "OperatingSystem_Stub.cpp"
+PEGASUS_NAMESPACE_BEGIN
+
+#ifdef PEGASUS_ZOS_SECURITY
+bool isEnhancedSecurity=99;
 #endif
+
+PEGASUS_NAMESPACE_END

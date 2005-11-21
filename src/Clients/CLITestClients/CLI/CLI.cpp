@@ -229,16 +229,6 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    // The following is a temporary hack to get around the fact that I cannot input the
-    // double quote character from the commandline, either with or without the escape
-    // character.  I simply replace all @ characters with the " charcter
-
-    for (int i = 0; i < argc; i++)
-    {
-        char *p;
-        while ((p = strchr(argv[i], '@')) != NULL)
-            *p = '\"';
-    }
     //****** Show the args diagnostic display
     if (strcmp(argv[1],"displayargs") == 0)
     {

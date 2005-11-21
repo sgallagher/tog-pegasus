@@ -129,7 +129,10 @@ CMPIProviderManager::~CMPIProviderManager(void)
 		if (prec->handler)
 			delete prec->handler;
 		delete prec;
-        provTab.remove(i.key());
+        //Remove is not neccessary, since the hashtable destructor takes care
+        //of this already. But instead removing entries while iterating the
+        //hashtable sometimes causes a segmentation fault!!!
+        //provTab.remove(i.key());
         prec=NULL;
 	}
 	indSelectRecord *selx=NULL;
@@ -141,7 +144,8 @@ CMPIProviderManager::~CMPIProviderManager(void)
         if (selx->qContext)
 			delete selx->qContext;
 		delete selx;
-		selxTab.remove(i.key());
+        //Same as above!
+        //selxTab.remove(i.key());
 		selx=NULL;
 	}
 }

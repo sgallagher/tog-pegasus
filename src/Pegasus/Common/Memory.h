@@ -90,6 +90,11 @@ inline void CopyToRaw(T* to, const T* from, Uint32 size)
     }
 }
 
+inline void CopyToRaw(char* to, const char* from, Uint32 size)
+{
+    memcpy(to, from, sizeof(char) * size);
+}
+
 inline void CopyToRaw(Boolean* to, const Boolean* from, Uint32 size)
 {
     memcpy(to, from, sizeof(Boolean) * size);

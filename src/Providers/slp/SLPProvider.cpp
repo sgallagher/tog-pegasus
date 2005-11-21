@@ -34,6 +34,7 @@
 // Modified By: Karl Schopmeyer, (k.schopmeyer@opengroup.org)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Marek Szermutzky, IBM, (MSzermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -621,7 +622,9 @@ String SLPProvider::getRegisteredProfileList()
 
     Array<String> regarray;
 
-    Boolean         deepInheritance = true;
+// No reason to use deepInheritance for now as we do not support sub-classes anyway
+//    Boolean         deepInheritance = true;
+    Boolean         deepInheritance = false;
     Boolean         localOnly = true;
     Boolean         includeQualifiers = true;
     Boolean         includeClassOrigin = false;
@@ -633,7 +636,7 @@ String SLPProvider::getRegisteredProfileList()
             NAMESPACE,  
             CLASSNAME, 
             localOnly,  
-            includeQualifiers,
+            includeQualifiers,  // include the qualifiers, required for ValueMap mapping
             includeClassOrigin,
             CIMPropertyList());
     }
@@ -660,13 +663,13 @@ String SLPProvider::getRegisteredProfileList()
             CLASSNAME, 
             deepInheritance,
             localOnly,  
-            includeQualifiers,
+            !includeQualifiers,
             includeClassOrigin,
             CIMPropertyList());
 
 
     }
-    catch (Exception &)
+    catch (Exception &e)
     {
         CDEBUG("SLPProvider::getRegisteredProfiles: enum instances error");
         Logger::put(Logger::ERROR_LOG, SlpProvider, Logger::SEVERE,
@@ -677,41 +680,74 @@ String SLPProvider::getRegisteredProfileList()
 
     CDEBUG ("SLPProvider::getRegisteredProfiles: Total Number of Instances: " << cimInstances.size());
 
+try
+{
     Uint32 j = 0;
     for (Uint32 i = 0, n = cimInstances.size(); i < n; i++)
     {
-        if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
-            continue;
 
+// same can be done by not using deepInheritance on the enumInstances call
+// thus I commented it out here
+//        if (cimInstances[i].getClassName() != "CIM_RegisteredProfile")
+//            continue;
         Uint32 index_RO = cimInstances[i].findProperty("RegisteredOrganization");
         Uint32 index_RN = cimInstances[i].findProperty("RegisteredName");    
 
         CIMConstProperty RO_Property = cimInstances[i].getProperty(index_RO);
-        CIMName RO_PropertyName = RO_Property.getName();
-        CIMValue RO_v1= RO_Property.getValue();
-
-
         String RegOrg = _getValueQualifier(RO_Property, RO_Class);
+        CDEBUG("Value of RegOrg =" << RegOrg);
         if (RegOrg == String::EMPTY)
         {
             RegOrg = "Unknown";
-        }
-
-
+        } else 
+        {
+            if (String::equalNoCase(RegOrg,"Other"))
+            {
+                // lets use the OtherRegisteredOrganization value if available
+                Uint32 index_ORO = cimInstances[i].findProperty("OtherRegisteredOrganization");
+                if (index_ORO != PEG_NOT_FOUND)
+                {
+                    String OthRegOrg;
+                    // lets get the property
+                    CIMConstProperty ORO_Property = cimInstances[i].getProperty(index_ORO);
+                    // see if there is a String value on it and if so use that as organisation
+                    CIMValue ORO_value = ORO_Property.getValue ();
+                    if ((ORO_value.getType () == CIMTYPE_STRING) && (!ORO_value.isNull ()))
+                    {
+                        ORO_value.get(OthRegOrg);
+                        if (OthRegOrg != String::EMPTY)
+                        {
+                            RegOrg.assign(OthRegOrg);
+                        }
+                    }                    
+                }
+            }
+        }           
         CIMConstProperty RN_Property = cimInstances[i].getProperty(index_RN);
-
-        regitem.append(RegOrg);
+        String RegName;
+        CIMValue RN_value = RN_Property.getValue ();
+        if ((RN_value.getType () == CIMTYPE_STRING) && (!RN_value.isNull ()))
+        {
+            RN_value.get(RegName);
+        }
+        CDEBUG("Value of RegName =" << RegName);
+        regitem.assign(RegOrg);
         regitem.append(":");
-        regitem.append(RN_Property.getValue().toString());
+        regitem.append(RegName);
+        CDEBUG("Value of regitem =" << regitem);
         regarray.append(regitem);
-        regitem.clear();
         j++;
     }
+    CDEBUG("Size of regarray=" << regarray.size());
     if (j > 0)
     {
         reglist = _arrayToString(regarray);
     }
-
+    CDEBUG("reglist = " << reglist);
+} catch(Exception &exc)
+{
+    CDEBUG("Exception caught in enumInst processing:" << exc.getMessage());
+}
     PEG_METHOD_EXIT();
     return(reglist);
 }
@@ -1171,7 +1207,7 @@ Boolean SLPProvider::issueSLPRegistrations()
             CIMName(CIMObjectManagerClassName),
             false, false, false,false, CIMPropertyList());
     }
-    catch (const Exception &)
+    catch (const Exception & e)
     {
         CDEBUG("Exception caught on enumerateInstances(CIM_ObjectManager):=" << e.getMessage());
     }

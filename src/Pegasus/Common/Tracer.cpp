@@ -761,6 +761,7 @@ void Tracer::setTraceComponents(const String& traceComponents)
         // initialise ComponentMask array to False
         for (Uint32 index = 0;index < _NUM_COMPONENTS;
                  (_getInstance()->_traceComponentMask.get())[index++] = false);
+        _traceOn = 0;
     }
     return ;
 }

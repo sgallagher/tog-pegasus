@@ -124,6 +124,8 @@ inline bool Packer::isLittleEndian()
     return true;
 #elif defined(PEGASUS_PLATFORM_LINUX_X86_GNU)
     return true;
+#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
+    return false;
 #else
     // You can add your platform above to avoid this calculation.
     union U { Uint16 x; Uint8 a[2]; } u;

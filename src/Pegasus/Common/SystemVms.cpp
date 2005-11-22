@@ -181,7 +181,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char *fileName)
 {
   PEG_METHOD_ENTER(TRC_OS_ABSTRACTION, "System::loadDynamicLibrary()");
 
-  Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+  Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 	"Attempting to load library %s - 1", fileName);
 
   PEG_METHOD_EXIT();
@@ -466,7 +466,7 @@ String System::getEffectiveUserName()
   pwd = getpwuid(geteuid());
   if (pwd == NULL)
   {
-  Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+  Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
 	"getpwuid failure, user may have been removed just after login");
   }
   else
@@ -557,7 +557,7 @@ if (userName == String::EMPTY)
     }
     else
     {
-    Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
 	    "Could not find entry.");
       PEGASUS_ASSERT(0);
     }
@@ -590,9 +590,9 @@ Boolean System::isGroupMember(const char *userName, const char *groupName)
   {
     String errorMsg = String("getpwnam_r failure : ") +
     String(strerror(errno));
-  Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 		     errorMsg);
-  Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
+    Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
 	errorMsg);
     throw InternalSystemError();
   }
@@ -609,9 +609,9 @@ Boolean System::isGroupMember(const char *userName, const char *groupName)
     {
       String errorMsg = String("getgrgid_r failure : ") +
       String(strerror(errno));
-    Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+      PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 		       errorMsg);
-    Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
+      Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
 	  errorMsg);
       throw InternalSystemError();
     }
@@ -634,9 +634,9 @@ Boolean System::isGroupMember(const char *userName, const char *groupName)
   {
     String errorMsg = String("getgrnam_r failure : ") +
     String(strerror(errno));
-  Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 		     errorMsg);
-  Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
+    Logger:: put(Logger:: STANDARD_LOG, "CIMServer", Logger::WARNING,
 	errorMsg);
     throw InternalSystemError();
   }
@@ -683,32 +683,32 @@ Boolean System::changeUserContext(const char *userName)
 
   if (rc != 0)
   {
-  PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 		String("getpwnam_r failed: ") + String(strerror(errno)));
     return false;
   }
 
   if (result == 0)
   {
-  Tracer:: PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 		     "getpwnam_r failed.");
     return false;
   }
 
-Tracer:: trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
+  Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL4,
 	"Changing user context to: uid = %d, gid = %d",
 	(int) pwd.pw_uid, (int) pwd.pw_gid);
 
   if (setgid(pwd.pw_gid) != 0)
   {
-  PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 		     String("setgid failed: ") + String(strerror(errno)));
     return false;
   }
 
   if (setuid(pwd.pw_uid) != 0)
   {
-  PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
+    PEG_TRACE_STRING(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
 		     String("setuid failed: ") + String(strerror(errno)));
     return false;
   }

@@ -61,6 +61,19 @@ void CIMMessageSerializer::serialize(Buffer& out, CIMMessage* cimMessage)
     XmlWriter::append(out, cimMessage->getType());
     XmlWriter::append(out, "\">");
 
+#ifndef PEGASUS_DISABLE_PERFINST
+    // Serialize the statistics data
+
+    XmlWriter::appendValueElement(
+        out, cimMessage->getStartServerTime().toMicroseconds());
+    XmlWriter::appendValueElement(
+        out, cimMessage->getEndServerTime().toMicroseconds());
+    XmlWriter::appendValueElement(
+        out, cimMessage->getStartProviderTime().toMicroseconds());
+    XmlWriter::appendValueElement(
+        out, cimMessage->getEndProviderTime().toMicroseconds());
+#endif
+
     _serializeOperationContext(out, cimMessage->operationContext);
 
     CIMRequestMessage* cimReqMessage;

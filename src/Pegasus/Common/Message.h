@@ -239,10 +239,6 @@ class PEGASUS_COMMON_LINKAGE Message
           _timeProviderEnd = timeProviderEnd;
       }
 
-	  TimeValue getProviderTime() { return _providerTime;}
-
-      TimeValue getTotalTime() { return _totalTime; }
-
 	  TimeValue getServerTime() { return _serverTime; }
 //
 #endif
@@ -345,9 +341,7 @@ class PEGASUS_COMMON_LINKAGE Message
       TimeValue _timeServerEnd;
       TimeValue _timeProviderStart;
       TimeValue _timeProviderEnd;
-	  TimeValue _providerTime;
 	  TimeValue _serverTime;	
-      TimeValue _totalTime;
       Boolean   _close_connect;  
 
 //

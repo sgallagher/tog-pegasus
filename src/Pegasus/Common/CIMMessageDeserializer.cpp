@@ -59,6 +59,13 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     String messageID;
     String typeString;
     Uint32 type;
+#ifndef PEGASUS_DISABLE_PERFINST
+    CIMValue genericValue;
+    Uint64 timeServerStart;
+    Uint64 timeServerEnd;
+    Uint64 timeProviderStart;
+    Uint64 timeProviderEnd;
+#endif
     OperationContext operationContext;
 
     XmlReader::expectStartTag(parser, entry, "PGMESSAGE");
@@ -71,6 +78,19 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
         PEGASUS_ASSERT(0);
     }
     type = Uint32(atoi(typeString.getCString()));
+
+#ifndef PEGASUS_DISABLE_PERFINST
+    // Deserialize the performance statistics data
+
+    XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
+    genericValue.get(timeServerStart);
+    XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
+    genericValue.get(timeServerEnd);
+    XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
+    genericValue.get(timeProviderStart);
+    XmlReader::getValueElement(parser, CIMTYPE_UINT64, genericValue);
+    genericValue.get(timeProviderEnd);
+#endif
 
     _deserializeOperationContext(parser, operationContext);
 
@@ -93,6 +113,20 @@ CIMMessage* CIMMessageDeserializer::deserialize(char* buffer)
     XmlReader::expectEndTag(parser, "PGMESSAGE");
 
     message->messageId = messageID;
+#ifndef PEGASUS_DISABLE_PERFINST
+    message->setStartServerTime(TimeValue(
+        Uint32(timeServerStart / Uint64(1000000)),
+        Uint32(timeServerStart % Uint64(1000000))));
+    message->setEndServerTime(TimeValue(
+        Uint32(timeServerEnd / Uint64(1000000)),
+        Uint32(timeServerEnd % Uint64(1000000))));
+    message->setStartProviderTime(TimeValue(
+        Uint32(timeProviderStart / Uint64(1000000)),
+        Uint32(timeProviderStart % Uint64(1000000))));
+    message->setEndProviderTime(TimeValue(
+        Uint32(timeProviderEnd / Uint64(1000000)),
+        Uint32(timeProviderEnd % Uint64(1000000))));
+#endif
     message->operationContext = operationContext;
 
     return message;

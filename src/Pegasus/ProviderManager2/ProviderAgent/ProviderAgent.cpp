@@ -181,6 +181,10 @@ void ProviderAgent::run()
         }
     }
 
+    // Notify the cimserver that the provider agent is exiting cleanly.
+    Uint32 messageLength = 0;
+    _pipeToServer->writeBuffer((const char*)&messageLength, sizeof(Uint32));
+
     PEG_METHOD_EXIT();
 }
 

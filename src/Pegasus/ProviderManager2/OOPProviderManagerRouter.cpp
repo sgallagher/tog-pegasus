@@ -175,8 +175,19 @@ private:
         with an error result.
 
         Note: The caller must lock the _agentMutex.
+
+        @param cleanShutdown Indicates whether the provider agent process
+        exited cleanly.  A value of true indicates that responses have been
+        sent for all requests that have been processed.  A value of false
+        indicates that one or more requests may have been partially processed.
      */
-    void _uninitialize();
+    void _uninitialize(Boolean cleanShutdown);
+
+    /**
+        Performs the processMessage work, but does not retry on a transient
+        error.
+     */
+    CIMResponseMessage* _processMessage(CIMRequestMessage* request);
 
     /**
         Read and process response messages from the Provider Agent until
@@ -275,6 +286,15 @@ private:
     static Uint32 _maxProviderProcesses;
 
     /**
+        A value indicating that a request message has not been processed.
+        A CIMResponseMessage pointer with this value indicates that the
+        corresponding CIMRequestMessage has not been processed.  This is
+        used to indicate that a provider agent exited without starting to
+        process the request, and that the request should be retried.
+     */
+    static CIMResponseMessage* _REQUEST_NOT_PROCESSED;
+
+    /**
         Indicates whether the Indication Service has completed initialization.
 
         For more information, please see the description of the
@@ -286,6 +306,10 @@ private:
 Uint32 ProviderAgentContainer::_numProviderProcesses = 0;
 Mutex ProviderAgentContainer::_numProviderProcessesMutex;
 Uint32 ProviderAgentContainer::_maxProviderProcesses = PEG_NOT_FOUND;
+
+// Set this to a value that no valid CIMResponseMessage* will have.
+CIMResponseMessage* ProviderAgentContainer::_REQUEST_NOT_PROCESSED =
+    reinterpret_cast<CIMResponseMessage*>(&_REQUEST_NOT_PROCESSED);
 
 ProviderAgentContainer::ProviderAgentContainer(
     const String & moduleName,
@@ -769,7 +793,7 @@ Boolean ProviderAgentContainer::isInitialized()
 }
 
 // Note: Caller must lock _agentMutex
-void ProviderAgentContainer::_uninitialize()
+void ProviderAgentContainer::_uninitialize(Boolean cleanShutdown)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::_uninitialize");
@@ -825,6 +849,9 @@ void ProviderAgentContainer::_uninitialize()
         {
             AutoMutex tableLock(_outstandingRequestTableMutex);
 
+            CIMResponseMessage* response =
+                cleanShutdown ? _REQUEST_NOT_PROCESSED : 0;
+
             for (OutstandingRequestTable::Iterator i =
                      _outstandingRequestTable.start();
                  i != 0; i++)
@@ -832,7 +859,7 @@ void ProviderAgentContainer::_uninitialize()
                 PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL2,
                     String("Completing messageId \"") + i.value()->messageId +
                         "\" with a null response.");
-                i.value()->responseMessage = 0;
+                i.value()->responseMessage = response;
                 i.value()->responseReady->signal();
             }
 
@@ -859,6 +886,23 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
         "ProviderAgentContainer::processMessage");
+
+    CIMResponseMessage* response;
+
+    do
+    {
+        response = _processMessage(request);
+    } while (response == _REQUEST_NOT_PROCESSED);
+
+    PEG_METHOD_EXIT();
+    return response;
+}
+
+CIMResponseMessage* ProviderAgentContainer::_processMessage(
+    CIMRequestMessage* request)
+{
+    PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,
+        "ProviderAgentContainer::_processMessage");
 
     CIMResponseMessage* response;
     String originalMessageId = request->messageId;
@@ -1025,6 +1069,15 @@ CIMResponseMessage* ProviderAgentContainer::processMessage(
             throw;
         }
 
+        // A response value of _REQUEST_NOT_PROCESSED indicates that the
+        // provider agent process was terminating when the request was sent.
+        // The request was not processed by the provider agent, so it can be 
+        // retried safely.
+        if (response == _REQUEST_NOT_PROCESSED)
+        {
+            return response;
+        }
+
         // A null response is returned when an agent connection is closed
         // while requests remain outstanding.
         if (response == 0)
@@ -1117,7 +1170,16 @@ void ProviderAgentContainer::_processResponses()
                 (readStatus == AnonymousPipe::STATUS_CLOSED))
             {
                 AutoMutex lock(_agentMutex);
-                _uninitialize();
+                _uninitialize(false);
+                return;
+            }
+
+            // A null message indicates that the provider agent process has
+            // finished its processing and is ready to exit.
+            if (message == 0)
+            {
+                AutoMutex lock(_agentMutex);
+                _uninitialize(true);
                 return;
             }
 

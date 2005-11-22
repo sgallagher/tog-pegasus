@@ -4823,6 +4823,7 @@ int main (int argc, char** argv)
     CIMClient client;
     try
     {
+        client.setTimeout(120000);
         client.connectLocal ();
     }
     catch (Exception & e)

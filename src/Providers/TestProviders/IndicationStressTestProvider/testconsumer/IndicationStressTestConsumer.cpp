@@ -39,6 +39,8 @@ PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
 
 static AtomicInt _indicationCount(0);
+static AtomicInt _indicationCountFromExpectedIdentity(0);
+static String _expectedSenderIdentity;
 
 IndicationStressTestConsumer::IndicationStressTestConsumer()
 {
@@ -66,14 +68,33 @@ void IndicationStressTestConsumer::invokeMethod(
 {
     handler.processing();
 
-    if (methodName.equal ("resetIndicationCount"))
+    if (methodName.equal ("setupTestConfiguration"))
     {
         _indicationCount = 0;
-        handler.deliver(CIMValue(0));
+        _indicationCountFromExpectedIdentity = 0;
+        if (inParameters.size() > 1)
+        {
+            throw CIMInvalidParameterException("Too many parameters.");
+        }
+        else if (inParameters.size() == 0)
+        {
+            _expectedSenderIdentity = String::EMPTY;
+        }
+        else
+        {
+            CIMValue paramVal = inParameters[0].getValue();
+            paramVal.get(_expectedSenderIdentity);
+        }
+        handler.deliver(CIMValue((Uint32)0));
     }
-    else if (methodName.equal("getIndicationCount"))
+    else if (methodName.equal("getTestResults"))
     {
-        handler.deliver(CIMValue(_indicationCount.get()));
+        handler.deliverParamValue(CIMParamValue("indicationsReceived",
+                CIMValue(_indicationCount.get())));
+        handler.deliverParamValue(CIMParamValue(
+                "indicationsReceivedFromExpectedIdentity",
+                CIMValue(_indicationCountFromExpectedIdentity.get())));
+        handler.deliver(CIMValue((Uint32)0));
     }
     else
     {
@@ -100,6 +121,13 @@ void IndicationStressTestConsumer::consumeIndication(
     const String& url,
     const CIMInstance& indicationInstance)
 {
+    String userName;
+    IdentityContainer container(context.get(IdentityContainer::NAME));
+    userName.assign(container.getUserName());
+    if (String::equal(userName,_expectedSenderIdentity))
+    {
+       _indicationCountFromExpectedIdentity++;
+    }
     _indicationCount++;
 
     String indicationFile = INDICATION_DIR;
@@ -116,7 +144,9 @@ void IndicationStressTestConsumer::consumeIndication(
     }
 
     fprintf(_indicationLogHandle, 
-            "++++++++++++++ Received Indication +++++++++++++++++\n");
+        "+++++ Received Indication +++++\n");
+    fprintf(_indicationLogHandle, 
+            "userName = %s\n", (const char *)userName.getCString());
 
     for (Uint8 i=0; i < indicationInstance.getPropertyCount(); i++)
     {

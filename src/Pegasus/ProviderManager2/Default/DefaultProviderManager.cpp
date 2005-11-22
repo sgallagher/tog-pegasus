@@ -2080,6 +2080,8 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
 
         OperationContext context;
 
+        context.insert(request->operationContext.get(IdentityContainer::NAME));
+
 //L10N_TODO
 //l10n
 // ATTN-CEC 06/04/03 NOTE: I can't find where the consume msg is sent.  This

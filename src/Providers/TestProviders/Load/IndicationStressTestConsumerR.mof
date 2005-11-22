@@ -36,5 +36,5 @@ instance of PG_ProviderCapabilities
     Namespaces = { "test/TestProvider" };
     ProviderType = { 5 };
     SupportedProperties = NULL;
-    SupportedMethods = { "resetIndicationCount", "getIndicationCount" };
+    SupportedMethods = { "setupTestConfiguration", "getTestResults" };
 };

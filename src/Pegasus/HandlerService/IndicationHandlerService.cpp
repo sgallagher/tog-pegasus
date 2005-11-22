@@ -289,6 +289,8 @@ IndicationHandlerService::_handleIndication(
                     String::EMPTY,
                     String::EMPTY));
 
+                exportmessage->operationContext.insert(
+                    IdentityContainer(String::EMPTY));
                 exportmessage->operationContext.set(
 		    request->operationContext.get(
 		    ContentLanguageListContainer::NAME)); 

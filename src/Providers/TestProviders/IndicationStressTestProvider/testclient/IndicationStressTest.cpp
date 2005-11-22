@@ -63,6 +63,9 @@ const String INDICATION_CLASS_NAME = String ("IndicationStressTestClass");
 const String SERVER_RESIDENT_HANDLER_NAME = String ("IPHandler01");
 const String CLIENT_RESIDENT_HANDLER_NAME = String ("IPHandler02");
 const String FILTER_NAME = String ("IPFilter01");
+const String INDICATION_COUNT_PROPERTY = String ("indicationsReceived");
+const String INDICATION_COUNT_FROM_EXPECTED_SENDER_PROPERTY =
+     String ("indicationsReceivedFromExpectedIdentity");
 
 
 AtomicInt receivedIndicationCount(0);
@@ -533,57 +536,89 @@ void _usage ()
         << "            generate, and can be zero to measure the overhead in\n"
         << "            calling the provider." << endl
         << "       <threads> is an optional number of client threads to\n"
-        << "            create, default is one."
+        << "            create, default is one." << endl
+        << "       <SenderIdentity> is the system user name associated with\n"
+        << "            the certificate of the server sending the Indication.\n"
+        << "            The ssltrustmgr utility can be used to associate a\n"
+        << "            a user name with a certificate.  This feature is only\n"
+        << "            supported for Server-resident Listeners.\n"
+        << "               ssltrustmgr -a -c guest -f server.pem\n"
+        << "            Note: the <threads> parameter must be specified if\n"
+        << "            the <SenderIdentity> value is defined.\n"
         << endl << endl
         << "    TestIndicationStressTest cleanup"
         << endl << endl;
 }
 
-Uint32 _getServerResidentIndicationCount(CIMClient &client)
-{
-   Uint32 count;
-   const CIMObjectPath classPath = CIMObjectPath
-       (INDICATION_CONSUMER_CLASS_NAME);
-   Array<CIMParamValue> inParams;
-   Array<CIMParamValue> outParams;
+void _getTestResults(
+    CIMClient &client,
+    Uint32 &indicationCount,
+    Uint32 &indicationCountFromExpectedIdentity)
+ {
+    const CIMObjectPath classPath = CIMObjectPath
+        (INDICATION_CONSUMER_CLASS_NAME);
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
 
-   CIMValue retValue = client.invokeMethod(
-       SOURCE_NAMESPACE,
-       classPath,
-       CIMName("getIndicationCount"),
-       inParams,
-       outParams);
+    CIMValue retValue = client.invokeMethod(
+        SOURCE_NAMESPACE,
+        classPath,
+        CIMName("getTestResults"),
+        inParams,
+        outParams);
 
-   retValue.get(count);
-   return(count);
+    Uint32 status;
+    retValue.get(status);
+    if (status != 0)
+    {
+        throw Exception ("Failure status returned from getTestResults");
+    }
+
+    if (outParams.size() != 2)
+    {
+        throw Exception (
+            "Invalid number of parameters returned from getTestResults"); 
+    }
+    else
+    {
+        String paramName0 = outParams[0].getParameterName();
+        String paramName1 = outParams[1].getParameterName();
+        if (paramName0 == INDICATION_COUNT_PROPERTY)
+        {
+            outParams[0].getValue().get(indicationCount);
+            if (paramName1 == INDICATION_COUNT_FROM_EXPECTED_SENDER_PROPERTY)
+            {
+                outParams[1].getValue().get(
+                    indicationCountFromExpectedIdentity);
+            }
+            else
+            {
+                throw Exception("Invalid getTestResults parameter");
+            }
+        }
+        else if (paramName0 == INDICATION_COUNT_FROM_EXPECTED_SENDER_PROPERTY)
+        {
+            outParams[0].getValue().get(indicationCountFromExpectedIdentity);
+            if (paramName1 == INDICATION_COUNT_PROPERTY)
+            {
+                outParams[1].getValue().get(indicationCount);
+            }
+            else
+            {
+                throw Exception("Invalid getTestResults parameter");
+            }
+        }
+        else 
+        {
+            throw Exception ("Invalid getTestResults parameter");
+        }
+    }
 }
 
-void _resetServerResidentIndicationCount(CIMClient &client)
+
+void _setupServerResidentListener(CIMClient &client,
+    String expectedSenderIdentity)
 {
-   Sint32 status;
-   const CIMObjectPath classPath = CIMObjectPath
-       (INDICATION_CONSUMER_CLASS_NAME);
-   Array<CIMParamValue> inParams;
-   Array<CIMParamValue> outParams;
-
-   CIMValue retValue = client.invokeMethod(
-       SOURCE_NAMESPACE,
-       classPath,
-       CIMName("resetIndicationCount"),
-       inParams,
-       outParams);
-
-   retValue.get(status);
-   if (status < 0)
-   {
-      throw Exception("----- _resetServerResidentIndicationCount failure");
-   }
-}
-
-
-void _setupServerResidentListener(CIMClient &client)
-{
-
     //
     //  Remove previous indication log file, if there
     //
@@ -606,8 +641,27 @@ void _setupServerResidentListener(CIMClient &client)
         }
     }
 
-    // Initialize Indication Stress Test Consumer
-    _resetServerResidentIndicationCount(client);
+    const CIMObjectPath classPath = CIMObjectPath
+        (INDICATION_CONSUMER_CLASS_NAME);
+    Array<CIMParamValue> inParams;
+    Array<CIMParamValue> outParams;
+
+    inParams.append( CIMParamValue("indicationsReceivedFromExpectedIdentity",
+         CIMValue(expectedSenderIdentity)));
+
+    CIMValue retValue = client.invokeMethod(
+        SOURCE_NAMESPACE,
+        classPath,
+        CIMName("setupTestConfiguration"),
+        inParams,
+        outParams);
+
+    Uint32 status;
+    retValue.get(status);
+    if (status != 0)
+    {
+        throw Exception ("Failure status returned from getTestResults");
+    }
 }
 
 void _setup (CIMClient & client, String& qlang,
@@ -920,12 +974,13 @@ Thread * _runTestThreads(
 }
 
 int _beginTest(CIMClient& workClient, const char* opt,
-     const char* optTwo, const char* optThree)
+     const char* optTwo, const char* optThree, const char* optFour)
 {
 
     Boolean setupCommand =  false;
     Boolean configureServerResidentListener = false;
     Boolean configureClientResidentListener = false;
+    String expectedSenderIdentity(String::EMPTY);
 
     if (String::equalNoCase(opt, "setup"))
     {
@@ -994,6 +1049,10 @@ int _beginTest(CIMClient& workClient, const char* opt,
         if (optThree != NULL)
         {
             runClientThreadCount = atoi(optThree);
+            if (optFour != NULL)
+            {
+                expectedSenderIdentity = optFour;
+            }
         }
 
         Boolean monitorClientResidentListener = _subscriptionExists(
@@ -1011,7 +1070,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
 
         if (monitorServerResidentListener)
         {
-            _setupServerResidentListener(workClient);
+            _setupServerResidentListener(workClient, expectedSenderIdentity);
         }
 
 
@@ -1130,6 +1189,7 @@ int _beginTest(CIMClient& workClient, const char* opt,
         Uint32 priorServerResidentIndicationCount = 0;
         Uint32 currentClientResidentIndicationCount = 0;
         Uint32 currentServerResidentIndicationCount = 0;
+        Uint32 currentServerResidentIdentityIndicationCount = 0;
         Uint32 totalIterations = 0;
 
         //
@@ -1180,8 +1240,9 @@ int _beginTest(CIMClient& workClient, const char* opt,
             }
             if (monitorServerResidentListener)
             {
-                currentServerResidentIndicationCount =
-                    _getServerResidentIndicationCount(workClient);
+                _getTestResults(workClient,
+                    currentServerResidentIndicationCount,
+                    currentServerResidentIdentityIndicationCount);
                 if (totalIterations % COUT_TIME_INTERVAL == 1)
                 {
                      cout << "+*+* The Server Resident Listener has received "
@@ -1270,13 +1331,20 @@ int _beginTest(CIMClient& workClient, const char* opt,
                  << indicationSendCountTotal <<endl;
             cout << "+++++     Number of Indications Received  = "  
                  << currentServerResidentIndicationCount << endl;
+            if (expectedSenderIdentity != String::EMPTY)
+            {
+                cout << "+++++     Number of Indications Received from "
+                     << expectedSenderIdentity << " = "   
+                     << currentServerResidentIdentityIndicationCount << endl;
+            }
             cout << "+++++     Elapsed time = "
                  << serverResidentListenerElapsedTime.getElapsed()
                  << " seconds, or  " 
                  << serverResidentListenerElapsedTime.getElapsed()/60
                  << " minutes." << endl;
             cout << "+++++     Rate = " 
-                 << currentServerResidentIndicationCount/serverResidentListenerElapsedTime.getElapsed()
+                 << currentServerResidentIndicationCount/
+                        serverResidentListenerElapsedTime.getElapsed()
                  << " indications per second." << endl << endl;
         }
 
@@ -1291,6 +1359,11 @@ int _beginTest(CIMClient& workClient, const char* opt,
         {
             PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
                 currentServerResidentIndicationCount);
+            if (expectedSenderIdentity != String::EMPTY)
+            {
+                assert(indicationSendCountTotal ==
+                    currentServerResidentIdentityIndicationCount);
+            }
         }
 
         // if error encountered then fail the test.
@@ -1345,23 +1418,33 @@ int main (int argc, char** argv)
         const char * opt = argv[1];
         const char * optTwo;
         const char * optThree;
+        const char * optFour;
 
-        if (argc == 4) {
+        if (argc == 5) {
             optTwo = argv[2];
             optThree = argv[3];
+            optFour = argv[4];
+        }
+            
+        else if (argc == 4) {
+            optTwo = argv[2];
+            optThree = argv[3];
+            optFour = NULL;
         }
         else if (argc == 3) {
             optTwo = argv[2];
             optThree = NULL;
+            optFour = NULL;
         }
         else {
             optTwo = NULL;
             optThree = NULL;
+            optFour = NULL;
         }
 
         try
         {
-            int rc = _beginTest(workClient, opt, optTwo, optThree);
+            int rc = _beginTest(workClient, opt, optTwo, optThree, optFour);
 	    return rc;
         }
         catch (Exception & e)

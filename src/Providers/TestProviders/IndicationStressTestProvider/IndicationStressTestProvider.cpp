@@ -48,7 +48,7 @@ PEGASUS_USING_PEGASUS;
 
 static IndicationResponseHandler * _indication_handler = 0;
 static Boolean _enabled = false;
-static Uint32 _nextUID = 0;
+static Uint32 _nextUID = 1;
 static Uint32 _numSubscriptions = 0;
 static CIMOMHandle _cimom;
 
@@ -173,10 +173,9 @@ void IndicationStressTestProvider::invokeMethod(
 
         if (indicationSendCount > 0)
           {
-            sprintf(UIDbuffer, "%d", _nextUID++);
-
             for (Uint32 seqNum = 1; seqNum < indicationSendCount+1; seqNum++)
               {
+                sprintf(UIDbuffer, "%d", _nextUID++);
                 SendIndication(seqNum, UIDbuffer);               
               }
           }

@@ -383,8 +383,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // If the request was authenticated via SSL, append the username to the IdentityContainer
         String cimOperation;
         if (authenticated && 
-			(String::equal(httpMessage->authInfo->getAuthType(), AuthenticationInfoRep::AUTH_TYPE_SSL)) &&
-			HTTPMessage::lookupHeader(headers, "CIMOperation", cimOperation, true))
+            (String::equal(httpMessage->authInfo->getAuthType(),
+                AuthenticationInfoRep::AUTH_TYPE_SSL)))
         {
 			PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "Client was authenticated via trusted SSL certificate.");
 

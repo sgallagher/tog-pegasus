@@ -65,8 +65,8 @@ poststarttests:
 	@$(ECHO) "+++++ TestIndicationStressTest passed all tests"
 
 wql_10_1:
-	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 1
+	$(PROGRAM) setup$L WQL $p 
+	$(PROGRAM) run 1 1 $I 
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
 
@@ -95,69 +95,69 @@ wql_10_1:
 
 cql_i_t:
 	$(PROGRAM) setup$L CIM:CQL $p
-	$(PROGRAM) run $i $t
+	$(PROGRAM) run $i $t $I
 	$(PROGRAM) cleanup
 
 wql_i_t: 
 	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run $i $t
+	$(PROGRAM) run $i $t $I
 	$(PROGRAM) cleanup
 
 
 wql_10_10:
 	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 10 10
+	$(PROGRAM) run 10 10 $I
 	$(PROGRAM) cleanup
 
 wql_10_100:
 	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 10 100
+	$(PROGRAM) run 10 100 $I
 	$(PROGRAM) cleanup
 
 wql_100_10:
 	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 100 10
+	$(PROGRAM) run 100 10 $I
 	$(PROGRAM) cleanup
 
 wql_100_100:
 	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 100 100
+	$(PROGRAM) run 100 100 $I
 	$(PROGRAM) cleanup
 
 wql_1000_100:
 	$(PROGRAM) setup$L WQL $p
-	$(PROGRAM) run 1000 100
+	$(PROGRAM) run 1000 100 $I
 	$(PROGRAM) cleanup
 
 cql_10_1:
-	$(PROGRAM) setup$L CIM:CQL $p
-	$(PROGRAM) run 1
+	$(PROGRAM) setup$L CIM:CQL $p 
+	$(PROGRAM) run 1 1 $I
 	$(PROGRAM) run 10 1
 	$(PROGRAM) cleanup
 
 cql_10_10:
 	$(PROGRAM) setup$L CIM:CQL $p
-	$(PROGRAM) run 10 10
+	$(PROGRAM) run 10 10 $I
 	$(PROGRAM) cleanup
 
 cql_10_100:
 	$(PROGRAM) setup$L CIM:CQL $p
-	$(PROGRAM) run 10 100
+	$(PROGRAM) run 10 100 $I
 	$(PROGRAM) cleanup
 
 cql_100_10:
 	$(PROGRAM) setup$L CIM:CQL $p
-	$(PROGRAM) run 100 10
+	$(PROGRAM) run 100 10 $I
 	$(PROGRAM) cleanup
 
 cql_100_100:
 	$(PROGRAM) setup$L CIM:CQL $p
-	$(PROGRAM) run 100 100
+	$(PROGRAM) run 100 100 $I
 	$(PROGRAM) cleanup
 
 cql_1000_100:
 	$(PROGRAM) setup$L CIM:CQL $p
-	$(PROGRAM) run 1000 100
+	$(PROGRAM) run 1000 100 $I
 	$(PROGRAM) cleanup
 
 testsclean:

@@ -48,6 +48,24 @@
 #include <cassert>
 
 
+/** define PEGASUS_ASSERT assertion statement.  This statement tests the
+    condition defined by the parameters and if not True executes an
+
+   It only generates code if NDEBUG is not defined. 
+   See also the man page for assert().
+
+   NOTE: if NDEBUG is set then the assert() macro will generate no code, 
+         and hence do nothing at all.  
+
+    <pre>
+    assert()
+    </pre>
+
+    defining the file, line and condition that was tested.
+*/
+
+#define PEGASUS_ASSERT(COND) assert(COND)
+
 
 /* define PEGASUS_DEBUG_ASSERT() assertion statement. This statement tests the
    condition defined by the parameters and if not True executes an assert. 

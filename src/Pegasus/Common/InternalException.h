@@ -60,27 +60,6 @@ public:
 	const String& message);
 };
 
-/** define PEGASUS_ASSERT assertion statement.  This statement tests the
-    condition defined by the parameters and if not True executes an
-
-    <pre>
-    throw AssertionFailureException
-    </pre>
-
-    defining the file, line and condition that was tested.
-*/
-#ifdef NDEBUG
-#define PEGASUS_ASSERT(COND)
-#else
-#define PEGASUS_ASSERT(COND) \
-    do \
-    { \
-        if (!(COND)) \
-        { \
-            throw AssertionFailureException(__FILE__, __LINE__, #COND); \
-        } \
-    } while (0)
-#endif
 
 /* Macro to Create the equivalent of an assert but without the
    termination.  This can be used as a temporary marker for asserts

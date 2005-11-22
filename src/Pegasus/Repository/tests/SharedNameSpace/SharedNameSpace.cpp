@@ -34,7 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -96,7 +96,7 @@ void test(CIMRepository_Mode mode)
 	   r.createNameSpace(arr1[1],nsa);      // try again
            failed=true;
         }
-	assert(failed == true);
+	PEGASUS_TEST_ASSERT(failed == true);
 
         nsa.clear();
         nsa.insert("parent",arr1[1].getString());
@@ -119,7 +119,7 @@ void test(CIMRepository_Mode mode)
         catch (const Exception &) {
            failed=true;
         }
-	assert(failed == true);
+	PEGASUS_TEST_ASSERT(failed == true);
 
         try {                                   // try to delete
            r.deleteNameSpace(arro[1]);
@@ -127,7 +127,7 @@ void test(CIMRepository_Mode mode)
         catch (const Exception &) {
            failed=true;
         }
-	assert(failed == true);
+	PEGASUS_TEST_ASSERT(failed == true);
 
 
 	Array<CIMNamespaceName> arr2 = r.enumerateNameSpaces();
@@ -136,12 +136,12 @@ void test(CIMRepository_Mode mode)
 	BubbleSort(arr2);
 
 	//confirm that the input and return are equal
-	assert(arr1.size() == 4);
-	assert(arr2.size() == 5);
+	PEGASUS_TEST_ASSERT(arr1.size() == 4);
+	PEGASUS_TEST_ASSERT(arr2.size() == 5);
 
 	arr1.append(CIMNamespaceName ("root"));
 	BubbleSort(arr1);
-	assert(arr1 == arr2);
+	PEGASUS_TEST_ASSERT(arr1 == arr2);
 
         NameSpaceManager nsm (repositoryRoot);
 
@@ -168,7 +168,7 @@ void test(CIMRepository_Mode mode)
 	//enumerate the namespaces
 	Array<CIMNamespaceName> arr3 = r.enumerateNameSpaces();
         if (verbose) cout<<"--- arr3.size(): "<<arr3.size()<<endl;
-        assert(arr3.size() == 0);
+        PEGASUS_TEST_ASSERT(arr3.size() == 0);
 
     }
     catch (AlreadyExistsException&)

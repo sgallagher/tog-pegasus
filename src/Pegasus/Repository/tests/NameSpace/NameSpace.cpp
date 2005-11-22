@@ -36,7 +36,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -87,12 +87,12 @@ void test(CIMRepository_Mode mode)
 #endif
 
 	//confirm that the input and return are equal
-	assert(arr1.size() == 3);
-	assert(arr2.size() == 4);
+	PEGASUS_TEST_ASSERT(arr1.size() == 3);
+	PEGASUS_TEST_ASSERT(arr2.size() == 4);
 
 	arr1.append(CIMNamespaceName ("root"));
 	BubbleSort(arr1);
-	assert(arr1 == arr2);
+	PEGASUS_TEST_ASSERT(arr1 == arr2);
 
         NameSpaceManager nsm (repositoryRoot);
    
@@ -105,7 +105,7 @@ void test(CIMRepository_Mode mode)
 
 	//enumerate the namespaces
 	Array<CIMNamespaceName> arr3 = r.enumerateNameSpaces();
-	assert(arr3.size() == 0);
+	PEGASUS_TEST_ASSERT(arr3.size() == 0);
 
     }
     catch (AlreadyExistsException&)

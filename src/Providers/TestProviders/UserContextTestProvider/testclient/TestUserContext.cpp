@@ -34,7 +34,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Client/CIMClient.h>
@@ -85,11 +85,11 @@ void testUserContextRequestor()
 
         if (authenticationEnabled)
         {
-            assert(userContext == System::getEffectiveUserName());
+            PEGASUS_TEST_ASSERT(userContext == System::getEffectiveUserName());
         }
         else
         {
-            assert(userContext == testUserContext);
+            PEGASUS_TEST_ASSERT(userContext == testUserContext);
         }
     }
     catch (Exception& e)
@@ -125,7 +125,7 @@ void testUserContextPrivileged()
             cout << "Privileged test: UserContext = " << userContext << endl;
         }
 
-        assert(userContext == testUserContext);
+        PEGASUS_TEST_ASSERT(userContext == testUserContext);
     }
     catch (Exception& e)
     {
@@ -168,7 +168,7 @@ void testUserContextDesignated()
             cout << "Designated test: UserContext = " << userContext << endl;
         }
 
-        assert(userContext == String(alternateUserContext));
+        PEGASUS_TEST_ASSERT(userContext == String(alternateUserContext));
     }
     catch (Exception& e)
     {
@@ -203,7 +203,7 @@ void testUserContextCIMServer()
             cout << "CIMServer test: UserContext = " << userContext << endl;
         }
 
-        assert(userContext == testUserContext);
+        PEGASUS_TEST_ASSERT(userContext == testUserContext);
     }
     catch (Exception& e)
     {

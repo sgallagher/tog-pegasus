@@ -34,7 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Server/IndicationService/HandlerTable.h>
 
 PEGASUS_USING_PEGASUS;
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     {
 	HandlerTable table;
 	CIMHandler* handler = table.loadHandler("CIMxmlIndicationHandler");
-	assert(handler != 0);
+	PEGASUS_TEST_ASSERT(handler != 0);
 	delete handler;
     }
     catch(Exception& e)

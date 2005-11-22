@@ -38,7 +38,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMPropertyList.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -53,7 +53,7 @@ void test01()
 {
     CIMProperty pnull;
 
-    assert(pnull.isUninitialized());
+    PEGASUS_TEST_ASSERT(pnull.isUninitialized());
 
     CIMProperty p1(CIMName ("message"), String("Hi There"));
     p1.addQualifier(CIMQualifier(CIMName ("Key"), true));
@@ -89,13 +89,13 @@ void test01()
     // Test name
         CIMName name;
         name = p1.getName();
-        assert(name == CIMName ("message"));
+        PEGASUS_TEST_ASSERT(name == CIMName ("message"));
         name = p2.getName();
-        assert(name == CIMName ("message"));
+        PEGASUS_TEST_ASSERT(name == CIMName ("message"));
 
     // Test type
-        assert(p1.getType() == CIMTYPE_STRING);
-        assert(p2.getType() == CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(p1.getType() == CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(p2.getType() == CIMTYPE_STRING);
 
     // Test for key qualifier
         Uint32 pos;
@@ -109,7 +109,7 @@ void test01()
                 value.get (isKey);
             }
         }
-        assert (isKey);
+        PEGASUS_TEST_ASSERT (isKey);
         isKey = false;
         if ((pos = p2.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
         {
@@ -120,44 +120,44 @@ void test01()
                 value.get (isKey);
             }
         }
-        assert (isKey);
+        PEGASUS_TEST_ASSERT (isKey);
 
     // Test getArraySize
-        assert(p1.getArraySize() == 0);
-        assert(p2.getArraySize() == 0);
+        PEGASUS_TEST_ASSERT(p1.getArraySize() == 0);
+        PEGASUS_TEST_ASSERT(p2.getArraySize() == 0);
 
     // Test getPropagated
-        assert(p1.getPropagated() == false);
-        assert(p2.getPropagated() == false);
+        PEGASUS_TEST_ASSERT(p1.getPropagated() == false);
+        PEGASUS_TEST_ASSERT(p2.getPropagated() == false);
 
     // Tests for Qualifiers
-	assert(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	assert(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-	assert(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	assert(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-	assert(p1.getQualifierCount() == 4);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 4);
 
-	assert(p2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	assert(p2.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-	assert(p2.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	assert(p2.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-	assert(p2.getQualifierCount() == 4);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p2.getQualifierCount() == 4);
 
-	assert(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	assert(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-	assert(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	assert(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
 	Uint32 posQualifier;
 	posQualifier = p1.findQualifier(CIMName ("stuff"));
-	assert(posQualifier != PEG_NOT_FOUND);
-	assert(posQualifier < p1.getQualifierCount());
+	PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(posQualifier < p1.getQualifierCount());
 
 	p1.removeQualifier(posQualifier);
-	assert(p1.getQualifierCount() == 3);
-	assert(p1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-	assert(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 3);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
     // Tests for value insertion.
     {
@@ -167,13 +167,13 @@ void test01()
            // test for CIMValue and type
 
 	   //Test getName and setName
-	   assert(p1.getName() == CIMName ("p1"));
+	   PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("p1"));
 	   p1.setName(CIMName ("px"));
-	   assert(p1.getName() == CIMName ("px"));
+	   PEGASUS_TEST_ASSERT(p1.getName() == CIMName ("px"));
 
-	   assert(p2.getName() == CIMName ("p2"));
+	   PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("p2"));
 	   p2.setName(CIMName ("py"));
-	   assert(p2.getName() == CIMName ("py"));
+	   PEGASUS_TEST_ASSERT(p2.getName() == CIMName ("py"));
 
 	   // Test setValue and getValue
     }
@@ -202,8 +202,8 @@ void test02()
         Buffer xmlOut;
         XmlWriter::appendPropertyElement(xmlOut, cp1);
 
-        assert(cp1.getName() == CIMName ("message"));
-        assert(cp1.getType() == CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(cp1.getName() == CIMName ("message"));
+        PEGASUS_TEST_ASSERT(cp1.getType() == CIMTYPE_STRING);
         Uint32 pos;
         Boolean isKey = false;
         if ((pos = cp1.findQualifier (CIMName ("key"))) != PEG_NOT_FOUND)
@@ -215,15 +215,15 @@ void test02()
                 value.get (isKey);
             }
         }
-        assert (isKey);
-        assert(cp1.getArraySize() == 0);
-        assert(cp1.getPropagated() == false);
+        PEGASUS_TEST_ASSERT (isKey);
+        PEGASUS_TEST_ASSERT(cp1.getArraySize() == 0);
+        PEGASUS_TEST_ASSERT(cp1.getPropagated() == false);
 
-	assert(cp1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	assert(cp1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-	assert(cp1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	assert(cp1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-	assert(cp1.getQualifierCount() == 4);
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cp1.getQualifierCount() == 4);
  
         try 
         {
@@ -250,10 +250,10 @@ void test03()
     list1.set(names);
     list2 = list1;
 	Array<CIMName> names1a = list1.getPropertyNameArray();
-	assert(names == names1a);
-	assert(list2[0] == CIMName("property1"));
-	assert(list2[1] == CIMName("property2"));
-	assert(list2[2] == CIMName("property3"));
+	PEGASUS_TEST_ASSERT(names == names1a);
+	PEGASUS_TEST_ASSERT(list2[0] == CIMName("property1"));
+	PEGASUS_TEST_ASSERT(list2[1] == CIMName("property2"));
+	PEGASUS_TEST_ASSERT(list2[2] == CIMName("property3"));
 
     list1.clear();
 	list2.clear();
@@ -265,10 +265,10 @@ void test03()
 	// but no properties in list.
 	Array<CIMName> names2;
 	list1.set(names2);
-	assert(!list1.isNull());
-	assert(list1.size() == 0);
+	PEGASUS_TEST_ASSERT(!list1.isNull());
+	PEGASUS_TEST_ASSERT(list1.size() == 0);
 	Array<CIMName> names3 = list1.getPropertyNameArray();
-	assert(names3.size() == 0);
+	PEGASUS_TEST_ASSERT(names3.size() == 0);
 
 }
 
@@ -281,34 +281,34 @@ void test04()
         
     String referenceClassName = "TST_Person";
     CIMProperty p1(CIMName ("message"), path, 0, CIMName(referenceClassName));
-    assert(!p1.isArray());
-    assert(p1.getReferenceClassName() == CIMName(referenceClassName));
-    assert(p1.getType() == CIMTYPE_REFERENCE);
+    PEGASUS_TEST_ASSERT(!p1.isArray());
+    PEGASUS_TEST_ASSERT(p1.getReferenceClassName() == CIMName(referenceClassName));
+    PEGASUS_TEST_ASSERT(p1.getType() == CIMTYPE_REFERENCE);
     
     CIMValue v1;
     v1 = p1.getValue();
-    assert(v1.getType() ==  CIMTYPE_REFERENCE);
-    assert(!v1.isNull());
+    PEGASUS_TEST_ASSERT(v1.getType() ==  CIMTYPE_REFERENCE);
+    PEGASUS_TEST_ASSERT(!v1.isNull());
     CIMObjectPath pathout;
     v1.get(pathout);
-    assert( pathout == path );
+    PEGASUS_TEST_ASSERT( pathout == path );
 
     if(verbose)
         XmlWriter::printPropertyElement(p1, cout);
 
     // Now create an empty property, one used in class declaration for a reference
     CIMProperty p2(CIMName ("parent"), CIMObjectPath(), 0, CIMName(referenceClassName));
-    assert(!p2.isArray());
-    assert(p2.getReferenceClassName() == CIMName(referenceClassName));
-    assert(p2.getType() == CIMTYPE_REFERENCE);
+    PEGASUS_TEST_ASSERT(!p2.isArray());
+    PEGASUS_TEST_ASSERT(p2.getReferenceClassName() == CIMName(referenceClassName));
+    PEGASUS_TEST_ASSERT(p2.getType() == CIMTYPE_REFERENCE);
 
     CIMValue v2;
     v2 = p2.getValue();
-    assert(v2.getType() ==  CIMTYPE_REFERENCE);
+    PEGASUS_TEST_ASSERT(v2.getType() ==  CIMTYPE_REFERENCE);
 
     // ATTN: P3 KS 27 Feb 2003. Why does the following test not work. I assume that the value should
     // b e null in this case.
-    //assert(v2.isNull());
+    //PEGASUS_TEST_ASSERT(v2.isNull());
 
     CIMObjectPath pathout2;
     v1.get(pathout2);
@@ -336,7 +336,7 @@ void test05()
     {
         gotException = true;
     }
-    assert(gotException);
+    PEGASUS_TEST_ASSERT(gotException);
 
     p1 = CIMProperty(CIMName("property1"), oa[0], 0, CIMName("refclass"));
     gotException = false;
@@ -348,7 +348,7 @@ void test05()
     {
         gotException = true;
     }
-    assert(gotException);
+    PEGASUS_TEST_ASSERT(gotException);
 }
 
 int main(int argc, char** argv)

@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/Formatter.h>
 
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	if (verbose)
 	cout << "str2[" << str2 << "]" << endl;
 	
-	assert(Formatter::format("[TRUE$0]", test) == "[TRUE99]");
+	PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test) == "[TRUE99]");
 
      }
     // Test for booleans.
@@ -79,8 +79,8 @@ int main(int argc, char** argv)
 	if (verbose)
 	    cout << "str[" << str << "]" << endl;
     
-	assert(Formatter::format("TRUE$0", flag ) == "TRUEtrue");
-	assert(Formatter::format("FALSE$0", flag2 ) == "FALSEfalse");
+	PEGASUS_TEST_ASSERT(Formatter::format("TRUE$0", flag ) == "TRUEtrue");
+	PEGASUS_TEST_ASSERT(Formatter::format("FALSE$0", flag2 ) == "FALSEfalse");
     }
 
     // Tests for Uint32 and Sint32
@@ -93,8 +93,8 @@ int main(int argc, char** argv)
 	if (verbose)
 	    cout << "str[" << str << "]" << endl;
 
-	assert(Formatter::format("[TRUE$0]", test1 ) == "[TRUE9999]");
-	assert(Formatter::format("[TRUE$0]", test2 ) == "[TRUE9999]");
+	PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test1 ) == "[TRUE9999]");
+	PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test2 ) == "[TRUE9999]");
     }
 
     // Test for 64 bit signed integer
@@ -110,11 +110,11 @@ int main(int argc, char** argv)
             cout << "str[" << str << "]" << endl;
         }
 
-        assert(Formatter::format("[TRUE$0]", test1) ==
+        PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test1) ==
             "[TRUE9223372036854775807]");
-        assert(Formatter::format("[TRUE$0]", test2) ==
+        PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test2) ==
             "[TRUE-9223372036854775808]");
-        assert(Formatter::format("[TRUE$0]", test3) ==
+        PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test3) ==
             "[TRUE-1]");
     }
 
@@ -131,11 +131,11 @@ int main(int argc, char** argv)
             cout << "str[" << str << "]" << endl;
         }
 
-        assert(Formatter::format("[TRUE$0]", test1) ==
+        PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test1) ==
             "[TRUE9223372036854775807]");
-        assert(Formatter::format("[TRUE$0]", test2) ==
+        PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test2) ==
             "[TRUE9223372036854775808]");
-        assert(Formatter::format("[TRUE$0]", test3) ==
+        PEGASUS_TEST_ASSERT(Formatter::format("[TRUE$0]", test3) ==
             "[TRUE18446744073709551615]");
     }
 
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 	if (verbose)
             cout << "str[" << str << "]" << endl;
 	
-	assert(Formatter::format("[$0$1$2$3$4$5$6$7$8$9]",
+	PEGASUS_TEST_ASSERT(Formatter::format("[$0$1$2$3$4$5$6$7$8$9]",
 				       t0,t1,t2,t3,t4,t5,t6,t7,t8,t9)
 					== "[1123456789]");
     }

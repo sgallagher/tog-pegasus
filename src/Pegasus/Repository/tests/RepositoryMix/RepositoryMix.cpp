@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
@@ -122,8 +122,8 @@ void TestCreateClass()
     r->createClass(NS, c1);
     CIMConstClass cc1;
     cc1 = r->getClass(NS, CIMName ("SuperClass"),true,true, true);
-    assert(c1.identical(cc1));
-    assert(cc1.identical(c1));
+    PEGASUS_TEST_ASSERT(c1.identical(cc1));
+    PEGASUS_TEST_ASSERT(cc1.identical(c1));
 
     // -- Now create a sub class (get it back and compare):
 	// c22 has one additional property than c1 (junk)
@@ -140,16 +140,16 @@ void TestCreateClass()
 	//XmlWriter::printClassElement(c2);
 	//XmlWriter::printClassElement(cc2);
     
-	assert(c2.identical(cc2));
-    assert(cc2.identical(c2));
+	PEGASUS_TEST_ASSERT(c2.identical(cc2));
+    PEGASUS_TEST_ASSERT(cc2.identical(c2));
 
     // -- Modify "SubClass" (add new property)
 
     c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r->modifyClass(NS, c2);
     cc2 = r->getClass(NS, CIMName ("SubClass"), false, true, true);
-    assert(c2.identical(cc2));
-    assert(cc2.identical(c2));
+    PEGASUS_TEST_ASSERT(c2.identical(cc2));
+    PEGASUS_TEST_ASSERT(cc2.identical(c2));
     // should test for this new property on "SubClass" also.
 
 }
@@ -171,9 +171,9 @@ void TestEnumerateClass()
 	}
 
     BubbleSort(classNames);
-    assert(classNames.size() == 2);
-    assert(classNames[1] == CIMName ("SuperClass"));
-    assert(classNames[0] == CIMName ("SubClass"));
+    PEGASUS_TEST_ASSERT(classNames.size() == 2);
+    PEGASUS_TEST_ASSERT(classNames[1] == CIMName ("SuperClass"));
+    PEGASUS_TEST_ASSERT(classNames[0] == CIMName ("SubClass"));
 
 }
 
@@ -268,7 +268,7 @@ void TestEnumerateInstance(Uint32 num)
 	  cout << endl;
 	}
 
-    assert(instanceNames.size() == num*2);
+    PEGASUS_TEST_ASSERT(instanceNames.size() == num*2);
 
 }
 
@@ -293,7 +293,7 @@ void TestEnumerateInstances(Uint32 num)
 	}
 #endif
 
-    assert(namedInstances.size() == num*2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == num*2);
 
 }
 
@@ -320,7 +320,7 @@ void TestEnumerateInstancesForClass(Uint32 num)
 	}
 #endif
 
-    assert(namedInstances.size() == num);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == num);
 
     namedInstances = r->enumerateInstancesForClass(NS, 
         CIMName ("SubClass"),true,false, true, true);
@@ -338,7 +338,7 @@ void TestEnumerateInstancesForClass(Uint32 num)
 	}
 #endif
 
-    assert(namedInstances.size() == num);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == num);
 
 }
 
@@ -364,8 +364,8 @@ void TestQualifiers()
 
     CIMQualifierDecl qq = r->getQualifier(NS, CIMName ("abstract"));
 
-    assert(qq.identical(q));
-    assert(q.identical(qq));
+    PEGASUS_TEST_ASSERT(qq.identical(q));
+    PEGASUS_TEST_ASSERT(q.identical(qq));
 
     // -- Delete the qualifier:
 

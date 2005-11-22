@@ -47,7 +47,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
@@ -380,7 +380,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         }
         // ATTN: This test should be uncommented when the repository implements
         // the localOnly flag.
-        //assert(c1.identical(c2));
+        //PEGASUS_TEST_ASSERT(c1.identical(c2));
 
         // Modify the class:
         c2.removeProperty(c2.findProperty(CIMName ("message")));
@@ -399,7 +399,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
         {
         cout << "Test Failed. Rtned class c3 not equal to c2" << endl;
         }
-        //assert(c3.identical(c2));
+        //PEGASUS_TEST_ASSERT(c3.identical(c2));
 
         // Determine if the new Class exists in Enumerate
 
@@ -418,7 +418,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
             cout << "Test Class " << testClass << " Not found in enumeration " << endl;
             return;
         }
-        //assert(found);
+        //PEGASUS_TEST_ASSERT(found);
 
         // DeleteClass:
         try
@@ -436,7 +436,7 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
     classNames = client->enumerateClassNames(globalNamespace, CIMName(), false);
     Array<CIMClass> classDecls = client->enumerateClasses(
          globalNamespace, CIMName(), false, false, true, true);
-    //assert(classDecls.size() == classNames.size());
+    //PEGASUS_TEST_ASSERT(classDecls.size() == classNames.size());
     if (classDecls.size() == classNames.size())
     {
         cout << "Class total count before and after test. Before = " << classNames.size()
@@ -448,9 +448,9 @@ static void TestClassOperations(CIMClient* client, Boolean ActiveTest,
          CIMClass tmp = client->getClass(
              globalNamespace, classNames[i], false, true, true);
 
-         assert(classNames[i].equal(classDecls[i].getClassName()));
+         PEGASUS_TEST_ASSERT(classNames[i].equal(classDecls[i].getClassName()));
 
-         assert(tmp.identical(classDecls[i]));
+         PEGASUS_TEST_ASSERT(tmp.identical(classDecls[i]));
     }
 }
 
@@ -490,10 +490,10 @@ static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
          // Get them and compare:
 
          CIMQualifierDecl tmp1 = client->getQualifier(globalNamespace, qd1_name);
-         assert(tmp1.identical(qd1));
+         PEGASUS_TEST_ASSERT(tmp1.identical(qd1));
 
          CIMQualifierDecl tmp2 = client->getQualifier(globalNamespace, qd2_name);
-         assert(tmp2.identical(qd2));
+         PEGASUS_TEST_ASSERT(tmp2.identical(qd2));
 
          // Enumerate the qualifiers:
 
@@ -504,10 +504,10 @@ static void TestQualifierOperations(CIMClient* client, Boolean activeTest,
              CIMQualifierDecl tmp = qualifierDecls[i];
 
              if (tmp.getName().equal(qd1_name))
-                 assert(tmp1.identical(tmp));
+                 PEGASUS_TEST_ASSERT(tmp1.identical(tmp));
 
              if (tmp.getName().equal(qd2_name))
-                 assert(tmp2.identical(tmp));
+                 PEGASUS_TEST_ASSERT(tmp2.identical(tmp));
          }
 
          // Delete the qualifiers:
@@ -646,7 +646,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     CIMInstance tmp = client->getInstance(globalNamespace, instanceName);
     // XmlWriter::printInstanceElement(cimInstance);
     // XmlWriter::printInstanceElement(tmp);
-    // assert(cimInstance.identical(tmp));
+    // PEGASUS_TEST_ASSERT(cimInstance.identical(tmp));
 
     // Test timeout methods
 
@@ -654,7 +654,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     Uint32 origTimeout = client->getTimeout();
     client->setTimeout( TEST_TIMEOUT );
     Uint32 newTimeout = client->getTimeout();
-    assert( newTimeout == TEST_TIMEOUT );
+    PEGASUS_TEST_ASSERT( newTimeout == TEST_TIMEOUT );
     client->setTimeout( origTimeout );
 
     // Test get/set property methods
@@ -669,7 +669,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     CIMValue returnedPropVal = client->getProperty(  globalNamespace,
                             instanceName,
                             TESTPROPVALNAME );
-    assert( returnedPropVal == testPropVal );
+    PEGASUS_TEST_ASSERT( returnedPropVal == testPropVal );
 
     // Test modify instance client method
     // Change the "nick" property and compare.
@@ -688,7 +688,7 @@ static void TestInstanceModifyOperations(CIMClient* client, Boolean
     CIMInstance currentInstance =
       client->getInstance( globalNamespace, instanceName );
     currentInstance.setPath( instanceName );
- //assert( currentInstance.identical( testInstance ) );
+ //PEGASUS_TEST_ASSERT( currentInstance.identical( testInstance ) );
 
     client->deleteInstance(globalNamespace, instanceName);
 
@@ -1044,12 +1044,12 @@ static void TestInvokeMethod(
                     }
                 }
 
-                assert(retValue.toString() == goodReply);
-                assert(outParams.size() == 1);
+                PEGASUS_TEST_ASSERT(retValue.toString() == goodReply);
+                PEGASUS_TEST_ASSERT(outParams.size() == 1);
 
                 String outParam = String::EMPTY;
                 outParams[0].getValue().get(outParam);
-                assert(outParam == goodOutParam);
+                PEGASUS_TEST_ASSERT(outParam == goodOutParam);
             }
             cout << "Executed " << testRepeat << " methods" << endl;
         }

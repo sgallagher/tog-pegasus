@@ -27,7 +27,7 @@
 //
 //==============================================================================
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/String.h>
 
@@ -41,10 +41,10 @@ void test01()
     typedef HashTable<String, Uint32, EqualFunc<String>, HashFunc<String> > HT;
     HT ht;
 
-    assert(ht.insert("Red", 100));
-    assert(ht.insert("Green", 200));
-    assert(ht.insert("Blue", 300));
-    assert(ht.size() == 3);
+    PEGASUS_TEST_ASSERT(ht.insert("Red", 100));
+    PEGASUS_TEST_ASSERT(ht.insert("Green", 200));
+    PEGASUS_TEST_ASSERT(ht.insert("Blue", 300));
+    PEGASUS_TEST_ASSERT(ht.size() == 3);
 
     Uint32 sum = 0;
 
@@ -74,18 +74,18 @@ void test01()
 	sum += i.value();
     }
 
-    assert(sum == 600);
+    PEGASUS_TEST_ASSERT(sum == 600);
 
     Uint32 value = 0;
-    assert(ht.lookup("Blue", value));
-    assert(value == 300);
+    PEGASUS_TEST_ASSERT(ht.lookup("Blue", value));
+    PEGASUS_TEST_ASSERT(value == 300);
 
-    assert(ht.remove("Red"));
-    assert(ht.remove("Green"));
-    assert(ht.size() == 1);
+    PEGASUS_TEST_ASSERT(ht.remove("Red"));
+    PEGASUS_TEST_ASSERT(ht.remove("Green"));
+    PEGASUS_TEST_ASSERT(ht.size() == 1);
 
     ht.clear();
-    assert(ht.size() == 0);
+    PEGASUS_TEST_ASSERT(ht.size() == 0);
 
 }
 
@@ -105,7 +105,7 @@ void test02()
 
     HT ht2 = ht;
 
-    assert(ht2.size() == N);
+    PEGASUS_TEST_ASSERT(ht2.size() == N);
 
     Uint32 expectedSum = 0;
     Uint32 n = 0;
@@ -116,8 +116,8 @@ void test02()
 	expectedSum += i.value() + i.key();
     }
 
-    assert(expectedSum == sum);
-    assert(n == N);
+    PEGASUS_TEST_ASSERT(expectedSum == sum);
+    PEGASUS_TEST_ASSERT(n == N);
 }
 
 void test03()
@@ -131,7 +131,7 @@ void test03()
     for (HT::Iterator i = ht.start(); i; i++)
 	n++;
 
-    assert(n == 0);
+    PEGASUS_TEST_ASSERT(n == 0);
 }
 
 int main(int argc, char** argv)

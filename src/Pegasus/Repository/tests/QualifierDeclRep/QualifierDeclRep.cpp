@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -65,7 +65,7 @@ void test(CIMRepository_Mode mode)
 
     CIMConstQualifierDecl q2 = r.getQualifier(NAMESPACE, ABSTRACT);
 
-    assert(q1.identical(q2));
+    PEGASUS_TEST_ASSERT(q1.identical(q2));
 
     // Remove it now:
 
@@ -79,7 +79,7 @@ void test(CIMRepository_Mode mode)
     }
     catch (CIMException& e)
     {
-	assert(e.getCode() == CIM_ERR_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_FOUND);
     }
 
     // Create two qualifiers:
@@ -93,12 +93,12 @@ void test(CIMRepository_Mode mode)
     // Enumerate the qualifier names:
 
     Array<CIMQualifierDecl> qualifiers = r.enumerateQualifiers(NAMESPACE);
-    assert(qualifiers.size() == 2);
+    PEGASUS_TEST_ASSERT(qualifiers.size() == 2);
 
     for (Uint32 i = 0, n = qualifiers.size(); i < n; i++)
     {
 	// qualifiers[i].print();
-	assert(qualifiers[i].identical(q3) || qualifiers[i].identical(q4));
+	PEGASUS_TEST_ASSERT(qualifiers[i].identical(q3) || qualifiers[i].identical(q4));
     }
 }
 

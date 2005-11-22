@@ -44,7 +44,7 @@
 
 #include <iostream>
 #include <cstring>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -66,36 +66,36 @@ void _Test01()
     index = 0;
     Boolean result = InstanceIndexFile::createEntry(PATH, 
 	CIMObjectPath("X.key1=1001,key2=\"Hello World 1\""), index, size);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     size = 1433;
     index = 1427;
     result = InstanceIndexFile::createEntry(PATH, 
 	CIMObjectPath("X.key1=1002,key2=\"Hello World 2\""), index, size);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     size = 1428;
     index = 2860;
     result = InstanceIndexFile::createEntry(PATH, 
 	CIMObjectPath("X.key1=1003,key2=\"Hello World 3\""), index, size);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     size = 1433;
     index = 4288;
     result = InstanceIndexFile::createEntry(PATH, 
 	CIMObjectPath("X.key1=1004,key2=\"Hello World 4\""), index, size);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     size = 1431;
     index = 5721;
     result = InstanceIndexFile::createEntry(PATH, 
 	CIMObjectPath("X.key1=1005,key2=\"Hello World 5\""), index, size);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     // delete the 3rd entry
     result = InstanceIndexFile::deleteEntry(PATH, 
           CIMObjectPath("X.key2=\"Hello World 3\",key1=1003"), freeCount);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     // create a new entry
     size = 1428;
@@ -103,17 +103,17 @@ void _Test01()
     result = InstanceIndexFile::createEntry(
 	PATH, CIMObjectPath("X.key1=1003,key2=\"Hello World 3\""), 
 	index, size);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     // delete the newly created entry
     result = InstanceIndexFile::deleteEntry(PATH, 
           CIMObjectPath("X.key2=\"Hello World 3\",key1=1003"), freeCount);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     // delete the first entry
     result = InstanceIndexFile::deleteEntry(PATH, 
 	CIMObjectPath("X.key1=1001,key2=\"Hello World 1\""), freeCount);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     // modify the 5th entry
     size = 9999;
@@ -121,7 +121,7 @@ void _Test01()
     result = InstanceIndexFile::modifyEntry(PATH, 
 	CIMObjectPath("X.key1=1005,key2=\"Hello World 5\""), 
 	index, size, freeCount);
-    assert(result);
+    PEGASUS_TEST_ASSERT(result);
 
     //
     // Iterate the entries in the file:
@@ -138,13 +138,13 @@ void _Test01()
 	Boolean flag = InstanceIndexFile::enumerateEntries(
 	    PATH, freeFlags, indices, sizes, instanceNames, true);
 
-	assert(flag);
+	PEGASUS_TEST_ASSERT(flag);
 
-	assert(freeFlags.size() == indices.size());
-	assert(indices.size() == sizes.size());
-	assert(sizes.size() == instanceNames.size());
+	PEGASUS_TEST_ASSERT(freeFlags.size() == indices.size());
+	PEGASUS_TEST_ASSERT(indices.size() == sizes.size());
+	PEGASUS_TEST_ASSERT(sizes.size() == instanceNames.size());
 
-        assert( freeFlags[0] == 1 &&
+        PEGASUS_TEST_ASSERT( freeFlags[0] == 1 &&
                 freeFlags[2] == 1 &&
                 freeFlags[4] == 1 &&
                 freeFlags[5] == 1); 
@@ -153,7 +153,7 @@ void _Test01()
     //
     // Now attempt to compact:
     //
-    assert(InstanceIndexFile::compact(PATH));
+    PEGASUS_TEST_ASSERT(InstanceIndexFile::compact(PATH));
 
     //
     // Verify the result:
@@ -168,16 +168,16 @@ void _Test01()
         Boolean flag = InstanceIndexFile::enumerateEntries(
             PATH, freeFlags, indices, sizes, instanceNames, true);
 
-        assert(flag);
+        PEGASUS_TEST_ASSERT(flag);
 
-        assert(freeFlags.size() == 3);
-        assert(freeFlags.size() == indices.size());
-        assert(indices.size() == sizes.size());
-        assert(sizes.size() == instanceNames.size());
+        PEGASUS_TEST_ASSERT(freeFlags.size() == 3);
+        PEGASUS_TEST_ASSERT(freeFlags.size() == indices.size());
+        PEGASUS_TEST_ASSERT(indices.size() == sizes.size());
+        PEGASUS_TEST_ASSERT(sizes.size() == instanceNames.size());
 
         for (Uint32 i = 0; i < freeFlags.size(); i++)
         {
-            assert(freeFlags[i] == 0);
+            PEGASUS_TEST_ASSERT(freeFlags[i] == 0);
         }
     }
 }
@@ -213,15 +213,15 @@ void _Test02()
     //
 
     InstanceDataFile::loadInstance(PATH, 8, 8, data);
-    assert(memcmp(data.getData(), "BBBBBBBB", 8) == 0);
+    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "BBBBBBBB", 8) == 0);
     data.clear();
 
     InstanceDataFile::loadInstance(PATH, 0, 8, data);
-    assert(memcmp(data.getData(), "AAAAAAAA", 8) == 0);
+    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "AAAAAAAA", 8) == 0);
     data.clear();
 
     InstanceDataFile::loadInstance(PATH, 16, 8, data);
-    assert(memcmp(data.getData(), "CCCCCCCC", 8) == 0);
+    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "CCCCCCCC", 8) == 0);
     data.clear();
 
     //
@@ -229,41 +229,41 @@ void _Test02()
     //
 
     InstanceDataFile::loadAllInstances(PATH, data);
-    assert(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCC", 24) == 0);
-    assert(data.size() == 3 * 8);
+    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCC", 24) == 0);
+    PEGASUS_TEST_ASSERT(data.size() == 3 * 8);
     data.clear();
 
     //
     // Now attempt rollback:
     //
 
-    assert(InstanceDataFile::beginTransaction(PATH));
+    PEGASUS_TEST_ASSERT(InstanceDataFile::beginTransaction(PATH));
 
     data.append("ZZZZZZZZ", 8);
     InstanceDataFile::appendInstance(PATH, data, index);
     data.clear();
 
-    assert(InstanceDataFile::rollbackTransaction(PATH));
+    PEGASUS_TEST_ASSERT(InstanceDataFile::rollbackTransaction(PATH));
 
     //
     // Now attempt commit:
     //
 
-    assert(InstanceDataFile::beginTransaction(PATH));
+    PEGASUS_TEST_ASSERT(InstanceDataFile::beginTransaction(PATH));
 
     data.append("DDDDDDDD", 8);
     InstanceDataFile::appendInstance(PATH, data, index);
     data.clear();
 
-    assert(InstanceDataFile::commitTransaction(PATH));
+    PEGASUS_TEST_ASSERT(InstanceDataFile::commitTransaction(PATH));
 
     //
     // Verify the result:
     //
 
     InstanceDataFile::loadAllInstances(PATH, data);
-    assert(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD", 32) == 0);
-    assert(data.size() == 4 * 8);
+    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "AAAAAAAABBBBBBBBCCCCCCCCDDDDDDDD", 32) == 0);
+    PEGASUS_TEST_ASSERT(data.size() == 4 * 8);
     data.clear();
 
     //
@@ -282,15 +282,15 @@ void _Test02()
     indices.append(16);
     sizes.append(8);
 
-    assert(InstanceDataFile::compact(PATH, freeFlags, indices, sizes));
+    PEGASUS_TEST_ASSERT(InstanceDataFile::compact(PATH, freeFlags, indices, sizes));
 
     //
     // Verify the result:
     //
 
     InstanceDataFile::loadAllInstances(PATH, data);
-    assert(memcmp(data.getData(), "AAAAAAAACCCCCCCC", 16) == 0);
-    assert(data.size() == 2 * 8);
+    PEGASUS_TEST_ASSERT(memcmp(data.getData(), "AAAAAAAACCCCCCCC", 16) == 0);
+    PEGASUS_TEST_ASSERT(data.size() == 2 * 8);
     data.clear();
 }
 

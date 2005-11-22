@@ -28,7 +28,7 @@
 //==============================================================================
 #include <unistd.h>
 #include <sys/types.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>

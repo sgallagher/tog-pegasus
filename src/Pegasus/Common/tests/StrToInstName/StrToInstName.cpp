@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 
 PEGASUS_USING_PEGASUS;
@@ -44,7 +44,7 @@ void test(const String& instanceName)
 {
 
     CIMObjectPath reference = instanceName;
-    assert(instanceName == reference.toString());
+    PEGASUS_TEST_ASSERT(instanceName == reference.toString());
 }
 
 int main(int argc, char** argv)

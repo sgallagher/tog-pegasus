@@ -37,7 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMFlavor.h>
@@ -89,54 +89,54 @@ int main(int argc, char** argv)
 	// The definition.  Now the defaults come from the declaraction as part of the
 	// resolve.  As created, qualifiers have exactly the flavor with which they are
 	// defined.	They have no default flavors when there is no explicit definition.
-	assert(q4.identical(q1));
-	assert(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-	//assert(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	//assert(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(q4.identical(q1));
+	PEGASUS_TEST_ASSERT(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	//PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	//PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-	assert(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-	assert(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(q1.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q1.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
 
 	// Test to be sure the defaults are set correctly
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
 
 
 	q2.unsetFlavor(CIMFLAVOR_ALL);
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
 
 	q2.setFlavor(CIMFlavor::TOSUBCLASS);
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
 	q2.unsetFlavor(CIMFlavor::TOSUBCLASS);
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
 	Resolver::resolveQualifierFlavor(q2, CIMFlavor (CIMFlavor::OVERRIDABLE),
             false);
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
 
 	q2.setFlavor(CIMFLAVOR_ALL);
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
-	assert(q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::OVERRIDABLE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::TRANSLATABLE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(q2.getFlavor ().hasFlavor(CIMFlavor::RESTRICTED));
 
 
 	// ATTN: KS P1 24 March 2002Add test for resolveFlavor here
@@ -146,15 +146,15 @@ int main(int argc, char** argv)
 
 	Resolver::resolveQualifierFlavor (q2, CIMFlavor 
             (CIMFlavor::DISABLEOVERRIDE + CIMFlavor::RESTRICTED), false);
-	assert( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
-	assert(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
+	PEGASUS_TEST_ASSERT( q2.getFlavor ().hasFlavor(CIMFlavor::DISABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::ENABLEOVERRIDE));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOSUBCLASS));
+	PEGASUS_TEST_ASSERT(!q2.getFlavor ().hasFlavor(CIMFlavor::TOINSTANCE));
 
 	CIMQualifier qual1(CIMName ("qual1"), String("This is a test"));
 
 	CIMQualifier qual3(CIMName ("qual3"), String("This is a test"));
-	assert(!qual1.identical(qual3));
+	PEGASUS_TEST_ASSERT(!qual1.identical(qual3));
 
 	if (verbose)
 	{

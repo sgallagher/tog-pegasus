@@ -125,10 +125,10 @@ CIMInstance _makeInstance(CIMClass& classObject,
         // set the name filed
         CIMProperty p;
         p = instance.getProperty(pos);
-        assert(p.getType() == CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(p.getType() == CIMTYPE_STRING);
         CIMValue v;
         v = p.getValue();
-        assert(v.getType() ==  CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(v.getType() ==  CIMTYPE_STRING);
         //... set the new value in the CIMValue
         v.set(name);
         p.setValue(v);

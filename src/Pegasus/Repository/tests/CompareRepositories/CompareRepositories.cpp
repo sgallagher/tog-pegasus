@@ -35,7 +35,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/XmlStreamer.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/XmlWriter.h>
 
@@ -56,7 +56,7 @@ void PutClass(const char* filename, const CIMClass& cimClass)
     out.append('\0');
 
     FILE* fp = fopen(filename, "wb");
-    assert(fp != NULL);
+    PEGASUS_TEST_ASSERT(fp != NULL);
     fputs(out.getData(), fp);
     fclose(fp);
 }
@@ -72,7 +72,7 @@ void CompareClasses(
     BubbleSort(classNames2);
 
 
-    assert(classNames1 == classNames2);
+    PEGASUS_TEST_ASSERT(classNames1 == classNames2);
 
     for (size_t i = 0; i < classNames1.size(); i++)
     {
@@ -123,7 +123,7 @@ void CompareInstances(
     Array<CIMName> classNames2 = r2.enumerateClassNames(namespaceName);
     BubbleSort(classNames1);
     BubbleSort(classNames2);
-    assert(classNames1 == classNames2);
+    PEGASUS_TEST_ASSERT(classNames1 == classNames2);
 
     for (size_t i = 0; i < classNames1.size(); i++)
     {
@@ -133,7 +133,7 @@ void CompareInstances(
 	    namespaceName, classNames2[i]);
 	// BubbleSort(objectPaths1);
 	// BubbleSort(objectPaths2);
-	assert(objectPaths1 == objectPaths2);
+	PEGASUS_TEST_ASSERT(objectPaths1 == objectPaths2);
 
 	for (size_t i = 0; i < objectPaths2.size(); i++)
 	{
@@ -146,7 +146,7 @@ void CompareInstances(
 		cout << objectPaths1[i].toString() << "..." << endl;
 	    }
 
-	    assert(inst1.identical(inst2));
+	    PEGASUS_TEST_ASSERT(inst1.identical(inst2));
 	}
     }
 }
@@ -158,7 +158,7 @@ void CompareQualifiers(
 {
     Array<CIMQualifierDecl> quals1 = r1.enumerateQualifiers(namespaceName);
     Array<CIMQualifierDecl> quals2 = r2.enumerateQualifiers(namespaceName);
-    assert(quals1.size() == quals2.size());
+    PEGASUS_TEST_ASSERT(quals1.size() == quals2.size());
 
     for (size_t i = 0; i < quals2.size(); i++)
     {
@@ -168,7 +168,7 @@ void CompareQualifiers(
 	    cout << quals2[i].getName().getString() << "..." << endl;
 	}
 
-	assert(quals1[i].identical(quals2[i]));
+	PEGASUS_TEST_ASSERT(quals1[i].identical(quals2[i]));
     }
 }
 
@@ -191,7 +191,7 @@ void Compare(
     Array<CIMNamespaceName> nameSpaces2 = r2.enumerateNameSpaces();
     BubbleSort(nameSpaces1);
     BubbleSort(nameSpaces2);
-    assert(nameSpaces1 == nameSpaces2);
+    PEGASUS_TEST_ASSERT(nameSpaces1 == nameSpaces2);
 
     //
     // Compare classes in each namespace:

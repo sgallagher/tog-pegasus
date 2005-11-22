@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/FileSystem.h>
 
@@ -47,8 +47,8 @@ int main(int argc, char** argv)
     verbose = getenv("PEGASUS_TEST_VERBOSE");
     try
     {
-	assert(FileSystem::compareFiles("file1.dat", "file2.dat"));
-	assert(!FileSystem::compareFiles("file1.dat", "file3.dat"));
+	PEGASUS_TEST_ASSERT(FileSystem::compareFiles("file1.dat", "file2.dat"));
+	PEGASUS_TEST_ASSERT(!FileSystem::compareFiles("file1.dat", "file3.dat"));
     }
     catch (Exception& e)
     {

@@ -35,7 +35,7 @@
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/System.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;

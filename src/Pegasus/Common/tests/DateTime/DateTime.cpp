@@ -37,7 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Exception.h>
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
         dt.set("19991224120000.000000+360");
         
         dt.clear();
-        assert (dt.equal (CIMDateTime ("00000000000000.000000:000")));
+        PEGASUS_TEST_ASSERT (dt.equal (CIMDateTime ("00000000000000.000000:000")));
     
         {
             bad = false;
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
                 bad = true;
             }
 
-            assert(bad);
+            PEGASUS_TEST_ASSERT(bad);
         }
     
         {
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
                 bad = true;
             }
 
-            assert(bad);
+            PEGASUS_TEST_ASSERT(bad);
         }
         if (verbose)
     	cout << dt << endl;
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
          catch(Exception & e){
              te1 = true;
          } 
-         assert(te1);
+         PEGASUS_TEST_ASSERT(te1);
          te1 =false;
 
         
@@ -123,7 +123,7 @@ int main(int argc, char** argv)
         catch (InvalidDateTimeFormatException& r){
             te1 = true;
          }
-        assert(te1);
+        PEGASUS_TEST_ASSERT(te1);
         te1 =false;
 
                         /* makes sure the fields has splats starting 
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
        catch (InvalidDateTimeFormatException& r){
            te1 = true;
         }
-       assert(te1);
+       PEGASUS_TEST_ASSERT(te1);
        te1 = false;
        
         try{
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
         catch (InvalidDateTimeFormatException& r){
             te1 = true;
         }
-        assert(te1);
+        PEGASUS_TEST_ASSERT(te1);
         te1 = false;
 
          
@@ -157,7 +157,7 @@ int main(int argc, char** argv)
          catch (InvalidDateTimeFormatException& r){
              te1 = true;
           }
-         assert(te1);
+         PEGASUS_TEST_ASSERT(te1);
         
 
                             /*  check days and UTC field when object is an interval*/  
@@ -169,7 +169,7 @@ int main(int argc, char** argv)
           catch (InvalidDateTimeFormatException& r){
             te1 = false;
            }
-          assert(te1);
+          PEGASUS_TEST_ASSERT(te1);
           te1 = false;
 
     
@@ -180,7 +180,7 @@ int main(int argc, char** argv)
           catch (InvalidDateTimeFormatException& r){
               te1 = true;
            }
-          assert(te1);
+          PEGASUS_TEST_ASSERT(te1);
           te1 = false;
 
           // Check for invalid non-ASCII character
@@ -194,7 +194,7 @@ int main(int argc, char** argv)
           {
               te1 = true;
           }
-          assert(te1);
+          PEGASUS_TEST_ASSERT(te1);
           te1 = false;
 
                                /* verify CIMDateTime::CIMDateTime(const Uint64 microSec, Boolena) 
@@ -207,16 +207,16 @@ int main(int argc, char** argv)
                 CIMDateTime cdt1 = CIMDateTime(num_day, true);
 
                 if (cdt1.toMicroSeconds() != (PEGASUS_UINT64_LITERAL(86400000000)*co)){     
-                    assert(false);
+                    PEGASUS_TEST_ASSERT(false);
                 }
                 co = co +2;
             }
          }
          catch(Exception & e){
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
         catch(exception &  e){
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
 
@@ -224,31 +224,31 @@ int main(int argc, char** argv)
         CIMDateTime cdt1 = CIMDateTime("00000001000000.123456:000");
         Uint64 re1 = cdt1.toMicroSeconds();
         if ((re1 != PEGASUS_UINT64_LITERAL(86400123456))) {
-            assert(false);                                                 
+            PEGASUS_TEST_ASSERT(false);                                                 
         }
                                                                      
 
         CIMDateTime cdt2 = CIMDateTime("00000101000000.123456+000");
         Uint64 re2 = cdt2.toMicroSeconds();
         if ((re2 != 123456)) {
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
         CIMDateTime cdt3 = CIMDateTime("00000000030000.123456:000");
         Uint64 re3 = cdt3.toMicroSeconds();
         Uint64 comp = (PEGASUS_UINT64_LITERAL(3600000000)*3)+123456;
         if ((comp != re3)) {
-            assert(false);                                              
+            PEGASUS_TEST_ASSERT(false);                                              
         }
 
         /*CIMDateTime con1 = CIMDateTime(864003660000000,false);
         //CIMDateTime con_comp = CIMDateTime("00270519010100.000000+000");
         //if (!con1.equal(con_comp)) {
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
         const Uint64 conr1 = con1.toMicroSeconds();
         if (conr1 != 864003660000000) {
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }  */   
 
       
@@ -260,12 +260,12 @@ int main(int argc, char** argv)
 
         Uint64 realN = realC.toMicroSeconds();
         if (real != realN) {
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
         Uint64 fakeN = fakeC.toMicroSeconds();
         if (fake != fakeN) {
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
                 
@@ -274,7 +274,7 @@ int main(int argc, char** argv)
         CIMDateTime result1 = CIMDateTime(mic1,false);
         if (!date1.equal(result1)) {
             cout << result1.toString() << " was returned for constructor and should equal " << date1.toString()  << endl;
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
         
          
@@ -283,7 +283,7 @@ int main(int argc, char** argv)
         CIMDateTime result2 = CIMDateTime(mic2,false);
         if (!date2.equal(result2)) {
             cout << result2.toString() << " was returned for constructor and should equal " << date2.toString()  << endl;
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
    
@@ -292,7 +292,7 @@ int main(int argc, char** argv)
         CIMDateTime result3 = CIMDateTime(mic3,false); 
         if (!date3.equal(result3)) {
             cout << result3.toString() << " was returned for constructor and should equal " << date3.toString()  << endl;
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
  
@@ -301,7 +301,7 @@ int main(int argc, char** argv)
         CIMDateTime result4 = CIMDateTime(mic4,true);
         if (!date4.equal(result4)) {
             cout << result4.toString() << " was returned for constructor and should equal " << date4.toString()  << endl;
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }        
       
 
@@ -310,7 +310,7 @@ int main(int argc, char** argv)
         CIMDateTime result5 = CIMDateTime(mic5,true);   
         if (!date5.equal(result5)) {
             cout << result5.toString() << " was returned for constructor and should equal " << date5.toString()  << endl;
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }  
                                
 
@@ -319,7 +319,7 @@ int main(int argc, char** argv)
         CIMDateTime result6 = CIMDateTime(mic6,true); 
         if (!date6.equal(result6)) {
             cout << result6.toString() << " was returned for constructor and should equal " << date6.toString()  << endl;
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
                                                                                                     
@@ -329,28 +329,28 @@ int main(int argc, char** argv)
         Uint64 ms1 = tms_cdt1.toMicroSeconds();
         if (ms1 != 120000) {
             cout << "problem converting " << tms_cdt1.toString() << " to MicroSeconds" << endl; 
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
         CIMDateTime tms_cdt2 = CIMDateTime("00000101000000.1234**+000");
         Uint64 ms2 = tms_cdt2.toMicroSeconds();
         if (ms2 != 123400) {
             cout << "problem converting " << tms_cdt2.toString() << " to MicroSeconds" << endl;
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
         CIMDateTime tms_cdt3 = CIMDateTime("000000000001**.******:000");
         Uint64 ms3 = tms_cdt3.toMicroSeconds();
         if (ms3 != 60000000) {
             cout << "problem converting " << tms_cdt3.toString() << " to MicroSeconds" << endl; 
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
         CIMDateTime tms_cdt4 = CIMDateTime("**************.******+000");
         Uint64 ms4 = tms_cdt4.toMicroSeconds();
         if (ms4 != PEGASUS_UINT64_LITERAL(0)) {
             cout << "problem converting " << tms_cdt4.toString() << " to MicroSeconds" << endl; 
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         }
 
                             /* verifying CIMDateTime::operator= */
@@ -360,14 +360,14 @@ int main(int argc, char** argv)
          CIMDateTime se_vCo1 = CIMDateTime("99931231230200.000000-127");
          org_vCo1 = se_vCo1;
          if (String::compare(org_vCo1.toString(), se_vCo1.toString())) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }
 
          CIMDateTime org_vCo2 = CIMDateTime("12340101010101.******+000");
          CIMDateTime se_vCo2 = CIMDateTime("00001231230200.000000-127");
          org_vCo2 = se_vCo2;
          if (String::compare(org_vCo2.toString(), se_vCo2.toString())) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }
 
 
@@ -375,41 +375,41 @@ int main(int argc, char** argv)
                                   /*testing equals() */
 
          if (!org_vCo1.equal(se_vCo1)) {
-             assert(false);         }
+             PEGASUS_TEST_ASSERT(false);         }
 
     
          if (!org_vCo2.equal(se_vCo2)) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }
 
          CIMDateTime teeq3 = CIMDateTime("12340101010101.******+000");
          CIMDateTime teeq3_comp = CIMDateTime("12340101010101.123456+000");
          if (!teeq3.equal(teeq3_comp)) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }
 
          CIMDateTime teeq4 = CIMDateTime("12340101010101.212345+000");
          CIMDateTime teeq4_comp = CIMDateTime("12340101010101.2*****+000");
          if (!teeq4.equal(teeq4_comp)) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }    
 
          CIMDateTime teeq5 = CIMDateTime("12340101010101.2*****+000");
          CIMDateTime teeq5_comp = CIMDateTime("12340101010101.2234**+000");
          if (!teeq5.equal(teeq5_comp)) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }  
 
          CIMDateTime teeq6 = CIMDateTime("12340101010101.2*****+000");
          CIMDateTime teeq6_comp = CIMDateTime("123401010101**.******+000");
          if (!teeq6.equal(teeq6_comp)) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }  
 
          CIMDateTime teeq7 = CIMDateTime("12340101010101.2*****+000");
          CIMDateTime teeq7_comp = CIMDateTime("1234010101****.******+030");
          if (!teeq7.equal(teeq7_comp)) {
-             assert(false);
+             PEGASUS_TEST_ASSERT(false);
          }  
 
                                /*verfiying function put into getDifference in PEP 192*/ 
@@ -423,7 +423,7 @@ int main(int argc, char** argv)
       if (diff1 != vcom) {
           cout << "subtraction of " << vgDsub1.toString() << " form " \
                << vgD1.toString() << " should have equaled 1000000" << endl;
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
       }
 
     
@@ -436,7 +436,7 @@ int main(int argc, char** argv)
       if (diff2 != vcom2) {
           cout << "subtraction of " << vgDsub2.toString() << " form " \
               << vgD2.toString() << " should have equaled 86400000000" << endl;
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
       }
 
 
@@ -449,7 +449,7 @@ int main(int argc, char** argv)
       if (diff3 != vcom3) {
           cout << "subtraction of " << vgDsub2.toString() << " form " \
               << vgD2.toString() << " is wrong" << endl;
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
       }
 
             
@@ -482,7 +482,7 @@ int main(int argc, char** argv)
             cout << "Finish date time is : " << finishTime << endl;
         }
     
-        assert (differenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
             -PEGASUS_SINT64_LITERAL(10800000000));
     
         //
@@ -507,7 +507,7 @@ int main(int argc, char** argv)
             cout << "Finish date time is : " << finishTime << endl;
         }
     
-        assert (differenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(10800000003));
     
         // Set the start and finish times
@@ -528,7 +528,7 @@ int main(int argc, char** argv)
             cout << "Start date time is  : " << startTime << endl;
             cout << "Finish date time is : " << finishTime << endl;
         }
-        assert (differenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(10799999997));
     
         // Set the start and finish times
@@ -550,7 +550,7 @@ int main(int argc, char** argv)
             cout << "Finish date time is : " << finishTime << endl;
         }
     
-        assert (differenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(10800000000));
     
         // Set the start and finish times
@@ -572,7 +572,7 @@ int main(int argc, char** argv)
             cout << "Finish date time is : " << finishTime << endl;
         }
     
-        assert (differenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(48600000000));
     
         // Set the start and finish times
@@ -594,7 +594,7 @@ int main(int argc, char** argv)
             cout << "Finish date time is : " << finishTime << endl;
         }
     
-        assert (differenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
             -PEGASUS_SINT64_LITERAL(48600000000));
     
         //
@@ -650,7 +650,7 @@ int main(int argc, char** argv)
             cout << "Finish date time is : " << finishTime << endl;
         }
     
-        assert (differenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(86400000000));
 
     
@@ -673,8 +673,8 @@ int main(int argc, char** argv)
         intervalDifferenceInMicroseconds = CIMDateTime::getDifference
                                          (startInterval, finishInterval);
     
-        assert ( startInterval.isInterval() == true );
-        assert ( intervalDifferenceInMicroseconds == 60000000 );
+        PEGASUS_TEST_ASSERT ( startInterval.isInterval() == true );
+        PEGASUS_TEST_ASSERT ( intervalDifferenceInMicroseconds == 60000000 );
 
     
         //
@@ -694,8 +694,8 @@ int main(int argc, char** argv)
         intervalDifferenceInMicroseconds = CIMDateTime::getDifference
                                          (startInterval, finishInterval);
     
-        assert ( startInterval.isInterval() == true );
-        assert ( intervalDifferenceInMicroseconds == 
+        PEGASUS_TEST_ASSERT ( startInterval.isInterval() == true );
+        PEGASUS_TEST_ASSERT ( intervalDifferenceInMicroseconds == 
             PEGASUS_SINT64_LITERAL(8639999999999999999) );
 
     
@@ -711,7 +711,7 @@ int main(int argc, char** argv)
                 bad = true;
             }
     
-            assert(bad);
+            PEGASUS_TEST_ASSERT(bad);
         }
 
         {
@@ -730,7 +730,7 @@ int main(int argc, char** argv)
                 good = false;
             }
     
-            assert(good);
+            PEGASUS_TEST_ASSERT(good);
         }
 
 
@@ -748,7 +748,7 @@ int main(int argc, char** argv)
   CIMDateTime sum_CDT = CIMDateTime(sum_n, true);
   CIMDateTime CDT_sum = tfo_nCDT + tfo_nACDT;
   if (String::compare(CDT_sum.toString(),sum_CDT.toString())) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
   }
 
   
@@ -760,7 +760,7 @@ int main(int argc, char** argv)
   CIMDateTime sum_CDT2 = CIMDateTime(sum_n2, false);
   CIMDateTime CDT_sum2 = tfo_nCDT2 + tfo_nACDT2;
   if (String::compare(CDT_sum2.toString(),sum_CDT2.toString())) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
   }
 
   
@@ -772,7 +772,7 @@ int main(int argc, char** argv)
   CIMDateTime sum_CDT3 = CIMDateTime(sum_n3, false);
   CIMDateTime CDT_sum3 = tfo_nCDT3 + tfo_nACDT3;
   if (String::compare(CDT_sum3.toString(),sum_CDT3.toString())) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
   }
 
  
@@ -784,7 +784,7 @@ int main(int argc, char** argv)
   CIMDateTime sum_CDT4 = CIMDateTime(sum_n4, false);
   CIMDateTime CDT_sum4 = tfo_nCDT4 + tfo_nACDT4;
   if (String::compare(CDT_sum4.toString(),sum_CDT4.toString())) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
   }
 
  
@@ -796,7 +796,7 @@ int main(int argc, char** argv)
   CIMDateTime sum_cdt5 = CIMDateTime(sum5, false);
   CIMDateTime cdt_sum5 = tfo_n5 + tfo_nA5;
   if (String::compare(sum_cdt5.toString(),sum_cdt5.toString())) {
-      assert(false);
+      PEGASUS_TEST_ASSERT(false);
   }
 
 /*******************************************************************************************/
@@ -812,7 +812,7 @@ int main(int argc, char** argv)
   top_cdt0 += topA_cdt0;
   CIMDateTime topA0 = CIMDateTime(tot_num0,true);
   if (top_cdt0 != topA0) {
-      assert(false);
+      PEGASUS_TEST_ASSERT(false);
   }
 
 
@@ -824,7 +824,7 @@ int main(int argc, char** argv)
   top_cdt2 += topA_cdt2;
   CIMDateTime topA2 = CIMDateTime(tot_num2,false);
   if (top_cdt2 != topA2) {
-      assert(false);
+      PEGASUS_TEST_ASSERT(false);
   }
 
  
@@ -838,7 +838,7 @@ int main(int argc, char** argv)
   Uint64 top_3n = top_cdt3.toMicroSeconds();
   CIMDateTime tA = CIMDateTime(tot_num3,false);
   if (tA != top_cdt3) {
-      assert(false);
+      PEGASUS_TEST_ASSERT(false);
   }      
 
 
@@ -852,7 +852,7 @@ int main(int argc, char** argv)
   //tot_cdt4 = tot_cdt4.setUctOffSet(-100);
   top_cdt4 += topA_cdt4;
   if (String::compare(top_cdt4.toString(),tot_cdt4.toString())) {
-      assert(false);
+      PEGASUS_TEST_ASSERT(false);
   }
 
 
@@ -869,7 +869,7 @@ int main(int argc, char** argv)
  CIMDateTime dif_CDT = CIMDateTime(sum_m, true);
  CIMDateTime CDT_dif = tfo_mCDT - tfo_mACDT;
  if (String::compare(dif_CDT.toString(), CDT_dif.toString())) {
-   assert(false);
+   PEGASUS_TEST_ASSERT(false);
  }   
 
  
@@ -881,7 +881,7 @@ int main(int argc, char** argv)
  CIMDateTime dif_CDT2 = CIMDateTime(dif_m2, false);
  CIMDateTime CDT_dif2 = tfo_mCDT2 - tfo_mACDT2;
  if (String::compare(dif_CDT2.toString(), CDT_dif2.toString())) {
-   assert(false);
+   PEGASUS_TEST_ASSERT(false);
  }
 
 
@@ -893,7 +893,7 @@ int main(int argc, char** argv)
  CIMDateTime dif_CDT3 = CIMDateTime(dif_m3, true);
  CIMDateTime CDT_dif3 = tfo_mCDT3 - tfo_mACDT3;
  if (String::compare(dif_CDT3.toString(), CDT_dif3.toString())) {
-   assert(false);
+   PEGASUS_TEST_ASSERT(false);
  }
  
 
@@ -906,7 +906,7 @@ int main(int argc, char** argv)
  CIMDateTime CDT_dif4 = mCDT4 - tfo_mACDT4;
  Uint64 CDT_num = CDT_dif4.toMicroSeconds();
  if (CDT_num != dif_m4) {
-   assert(false);
+   PEGASUS_TEST_ASSERT(false);
  }
                   
  /************************************************************************************************/
@@ -922,7 +922,7 @@ Uint64 ot_yup4 = top_yup4 - topA_yup4;
 top_tko4 -= topA_tko4;
 CIMDateTime tko4 = CIMDateTime(ot_yup4,false);
 if (top_tko4 != tko4) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -935,7 +935,7 @@ Uint64 ot_yup2 = top_yup2 - topA_yup2;
 top_tko2 -= topA_tko2;
 Uint64 tko2 = top_tko2.toMicroSeconds();
 if (ot_yup2 != tko2) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }                              
 
 
@@ -948,7 +948,7 @@ Uint64 ot_yup3 = top_yup3 - topA_yup3;
 top_tko3 -= topA_tko3;
 CIMDateTime tko3 = CIMDateTime(ot_yup3,false);
 if (top_tko3 != tko3) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -963,7 +963,7 @@ CIMDateTime pr_c1 = mul1 * m_num1;
 Uint64 mul_cn1 = mul1.toMicroSeconds() * m_num1;
 CIMDateTime c_pr1 = CIMDateTime(mul_cn1, true);
 if (String::compare(c_pr1.toString(), pr_c1.toString())) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -973,7 +973,7 @@ CIMDateTime pr_c2 = mul2 * m_num2;
 Uint64 mul_cn2 = mul2.toMicroSeconds() * m_num2;
 Uint64 pr_num2 = pr_c2.toMicroSeconds();
 if (pr_num2 != mul_cn2) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -983,7 +983,7 @@ CIMDateTime pr_c3 = mul3 * m_num3;
 Uint64 mul_cn3 = mul3.toMicroSeconds() * m_num2;
 Uint64 pr_num3 = pr_c3.toMicroSeconds();
 if (pr_num3 != mul_cn3) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -999,7 +999,7 @@ Uint64 ul_cn1 = ul1.toMicroSeconds() * m_num1;
 ul1 *= m_num1;
 Uint64 ul_num1 = ul1.toMicroSeconds();
 if (ul_num1 != ul_cn1) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -1009,7 +1009,7 @@ Uint64 ul_cn2 = ul2.toMicroSeconds() * m_num2;
 ul2 *= m_num2;
 Uint64 ul_num2 = ul2.toMicroSeconds();
 if (ul_num2 != ul_cn2) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -1024,7 +1024,7 @@ CIMDateTime r_c1 = dul1/d_num1;
 Uint64 dul_cn1 = dul1.toMicroSeconds() / d_num1;
 Uint64 r_num1 = r_c1.toMicroSeconds();
 if (r_num1 != dul_cn1) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -1035,7 +1035,7 @@ Uint64 dul_cn2 = dul2.toMicroSeconds() / d_num2;
 CIMDateTime dulc = CIMDateTime(dul_cn2,true);
 Uint64 r_num2 = r_c2.toMicroSeconds();
 if (dulc != r_c2) {
-    assert(false);
+    PEGASUS_TEST_ASSERT(false);
 }
 
 
@@ -1051,7 +1051,7 @@ if (dulc != r_c2) {
     dull1 /= d_num1;
     Uint64 dul_num1 = dull1.toMicroSeconds();
     if (dul_num1 != dull_cn1) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 
 /*********************************************************************************************/
@@ -1066,7 +1066,7 @@ if (dulc != r_c2) {
     Uint64 div_n = tii_n1/tii_an1;
     Uint64 div_c = tii1/tii_a1;
     if (div_n != div_c) {
-        assert(false); 
+        PEGASUS_TEST_ASSERT(false); 
     }
 
 
@@ -1077,7 +1077,7 @@ if (dulc != r_c2) {
     Uint64 div_n2 = tii_n2/tii_an2;
     Uint64 div_c2 = tii2/tii_a2 ;
     if (div_n != div_c) {
-        assert(false); 
+        PEGASUS_TEST_ASSERT(false); 
     }
 
 
@@ -1089,57 +1089,57 @@ if (dulc != r_c2) {
     CIMDateTime last =  CIMDateTime("00040520041435.74****:000");
 
     if (las > last) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las < last) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las >= last)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las <= last)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las != last) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     CIMDateTime las2 = CIMDateTime("000405200414**.******+000");
     CIMDateTime last2 =  CIMDateTime("00040520041435.74****+000");
 
     if (las2 > last2) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las2 < last2) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las2 >= last2)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las2 <= last2)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las2 != last2) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 
     CIMDateTime las3 = CIMDateTime("0004052004****.******+050");
     CIMDateTime last3 =  CIMDateTime("00040520041435.74****+000");
 
     if (las3 > last3) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las3 < last3) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las3 >= last3)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las3 <= last3)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las3 != last3) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 
 
@@ -1147,19 +1147,19 @@ if (dulc != r_c2) {
     CIMDateTime last4 =  CIMDateTime("00040520041435.74****+000");
 
     if (las4 > last4) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las4 < last4) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las4 >= last4)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (!(las4 <= last4)) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
     if (las4 != last4) {
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }                    
 
 

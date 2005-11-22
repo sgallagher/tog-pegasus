@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/CQL/CQLRegularExpression.h>
@@ -50,7 +50,7 @@ void test01()
     const String p = "abc";
     const String s = ""; 
     
-    assert ( (re.match(s, p)) == false);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == false);
     return;
 }
 
@@ -62,7 +62,7 @@ void test02()
     const String p = "";
     const String s = "abc"; 
     
-    assert ( (re.match(s, p)) == false);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == false);
     return;
 }
 
@@ -74,7 +74,7 @@ void test03()
     const String p = "abc";
     const String s = "abc"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -87,7 +87,7 @@ void test04()
     const String p = "abcd";
     const String s = "abc"; 
     
-    assert ( (re.match(s, p)) == false);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == false);
     return;
 }
 
@@ -99,7 +99,7 @@ void test05()
     const String p = "abc";
     const String s = "abcd"; 
     
-    assert ( (re.match(s, p)) == false);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == false);
     return;
 }
 
@@ -111,7 +111,7 @@ void test06()
     const String p = "ab.";
     const String s = "ab?"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -123,7 +123,7 @@ void test07()
     const String p = ".a.b";
     const String s = "aa!b"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -135,7 +135,7 @@ void test08()
     const String p = "\\.ab";
     const String s = ".ab"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -147,7 +147,7 @@ void test09()
     const String p = "\\.ab";
     const String s = "\\.ab"; 
     
-    assert ( (re.match(s, p)) == false);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == false);
     return;
 }
 
@@ -158,7 +158,7 @@ void test10()
 
     const String p = ".*";
     const String s = "abcd"; 
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -170,7 +170,7 @@ void test11()
     const String p = "\\.*";
     const String s = "......"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -182,7 +182,7 @@ void test12()
     const String p = "abcd*";
     const String s = "abcddddd"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -194,7 +194,7 @@ void test13()
     const String p = "abcd*";
     const String s = "abcd"; 
     
-    assert ( (re.match(s, p)) == false);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == false);
     return;
 }
 
@@ -206,7 +206,7 @@ void test14()
     const String p = "ab*cd";
     const String s = "abbbbcd"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -218,7 +218,7 @@ void test15()
     const String p = "ab.*cd";
     const String s = "ab123!cd"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -230,7 +230,7 @@ void test16()
     const String p = "\\*ab";
     const String s = "*ab"; 
     
-    assert ( (re.match(s, p)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == true);
     return;
 }
 
@@ -242,7 +242,7 @@ void test17()
     const String p = ".\\*";
     const String s = "****"; 
     
-    assert ( (re.match(s, p)) == false);
+    PEGASUS_TEST_ASSERT ( (re.match(s, p)) == false);
     return;
 }
 
@@ -257,7 +257,7 @@ void test18()
 
     const String utf(utf16Chars);
 
-    assert ( (re.match(utf, utf)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(utf, utf)) == true);
     return;
 }
 
@@ -280,7 +280,7 @@ void test19()
     const String utfString(utf16CharsS);
 
 
-    assert ( (re.match(utfString, utfPattern)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(utfString, utfPattern)) == true);
     return;
 }
 
@@ -298,7 +298,7 @@ void test20()
     utfString.append("*");
 
 
-    assert ( (re.match(utfString,pattern)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(utfString,pattern)) == true);
     return;
 }
 
@@ -322,7 +322,7 @@ void test21()
     utfString.append("an3s");
 
 
-    assert ( (re.match(utfString, utfPattern)) == true);
+    PEGASUS_TEST_ASSERT ( (re.match(utfString, utfPattern)) == true);
     return;
 }
 

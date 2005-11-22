@@ -38,7 +38,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/XmlWriter.h>
 
@@ -49,7 +49,7 @@ static char * verbose;
 void test01()
 {
     CIMParamValue pv;
-    assert(pv.isUninitialized());
+    PEGASUS_TEST_ASSERT(pv.isUninitialized());
 
     String p1("message");
     CIMValue v1(String("argument_Test"));
@@ -60,19 +60,19 @@ void test01()
     CIMParamValue a7(p1, v1);
     CIMValue v7(String("argument_Test7"));
     a7.setValue( v7);
-    assert(a1.getValue().toString() != a7.getValue().toString());
-    assert(a1.getParameterName() == a7.getParameterName());
+    PEGASUS_TEST_ASSERT(a1.getValue().toString() != a7.getValue().toString());
+    PEGASUS_TEST_ASSERT(a1.getParameterName() == a7.getParameterName());
 
 //  Test call to CIMParamValue::setParameterName(String& parameterName)
 //  this test uses the above values for a1, p1 and v1.
     CIMParamValue a8(p1, v1);
     String p8("message8");
     a8.setParameterName( p8);
-    assert(a1.getValue().toString() == a8.getValue().toString());
-    assert(a1.getParameterName() != a8.getParameterName());
-    assert(a8.isTyped());
+    PEGASUS_TEST_ASSERT(a1.getValue().toString() == a8.getValue().toString());
+    PEGASUS_TEST_ASSERT(a1.getParameterName() != a8.getParameterName());
+    PEGASUS_TEST_ASSERT(a8.isTyped());
     a8.setIsTyped(false);
-    assert(!a8.isTyped());
+    PEGASUS_TEST_ASSERT(!a8.isTyped());
 
     String p2("message2");
     CIMValue v2(String("argument_Test2"));

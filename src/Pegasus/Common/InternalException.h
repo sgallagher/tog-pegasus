@@ -39,6 +39,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/Exception.h>
+#include <Pegasus/Common/PegasusAssert.h>
+
+
 
 PEGASUS_NAMESPACE_BEGIN
 

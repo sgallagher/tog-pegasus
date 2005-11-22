@@ -38,7 +38,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/IPC.h>             // used for pegasus_sleep
 #include <Pegasus/Client/CIMClient.h>
@@ -145,12 +145,12 @@ Boolean setObjectManagerStatistics(CIMClient & client, Boolean newState)
     instancesObjectManager  = client.enumerateInstances(PEGASUS_NAMESPACENAME_INTEROP,
             "CIM_ObjectManager",
             true, false, false, false, statPropertyList);
-    assert(instancesObjectManager.size() == 1);
+    PEGASUS_TEST_ASSERT(instancesObjectManager.size() == 1);
     instObjectManager = instancesObjectManager[0];
     instObjectManager.setPath(instancesObjectManager[0].getPath());         // set correct path into instance
     
     prop_num = instObjectManager.findProperty(gathStatName);
-    assert(prop_num != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
     
     instObjectManager.getProperty(prop_num).setValue(CIMValue(newState));
     
@@ -159,7 +159,7 @@ Boolean setObjectManagerStatistics(CIMClient & client, Boolean newState)
     CIMInstance updatedInstance = client.getInstance(PEGASUS_NAMESPACENAME_INTEROP,
         instObjectManager.getPath(), false, false, false, statPropertyList);
     prop_num = updatedInstance.findProperty(gathStatName);
-    assert(prop_num != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
     CIMProperty p = updatedInstance.getProperty(prop_num);
     CIMValue v = p.getValue();
     Boolean rtn;

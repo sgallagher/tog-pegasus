@@ -37,7 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMMethod.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/XmlWriter.h>
@@ -61,39 +61,39 @@ int main(int argc, char** argv)
 
 
 	// Tests for Qualifiers
-	assert(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	assert(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
-	assert(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	assert(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-	assert(m1.getQualifierCount() == 2);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 2);
 
-	assert(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
-	assert(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
-	assert(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	assert(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
 
 	Uint32 posQualifier;
 	posQualifier = m1.findQualifier(CIMName ("stuff"));
-	assert(posQualifier != PEG_NOT_FOUND);
-	assert(posQualifier < m1.getQualifierCount());
+	PEGASUS_TEST_ASSERT(posQualifier != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(posQualifier < m1.getQualifierCount());
 
 	m1.removeQualifier(posQualifier);
-	assert(m1.getQualifierCount() == 1);
-	assert(m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-	assert(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.getQualifierCount() == 1);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(m1.findQualifier(CIMName ("stuff2")) != PEG_NOT_FOUND);
 
         // Tests for Parameters
-        assert(m1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
-        assert(m1.findParameter(CIMName ("noparam"))  == PEG_NOT_FOUND);
-        assert(m1.getParameterCount()  == 1);
+        PEGASUS_TEST_ASSERT(m1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m1.findParameter(CIMName ("noparam"))  == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m1.getParameterCount()  == 1);
         CIMParameter cp = m1.getParameter(m1.findParameter(CIMName ("ipaddress")));
-        assert(cp.getName() == CIMName ("ipaddress"));
+        PEGASUS_TEST_ASSERT(cp.getName() == CIMName ("ipaddress"));
 
         m1.removeParameter (m1.findParameter (CIMName (CIMName ("ipaddress"))));
-        assert (m1.getParameterCount ()  == 0);
+        PEGASUS_TEST_ASSERT (m1.getParameterCount ()  == 0);
         m1.addParameter (CIMParameter (CIMName ("ipaddress"), CIMTYPE_STRING));
-        assert (m1.getParameterCount ()  == 1);
+        PEGASUS_TEST_ASSERT (m1.getParameterCount ()  == 1);
  
         // throws OutOfBounds
         try
@@ -111,31 +111,31 @@ int main(int argc, char** argv)
 
         CIMMethod m2(CIMName ("test"), CIMTYPE_STRING);
         m2.setName(CIMName ("getVersion"));
-        assert(m2.getName() == CIMName ("getVersion"));
+        PEGASUS_TEST_ASSERT(m2.getName() == CIMName ("getVersion"));
 
         m2.setType(CIMTYPE_STRING);
-        assert(m2.getType() == CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(m2.getType() == CIMTYPE_STRING);
 
         m2.setClassOrigin(CIMName ("test"));
-        assert(m2.getClassOrigin() == CIMName ("test"));
+        PEGASUS_TEST_ASSERT(m2.getClassOrigin() == CIMName ("test"));
 
         m2.setPropagated(true);
-        assert(m2.getPropagated() == true);
+        PEGASUS_TEST_ASSERT(m2.getPropagated() == true);
 
         const CIMMethod cm1(m1);
-	assert(cm1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
-	assert(cm1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
-        assert((cm1.getParameterCount() != 3));
-        assert(cm1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
-        assert(cm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuff21")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuf")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT((cm1.getParameterCount() != 3));
+        PEGASUS_TEST_ASSERT(cm1.findParameter(CIMName ("ipaddress")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(cm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
         
         CIMQualifier q = m1.getQualifier(posQualifier);
         CIMConstParameter ccp = cm1.getParameter(cm1.findParameter(CIMName ("ipaddress")));
-        assert(cm1.getName() == CIMName ("getHostName"));
-        assert(cm1.getType() == CIMTYPE_STRING);
-        assert(!(cm1.getClassOrigin() == CIMName ("test")));
-        assert(!cm1.getPropagated() == true);
-        assert(!m1.identical(m2));
+        PEGASUS_TEST_ASSERT(cm1.getName() == CIMName ("getHostName"));
+        PEGASUS_TEST_ASSERT(cm1.getType() == CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(!(cm1.getClassOrigin() == CIMName ("test")));
+        PEGASUS_TEST_ASSERT(!cm1.getPropagated() == true);
+        PEGASUS_TEST_ASSERT(!m1.identical(m2));
 
         // throws OutOfBounds
         try
@@ -164,7 +164,7 @@ int main(int argc, char** argv)
         MofWriter::appendMethodElement(out, cm1);
 
         Boolean nullMethod = cm1.isUninitialized(); 
-	assert(!nullMethod);
+	PEGASUS_TEST_ASSERT(!nullMethod);
 
         CIMMethod m3 = m2.clone();
         m3 = cm1.clone();
@@ -173,16 +173,16 @@ int main(int argc, char** argv)
         CIMMethod m5(m4);
 
         CIMConstMethod ccm1(CIMName ("getHostName"),CIMTYPE_STRING);
-        assert(!(ccm1.getParameterCount() == 3));
+        PEGASUS_TEST_ASSERT(!(ccm1.getParameterCount() == 3));
 
-        assert(ccm1.getName() == CIMName ("getHostName"));
-        assert(ccm1.getType() == CIMTYPE_STRING);
-        assert(!(ccm1.getClassOrigin() == CIMName ("test")));
-        assert(!ccm1.getPropagated() == true);
-        assert(!(ccm1.getParameterCount() == 3));
-        assert(ccm1.getQualifierCount() == 0);
-        assert(ccm1.findQualifier(CIMName ("Stuff")) == PEG_NOT_FOUND);
-        assert(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.getName() == CIMName ("getHostName"));
+        PEGASUS_TEST_ASSERT(ccm1.getType() == CIMTYPE_STRING);
+        PEGASUS_TEST_ASSERT(!(ccm1.getClassOrigin() == CIMName ("test")));
+        PEGASUS_TEST_ASSERT(!ccm1.getPropagated() == true);
+        PEGASUS_TEST_ASSERT(!(ccm1.getParameterCount() == 3));
+        PEGASUS_TEST_ASSERT(ccm1.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(ccm1.findQualifier(CIMName ("Stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
 
         if (verbose)
         {
@@ -197,12 +197,12 @@ int main(int argc, char** argv)
 
         ccm3 = ccm1.clone();
         ccm1 = ccm3;
-        assert(ccm1.identical(ccm3));
-        assert(ccm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
-        assert(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.identical(ccm3));
+        PEGASUS_TEST_ASSERT(ccm1.findQualifier(CIMName ("stuff")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(ccm1.findParameter(CIMName ("ipaddress")) == PEG_NOT_FOUND);
         
         nullMethod = ccm1.isUninitialized();
-        assert(!nullMethod);
+        PEGASUS_TEST_ASSERT(!nullMethod);
 
         // throws OutOfBounds
         try

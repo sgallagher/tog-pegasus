@@ -34,7 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Base64.h>
@@ -80,10 +80,10 @@ void testAuthHeader()
     PEGASUS_ASSERT(respHeader.size() != 0);
 
     Uint32 startQuote = respHeader.find(0, '"');
-    assert(startQuote != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(startQuote != PEG_NOT_FOUND);
 
     Uint32 endQuote = respHeader.find(startQuote + 1, '"');
-    assert(startQuote != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(startQuote != PEG_NOT_FOUND);
 
     filePath = respHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
 

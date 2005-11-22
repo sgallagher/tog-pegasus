@@ -297,7 +297,7 @@ int testReferenceNames(const CIMObjectPath& objectName, const CIMName& resultCla
     return 0;
 }
 #define ASRT(X) X
-//#define ASRT(X) assert X
+//#define ASRT(X) PEGASUS_TEST_ASSERT(X)
 
 // ===========================================================================
 // Main

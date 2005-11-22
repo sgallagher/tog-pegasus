@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/InternalException.h>
@@ -116,8 +116,8 @@ void test02()
     t1.join();
     t2.join();
 
-    assert(_ai1.get() == 0);
-    assert(_ai2.get() == 0);
+    PEGASUS_TEST_ASSERT(_ai1.get() == 0);
+    PEGASUS_TEST_ASSERT(_ai2.get() == 0);
 }
 
 int main(int argc, char** argv)

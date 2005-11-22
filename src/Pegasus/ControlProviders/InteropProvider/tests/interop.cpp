@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/TLS.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
@@ -60,7 +60,7 @@ PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 // Macro puts out message and then does assert error out.
-#define TERMINATE(X) {PEGASUS_STD(cout) << "TestInterop " << X << PEGASUS_STD(endl); assert(false);}
+#define TERMINATE(X) {PEGASUS_STD(cout) << "TestInterop " << X << PEGASUS_STD(endl); PEGASUS_TEST_ASSERT(false);}
 #define CDEBUG(X)
 //#define CDEBUG(X) PEGASUS_STD(cout) << "InteropTest(" << __LINE__ << ")" << X << PEGASUS_STD(endl)
 
@@ -564,7 +564,7 @@ Boolean InteropTest::testGetInstancesForEnum(const Array<CIMObjectPath>& paths,
 Boolean InteropTest::matchPathsAndInstancePaths(Array<CIMObjectPath>& paths, 
         const Array<CIMInstance> instances)
 {
-    assert(instances.size() == paths.size());
+    PEGASUS_TEST_ASSERT(instances.size() == paths.size());
     if (paths.size() == 0)
         return true;
 
@@ -612,7 +612,7 @@ Boolean InteropTest::matchPathsAndInstancePaths(Array<CIMObjectPath>& paths,
 Boolean InteropTest::matchPathsAndObjectPaths(Array<CIMObjectPath>& paths, 
         const Array<CIMObject> ObjectInstances)
 {
-    assert(ObjectInstances.size() == paths.size());
+    PEGASUS_TEST_ASSERT(ObjectInstances.size() == paths.size());
     if (paths.size() == 0)
         return true;
 
@@ -674,7 +674,7 @@ Boolean InteropTest::testEnumerateOptions(
                                  false,
                                  propertyList);
 
-    assert(instancesObjMgr.size() == 1);
+    PEGASUS_TEST_ASSERT(instancesObjMgr.size() == 1);
     CIMInstance instance = instancesObjMgr[0];
     CIMPropertyList rtnd;
     Array<CIMName> nameList;
@@ -701,7 +701,7 @@ Boolean InteropTest::testEnumerateOptions(
              << "\nPl Rcvd= " << _showPropertyList(rtnd)
              << endl;
 
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
         return(false);
     }
     CDEBUG("testEnumerations rtn" );
@@ -1685,12 +1685,12 @@ void InteropTest::testNameSpacesManagement()
 {
     // Test for required classes to assure that the interop provider and
     // its corresponding classes exist.
-    assert(testClassExists(CIM_NAMESPACE_CLASSNAME));
-    assert(testClassExists(PG_NAMESPACE_CLASSNAME));
-    assert(testClassExists(CIM_OBJECTMANAGER_CLASSNAME));
-    assert(testClassExists(CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME));
-    assert(testClassExists(PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME));
-    assert(testClassExists(CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
+    PEGASUS_TEST_ASSERT(testClassExists(CIM_NAMESPACE_CLASSNAME));
+    PEGASUS_TEST_ASSERT(testClassExists(PG_NAMESPACE_CLASSNAME));
+    PEGASUS_TEST_ASSERT(testClassExists(CIM_OBJECTMANAGER_CLASSNAME));
+    PEGASUS_TEST_ASSERT(testClassExists(CIM_OBJECTMANAGERCOMMUNICATIONMECHANISM_CLASSNAME));
+    PEGASUS_TEST_ASSERT(testClassExists(PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME));
+    PEGASUS_TEST_ASSERT(testClassExists(CIM_COMMMECHANISMFORMANAGER_CLASSNAME));
 
     // Test namespace usage with both __namespace and CIM_Namespace.
     // __namespace is called old
@@ -1718,12 +1718,12 @@ void InteropTest::testNameSpacesManagement()
         _showNamespaceList(nameListOld, "Using __Namespace");
     }
 
-    assert(nameListNew.size() == nameListOld.size());
+    PEGASUS_TEST_ASSERT(nameListNew.size() == nameListOld.size());
 
     // Add assertion that they have the same items in the list
     for (Uint32 i = 0 ; i < nameListNew.size() ; i++) 
     {
-        assert(nameListNew[i] == nameListOld[i]);
+        PEGASUS_TEST_ASSERT(nameListNew[i] == nameListOld[i]);
     }
     // Create a new namespace with new functions
 
@@ -1745,9 +1745,9 @@ void InteropTest::testNameSpacesManagement()
         _namespaceDeleteCIM_Namespace(testNameOldComplete);
     }
 
-    assert( ! _existsNew(testNameNew));
+    PEGASUS_TEST_ASSERT( ! _existsNew(testNameNew));
 
-    assert( ! _existsNew(testNameOldComplete));
+    PEGASUS_TEST_ASSERT( ! _existsNew(testNameOldComplete));
 
     CDEBUG("Create New Namespace with PG_Namespace. Namespace name = " << testNameNew.getString() << ".");
 
@@ -1759,9 +1759,9 @@ void InteropTest::testNameSpacesManagement()
     }
 
     CDEBUG("Test for namespace created. Name = " << testNameNew.getString());
-    assert(_existsNew(testNameNew));
+    PEGASUS_TEST_ASSERT(_existsNew(testNameNew));
 
-    assert(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameNew)));
+    PEGASUS_TEST_ASSERT(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameNew)));
 
     CDEBUG("Test for Namespace existing = " << testNameOldComplete.getString());
     if(_existsNew(CIMNamespaceName(testNameOldComplete)))
@@ -1775,21 +1775,21 @@ void InteropTest::testNameSpacesManagement()
     // Repeat the creation/deletion test with the CIM_Namespace class.
     //
 
-    assert( ! _existsNew(testNameNew));
+    PEGASUS_TEST_ASSERT( ! _existsNew(testNameNew));
 
     CDEBUG("Now Create New Namespace with CIM_Namespace. Namespace name = " << testNameNew.getString() << ".");
 
-    assert(_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), InteropNamespace));
+    PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(CIMNamespaceName(testNameNew), InteropNamespace));
 
     if (verbose)
         _showNamespaceList(nameListNew, "CIM_Namespace response after add. with PG_Namespace");
 
     CDEBUG("Test for namespace created. Name = " << testNameNew.getString());
-    assert(_existsNew(testNameNew));
+    PEGASUS_TEST_ASSERT(_existsNew(testNameNew));
 
-    assert(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameNew)));
+    PEGASUS_TEST_ASSERT(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameNew)));
 
-    assert( ! _existsNew(testNameNew));
+    PEGASUS_TEST_ASSERT( ! _existsNew(testNameNew));
 
     //
     // Create namespace with __Namespace
@@ -1797,11 +1797,11 @@ void InteropTest::testNameSpacesManagement()
     CDEBUG("Creating with __Namespace appending " << testNameOldTail.getString() << " to " << testNameOldRoot.getString());
     _namespaceCreate__Namespace(CIMNamespaceName(testNameOldRoot), String(testNameOldTail.getString()));
 
-    assert(_existsNew(testNameOldComplete));
+    PEGASUS_TEST_ASSERT(_existsNew(testNameOldComplete));
 
-    assert(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete)));
+    PEGASUS_TEST_ASSERT(_namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete)));
 
-    assert(!_existsNew(testNameOldComplete));
+    PEGASUS_TEST_ASSERT(!_existsNew(testNameOldComplete));
 
     if (verbose)
     {
@@ -1823,7 +1823,7 @@ void InteropTest::testNameSpacesManagement()
     {
         _showNamespaceList(nameListNew, "CIM_Namespace response after add.");
     }
-    assert(!_existsNew(testNameOldComplete));
+    PEGASUS_TEST_ASSERT(!_existsNew(testNameOldComplete));
 
     if(_existsNew(CIMNamespaceName(testNameOldComplete)))
        _namespaceDeleteCIM_Namespace(CIMNamespaceName(testNameOldComplete));
@@ -1889,29 +1889,29 @@ void InteropTest::testSharedNameSpacesManagement()
         _namespaceCreatePG_Namespace(testNameShared, false, false, testNameSharable.getString());
 
         // create a namespace with the previous sharable as parent.
-        assert(_namespaceCreateCIM_Namespace(testNameNotShared, InteropNamespace));
+        PEGASUS_TEST_ASSERT(_namespaceCreateCIM_Namespace(testNameNotShared, InteropNamespace));
         // Confirm that both exist
-        assert(_existsNew(testNameSharable));
-        assert(_existsNew(testNameShared));
-        assert(_existsNew(testNameNotShared));
+        PEGASUS_TEST_ASSERT(_existsNew(testNameSharable));
+        PEGASUS_TEST_ASSERT(_existsNew(testNameShared));
+        PEGASUS_TEST_ASSERT(_existsNew(testNameNotShared));
 
         if (verbose)
             _showNamespaceInfo("Namespaces with one shared and one sharable created");
 
         // Note: This only tests that the namespaces are marked shareable, shared.  This
         // is not a test to insure that the sharing logic works.
-        assert(_testPGNamespace(testNameSharable, true, false, String::EMPTY));
-        assert(_testPGNamespace(testNameShared, false, false, testNameSharable.getString()));
-        assert(_testPGNamespace(testNameShared, false, false, String::EMPTY));
+        PEGASUS_TEST_ASSERT(_testPGNamespace(testNameSharable, true, false, String::EMPTY));
+        PEGASUS_TEST_ASSERT(_testPGNamespace(testNameShared, false, false, testNameSharable.getString()));
+        PEGASUS_TEST_ASSERT(_testPGNamespace(testNameShared, false, false, String::EMPTY));
 
         // Now delete the two namespaces
         _namespaceDeleteCIM_Namespace(testNameSharable);
         _namespaceDeleteCIM_Namespace(testNameShared);
         _namespaceDeleteCIM_Namespace(testNameNotShared);
 
-        assert(!_existsNew(testNameSharable));
-        assert(!_existsNew(testNameShared));
-        assert(!_existsNew(testNameNotShared));
+        PEGASUS_TEST_ASSERT(!_existsNew(testNameSharable));
+        PEGASUS_TEST_ASSERT(!_existsNew(testNameShared));
+        PEGASUS_TEST_ASSERT(!_existsNew(testNameNotShared));
 
         Array<CIMNamespaceName> nameListAfter = _getNamespacesNew();
         if (nameListBefore.size() != nameListAfter.size())
@@ -1922,7 +1922,7 @@ void InteropTest::testSharedNameSpacesManagement()
             BubbleSort(nameListAfter);
             _showNamespaceList(nameListBefore, "Before");
             _showNamespaceList(nameListAfter, "After");
-            assert(nameListBefore.size() == nameListAfter.size());
+            PEGASUS_TEST_ASSERT(nameListBefore.size() == nameListAfter.size());
         }
     }
     // Catch block for all of the shared Namespace tests Tests.
@@ -1959,7 +1959,7 @@ CIMInstance InteropTest::getInstanceObjMgr()
                                              false,  // include qualifiers = false
                                              false, CIMPropertyList());
 
-    assert(instancesObjMgr.size() == 1);
+    PEGASUS_TEST_ASSERT(instancesObjMgr.size() == 1);
 
     return(instancesObjMgr[0]);
 }
@@ -2015,7 +2015,7 @@ void InteropTest::testObjectManagerClass()
                                                  CIM_OBJECTMANAGER_CLASSNAME);
 
         // Again assert that there is only one instance
-        assert(pathsObjMgr.size() == 1);
+        PEGASUS_TEST_ASSERT(pathsObjMgr.size() == 1);
         CIMObjectPath nameEnumObjectManagerPath = pathsObjMgr[0];
 
         CIMObjectPath rcvdObjectManagerPath = instanceObjectManager.getPath();
@@ -2028,25 +2028,25 @@ void InteropTest::testObjectManagerClass()
         }
 
         // compare locally built path from instance with path from enumerateInstances
-        assert(rcvdObjectManagerPath == nameEnumObjectManagerPath);
-        assert (rcvdObjectManagerPath == rebuiltObjectManagerPath);
-        assert (nameEnumObjectManagerPath == rebuiltObjectManagerPath);
+        PEGASUS_TEST_ASSERT(rcvdObjectManagerPath == nameEnumObjectManagerPath);
+        PEGASUS_TEST_ASSERT (rcvdObjectManagerPath == rebuiltObjectManagerPath);
+        PEGASUS_TEST_ASSERT (nameEnumObjectManagerPath == rebuiltObjectManagerPath);
 
         // Test existence of properties in instance returned..
         // NOTE This is a duplication of the loop for all properties test below.
 
-        assert (instanceObjectManager.findProperty("gatherstatisticaldata") != PEG_NOT_FOUND);
-        assert (instanceObjectManager.findProperty("Name") != PEG_NOT_FOUND);
-        assert (instanceObjectManager.findProperty("ElementName") != PEG_NOT_FOUND);
-        assert (instanceObjectManager.findProperty("CreationClassName") != PEG_NOT_FOUND);
-        assert (instanceObjectManager.findProperty("SystemName") != PEG_NOT_FOUND);
-        assert (instanceObjectManager.findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT (instanceObjectManager.findProperty("gatherstatisticaldata") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT (instanceObjectManager.findProperty("Name") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT (instanceObjectManager.findProperty("ElementName") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT (instanceObjectManager.findProperty("CreationClassName") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT (instanceObjectManager.findProperty("SystemName") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT (instanceObjectManager.findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
 
         for (Uint32 i = 0 ; i < objectManagerClass.getPropertyCount() ; i++)
         {
             CIMConstProperty pl = objectManagerClass.getProperty(i);
             CIMName propertyName = pl.getName();
-            assert(instanceObjectManager.findProperty(propertyName) != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(instanceObjectManager.findProperty(propertyName) != PEG_NOT_FOUND);
         }
 
         // Add a test for the different get parameters on instances.
@@ -2096,7 +2096,7 @@ void InteropTest::testObjectManagerClass()
                 Array <CIMObjectPath> paths = _client.enumerateInstanceNames(
                         namespaceList[i],
                         CIM_OBJECTMANAGER_CLASSNAME);
-                assert(paths.size() == 0);
+                PEGASUS_TEST_ASSERT(paths.size() == 0);
                 }
                 // Catch block for this enum test.  We test class not exist.
                 catch(CIMException& e)
@@ -2263,10 +2263,10 @@ void InteropTest::testStatisticsEnable()
         //
         setStatisticsState(true);
         // Get Object Manager instance and confirm property changed.
-        assert(getStatisticsState());
+        PEGASUS_TEST_ASSERT(getStatisticsState());
         setStatisticsState(false);
         // Get Object Manager instance and confirm property changed.
-        assert(!getStatisticsState());
+        PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         //
         //  Test modify with multiple properties in modifiedIns.
@@ -2286,7 +2286,7 @@ void InteropTest::testStatisticsEnable()
         if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
             sendInstance.getProperty(pos).setValue(CIMValue(true));
         else
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
 
         // Test with Multiple Properties in instance and qualifiers removed
         sendInstance.filter(false, false, CIMPropertyList());
@@ -2294,23 +2294,23 @@ void InteropTest::testStatisticsEnable()
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
                 true, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Failed to Set Statistics true");
-        assert(getStatisticsState());
+        PEGASUS_TEST_ASSERT(getStatisticsState());
 
         // test with multiple properties in instance and qualifiers in instance
         sendInstance = instanceObjectManager.clone();
         if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
             sendInstance.getProperty(pos).setValue(CIMValue(false));
         else
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
         // following should turn statistics off
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
                 true, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Failed to Set Statistics false");
-        assert(!getStatisticsState());
+        PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         // now assure ourselves that the instances are the same.
         //CIMInstance newInstanceObjectManager = getInstanceObjMgr();
-        assert(instanceObjectManager.identical(getInstanceObjMgr()));
+        PEGASUS_TEST_ASSERT(instanceObjectManager.identical(getInstanceObjMgr()));
 
         //
         // Now test possible  modify operations that should fail.
@@ -2320,13 +2320,13 @@ void InteropTest::testStatisticsEnable()
         if ((pos = sendInstance.findProperty("gatherstatisticaldata")) != PEG_NOT_FOUND)
             sendInstance.getProperty(pos).setValue(CIMValue(true));
         else
-            assert(false);
+            PEGASUS_TEST_ASSERT(false);
 
         // Should fail because property list is null
         if(!testStatisticsSetOperationError(sendInstance, CIMPropertyList(),
                                     false, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Set Should fail. CIMPropertyList Null not allowed");
-        assert(!getStatisticsState());
+        PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         // PropertyList contains one property but NOT statistics. It should fail
         Array<CIMName> plA2;
@@ -2337,7 +2337,7 @@ void InteropTest::testStatisticsEnable()
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     false, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Set Should fail. Bad Property in modifiedInstance");
-        assert(!getStatisticsState());
+        PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         // Try with MyProperty list empty.  This should return good but
         // no change
@@ -2348,13 +2348,13 @@ void InteropTest::testStatisticsEnable()
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList2,
                                     true, false, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Set with propertylist empty should pass");
-        assert(!getStatisticsState());
+        PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         // Try with includequalifiers and include qualifiers. Should fail
         if(!testStatisticsSetOperationError(sendInstance, myPropertyList,
                                     false, true, CIM_ERR_NOT_SUPPORTED))
            TERMINATE("Set Should fail. includeQualifiers = true");
-        assert(!getStatisticsState());
+        PEGASUS_TEST_ASSERT(!getStatisticsState());
 
         // try with propertylist that has extra properties.
         plA.append(CIMName("RequestStateChange"));
@@ -2364,9 +2364,9 @@ void InteropTest::testStatisticsEnable()
            TERMINATE("Set Should fail. Bad Property in modifiedInstance");
 
         // Confrim that instance is unchanged from original.
-        assert(!getStatisticsState());
+        PEGASUS_TEST_ASSERT(!getStatisticsState());
         //newInstanceObjectManager = getInstanceObjMgr();
-        assert(instanceObjectManager.identical(getInstanceObjMgr()));
+        PEGASUS_TEST_ASSERT(instanceObjectManager.identical(getInstanceObjMgr()));
     }
     // Catch block for all of the Statistics Modification Tests.
     catch(CIMException& e)
@@ -2398,7 +2398,7 @@ void InteropTest::testCommunicationClass()
         Array<CIMObjectPath> pathsObjMgr = _client.enumerateInstanceNames(
                                                  PEGASUS_NAMESPACENAME_INTEROP,
                                                  CIM_OBJECTMANAGER_CLASSNAME);
-        assert(pathsObjMgr.size() == 1);
+        PEGASUS_TEST_ASSERT(pathsObjMgr.size() == 1);
 
         CIMObjectPath objectManagerPath = pathsObjMgr[0];
         Array<CIMObjectPath> pathsCommMech = _client.enumerateInstanceNames(
@@ -2419,32 +2419,32 @@ void InteropTest::testCommunicationClass()
 
 
         //Test to confirm that instances and instance names return same thing.
-        assert( matchPathsAndInstancePaths(pathsCommMech, instancesCommMech));
+        PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(pathsCommMech, instancesCommMech));
 
         // COMMENT KS - There is no reason for this.  The whole thing should be covered.
         #ifdef PEGASUS_ENABLE_SLP
-        assert(instancesCommMech.size() > 0);
+        PEGASUS_TEST_ASSERT(instancesCommMech.size() > 0);
         #endif
 
         // Test enumerate instances.  Note that we do this both with deep inheritance and not 
         for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
         {
-            assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("SystemName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("CreationClassName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("Name") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("FunctionalProfilesSupported") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("SystemName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("CreationClassName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("Name") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("FunctionalProfilesSupported") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
 
             // The following property exists only on PG_..., not the superclass and this is no DI
-            assert (instancesCommMech[i].findProperty("IPAddress") == PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("IPAddress") == PEG_NOT_FOUND);
             CIMObjectPath instancePath = instancesCommMech[i].getPath();
 
             // should be getting only the PG_CIMXMLCOMMUNICATIONM... class
-            assert (instancePath.getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME );
+            PEGASUS_TEST_ASSERT (instancePath.getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME );
         }
 
         // Repeat with deepInheritance = true.
@@ -2462,25 +2462,25 @@ void InteropTest::testCommunicationClass()
          // the enumerate, the enumerate must have matching attributes AND must be
          // deepInheritance to assure that all properties are returned.
          /* TODO
-         assert(testGetInstancesForEnum(pathsCommMech, instancesCommMech, localOnly,
+         PEGASUS_TEST_ASSERT(testGetInstancesForEnum(pathsCommMech, instancesCommMech, localOnly,
                              includeQualifiers, includeClassOrigin, CIMPropertyList()));
          */
          // COMMENT KS - There is no reason for this.  The whole thing should be covered.
         #ifdef PEGASUS_ENABLE_SLP
-        assert(instancesCommMech.size() > 0);
+        PEGASUS_TEST_ASSERT(instancesCommMech.size() > 0);
         #endif
 
         // Test the properties in each comm mechanism instance. This tests for existence and
         // correct information as much as possible.
         for (Uint32 i = 0 ; i < instancesCommMech.size() ; i++)
         {
-            assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("SystemName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("CreationClassName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("Name") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("FunctionalProfilesSupported") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("SystemName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("CreationClassName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("Name") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("SystemCreationClassName") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("FunctionalProfilesSupported") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("FunctionalProfileDescriptions") != PEG_NOT_FOUND);
 
             // testing of characteristics of FunctionalProfile properties
             {
@@ -2511,7 +2511,7 @@ void InteropTest::testCommunicationClass()
                 if (getCurrentBoolConfigProperty("enableIndicationService"))
                     testFunctionalProfile.append(9);
 
-                assert(testFunctionalProfile.size() == functionalProfile.size());
+                PEGASUS_TEST_ASSERT(testFunctionalProfile.size() == functionalProfile.size());
 
                 // clone so we can sort to do an identical test on the array.
                 Array<Uint16> fpTemp;
@@ -2519,7 +2519,7 @@ void InteropTest::testCommunicationClass()
                 BubbleSort(fpTemp);
                 BubbleSort(testFunctionalProfile);
 
-                assert(fpTemp == testFunctionalProfile);
+                PEGASUS_TEST_ASSERT(fpTemp == testFunctionalProfile);
 
                 // get the  functionalProfileDescription to test against profile property.
                 pos = instancesCommMech[i].findProperty("FunctionalProfileDescriptions");
@@ -2530,7 +2530,7 @@ void InteropTest::testCommunicationClass()
                 v1.get(functionalProfileDescription);
 
                 // assert that we have same number descriptions as profiles
-                assert(functionalProfileDescription.size() == functionalProfile.size());
+                PEGASUS_TEST_ASSERT(functionalProfileDescription.size() == functionalProfile.size());
                 // NOTE: We do not test for correct strings.
                 if (verbose)
                     for (Uint32 i = 0 ; i < functionalProfile.size() ; i++)
@@ -2538,8 +2538,8 @@ void InteropTest::testCommunicationClass()
                             functionalProfileDescription[i] << endl;
             }
 
-            assert (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
-            assert (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("MultipleOperationsSupported") != PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT (instancesCommMech[i].findProperty("AuthenticationMechanismsSupported") != PEG_NOT_FOUND);
 
             // The following tests are only for PG_CIMXML... Instances
             if (instancesCommMech[i].getClassName() == PG_CIMXMLCOMMUNICATIONMECHANISM_CLASSNAME)
@@ -2547,16 +2547,16 @@ void InteropTest::testCommunicationClass()
                 Uint32 pos;
 
                 // test IPaddress property to determine if correct.
-                assert ((pos = instancesCommMech[i].findProperty("IPAddress")) != PEG_NOT_FOUND);
+                PEGASUS_TEST_ASSERT ((pos = instancesCommMech[i].findProperty("IPAddress")) != PEG_NOT_FOUND);
                 CIMProperty p = instancesCommMech[i].getProperty(pos);
                 CIMValue v1 = p.getValue();
                 String IPAddress;
                 v1.get(IPAddress);
                 // test to assure that the port number ss part of the value
-                assert(IPAddress.find(':'));
+                PEGASUS_TEST_ASSERT(IPAddress.find(':'));
 
                 // test namespaceAccessProtocol property to determine if correct
-                assert ((pos = instancesCommMech[i].findProperty("namespaceAccessProtocol")) != PEG_NOT_FOUND);
+                PEGASUS_TEST_ASSERT ((pos = instancesCommMech[i].findProperty("namespaceAccessProtocol")) != PEG_NOT_FOUND);
                 pos = instancesCommMech[i].findProperty("namespaceAccessProtocol");
                 p = instancesCommMech[i].getProperty(pos);
                 CIMValue v2 = p.getValue();
@@ -2564,9 +2564,9 @@ void InteropTest::testCommunicationClass()
                 v2.get(accessProtocolValue);
 
                 // test to assure that this is a 2 or 3 (http or https)
-                assert(accessProtocolValue == 2 || accessProtocolValue == 3);
+                PEGASUS_TEST_ASSERT(accessProtocolValue == 2 || accessProtocolValue == 3);
 
-                assert ((pos = instancesCommMech[i].findProperty("namespaceType")) != PEG_NOT_FOUND);
+                PEGASUS_TEST_ASSERT ((pos = instancesCommMech[i].findProperty("namespaceType")) != PEG_NOT_FOUND);
 
                 p = instancesCommMech[i].getProperty(pos);
                 CIMValue v3 = p.getValue();
@@ -2574,9 +2574,9 @@ void InteropTest::testCommunicationClass()
                 v3.get(namespaceTypeValue);
                 // test to assure that the port number ss part of the value
                 if (accessProtocolValue ==2)
-                    assert(namespaceTypeValue == "http");
+                    PEGASUS_TEST_ASSERT(namespaceTypeValue == "http");
                 if (accessProtocolValue ==3)
-                    assert(namespaceTypeValue == "https");
+                    PEGASUS_TEST_ASSERT(namespaceTypeValue == "https");
 
                 if (accessProtocolValue == 2)
                 {
@@ -2662,8 +2662,8 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
 
         // These should be the same (we should be returning a namespace in manager for
         // each namespace instance.
-        assert(_getNamespacesNew().size() == instancesNamespaceInManager.size());
-        assert(_getNamespacesNew().size() == namespaceInstances.size());
+        PEGASUS_TEST_ASSERT(_getNamespacesNew().size() == instancesNamespaceInManager.size());
+        PEGASUS_TEST_ASSERT(_getNamespacesNew().size() == namespaceInstances.size());
     
         // Test getting reference names.  Should match number of instances
     
@@ -2680,10 +2680,10 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         role);                                   // role
 
         // should return same number of objects as number of namespaces.
-        assert(referenceNames.size() == instancesNamespaceInManager.size());
+        PEGASUS_TEST_ASSERT(referenceNames.size() == instancesNamespaceInManager.size());
     
         // test to see that all of the names match
-        assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
+        PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
 
         // Test getting references.  Compare to list of namespaces.
         Array<CIMObject> references = _client.references(
@@ -2696,8 +2696,8 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                 CIMPropertyList());                     // propertyList
     
         // test if references and referencenames return same size
-        assert(references.size() == referenceNames.size());
-        assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
+        PEGASUS_TEST_ASSERT(references.size() == referenceNames.size());
+        PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
 
         //
         // Add test for different role properties both for reference and referencenames.
@@ -2721,9 +2721,9 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         role);                                   // role
 
         // test if references and referencenames return same size
-        assert(namespaceInstances.size() == referenceNames.size());
-        assert(references.size() == referenceNames.size());
-        assert( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
+        PEGASUS_TEST_ASSERT(namespaceInstances.size() == referenceNames.size());
+        PEGASUS_TEST_ASSERT(references.size() == referenceNames.size());
+        PEGASUS_TEST_ASSERT( matchPathsAndInstancePaths(referenceNames, instancesNamespaceInManager));
 
         // test with role = dependent.  Should return no instances.
         role = "dependent";
@@ -2743,8 +2743,8 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         CIM_NAMESPACEINMANAGER_CLASSNAME,        // result class
                         role);                                   // role
 
-        assert(referenceNames.size() == 0);
-        assert(references.size() == referenceNames.size());
+        PEGASUS_TEST_ASSERT(referenceNames.size() == 0);
+        PEGASUS_TEST_ASSERT(references.size() == referenceNames.size());
 
         // TODO Test references in the other direction (from the namespace).
 
@@ -2762,7 +2762,7 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         role,                                    // role
                         resultRole);                             // resultRole
 
-        assert(namespaceInstances.size() == associatorObjects.size());
+        PEGASUS_TEST_ASSERT(namespaceInstances.size() == associatorObjects.size());
 
         //TODO Test with CIM_NAMESPACE_CLASSNAME in result role.
 
@@ -2774,8 +2774,8 @@ void InteropTest::testNameSpaceInObjectManagerAssocClass()
                         role,                                    // role
                         resultRole);                             // resultRole
 
-        assert(namespaceInstances.size() == associatorNames.size());
-        assert( matchPathsAndObjectPaths(associatorNames, associatorObjects));
+        PEGASUS_TEST_ASSERT(namespaceInstances.size() == associatorNames.size());
+        PEGASUS_TEST_ASSERT( matchPathsAndObjectPaths(associatorNames, associatorObjects));
     }
     // Catch block for all of the CIM_NamespaceInManager Tests.
     catch(CIMException& e)
@@ -2808,7 +2808,7 @@ void InteropTest::testCommMechinManagerAssocClass()
                         String::EMPTY);                               // role
 
         //cout << "namespaceinmanager refs " << referenceNames.size() << " " <<  instancesCommMech.size() << endl;
-        //assert(referenceNames.size() == instancesCommMech.size());
+        //PEGASUS_TEST_ASSERT(referenceNames.size() == instancesCommMech.size());
 
         if (verbose)
         {

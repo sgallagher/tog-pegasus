@@ -42,7 +42,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/OptionManager.h>
@@ -76,7 +76,7 @@ static void TestClassOperations(CIMClient& client)
     // GetClass:
 
     CIMClass c2 = client.getClass(SAMPLEPROVIDER_NAMESPACE, CIMName ("SubClass"), false);
-    // assert(c1.identical(c2));
+    // PEGASUS_TEST_ASSERT(c1.identical(c2));
 
     // Modify the class:
 
@@ -87,7 +87,7 @@ static void TestClassOperations(CIMClient& client)
 
     CIMClass c3 = client.getClass(SAMPLEPROVIDER_NAMESPACE, CIMName ("SubClass"), false);
 
-    // assert(c3.identical(c2));
+    // PEGASUS_TEST_ASSERT(c3.identical(c2));
 
     // EnumerateClassNames:
 
@@ -102,7 +102,7 @@ static void TestClassOperations(CIMClient& client)
 	    found = true;
     }
 
-    assert(found);
+    PEGASUS_TEST_ASSERT(found);
 
     // DeleteClass:
 
@@ -116,16 +116,16 @@ static void TestClassOperations(CIMClient& client)
     Array<CIMClass> classDecls = client.enumerateClasses(
 	NAMESPACE, CIMName(), false, false, true, true);
 
-    assert(classDecls.size() == classNames.size());
+    PEGASUS_TEST_ASSERT(classDecls.size() == classNames.size());
 
     for (Uint32 i = 0; i < classNames.size(); i++)
     {
 	CIMClass tmp = client.getClass(
 	    NAMESPACE, classNames[i], false, true, true);
 
-	assert(classNames[i].equal(classDecls[i].getClassName()));
+	PEGASUS_TEST_ASSERT(classNames[i].equal(classDecls[i].getClassName()));
 
-	assert(tmp.identical(classDecls[i]));
+	PEGASUS_TEST_ASSERT(tmp.identical(classDecls[i]));
     }
 }
 
@@ -144,10 +144,10 @@ static void TestQualifierOperations(CIMClient& client)
     // Get them and compare:
 
     CIMQualifierDecl tmp1 = client.getQualifier(SAMPLEPROVIDER_NAMESPACE, CIMName ("qd1"));
-    assert(tmp1.identical(qd1));
+    PEGASUS_TEST_ASSERT(tmp1.identical(qd1));
 
     CIMQualifierDecl tmp2 = client.getQualifier(SAMPLEPROVIDER_NAMESPACE, CIMName ("qd2"));
-    assert(tmp2.identical(qd2));
+    PEGASUS_TEST_ASSERT(tmp2.identical(qd2));
 
     // Enumerate the qualifiers:
 
@@ -159,10 +159,10 @@ static void TestQualifierOperations(CIMClient& client)
 	CIMQualifierDecl tmp = qualifierDecls[i];
 
 	if (tmp.getName().equal(CIMName ("qd1")))
-	    assert(tmp1.identical(tmp));
+	    PEGASUS_TEST_ASSERT(tmp1.identical(tmp));
 
 	if (tmp.getName().equal(CIMName ("qd2")))
-	    assert(tmp2.identical(tmp));
+	    PEGASUS_TEST_ASSERT(tmp2.identical(tmp));
     }
 
     // Delete the qualifiers:

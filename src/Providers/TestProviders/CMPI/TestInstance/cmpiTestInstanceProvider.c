@@ -365,7 +365,7 @@ make_ObjectPath (const CMPIBroker *broker, const char *ns, const char *class)
 
   PROV_LOG ("--- make_ObjectPath: CMNewObjectPath");
   objPath = CMNewObjectPath (broker, ns, class, &rc);
-  //assert ( rc.rc == CMPI_RC_OK);
+  //PEGASUS_TEST_ASSERT ( rc.rc == CMPI_RC_OK);
   PROV_LOG ("----- %s", strCMPIStatus (rc));
   CMAddKey (objPath, "ElementName", (CMPIValue *) class, CMPI_chars);
 

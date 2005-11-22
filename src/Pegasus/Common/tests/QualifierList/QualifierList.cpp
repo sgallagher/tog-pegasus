@@ -39,7 +39,7 @@
 	This program tests the CIM QualifierList functions. 
 */
  
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMQualifier.h>
 #include <Pegasus/Common/CIMQualifierList.h>
 #include <Pegasus/Common/CIMProperty.h>
@@ -92,36 +92,36 @@ int main(int argc, char** argv)
 	
 	// Run the find, get, etc tests.
 
-	assert(qualifiers1.getCount() == 4);
-	assert(qualifiers1.find(CIMName ("Abstract")) == 0);
-	assert(qualifiers1.exists(CIMName ("Abstract")));
-	assert(qualifiers1.isTrue(CIMName ("Abstract")));
-	assert(qualifiers1.exists(CIMName ("q1")));
-	assert(!qualifiers1.isTrue(CIMName ("q1")));
-	assert(qualifiers1.exists(CIMName ("q2")));
-	assert(!qualifiers1.isTrue(CIMName ("q2")));
+	PEGASUS_TEST_ASSERT(qualifiers1.getCount() == 4);
+	PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("Abstract")) == 0);
+	PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("Abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers1.isTrue(CIMName ("Abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(!qualifiers1.isTrue(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("q2")));
+	PEGASUS_TEST_ASSERT(!qualifiers1.isTrue(CIMName ("q2")));
 
-	assert(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
+	PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
             PEG_NOT_FOUND);
-	assert(!qualifiers1.exists(CIMName ("QualifierDoesNotExist")));
+	PEGASUS_TEST_ASSERT(!qualifiers1.exists(CIMName ("QualifierDoesNotExist")));
 
 	qualifiers1.resolve(
 	    &context, NAMESPACE, CIMScope::CLASS, false, qualifiers0, true);
 
 	// Qualifiers after the resolve.  Should have resolved against the
 	// declarations.
-	assert(qualifiers1.getCount() == 4);
-	assert(qualifiers1.find(CIMName ("Abstract")) == 0);
-	assert(qualifiers1.exists(CIMName ("Abstract")));
-	assert(qualifiers1.isTrue(CIMName ("Abstract")));
-	assert(qualifiers1.exists(CIMName ("q1")));
-	assert(!qualifiers1.isTrue(CIMName ("q1")));
-	assert(qualifiers1.exists(CIMName ("q2")));
-	assert(!qualifiers1.isTrue(CIMName ("q2")));
+	PEGASUS_TEST_ASSERT(qualifiers1.getCount() == 4);
+	PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("Abstract")) == 0);
+	PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("Abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers1.isTrue(CIMName ("Abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(!qualifiers1.isTrue(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("q2")));
+	PEGASUS_TEST_ASSERT(!qualifiers1.isTrue(CIMName ("q2")));
 
-	assert(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
+	PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("QualifierDoesNotExist")) == 
             PEG_NOT_FOUND);
-	assert(!qualifiers1.exists(CIMName ("QualifierDoesNotExist")));
+	PEGASUS_TEST_ASSERT(!qualifiers1.exists(CIMName ("QualifierDoesNotExist")));
 	if(verbose)
 	    qualifiers1.print();
 
@@ -136,13 +136,13 @@ int main(int argc, char** argv)
 	{
 	    exceptionCaught = true;
 	}
-	assert(exceptionCaught);
+	PEGASUS_TEST_ASSERT(exceptionCaught);
 
 	// Test some of the basics again after the double insertion problem
-	assert(qualifiers1.getCount() == 4);
-	assert(qualifiers1.find(CIMName ("Abstract")) == 0);
-	assert(qualifiers1.exists(CIMName ("Abstract")));
-	assert(qualifiers1.isTrue(CIMName ("Abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers1.getCount() == 4);
+	PEGASUS_TEST_ASSERT(qualifiers1.find(CIMName ("Abstract")) == 0);
+	PEGASUS_TEST_ASSERT(qualifiers1.exists(CIMName ("Abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers1.isTrue(CIMName ("Abstract")));
 
 	// Create qualifier list 2: Will be resolved against qualifiers1
 
@@ -157,10 +157,10 @@ int main(int argc, char** argv)
 	if(verbose)
 	    qualifiers2.print();
 
-	assert(qualifiers2.getCount() == 2);
-	assert(qualifiers2.exists(CIMName ("Description")));
-	assert(qualifiers2.exists(CIMName ("q1")));
-	assert(qualifiers2.isTrue(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(qualifiers2.getCount() == 2);
+	PEGASUS_TEST_ASSERT(qualifiers2.exists(CIMName ("Description")));
+	PEGASUS_TEST_ASSERT(qualifiers2.exists(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(qualifiers2.isTrue(CIMName ("q1")));
 
 	// Resolve the qualifiers against the previous list qualifiers1
 	qualifiers2.resolve(
@@ -170,18 +170,18 @@ int main(int argc, char** argv)
 	    qualifiers2.print();
 
 	// Post resolution
-	assert(qualifiers2.getCount() == 4);
-	assert(qualifiers2.exists(CIMName ("Description")));
-	assert(qualifiers2.exists(CIMName ("abstract")));
-	assert(qualifiers2.isTrue(CIMName ("abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers2.getCount() == 4);
+	PEGASUS_TEST_ASSERT(qualifiers2.exists(CIMName ("Description")));
+	PEGASUS_TEST_ASSERT(qualifiers2.exists(CIMName ("abstract")));
+	PEGASUS_TEST_ASSERT(qualifiers2.isTrue(CIMName ("abstract")));
 
 
-	assert(qualifiers2.exists(CIMName ("q1")));
-	assert(qualifiers2.isTrue(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(qualifiers2.exists(CIMName ("q1")));
+	PEGASUS_TEST_ASSERT(qualifiers2.isTrue(CIMName ("q1")));
 
-	assert(qualifiers2.exists(CIMName ("q2")));
+	PEGASUS_TEST_ASSERT(qualifiers2.exists(CIMName ("q2")));
 	// Should inherit the value from the superclass
-	assert(!qualifiers2.isTrue(CIMName ("q2")));
+	PEGASUS_TEST_ASSERT(!qualifiers2.isTrue(CIMName ("q2")));
 
     }
     catch (Exception& e)

@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/Dir.h>
 #include <Pegasus/Common/ArrayInternal.h>
@@ -61,10 +61,10 @@ void test01()
     }
 
     BubbleSort(names);
-    assert(names.size() == 3);
-    assert(String::equal(names[0], "a"));
-    assert(String::equal(names[1], "b"));
-    assert(String::equal(names[2], "c"));
+    PEGASUS_TEST_ASSERT(names.size() == 3);
+    PEGASUS_TEST_ASSERT(String::equal(names[0], "a"));
+    PEGASUS_TEST_ASSERT(String::equal(names[1], "b"));
+    PEGASUS_TEST_ASSERT(String::equal(names[2], "c"));
 }
 
 int main(int argc, char** argv)
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 	exit(0);
     }
 
-    assert(0);
+    PEGASUS_TEST_ASSERT(0);
     exit(1);
 
     return 0;

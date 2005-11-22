@@ -35,7 +35,7 @@
 
 #include <iostream>
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 
 
@@ -78,11 +78,11 @@ void drive_LanguageParser(){
 
 
 
-    assert( lp.getLanguage(tag1) == "en" );
+    PEGASUS_TEST_ASSERT( lp.getLanguage(tag1) == "en" );
 
-    assert( lp.getCountry(tag1) == "US" );
+    PEGASUS_TEST_ASSERT( lp.getCountry(tag1) == "US" );
 
-    assert( lp.getVariant(tag1) == "mn-blah-blah" );
+    PEGASUS_TEST_ASSERT( lp.getVariant(tag1) == "mn-blah-blah" );
 
 
 
@@ -94,7 +94,7 @@ void drive_LanguageParser(){
 
 
 
-    assert( lp.parseContentLanguageValue(tag2) == "en-US-mn" );
+    PEGASUS_TEST_ASSERT( lp.parseContentLanguageValue(tag2) == "en-US-mn" );
 
 
 
@@ -104,15 +104,15 @@ void drive_LanguageParser(){
 
     Real32 answer = .8;
 
-    assert( q == answer );
+    PEGASUS_TEST_ASSERT( q == answer );
 
-    assert( accept_language_tag == "en-US-mn" );
+    PEGASUS_TEST_ASSERT( accept_language_tag == "en-US-mn" );
 
     try{
 
         lp.parseAcceptLanguageValue(accept_language_tag, tag4);
 
-        assert( false ); //should not get here
+        PEGASUS_TEST_ASSERT( false ); //should not get here
 
     }catch(InvalidAcceptLanguageHeader&){}
 
@@ -124,9 +124,9 @@ void drive_LanguageParser(){
 
     lp.parseHdr(values, tag5);
 
-    assert( values[0] == "en-US-mn" );
+    PEGASUS_TEST_ASSERT( values[0] == "en-US-mn" );
 
-    assert( values[1] == "fr-wh-imps;q=0" );
+    PEGASUS_TEST_ASSERT( values[1] == "fr-wh-imps;q=0" );
 
 }
 
@@ -140,15 +140,15 @@ void drive_AcceptLanguageElement(){
 
     Real32 quality = 1.0;
 
-    assert( AcceptLanguageElement(tag1).toString() == "en-US-mn" );
+    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).toString() == "en-US-mn" );
 
-    assert( AcceptLanguageElement(tag1).getLanguage() == "en" );
+    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getLanguage() == "en" );
 
-    assert( AcceptLanguageElement(tag1).getCountry() == "US" );
+    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getCountry() == "US" );
 
-    assert( AcceptLanguageElement(tag1).getVariant() == "mn" );
+    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getVariant() == "mn" );
 
-    assert( AcceptLanguageElement(tag1).getQuality() == quality );
+    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getQuality() == quality );
 
 
 
@@ -162,54 +162,54 @@ void drive_AcceptLanguageElement(){
 
 
 
-    assert( al1 != al2 );
+    PEGASUS_TEST_ASSERT( al1 != al2 );
 
-    assert( al1 == al3 );
+    PEGASUS_TEST_ASSERT( al1 == al3 );
 
-    assert( al2 != al3 );
+    PEGASUS_TEST_ASSERT( al2 != al3 );
 
-    assert( al1 != al4 );
+    PEGASUS_TEST_ASSERT( al1 != al4 );
 
-    assert( al1 > al2 );  // only compares quality values
+    PEGASUS_TEST_ASSERT( al1 > al2 );  // only compares quality values
 
         // AcceptLanguageElement - Array Tests
         Array<AcceptLanguageElement> al_arr1(3);
-        assert( 8 == al_arr1.getCapacity() );
+        PEGASUS_TEST_ASSERT( 8 == al_arr1.getCapacity() );
         Array<AcceptLanguageElement> al_arr2(3,al1);
-        assert( 3 == al_arr2.size() && al_arr2[0].toString() == tag1);
+        PEGASUS_TEST_ASSERT( 3 == al_arr2.size() && al_arr2[0].toString() == tag1);
         al_arr1 = al_arr2;
-        assert( 3 == al_arr1.size() && al_arr1[0].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( 3 == al_arr1.size() && al_arr1[0].toString() == tag1 );
         AcceptLanguageElement *al5 = new AcceptLanguageElement("en-US");
         Array<AcceptLanguageElement> al_arr3(al5,1);
-        assert( 1 == al_arr3.size() && al_arr3[0].toString() != tag1 );
+        PEGASUS_TEST_ASSERT( 1 == al_arr3.size() && al_arr3[0].toString() != tag1 );
         Array<AcceptLanguageElement> al_arr4(al_arr1);
-        assert( 3 == al_arr4.size() && al_arr4[0].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( 3 == al_arr4.size() && al_arr4[0].toString() == tag1 );
         al_arr3.append(al5,1);
-        assert( 2 == al_arr3.size() && al_arr3[0].toString() != tag1 );
+        PEGASUS_TEST_ASSERT( 2 == al_arr3.size() && al_arr3[0].toString() != tag1 );
         al_arr2.appendArray(al_arr1);
-        assert( 6 == al_arr2.size() && al_arr2[4].toString() == tag1 );
-        assert( al_arr1.getData() != al_arr3.getData() );
+        PEGASUS_TEST_ASSERT( 6 == al_arr2.size() && al_arr2[4].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( al_arr1.getData() != al_arr3.getData() );
         al_arr3.grow(2,al1);
-        assert( 4 == al_arr3.size() && al_arr3[0].toString() != tag1 );
+        PEGASUS_TEST_ASSERT( 4 == al_arr3.size() && al_arr3[0].toString() != tag1 );
         al_arr3.insert(1,al1);
-        assert( 5 == al_arr3.size() && al_arr3[4].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( 5 == al_arr3.size() && al_arr3[4].toString() == tag1 );
         al_arr3.insert(1,al5,1);
-        assert( 6 == al_arr3.size() && al_arr3[5].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( 6 == al_arr3.size() && al_arr3[5].toString() == tag1 );
         al_arr3[5] = al1;
-        assert( al_arr3[5].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( al_arr3[5].toString() == tag1 );
         al_arr3.prepend(al1);
-        assert( 7 == al_arr3.size() && al_arr3[6].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( 7 == al_arr3.size() && al_arr3[6].toString() == tag1 );
         al_arr3.prepend(al5,1);
-        assert( 8 == al_arr3.size() && al_arr3[7].toString() == tag1 );
+        PEGASUS_TEST_ASSERT( 8 == al_arr3.size() && al_arr3[7].toString() == tag1 );
         al_arr3.remove(1);
-        assert( 7 == al_arr3.size() );
+        PEGASUS_TEST_ASSERT( 7 == al_arr3.size() );
         al_arr3.remove(1,2);
-        assert( 5 == al_arr3.size() );
+        PEGASUS_TEST_ASSERT( 5 == al_arr3.size() );
         al_arr3.swap(al_arr1);
-        assert( 5 == al_arr1.size() && 3 == al_arr3.size() &&
+        PEGASUS_TEST_ASSERT( 5 == al_arr1.size() && 3 == al_arr3.size() &&
                                      al_arr1[0].toString() != tag1 );
         al_arr3.clear();
-        assert( 0 == al_arr3.size() );
+        PEGASUS_TEST_ASSERT( 0 == al_arr3.size() );
         delete al5;
 
 }
@@ -222,13 +222,13 @@ void drive_ContentLanguageElement(){
 
     String tag1("en-US-mn");
 
-    assert( ContentLanguageElement(tag1).toString() == "en-US-mn" );
+    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).toString() == "en-US-mn" );
 
-    assert( ContentLanguageElement(tag1).getLanguage() == "en" );
+    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).getLanguage() == "en" );
 
-    assert( ContentLanguageElement(tag1).getCountry() == "US" );
+    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).getCountry() == "US" );
 
-    assert( ContentLanguageElement(tag1).getVariant() == "mn" );
+    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).getVariant() == "mn" );
 
 
 
@@ -242,13 +242,13 @@ void drive_ContentLanguageElement(){
 
 
 
-    assert( cl1 == cl2 );
+    PEGASUS_TEST_ASSERT( cl1 == cl2 );
 
-    assert( cl1 == cl3 );
+    PEGASUS_TEST_ASSERT( cl1 == cl3 );
 
-    assert( cl2 == cl3 );
+    PEGASUS_TEST_ASSERT( cl2 == cl3 );
 
-    assert( cl1 == cl4 );
+    PEGASUS_TEST_ASSERT( cl1 == cl4 );
 
 
 
@@ -276,17 +276,17 @@ void drive_AcceptLanguages(){
 
             switch(i){
 
-                case 0: assert( String::equal(ale.toString(), "en") ); break;
+                case 0: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "en") ); break;
 
-                case 1: assert( String::equal(ale.toString(), "en-US-mn;q=0.900") ); break;
+                case 1: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "en-US-mn;q=0.900") ); break;
 
-                case 2: assert( String::equal(ale.toString(), "la-SP-bal;q=0.700") ); break;
+                case 2: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "la-SP-bal;q=0.700") ); break;
 
-                case 3: assert( String::equal(ale.toString(), "fr;q=0.200") ); break;
+                case 3: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "fr;q=0.200") ); break;
 
-                case 4: assert( String::equal(ale.toString(), "fr-FR;q=0.100") ); break;
+                case 4: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "fr-FR;q=0.100") ); break;
 
-                case 5: assert( String::equal(ale.toString(), "*") ); break;
+                case 5: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "*") ); break;
 
             }
 
@@ -296,35 +296,35 @@ void drive_AcceptLanguages(){
 
 
 
-        assert( al.size() == 6 );
+        PEGASUS_TEST_ASSERT( al.size() == 6 );
 
 
 
         al.insert(AcceptLanguageElement("en-XX-xx"));
 
-        assert( al.size() == 7 );
+        PEGASUS_TEST_ASSERT( al.size() == 7 );
 
-        assert( al.contains(AcceptLanguageElement("en-XX-xx")) );
+        PEGASUS_TEST_ASSERT( al.contains(AcceptLanguageElement("en-XX-xx")) );
 
 
 
         al.remove(AcceptLanguageElement("en-XX-xx"));
 
-        assert( !al.contains(AcceptLanguageElement("en-XX-xx")) );
+        PEGASUS_TEST_ASSERT( !al.contains(AcceptLanguageElement("en-XX-xx")) );
 
-        assert( al.size() == 6 );
+        PEGASUS_TEST_ASSERT( al.size() == 6 );
 
 
 
         al1 = al;
 
-        assert( al1 == al );
+        PEGASUS_TEST_ASSERT( al1 == al );
 
 
 
         al1.clear();
 
-        assert( al1.size() == 0 );
+        PEGASUS_TEST_ASSERT( al1.size() == 0 );
 
 
 
@@ -334,13 +334,13 @@ void drive_AcceptLanguages(){
 
         al2 = AcceptLanguages(al_arr);
 
-        assert( al2 == al );
+        PEGASUS_TEST_ASSERT( al2 == al );
 
 
 
         AcceptLanguages al3("en-US-mn;;");
 
-        assert(false); //should not get here
+        PEGASUS_TEST_ASSERT(false); //should not get here
 
     }catch(InvalidAcceptLanguageHeader&){}
 
@@ -368,7 +368,7 @@ void drive_ContentLanguages(){
 
             if( i == 3 ){
 
-                assert( String::equal(cle.toString(), "fr") );
+                PEGASUS_TEST_ASSERT( String::equal(cle.toString(), "fr") );
 
             }
 
@@ -378,35 +378,35 @@ void drive_ContentLanguages(){
 
 
 
-        assert( cl.size() == 6 );
+        PEGASUS_TEST_ASSERT( cl.size() == 6 );
 
 
 
         cl.append(ContentLanguageElement("en-XX-xx"));
 
-        assert( cl.size() == 7 );
+        PEGASUS_TEST_ASSERT( cl.size() == 7 );
 
-        assert( cl.contains(ContentLanguageElement("en-XX-xx")) );
+        PEGASUS_TEST_ASSERT( cl.contains(ContentLanguageElement("en-XX-xx")) );
 
 
 
         cl.remove(ContentLanguageElement("en-XX-xx"));
 
-        assert( !cl.contains(ContentLanguageElement("en-XX-xx")) );
+        PEGASUS_TEST_ASSERT( !cl.contains(ContentLanguageElement("en-XX-xx")) );
 
-        assert( cl.size() == 6 );
+        PEGASUS_TEST_ASSERT( cl.size() == 6 );
 
 
 
         cl1 = cl;
 
-        assert( cl1 == cl );
+        PEGASUS_TEST_ASSERT( cl1 == cl );
 
 
 
         cl1.clear();
 
-        assert( cl1.size() == 0 );
+        PEGASUS_TEST_ASSERT( cl1.size() == 0 );
 
 
 
@@ -416,13 +416,13 @@ void drive_ContentLanguages(){
 
         cl2 = ContentLanguages(cl_arr);
 
-        assert( cl2 == cl );
+        PEGASUS_TEST_ASSERT( cl2 == cl );
 
 
 
         ContentLanguages cl3("en-454545US-mn");  // should throw the below exception
 
-        assert(false); //should not get here
+        PEGASUS_TEST_ASSERT(false); //should not get here
 
     }catch(InvalidContentLanguageHeader&){}
 
@@ -470,15 +470,15 @@ void drive_MessageLoader(){
 
 #ifdef PEGASUS_HAS_ICU
 
-    assert ( MessageLoader::getMessage(mlp) == "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 64,000" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 64,000" );
 
     // test for return content languages
 
-    assert ( mlp.contentlanguages.toString() == "en-US" );
+    PEGASUS_TEST_ASSERT ( mlp.contentlanguages.toString() == "en-US" );
 
 #else
 
-    assert ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
 
 #endif
 
@@ -494,11 +494,11 @@ void drive_MessageLoader(){
 
 #ifdef PEGASUS_HAS_ICU
 
-    assert ( MessageLoader::getMessage(mlp) == "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 64,000" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 64,000" );
 
 #else
 
-    assert ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
 
 #endif
 
@@ -520,11 +520,11 @@ void drive_MessageLoader(){
 
 #ifdef PEGASUS_HAS_ICU
 
-    assert ( MessageLoader::getMessage(mlp1) == "CIM_ERR_SUCCESS: SUCCESSFUL fr rab oof is foo bar backwards, number = fr" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) == "CIM_ERR_SUCCESS: SUCCESSFUL fr rab oof is foo bar backwards, number = fr" );
 
 #else
 
-    assert ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
 
 #endif
 
@@ -538,7 +538,7 @@ void drive_MessageLoader(){
 
     mlp.acceptlanguages.insert(AcceptLanguageElement("en-US"));
 
-    assert ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
 
 
 
@@ -554,11 +554,11 @@ void drive_MessageLoader(){
     mlp_static.msg_src_path = "test/pegasusTest";
 
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp_static) == "CIM_ERR_SUCCESS: SUCCESSFUL st_at_ic rab oof is foo bar backwards static" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp_static) == "CIM_ERR_SUCCESS: SUCCESSFUL st_at_ic rab oof is foo bar backwards static" );
 
 #else
 
-    assert ( MessageLoader::getMessage(mlp_static) == "Default CIMStatusCode, rab oof is foo bar backwards static" );
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp_static) == "Default CIMStatusCode, rab oof is foo bar backwards static" );
 
 #endif
 
@@ -591,10 +591,10 @@ void drive_MessageLoaderSubs()
     mlp1.acceptlanguages = al;
 
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 9,223,372,036,854,775,807");
 #else
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards 9223372036854775807" );
 #endif
 
@@ -604,10 +604,10 @@ void drive_MessageLoaderSubs()
     //
     mlp1.arg1 = PEGASUS_UINT64_LITERAL(0x8000000000000000);
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 9223372036854775808");
 #else
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards 9223372036854775808" );
 #endif
 
@@ -616,12 +616,12 @@ void drive_MessageLoaderSubs()
     //
     mlp1.arg1 = PEGASUS_SINT64_LITERAL(0x8000000000000000);
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = -9,223,372,036,854,775,808");
 #else
     /* ====> Commenting this out until Formatter.cpp is fixed for ULInteger (it truncates the value)
        The main purpose of these tests is ICU substitution.
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards -9223372036854775808" );
     */
 #endif
@@ -631,10 +631,10 @@ void drive_MessageLoaderSubs()
     //
     mlp1.arg1 = (Uint32)(0xffffffff);
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = 4,294,967,295");
 #else
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards 4294967295" );
 #endif
 
@@ -643,10 +643,10 @@ void drive_MessageLoaderSubs()
     //
     mlp1.arg1 = (Sint32)(0x80000000);
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = -2,147,483,648");
 #else
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards -2147483648" );
 #endif
 
@@ -655,13 +655,13 @@ void drive_MessageLoaderSubs()
     //
     mlp1.arg1 = (Real64)-64000.125;
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = -64,000.125");
 #else
     /* Commenting out due to platform differences
        The main purpose of this tests is ICU substitution.
     cout << MessageLoader::getMessage(mlp1) << endl;
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards -64000.125" );
     */
 #endif
@@ -671,10 +671,10 @@ void drive_MessageLoaderSubs()
     //
     mlp1.arg1 = true;
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = true");
 #else
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards true" );
 #endif
 
@@ -683,10 +683,10 @@ void drive_MessageLoaderSubs()
     //
     mlp1.arg1 = false;
 #ifdef PEGASUS_HAS_ICU
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
         "CIM_ERR_SUCCESS: SUCCESSFUL en-us rab oof is foo bar backwards, number = false");
 #else
-    assert ( MessageLoader::getMessage(mlp1) ==
+    PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp1) ==
          "Default CIMStatusCode, rab oof is foo bar backwards false" );
 #endif
 

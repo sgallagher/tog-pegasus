@@ -62,7 +62,7 @@
 	and disable the assertion itself so we are warned of the problem during
 	testing until the problem is corrected.
 */
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstdlib>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
@@ -195,14 +195,14 @@ void test01()
         cerr << "Test01 - Resolution Error " << e.getMessage() << endl;
     }
 	// Test results	in superclass
-	assert(class2.findQualifier(CIMName ("Abstract")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(class2.findQualifier(CIMName ("Abstract")) != PEG_NOT_FOUND);
 
 	// assert results in subclass
-	assert(class1.findQualifier(CIMName ("Abstract")) != PEG_NOT_FOUND);
-	assert(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
-	assert(class1.findQualifier(CIMName ("q3")) != PEG_NOT_FOUND);
-	assert(class1.findQualifier(CIMName ("q4")) != PEG_NOT_FOUND);
-	assert(class1.findQualifier(CIMName ("q5")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("Abstract")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q3")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q4")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q5")) != PEG_NOT_FOUND);
 
     delete context;
 }
@@ -423,7 +423,7 @@ void test02()
 	}
 
 	// Resolved. Now thoroughly test the results
-	assert(resolved);    // Should have correctly resolved.
+	PEGASUS_TEST_ASSERT(resolved);    // Should have correctly resolved.
 
 	// Test the results of the resolve of the subclass and superclass
 
@@ -432,28 +432,28 @@ void test02()
 	// **************************************************
 	if (verbose) cout << "Tst02 - Test Qualifiers" << endl;
 	// Confirm that the qualifiers exist in the superclass that should
-	assert(superClass.findQualifier(CIMName ("Abstract")) != PEG_NOT_FOUND);
-	assert(superClass.findQualifier(CIMName ("ABSTRACT")) != PEG_NOT_FOUND);
-	assert(superClass.findQualifier(CIMName ("Q3")) == PEG_NOT_FOUND);
-        assert(superClass.findQualifier(CIMName ("Q1")) != PEG_NOT_FOUND);
-	assert(superClass.findQualifier(CIMName ("notToSubclass")) != 
+	PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("Abstract")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("ABSTRACT")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("Q3")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("Q1")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("notToSubclass")) != 
             PEG_NOT_FOUND);
-	assert(superClass.findQualifier(CIMName ("toSubClassOverriddable")) != 
+	PEGASUS_TEST_ASSERT(superClass.findQualifier(CIMName ("toSubClassOverriddable")) != 
             PEG_NOT_FOUND);
 	CIMQualifier qt = superClass.getQualifier(superClass.findQualifier
             (CIMName ("Abstract")));
 
 	// Determine that all required qualifiers exist in the subclass
-	assert(subClass.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
-	assert(subClass.findQualifier(CIMName ("Q3")) != PEG_NOT_FOUND);
-	assert(subClass.findQualifier(CIMName ("toSubClass")) != PEG_NOT_FOUND);
-	assert(subClass.findQualifier(CIMName ("toSubClassOverriddable")) != 
+	PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("Q3")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("toSubClass")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("toSubClassOverriddable")) != 
             PEG_NOT_FOUND);
 	
 	// Confirm that qualifiers that should not be propagated are not.
-	assert(subClass.findQualifier(CIMName ("notToSubclass")) == 
+	PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("notToSubclass")) == 
             PEG_NOT_FOUND);
-	assert(subClass.findQualifier(CIMName ("Abstract")) == PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT(subClass.findQualifier(CIMName ("Abstract")) == PEG_NOT_FOUND);
 
 	// ATTN: Determine if correct value is in the qualifiers in subclass
 	// Need to add a null value qualifier and test its propagation
@@ -470,23 +470,23 @@ void test02()
 	if (verbose) cout << "Tst02 - Test Properties" << endl;
 
 	// Confirm that correct properties exist in superclass
-	assert (superClass.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
-	assert (superClass.findProperty(CIMName ("onlyInSuperclass")) != 
+	PEGASUS_TEST_ASSERT (superClass.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT (superClass.findProperty(CIMName ("onlyInSuperclass")) != 
             PEG_NOT_FOUND);
-	assert (superClass.findProperty(CIMName ("withQualifier")) != 
+	PEGASUS_TEST_ASSERT (superClass.findProperty(CIMName ("withQualifier")) != 
             PEG_NOT_FOUND);
 
 	//Confirm that correct properties exist in subclass.
-	assert (subClass.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
-	assert (subClass.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
-	assert (subClass.findProperty(CIMName ("onlyInSuperclass")) != 
+	PEGASUS_TEST_ASSERT (subClass.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT (subClass.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
+	PEGASUS_TEST_ASSERT (subClass.findProperty(CIMName ("onlyInSuperclass")) != 
             PEG_NOT_FOUND);
 
 	// Confirm that all properties in superclass have correct classorigin
 	for(Uint32 i = 0; i < superClass.getPropertyCount(); i++)
 	{
 		CIMProperty p = superClass.getProperty(i);
-                assert(p.getClassOrigin().equal (CIMName ("SuperClass")));
+                PEGASUS_TEST_ASSERT(p.getClassOrigin().equal (CIMName ("SuperClass")));
 	}
 	if (verbose) cout << "Tst02 - Test Properties Move Value" << endl;
 
@@ -494,33 +494,33 @@ void test02()
 	{
 		Uint32 pos = subClass.findProperty
                     (CIMName ("onlyInSuperclass"));
-		assert(pos != PEG_NOT_FOUND);
+		PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
 		
 		// It was propagated to subclass. Now get property and test
 		CIMProperty p = subClass.getProperty(pos);
-		assert(p.getPropagated());
+		PEGASUS_TEST_ASSERT(p.getPropagated());
 
 		// Confirm classorigin OK and value not changed.
-		assert(p.getClassOrigin() == CIMName ("SuperClass"));
+		PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName ("SuperClass"));
 		CIMValue v = p.getValue();
-		assert(v.getType() == CIMTYPE_STRING);
+		PEGASUS_TEST_ASSERT(v.getType() == CIMTYPE_STRING);
 		String s;
 		v.get(s);
-		assert(s == "Hello");     	// Assert correct value moved
+		PEGASUS_TEST_ASSERT(s == "Hello");     	// Assert correct value moved
 
 		// test that value same in subclass and superclass.
 		Uint32 possc = subClass.findProperty
                     (CIMName ("onlyInSuperclass"));
-		assert(possc != PEG_NOT_FOUND);
+		PEGASUS_TEST_ASSERT(possc != PEG_NOT_FOUND);
  		CIMProperty psc = subClass.getProperty(pos);
-		assert(psc.getPropagated());
-		assert(psc.getClassOrigin() == CIMName ("SuperClass"));
+		PEGASUS_TEST_ASSERT(psc.getPropagated());
+		PEGASUS_TEST_ASSERT(psc.getClassOrigin() == CIMName ("SuperClass"));
 		CIMValue vsc = p.getValue();
-		assert(vsc.getType() == CIMTYPE_STRING);
+		PEGASUS_TEST_ASSERT(vsc.getType() == CIMTYPE_STRING);
 		String ssc;
 		vsc.get(ssc);
-		assert(s == "Hello");     			// Assert correct value moved
-		assert (vsc == v);
+		PEGASUS_TEST_ASSERT(s == "Hello");     			// Assert correct value moved
+		PEGASUS_TEST_ASSERT (vsc == v);
 
 
 	}
@@ -528,18 +528,18 @@ void test02()
 	if (verbose) cout << "Tst02 - Test Properties Move with key" << endl;
 
 	{
-		assert (subClass.findProperty(CIMName ("keyProperty")) != 
+		PEGASUS_TEST_ASSERT (subClass.findProperty(CIMName ("keyProperty")) != 
                     PEG_NOT_FOUND);
 		Uint32 pos = subClass.findProperty(CIMName ("keyProperty"));
-		assert(pos != PEG_NOT_FOUND);
+		PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
 		CIMProperty p = subClass.getProperty(pos);
-		assert(p.getPropagated());
-		assert(p.getClassOrigin() == CIMName ("SuperClass"));
+		PEGASUS_TEST_ASSERT(p.getPropagated());
+		PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName ("SuperClass"));
 		CIMValue v = p.getValue();
-		assert(v.getType() == CIMTYPE_BOOLEAN);
+		PEGASUS_TEST_ASSERT(v.getType() == CIMTYPE_BOOLEAN);
 		Boolean b;
 		v.get(b);
-		assert(b == true);
+		PEGASUS_TEST_ASSERT(b == true);
 	}
 
 	// Determine if we moved the qualifier to subclass with the property
@@ -548,30 +548,30 @@ void test02()
 
 	{
 		Uint32 pos = subClass.findProperty(CIMName ("withQualifier"));
-		assert(pos != PEG_NOT_FOUND);
+		PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
 		CIMProperty p = subClass.getProperty(pos);
-		assert(p.getClassOrigin() == CIMName ("SuperClass"));
-		assert(p.getPropagated());
-		assert(p.getType() == CIMTYPE_BOOLEAN);
+		PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName ("SuperClass"));
+		PEGASUS_TEST_ASSERT(p.getPropagated());
+		PEGASUS_TEST_ASSERT(p.getType() == CIMTYPE_BOOLEAN);
 		CIMValue pv = p.getValue();
-		assert(pv.getType() == CIMTYPE_BOOLEAN);
+		PEGASUS_TEST_ASSERT(pv.getType() == CIMTYPE_BOOLEAN);
 		Boolean b;
 		pv.get(b);
-		assert(b == true);
-		assert (p.findQualifier(CIMName ("toSubClass")) != 
+		PEGASUS_TEST_ASSERT(b == true);
+		PEGASUS_TEST_ASSERT (p.findQualifier(CIMName ("toSubClass")) != 
                     PEG_NOT_FOUND);
 		
 		// Now determine if the value moved.
-		assert(p.findQualifier(CIMName ("toSubClass")) != 
+		PEGASUS_TEST_ASSERT(p.findQualifier(CIMName ("toSubClass")) != 
                     PEG_NOT_FOUND);
 		Uint32 qpos = p.findQualifier(CIMName ("toSubClass"));
 		CIMQualifier q = p.getQualifier(qpos);
 		CIMValue v = q.getValue();
 
-		assert(v.getType() == CIMTYPE_STRING);
+		PEGASUS_TEST_ASSERT(v.getType() == CIMTYPE_STRING);
 		String s;
 		v.get(s);
-		assert(s == "default");  // same as value in superclass
+		PEGASUS_TEST_ASSERT(s == "default");  // same as value in superclass
 	}
 
 
@@ -585,92 +585,92 @@ void test02()
 		{
 		// Test  method in superclass
 		// doublecheck the type and that parameters are in place
-		assert(superClass.findMethod(CIMName ("methodInSuperclass")) != 
+		PEGASUS_TEST_ASSERT(superClass.findMethod(CIMName ("methodInSuperclass")) != 
                     PEG_NOT_FOUND);
 		Uint32 mpos = superClass.findMethod
                     (CIMName ("methodInSuperclass"));
-		assert(mpos != PEG_NOT_FOUND);
+		PEGASUS_TEST_ASSERT(mpos != PEG_NOT_FOUND);
 		CIMMethod m = superClass.getMethod(mpos);
-		assert(!m.getPropagated()); 	// should not be propagated
-		assert(m.getType() == CIMTYPE_BOOLEAN);
+		PEGASUS_TEST_ASSERT(!m.getPropagated()); 	// should not be propagated
+		PEGASUS_TEST_ASSERT(m.getType() == CIMTYPE_BOOLEAN);
 
 		// Now confirm the parameters
-        assert(m.findParameter(CIMName ("hostname")) != PEG_NOT_FOUND);
-        assert(m.findParameter(CIMName ("port")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("hostname")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("port")) != PEG_NOT_FOUND);
 
 		// Test characteristics of first parameter
 		Uint32 ppos = m.findParameter(CIMName ("hostname"));
-		assert(ppos != PEG_NOT_FOUND);
+		PEGASUS_TEST_ASSERT(ppos != PEG_NOT_FOUND);
 		CIMParameter mp1 = m.getParameter(m.findParameter
                     (CIMName ("hostname")));
-        assert(mp1.getName() == CIMName ("hostname"));
+        PEGASUS_TEST_ASSERT(mp1.getName() == CIMName ("hostname"));
 		/* ATTN: KS P3 23 Mar 2002 Want to test values here
 		CIMValue vmp1 = mp1.getValue();
-		assert(vmp1.getType() == CIMTYPE_Boolean);
+		PEGASUS_TEST_ASSERT(vmp1.getType() == CIMTYPE_Boolean);
 		*/
-		//assert(p1.getQualifierCount() == 0);
+		//PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 0);
 
 		// Test characteristics of second parameter
 		Uint32 ppos2 = m.findParameter(CIMName ("port"));
-		assert(ppos2 != PEG_NOT_FOUND);
+		PEGASUS_TEST_ASSERT(ppos2 != PEG_NOT_FOUND);
 		CIMParameter mp2 = m.getParameter(m.findParameter
                     (CIMName ("port")));
-                assert(mp2.getName() == CIMName ("port"));
-		assert(mp2.getType() == CIMTYPE_UINT32);
+                PEGASUS_TEST_ASSERT(mp2.getName() == CIMName ("port"));
+		PEGASUS_TEST_ASSERT(mp2.getType() == CIMTYPE_UINT32);
 
 		// Test for second method
-		assert(superClass.findMethod(CIMName ("methodInSuperclass")) != 
+		PEGASUS_TEST_ASSERT(superClass.findMethod(CIMName ("methodInSuperclass")) != 
                     PEG_NOT_FOUND);
 		}
 
 		// Repeat the above for the subclass and test propagated.
 		// ATTN: KS 22 March Complete this P2 - Testing of method propagation
 		{
-			assert(subClass.findMethod(CIMName ("isActive")) != 
+			PEGASUS_TEST_ASSERT(subClass.findMethod(CIMName ("isActive")) != 
                             PEG_NOT_FOUND);
 			Uint32 mpos = subClass.findMethod(CIMName ("isActive"));
 			CIMMethod m = subClass.getMethod(mpos);
-			assert(!m.getPropagated()); 				// should not be propagated
+			PEGASUS_TEST_ASSERT(!m.getPropagated()); 				// should not be propagated
 			//ATTN: P3-KS-23March 2002 - Tests can be added for parms, etc.
 			// Not absolutely necessary.
 		}
 		// Test for the method propagated from superclass to subclass
 		// Confirm that propagated and marked propagated.
 		{
-			assert(subClass.findMethod
+			PEGASUS_TEST_ASSERT(subClass.findMethod
                             (CIMName ("methodInSuperclass")) != PEG_NOT_FOUND);
 			Uint32 mpos = subClass.findMethod
                             (CIMName ("methodInSuperclass"));
-			assert(mpos != PEG_NOT_FOUND);
+			PEGASUS_TEST_ASSERT(mpos != PEG_NOT_FOUND);
 			CIMMethod m = subClass.getMethod(mpos);
-			assert(m.getPropagated()); 				// should not be propagated
-			assert(m.getType() == CIMTYPE_BOOLEAN);
+			PEGASUS_TEST_ASSERT(m.getPropagated()); 				// should not be propagated
+			PEGASUS_TEST_ASSERT(m.getType() == CIMTYPE_BOOLEAN);
 
 			// Now confirm the parameters
-			assert(m.findParameter(CIMName ("hostname")) != 
+			PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("hostname")) != 
                             PEG_NOT_FOUND);
-			assert(m.findParameter(CIMName ("port")) != 
+			PEGASUS_TEST_ASSERT(m.findParameter(CIMName ("port")) != 
                             PEG_NOT_FOUND);
 
 			// Test characteristics of first parameter
 			Uint32 ppos = m.findParameter(CIMName ("hostname"));
-			assert(ppos != PEG_NOT_FOUND);
+			PEGASUS_TEST_ASSERT(ppos != PEG_NOT_FOUND);
 			CIMParameter mp1 = m.getParameter(m.findParameter
                             (CIMName ("hostname")));
-			assert(mp1.getName() == CIMName ("hostname"));
+			PEGASUS_TEST_ASSERT(mp1.getName() == CIMName ("hostname"));
 			/* ATTN: Want to test values here
 			CIMValue vmp1 = mp1.getValue();
-			assert(vmp1.getType() == CIMTYPE_Boolean);
+			PEGASUS_TEST_ASSERT(vmp1.getType() == CIMTYPE_Boolean);
             */
-			//assert(p1.getQualifierCount() == 0);
+			//PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 0);
 						
 			// Test characteristics of second parameter
 			Uint32 ppos2 = m.findParameter(CIMName ("port"));
-			assert(ppos2 != PEG_NOT_FOUND);
+			PEGASUS_TEST_ASSERT(ppos2 != PEG_NOT_FOUND);
 			CIMParameter mp2 = m.getParameter(m.findParameter
                             (CIMName ("port")));
-			assert(mp2.getName() == CIMName ("port"));
-			assert(mp2.getType() == CIMTYPE_UINT32);
+			PEGASUS_TEST_ASSERT(mp2.getName() == CIMName ("port"));
+			PEGASUS_TEST_ASSERT(mp2.getType() == CIMTYPE_UINT32);
 		}
 
 	}
@@ -757,7 +757,7 @@ void test04()
 			cout << "Exception correctly detected missing qualifier declaration: " 
 			<< e.getMessage() << endl;
     }
-	assert(!resolved);
+	PEGASUS_TEST_ASSERT(!resolved);
 
     delete context;
 }
@@ -839,7 +839,7 @@ void test05()
 			cout << " Exception is correct. Should not resolve:	" 
 				<< e.getMessage() << endl;
 	}
-	assert(!resolved);
+	PEGASUS_TEST_ASSERT(!resolved);
 
 	// Repeat the test with a class property attached to a property
 
@@ -875,7 +875,7 @@ void test05()
 			cout << " Exception is correct. Should not resolve:	" 
 				<< e.getMessage() << endl;
 	}
-	assert(!resolved);
+	PEGASUS_TEST_ASSERT(!resolved);
 
 	// Test that an association class passes the qualifier tests
 
@@ -915,7 +915,7 @@ void test05()
 			cout << " Exception is Error: Should Resolve correctly: " 
 				<< e.getMessage() << endl;
 	}
-	assert(resolved);
+	PEGASUS_TEST_ASSERT(resolved);
 
     delete context;
     if(verbose) cout << "End Test05" << endl;
@@ -962,7 +962,7 @@ void test06()
 	// should be INVALID_SUPERCLASS
 	}
 
-	assert(!resolved);
+	PEGASUS_TEST_ASSERT(!resolved);
 
     delete context;
 }

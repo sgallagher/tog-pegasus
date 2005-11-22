@@ -36,7 +36,7 @@
 
 
 #include <cstdlib>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Queue.h>
 #include <Pegasus/Common/Stopwatch.h>
 #include <Pegasus/Common/Array.h>
@@ -52,30 +52,30 @@ int main(int argc, char** argv)
     {
         // Simple test with Uint32 Stack of push, pop, top, and tests.
         Queue<Uint32> q1;
-        assert (q1.isEmpty());
+        PEGASUS_TEST_ASSERT (q1.isEmpty());
 
         q1.enqueue(1);
-        assert(q1.size() == 1);
-        assert(!q1.isEmpty());
-        assert(q1.back() == 1);
-        assert(q1.front() == 1);
+        PEGASUS_TEST_ASSERT(q1.size() == 1);
+        PEGASUS_TEST_ASSERT(!q1.isEmpty());
+        PEGASUS_TEST_ASSERT(q1.back() == 1);
+        PEGASUS_TEST_ASSERT(q1.front() == 1);
 
         q1.enqueue(2);
-        assert(q1.size() == 2);
-        assert (!q1.isEmpty());
-        assert(q1.back() == 2);
-        assert(q1.front() == 1);
+        PEGASUS_TEST_ASSERT(q1.size() == 2);
+        PEGASUS_TEST_ASSERT (!q1.isEmpty());
+        PEGASUS_TEST_ASSERT(q1.back() == 2);
+        PEGASUS_TEST_ASSERT(q1.front() == 1);
 
         q1.dequeue();
-        assert(q1.size() == 1);
-        assert(!q1.isEmpty());
-        assert(q1.back() == 2);
-        assert(q1.front() == 2);
+        PEGASUS_TEST_ASSERT(q1.size() == 1);
+        PEGASUS_TEST_ASSERT(!q1.isEmpty());
+        PEGASUS_TEST_ASSERT(q1.back() == 2);
+        PEGASUS_TEST_ASSERT(q1.front() == 2);
 
 
         q1.dequeue();
-        assert(q1.size() == 0);
-        assert (q1.isEmpty());
+        PEGASUS_TEST_ASSERT(q1.size() == 0);
+        PEGASUS_TEST_ASSERT (q1.isEmpty());
 
 
 
@@ -91,7 +91,7 @@ int main(int argc, char** argv)
         for (Uint32 i = 0; i < queueSize; i++)
             q2.enqueue(i);
 
-        assert(q2.size() == queueSize);
+        PEGASUS_TEST_ASSERT(q2.size() == queueSize);
 
         for (Uint32 i = 0; i < queueSize; i++)
             q2.dequeue();
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
         {
             found = true;
         }
-        assert(found);
+        PEGASUS_TEST_ASSERT(found);
         found = false;
 
         for (Uint32 i = 0; i < 30; i++)
@@ -154,19 +154,19 @@ int main(int argc, char** argv)
                 found = true;
             }
         }
-        assert(found);*/
+        PEGASUS_TEST_ASSERT(found);*/
 
-        assert(q4.size() == 30);
+        PEGASUS_TEST_ASSERT(q4.size() == 30);
         q4.remove(12);
 
-        assert(q4.size() == 29);
+        PEGASUS_TEST_ASSERT(q4.size() == 29);
         found = false;
 
         for (Uint32 i = 0; i < q4.size(); i++)
         {
             if (q4[i] == 12)
             {
-                assert(false);
+                PEGASUS_TEST_ASSERT(false);
             }
         }
 
@@ -183,7 +183,7 @@ int main(int argc, char** argv)
                 q5.remove(0);
                 if (q5.size() != qsize - 1)
                 {
-                    assert (false);
+                    PEGASUS_TEST_ASSERT (false);
                 }
             }
         }

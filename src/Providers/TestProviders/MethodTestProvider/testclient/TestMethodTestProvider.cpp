@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Client/CIMClient.h>
 
@@ -69,9 +69,9 @@ void callMethod(const CIMName& methodName)
 
         Uint32 rc;
         returnValue.get(rc);
-        assert(rc == 10);
+        PEGASUS_TEST_ASSERT(rc == 10);
 
-        assert(outParams.size() == 2);
+        PEGASUS_TEST_ASSERT(outParams.size() == 2);
 
         Uint32 outParam1;
         Uint32 outParam2;
@@ -88,11 +88,11 @@ void callMethod(const CIMName& methodName)
             }
             else
             {
-                assert(0);
+                PEGASUS_TEST_ASSERT(0);
             }
         }
-        assert(outParam1 == 21);
-        assert(outParam2 == 32);
+        PEGASUS_TEST_ASSERT(outParam1 == 21);
+        PEGASUS_TEST_ASSERT(outParam2 == 32);
     }
     catch (Exception& e)
     {

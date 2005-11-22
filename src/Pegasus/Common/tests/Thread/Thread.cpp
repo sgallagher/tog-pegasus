@@ -45,7 +45,7 @@
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX)
 # include <memory>
 #endif
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -430,10 +430,10 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test2_thread( void* parm )
 {
 	Thread* thread = (Thread*)parm;
 	TestThreadData* data = (TestThreadData*)thread->reference_tsd("test2");
-	assert (data != NULL);
+	PEGASUS_TEST_ASSERT (data != NULL);
 
-	assert (data->chars[0] == 'B');
-	assert (data->chars[1] == 'E');
+	PEGASUS_TEST_ASSERT (data->chars[0] == 'B');
+	PEGASUS_TEST_ASSERT (data->chars[1] == 'E');
 
 	thread->dereference_tsd();	
 

@@ -36,7 +36,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/String.h>
 //#include <Pegasus/Compiler/cimmofParser.h>
 #include <Pegasus/Repository/CIMRepository.h>
@@ -78,14 +78,14 @@ void TestInstanceAliases(CIMRepository& r)
 	if (verbose)
 	  cout << "names.size() = " << names.size() << endl;
 
-	assert(names.size() == 1);
+	PEGASUS_TEST_ASSERT(names.size() == 1);
 
 	if (verbose)
 	  cout << "names[0] = " << names[0].toString() << endl << endl;
 
 	names[0].setHost(String::EMPTY);
 
-	assert(names[0] == instanceName_JohnJones);
+	PEGASUS_TEST_ASSERT(names[0] == instanceName_JohnJones);
     }
 
     {
@@ -100,7 +100,7 @@ void TestInstanceAliases(CIMRepository& r)
 	if (verbose)
 	  cout << "result.size() = " << result.size() << endl;
 
-	assert(result.size() == 1);
+	PEGASUS_TEST_ASSERT(result.size() == 1);
 
 	CIMObjectPath cimReference = result[0].getPath ();
 	CIMInstance cimInstance = CIMInstance(result[0]);
@@ -117,7 +117,7 @@ void TestInstanceAliases(CIMRepository& r)
 	    cout << endl;
 	  }
 
-	assert(tmpInstanceName == instanceName_JohnJones);
+	PEGASUS_TEST_ASSERT(tmpInstanceName == instanceName_JohnJones);
 
     }
 
@@ -132,7 +132,7 @@ void TestInstanceAliases(CIMRepository& r)
 	if (verbose)
 	  cout << "result.size() = " << result.size() << endl;
 
-	assert(result.size() == 1);
+	PEGASUS_TEST_ASSERT(result.size() == 1);
 
 	result[0].setHost(String::EMPTY);
 
@@ -143,7 +143,7 @@ void TestInstanceAliases(CIMRepository& r)
 	  cout << endl;
 	  }
 
-	assert(result[0] == instanceName_Assoc);
+	PEGASUS_TEST_ASSERT(result[0] == instanceName_Assoc);
     }
 
     {
@@ -156,7 +156,7 @@ void TestInstanceAliases(CIMRepository& r)
 	if (verbose)
 	  cout << "result.size() = " << result.size() << endl;
 
-	assert(result.size() == 1);
+	PEGASUS_TEST_ASSERT(result.size() == 1);
 
 	// Too much output
 	// if (verbose)
@@ -176,7 +176,7 @@ void TestInstanceAliases(CIMRepository& r)
 	    cout << endl;
 	  }
 	
-	assert(tmpInstanceName == instanceName_Assoc);
+	PEGASUS_TEST_ASSERT(tmpInstanceName == instanceName_Assoc);
     }
 
     // Delete all the object we created:

@@ -36,7 +36,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == true );
+    PEGASUS_TEST_ASSERT( exceptionFlag == true );
 
     exceptionFlag = false;
     try 
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == true );
+    PEGASUS_TEST_ASSERT( exceptionFlag == true );
 
     exceptionFlag = false;
     try
@@ -122,7 +122,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == true );
+    PEGASUS_TEST_ASSERT( exceptionFlag == true );
 
     exceptionFlag = false;
     try
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == false );
+    PEGASUS_TEST_ASSERT( exceptionFlag == false );
 
     //
     // Positive tests
@@ -159,7 +159,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == false );
+    PEGASUS_TEST_ASSERT( exceptionFlag == false );
 
     exceptionFlag = false;
     try
@@ -176,7 +176,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == false );
+    PEGASUS_TEST_ASSERT( exceptionFlag == false );
 
     exceptionFlag = false;
     try
@@ -190,7 +190,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == false );
+    PEGASUS_TEST_ASSERT( exceptionFlag == false );
 
     exceptionFlag = false;
     try
@@ -204,7 +204,7 @@ int main(int argc, char** argv)
     {
         exceptionFlag = true;
     }
-    assert( exceptionFlag == false );
+    PEGASUS_TEST_ASSERT( exceptionFlag == false );
 #endif
     cout << argv[0] << " +++++ passed all tests" << endl;
     return 0;

@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Config.h>
@@ -143,7 +143,7 @@ void MyIndicationConsumer::consumeIndication(
   // Increment the count of indications received
   //
   receivedIndicationCount++;
-  assert(indicationInstance.getClassName().getString() == INDICATION_CLASS_NAME);
+  PEGASUS_TEST_ASSERT(indicationInstance.getClassName().getString() == INDICATION_CLASS_NAME);
   if (receivedIndicationCount.get() % 200 == 0)
     cout << "+++++     received indications = " 
          << receivedIndicationCount.get() 
@@ -1283,13 +1283,13 @@ int _beginTest(CIMClient& workClient, const char* opt,
         // assert that all indications sent have been received. 
         if (monitorClientResidentListener)
         {
-            assert(indicationSendCountTotal ==
+            PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
                currentClientResidentIndicationCount);
         }
 
         if (monitorServerResidentListener)
         {
-            assert(indicationSendCountTotal ==
+            PEGASUS_TEST_ASSERT(indicationSendCountTotal ==
                 currentServerResidentIndicationCount);
         }
 

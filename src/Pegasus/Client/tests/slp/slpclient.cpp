@@ -35,7 +35,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMServerDescription.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Client/CIMServerDiscovery.h>
 #include <Pegasus/Client/WBEMSLPTemplate.h>

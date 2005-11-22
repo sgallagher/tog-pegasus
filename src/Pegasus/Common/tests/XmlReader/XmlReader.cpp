@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/Array.h>
@@ -84,63 +84,63 @@ static void testGetInstanceElement(const char* testDataFile)
     XmlParser parser((char*)text.getData());
 
     XmlReader::getInstanceElement(parser, cimInstance);
-    assert(cimInstance.getClassName() == CIMName("CIM_InstCreation"));
+    PEGASUS_TEST_ASSERT(cimInstance.getClassName() == CIMName("CIM_InstCreation"));
 
     Uint32 idx;
     CIMProperty cimProperty;
     CIMValue cimValue;
     CIMType cimType;
-    assert(cimInstance.getPropertyCount() == 3);
+    PEGASUS_TEST_ASSERT(cimInstance.getPropertyCount() == 3);
 
     idx = cimInstance.findProperty(CIMName("IndicationIdentifier"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "string") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "string") == 0);
     String myString;
     cimValue.get(myString);
-    assert(strcmp(myString.getCString(), "0") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(myString.getCString(), "0") == 0);
 
     idx = cimInstance.findProperty(CIMName("IndicationTime"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "datetime") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "datetime") == 0);
     CIMDateTime myDateTime;
     cimValue.get(myDateTime);
-    assert(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
+    PEGASUS_TEST_ASSERT(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
 
     idx = cimInstance.findProperty(CIMName("SourceInstance"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "object") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "object") == 0);
     CIMObject cimObject;
     cimValue.get(cimObject);
-    assert(cimObject.getClassName() == CIMName("Sample_LifecycleIndicationProviderClass"));
-    assert(cimObject.getPropertyCount() == 2);
+    PEGASUS_TEST_ASSERT(cimObject.getClassName() == CIMName("Sample_LifecycleIndicationProviderClass"));
+    PEGASUS_TEST_ASSERT(cimObject.getPropertyCount() == 2);
 
     idx = cimObject.findProperty(CIMName("uniqueId"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimObject.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "uint32") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "uint32") == 0);
     Uint32 myUint32;
     cimValue.get(myUint32);
-    assert(myUint32 == 1);
+    PEGASUS_TEST_ASSERT(myUint32 == 1);
 
     idx = cimObject.findProperty(CIMName("lastOp"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimObject.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "string") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "string") == 0);
     cimValue.get(myString);
-    assert(strcmp(myString.getCString(), "createInstance") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(myString.getCString(), "createInstance") == 0);
 }
 
 // Tests PROPERTY.ARRAY as an embedded object with array type.
@@ -154,47 +154,47 @@ static void testGetInstanceElement2(const char* testDataFile)
     XmlParser parser((char*)text.getData());
 
     XmlReader::getInstanceElement(parser, cimInstance);
-    assert(cimInstance.getClassName() == CIMName("CIM_InstCreation"));
+    PEGASUS_TEST_ASSERT(cimInstance.getClassName() == CIMName("CIM_InstCreation"));
 
     Uint32 idx;
     CIMProperty cimProperty;
     CIMValue cimValue;
     CIMType cimType;
-    assert(cimInstance.getPropertyCount() == 3);
+    PEGASUS_TEST_ASSERT(cimInstance.getPropertyCount() == 3);
 
     idx = cimInstance.findProperty(CIMName("IndicationIdentifier"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "string") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "string") == 0);
     String myString;
     cimValue.get(myString);
-    assert(strcmp(myString.getCString(), "0") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(myString.getCString(), "0") == 0);
 
     idx = cimInstance.findProperty(CIMName("IndicationTime"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "datetime") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "datetime") == 0);
     CIMDateTime myDateTime;
     cimValue.get(myDateTime);
-    assert(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
+    PEGASUS_TEST_ASSERT(myDateTime.equal(CIMDateTime("20050227225624.524000-300")));
 
     idx = cimInstance.findProperty(CIMName("SourceInstance"));
-    assert(idx != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(idx != PEG_NOT_FOUND);
     cimProperty = cimInstance.getProperty(idx);
     cimValue = cimProperty.getValue();
     cimType = cimProperty.getType();
-    assert(strcmp(cimTypeToString(cimType), "object") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(cimTypeToString(cimType), "object") == 0);
     Array<CIMObject> cimObject;
     cimValue.get(cimObject);
-    assert(cimObject.size() == 2);
+    PEGASUS_TEST_ASSERT(cimObject.size() == 2);
     for (idx = 0; idx < cimObject.size(); idx++)
     {
         CIMInstance cimInstanceElement(cimObject[idx]);
-        assert(cimInstanceElement.getPropertyCount() == 2);
+        PEGASUS_TEST_ASSERT(cimInstanceElement.getPropertyCount() == 2);
         Uint32 propIdx = cimInstanceElement.findProperty(CIMName("uniqueId"));
         if (propIdx != PEG_NOT_FOUND)
         {
@@ -208,11 +208,11 @@ static void testGetInstanceElement2(const char* testDataFile)
             String checkStringValue;
             cimValue.get(checkStringValue);
             if (uniqueId == 1)
-                assert(strcmp(checkStringValue.getCString(), "createInstance") == 0);
+                PEGASUS_TEST_ASSERT(strcmp(checkStringValue.getCString(), "createInstance") == 0);
             else if (uniqueId == 2)
-                assert(strcmp(checkStringValue.getCString(), "deleteInstance") == 0);
+                PEGASUS_TEST_ASSERT(strcmp(checkStringValue.getCString(), "deleteInstance") == 0);
             else
-                assert(false);
+                PEGASUS_TEST_ASSERT(false);
         }
     }
 }

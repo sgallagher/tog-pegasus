@@ -39,7 +39,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
  
 #include <Pegasus/Common/CIMObjectPath.h>  
 #include <Pegasus/Common/CIMDateTime.h>
@@ -69,12 +69,12 @@ void drive_operation()
    CQLValue a4(Uint64(30));
    CQLValue a5(Uint64(150));
 
-   assert(a1 != a2);
-   assert(a5 == a5);
-   assert(a1 < a2);
-   assert(a2 >= a1);
-   assert(a1 <= a2);
-   assert(a2 > a1);
+   PEGASUS_TEST_ASSERT(a1 != a2);
+   PEGASUS_TEST_ASSERT(a5 == a5);
+   PEGASUS_TEST_ASSERT(a1 < a2);
+   PEGASUS_TEST_ASSERT(a2 >= a1);
+   PEGASUS_TEST_ASSERT(a1 <= a2);
+   PEGASUS_TEST_ASSERT(a2 > a1);
  
    // Sint64 tests
    
@@ -84,12 +84,12 @@ void drive_operation()
    CQLValue b4(Sint64(30));
    CQLValue b5(Sint64(150));
 
-   assert(b1 != b2);
-   assert(b5 == b5);
-   assert(b1 < b2);
-   assert(b2 >= b1);
-   assert(b1 <= b2);
-   assert(b2 > b1);
+   PEGASUS_TEST_ASSERT(b1 != b2);
+   PEGASUS_TEST_ASSERT(b5 == b5);
+   PEGASUS_TEST_ASSERT(b1 < b2);
+   PEGASUS_TEST_ASSERT(b2 >= b1);
+   PEGASUS_TEST_ASSERT(b1 <= b2);
+   PEGASUS_TEST_ASSERT(b2 > b1);
   
    // Real64 tests
 
@@ -99,55 +99,55 @@ void drive_operation()
    CQLValue c4(Real64(30.00));
    CQLValue c5(Real64(150.00));
 
-   assert(c1 != c2);
-   assert(c5 == c5);
-   assert(c1 < c2);
-   assert(c2 >= c1);
-   assert(c1 <= c2);
-   assert(c2 > c1);
+   PEGASUS_TEST_ASSERT(c1 != c2);
+   PEGASUS_TEST_ASSERT(c5 == c5);
+   PEGASUS_TEST_ASSERT(c1 < c2);
+   PEGASUS_TEST_ASSERT(c2 >= c1);
+   PEGASUS_TEST_ASSERT(c1 <= c2);
+   PEGASUS_TEST_ASSERT(c2 > c1);
 
    // Misc
-   assert(a1 == b1);
-   assert(a1 == c1);
-   assert(b1 == a1);
-   assert(b1 == c1);
-   assert(c1 == a1);
-   assert(c1 == b1);
+   PEGASUS_TEST_ASSERT(a1 == b1);
+   PEGASUS_TEST_ASSERT(a1 == c1);
+   PEGASUS_TEST_ASSERT(b1 == a1);
+   PEGASUS_TEST_ASSERT(b1 == c1);
+   PEGASUS_TEST_ASSERT(c1 == a1);
+   PEGASUS_TEST_ASSERT(c1 == b1);
 
-   assert(a2 != b1);
-   assert(a2 != c1);
-   assert(b2 != a1);
-   assert(b2 != c1);
-   assert(c2 != a1);
-   assert(c2 != b1);
+   PEGASUS_TEST_ASSERT(a2 != b1);
+   PEGASUS_TEST_ASSERT(a2 != c1);
+   PEGASUS_TEST_ASSERT(b2 != a1);
+   PEGASUS_TEST_ASSERT(b2 != c1);
+   PEGASUS_TEST_ASSERT(c2 != a1);
+   PEGASUS_TEST_ASSERT(c2 != b1);
 
-   assert(a2 >= b1);
-   assert(a2 >= c1);
-   assert(b2 >= a1);
-   assert(b2 >= c1);
-   assert(c2 >= a1);
-   assert(c2 >= b1);
+   PEGASUS_TEST_ASSERT(a2 >= b1);
+   PEGASUS_TEST_ASSERT(a2 >= c1);
+   PEGASUS_TEST_ASSERT(b2 >= a1);
+   PEGASUS_TEST_ASSERT(b2 >= c1);
+   PEGASUS_TEST_ASSERT(c2 >= a1);
+   PEGASUS_TEST_ASSERT(c2 >= b1);
 
-   assert(a2 <= b3);
-   assert(a2 <= c3);
-   assert(b2 <= a3);
-   assert(b2 <= c3);
-   assert(c2 <= a3);
-   assert(c2 <= b3);
+   PEGASUS_TEST_ASSERT(a2 <= b3);
+   PEGASUS_TEST_ASSERT(a2 <= c3);
+   PEGASUS_TEST_ASSERT(b2 <= a3);
+   PEGASUS_TEST_ASSERT(b2 <= c3);
+   PEGASUS_TEST_ASSERT(c2 <= a3);
+   PEGASUS_TEST_ASSERT(c2 <= b3);
 
-   assert(a2 > b1);
-   assert(a2 > c1);
-   assert(b2 > a1);
-   assert(b2 > c1);
-   assert(c2 > a1);
-   assert(c2 > b1);
+   PEGASUS_TEST_ASSERT(a2 > b1);
+   PEGASUS_TEST_ASSERT(a2 > c1);
+   PEGASUS_TEST_ASSERT(b2 > a1);
+   PEGASUS_TEST_ASSERT(b2 > c1);
+   PEGASUS_TEST_ASSERT(c2 > a1);
+   PEGASUS_TEST_ASSERT(c2 > b1);
 
-   assert(a2 < b3);
-   assert(a2 < c3);
-   assert(b2 < a3);
-   assert(b2 < c3);
-   assert(c2 < a3);
-   assert(c2 < b3);
+   PEGASUS_TEST_ASSERT(a2 < b3);
+   PEGASUS_TEST_ASSERT(a2 < c3);
+   PEGASUS_TEST_ASSERT(b2 < a3);
+   PEGASUS_TEST_ASSERT(b2 < c3);
+   PEGASUS_TEST_ASSERT(c2 < a3);
+   PEGASUS_TEST_ASSERT(c2 < b3);
 
    //Overflow testing
    CQLValue real1(Real64(0.00000001));
@@ -155,21 +155,21 @@ void drive_operation()
    CQLValue uint1(Sint64(1));
    CQLValue uint2(Uint64(0));
 
-   assert(uint1 > sint1);
-   assert(real1 > sint1);
-   assert(uint2 > sint1);
-   assert(real1 > uint2);
+   PEGASUS_TEST_ASSERT(uint1 > sint1);
+   PEGASUS_TEST_ASSERT(real1 > sint1);
+   PEGASUS_TEST_ASSERT(uint2 > sint1);
+   PEGASUS_TEST_ASSERT(real1 > uint2);
 
    CQLValue real2(Real64(25.00000000000001));
    CQLValue real3(Real64(24.99999999999999));
    CQLValue sint2(Sint64(25));
    CQLValue uint3(Uint64(25));
 
-   assert(real2 > real3);
-   assert(real2 > sint2);
-   assert(real2 > uint3);
-   assert(real3 < sint2);
-   assert(real3 < uint3);
+   PEGASUS_TEST_ASSERT(real2 > real3);
+   PEGASUS_TEST_ASSERT(real2 > sint2);
+   PEGASUS_TEST_ASSERT(real2 > uint3);
+   PEGASUS_TEST_ASSERT(real3 < sint2);
+   PEGASUS_TEST_ASSERT(real3 < uint3);
  
    // String tests
 
@@ -186,14 +186,14 @@ void drive_operation()
    // cout  << tmp1 << endl;
    //cout << tmp2 << endl;
 
-   assert(d1 == d2 + d3);
-   assert(d1 != d2 + d4);
+   PEGASUS_TEST_ASSERT(d1 == d2 + d3);
+   PEGASUS_TEST_ASSERT(d1 != d2 + d4);
 
-   assert(d1 <= d5);
-   assert(d1 <  d5);
+   PEGASUS_TEST_ASSERT(d1 <= d5);
+   PEGASUS_TEST_ASSERT(d1 <  d5);
 
-   assert(d1 >= d4);
-   assert(d1 >  d4);
+   PEGASUS_TEST_ASSERT(d1 >= d4);
+   PEGASUS_TEST_ASSERT(d1 >  d4);
 
    String str1("0x10");
    String str2("10");
@@ -211,10 +211,10 @@ void drive_operation()
    CQLValue e7(Uint64(2));
    CQLValue e8(Real64(10.10));
 
-   assert(e1 == e5);
-   assert(e2 == e6);
-   assert(e3 == e7);
-   assert(e4 == e8);
+   PEGASUS_TEST_ASSERT(e1 == e5);
+   PEGASUS_TEST_ASSERT(e2 == e6);
+   PEGASUS_TEST_ASSERT(e3 == e7);
+   PEGASUS_TEST_ASSERT(e4 == e8);
 
    Array<Uint64> array1;
 
@@ -313,14 +313,14 @@ void drive_operation()
    CQLValue vr6(cv5);
    CQLValue vr7(cv6);
  
-   assert(vr1 == vr2);
-   assert(vr1 == vr3);
-   assert(vr1 == vr4);
-   assert(vr4 == vr3);
+   PEGASUS_TEST_ASSERT(vr1 == vr2);
+   PEGASUS_TEST_ASSERT(vr1 == vr3);
+   PEGASUS_TEST_ASSERT(vr1 == vr4);
+   PEGASUS_TEST_ASSERT(vr4 == vr3);
 
-   assert(vr1 != vr5);
-   assert(vr3 != vr6);
-   assert(vr4 != vr7);
+   PEGASUS_TEST_ASSERT(vr1 != vr5);
+   PEGASUS_TEST_ASSERT(vr3 != vr6);
+   PEGASUS_TEST_ASSERT(vr4 != vr7);
 
    const CIMName _cimName(String("CIM_OperatingSystem"));
 
@@ -353,7 +353,7 @@ void drive_operation()
    CQLValue cql3(_i2);
    CQLValue cql4(_i2);
 
-   //assert(cql1 == cql1);
+   //PEGASUS_TEST_ASSERT(cql1 == cql1);
 
    return;
 }
@@ -385,31 +385,31 @@ try{
 
       CQLValue a8(_i1);
 
-      assert(a1.getUint() == Uint64(123));
-      assert(a2.getSint() == Sint64(-123));
-      assert(a3.getReal() == Real64(25.24));
-      assert(a4.getString() == String("Hellow"));
-      assert(a5.getBool() == Boolean(true));
-      assert(a6.getDateTime() == CIMDateTime(_date));
-      assert(a6 != a61);
-      assert(a6 < a61);
-      assert(a7.getReference() == 
+      PEGASUS_TEST_ASSERT(a1.getUint() == Uint64(123));
+      PEGASUS_TEST_ASSERT(a2.getSint() == Sint64(-123));
+      PEGASUS_TEST_ASSERT(a3.getReal() == Real64(25.24));
+      PEGASUS_TEST_ASSERT(a4.getString() == String("Hellow"));
+      PEGASUS_TEST_ASSERT(a5.getBool() == Boolean(true));
+      PEGASUS_TEST_ASSERT(a6.getDateTime() == CIMDateTime(_date));
+      PEGASUS_TEST_ASSERT(a6 != a61);
+      PEGASUS_TEST_ASSERT(a6 < a61);
+      PEGASUS_TEST_ASSERT(a7.getReference() == 
             CIMObjectPath(opStr));
 
       try
       {
          a1.getSint();
-         assert(0);
+         PEGASUS_TEST_ASSERT(0);
       }
       catch(...)
       {
-         assert(1);
+         PEGASUS_TEST_ASSERT(1);
       }
    }
    catch(Exception & e)
    {
       cout << e.getMessage() << endl;
-      assert(0);
+      PEGASUS_TEST_ASSERT(0);
    }
 
    return;
@@ -493,20 +493,20 @@ try{
 
       a9.resolve(_i1, _query);
 
-   assert(a1 == CQLValue(String("Dave Rules")));
-   assert(a2 == CQLValue(Uint64(2)));
-   assert(a3 == CQLValue(Sint64(-600)));
-   assert(a4 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
-   assert(a5 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
-   //assert(a7 == CQLValue(_i1));
-   assert(a9.getValueType() == CQLValue::Null_type);
-   assert(a10.getValueType() == CQLValue::Null_type);
+   PEGASUS_TEST_ASSERT(a1 == CQLValue(String("Dave Rules")));
+   PEGASUS_TEST_ASSERT(a2 == CQLValue(Uint64(2)));
+   PEGASUS_TEST_ASSERT(a3 == CQLValue(Sint64(-600)));
+   PEGASUS_TEST_ASSERT(a4 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
+   PEGASUS_TEST_ASSERT(a5 == CQLValue(CIMDateTime(String("20040811105625.000000-360"))));
+   //PEGASUS_TEST_ASSERT(a7 == CQLValue(_i1));
+   PEGASUS_TEST_ASSERT(a9.getValueType() == CQLValue::Null_type);
+   PEGASUS_TEST_ASSERT(a10.getValueType() == CQLValue::Null_type);
 
    }
    catch(Exception & e)
    {
       cout << e.getMessage() << endl;
-      assert(0);
+      PEGASUS_TEST_ASSERT(0);
    }
    delete _rep;
    return;
@@ -568,35 +568,35 @@ void drive_resolve_specialChars()
       try
 	{
 	  a3.resolve(_i1, _query);
-	  assert(0);
+	  PEGASUS_TEST_ASSERT(0);
 	}
       catch(...)
 	{
-	  assert(1);
+	  PEGASUS_TEST_ASSERT(1);
 	}
 
       try
       {
          a5.resolve(_i1, _query);
-         assert(0);
+         PEGASUS_TEST_ASSERT(0);
       }
       catch(...)
       {
-         assert(1);
+         PEGASUS_TEST_ASSERT(1);
       }
 
-      assert(a1 == CQLValue(Uint64(11)));
-      assert(a2 == CQLValue(Uint64(36)));
+      PEGASUS_TEST_ASSERT(a1 == CQLValue(Uint64(11)));
+      PEGASUS_TEST_ASSERT(a2 == CQLValue(Uint64(36)));
 
 
-      assert(a6 == CQLValue(Uint64(2)));
+      PEGASUS_TEST_ASSERT(a6 == CQLValue(Uint64(2)));
 
       
    }
    catch(Exception & e)
    {
       cout << e.getMessage() << endl;
-      assert(0);
+      PEGASUS_TEST_ASSERT(0);
    }
    delete _rep;
    return;
@@ -661,7 +661,7 @@ try
 catch(Exception e)
   {
     cout << e.getMessage() << endl;
-    assert(0);
+    PEGASUS_TEST_ASSERT(0);
   } 
  return 0;
 }

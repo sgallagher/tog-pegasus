@@ -34,7 +34,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/HTTPConnection.h>
@@ -49,7 +49,7 @@ public:
     virtual void handleEnqueue()
     {
 	Message* message = dequeue();
-	assert(message != 0);
+	PEGASUS_TEST_ASSERT(message != 0);
 
 	if (message->getType() == HTTP_MESSAGE)
 	{

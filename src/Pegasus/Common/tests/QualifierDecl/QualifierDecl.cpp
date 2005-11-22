@@ -37,7 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMQualifierDecl.h>
 #include <Pegasus/Common/CIMFlavor.h>
 #include <Pegasus/Common/CIMScope.h>
@@ -66,35 +66,35 @@ void test01()
     //
     // Test getName and setName
     //
-    assert(qual1.getName() == CIMName ("CIMTYPE"));
+    PEGASUS_TEST_ASSERT(qual1.getName() == CIMName ("CIMTYPE"));
     qual1.setName(CIMName ("Aggregate"));
-    assert(qual1.getName() == CIMName ("Aggregate"));
+    PEGASUS_TEST_ASSERT(qual1.getName() == CIMName ("Aggregate"));
 
     //
     // Test getType 
     //
-    assert(qual1.getType() == CIMTYPE_STRING);
+    PEGASUS_TEST_ASSERT(qual1.getType() == CIMTYPE_STRING);
 
     //
     // Test getScope and getFlavor
     //
-    assert(qual1.getScope().equal (CIMScope::PROPERTY));
-    assert(qual1.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
+    PEGASUS_TEST_ASSERT(qual1.getScope().equal (CIMScope::PROPERTY));
+    PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
 	// This should be the defaults if nothing specified.
-    assert(qual1.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
-    assert(qual1.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
+    PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
+    PEGASUS_TEST_ASSERT(qual1.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
 	CIMQualifierDecl q4(CIMName ("q4"), true, CIMScope::CLASS, 
             CIMFlavor::RESTRICTED);
-    assert(!q4.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
-    assert(!q4.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
-    assert(q4.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
+    PEGASUS_TEST_ASSERT(!q4.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
+    PEGASUS_TEST_ASSERT(!q4.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
+    PEGASUS_TEST_ASSERT(q4.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
 	CIMQualifierDecl q5(CIMName ("q5"), true, CIMScope::CLASS, 
             CIMFlavor::DISABLEOVERRIDE);
-    assert(!q5.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
-    assert(q5.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
-    assert(!q5.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
+    PEGASUS_TEST_ASSERT(!q5.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
+    PEGASUS_TEST_ASSERT(q5.getFlavor ().hasFlavor (CIMFlavor::TOSUBCLASS));
+    PEGASUS_TEST_ASSERT(!q5.getFlavor ().hasFlavor (CIMFlavor::OVERRIDABLE));
 
     //
     //
@@ -103,19 +103,19 @@ void test01()
     CIMValue v1(String("qualifier1"));
     qual1.setValue(v1);
     CIMValue v2 = qual1.getValue();;
-    assert(v1 == v2);
+    PEGASUS_TEST_ASSERT(v1 == v2);
 
     //
     // Test isArray and getArraySize
     //
-    assert(qual1.isArray() == false);
-    assert(qual1.getArraySize() == 0);
+    PEGASUS_TEST_ASSERT(qual1.isArray() == false);
+    PEGASUS_TEST_ASSERT(qual1.getArraySize() == 0);
 
     //
     // Test clone
     //
     CIMQualifierDecl qualclone = qual1.clone();
-    assert(qualclone.identical(qual1));
+    PEGASUS_TEST_ASSERT(qualclone.identical(qual1));
 
     //
     // Test toMof 
@@ -149,31 +149,31 @@ void test02()
     //
     // Test getName and setName
     //
-    assert(cq1.getName() == CIMName ("CIMTYPE"));
+    PEGASUS_TEST_ASSERT(cq1.getName() == CIMName ("CIMTYPE"));
 
     //
     // Test getType 
     //
-    assert(cq1.getType() == CIMTYPE_STRING);
+    PEGASUS_TEST_ASSERT(cq1.getType() == CIMTYPE_STRING);
 
     //
     // Test getScope and getFlavor
     //
-    assert(cq1.getScope().equal (CIMScope::PROPERTY));
-    assert(cq1.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
+    PEGASUS_TEST_ASSERT(cq1.getScope().equal (CIMScope::PROPERTY));
+    PEGASUS_TEST_ASSERT(cq1.getFlavor ().hasFlavor (CIMFlavor::TOINSTANCE));
 
     //
     // Test getValue and setValue
     //
     CIMValue v1(String(""));
     CIMValue v2 = cq1.getValue();;
-    assert(v1 == v2);
+    PEGASUS_TEST_ASSERT(v1 == v2);
 
     //
     // Test isArray and getArraySize
     //
-    assert(cq1.isArray() == false);
-    assert(cq1.getArraySize() == 0);
+    PEGASUS_TEST_ASSERT(cq1.isArray() == false);
+    PEGASUS_TEST_ASSERT(cq1.getArraySize() == 0);
 
     //
     // Test clone
@@ -183,7 +183,7 @@ void test02()
     //
     // Test identical
     //
-    assert(cqclone.identical(cq1) == true);
+    PEGASUS_TEST_ASSERT(cqclone.identical(cq1) == true);
 }
 
 int main(int argc, char** argv)

@@ -42,7 +42,7 @@
 #if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 # include <unistd.h>
 #endif
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -138,7 +138,7 @@ void testloopDestructAsThreadCompletes()
     {
         cout << "Exception in testloopDestructAsThreadCompletes: " <<
             e.getMessage() << endl;
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 }
 
@@ -158,15 +158,15 @@ void testCleanupIdleThread()
             (void*)1, funcSleepSpecifiedMilliseconds);
         pegasus_sleep(1000);
 
-        assert(threadPool.idleCount() == 1);
+        PEGASUS_TEST_ASSERT(threadPool.idleCount() == 1);
         threadPool.cleanupIdleThreads();
-        assert(threadPool.idleCount() == 0);
+        PEGASUS_TEST_ASSERT(threadPool.idleCount() == 0);
     }
     catch (const Exception& e)
     {
         cout << "Exception in testCleanupIdleThread: " <<
             e.getMessage() << endl;
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 }
 
@@ -201,13 +201,13 @@ void testDestructWithRunningThreads()
         threadPool.allocate_and_awaken(
             (void*)900, funcSleepSpecifiedMilliseconds);
 
-        assert(threadPool.runningCount() > 0);
+        PEGASUS_TEST_ASSERT(threadPool.runningCount() > 0);
     }
     catch (const Exception& e)
     {
         cout << "Exception in testDestructWithRunningThreads: " <<
             e.getMessage() << endl;
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 }
 
@@ -226,23 +226,23 @@ void testOverloadPool()
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted == PEGASUS_THREAD_OK);
+        PEGASUS_TEST_ASSERT(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted == PEGASUS_THREAD_OK);
+        PEGASUS_TEST_ASSERT(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted == PEGASUS_THREAD_OK);
+        PEGASUS_TEST_ASSERT(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)3000, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted == PEGASUS_THREAD_OK);
+        PEGASUS_TEST_ASSERT(threadStarted == PEGASUS_THREAD_OK);
 
         threadStarted = threadPool.allocate_and_awaken(
             (void*)300, funcSleepSpecifiedMilliseconds);
-        assert(threadStarted == PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
+        PEGASUS_TEST_ASSERT(threadStarted == PEGASUS_THREAD_INSUFFICIENT_RESOURCES);
         
         ThreadStatus rc = PEGASUS_THREAD_OK;
         while ( (rc =threadPool.allocate_and_awaken(
@@ -257,7 +257,7 @@ void testOverloadPool()
     catch (const Exception& e)
     {
         cout << "Exception in testOverloadPool: " << e.getMessage() << endl;
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 }
 
@@ -291,12 +291,12 @@ void testHighWorkload()
 
         delete threadPool;
 
-        assert(counter.get() == 50);
+        PEGASUS_TEST_ASSERT(counter.get() == 50);
     }
     catch (const Exception& e)
     {
         cout << "Exception in testHighWorkload: " << e.getMessage() << endl;
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 }
 
@@ -318,7 +318,7 @@ void testWorkException()
     catch (const Exception& e)
     {
         cout << "Exception in testWorkException: " << e.getMessage() << endl;
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 }
 
@@ -350,7 +350,7 @@ void testBlockingThread()
     catch (const Exception& e)
     {
         cout << "Exception in testBlockingThread: " << e.getMessage() << endl;
-        assert(false);
+        PEGASUS_TEST_ASSERT(false);
     }
 }
 

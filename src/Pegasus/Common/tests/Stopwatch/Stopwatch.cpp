@@ -39,7 +39,7 @@
 #include <Pegasus/Common/System.h>
 
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
         sw.printElapsed();
     }
 
-    assert((elapsed >= 4.5) && (elapsed <= 5.5));
+    PEGASUS_TEST_ASSERT((elapsed >= 4.5) && (elapsed <= 5.5));
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

@@ -38,7 +38,7 @@
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <sys/types.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # include <windows.h>
@@ -143,7 +143,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deq(void * parm)
         type = message->getType();
         delete message;
         if (type == 19)
-            assert(key == 10946);
+            PEGASUS_TEST_ASSERT(key == 10946);
     }
 
     if (verbose)
@@ -239,7 +239,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL atomicIncrement(void * parm)
     (*atom)--; (*atom)--;
     (*atom)--;
     Boolean zero = atom->decAndTestIfZero();
-    assert(zero == false);
+    PEGASUS_TEST_ASSERT(zero == false);
 
     my_thread->exit_self(0);
     return 0;
@@ -254,7 +254,7 @@ void test02()
 
     (*atom)++;
     Boolean zero = atom->decAndTestIfZero();
-    assert(zero);
+    PEGASUS_TEST_ASSERT(zero);
 
     for (Uint32 i=0; i<numThreads; i++)
     {
@@ -272,7 +272,7 @@ void test02()
         delete threads[i];
     }
 
-    assert(atom->get() == numThreads);
+    PEGASUS_TEST_ASSERT(atom->get() == numThreads);
     delete atom;
 }
 

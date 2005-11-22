@@ -39,7 +39,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
                                                                                                                                        
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
@@ -85,7 +85,7 @@ void drive_FromList(QueryContext& _query)
    try
    {
      _query.insertClassPath(QueryIdentifier());
-     assert(false);
+     PEGASUS_TEST_ASSERT(false);
    }
    catch (QueryParseException & e)
    {
@@ -95,7 +95,7 @@ void drive_FromList(QueryContext& _query)
    try
    {
      _query.insertClassPath(CQLIdentifier("A"));
-     assert(false);
+     PEGASUS_TEST_ASSERT(false);
    }
    catch (QueryParseException & e)
    {
@@ -105,7 +105,7 @@ void drive_FromList(QueryContext& _query)
    try
    {
      _query.insertClassPath(CQLIdentifier("NEW"),String("BONGO"));
-     assert(false);
+     PEGASUS_TEST_ASSERT(false);
    }
    catch (QueryParseException & e)
    {
@@ -115,7 +115,7 @@ void drive_FromList(QueryContext& _query)
    try
    {
      _query.insertClassPath(CQLIdentifier("NEW"),String("B"));
-     assert(false);
+     PEGASUS_TEST_ASSERT(false);
    }
    catch (QueryParseException & e)
    {
@@ -124,25 +124,25 @@ void drive_FromList(QueryContext& _query)
 
    // check the from list
 	Array<QueryIdentifier> fromList = _query.getFromList();
-   assert(fromList.size() == 4);
-   assert(fromList[0].getName() == "APPLE");
-   assert(fromList[1].getName() == "BONGO");
-   assert(fromList[2].getName() == "CLAVE");
-   assert(fromList[3].getName() == "D");
+   PEGASUS_TEST_ASSERT(fromList.size() == 4);
+   PEGASUS_TEST_ASSERT(fromList[0].getName() == "APPLE");
+   PEGASUS_TEST_ASSERT(fromList[1].getName() == "BONGO");
+   PEGASUS_TEST_ASSERT(fromList[2].getName() == "CLAVE");
+   PEGASUS_TEST_ASSERT(fromList[3].getName() == "D");
 
    // check the from string
    String fromString = _query.getFromString();
-   assert(fromString == String("FROM APPLE AS A , BONGO AS B , CLAVE AS C , D "));
+   PEGASUS_TEST_ASSERT(fromString == String("FROM APPLE AS A , BONGO AS B , CLAVE AS C , D "));
 
    // identifier and alias lookup
    QueryIdentifier lookup = _query.findClass(String("C"));
-   assert(lookup.getName() == "CLAVE");
+   PEGASUS_TEST_ASSERT(lookup.getName() == "CLAVE");
    lookup = _query.findClass(String("BONGO"));
-   assert(lookup.getName() == "BONGO");
+   PEGASUS_TEST_ASSERT(lookup.getName() == "BONGO");
    lookup = _query.findClass(String("D"));
-   assert(lookup.getName() == "D");
+   PEGASUS_TEST_ASSERT(lookup.getName() == "D");
    lookup = _query.findClass(String("notthere"));
-   assert(lookup.getName() == CIMName());
+   PEGASUS_TEST_ASSERT(lookup.getName() == CIMName());
 }
 
 void drive_WhereIds(QueryContext& _query)
@@ -160,34 +160,34 @@ void drive_WhereIds(QueryContext& _query)
 
   Array<QueryChainedIdentifier> qchids = _query.getWhereList();
 
-  assert(qchids.size() == 4);
-  assert(qchids[0].getSubIdentifiers().size() == 3);
-  assert(qchids[1].getSubIdentifiers().size() == 3);
-  assert(qchids[2].getSubIdentifiers().size() == 3);
-  assert(qchids[3].getSubIdentifiers().size() == 3);
+  PEGASUS_TEST_ASSERT(qchids.size() == 4);
+  PEGASUS_TEST_ASSERT(qchids[0].getSubIdentifiers().size() == 3);
+  PEGASUS_TEST_ASSERT(qchids[1].getSubIdentifiers().size() == 3);
+  PEGASUS_TEST_ASSERT(qchids[2].getSubIdentifiers().size() == 3);
+  PEGASUS_TEST_ASSERT(qchids[3].getSubIdentifiers().size() == 3);
 }
 
 void drive_Schema(QueryContext& _query)
 {
   CIMName base("CQL_TestElement");
   CIMClass _class = _query.getClass(base);
-  assert(_class.getClassName() == base);
+  PEGASUS_TEST_ASSERT(_class.getClassName() == base);
 
   Array<CIMName> names = _query.enumerateClassNames(base);
-  assert(names.size() == 2);
+  PEGASUS_TEST_ASSERT(names.size() == 2);
 
   CIMName derived("CQL_TestPropertyTypes");
 
-  assert(_query.isSubClass(base, derived));
-  assert(!_query.isSubClass(derived, base));
+  PEGASUS_TEST_ASSERT(_query.isSubClass(base, derived));
+  PEGASUS_TEST_ASSERT(!_query.isSubClass(derived, base));
 
-  assert(_query.getClassRelation(base, base) == QueryContext::SAMECLASS);
-  assert(_query.getClassRelation(base, derived) == QueryContext::SUBCLASS);
-  assert(_query.getClassRelation(derived, base) == QueryContext::SUPERCLASS);
+  PEGASUS_TEST_ASSERT(_query.getClassRelation(base, base) == QueryContext::SAMECLASS);
+  PEGASUS_TEST_ASSERT(_query.getClassRelation(base, derived) == QueryContext::SUBCLASS);
+  PEGASUS_TEST_ASSERT(_query.getClassRelation(derived, base) == QueryContext::SUPERCLASS);
 
   CIMName unrelated("CIM_Process");
-  assert(_query.getClassRelation(base, unrelated) == QueryContext::NOTRELATED);
-  assert(_query.getClassRelation(unrelated, base) == QueryContext::NOTRELATED);
+  PEGASUS_TEST_ASSERT(_query.getClassRelation(base, unrelated) == QueryContext::NOTRELATED);
+  PEGASUS_TEST_ASSERT(_query.getClassRelation(unrelated, base) == QueryContext::NOTRELATED);
 }
 
 void drive_CIMOMHandleQueryContext()
@@ -198,7 +198,7 @@ void drive_CIMOMHandleQueryContext()
 
    CIMOMHandleQueryContext _query = _queryOrig;
 
-   assert(_query.getNamespace() == _ns);
+   PEGASUS_TEST_ASSERT(_query.getNamespace() == _ns);
 
    drive_FromList(_query);
    drive_WhereIds(_query);
@@ -230,7 +230,7 @@ void drive_RepositoryQueryContext()
 
 	RepositoryQueryContext _query = _queryOrig;   
 
-   assert(_query.getNamespace() == _ns);
+   PEGASUS_TEST_ASSERT(_query.getNamespace() == _ns);
 
    drive_FromList(_query);
    drive_WhereIds(_query);

@@ -36,7 +36,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstdlib>
 #include <iostream>
 #include <Pegasus/Common/CIMObjectPath.h>
@@ -60,8 +60,8 @@ void test01()
     on2 = "//atp:77/root/cimv25:TennisPlayer.first=\"Patrick\",last=\"Rafter\"";
 
     CIMObjectPath r = on1;
-    assert(r.toString() != on1);
-    assert(r.toString() == on2);
+    PEGASUS_TEST_ASSERT(r.toString() != on1);
+    PEGASUS_TEST_ASSERT(r.toString() == on2);
 
     CIMObjectPath r2 = r;
     CIMObjectPath r3 = CIMObjectPath
@@ -86,19 +86,19 @@ void test01()
     CIMObjectPath r3 = CIMObjectPath ("myclass.X=\"Hello\",Z=true,Y=1234");
     // cout << r1.toString() << endl;
     // cout << r2.toString() << endl;
-    assert(r1 == r2);
-    assert(r1 != r3);
+    PEGASUS_TEST_ASSERT(r1 == r2);
+    PEGASUS_TEST_ASSERT(r1 != r3);
     }
 
      // Test case independence and order independence of parameters.
     {
 	CIMObjectPath r1 = CIMObjectPath ("X.a=123,b=true");
 	CIMObjectPath r2 = CIMObjectPath ("x.B=TRUE,A=123");
-	assert(r1 == r2);
-	assert(r1.makeHashCode() == r2.makeHashCode());
+	PEGASUS_TEST_ASSERT(r1 == r2);
+	PEGASUS_TEST_ASSERT(r1.makeHashCode() == r2.makeHashCode());
 
 	CIMObjectPath r3 = CIMObjectPath ("x.B=TRUE,A=123,c=FALSE");
-	assert(r1 != r3);
+	PEGASUS_TEST_ASSERT(r1 != r3);
         String            keyValue;
 
         Array<CIMKeyBinding> kbArray;
@@ -140,8 +140,8 @@ void test01()
 	//cout << "r1 " << r1.toString() << endl;
 	//cout << "r2 " << r2.toString() << endl;
 
-	assert(r1 == r2);
-	assert(r1.toString() == r2.toString());
+	PEGASUS_TEST_ASSERT(r1 == r2);
+	PEGASUS_TEST_ASSERT(r1.toString() == r2.toString());
 
     }
 
@@ -155,15 +155,15 @@ void test01()
 	r1.setHost(hostName);
 	r1.setNameSpace(nameSpace);
 	r1.setClassName(className);
-	assert(r1.getClassName().equal(CIMName ("TENNISPLAYER")));
-	assert(!r1.getClassName().equal(CIMName ("blob")));
+	PEGASUS_TEST_ASSERT(r1.getClassName().equal(CIMName ("TENNISPLAYER")));
+	PEGASUS_TEST_ASSERT(!r1.getClassName().equal(CIMName ("blob")));
 
 
 	String newHostName = r1.getHost();
 	//cout << "HostName = " << newHostName << endl;
 
 	CIMObjectPath r2 (hostName, nameSpace, className);
-	assert(r1 == r2);
+	PEGASUS_TEST_ASSERT(r1 == r2);
      }
 
      // Test cases for the Hostname.  CIMObjectPaths allows the
@@ -233,7 +233,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -245,7 +245,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -257,7 +257,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -269,7 +269,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -281,7 +281,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -292,7 +292,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -303,7 +303,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -314,7 +314,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -325,7 +325,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -337,7 +337,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -349,7 +349,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -361,7 +361,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -373,7 +373,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -385,7 +385,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 
      errorDetected = false;
      try
@@ -397,7 +397,7 @@ void test01()
      {
         errorDetected = true;
      }
-     assert(errorDetected);
+     PEGASUS_TEST_ASSERT(errorDetected);
 }
 
 void test02()
@@ -445,7 +445,7 @@ void test02()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
     try
@@ -456,7 +456,7 @@ void test02()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
     try
@@ -468,7 +468,7 @@ void test02()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     errorDetected = false;
     try
@@ -480,56 +480,56 @@ void test02()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 }
 
 // Test CIMKeyBinding constructor (CIMValue variety) and equal(CIMValue) method
 void test03()
 {
     CIMKeyBinding kb0("test0", Real32(3.14159));
-    assert(kb0.equal(Real32(3.14159)));
-    assert(!kb0.equal(Real32(3.141593)));
+    PEGASUS_TEST_ASSERT(kb0.equal(Real32(3.14159)));
+    PEGASUS_TEST_ASSERT(!kb0.equal(Real32(3.141593)));
 
     CIMKeyBinding kb1("test1", String("3.14159"), CIMKeyBinding::NUMERIC);
-    assert(kb1.equal(Real32(3.14159)));
-    assert(!kb1.equal(String("3.14159")));
+    PEGASUS_TEST_ASSERT(kb1.equal(Real32(3.14159)));
+    PEGASUS_TEST_ASSERT(!kb1.equal(String("3.14159")));
 
     CIMKeyBinding kb2("test2", Uint32(1000));
-    assert(kb2.equal(Uint32(1000)));
-    assert(!kb2.equal(Uint32(1001)));
-    assert(kb2.getValue() == "1000");
+    PEGASUS_TEST_ASSERT(kb2.equal(Uint32(1000)));
+    PEGASUS_TEST_ASSERT(!kb2.equal(Uint32(1001)));
+    PEGASUS_TEST_ASSERT(kb2.getValue() == "1000");
 
     CIMKeyBinding kb3("test3", Char16('X'));
-    assert(kb3.equal(Char16('X')));
-    assert(!kb3.equal(Char16('Y')));
-    assert(kb3.getValue() == "X");
+    PEGASUS_TEST_ASSERT(kb3.equal(Char16('X')));
+    PEGASUS_TEST_ASSERT(!kb3.equal(Char16('Y')));
+    PEGASUS_TEST_ASSERT(kb3.getValue() == "X");
 
     CIMKeyBinding kb4("test4", CIMDateTime("19991224120000.000000+360"));
-    assert(kb4.equal(CIMDateTime("19991224120000.000000+360")));
-    assert(!kb4.equal(CIMDateTime("19991225120000.000000+360")));
-    assert(kb4.getValue() == "19991224120000.000000+360");
+    PEGASUS_TEST_ASSERT(kb4.equal(CIMDateTime("19991224120000.000000+360")));
+    PEGASUS_TEST_ASSERT(!kb4.equal(CIMDateTime("19991225120000.000000+360")));
+    PEGASUS_TEST_ASSERT(kb4.getValue() == "19991224120000.000000+360");
     kb4.setValue("0");
-    assert(!kb4.equal(CIMDateTime("19991224120000.000000+360")));
+    PEGASUS_TEST_ASSERT(!kb4.equal(CIMDateTime("19991224120000.000000+360")));
 
     CIMKeyBinding kb5("test5", String("StringTest"));
-    assert(kb5.equal(String("StringTest")));
-    assert(!kb5.equal(String("StringTest1")));
-    assert(kb5.getValue() == "StringTest");
+    PEGASUS_TEST_ASSERT(kb5.equal(String("StringTest")));
+    PEGASUS_TEST_ASSERT(!kb5.equal(String("StringTest1")));
+    PEGASUS_TEST_ASSERT(kb5.getValue() == "StringTest");
 
     CIMKeyBinding kb6("test6", Boolean(true));
-    assert(kb6.equal(Boolean(true)));
-    assert(!kb6.equal(Boolean(false)));
-    assert(kb6.getValue() == "TRUE");
+    PEGASUS_TEST_ASSERT(kb6.equal(Boolean(true)));
+    PEGASUS_TEST_ASSERT(!kb6.equal(Boolean(false)));
+    PEGASUS_TEST_ASSERT(kb6.getValue() == "TRUE");
     kb6.setValue("true1");
-    assert(!kb6.equal(Boolean(true)));
+    PEGASUS_TEST_ASSERT(!kb6.equal(Boolean(true)));
 
     CIMKeyBinding kb7("test7", CIMObjectPath("//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\""));
     String path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\",first=\"Patrick\"";
-    assert(kb7.equal(CIMObjectPath(path)));
+    PEGASUS_TEST_ASSERT(kb7.equal(CIMObjectPath(path)));
     path = "//atp:77/root/cimv25:TennisPlayer.FIRST=\"Patrick\",LAST=\"Rafter\"";
-    assert(kb7.equal(CIMObjectPath(path)));
+    PEGASUS_TEST_ASSERT(kb7.equal(CIMObjectPath(path)));
     path = "//atp:77/root/cimv25:TennisPlayer.last=\"Rafter\"";
-    assert(!kb7.equal(CIMObjectPath(path)));
+    PEGASUS_TEST_ASSERT(!kb7.equal(CIMObjectPath(path)));
 
     Boolean exceptionFlag = false;
     try
@@ -540,32 +540,32 @@ void test03()
     {
         exceptionFlag = true;
     }
-    assert(exceptionFlag);
+    PEGASUS_TEST_ASSERT(exceptionFlag);
 
     CIMKeyBinding kb9("test9", String("1000"), CIMKeyBinding::STRING);
-    assert(!kb9.equal(Uint32(1000)));
+    PEGASUS_TEST_ASSERT(!kb9.equal(Uint32(1000)));
 
     CIMKeyBinding kb10("test10", String("100"), CIMKeyBinding::NUMERIC);
-    assert(kb10.equal(Uint64(100)));
-    assert(kb10.equal(Uint32(100)));
-    assert(kb10.equal(Uint16(100)));
-    assert(kb10.equal(Uint8(100)));
-    assert(kb10.equal(Sint64(100)));
-    assert(kb10.equal(Sint32(100)));
-    assert(kb10.equal(Sint16(100)));
-    assert(kb10.equal(Sint8(100)));
-    assert(!kb10.equal(String("100")));
+    PEGASUS_TEST_ASSERT(kb10.equal(Uint64(100)));
+    PEGASUS_TEST_ASSERT(kb10.equal(Uint32(100)));
+    PEGASUS_TEST_ASSERT(kb10.equal(Uint16(100)));
+    PEGASUS_TEST_ASSERT(kb10.equal(Uint8(100)));
+    PEGASUS_TEST_ASSERT(kb10.equal(Sint64(100)));
+    PEGASUS_TEST_ASSERT(kb10.equal(Sint32(100)));
+    PEGASUS_TEST_ASSERT(kb10.equal(Sint16(100)));
+    PEGASUS_TEST_ASSERT(kb10.equal(Sint8(100)));
+    PEGASUS_TEST_ASSERT(!kb10.equal(String("100")));
 
     CIMKeyBinding kb11("test11", String("+100"), CIMKeyBinding::NUMERIC);
-    assert(!kb11.equal(Uint64(100)));  // Unsigned ints may not start with "+"
-    assert(!kb11.equal(Uint32(100)));
-    assert(!kb11.equal(Uint16(100)));
-    assert(!kb11.equal(Uint8(100)));
-    assert(kb11.equal(Sint64(100)));
-    assert(kb11.equal(Sint32(100)));
-    assert(kb11.equal(Sint16(100)));
-    assert(kb11.equal(Sint8(100)));
-    assert(!kb11.equal(String("100")));
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint64(100)));  // Unsigned ints may not start with "+"
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint32(100)));
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint16(100)));
+    PEGASUS_TEST_ASSERT(!kb11.equal(Uint8(100)));
+    PEGASUS_TEST_ASSERT(kb11.equal(Sint64(100)));
+    PEGASUS_TEST_ASSERT(kb11.equal(Sint32(100)));
+    PEGASUS_TEST_ASSERT(kb11.equal(Sint16(100)));
+    PEGASUS_TEST_ASSERT(kb11.equal(Sint8(100)));
+    PEGASUS_TEST_ASSERT(!kb11.equal(String("100")));
 }
 
 //
@@ -615,7 +615,7 @@ void test04()
     instanceA.addProperty (CIMProperty (CIMName ("z"), String ("rosemary")));
     CIMObjectPath aPath = instanceA.buildPath (classA);
     CIMObjectPath aPath2 ("A.y=\"lavender\",x=\"rose\",z=\"rosemary\"");
-    assert (aPath.identical (aPath2));
+    PEGASUS_TEST_ASSERT (aPath.identical (aPath2));
 
     CIMInstance instanceB (CIMName ("B"));
     instanceB.addProperty (CIMProperty (CIMName ("q"), String ("pelargonium")));
@@ -625,7 +625,7 @@ void test04()
     // Test to assure that the buildpath function works.
     CIMObjectPath bPath = instanceB.buildPath (classB);
     CIMObjectPath bPath2 ("B.s=\"sage\",q=\"pelargonium\",r=\"thyme\"");
-    assert (bPath.identical (bPath2));
+    PEGASUS_TEST_ASSERT (bPath.identical (bPath2));
 
     // Build instance of C and build path from buildPath function.
     CIMInstance instanceC (CIMName ("C"));
@@ -648,7 +648,7 @@ void test04()
         cPath.getClassName (), keyBindings);
 
     // Assert that the CIMObjectPaths for C from build path and direct from keybindings are equal.
-    assert (cPath.identical (cPath2));
+    PEGASUS_TEST_ASSERT (cPath.identical (cPath2));
 
     // ATTN: KS 25 Feb 2003 P3 - Think we can extend these tests since this is creation of classes and
     // instnaces for associations and referenced classes.
@@ -662,7 +662,7 @@ void test05()
     String s1 = "MyClass.key1=\"\\\\\\\"\\\"\\\\\","
                 "key2=\"\\\"\\\"\\\"\\\"\\\\\\\\\\\\\\\\\"";
     CIMObjectPath r1 = s1;
-    assert(r1.toString() == s1);
+    PEGASUS_TEST_ASSERT(r1.toString() == s1);
 
     // Catch invalid escape sequences in a key value
     Boolean errorDetected;
@@ -676,7 +676,7 @@ void test05()
     {
        errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Invalid "\n" sequence
     errorDetected = false;
@@ -687,7 +687,7 @@ void test05()
     {
        errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Invalid hex sequence
     errorDetected = false;
@@ -698,7 +698,7 @@ void test05()
     {
        errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 }
 
 // Test CIMKeyBinding operator==
@@ -710,128 +710,128 @@ void test06()
     // Key bindings of different types are not equal
     kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
     kb2 = CIMKeyBinding("a", "true", CIMKeyBinding::STRING);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     // Key bindings with different names are not equal
     kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
     kb2 = CIMKeyBinding("b", "true", CIMKeyBinding::BOOLEAN);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     // Key bindings names are not case sensitive
     kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
     kb2 = CIMKeyBinding("A", "true", CIMKeyBinding::BOOLEAN);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     // Boolean key bindings are not case sensitive
     kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
     kb2 = CIMKeyBinding("a", "TrUe", CIMKeyBinding::BOOLEAN);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     // Boolean key bindings are not equal if they differ other than in case
     kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::BOOLEAN);
     kb2 = CIMKeyBinding("a", "truee", CIMKeyBinding::BOOLEAN);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     // Numeric key binding comparisons are done based on integer values
     kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "140", CIMKeyBinding::NUMERIC);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     kb1 = CIMKeyBinding("a", "+14", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "0", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "-0", CIMKeyBinding::NUMERIC);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     // Hexadecimal format is also understood
     kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "0x0E", CIMKeyBinding::NUMERIC);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "0x0E", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "0x0e", CIMKeyBinding::NUMERIC);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     // Numeric key bindings are not equal if they differ other than in case
     kb1 = CIMKeyBinding("a", "true", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "truee", CIMKeyBinding::NUMERIC);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     // String comparison is used if numeric key binding is not a valid integer
     kb1 = CIMKeyBinding("a", "14a", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "14a", CIMKeyBinding::NUMERIC);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "14", CIMKeyBinding::NUMERIC);
     kb2 = CIMKeyBinding("a", "14a", CIMKeyBinding::NUMERIC);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     // String key bindings are compared using a simple string comparison
     kb1 = CIMKeyBinding("a", "My String", CIMKeyBinding::STRING);
     kb2 = CIMKeyBinding("a", "My String", CIMKeyBinding::STRING);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "My String", CIMKeyBinding::STRING);
     kb2 = CIMKeyBinding("a", "my string", CIMKeyBinding::STRING);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     // Reference key bindings are compared as CIMObjectPath objects
     kb1 = CIMKeyBinding("a", "aClass.key1=true,key2=256",
                         CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "AClass.Key2=0x100,Key1=TRUE",
                         CIMKeyBinding::REFERENCE);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "aClass.key1=\"true\"",
                         CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "AClass.Key1=\"TRUE\"",
                         CIMKeyBinding::REFERENCE);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     kb1 = CIMKeyBinding("a", "a.ref=\"aClass.key1=true,key2=256\"",
                         CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "a.ref=\"AClass.Key2=0x100,Key1=TRUE\"",
                         CIMKeyBinding::REFERENCE);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "//myHost/ns1/ns2:aClass.key1=1",
                         CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "//MyHost/NS1/NS2:AClass.key1=0x1",
                         CIMKeyBinding::REFERENCE);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "//myHost/ns1/ns2:aClass.key1=1",
                         CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "ns1/ns2:aClass.key1=1",
                         CIMKeyBinding::REFERENCE);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     kb1 = CIMKeyBinding("a", "ns1/ns2:aClass.key1=1",
                         CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "aClass.key1=1",
                         CIMKeyBinding::REFERENCE);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     kb1 = CIMKeyBinding("a", "aClass.key1=1,key2=2",
                         CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "aClass.key1=1",
                         CIMKeyBinding::REFERENCE);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 
     // String comparison is used if numeric key binding is not a valid integer
     kb1 = CIMKeyBinding("a", "Bad Reference", CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "Bad Reference", CIMKeyBinding::REFERENCE);
-    assert(kb1 == kb2);
+    PEGASUS_TEST_ASSERT(kb1 == kb2);
 
     kb1 = CIMKeyBinding("a", "Bad Reference", CIMKeyBinding::REFERENCE);
     kb2 = CIMKeyBinding("a", "bad reference", CIMKeyBinding::REFERENCE);
-    assert(!(kb1 == kb2));
+    PEGASUS_TEST_ASSERT(!(kb1 == kb2));
 }
 
 // Test hash code generation
@@ -843,17 +843,17 @@ void test07()
     // Hostname case does not affect the hash code
     op1 = CIMObjectPath("//myhost/ns1/ns2:aClass.key1=1");
     op2 = CIMObjectPath("//MyHost/ns1/ns2:aClass.key1=1");
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Namespace case does not affect the hash code
     op1 = CIMObjectPath("//myhost/ns1/ns2:aClass.key1=1");
     op2 = CIMObjectPath("//myhost/NS1/Ns2:aClass.key1=1");
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Class name case does not affect the hash code
     op1 = CIMObjectPath("//myhost/ns1/ns2:aClass.key1=1");
     op2 = CIMObjectPath("//myhost/ns1/ns2:ACLASS.key1=1");
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     //
     // Equivalent key bindings generate the same hash code
@@ -868,7 +868,7 @@ void test07()
     kba2.append(CIMKeyBinding("KeY1", "1", CIMKeyBinding::NUMERIC));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Key binding order does not affect the hash code
     kba1.clear();
@@ -879,7 +879,7 @@ void test07()
     kba2.append(CIMKeyBinding("key1", "1", CIMKeyBinding::NUMERIC));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Boolean key value case does not affect the hash code
     kba1.clear();
@@ -888,7 +888,7 @@ void test07()
     kba2.append(CIMKeyBinding("KeY1", "True", CIMKeyBinding::BOOLEAN));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Equivalent numeric key value forms do not affect the hash code
     kba1.clear();
@@ -897,7 +897,7 @@ void test07()
     kba2.append(CIMKeyBinding("KeY1", "0x3FF", CIMKeyBinding::NUMERIC));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     kba1.clear();
     kba2.clear();
@@ -905,7 +905,7 @@ void test07()
     kba2.append(CIMKeyBinding("KeY1", "-0", CIMKeyBinding::NUMERIC));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Invalid numeric key value forms generate a consistent hash code
     kba1.clear();
@@ -914,7 +914,7 @@ void test07()
     kba2.append(CIMKeyBinding("KeY1", "abc", CIMKeyBinding::NUMERIC));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Equivalent reference key value forms do not affect the hash code
     kba1.clear();
@@ -925,7 +925,7 @@ void test07()
                 CIMKeyBinding::REFERENCE));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     kba1.clear();
     kba2.clear();
@@ -935,7 +935,7 @@ void test07()
                 CIMKeyBinding::REFERENCE));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     kba1.clear();
     kba2.clear();
@@ -945,7 +945,7 @@ void test07()
                 CIMKeyBinding::REFERENCE));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 
     // Kitchen sink
     kba1.clear();
@@ -974,7 +974,7 @@ void test07()
                 CIMKeyBinding::REFERENCE));
     op1.set("myhost", CIMNamespaceName("ns1/ns2"), CIMName("aClass"), kba1);
     op2.set("MyHOST", CIMNamespaceName("Ns1/NS2"), CIMName("Aclass"), kba2);
-    assert(op1.makeHashCode() == op2.makeHashCode());
+    PEGASUS_TEST_ASSERT(op1.makeHashCode() == op2.makeHashCode());
 }
 
 // Test non-ASCII character handling
@@ -994,7 +994,7 @@ void test08()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Test non-ASCII non-first character of IP address octet
     errorDetected = false;
@@ -1007,7 +1007,7 @@ void test08()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Test non-ASCII first character of IP address octet
     errorDetected = false;
@@ -1020,7 +1020,7 @@ void test08()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Test non-ASCII first character of hostname segment
     errorDetected = false;
@@ -1033,7 +1033,7 @@ void test08()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Test non-ASCII non-first character of hostname segment
     errorDetected = false;
@@ -1046,7 +1046,7 @@ void test08()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Test non-ASCII first character of port number
     errorDetected = false;
@@ -1059,7 +1059,7 @@ void test08()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 
     // Test non-ASCII non-first character of port number
     errorDetected = false;
@@ -1072,7 +1072,7 @@ void test08()
     {
         errorDetected = true;
     }
-    assert(errorDetected);
+    PEGASUS_TEST_ASSERT(errorDetected);
 }
 
 int main(int argc, char** argv)

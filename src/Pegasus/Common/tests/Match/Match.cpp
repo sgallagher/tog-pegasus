@@ -37,7 +37,7 @@
 /* NOTE: KS March 2002THis test can be removed in the future.  It is all captured in the
     String tests
 */
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/String.h>
 
 PEGASUS_USING_PEGASUS;
@@ -45,12 +45,12 @@ PEGASUS_USING_STD;
 
 int main()
 {
-    assert(String::match("This is a test", "*is*"));
-    assert(String::match("Hello", "Hello"));
-    assert(String::matchNoCase("HELLO", "hello"));
-    assert(String::match("This is a test", "This is *"));
-    assert(String::match("This is a test", "* is a test"));
-    assert(!String::match("Hello", "Goodbye"));
+    PEGASUS_TEST_ASSERT(String::match("This is a test", "*is*"));
+    PEGASUS_TEST_ASSERT(String::match("Hello", "Hello"));
+    PEGASUS_TEST_ASSERT(String::matchNoCase("HELLO", "hello"));
+    PEGASUS_TEST_ASSERT(String::match("This is a test", "This is *"));
+    PEGASUS_TEST_ASSERT(String::match("This is a test", "* is a test"));
+    PEGASUS_TEST_ASSERT(!String::match("Hello", "Goodbye"));
 
     cout << "+++++ passed all tests" << endl;
 

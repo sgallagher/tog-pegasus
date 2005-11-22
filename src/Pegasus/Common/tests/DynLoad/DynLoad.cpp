@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
@@ -55,13 +55,13 @@ int main(int argc, char** argv)
     }
 
     DynamicLibraryHandle handle = System::loadDynamicLibrary(argv[1]);
-    assert(handle != 0);
+    PEGASUS_TEST_ASSERT(handle != 0);
 
     DynamicSymbolHandle symbol = System::loadDynamicSymbol(handle, "callme");
-    assert(symbol != 0);
+    PEGASUS_TEST_ASSERT(symbol != 0);
 
     DynProc proc = DynProc(symbol);
-    assert(proc() == 0xdeadbeef);
+    PEGASUS_TEST_ASSERT(proc() == 0xdeadbeef);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

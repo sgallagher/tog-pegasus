@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdio>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/XmlParser.h>
 #include <Pegasus/Common/Array.h>
 #include <Pegasus/Common/FileSystem.h>

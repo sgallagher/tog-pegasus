@@ -39,7 +39,7 @@
 */
 
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Base64.h>
 #include <Pegasus/Common/ArrayInternal.h>
@@ -64,9 +64,9 @@ int main(int argc, char** argv)
         in.append('A');
         out = Base64::decode(in);
         // Should produce 3 bytes of zeros
-        assert(in.size() == 4);
+        PEGASUS_TEST_ASSERT(in.size() == 4);
         out = Base64::decode(in);
-        assert(out.size() == 3);
+        PEGASUS_TEST_ASSERT(out.size() == 3);
         // The result should be all zeros.
         for (Uint32 i = 0; i < out.size(); i++)
             if (out[i] != 0)
@@ -86,9 +86,9 @@ int main(int argc, char** argv)
         in.append('/');
         out = Base64::decode(in);
         // Should produce 3 bytes of -1s
-        assert(in.size() == 4);
+        PEGASUS_TEST_ASSERT(in.size() == 4);
         out = Base64::decode(in);
-        assert(out.size() == 3);
+        PEGASUS_TEST_ASSERT(out.size() == 3);
         // The result should be all zeros.
         for (Uint32 i = 0; i < out.size(); i++)
             if (out[i] != char(0xFF)) //char 255
@@ -115,10 +115,10 @@ int main(int argc, char** argv)
         // confirm that the character A is created, 6 characters
 
         out = Base64::encode(in);
-        assert(out.size() == 4);
+        PEGASUS_TEST_ASSERT(out.size() == 4);
         for (Uint32 i = 0; i <out.size(); i++ )
         {
-            assert(out[i] == 'A');
+            PEGASUS_TEST_ASSERT(out[i] == 'A');
         }
     }
 
@@ -141,7 +141,7 @@ int main(int argc, char** argv)
             Buffer temp = Base64::encode(in);
             out = Base64::decode(temp);
 
-            assert(in == out);
+            PEGASUS_TEST_ASSERT(in == out);
 
             /* Detailed error testing if we need to turn it on
 
@@ -170,7 +170,7 @@ int main(int argc, char** argv)
             in.append(0);
             Buffer temp = Base64::encode(in);
             out = Base64::decode(temp);
-            assert(in == out);
+            PEGASUS_TEST_ASSERT(in == out);
         }
     }
 
@@ -188,7 +188,7 @@ int main(int argc, char** argv)
             Buffer temp = Base64::encode(in);
             out = Base64::decode(temp);
 
-            assert(in == out);
+            PEGASUS_TEST_ASSERT(in == out);
         }
     }
 
@@ -202,7 +202,7 @@ int main(int argc, char** argv)
             in.append('\xFF');
             out = Base64::decode(Base64::encode(in));
 
-            assert(in == out);
+            PEGASUS_TEST_ASSERT(in == out);
         }
 
     }

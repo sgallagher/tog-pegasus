@@ -36,7 +36,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/StatisticalData.h>
 
 PEGASUS_USING_STD;
@@ -53,11 +53,11 @@ StatisticalData* curr = StatisticalData::current();
 //check to make sure current() returns a pointer to the existing StatisticalData
 // object
 
-assert(sd->length == curr->length);
-assert(sd->requestSize == curr->requestSize);
-assert(sd->copyGSD == curr->copyGSD);
-assert(sd->numCalls[5] == curr->numCalls[5]);
-assert(sd->requestSize[6] == curr->requestSize[6]);
+PEGASUS_TEST_ASSERT(sd->length == curr->length);
+PEGASUS_TEST_ASSERT(sd->requestSize == curr->requestSize);
+PEGASUS_TEST_ASSERT(sd->copyGSD == curr->copyGSD);
+PEGASUS_TEST_ASSERT(sd->numCalls[5] == curr->numCalls[5]);
+PEGASUS_TEST_ASSERT(sd->requestSize[6] == curr->requestSize[6]);
 
 
 //  *****************************************
@@ -69,24 +69,24 @@ sd->addToValue(10,5,StatisticalData::PEGASUS_STATDATA_SERVER);
 // Changes sd.requestSize[6] form 0 to 10
 sd->addToValue(10,6,StatisticalData::PEGASUS_STATDATA_BYTES_READ);
 
-//assert(sd->numCalls[5] == 0);
-//assert(sd->requestSize[6] == 10);
+//PEGASUS_TEST_ASSERT(sd->numCalls[5] == 0);
+//PEGASUS_TEST_ASSERT(sd->requestSize[6] == 10);
 
 //**********************************************
 // check the setCopyGSD method
 
 sd->setCopyGSD(1);
 
-assert(sd->copyGSD == 1);
+PEGASUS_TEST_ASSERT(sd->copyGSD == 1);
 
 //****************************************************
 // make sure the cur the sd objects are still the same
 
-assert(sd->length == curr->length);
-assert(sd->requestSize == curr->requestSize);
-assert(sd->copyGSD == curr->copyGSD);
-assert(sd->numCalls[5] == curr->numCalls[5]);
-assert(sd->requestSize[6] == curr->requestSize[6]);
+PEGASUS_TEST_ASSERT(sd->length == curr->length);
+PEGASUS_TEST_ASSERT(sd->requestSize == curr->requestSize);
+PEGASUS_TEST_ASSERT(sd->copyGSD == curr->copyGSD);
+PEGASUS_TEST_ASSERT(sd->numCalls[5] == curr->numCalls[5]);
+PEGASUS_TEST_ASSERT(sd->requestSize[6] == curr->requestSize[6]);
 
 
 //**************************

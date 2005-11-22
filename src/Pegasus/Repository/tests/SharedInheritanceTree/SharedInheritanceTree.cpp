@@ -32,7 +32,7 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
@@ -181,7 +181,7 @@ void test02(NameSpaceManager& nsm) {
        cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Ns1SubClasses);
-    assert(Ns1SubClasses == classNames);
+    PEGASUS_TEST_ASSERT(Ns1SubClasses == classNames);
 
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName(),false,classNames);
@@ -191,7 +191,7 @@ void test02(NameSpaceManager& nsm) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Sns1NoDiSubClasses);
-    assert(Sns1NoDiSubClasses == classNames);
+    PEGASUS_TEST_ASSERT(Sns1NoDiSubClasses == classNames);
 
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName(),true,classNames);
@@ -201,7 +201,7 @@ void test02(NameSpaceManager& nsm) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Srw1Ns1SubClasses);
-    assert(Srw1Ns1SubClasses == classNames);
+    PEGASUS_TEST_ASSERT(Srw1Ns1SubClasses == classNames);
 
     classNames.clear();
     nsm.getSubClassNames(arr1[2],CIMName(),true,classNames);
@@ -211,7 +211,7 @@ void test02(NameSpaceManager& nsm) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Srw1Ns1SubClasses);
-    assert(Srw1Ns1SubClasses == classNames);
+    PEGASUS_TEST_ASSERT(Srw1Ns1SubClasses == classNames);
 
     classNames.clear();
     nsm.getSubClassNames(arr1[3],CIMName(),true,classNames);
@@ -221,7 +221,7 @@ void test02(NameSpaceManager& nsm) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Srw1Ns1SubClasses);
-    assert(Srw1Ns1SubClasses == classNames);
+    PEGASUS_TEST_ASSERT(Srw1Ns1SubClasses == classNames);
 
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName("Class2Ns1"),true,classNames);
@@ -231,7 +231,7 @@ void test02(NameSpaceManager& nsm) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Class2Ns1SubClasses);
-    assert(Class2Ns1SubClasses == classNames);
+    PEGASUS_TEST_ASSERT(Class2Ns1SubClasses == classNames);
 
     classNames.clear();
     nsm.getSubClassNames(arr1[1],CIMName("Class1Sns1"),true,classNames);
@@ -241,7 +241,7 @@ void test02(NameSpaceManager& nsm) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Class1Sns1SubClasses);
-    assert(Class1Sns1SubClasses == classNames);
+    PEGASUS_TEST_ASSERT(Class1Sns1SubClasses == classNames);
 
     classNames.clear();
     nsm.getSuperClassNames(arr1[1],CIMName("Sub1Sub4Sub1Class2Ns1"),classNames);
@@ -251,7 +251,7 @@ void test02(NameSpaceManager& nsm) {
        if (verbose) cout<<"--- class: "<<classNames[i].getString()<<endl;
     }
     BubbleSort(Sub1Sub4Sub1Class2Ns1SuperClasses);
-    assert(Sub1Sub4Sub1Class2Ns1SuperClasses == classNames);
+    PEGASUS_TEST_ASSERT(Sub1Sub4Sub1Class2Ns1SuperClasses == classNames);
 
 }
 

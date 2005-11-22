@@ -34,7 +34,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstdio>
 #include <Pegasus/Config/ConfigFileHandler.h>
 

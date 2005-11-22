@@ -35,7 +35,17 @@
 #ifndef Pegasus_Assert_h
 #define Pegasus_Assert_h
 
-#include <assert.h>
+ 
+// NOTE: 
+//
+// All built and tested OK with <assert.h> 
+// but <cassert> is more appropriate for c++ files
+// however if this should be a problem for any c fileswithin the tree 
+// it is possible to revert back to assert.h 
+//     J Wunderlich 11/21/2005
+//
+// #include <assert.h>
+#include <cassert>
 
 
 
@@ -55,6 +65,9 @@
 #else
 #define PEGASUS_DEBUG_ASSERT(COND)
 #endif
+
+
+#define PEGASUS_TEST_ASSERT(COND) if (!(COND)) abort()
 
 
 #endif  /* Pegasus_Assert_h */

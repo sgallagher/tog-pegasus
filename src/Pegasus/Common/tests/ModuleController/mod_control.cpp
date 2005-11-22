@@ -40,7 +40,7 @@
 #else
 #include <unistd.h>
 #endif 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>

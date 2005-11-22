@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/MessageQueue.h>
 
 PEGASUS_USING_STD;
@@ -82,36 +82,36 @@ void TestMessageQueue1()
 	sum += i;
     }
 
-    assert(Sum(q) == sum);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum);
 
     // Test removing from the middle:
     Message* m = q.findByKey(3);
-    assert(m != 0);
+    PEGASUS_TEST_ASSERT(m != 0);
     q.remove(m);
-    assert(Sum(q) == sum - 3);
-    assert(q.getCount() == 4);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3);
+    PEGASUS_TEST_ASSERT(q.getCount() == 4);
 
     // Test removing from the front:
     q.remove(q.front());
-    assert(Sum(q) == sum - 3 - 1);
-    assert(q.getCount() == 3);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1);
+    PEGASUS_TEST_ASSERT(q.getCount() == 3);
 
     // Test removing from the front:
     q.remove(q.back());
-    assert(Sum(q) == sum - 3 - 1 - 5);
-    assert(q.getCount() == 2);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1 - 5);
+    PEGASUS_TEST_ASSERT(q.getCount() == 2);
 
     // Test dequeue:
     m = q.dequeue();
-    assert(m->getKey() == 2);
-    assert(Sum(q) == sum - 3 - 1 - 5 - 2);
-    assert(q.getCount() == 1);
+    PEGASUS_TEST_ASSERT(m->getKey() == 2);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1 - 5 - 2);
+    PEGASUS_TEST_ASSERT(q.getCount() == 1);
 
     // Test dequeue:
     m = q.dequeue();
-    assert(m->getKey() == 4);
-    assert(Sum(q) == sum - 3 - 1 - 5 - 2 - 4);
-    assert(q.getCount() == 0);
+    PEGASUS_TEST_ASSERT(m->getKey() == 4);
+    PEGASUS_TEST_ASSERT(Sum(q) == sum - 3 - 1 - 5 - 2 - 4);
+    PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }
 
 void TestMessageQueue2()
@@ -125,12 +125,12 @@ void TestMessageQueue2()
 	q.enqueue(new Alarm(i));
 	sum += i;
     }
-    assert(sum == 15);
+    PEGASUS_TEST_ASSERT(sum == 15);
 
     while (!q.isEmpty())
 	q.remove(q.front());
 
-    assert(q.getCount() == 0);
+    PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }
 
 void TestMessageQueue3()
@@ -144,12 +144,12 @@ void TestMessageQueue3()
 	q.enqueue(new Alarm(i));
 	sum += i;
     }
-    assert(sum == 15);
+    PEGASUS_TEST_ASSERT(sum == 15);
 
     while (!q.isEmpty())
 	q.remove(q.back());
 
-    assert(q.getCount() == 0);
+    PEGASUS_TEST_ASSERT(q.getCount() == 0);
 }
 
 
@@ -159,10 +159,10 @@ void TestMessageQueue4()
    MessageQueue r("another q");
    
    MessageQueue *found = MessageQueue::lookup("a queue");
-   assert(found);
+   PEGASUS_TEST_ASSERT(found);
 //   cout << found->getQueueName() << endl;
    found = MessageQueue::lookup("another q");
-   assert(found);
+   PEGASUS_TEST_ASSERT(found);
 //   cout << found->getQueueName() << endl;
 }
 

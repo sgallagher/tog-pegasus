@@ -37,7 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMParameter.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
@@ -49,7 +49,7 @@ static char * verbose;	  // controls IO from test
 void test01()
 {
     CIMParameter p;
-    assert(p.isUninitialized());
+    PEGASUS_TEST_ASSERT(p.isUninitialized());
 
     CIMParameter p1(CIMName ("message"), CIMTYPE_STRING);
     p1.addQualifier(CIMQualifier(CIMName ("in"), true));
@@ -63,10 +63,10 @@ void test01()
 
     CIMParameter p3(CIMName ("message3"), CIMTYPE_STRING);
     p3.setName(CIMName ("message3a"));
-    assert(p3.getName() == CIMName ("message3a"));
+    PEGASUS_TEST_ASSERT(p3.getName() == CIMName ("message3a"));
 	if(verbose)
 		XmlWriter::printParameterElement(p3, cout);
-    assert(p3.getType() == CIMTYPE_STRING);;
+    PEGASUS_TEST_ASSERT(p3.getType() == CIMTYPE_STRING);;
 
     //
     // clone
@@ -94,43 +94,43 @@ void test01()
     //
     Boolean same;
     same  = p1clone.identical(p1);
-    assert(same);
+    PEGASUS_TEST_ASSERT(same);
 
     //
     // not identical
     //
     same = p1clone.identical(p2);
-    assert(!same);
+    PEGASUS_TEST_ASSERT(!same);
 
     //
     // get qualifier count
     //
-    assert(p1.getQualifierCount() == 1);
-    assert(p2.getQualifierCount() == 1);
-    assert(p3.getQualifierCount() == 0);
+    PEGASUS_TEST_ASSERT(p1.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(p2.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(p3.getQualifierCount() == 0);
  
     //
     // find qualifier
     //
-    assert(p1.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
-    assert(p2.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
-    assert(p2.findQualifier(CIMName ("none")) == PEG_NOT_FOUND);
-    assert(p3.findQualifier(CIMName ("none")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(p1.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(p2.findQualifier(CIMName ("none")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(p3.findQualifier(CIMName ("none")) == PEG_NOT_FOUND);
 
     //
     // get qualifiers
     //
     CIMQualifier q1 = p1.getQualifier(0);
-    assert(!q1.isUninitialized());
+    PEGASUS_TEST_ASSERT(!q1.isUninitialized());
     CIMConstQualifier q1const = p1.getQualifier(0);
-    assert(!q1const.isUninitialized());
+    PEGASUS_TEST_ASSERT(!q1const.isUninitialized());
 
     //
     // remove qualifiers
     //
     p1.removeQualifier (p1.findQualifier (CIMName ("in")));
-    assert (p1.findQualifier (CIMName ("in")) == PEG_NOT_FOUND);
-    assert (p1.getQualifierCount () == 0);
+    PEGASUS_TEST_ASSERT (p1.findQualifier (CIMName ("in")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT (p1.getQualifierCount () == 0);
     p1.addQualifier (CIMQualifier (CIMName ("in"), true));
 
     try
@@ -153,12 +153,12 @@ void test01()
     //
     // isArray
     //
-    assert(p1.isArray() == false);
+    PEGASUS_TEST_ASSERT(p1.isArray() == false);
 
     //
     // getArraySize
     //
-    assert(p1.getArraySize() == 0);
+    PEGASUS_TEST_ASSERT(p1.getArraySize() == 0);
 
     //
     // test CIMConstParameter methods
@@ -171,8 +171,8 @@ void test01()
 	if(verbose)
 		XmlWriter::printParameterElement(cp1, cout);
 
-    assert(cp3.getName() == CIMName ("message3a"));
-    assert(cp3.getType() == CIMTYPE_STRING);;
+    PEGASUS_TEST_ASSERT(cp3.getName() == CIMName ("message3a"));
+    PEGASUS_TEST_ASSERT(cp3.getType() == CIMTYPE_STRING);;
 
     const CIMParameter cp1clone = cp1.clone();
 	if(verbose)
@@ -180,14 +180,14 @@ void test01()
 
     XmlWriter::appendParameterElement(xmlOut, cp1);
 
-    assert(cp1.identical(cp1) == true);
-    assert(cp1.identical(cp2) == false);
-    assert(cp1.isArray() == false);
-    assert(cp1.getArraySize() == 0);
-    assert(cp1.getQualifierCount() == 1);
-    assert(cp1.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cp1.identical(cp1) == true);
+    PEGASUS_TEST_ASSERT(cp1.identical(cp2) == false);
+    PEGASUS_TEST_ASSERT(cp1.isArray() == false);
+    PEGASUS_TEST_ASSERT(cp1.getArraySize() == 0);
+    PEGASUS_TEST_ASSERT(cp1.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(cp1.findQualifier(CIMName ("in")) != PEG_NOT_FOUND);
     CIMConstQualifier cq1 = cp1.getQualifier(0);
-    assert(!cq1.isUninitialized());
+    PEGASUS_TEST_ASSERT(!cq1.isUninitialized());
 }
 
 int main(int argc, char** argv)

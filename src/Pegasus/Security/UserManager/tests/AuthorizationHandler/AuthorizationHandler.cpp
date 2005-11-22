@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
@@ -100,10 +100,10 @@ int main(int argc, char** argv)
     try
     {
         nameSpace = BAD_NAMESPACE;
-        assert(!userManager->verifyNamespace(nameSpace));
+        PEGASUS_TEST_ASSERT(!userManager->verifyNamespace(nameSpace));
 
         nameSpace = GOOD_NAMESPACE;
-        assert(!userManager->verifyNamespace(nameSpace));
+        PEGASUS_TEST_ASSERT(!userManager->verifyNamespace(nameSpace));
 
         userManager->setAuthorization(testUser, nameSpace, "rw");
         userManager->setAuthorization("root", nameSpace, "w");
@@ -111,30 +111,30 @@ int main(int argc, char** argv)
         String temp = userManager->getAuthorization(testUser, nameSpace);
 
         if (testUser != "root")
-           assert(String::equal(temp, "rw") || String::equal(temp, "wr"));
+           PEGASUS_TEST_ASSERT(String::equal(temp, "rw") || String::equal(temp, "wr"));
 
         temp = userManager->getAuthorization("root", nameSpace);
-        assert(String::equal(temp, "w"));
+        PEGASUS_TEST_ASSERT(String::equal(temp, "w"));
 
         userManager->removeAuthorization("root", nameSpace);
         temp.clear();
         try
         {
             temp = userManager->getAuthorization("root", nameSpace);
-            assert(temp.size() == 0);
+            PEGASUS_TEST_ASSERT(temp.size() == 0);
         }catch(const Exception&) { }
 
         userManager->setAuthorization("root", nameSpace, "w");
 
         if (testUser != "root") 
-           assert(userManager->verifyAuthorization(testUser, nameSpace, 
+           PEGASUS_TEST_ASSERT(userManager->verifyAuthorization(testUser, nameSpace, 
                    CIMName ("GetInstance")));
-        assert(!userManager->verifyAuthorization("root", nameSpace, 
+        PEGASUS_TEST_ASSERT(!userManager->verifyAuthorization("root", nameSpace, 
             CIMName ("GetInstance")));
 
         userManager->setAuthorization("root", nameSpace, "r");
 
-        assert(!userManager->verifyAuthorization("root", nameSpace, 
+        PEGASUS_TEST_ASSERT(!userManager->verifyAuthorization("root", nameSpace, 
             CIMName ("SetProperty")));
 
         userManager->removeAuthorization("root", nameSpace);
@@ -144,7 +144,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
       cout << argv[0] << " Exception: " << e.getMessage() << endl;
-        assert(0);
+        PEGASUS_TEST_ASSERT(0);
     }
 
     cout << argv[0] << " +++++ passed all tests" << endl;

@@ -34,7 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstring>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Exception.h>
@@ -54,7 +54,7 @@ int test(int argc, char** argv)
     String s2 = s1;
     String s3(s2);
 
-    assert(String::equal(s1, s3));
+    PEGASUS_TEST_ASSERT(String::equal(s1, s3));
 
     // Test append characters to String
     String s4 = "Hello";
@@ -90,7 +90,7 @@ int test(int argc, char** argv)
         char *tmp = os.str();
 #endif
 
-        assert(strcmp(EXPECTED, tmp) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(EXPECTED, tmp) == 0);
 #ifdef PEGASUS_PLATFORM_AIX_RS_IBMCXX
         os.freeze(false);
 #else
@@ -106,64 +106,64 @@ int test(int argc, char** argv)
         // Test getCString
         const char STR0[] = "one two three four";
         String s = STR0;
-        assert(strcmp(s.getCString(), STR0) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(s.getCString(), STR0) == 0);
     }
 
     {
         // Test remove
         String s = "abcdefg";
         s.remove(3, 3);
-        assert(String::equal(s, "abcg"));
-        assert(s.size() == 4);
+        PEGASUS_TEST_ASSERT(String::equal(s, "abcg"));
+        PEGASUS_TEST_ASSERT(s.size() == 4);
 
         s = "abcdefg";
         s.remove(3, 4);
-        assert(String::equal(s, "abc"));
-        assert(s.size() == 3);
+        PEGASUS_TEST_ASSERT(String::equal(s, "abc"));
+        PEGASUS_TEST_ASSERT(s.size() == 3);
 
         s = "abcdefg";
         s.remove(3);
-        assert(String::equal(s, "abc"));
-        assert(s.size() == 3);
+        PEGASUS_TEST_ASSERT(String::equal(s, "abc"));
+        PEGASUS_TEST_ASSERT(s.size() == 3);
 
         s = "abc";
         s.remove(3);
-        assert(String::equal(s, "abc"));
-        assert(s.size() == 3);
+        PEGASUS_TEST_ASSERT(String::equal(s, "abc"));
+        PEGASUS_TEST_ASSERT(s.size() == 3);
 
         s = "abc";
         s.remove(0);
-        assert(String::equal(s, ""));
-        assert(s.size() == 0);
+        PEGASUS_TEST_ASSERT(String::equal(s, ""));
+        PEGASUS_TEST_ASSERT(s.size() == 0);
 
         s = "abc";
         s.remove(0, 1);
-        assert(String::equal(s, "bc"));
-        assert(s.size() == 2);
+        PEGASUS_TEST_ASSERT(String::equal(s, "bc"));
+        PEGASUS_TEST_ASSERT(s.size() == 2);
 
         String t1 = "HELLO";
         String t2 = t1;
         t2.toLower();
-        assert(String::equal(t1, "HELLO"));
-        assert(String::equal(t2, "hello"));
+        PEGASUS_TEST_ASSERT(String::equal(t1, "HELLO"));
+        PEGASUS_TEST_ASSERT(String::equal(t2, "hello"));
     }
 
     {
         // another test of the append method
         String t1 = "one";
         t1.append(" two");
-        assert(String::equal(t1, "one two"));
+        PEGASUS_TEST_ASSERT(String::equal(t1, "one two"));
         t1.append(' ');
         t1.append('t');
         t1.append('h');
         t1.append('r');
         t1.append("ee");
-        assert(String::equal(t1,"one two three"));
+        PEGASUS_TEST_ASSERT(String::equal(t1,"one two three"));
 
         // used as example in Doc.
         String test = "abc";
         test.append("def");
-        assert(test == "abcdef");
+        PEGASUS_TEST_ASSERT(test == "abcdef");
     }
 
     // Test of the different overload operators
@@ -171,91 +171,91 @@ int test(int argc, char** argv)
         // Test the == overload operator
         String t1 = "one";
         String t2 = "one";
-        assert(t1 == "one");
-        assert("one" == t1);
-        assert(t1 == t2);
-        assert(t2 == t1);
-        assert(String("one") == "one");
+        PEGASUS_TEST_ASSERT(t1 == "one");
+        PEGASUS_TEST_ASSERT("one" == t1);
+        PEGASUS_TEST_ASSERT(t1 == t2);
+        PEGASUS_TEST_ASSERT(t2 == t1);
+        PEGASUS_TEST_ASSERT(String("one") == "one");
 
         const char STR0[] = "one two three four";
         String s = STR0;
         CString tmp = s.getCString();
-        assert(tmp == s);
-        assert(s == tmp);
+        PEGASUS_TEST_ASSERT(tmp == s);
+        PEGASUS_TEST_ASSERT(s == tmp);
     }
 
     {
         // Tests of the + Overload operator
         String t1 = "abc";
         String t2 = t1 + t1;
-        assert(t2 == "abcabc");
+        PEGASUS_TEST_ASSERT(t2 == "abcabc");
         t1 = "abc";
         t2 = t1 + "def";
-        assert(t2 == "abcdef");
+        PEGASUS_TEST_ASSERT(t2 == "abcdef");
 
         t1 = "ghi";
-        assert(t1 == "ghi");
+        PEGASUS_TEST_ASSERT(t1 == "ghi");
 
         // ATTN: the following fails because there
         // is no single character overload operator
         // KS: Apr 2001
         // t2 = t1 + 'k' + 'l' + 'm' + "nop";
         t2 = t1 + "k" + "l" + "m" + "nop";
-        assert(t2 == "ghiklmnop");
-        assert(String::equal(t2,"ghiklmnop"));
+        PEGASUS_TEST_ASSERT(t2 == "ghiklmnop");
+        PEGASUS_TEST_ASSERT(String::equal(t2,"ghiklmnop"));
 
         // add tests for != operator.
 
         t1 = "abc";
-        assert(t1 != "ghi");
-        assert(t1 != t2);
+        PEGASUS_TEST_ASSERT(t1 != "ghi");
+        PEGASUS_TEST_ASSERT(t1 != t2);
 
         // add tests for other compare operators
 
         // Operater <
         t1 = "ab";
         t2 = "cde";
-        assert(t1 < t2);
-        assert(t1 <= t2);
-        assert(t2 > t1);
-        assert(t2 >=t1);
+        PEGASUS_TEST_ASSERT(t1 < t2);
+        PEGASUS_TEST_ASSERT(t1 <= t2);
+        PEGASUS_TEST_ASSERT(t2 > t1);
+        PEGASUS_TEST_ASSERT(t2 >=t1);
         t2 = t1;
-        assert(t1 <= t2);
-        assert(t1 >= t2);
+        PEGASUS_TEST_ASSERT(t1 <= t2);
+        PEGASUS_TEST_ASSERT(t1 >= t2);
 
         // comparison and equals
         // the compare is for null term strings.
         // Therefore following does not work
         // the compare operators cover the problem
         // for String objects.
-        // assert(String::compare(t1,t2) == -1);
+        // PEGASUS_TEST_ASSERT(String::compare(t1,t2) == -1);
 
 
         // Tests for compare with same length
         t1 = "abc";
         t2 = "def";
-        assert(t1 < t2);
+        PEGASUS_TEST_ASSERT(t1 < t2);
 
         // comparison and equals
         // compare is for null term strings
         // therefore following does not work.
-        //assert(String::compare(t1,t2) == -1);
+        //PEGASUS_TEST_ASSERT(String::compare(t1,t2) == -1);
       
         t1 = "abc";
         t2 = "ABC";
-        assert(String::equalNoCase(t1,t2));
-        assert(!String::equal(t1,t2));
-        assert(String::compareNoCase(t1,t2) == 0);
+        PEGASUS_TEST_ASSERT(String::equalNoCase(t1,t2));
+        PEGASUS_TEST_ASSERT(!String::equal(t1,t2));
+        PEGASUS_TEST_ASSERT(String::compareNoCase(t1,t2) == 0);
         t1.toUpper();
         t2.toLower();
-        assert(String::equal(t1, "ABC"));
-        assert(String::equal(t2, "abc"));
+        PEGASUS_TEST_ASSERT(String::equal(t1, "ABC"));
+        PEGASUS_TEST_ASSERT(String::equal(t2, "abc"));
 
         t1 = "1000";
         t2 = "1001";
-        assert(String::compareNoCase(t1,t2) < 0);
-        assert(String::compare(t1,t2) < 0);
-        assert(String::compare(t1,t2, 3) == 0);
+        PEGASUS_TEST_ASSERT(String::compareNoCase(t1,t2) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1,t2) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1,t2, 3) == 0);
 
 #ifdef PEGASUS_HAS_ICU
         //
@@ -307,18 +307,18 @@ int test(int argc, char** argv)
         String degkUp(uppermap);
 
 
-        assert(String::compareNoCase(degkLow,degkUp) == 0);
+        PEGASUS_TEST_ASSERT(String::compareNoCase(degkLow,degkUp) == 0);
         // does a binary compare, so lower > upper
-        assert(String::compare(degkLow,degkUp) > 0);
-        assert(String::equalNoCase(degkLow,degkUp));
+        PEGASUS_TEST_ASSERT(String::compare(degkLow,degkUp) > 0);
+        PEGASUS_TEST_ASSERT(String::equalNoCase(degkLow,degkUp));
 
         String mapTest(degkLow);
         mapTest.toUpper();
-        assert(String::equal(mapTest, degkUp));
+        PEGASUS_TEST_ASSERT(String::equal(mapTest, degkUp));
 
         // Note that the German char does not round trip
         mapTest.toLower();
-        assert(String::equal(mapTest, degkLow2));
+        PEGASUS_TEST_ASSERT(String::equal(mapTest, degkLow2));
 #endif
     }
 
@@ -327,7 +327,7 @@ int test(int argc, char** argv)
         String t1 = "abc";
         Char16 c = t1[1];
         // note c is Char16
-        assert(c == 'b');
+        PEGASUS_TEST_ASSERT(c == 'b');
 
         //ATTN: test for outofbounds exception
         try
@@ -336,7 +336,7 @@ int test(int argc, char** argv)
         }
         catch (IndexOutOfBoundsException&)
         {
-        assert(true);
+        PEGASUS_TEST_ASSERT(true);
         }
     }
 
@@ -348,38 +348,38 @@ int test(int argc, char** argv)
         String t4 = "abc";
         String t5 = "abd";
         String t6 = "defg";
-        assert(t1.find('c') == 2);
-        assert(t1.find(t2)==2);
-        assert(t1.find(t3)==(Uint32)-1);
-        assert(t1.find(t4)==0);
-        assert(t1.find(t5)==(Uint32)-1);
-        assert(t1.find(t6)==(Uint32)-1);
-        assert(t1.find("cde")==2);
-        assert(t1.find("def")==3);
-        assert(t1.find("xyz")==(Uint32)-1);
-        assert(t1.find("a") ==0);
+        PEGASUS_TEST_ASSERT(t1.find('c') == 2);
+        PEGASUS_TEST_ASSERT(t1.find(t2)==2);
+        PEGASUS_TEST_ASSERT(t1.find(t3)==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(t1.find(t4)==0);
+        PEGASUS_TEST_ASSERT(t1.find(t5)==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(t1.find(t6)==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(t1.find("cde")==2);
+        PEGASUS_TEST_ASSERT(t1.find("def")==3);
+        PEGASUS_TEST_ASSERT(t1.find("xyz")==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(t1.find("a") ==0);
 
         // test for the case where string
         // partly occurs and then later
         // completely occurs
         String s = "this is an apple";
-        assert(s.find("apple")==11);
-        assert(s.find("appld")==(Uint32)-1);
-        assert(s.find("this")==0);
-        assert(s.find("t")==0);
-        assert(s.find("e")==15);
+        PEGASUS_TEST_ASSERT(s.find("apple")==11);
+        PEGASUS_TEST_ASSERT(s.find("appld")==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(s.find("this")==0);
+        PEGASUS_TEST_ASSERT(s.find("t")==0);
+        PEGASUS_TEST_ASSERT(s.find("e")==15);
         s = "a";
-        assert(s.find("b")==(Uint32)-1);
-        assert(s.find("a")==0);
-        assert(s.find(s)==0);
+        PEGASUS_TEST_ASSERT(s.find("b")==(Uint32)-1);
+        PEGASUS_TEST_ASSERT(s.find("a")==0);
+        PEGASUS_TEST_ASSERT(s.find(s)==0);
         s = "aaaapple";
-        assert(s.find("apple")==3);
+        PEGASUS_TEST_ASSERT(s.find("apple")==3);
 
         // 20020715-RK This method was removed from the String class
         //{
         //    String nameSpace = "a#b#c";
         //    nameSpace.translate('#', '/');
-        //    assert(nameSpace == "a/b/c");
+        //    PEGASUS_TEST_ASSERT(nameSpace == "a/b/c");
         //}
     }
 
@@ -410,22 +410,22 @@ int test(int argc, char** argv)
         const char*  tmp = (const char *)temp;
         const char*  tmp2 = (const char *)temp2;
 
-        assert(utf16string == utf8string);
-        assert(utf16string == utf16merge);
-        assert(utf16string == utf16chr);
-        assert(utf8string  == utf16chr);
+        PEGASUS_TEST_ASSERT(utf16string == utf8string);
+        PEGASUS_TEST_ASSERT(utf16string == utf16merge);
+        PEGASUS_TEST_ASSERT(utf16string == utf16chr);
+        PEGASUS_TEST_ASSERT(utf8string  == utf16chr);
 
-        assert(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
-        assert(strcmp(utf8string.getCString(),utf8chr) == 0);
-        assert(strcmp(utf16string.getCString(),utf8chr) == 0);
-        assert(strcmp(tmp,utf8chr) == 0);
-        assert(strcmp(tmp2,utf8chr) == 0);
+        PEGASUS_TEST_ASSERT(memcmp(utf8string.getChar16Data(),utf16string.getChar16Data(),sizeof(utf16chr)) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(utf8string.getCString(),utf8chr) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(utf16string.getCString(),utf8chr) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(tmp,utf8chr) == 0);
+        PEGASUS_TEST_ASSERT(strcmp(tmp2,utf8chr) == 0);
 
         Uint32 count = 0;
         Uint32 size = sizeof(utf8chr);
         while(count<size)
         {
-                assert(isUTF8(&utf8chr[count]) == true);
+                PEGASUS_TEST_ASSERT(isUTF8(&utf8chr[count]) == true);
                 UTF8_NEXT(utf8chr,count);
         }
 
@@ -439,7 +439,7 @@ int test(int argc, char** argv)
         size = 3;
         while(count<size)
         {
-            assert(isUTF8(&utf8bad[count]) == false);
+            PEGASUS_TEST_ASSERT(isUTF8(&utf8bad[count]) == false);
             UTF8_NEXT(utf8bad,count);
         }
 
@@ -463,7 +463,7 @@ int test(int argc, char** argv)
         0x00};
 
         String ugly(utf16Chars);
-        assert(ugly == utf16Chars);
+        PEGASUS_TEST_ASSERT(ugly == utf16Chars);
 
         //
         // Test passing bad utf-8 into String
@@ -482,7 +482,7 @@ int test(int argc, char** argv)
         {
           // the first terminator causes invalid utf-8
           String tmp(utf8bad1);
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
         catch (Exception &)
         {
@@ -494,7 +494,7 @@ int test(int argc, char** argv)
         {
           // bogus utf-8 char in the middle
           String tmp(utf8bad1, sizeof(utf8bad1)-1);
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
         catch (Exception &)
         {
@@ -506,7 +506,7 @@ int test(int argc, char** argv)
         {
           // good, but the last utf-8 char extends past the last byte
           String tmp(utf8chr, sizeof(utf8chr) - 2);
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
         catch (Exception &)
         {
@@ -519,7 +519,7 @@ int test(int argc, char** argv)
         {
           // the first terminator causes invalid utf-8
           assigntest.assign(utf8bad1);  // bad
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
         catch (Exception &)
         {
@@ -531,7 +531,7 @@ int test(int argc, char** argv)
         {
           // bogus utf-8 char in the middle
           assigntest.assign(utf8bad1, sizeof(utf8bad1) - 1);  // bad
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
         catch (Exception &)
         {
@@ -543,7 +543,7 @@ int test(int argc, char** argv)
         {
           // good, but the last utf-8 char extends past the end
           assigntest.assign(utf8chr, sizeof(utf8chr) - 2);  // bad
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
         catch (Exception &)
         {
@@ -567,12 +567,12 @@ int test(int argc, char** argv)
         {
           // terminator after 5 chars
           String tmp(utf8good1);
-          assert (tmp.size() == 5); 
+          PEGASUS_TEST_ASSERT (tmp.size() == 5); 
         }
         catch (Exception &)
         {
           // didn't see that one coming
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
 
         // Test String(char *, Uint32)
@@ -580,12 +580,12 @@ int test(int argc, char** argv)
         {
           // embedded terminator counts as 1 char
           String tmp(utf8good1, sizeof(utf8good1) - 1);
-          assert (tmp.size() == 10); 
+          PEGASUS_TEST_ASSERT (tmp.size() == 10); 
         }
         catch (Exception &)
         {
           // didn't see that one coming
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
 
         assigntest.clear();
@@ -595,12 +595,12 @@ int test(int argc, char** argv)
         {
           // terminator after 5 chars
           assigntest.assign(utf8good1);
-          assert (assigntest.size() == 5); 
+          PEGASUS_TEST_ASSERT (assigntest.size() == 5); 
         }
         catch (Exception &)
         {
           // didn't see that one coming
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
 
         assigntest.clear();
@@ -610,12 +610,12 @@ int test(int argc, char** argv)
         {
           // embedded terminator counts as 1 char
           assigntest.assign(utf8good1, sizeof(utf8good1) - 1);
-          assert (assigntest.size() == 10); 
+          PEGASUS_TEST_ASSERT (assigntest.size() == 10); 
         }
         catch (Exception &)
         {
           // didn't see that one coming
-          assert(false);
+          PEGASUS_TEST_ASSERT(false);
         }
 
 
@@ -630,10 +630,10 @@ int test(int argc, char** argv)
         String tmpLittle = little;
 
         tmpBig.toLower();
-        assert(tmpBig == little);
+        PEGASUS_TEST_ASSERT(tmpBig == little);
 
         tmpBig.toUpper();
-        assert(tmpBig == big);
+        PEGASUS_TEST_ASSERT(tmpBig == big);
     }
 
 #if 0
@@ -642,55 +642,55 @@ int test(int argc, char** argv)
     {
         String abc = "abc";
         String ABC = "ABC";
-        assert(String::match(abc, "abc"));
-        assert(String::match(ABC, "ABC"));
-        assert(!String::match(abc, "ABC"));
-        assert(!String::match(ABC, "abc"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "abc"));
+        PEGASUS_TEST_ASSERT(String::match(ABC, "ABC"));
+        PEGASUS_TEST_ASSERT(!String::match(abc, "ABC"));
+        PEGASUS_TEST_ASSERT(!String::match(ABC, "abc"));
 
-        assert(String::matchNoCase(abc, "abc"));
-        assert(String::matchNoCase(ABC, "abc"));
-        assert(String::matchNoCase(abc, "ABC"));
-        assert(String::matchNoCase(ABC, "ABc"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase(abc, "abc"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase(ABC, "abc"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase(abc, "ABC"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase(ABC, "ABc"));
 
-        assert(String::match(abc, "???"));
-        assert(String::match(ABC, "???"));
-        assert(String::match(abc, "*"));
-        assert(String::match(ABC, "*"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "???"));
+        PEGASUS_TEST_ASSERT(String::match(ABC, "???"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "*"));
+        PEGASUS_TEST_ASSERT(String::match(ABC, "*"));
 
-        assert(String::match(abc, "?bc"));
-        assert(String::match(abc, "?b?"));
-        assert(String::match(abc, "??c"));
-        assert(String::matchNoCase(ABC, "?bc"));
-        assert(String::matchNoCase(ABC, "?b?"));
-        assert(String::matchNoCase(ABC, "??c"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "?bc"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "?b?"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "??c"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase(ABC, "?bc"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase(ABC, "?b?"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase(ABC, "??c"));
 
 
-        assert(String::match(abc, "*bc"));
-        assert(String::match(abc, "a*c"));
-        assert(String::match(abc, "ab*"));
-        assert(String::match(abc, "a*"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "*bc"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "a*c"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "ab*"));
+        PEGASUS_TEST_ASSERT(String::match(abc, "a*"));
         // ATTN-RK-P3-20020603: This match code is broken
-        //assert(String::match(abc, "[axy]bc"));
-        assert(!String::match(abc, "[xyz]bc"));
+        //PEGASUS_TEST_ASSERT(String::match(abc, "[axy]bc"));
+        PEGASUS_TEST_ASSERT(!String::match(abc, "[xyz]bc"));
 
-        assert(!String::match(abc, "def"));
-        assert(!String::match(abc, "[de]bc"));
+        PEGASUS_TEST_ASSERT(!String::match(abc, "def"));
+        PEGASUS_TEST_ASSERT(!String::match(abc, "[de]bc"));
         // ATTN-RK-P3-20020603: This match code is broken
-        //assert(String::match(abc, "a[a-c]c"));
-        assert(!String::match(abc, "a[d-x]c"));
+        //PEGASUS_TEST_ASSERT(String::match(abc, "a[a-c]c"));
+        PEGASUS_TEST_ASSERT(!String::match(abc, "a[d-x]c"));
         // ATTN-RK-P3-20020603: This match code does not yet handle escape chars
-        //assert(String::match("*test", "\\*test"));
+        //PEGASUS_TEST_ASSERT(String::match("*test", "\\*test"));
 
-        assert(String::match("abcdef123", "*[0-9]"));
+        PEGASUS_TEST_ASSERT(String::match("abcdef123", "*[0-9]"));
 
-        assert(String::match("This is a test", "*is*"));
-        assert(String::matchNoCase("This is a test", "*IS*"));
+        PEGASUS_TEST_ASSERT(String::match("This is a test", "*is*"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase("This is a test", "*IS*"));
 
-        assert(String::match("Hello", "Hello"));
-        assert(String::matchNoCase("HELLO", "hello"));
-        assert(String::match("This is a test", "This is *"));
-        assert(String::match("This is a test", "* is a test"));
-        assert(!String::match("Hello", "Goodbye"));
+        PEGASUS_TEST_ASSERT(String::match("Hello", "Hello"));
+        PEGASUS_TEST_ASSERT(String::matchNoCase("HELLO", "hello"));
+        PEGASUS_TEST_ASSERT(String::match("This is a test", "This is *"));
+        PEGASUS_TEST_ASSERT(String::match("This is a test", "* is a test"));
+        PEGASUS_TEST_ASSERT(!String::match("Hello", "Goodbye"));
 
         String tPattern = "When in the * of human*e??nts it be?ome[sS] [0-9] nec*";
 
@@ -805,13 +805,13 @@ int test(int argc, char** argv)
         }
 
         // ATTN-RK-P3-20020603: This match code is broken
-        //assert(String::match(
+        //PEGASUS_TEST_ASSERT(String::match(
         //    "When in the course of human events it becomes 0 necessary",
         //    tPattern));
-        //assert(String::match(
+        //PEGASUS_TEST_ASSERT(String::match(
         //    "When in the xyz of human events it becomes 9 necessary",
         //    tPattern));
-        //assert(String::match(
+        //PEGASUS_TEST_ASSERT(String::match(
         //    "When in the  of human events it becomes 3 necessary",
         //    tPattern));
     }
@@ -820,39 +820,39 @@ int test(int argc, char** argv)
     // string()
     {
 	String s;
-	assert(s.size() == 0);
-	assert(s[0] == '\0');
+	PEGASUS_TEST_ASSERT(s.size() == 0);
+	PEGASUS_TEST_ASSERT(s[0] == '\0');
     }
 
     // String(const String& s)
     {
 	const String s("hello");
 	const String t = s;
-	assert(s.size() == strlen("hello"));
-	assert(s == "hello");
-	assert(t.size() == strlen("hello"));
-	assert(t == "hello");
+	PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
+	PEGASUS_TEST_ASSERT(s == "hello");
+	PEGASUS_TEST_ASSERT(t.size() == strlen("hello"));
+	PEGASUS_TEST_ASSERT(t == "hello");
     }
 
     // String(const char*)
     {
 	const String s("hello");
-	assert(s.size() == strlen("hello"));
-	assert(s == "hello");
+	PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
+	PEGASUS_TEST_ASSERT(s == "hello");
     }
 
     // reserve()
     {
 	String s;
 	s.reserveCapacity(100);
-	assert(s.size() == 0);
-	// assert(s.getCapacity() >= 100);
+	PEGASUS_TEST_ASSERT(s.size() == 0);
+	// PEGASUS_TEST_ASSERT(s.getCapacity() >= 100);
 
 	String t("hello world");
-	assert(t.size() == strlen("hello world"));
+	PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
 	t.reserveCapacity(500);
-	assert(t.size() == strlen("hello world"));
-	assert(t == "hello world");
+	PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
+	PEGASUS_TEST_ASSERT(t == "hello world");
     }
 
     // assign(const String&)
@@ -861,16 +861,16 @@ int test(int argc, char** argv)
 	String t;
 
 	t = s;
-	assert(s.size() == strlen("this is a test"));
-	assert(s == "this is a test");
-	assert(t.size() == strlen("this is a test"));
-	assert(t == "this is a test");
+	PEGASUS_TEST_ASSERT(s.size() == strlen("this is a test"));
+	PEGASUS_TEST_ASSERT(s == "this is a test");
+	PEGASUS_TEST_ASSERT(t.size() == strlen("this is a test"));
+	PEGASUS_TEST_ASSERT(t == "this is a test");
 
 	s = t;
-	assert(s.size() == strlen("this is a test"));
-	assert(s == "this is a test");
-	assert(t.size() == strlen("this is a test"));
-	assert(t == "this is a test");
+	PEGASUS_TEST_ASSERT(s.size() == strlen("this is a test"));
+	PEGASUS_TEST_ASSERT(s == "this is a test");
+	PEGASUS_TEST_ASSERT(t.size() == strlen("this is a test"));
+	PEGASUS_TEST_ASSERT(t == "this is a test");
     }
 
     // assign(const char*, size_t)
@@ -879,13 +879,13 @@ int test(int argc, char** argv)
 	const size_t LENGTH = sizeof(MESSAGE) - 1;
 	String s;
 	s.assign(MESSAGE, LENGTH);
-	assert(s.size() == LENGTH);
-	assert(s == MESSAGE);
+	PEGASUS_TEST_ASSERT(s.size() == LENGTH);
+	PEGASUS_TEST_ASSERT(s == MESSAGE);
 
 	String t("dummy", 5);
 	t.assign(MESSAGE, LENGTH);
-	assert(t.size() == LENGTH);
-	assert(t == MESSAGE);
+	PEGASUS_TEST_ASSERT(t.size() == LENGTH);
+	PEGASUS_TEST_ASSERT(t == MESSAGE);
     }
 
     // assign(const char*)
@@ -894,13 +894,13 @@ int test(int argc, char** argv)
 	const size_t LENGTH = sizeof(MESSAGE) - 1;
 	String s;
 	s.assign(MESSAGE);
-	assert(s.size() == LENGTH);
-	assert(s == MESSAGE);
+	PEGASUS_TEST_ASSERT(s.size() == LENGTH);
+	PEGASUS_TEST_ASSERT(s == MESSAGE);
 
 	String t("dummy", 5);
 	t.assign(MESSAGE);
-	assert(t.size() == LENGTH);
-	assert(t == MESSAGE);
+	PEGASUS_TEST_ASSERT(t.size() == LENGTH);
+	PEGASUS_TEST_ASSERT(t == MESSAGE);
     }
 
     // append(const String&)
@@ -908,16 +908,16 @@ int test(int argc, char** argv)
 	String s;
 
 	s.append(String("xxx"));
-	assert(s.size() == 3);
-	assert(s == "xxx");
+	PEGASUS_TEST_ASSERT(s.size() == 3);
+	PEGASUS_TEST_ASSERT(s == "xxx");
 
 	s.append(String("yyy"));
-	assert(s.size() == 6);
-	assert(s == "xxxyyy");
+	PEGASUS_TEST_ASSERT(s.size() == 6);
+	PEGASUS_TEST_ASSERT(s == "xxxyyy");
 
 	s.append(String("zzz"));
-	assert(s.size() == 9);
-	assert(s == "xxxyyyzzz");
+	PEGASUS_TEST_ASSERT(s.size() == 9);
+	PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
     }
 
     // append(const char*)
@@ -925,16 +925,16 @@ int test(int argc, char** argv)
 	String s;
 
 	s.append("xxx");
-	assert(s.size() == 3);
-	assert(s == "xxx");
+	PEGASUS_TEST_ASSERT(s.size() == 3);
+	PEGASUS_TEST_ASSERT(s == "xxx");
 
 	s.append("yyy");
-	assert(s.size() == 6);
-	assert(s == "xxxyyy");
+	PEGASUS_TEST_ASSERT(s.size() == 6);
+	PEGASUS_TEST_ASSERT(s == "xxxyyy");
 
 	s.append("zzz");
-	assert(s.size() == 9);
-	assert(s == "xxxyyyzzz");
+	PEGASUS_TEST_ASSERT(s.size() == 9);
+	PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
     }
 
     // append(const char*)
@@ -942,16 +942,16 @@ int test(int argc, char** argv)
 	String s;
 
 	s.append("xxx");
-	assert(s.size() == 3);
-	assert(s == "xxx");
+	PEGASUS_TEST_ASSERT(s.size() == 3);
+	PEGASUS_TEST_ASSERT(s == "xxx");
 
 	s.append("yyy");
-	assert(s.size() == 6);
-	assert(s == "xxxyyy");
+	PEGASUS_TEST_ASSERT(s.size() == 6);
+	PEGASUS_TEST_ASSERT(s == "xxxyyy");
 
 	s.append("zzz");
-	assert(s.size() == 9);
-	assert(s == "xxxyyyzzz");
+	PEGASUS_TEST_ASSERT(s.size() == 9);
+	PEGASUS_TEST_ASSERT(s == "xxxyyyzzz");
     }
 
     // append(char)
@@ -964,8 +964,8 @@ int test(int argc, char** argv)
 	    s.append(c);
 	}
 
-	assert(s.size() == 26);
-	assert(s == "abcdefghijklmnopqrstuvwxyz");
+	PEGASUS_TEST_ASSERT(s.size() == 26);
+	PEGASUS_TEST_ASSERT(s == "abcdefghijklmnopqrstuvwxyz");
     }
 
     // clear()
@@ -975,36 +975,36 @@ int test(int argc, char** argv)
 	String u = s;
 
 	s.clear();
-	assert(t.size() == 3);
-	assert(t == "abc");
-	assert(t[0] == 'a');
-	assert(u.size() == 3);
-	assert(u == "abc");
-	assert(u[0] == 'a');
-	assert(s.size() == 0);
-	assert(s[0] == '\0');
+	PEGASUS_TEST_ASSERT(t.size() == 3);
+	PEGASUS_TEST_ASSERT(t == "abc");
+	PEGASUS_TEST_ASSERT(t[0] == 'a');
+	PEGASUS_TEST_ASSERT(u.size() == 3);
+	PEGASUS_TEST_ASSERT(u == "abc");
+	PEGASUS_TEST_ASSERT(u[0] == 'a');
+	PEGASUS_TEST_ASSERT(s.size() == 0);
+	PEGASUS_TEST_ASSERT(s[0] == '\0');
 
 	t.clear();
-	assert(t.size() == 0);
-	assert(t[0] == '\0');
-	assert(t == "");
-	assert(u.size() == 3);
-	assert(u == "abc");
-	assert(u[0] == 'a');
-	assert(s.size() == 0);
-	assert(s == "");
-	assert(s[0] == '\0');
+	PEGASUS_TEST_ASSERT(t.size() == 0);
+	PEGASUS_TEST_ASSERT(t[0] == '\0');
+	PEGASUS_TEST_ASSERT(t == "");
+	PEGASUS_TEST_ASSERT(u.size() == 3);
+	PEGASUS_TEST_ASSERT(u == "abc");
+	PEGASUS_TEST_ASSERT(u[0] == 'a');
+	PEGASUS_TEST_ASSERT(s.size() == 0);
+	PEGASUS_TEST_ASSERT(s == "");
+	PEGASUS_TEST_ASSERT(s[0] == '\0');
 
 	u.clear();
-	assert(t.size() == 0);
-	assert(t == "");
-	assert(t[0] == '\0');
-	assert(u.size() == 0);
-	assert(u == "");
-	assert(u[0] == '\0');
-	assert(s.size() == 0);
-	assert(s == "");
-	assert(s[0] == '\0');
+	PEGASUS_TEST_ASSERT(t.size() == 0);
+	PEGASUS_TEST_ASSERT(t == "");
+	PEGASUS_TEST_ASSERT(t[0] == '\0');
+	PEGASUS_TEST_ASSERT(u.size() == 0);
+	PEGASUS_TEST_ASSERT(u == "");
+	PEGASUS_TEST_ASSERT(u[0] == '\0');
+	PEGASUS_TEST_ASSERT(s.size() == 0);
+	PEGASUS_TEST_ASSERT(s == "");
+	PEGASUS_TEST_ASSERT(s[0] == '\0');
     }
 
     // c_str()
@@ -1015,17 +1015,17 @@ int test(int argc, char** argv)
 	String v;
 	String w("");
 
-	assert(s == "abc");
-	assert(t == "abc");
-	assert(u == "def");
-	assert(s == t);
-	assert(s != u);
-	assert(v == "");
-	assert(v[0] == '\0');
-	assert(v[0] == '\0');
-	assert(w.size() == 0);
-	assert(w[0] == '\0');
-	assert(w[0] == '\0');
+	PEGASUS_TEST_ASSERT(s == "abc");
+	PEGASUS_TEST_ASSERT(t == "abc");
+	PEGASUS_TEST_ASSERT(u == "def");
+	PEGASUS_TEST_ASSERT(s == t);
+	PEGASUS_TEST_ASSERT(s != u);
+	PEGASUS_TEST_ASSERT(v == "");
+	PEGASUS_TEST_ASSERT(v[0] == '\0');
+	PEGASUS_TEST_ASSERT(v[0] == '\0');
+	PEGASUS_TEST_ASSERT(w.size() == 0);
+	PEGASUS_TEST_ASSERT(w[0] == '\0');
+	PEGASUS_TEST_ASSERT(w[0] == '\0');
     }
 
     // set(size_t, char)
@@ -1035,7 +1035,7 @@ int test(int argc, char** argv)
 	for (int i = 0; i < 26; i++)
 	    s[i] = toupper(s[i]);
 
-	assert(s == "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	PEGASUS_TEST_ASSERT(s == "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     }
 
     // equal(const String&)
@@ -1047,29 +1047,29 @@ int test(int argc, char** argv)
 	String x("");
 	String y("");
 
-	assert(String::equal(t, t));
-	assert(String::equal(u, u));
-	assert(String::equal(v, v));
-	assert(String::equal(w, w));
-	assert(String::equal(x, x));
-	assert(String::equal(y, y));
+	PEGASUS_TEST_ASSERT(String::equal(t, t));
+	PEGASUS_TEST_ASSERT(String::equal(u, u));
+	PEGASUS_TEST_ASSERT(String::equal(v, v));
+	PEGASUS_TEST_ASSERT(String::equal(w, w));
+	PEGASUS_TEST_ASSERT(String::equal(x, x));
+	PEGASUS_TEST_ASSERT(String::equal(y, y));
 
-	assert(String::equal(t, u));
-	assert(String::equal(u, t));
+	PEGASUS_TEST_ASSERT(String::equal(t, u));
+	PEGASUS_TEST_ASSERT(String::equal(u, t));
 
-	assert(!String::equal(t, v));
-	assert(!String::equal(t, w));
-	assert(!String::equal(t, x));
-	assert(!String::equal(t, y));
-	assert(!String::equal(v, t));
-	assert(!String::equal(w, t));
-	assert(!String::equal(x, t));
-	assert(!String::equal(y, t));
+	PEGASUS_TEST_ASSERT(!String::equal(t, v));
+	PEGASUS_TEST_ASSERT(!String::equal(t, w));
+	PEGASUS_TEST_ASSERT(!String::equal(t, x));
+	PEGASUS_TEST_ASSERT(!String::equal(t, y));
+	PEGASUS_TEST_ASSERT(!String::equal(v, t));
+	PEGASUS_TEST_ASSERT(!String::equal(w, t));
+	PEGASUS_TEST_ASSERT(!String::equal(x, t));
+	PEGASUS_TEST_ASSERT(!String::equal(y, t));
 
-	assert(!String::equal(v, w));
-	assert(!String::equal(w, v));
-	assert(String::equal(x, y));
-	assert(String::equal(y, x));
+	PEGASUS_TEST_ASSERT(!String::equal(v, w));
+	PEGASUS_TEST_ASSERT(!String::equal(w, v));
+	PEGASUS_TEST_ASSERT(String::equal(x, y));
+	PEGASUS_TEST_ASSERT(String::equal(y, x));
     }
 
     // equal(const char*)
@@ -1081,29 +1081,29 @@ int test(int argc, char** argv)
 	String x("");
 	String y("");
 
-	assert(String::equal(t, "abc"));
-	assert(String::equal(u, "abc"));
-	assert(String::equal(v, "def"));
-	assert(String::equal(w, "defg"));
-	assert(String::equal(x, ""));
-	assert(String::equal(y, ""));
+	PEGASUS_TEST_ASSERT(String::equal(t, "abc"));
+	PEGASUS_TEST_ASSERT(String::equal(u, "abc"));
+	PEGASUS_TEST_ASSERT(String::equal(v, "def"));
+	PEGASUS_TEST_ASSERT(String::equal(w, "defg"));
+	PEGASUS_TEST_ASSERT(String::equal(x, ""));
+	PEGASUS_TEST_ASSERT(String::equal(y, ""));
 
-	assert(String::equal(t, "abc"));
-	assert(String::equal(u, "abc"));
+	PEGASUS_TEST_ASSERT(String::equal(t, "abc"));
+	PEGASUS_TEST_ASSERT(String::equal(u, "abc"));
 
-	assert(!String::equal(t, "def"));
-	assert(!String::equal(t, "defg"));
-	assert(!String::equal(t, ""));
-	assert(!String::equal(t, ""));
-	assert(!String::equal(v, "abc"));
-	assert(!String::equal(w, "abc"));
-	assert(!String::equal(x, "abc"));
-	assert(!String::equal(y, "abc"));
+	PEGASUS_TEST_ASSERT(!String::equal(t, "def"));
+	PEGASUS_TEST_ASSERT(!String::equal(t, "defg"));
+	PEGASUS_TEST_ASSERT(!String::equal(t, ""));
+	PEGASUS_TEST_ASSERT(!String::equal(t, ""));
+	PEGASUS_TEST_ASSERT(!String::equal(v, "abc"));
+	PEGASUS_TEST_ASSERT(!String::equal(w, "abc"));
+	PEGASUS_TEST_ASSERT(!String::equal(x, "abc"));
+	PEGASUS_TEST_ASSERT(!String::equal(y, "abc"));
 
-	assert(!String::equal(v, "defg"));
-	assert(!String::equal(w, "def"));
-	assert(String::equal(x, ""));
-	assert(String::equal(y, ""));
+	PEGASUS_TEST_ASSERT(!String::equal(v, "defg"));
+	PEGASUS_TEST_ASSERT(!String::equal(w, "def"));
+	PEGASUS_TEST_ASSERT(String::equal(x, ""));
+	PEGASUS_TEST_ASSERT(String::equal(y, ""));
     }
 
     // equali()
@@ -1114,13 +1114,13 @@ int test(int argc, char** argv)
 	String v("xyz");
 	String w("");
 	String x("");
-	assert(String::equalNoCase(s, t));
-	assert(String::equalNoCase(s, u));
-	assert(!String::equalNoCase(s, v));
-	assert(String::equalNoCase(w, x));
-	assert(!String::equalNoCase(w, s));
-	assert(!String::equalNoCase(w, t));
-	assert(!String::equalNoCase(w, v));
+	PEGASUS_TEST_ASSERT(String::equalNoCase(s, t));
+	PEGASUS_TEST_ASSERT(String::equalNoCase(s, u));
+	PEGASUS_TEST_ASSERT(!String::equalNoCase(s, v));
+	PEGASUS_TEST_ASSERT(String::equalNoCase(w, x));
+	PEGASUS_TEST_ASSERT(!String::equalNoCase(w, s));
+	PEGASUS_TEST_ASSERT(!String::equalNoCase(w, t));
+	PEGASUS_TEST_ASSERT(!String::equalNoCase(w, v));
     }
 
     {
@@ -1132,29 +1132,29 @@ int test(int argc, char** argv)
 	t = s;
 	String u = String(t);
 
-	assert(t.size() == LENGTH);
-	assert(t == MESSAGE);
-	assert(s.size() == LENGTH);
-	assert(s == MESSAGE);
-	assert(u.size() == LENGTH);
-	assert(u == MESSAGE);
+	PEGASUS_TEST_ASSERT(t.size() == LENGTH);
+	PEGASUS_TEST_ASSERT(t == MESSAGE);
+	PEGASUS_TEST_ASSERT(s.size() == LENGTH);
+	PEGASUS_TEST_ASSERT(s == MESSAGE);
+	PEGASUS_TEST_ASSERT(u.size() == LENGTH);
+	PEGASUS_TEST_ASSERT(u == MESSAGE);
 
-	assert(t[0] == 'h');
-	assert(t[1] == 'e');
-	assert(t[2] == 'l');
-	assert(t[3] == 'l');
-	assert(t[4] == 'o');
-	assert(t[5] == '\0');
+	PEGASUS_TEST_ASSERT(t[0] == 'h');
+	PEGASUS_TEST_ASSERT(t[1] == 'e');
+	PEGASUS_TEST_ASSERT(t[2] == 'l');
+	PEGASUS_TEST_ASSERT(t[3] == 'l');
+	PEGASUS_TEST_ASSERT(t[4] == 'o');
+	PEGASUS_TEST_ASSERT(t[5] == '\0');
 
 	t.append(" world");
-	assert(t.size() == strlen("hello world"));
-	assert(t == "hello world");
-	assert(s != "hello world");
-	assert(s == "hello");
-	assert(s.size() == strlen("hello"));
+	PEGASUS_TEST_ASSERT(t.size() == strlen("hello world"));
+	PEGASUS_TEST_ASSERT(t == "hello world");
+	PEGASUS_TEST_ASSERT(s != "hello world");
+	PEGASUS_TEST_ASSERT(s == "hello");
+	PEGASUS_TEST_ASSERT(s.size() == strlen("hello"));
 
 	t[0] = 'x';
-	assert(t == "xello world");
+	PEGASUS_TEST_ASSERT(t == "xello world");
     }
 
     // remove()
@@ -1162,57 +1162,57 @@ int test(int argc, char** argv)
 	String s("abcXYZdefLMNOP");
 
 	s.remove(0,0);
-	assert(s.size() == 14);
-	assert(s == "abcXYZdefLMNOP");
+	PEGASUS_TEST_ASSERT(s.size() == 14);
+	PEGASUS_TEST_ASSERT(s == "abcXYZdefLMNOP");
 
 	s.remove(0, 3);
-	assert(s.size() == 11);
-	assert(s == "XYZdefLMNOP");
+	PEGASUS_TEST_ASSERT(s.size() == 11);
+	PEGASUS_TEST_ASSERT(s == "XYZdefLMNOP");
 
 	s.remove(3, 3);
-	assert(s.size() == 8);
-	assert(s == "XYZLMNOP");
+	PEGASUS_TEST_ASSERT(s.size() == 8);
+	PEGASUS_TEST_ASSERT(s == "XYZLMNOP");
 
 	s.remove(7, 1);
-	assert(s.size() == 7);
-	assert(s == "XYZLMNO");
+	PEGASUS_TEST_ASSERT(s.size() == 7);
+	PEGASUS_TEST_ASSERT(s == "XYZLMNO");
 
 	s.remove(0, 1);
-	assert(s.size() == 6);
-	assert(s == "YZLMNO");
+	PEGASUS_TEST_ASSERT(s.size() == 6);
+	PEGASUS_TEST_ASSERT(s == "YZLMNO");
 
 	s.remove(2, size_t(-1));
-	assert(s.size() == 2);
-	assert(s == "YZ");
+	PEGASUS_TEST_ASSERT(s.size() == 2);
+	PEGASUS_TEST_ASSERT(s == "YZ");
 
 	s.remove(2, 0);
-	assert(s.size() == 2);
-	assert(s == "YZ");
+	PEGASUS_TEST_ASSERT(s.size() == 2);
+	PEGASUS_TEST_ASSERT(s == "YZ");
 
 	s.remove(1, 1);
-	assert(s.size() == 1);
-	assert(s == "Y");
+	PEGASUS_TEST_ASSERT(s.size() == 1);
+	PEGASUS_TEST_ASSERT(s == "Y");
 
 	s.remove(0, 1);
-	assert(s.size() == 0);
-	assert(s == "");
-	assert(s[0] == '\0');
+	PEGASUS_TEST_ASSERT(s.size() == 0);
+	PEGASUS_TEST_ASSERT(s == "");
+	PEGASUS_TEST_ASSERT(s[0] == '\0');
 
 	s.remove(0,0);
-	assert(s.size() == 0);
-	assert(s == "");
-	assert(s[0] == '\0');
+	PEGASUS_TEST_ASSERT(s.size() == 0);
+	PEGASUS_TEST_ASSERT(s == "");
+	PEGASUS_TEST_ASSERT(s[0] == '\0');
     }
 
     // subString()
     {
 	String s("one two three");
-	assert(s.subString(0) == "one two three");
-	assert(s.subString(0, 3) == "one");
-	assert(s.subString(4, 3) == "two");
-	assert(s.subString(8, 5) == "three");
-	assert(s.subString(0, 0) == "");
-	assert(s.subString(13, 0) == "");
+	PEGASUS_TEST_ASSERT(s.subString(0) == "one two three");
+	PEGASUS_TEST_ASSERT(s.subString(0, 3) == "one");
+	PEGASUS_TEST_ASSERT(s.subString(4, 3) == "two");
+	PEGASUS_TEST_ASSERT(s.subString(8, 5) == "three");
+	PEGASUS_TEST_ASSERT(s.subString(0, 0) == "");
+	PEGASUS_TEST_ASSERT(s.subString(13, 0) == "");
     }
 
     // Overflow
@@ -1225,7 +1225,7 @@ int test(int argc, char** argv)
     {
 	caught_bad_alloc = true;
     }
-    assert(caught_bad_alloc);
+    PEGASUS_TEST_ASSERT(caught_bad_alloc);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

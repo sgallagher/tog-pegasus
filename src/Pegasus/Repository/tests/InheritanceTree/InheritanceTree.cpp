@@ -26,7 +26,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/InheritanceTree.h>
 
 PEGASUS_USING_PEGASUS;
@@ -52,7 +52,7 @@ void TestGetSubClassNames(
 
     BubbleSort(expected);
     BubbleSort(subClassNames);
-    assert(expected == subClassNames);
+    PEGASUS_TEST_ASSERT(expected == subClassNames);
 }
 
 int main(int argc, char** argv)

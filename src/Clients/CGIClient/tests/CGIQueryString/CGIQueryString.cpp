@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include "../../CGIQueryString.h"
 
 PEGASUS_USING_PEGASUS;
@@ -70,12 +70,12 @@ int main(int argc, char** argv)
 
     if (input == defaultInput)
     {
-	assert(strcmp(qs.getName(0), "NameSpace") == 0);
-	assert(strcmp(qs.getValue(0), "root/cimv2") == 0);
-	assert(strcmp(qs.getName(1), "ClassName") == 0);
-	assert(strcmp(qs.getValue(1), "") == 0);
-	assert(strcmp(qs.getName(2), "LocalOnly") == 0);
-	assert(strcmp(qs.getValue(2), "true") == 0);
+	PEGASUS_TEST_ASSERT(strcmp(qs.getName(0), "NameSpace") == 0);
+	PEGASUS_TEST_ASSERT(strcmp(qs.getValue(0), "root/cimv2") == 0);
+	PEGASUS_TEST_ASSERT(strcmp(qs.getName(1), "ClassName") == 0);
+	PEGASUS_TEST_ASSERT(strcmp(qs.getValue(1), "") == 0);
+	PEGASUS_TEST_ASSERT(strcmp(qs.getName(2), "LocalOnly") == 0);
+	PEGASUS_TEST_ASSERT(strcmp(qs.getValue(2), "true") == 0);
     }
 
 
@@ -97,9 +97,9 @@ int main(int argc, char** argv)
 
 	}
 
-    assert(strcmp(qs.getName(0), "InstanceName") == 0);
+    PEGASUS_TEST_ASSERT(strcmp(qs.getName(0), "InstanceName") == 0);
     //KS Forgot how to excape the quote character
-    //assert(strcmp(qs.getValue(0), "person.name.""mike""") == 0);
+    //PEGASUS_TEST_ASSERT(strcmp(qs.getValue(0), "person.name.""mike""") == 0);
 
     }
 

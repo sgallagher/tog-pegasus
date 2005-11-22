@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Security/Authentication/LocalAuthFile.h>
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
     Boolean isDelete = localAuthFile.remove();
 
-    assert(isDelete != false);
+    PEGASUS_TEST_ASSERT(isDelete != false);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

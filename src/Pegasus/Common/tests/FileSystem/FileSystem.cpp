@@ -36,7 +36,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <fstream>
 #include <iostream>
 #include <cstdio>
@@ -58,22 +58,22 @@ int main(int argc, char** argv)
         tmpDir = ".";
     }
     String path;
-    assert(FileSystem::getCurrentDirectory(path));
+    PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(path));
     // Need to add test to confirm that the directory
     // is indeed FileSystem. 
-    assert(FileSystem::exists("FileSystem.cpp"));
-    assert(!FileSystem::exists("NoSuchFile.dat"));
-    // assert(!FileSystem::canExecute("FileSytem.cpp"));
-    assert(!FileSystem::canRead("NoSuchFile.dat"));
-    assert(!FileSystem::canWrite("NoSuchFile.dat"));
-    // assert(!FileSystem::canRead("NoCanRead.dat"));
-    assert(FileSystem::isDirectory(".."));
-    assert(FileSystem::isDirectory("."));
-    assert(!FileSystem::isDirectory("FileSystem.cpp"));
-    assert(FileSystem::isDirectory("./testdir"));
+    PEGASUS_TEST_ASSERT(FileSystem::exists("FileSystem.cpp"));
+    PEGASUS_TEST_ASSERT(!FileSystem::exists("NoSuchFile.dat"));
+    // PEGASUS_TEST_ASSERT(!FileSystem::canExecute("FileSytem.cpp"));
+    PEGASUS_TEST_ASSERT(!FileSystem::canRead("NoSuchFile.dat"));
+    PEGASUS_TEST_ASSERT(!FileSystem::canWrite("NoSuchFile.dat"));
+    // PEGASUS_TEST_ASSERT(!FileSystem::canRead("NoCanRead.dat"));
+    PEGASUS_TEST_ASSERT(FileSystem::isDirectory(".."));
+    PEGASUS_TEST_ASSERT(FileSystem::isDirectory("."));
+    PEGASUS_TEST_ASSERT(!FileSystem::isDirectory("FileSystem.cpp"));
+    PEGASUS_TEST_ASSERT(FileSystem::isDirectory("./testdir"));
 
     Array<String> paths;
-    assert( FileSystem::getDirectoryContents("./testdir", paths) );
+    PEGASUS_TEST_ASSERT( FileSystem::getDirectoryContents("./testdir", paths) );
 
     for (Uint32 i = 0; i < paths.size(); i++)
     {
@@ -85,32 +85,32 @@ int main(int argc, char** argv)
     }
 
     String realName;
-    assert(FileSystem::existsNoCase("filesystem.cpp", realName));
-    assert(String::equal(realName, "FileSystem.cpp"));
+    PEGASUS_TEST_ASSERT(FileSystem::existsNoCase("filesystem.cpp", realName));
+    PEGASUS_TEST_ASSERT(String::equal(realName, "FileSystem.cpp"));
 
-    assert(FileSystem::existsNoCase(
+    PEGASUS_TEST_ASSERT(FileSystem::existsNoCase(
 	"../FileSystem/filesystem.cpp", realName));
-    assert(String::equal(realName, "../FileSystem/FileSystem.cpp"));
+    PEGASUS_TEST_ASSERT(String::equal(realName, "../FileSystem/FileSystem.cpp"));
 
     BubbleSort(paths);
-    assert(paths.size() == 3);
-    assert(String::equal(paths[0], "a"));
-    assert(String::equal(paths[1], "b"));
-    assert(String::equal(paths[2], "c"));
+    PEGASUS_TEST_ASSERT(paths.size() == 3);
+    PEGASUS_TEST_ASSERT(String::equal(paths[0], "a"));
+    PEGASUS_TEST_ASSERT(String::equal(paths[1], "b"));
+    PEGASUS_TEST_ASSERT(String::equal(paths[2], "c"));
 
     // Test for getCurrentDirectory
     // Go to testdir, test for file "a"
     // Then return and test for file
     {
 	String saveDir;
-	assert(FileSystem::getCurrentDirectory(saveDir));
-	assert(FileSystem::changeDirectory("testdir"));
-	assert(FileSystem::exists("a"));
+	PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(saveDir));
+	PEGASUS_TEST_ASSERT(FileSystem::changeDirectory("testdir"));
+	PEGASUS_TEST_ASSERT(FileSystem::exists("a"));
 	FileSystem::changeDirectory(saveDir);
 	String newSaveDir;
-	assert(FileSystem::getCurrentDirectory(newSaveDir));
-	assert(saveDir == newSaveDir);
-	assert(FileSystem::exists("FileSystem.cpp"));
+	PEGASUS_TEST_ASSERT(FileSystem::getCurrentDirectory(newSaveDir));
+	PEGASUS_TEST_ASSERT(saveDir == newSaveDir);
+	PEGASUS_TEST_ASSERT(FileSystem::exists("FileSystem.cpp"));
     }
     // Test the Create and delete functions
     // Creates directories and files and deletes them.
@@ -127,9 +127,9 @@ int main(int argc, char** argv)
         CString f1 = tf1.getCString();
 
 	FileSystem::makeDirectory(t);
-	assert(FileSystem::isDirectory(t));
+	PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
 	FileSystem::removeDirectory(t);
-	assert(!FileSystem::isDirectory(t));
+	PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
 
 	// Tests for remove hierarchy command
 	// ATTN: Removed following until next test ks
@@ -147,12 +147,12 @@ int main(int argc, char** argv)
   	ofstream of1(f);
 	of1 << "test" << endl;
 	of1.close();
-	assert(FileSystem::exists(tf));
+	PEGASUS_TEST_ASSERT(FileSystem::exists(tf));
 
   	ofstream of2(f1);
 	of2 << "test" << endl;
 	of2.close();
-	assert(FileSystem::exists(tf1));
+	PEGASUS_TEST_ASSERT(FileSystem::exists(tf1));
 
 	// Create a second level directory
 	FileSystem::makeDirectory(t1);
@@ -172,10 +172,10 @@ int main(int argc, char** argv)
 	// Go back to top level directory
 
 	FileSystem::changeDirectory(save_cwd);
-        assert(FileSystem::isDirectory(t));
+        PEGASUS_TEST_ASSERT(FileSystem::isDirectory(t));
 	FileSystem::removeDirectoryHier(t);
 	// be sure directory is removed
-	assert(!FileSystem::isDirectory(t));
+	PEGASUS_TEST_ASSERT(!FileSystem::isDirectory(t));
         
     }
     // Test renameFile:
@@ -188,28 +188,28 @@ int main(int argc, char** argv)
   	ofstream of1(FILE1.getCString());
 	of1 << "test" << endl;
 	of1.close();
-	assert(FileSystem::exists(FILE1));
+	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
 
-	assert(FileSystem::exists(FILE1));
-	assert(!FileSystem::exists(FILE2));
-	assert(FileSystem::renameFile(FILE1, FILE2));
+	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
+	PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE2));
+	PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE1, FILE2));
 
-	assert(!FileSystem::exists(FILE1));
+	PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE1));
 
-	assert(FileSystem::exists(FILE2));
-	assert(FileSystem::renameFile(FILE2, FILE1));
-	assert(FileSystem::exists(FILE1));
-	assert(!FileSystem::exists(FILE2));
-        assert(FileSystem::removeFile(FILE1));
-        assert(!FileSystem::exists(FILE1));
+	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE2));
+	PEGASUS_TEST_ASSERT(FileSystem::renameFile(FILE2, FILE1));
+	PEGASUS_TEST_ASSERT(FileSystem::exists(FILE1));
+	PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE2));
+        PEGASUS_TEST_ASSERT(FileSystem::removeFile(FILE1));
+        PEGASUS_TEST_ASSERT(!FileSystem::exists(FILE1));
     }
      // Test getFileNameFromPath
     {
         FileSystem::changeDirectory(path);
     	String pathName = FileSystem::getAbsoluteFileName("./testdir","a");
-	assert(pathName.size()!=0);	// It should be there.
+	PEGASUS_TEST_ASSERT(pathName.size()!=0);	// It should be there.
 	pathName = FileSystem::getAbsoluteFileName("./testdir","#$@#(@$#!");
-	assert(pathName.size()==0);	// It should not be there.	
+	PEGASUS_TEST_ASSERT(pathName.size()==0);	// It should not be there.	
     }
     cout << argv[0] << " +++++ passed all tests" << endl;
 

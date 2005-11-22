@@ -37,7 +37,7 @@
  
   
 #include <cstdlib>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/CIMMessageSerializer.h>
 #include <Pegasus/Common/CIMMessageDeserializer.h>
@@ -90,26 +90,26 @@ void verifyGetInstanceResponseMessage(
 {
     CIMGetInstanceResponseMessage * outMessageRef =
         dynamic_cast<CIMGetInstanceResponseMessage*>(outMessage);
-    assert(outMessageRef != 0);
+    PEGASUS_TEST_ASSERT(outMessageRef != 0);
 
-    assert(inMessage->getType() == outMessage->getType());
-    assert(inMessage->messageId == outMessageRef->messageId);
-    assert(inMessage->cimException.getCode() ==
+    PEGASUS_TEST_ASSERT(inMessage->getType() == outMessage->getType());
+    PEGASUS_TEST_ASSERT(inMessage->messageId == outMessageRef->messageId);
+    PEGASUS_TEST_ASSERT(inMessage->cimException.getCode() ==
            outMessageRef->cimException.getCode());
-    assert(inMessage->cimException.getMessage() ==
+    PEGASUS_TEST_ASSERT(inMessage->cimException.getMessage() ==
            outMessageRef->cimException.getMessage());
-    assert(inMessage->queueIds.size() == outMessageRef->queueIds.size());
+    PEGASUS_TEST_ASSERT(inMessage->queueIds.size() == outMessageRef->queueIds.size());
     if (!inMessage->queueIds.isEmpty())
     {
-        assert(inMessage->queueIds.top() == outMessageRef->queueIds.top());
+        PEGASUS_TEST_ASSERT(inMessage->queueIds.top() == outMessageRef->queueIds.top());
     }
     if (inMessage->cimInstance.isUninitialized())
     {
-        assert(outMessageRef->cimInstance.isUninitialized());
+        PEGASUS_TEST_ASSERT(outMessageRef->cimInstance.isUninitialized());
     }
     else
     {
-        assert(inMessage->cimInstance.identical(outMessageRef->cimInstance));
+        PEGASUS_TEST_ASSERT(inMessage->cimInstance.identical(outMessageRef->cimInstance));
     }
 }
 
@@ -122,31 +122,31 @@ void verifyAssociatorsResponseMessage(
 {
     CIMAssociatorsResponseMessage * outMessageRef =
         dynamic_cast<CIMAssociatorsResponseMessage*>(outMessage);
-    assert(outMessageRef != 0);
+    PEGASUS_TEST_ASSERT(outMessageRef != 0);
 
-    assert(inMessage->getType() == outMessage->getType());
-    assert(inMessage->messageId == outMessageRef->messageId);
-    assert(inMessage->cimException.getCode() ==
+    PEGASUS_TEST_ASSERT(inMessage->getType() == outMessage->getType());
+    PEGASUS_TEST_ASSERT(inMessage->messageId == outMessageRef->messageId);
+    PEGASUS_TEST_ASSERT(inMessage->cimException.getCode() ==
            outMessageRef->cimException.getCode());
-    assert(inMessage->cimException.getMessage() ==
+    PEGASUS_TEST_ASSERT(inMessage->cimException.getMessage() ==
            outMessageRef->cimException.getMessage());
-    assert(inMessage->queueIds.size() == outMessageRef->queueIds.size());
+    PEGASUS_TEST_ASSERT(inMessage->queueIds.size() == outMessageRef->queueIds.size());
     if (!inMessage->queueIds.isEmpty())
     {
-        assert(inMessage->queueIds.top() == outMessageRef->queueIds.top());
+        PEGASUS_TEST_ASSERT(inMessage->queueIds.top() == outMessageRef->queueIds.top());
     }
 
-    assert(inMessage->cimObjects.size() == outMessageRef->cimObjects.size());
+    PEGASUS_TEST_ASSERT(inMessage->cimObjects.size() == outMessageRef->cimObjects.size());
 
     for (Uint32 i = 0, n = outMessageRef->cimObjects.size(); i < n; i++)
     {
         if (inMessage->cimObjects[i].isUninitialized())
         {
-            assert(outMessageRef->cimObjects[i].isUninitialized());
+            PEGASUS_TEST_ASSERT(outMessageRef->cimObjects[i].isUninitialized());
         }
         else
         {
-            assert(inMessage->cimObjects[i].identical(outMessageRef->cimObjects[i]));
+            PEGASUS_TEST_ASSERT(inMessage->cimObjects[i].identical(outMessageRef->cimObjects[i]));
         }
     }
 }
@@ -204,32 +204,32 @@ void testCIMGetInstanceRequestMessage()
     CIMGetInstanceRequestMessage* outMessageRef;
     outMessageRef =
         dynamic_cast<CIMGetInstanceRequestMessage*>(outMessage.get());
-    assert(outMessageRef != 0);
+    PEGASUS_TEST_ASSERT(outMessageRef != 0);
 
-    assert(inMessage->getType() == outMessage->getType());
-    assert(inMessage->messageId == outMessageRef->messageId);
-    assert(inMessage->queueIds.size() == outMessageRef->queueIds.size());
+    PEGASUS_TEST_ASSERT(inMessage->getType() == outMessage->getType());
+    PEGASUS_TEST_ASSERT(inMessage->messageId == outMessageRef->messageId);
+    PEGASUS_TEST_ASSERT(inMessage->queueIds.size() == outMessageRef->queueIds.size());
     if (!inMessage->queueIds.isEmpty())
     {
-        assert(inMessage->queueIds.top() == outMessageRef->queueIds.top());
+        PEGASUS_TEST_ASSERT(inMessage->queueIds.top() == outMessageRef->queueIds.top());
     }
-    assert(inMessage->nameSpace == outMessageRef->nameSpace);
-    assert(inMessage->className == outMessageRef->className);
-    assert(inMessage->providerType == outMessageRef->providerType);
-    assert(inMessage->authType == outMessageRef->authType);
-    assert(inMessage->userName == outMessageRef->userName);
-    assert(inMessage->instanceName == outMessageRef->instanceName);
-    assert(inMessage->instanceName == outMessageRef->instanceName);
-    assert(inMessage->localOnly == outMessageRef->localOnly);
-    assert(inMessage->includeQualifiers ==
+    PEGASUS_TEST_ASSERT(inMessage->nameSpace == outMessageRef->nameSpace);
+    PEGASUS_TEST_ASSERT(inMessage->className == outMessageRef->className);
+    PEGASUS_TEST_ASSERT(inMessage->providerType == outMessageRef->providerType);
+    PEGASUS_TEST_ASSERT(inMessage->authType == outMessageRef->authType);
+    PEGASUS_TEST_ASSERT(inMessage->userName == outMessageRef->userName);
+    PEGASUS_TEST_ASSERT(inMessage->instanceName == outMessageRef->instanceName);
+    PEGASUS_TEST_ASSERT(inMessage->instanceName == outMessageRef->instanceName);
+    PEGASUS_TEST_ASSERT(inMessage->localOnly == outMessageRef->localOnly);
+    PEGASUS_TEST_ASSERT(inMessage->includeQualifiers ==
            outMessageRef->includeQualifiers);
-    assert(inMessage->includeClassOrigin ==
+    PEGASUS_TEST_ASSERT(inMessage->includeClassOrigin ==
            outMessageRef->includeClassOrigin);
-    assert((inMessage->propertyList.isNull() &&
+    PEGASUS_TEST_ASSERT((inMessage->propertyList.isNull() &&
             outMessageRef->propertyList.isNull()) ||
            (!inMessage->propertyList.isNull() &&
             !outMessageRef->propertyList.isNull()));
-    assert(inMessage->propertyList.getPropertyNameArray() ==
+    PEGASUS_TEST_ASSERT(inMessage->propertyList.getPropertyNameArray() ==
            outMessageRef->propertyList.getPropertyNameArray());
 }
 
@@ -327,34 +327,34 @@ void testCIMAssociatorsRequestMessage()
     CIMAssociatorsRequestMessage* outMessageRef;
     outMessageRef =
         dynamic_cast<CIMAssociatorsRequestMessage*>(outMessage.get());
-    assert(outMessageRef != 0);
+    PEGASUS_TEST_ASSERT(outMessageRef != 0);
 
-    assert(inMessage->getType() == outMessage->getType());
-    assert(inMessage->messageId == outMessageRef->messageId);
-    assert(inMessage->queueIds.size() == outMessageRef->queueIds.size());
+    PEGASUS_TEST_ASSERT(inMessage->getType() == outMessage->getType());
+    PEGASUS_TEST_ASSERT(inMessage->messageId == outMessageRef->messageId);
+    PEGASUS_TEST_ASSERT(inMessage->queueIds.size() == outMessageRef->queueIds.size());
     if (!inMessage->queueIds.isEmpty())
     {
-        assert(inMessage->queueIds.top() == outMessageRef->queueIds.top());
+        PEGASUS_TEST_ASSERT(inMessage->queueIds.top() == outMessageRef->queueIds.top());
     }
-    assert(inMessage->nameSpace == outMessageRef->nameSpace);
-    assert(inMessage->className == outMessageRef->className);
-    assert(inMessage->providerType == outMessageRef->providerType);
-    assert(inMessage->authType == outMessageRef->authType);
-    assert(inMessage->userName == outMessageRef->userName);
-    assert(inMessage->objectName == outMessageRef->objectName);
-    assert(inMessage->assocClass == outMessageRef->assocClass);
-    assert(inMessage->resultClass == outMessageRef->resultClass);
-    assert(inMessage->role == outMessageRef->role);
-    assert(inMessage->resultRole == outMessageRef->resultRole);
-    assert(inMessage->includeQualifiers ==
+    PEGASUS_TEST_ASSERT(inMessage->nameSpace == outMessageRef->nameSpace);
+    PEGASUS_TEST_ASSERT(inMessage->className == outMessageRef->className);
+    PEGASUS_TEST_ASSERT(inMessage->providerType == outMessageRef->providerType);
+    PEGASUS_TEST_ASSERT(inMessage->authType == outMessageRef->authType);
+    PEGASUS_TEST_ASSERT(inMessage->userName == outMessageRef->userName);
+    PEGASUS_TEST_ASSERT(inMessage->objectName == outMessageRef->objectName);
+    PEGASUS_TEST_ASSERT(inMessage->assocClass == outMessageRef->assocClass);
+    PEGASUS_TEST_ASSERT(inMessage->resultClass == outMessageRef->resultClass);
+    PEGASUS_TEST_ASSERT(inMessage->role == outMessageRef->role);
+    PEGASUS_TEST_ASSERT(inMessage->resultRole == outMessageRef->resultRole);
+    PEGASUS_TEST_ASSERT(inMessage->includeQualifiers ==
            outMessageRef->includeQualifiers);
-    assert(inMessage->includeClassOrigin ==
+    PEGASUS_TEST_ASSERT(inMessage->includeClassOrigin ==
            outMessageRef->includeClassOrigin);
-    assert((inMessage->propertyList.isNull() &&
+    PEGASUS_TEST_ASSERT((inMessage->propertyList.isNull() &&
             outMessageRef->propertyList.isNull()) ||
            (!inMessage->propertyList.isNull() &&
             !outMessageRef->propertyList.isNull()));
-    assert(inMessage->propertyList.getPropertyNameArray() ==
+    PEGASUS_TEST_ASSERT(inMessage->propertyList.getPropertyNameArray() ==
            outMessageRef->propertyList.getPropertyNameArray());
 }
 

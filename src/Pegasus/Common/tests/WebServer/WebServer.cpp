@@ -36,7 +36,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <cstdio>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -71,7 +71,7 @@ WebServerQueue::WebServerQueue()
 void WebServerQueue::handleEnqueue()
 {
     Message* message = dequeue();
-    assert(message != 0);
+    PEGASUS_TEST_ASSERT(message != 0);
 
     if (message->getType() == HTTP_MESSAGE)
     {
@@ -91,7 +91,7 @@ void WebServerQueue::handleEnqueue()
 	    MessageQueue* queue = MessageQueue::lookup(
 		requestHTTPMessage->queueId);
 
-	    assert(queue != 0);
+	    PEGASUS_TEST_ASSERT(queue != 0);
 
 	    queue->enqueue(responseHTTPMessage);
 	}

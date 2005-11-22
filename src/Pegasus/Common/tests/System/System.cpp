@@ -34,7 +34,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/System.h>
 
 PEGASUS_USING_PEGASUS;
@@ -44,21 +44,21 @@ static char * verbose;
 
 int main(int argc, char** argv)
 {
-    assert(System::strcasecmp("","") == 0);
-    assert(System::strcasecmp("a","A") == 0);
-    assert(System::strcasecmp("A","a") == 0);
-    assert(System::strcasecmp("A","aa") < 0);
-    assert(System::strcasecmp("AA","a") > 0);
-    assert(System::strcasecmp("a","AA") < 0);
-    assert(System::strcasecmp("aa","A") > 0);
-    assert(System::strcasecmp("","A") < 0);
-    assert(System::strcasecmp("A","") > 0);
-    assert(System::strcasecmp("aa","ab") < 0);
-    assert(System::strcasecmp("ab","aa") > 0);
-    assert(System::strcasecmp("AA","ab") < 0);
-    assert(System::strcasecmp("AB","aa") > 0);
-    assert(System::strcasecmp("aa","AB") < 0);
-    assert(System::strcasecmp("ab","AA") > 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("","") == 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("a","A") == 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("A","a") == 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("A","aa") < 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("AA","a") > 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("a","AA") < 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("aa","A") > 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("","A") < 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("A","") > 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("aa","ab") < 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("ab","aa") > 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("AA","ab") < 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("AB","aa") > 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("aa","AB") < 0);
+    PEGASUS_TEST_ASSERT(System::strcasecmp("ab","AA") > 0);
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

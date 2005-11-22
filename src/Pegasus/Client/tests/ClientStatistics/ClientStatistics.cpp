@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
 
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
        exit(1);
    }
    // assert that we received  one name
-   assert(instanceNames.size() == 1);
+   PEGASUS_TEST_ASSERT(instanceNames.size() == 1);
    /* ModifyInstance
    */
    CIMName gathStatName ("GatherStatisticalData");
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
         instObjectManager.setPath(instanceNames[0]);         // set correct path into instance
 
         prop_num = instObjectManager.findProperty(gathStatName);
-        assert(prop_num != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(prop_num != PEG_NOT_FOUND);
 
         instObjectManager.getProperty(prop_num).setValue(CIMValue(true));
 

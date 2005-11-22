@@ -37,7 +37,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Client/CIMClient.h>
 
 PEGASUS_USING_PEGASUS;
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 				    localOnly, includeQualifiers,
 				    includeClassOrigin );
 
-	assert(cimNInstances.size() == 3);
+	PEGASUS_TEST_ASSERT(cimNInstances.size() == 3);
 	for (Uint32 i = 0; i < cimNInstances.size(); i++)
         {
 	    if (!((cimNInstances[i].getPath() == INSTANCE1) ||

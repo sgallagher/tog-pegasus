@@ -44,7 +44,7 @@
     
 */
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -84,8 +84,8 @@ void test01(CIMRepository_Mode mode)
     CIMConstClass cc;
     cc = r.getClass(CIMNamespaceName ("aa/bb"), CIMName ("MyClass"), false,true, true);
 
-    assert(c.identical(cc));
-    assert(cc.identical(c));
+    PEGASUS_TEST_ASSERT(c.identical(cc));
+    PEGASUS_TEST_ASSERT(cc.identical(c));
 
 }
 
@@ -157,7 +157,7 @@ void test02(CIMRepository_Mode mode)
 
     CIMInstance tmp = r.getInstance(NAMESPACE, instanceName2,false,true,true);
 
-    assert(subClassInstance.identical(tmp));
+    PEGASUS_TEST_ASSERT(subClassInstance.identical(tmp));
 
     //--------------------------------------------------------------------------
     // Miscellaneous tests
@@ -185,21 +185,21 @@ void test02(CIMRepository_Mode mode)
     {
         testFailed=true; 
     }
-    assert(testFailed);
+    PEGASUS_TEST_ASSERT(testFailed);
 
 //    ATTN:2.0:ENHANCE:DEFERRED:getProviderName() is not supported.
 //    String providerName = r.getProviderName();
-//    assert (providerName == "repository");
+//    PEGASUS_TEST_ASSERT (providerName == "repository");
 
     Array<CIMName> subClassNames;
     r.getSubClassNames(NAMESPACE, SUPERCLASS, true, subClassNames);
-    assert(subClassNames.size() == 1);
-    assert(subClassNames[0] == SUBCLASS);
+    PEGASUS_TEST_ASSERT(subClassNames.size() == 1);
+    PEGASUS_TEST_ASSERT(subClassNames[0] == SUBCLASS);
 
     Array<CIMName> superClassNames;
     r.getSuperClassNames(NAMESPACE, SUBCLASS, superClassNames);
-    assert(superClassNames.size() == 1);
-    assert(superClassNames[0] == SUPERCLASS);
+    PEGASUS_TEST_ASSERT(superClassNames.size() == 1);
+    PEGASUS_TEST_ASSERT(superClassNames[0] == SUPERCLASS);
 }
 
 void test03(CIMRepository_Mode mode)

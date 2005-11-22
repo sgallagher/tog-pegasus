@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Stack.h>
 
 #include <cstdlib>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -47,25 +47,25 @@ int main(int argc, char** argv)
     {
     // Simple test with Uint32 Stack of push, pop, top, and tests.
     Stack<Uint32> s1;
-    assert (s1.isEmpty());
+    PEGASUS_TEST_ASSERT (s1.isEmpty());
 
     s1.push(1);
-    assert(s1.size() == 1);
-    assert (!s1.isEmpty());
+    PEGASUS_TEST_ASSERT(s1.size() == 1);
+    PEGASUS_TEST_ASSERT (!s1.isEmpty());
 
     s1.push(2);
-    assert(s1.size() == 2);
-    assert (!s1.isEmpty());
+    PEGASUS_TEST_ASSERT(s1.size() == 2);
+    PEGASUS_TEST_ASSERT (!s1.isEmpty());
 
-    assert(s1.top() == 2);
-
-    s1.pop();
-    assert(s1.size() == 1);
-    assert (!s1.isEmpty());
+    PEGASUS_TEST_ASSERT(s1.top() == 2);
 
     s1.pop();
-    assert(s1.size() == 0);
-    assert (s1.isEmpty());
+    PEGASUS_TEST_ASSERT(s1.size() == 1);
+    PEGASUS_TEST_ASSERT (!s1.isEmpty());
+
+    s1.pop();
+    PEGASUS_TEST_ASSERT(s1.size() == 0);
+    PEGASUS_TEST_ASSERT (s1.isEmpty());
 
     // Performance tests
 
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
     for (Uint32 i = 0; i < stackSize; i++)
         s2.push(i);
 
-    assert(s2.size() == stackSize);
+    PEGASUS_TEST_ASSERT(s2.size() == stackSize);
     for (Uint32 i = 0; i < stackSize; i++)
         s2.pop();
 

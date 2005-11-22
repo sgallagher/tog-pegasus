@@ -38,7 +38,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/MofWriter.h>
@@ -64,31 +64,31 @@ void TestNameSpaces(CIMRepository_Mode mode)
     nameSpaces = r.enumerateNameSpaces();
     BubbleSort(nameSpaces);
 
-    assert(nameSpaces.size() == 6);
-    assert(nameSpaces[0] == CIMNamespaceName ("namespace0"));
-    assert(nameSpaces[1] == CIMNamespaceName ("namespace1"));
-    assert(nameSpaces[2] == CIMNamespaceName ("namespace2"));
-    assert(nameSpaces[3] == CIMNamespaceName ("namespace2/subnamespace"));
-    assert(nameSpaces[4] == CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
-    assert(nameSpaces[5] == CIMNamespaceName ("root"));
+    PEGASUS_TEST_ASSERT(nameSpaces.size() == 6);
+    PEGASUS_TEST_ASSERT(nameSpaces[0] == CIMNamespaceName ("namespace0"));
+    PEGASUS_TEST_ASSERT(nameSpaces[1] == CIMNamespaceName ("namespace1"));
+    PEGASUS_TEST_ASSERT(nameSpaces[2] == CIMNamespaceName ("namespace2"));
+    PEGASUS_TEST_ASSERT(nameSpaces[3] == CIMNamespaceName ("namespace2/subnamespace"));
+    PEGASUS_TEST_ASSERT(nameSpaces[4] == CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
+    PEGASUS_TEST_ASSERT(nameSpaces[5] == CIMNamespaceName ("root"));
 
     r.deleteNameSpace(CIMNamespaceName ("namespace0"));
     r.deleteNameSpace(CIMNamespaceName ("namespace1"));
 
     nameSpaces = r.enumerateNameSpaces();
-    assert(nameSpaces.size() == 4);
+    PEGASUS_TEST_ASSERT(nameSpaces.size() == 4);
     BubbleSort(nameSpaces);
-    assert(nameSpaces[0] == CIMNamespaceName ("namespace2"));
-    assert(nameSpaces[1] == CIMNamespaceName ("namespace2/subnamespace"));
-    assert(nameSpaces[2] == CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
-    assert(nameSpaces[3] == CIMNamespaceName ("root"));
+    PEGASUS_TEST_ASSERT(nameSpaces[0] == CIMNamespaceName ("namespace2"));
+    PEGASUS_TEST_ASSERT(nameSpaces[1] == CIMNamespaceName ("namespace2/subnamespace"));
+    PEGASUS_TEST_ASSERT(nameSpaces[2] == CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
+    PEGASUS_TEST_ASSERT(nameSpaces[3] == CIMNamespaceName ("root"));
 
     r.deleteNameSpace(CIMNamespaceName ("namespace2"));
     r.deleteNameSpace(CIMNamespaceName ("namespace2/subnamespace"));
     r.deleteNameSpace(CIMNamespaceName ("namespace2/subnamespace/subsubnamespace"));
     nameSpaces = r.enumerateNameSpaces();
-    assert(nameSpaces.size() == 1);
-    assert(nameSpaces[0] == CIMNamespaceName ("root"));
+    PEGASUS_TEST_ASSERT(nameSpaces.size() == 1);
+    PEGASUS_TEST_ASSERT(nameSpaces[0] == CIMNamespaceName ("root"));
 }
 
 
@@ -140,8 +140,8 @@ void TestCreateClass(CIMRepository_Mode mode)
     r.createClass(NS, c1);
     CIMConstClass cc1;
     cc1 = r.getClass(NS, CIMName ("SuperClass"),true,true, true);
-    assert(c1.identical(cc1));
-    assert(cc1.identical(c1));
+    PEGASUS_TEST_ASSERT(c1.identical(cc1));
+    PEGASUS_TEST_ASSERT(cc1.identical(c1));
 
     // -- Now create a sub class (get it back and compare):
     // c22 has one additional property than c1 (junk)
@@ -162,8 +162,8 @@ void TestCreateClass(CIMRepository_Mode mode)
     //XmlWriter::printClassElement(c2);
     //XmlWriter::printClassElement(cc2);
     
-    assert(c2.identical(cc2));
-    assert(cc2.identical(c2));
+    PEGASUS_TEST_ASSERT(c2.identical(cc2));
+    PEGASUS_TEST_ASSERT(cc2.identical(c2));
 
     //
     // -- Modify "SubClass" (add new property)
@@ -171,8 +171,8 @@ void TestCreateClass(CIMRepository_Mode mode)
     c2.addProperty(CIMProperty(CIMName ("newProperty"), Uint32(888)));
     r.modifyClass(NS, c2);
     cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
-    assert(c2.identical(cc2));
-    assert(cc2.identical(c2));
+    PEGASUS_TEST_ASSERT(c2.identical(cc2));
+    PEGASUS_TEST_ASSERT(cc2.identical(c2));
     // should test for this new property on subclass also.
 
     //
@@ -187,9 +187,9 @@ void TestCreateClass(CIMRepository_Mode mode)
 	  }
       }
     BubbleSort(classNames);
-    assert(classNames.size() == 2);
-    assert(classNames[1] == CIMName ("SuperClass"));
-    assert(classNames[0] == CIMName ("SubClass"));
+    PEGASUS_TEST_ASSERT(classNames.size() == 2);
+    PEGASUS_TEST_ASSERT(classNames[1] == CIMName ("SuperClass"));
+    PEGASUS_TEST_ASSERT(classNames[0] == CIMName ("SubClass"));
 
     //
     // Test the getClass operation options, localonly,
@@ -204,16 +204,16 @@ void TestCreateClass(CIMRepository_Mode mode)
 	XmlWriter::printClassElement(cc2);
       }
 
-    assert(cc2.findProperty("ratio") == PEG_NOT_FOUND);
-    assert(cc2.findProperty("message") == PEG_NOT_FOUND);
-    assert(cc2.findProperty("junk") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("ratio") == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("message") == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("junk") != PEG_NOT_FOUND);
 
     //
     // Test to assure that propagated class qualifier removed and
     // local one not removed
     // The following test does not work because propagated, etc. not set.
-    //assert (cc2.findQualifier("Description") == PEG_NOT_FOUND);
-    assert (cc2.findQualifier("junk") != PEG_NOT_FOUND);
+    //PEGASUS_TEST_ASSERT (cc2.findQualifier("Description") == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT (cc2.findQualifier("junk") != PEG_NOT_FOUND);
 
     // test for qualifier on the junk property.
     // ATTN: TODO
@@ -223,32 +223,32 @@ void TestCreateClass(CIMRepository_Mode mode)
     // (localonly false, includequalifiers true, classorigin true)
     //
     cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
-    assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
-    assert(cc2.findProperty("message") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("message") != PEG_NOT_FOUND);
 
     //
     // test includeQualifiers set true
     // (localonly true, includequalifiers true, classorigin true)
     //
     cc2 = r.getClass(NS, CIMName ("SuperClass"), true, true, true);
-    assert(cc2.getQualifierCount() != 0);
+    PEGASUS_TEST_ASSERT(cc2.getQualifierCount() != 0);
 
     //
     // test includeQualifiers set false
     // (localonly true, includequalifiers false, classorigin true)
     //
     cc2 = r.getClass(NS, CIMName ("SuperClass"), true, false, true);
-    assert(cc2.getQualifierCount() == 0);
+    PEGASUS_TEST_ASSERT(cc2.getQualifierCount() == 0);
 
     for (Uint32 i = 0; i < cc2.getPropertyCount(); i++)
       {
 	CIMConstProperty p = cc2.getProperty(i);
-	assert(p.getQualifierCount() == 0);
+	PEGASUS_TEST_ASSERT(p.getQualifierCount() == 0);
       }
     for (Uint32 i = 0; i < cc2.getMethodCount(); i++)
       {
 	CIMConstMethod m = cc2.getMethod(i);
-	assert(m.getQualifierCount() == 0);
+	PEGASUS_TEST_ASSERT(m.getQualifierCount() == 0);
       }
 
     //	
@@ -258,9 +258,9 @@ void TestCreateClass(CIMRepository_Mode mode)
     cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, true);
     CIMConstProperty p;
     Uint32 pos  =  cc2.findProperty("ratio");
-    assert(pos != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(pos != PEG_NOT_FOUND);
     p = cc2.getProperty(pos);
-    assert(p.getClassOrigin() == CIMName("SuperClass"));
+    PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName("SuperClass"));
 
     //
     // Test for Class origin set false. Should return null CIMName.
@@ -269,9 +269,9 @@ void TestCreateClass(CIMRepository_Mode mode)
     cc2 = r.getClass(NS, CIMName ("SubClass"), false, true, false);
     CIMConstProperty p1;
     Uint32 pos1  =  cc2.findProperty("ratio");
-    assert(pos1 != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(pos1 != PEG_NOT_FOUND);
     p1 = cc2.getProperty(pos);
-    assert(p1.getClassOrigin() == CIMName());
+    PEGASUS_TEST_ASSERT(p1.getClassOrigin() == CIMName());
 	
 
     //
@@ -284,9 +284,9 @@ void TestCreateClass(CIMRepository_Mode mode)
     Array<CIMName> pls_empty;
     CIMPropertyList pl(pls_empty); 
     cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
-    assert(cc2.findProperty("ratio") == PEG_NOT_FOUND);
-    assert(cc2.findProperty("message") == PEG_NOT_FOUND);
-    assert(cc2.getPropertyCount() == 0);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("ratio") == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("message") == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.getPropertyCount() == 0);
 
     //
     // Test with one property in list.
@@ -296,9 +296,9 @@ void TestCreateClass(CIMRepository_Mode mode)
     pl.clear();
     pl.set(pls);
     cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
-    assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
-    assert(cc2.findProperty("message") == PEG_NOT_FOUND);
-    assert(cc2.getPropertyCount() == 1);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("message") == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.getPropertyCount() == 1);
 
     //
     // retest with two entries in the list.
@@ -307,9 +307,9 @@ void TestCreateClass(CIMRepository_Mode mode)
     pl.clear();
     pl.set(pls);
     cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
-    assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
-    assert(cc2.findProperty("message") != PEG_NOT_FOUND);
-    assert(cc2.getPropertyCount() == 2);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("message") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.getPropertyCount() == 2);
 
     //
     // Test with an invalid property in the list. It should be ignored 
@@ -319,9 +319,9 @@ void TestCreateClass(CIMRepository_Mode mode)
     pl.clear();
     pl.set(pls);
     cc2 = r.getClass(NS, CIMName ("SuperClass"), false, true, true, pl);
-    assert(cc2.findProperty("ratio") != PEG_NOT_FOUND);
-    assert(cc2.findProperty("message") != PEG_NOT_FOUND);
-    assert(cc2.getPropertyCount() == 2);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("ratio") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.findProperty("message") != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cc2.getPropertyCount() == 2);
 
 	
     //
@@ -341,13 +341,13 @@ void TestCreateClass(CIMRepository_Mode mode)
     Array<CIMObjectPath> instanceNames = 
 	r.enumerateInstanceNames(NS, CIMName ("SuperClass"));
 
-    assert(instanceNames.size() == 2);
+    PEGASUS_TEST_ASSERT(instanceNames.size() == 2);
 
-    assert(
+    PEGASUS_TEST_ASSERT(
 	instanceNames[0].toString() == "SuperClass.key=111" ||
 	instanceNames[0].toString() == "SubClass.key=222");
 
-    assert(
+    PEGASUS_TEST_ASSERT(
 	instanceNames[1].toString() == "SuperClass.key=111" ||
 	instanceNames[1].toString() == "SubClass.key=222");
 
@@ -361,16 +361,16 @@ void TestCreateClass(CIMRepository_Mode mode)
     Array<CIMInstance> namedInstances = r.enumerateInstances(NS, 
         CIMName ("SuperClass"),true, false, true, true);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     //XmlWriter::printInstanceElement(namedInstances[0], cout);
     //XmlWriter::printInstanceElement(inst0, cout);
     //XmlWriter::printInstanceElement(inst1, cout);
-    assert(
+    PEGASUS_TEST_ASSERT(
 	namedInstances[0].identical(inst0) ||
 	namedInstances[0].identical(inst1));
 
-    assert(
+    PEGASUS_TEST_ASSERT(
 	namedInstances[1].identical(inst0) ||
 	namedInstances[1].identical(inst1));
 
@@ -380,19 +380,19 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstancesForClass(NS, 
         CIMName ("SuperClass"),true, false, true, true);
 
-    assert(namedInstances.size() == 1);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
     //XmlWriter::printInstanceElement(namedInstances[0], cout);
     //XmlWriter::printInstanceElement(inst0, cout);
     //XmlWriter::printInstanceElement(inst1, cout);
-    assert( namedInstances[0].identical(inst0));
+    PEGASUS_TEST_ASSERT( namedInstances[0].identical(inst0));
 
     namedInstances = r.enumerateInstancesForClass(NS, 
         CIMName ("SubClass"),true, false, true, true);
 
-    assert(namedInstances.size() == 1);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
-    assert(namedInstances[0].identical(inst1));
+    PEGASUS_TEST_ASSERT(namedInstances[0].identical(inst1));
     
 #ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
     //
@@ -402,7 +402,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstances(NS, 
         CIMName ("SuperClass"),true, false, true, false);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
@@ -420,7 +420,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstancesForClass(NS, 
         CIMName ("SuperClass"),true, false, true, false, false);
 
-    assert(namedInstances.size() == 1);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
@@ -437,16 +437,16 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstances(NS, 
         CIMName ("SuperClass"),true, false, false, false);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
-        assert(namedInstances[i].getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(namedInstances[i].getQualifierCount() == 0);
         // Check all properties for qualifiers
         for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
         {
             CIMProperty p = namedInstances[i].getProperty(j);
-            assert(p.getQualifierCount() == 0);
+            PEGASUS_TEST_ASSERT(p.getQualifierCount() == 0);
         }
     }
 
@@ -456,16 +456,16 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstancesForClass(NS, 
         CIMName ("SuperClass"),true, false, false, false, false);
 
-    assert(namedInstances.size() == 1);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 1);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
-        assert(namedInstances[i].getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(namedInstances[i].getQualifierCount() == 0);
         // Check all properties for qualifiers
         for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
         {
             CIMProperty p = namedInstances[i].getProperty(j);
-            assert(p.getQualifierCount() == 0);
+            PEGASUS_TEST_ASSERT(p.getQualifierCount() == 0);
         }
         
     }
@@ -486,17 +486,17 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstances(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
         // Check all properties for qualifiers
         for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
 	{
-            assert(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
-            assert(namedInstances[i].findProperty("ratio") == PEG_NOT_FOUND);
-	    assert(namedInstances[i].findProperty("message") == PEG_NOT_FOUND);
-	    assert(namedInstances[i].getPropertyCount() == 0);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("ratio") == PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("message") == PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].getPropertyCount() == 0);
         }
     }
 
@@ -512,17 +512,17 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstances(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
         // Check all properties for qualifiers
         for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
 	{
-            assert(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
-            assert(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
-	    assert(namedInstances[i].findProperty("message") == PEG_NOT_FOUND);
-	    assert(namedInstances[i].getPropertyCount() == 1);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("message") == PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].getPropertyCount() == 1);
         }
     }
 
@@ -538,17 +538,17 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstances(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
         // Check all properties for qualifiers
         for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
 	{
-            assert(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
-            assert(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
-	    assert(namedInstances[i].findProperty("message") != PEG_NOT_FOUND);
-	    assert(namedInstances[i].getPropertyCount() == 2);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("message") != PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].getPropertyCount() == 2);
         }
     }
 
@@ -566,17 +566,17 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstances(NS,
         CIMName ("SuperClass"),true, true, false, false, pl1);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
         // Check all properties for qualifiers
         for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
 	{
-            assert(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
-            assert(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
-	    assert(namedInstances[i].findProperty("message") != PEG_NOT_FOUND);
-	    assert(namedInstances[i].getPropertyCount() == 2);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("message") != PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].getPropertyCount() == 2);
         }
     }
 
@@ -592,17 +592,17 @@ void TestCreateClass(CIMRepository_Mode mode)
     namedInstances = r.enumerateInstances(NS,
         CIMName ("SuperClass"),true, false, false, false, pl1);
 
-    assert(namedInstances.size() == 2);
+    PEGASUS_TEST_ASSERT(namedInstances.size() == 2);
 
     for (Uint32 i = 0 ; i < namedInstances.size() ; i++)
     {
         // Check all properties for qualifiers
         for (Uint32 j = 0 ; j < namedInstances[i].getPropertyCount() ; j++)
 	{
-            assert(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
-            assert(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
-	    assert(namedInstances[i].findProperty("message") != PEG_NOT_FOUND);
-	    assert(namedInstances[i].getPropertyCount() == 2);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("key") == PEG_NOT_FOUND);
+            PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("ratio") != PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].findProperty("message") != PEG_NOT_FOUND);
+	    PEGASUS_TEST_ASSERT(namedInstances[i].getPropertyCount() == 2);
         }
     }
 
@@ -629,7 +629,7 @@ void TestCreateClass(CIMRepository_Mode mode)
 	//XmlWriter::printInstanceElement(tmpInstance, cout);
 	//XmlWriter::printInstanceElement(modifiedInst0, cout);
     
-    assert(tmpInstance.identical(modifiedInst0));
+    PEGASUS_TEST_ASSERT(tmpInstance.identical(modifiedInst0));
 
     //
     // -- Now modify the "message" property:
@@ -638,7 +638,7 @@ void TestCreateClass(CIMRepository_Mode mode)
         ("SuperClass.key=111"), CIMName ("message"));
     String message;
     messageValue.get(message);
-    assert(message == "Goodbye World");
+    PEGASUS_TEST_ASSERT(message == "Goodbye World");
 
     r.setProperty(NS, CIMObjectPath ("SuperClass.key=111"), CIMName ("message"), 
         CIMValue(String("Hello World")));
@@ -646,7 +646,7 @@ void TestCreateClass(CIMRepository_Mode mode)
     messageValue = r.getProperty( NS, CIMObjectPath ("SuperClass.key=111"), 
         CIMName ("message"));
     messageValue.get(message);
-    assert(message == "Hello World");
+    PEGASUS_TEST_ASSERT(message == "Hello World");
 
     //
     // Future test -  modify key property and attempt to write
@@ -664,11 +664,11 @@ void TestCreateClass(CIMRepository_Mode mode)
     }
     catch (CIMException& e)
     {
-	assert(e.getCode() == CIM_ERR_FAILED);
+	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_FAILED);
 	failed = true;
     }
 
-    assert(failed);
+    PEGASUS_TEST_ASSERT(failed);
 
     //
     // -- Delete the instances:
@@ -717,8 +717,8 @@ void TestQualifiers(CIMRepository_Mode mode)
 
     CIMQualifierDecl qq = r.getQualifier(NS, CIMName ("abstract"));
 
-    assert(qq.identical(q));
-    assert(q.identical(qq));
+    PEGASUS_TEST_ASSERT(qq.identical(q));
+    PEGASUS_TEST_ASSERT(q.identical(qq));
 
     //
     // -- Delete the qualifier:

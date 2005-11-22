@@ -67,7 +67,7 @@
 */
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/NameSpaceManager.h>
 #include <Pegasus/Common/FileSystem.h>
 
@@ -119,18 +119,18 @@ void test01()
     nsm.getNameSpaceNames(nameSpaceNames);
     if (verbose)
         nsm.print(cout);
-    assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES);
+    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == NUM_NAMSPACE_NAMES);
     BubbleSort(nameSpaceNames);
 
     for (Uint32 i = 0; i < NUM_NAMSPACE_NAMES; i++)
     {
-	assert(_nameSpaceNames[i] == nameSpaceNames[i]);
-	assert(nsm.nameSpaceExists(nameSpaceNames[i]));
+	PEGASUS_TEST_ASSERT(_nameSpaceNames[i] == nameSpaceNames[i]);
+	PEGASUS_TEST_ASSERT(nsm.nameSpaceExists(nameSpaceNames[i]));
     }
 
     nsm.deleteNameSpace(CIMNamespaceName("lmnop/qrstuv"));
     nsm.getNameSpaceNames(nameSpaceNames);
-    assert(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
+    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == NUM_NAMSPACE_NAMES - 1);
 
     // Create and delete a class to test these functions
     String outPath;
@@ -139,7 +139,7 @@ void test01()
         "MyClass",NameSpaceRead);
     String cfp (repositoryRoot);
     cfp.append("/aa#bb/classes/MyClass.#");
-    assert (classFilePath == cfp);
+    PEGASUS_TEST_ASSERT (classFilePath == cfp);
 
     for (Uint32 j = 0; j < _nameSpaceNames.size(); j++)
     {
@@ -151,12 +151,12 @@ void test01()
     }
     nsm.getNameSpaceNames(nameSpaceNames);
     // Only the root namespace should be left.
-    assert(nameSpaceNames.size() == 1);
-    assert(nameSpaceNames[0].equal(CIMNamespaceName("root")));
+    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == 1);
+    PEGASUS_TEST_ASSERT(nameSpaceNames[0].equal(CIMNamespaceName("root")));
     // confirm we can delete root
     nsm.deleteNameSpace(nameSpaceNames[0]);
     nsm.getNameSpaceNames(nameSpaceNames);
-    assert(nameSpaceNames.size() == 0);
+    PEGASUS_TEST_ASSERT(nameSpaceNames.size() == 0);
 }
 
 int main(int argc, char** argv)

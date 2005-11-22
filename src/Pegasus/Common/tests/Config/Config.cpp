@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
@@ -47,7 +47,7 @@ PEGASUS_NAMESPACE_END
 
 int main(int argc, char** argv)
 {
-    assert(numDummyObjects == 1);    
+    PEGASUS_TEST_ASSERT(numDummyObjects == 1);    
 
     cout << argv[0] << " +++++ passed all tests" << endl;
 

@@ -38,7 +38,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/AnonymousPipe.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/InternalException.h>

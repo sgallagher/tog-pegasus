@@ -55,7 +55,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_USING_PEGASUS;
@@ -97,10 +97,10 @@ void TestCase1()
 	
     BubbleSort(tmp);
     BubbleSort(classNames);
-    assert(tmp.size() == 3);
-    assert(tmp.size() == classNames.size());
+    PEGASUS_TEST_ASSERT(tmp.size() == 3);
+    PEGASUS_TEST_ASSERT(tmp.size() == classNames.size());
 
-    assert(tmp == classNames);
+    PEGASUS_TEST_ASSERT(tmp == classNames);
 }
 
 void TestCase2()
@@ -136,7 +136,7 @@ void TestCase2()
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    assert(tmp == classNames);
+    PEGASUS_TEST_ASSERT(tmp == classNames);
 }
 
 void TestCase3()
@@ -162,7 +162,7 @@ void TestCase3()
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    assert(tmp == classNames);
+    PEGASUS_TEST_ASSERT(tmp == classNames);
 }
 
 void TestCase4()
@@ -192,7 +192,7 @@ void TestCase4()
 
     BubbleSort(tmp);
     BubbleSort(classNames);
-    assert(tmp == classNames);
+    PEGASUS_TEST_ASSERT(tmp == classNames);
 }
 
 static void CreateClass(
@@ -262,7 +262,7 @@ int main(int argc, char** argv)
     catch (Exception& e)
     {
 		cout << "Exception " << e.getMessage() << endl;
-		assert(false);
+		PEGASUS_TEST_ASSERT(false);
     }
 
     cout << argv[0] << " " << argv[1] << " +++++ passed all tests" << endl;

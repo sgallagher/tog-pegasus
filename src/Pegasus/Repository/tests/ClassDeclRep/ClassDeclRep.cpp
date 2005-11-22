@@ -35,7 +35,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/FileSystem.h>
@@ -72,7 +72,7 @@ void Test01(CIMRepository_Mode mode)
     r.setQualifier(NAMESPACE, q1);
 
     CIMConstQualifierDecl q2 = r.getQualifier(NAMESPACE, CIMName ("abstract"));
-    assert(q1.identical(q2));
+    PEGASUS_TEST_ASSERT(q1.identical(q2));
 
     // Create two simple classes:
 
@@ -89,18 +89,18 @@ void Test01(CIMRepository_Mode mode)
 
     BubbleSort(classNames);
 
-    assert(classNames.size() == 2);
+    PEGASUS_TEST_ASSERT(classNames.size() == 2);
     // ATTN-RK-20020729: Remove CIMName cast when Repository uses CIMName
-    assert(CIMName(classNames[0]).equal(CIMName ("Class1")));
-    assert(CIMName(classNames[1]).equal(CIMName ("Class2")));
+    PEGASUS_TEST_ASSERT(CIMName(classNames[0]).equal(CIMName ("Class1")));
+    PEGASUS_TEST_ASSERT(CIMName(classNames[1]).equal(CIMName ("Class2")));
 
 	// Get the classes and determine if they are identical with input
 
 	CIMClass c1 =  r.getClass(NAMESPACE, CIMName ("Class1"), true, true, true);
 	CIMClass c2 =  r.getClass(NAMESPACE, CIMName ("Class2"), true, true, true);
 
-	assert(c1.identical(class1));
-	assert(c1.identical(class1));
+	PEGASUS_TEST_ASSERT(c1.identical(class1));
+	PEGASUS_TEST_ASSERT(c1.identical(class1));
 
     Array<CIMClass> classes = 
 	r.enumerateClasses(NAMESPACE, CIMName (), true, true, true);
@@ -114,7 +114,7 @@ void Test01(CIMRepository_Mode mode)
     }
     catch (CIMException& e)
     {
-	assert(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
+	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_CLASS_HAS_CHILDREN);
     }
 
     // Delete all classes created here:
@@ -127,8 +127,8 @@ void Test01(CIMRepository_Mode mode)
     Array<String> tmp;
     String classesDir (repositoryRoot);
     classesDir.append("/zzz/classes");
-    assert(FileSystem::getDirectoryContents (classesDir, tmp));
-    assert(tmp.size() == 0);
+    PEGASUS_TEST_ASSERT(FileSystem::getDirectoryContents (classesDir, tmp));
+    PEGASUS_TEST_ASSERT(tmp.size() == 0);
 }
 
 int main(int argc, char** argv)

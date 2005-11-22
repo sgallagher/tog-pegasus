@@ -43,7 +43,7 @@
    characteristics.
 */
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
@@ -97,9 +97,9 @@ void test01()
         .addProperty(CIMProperty(CIMName("ratio"), Real32(1.5)));
 
     // Test
-    assert(class1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
-    assert(class1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    assert(class1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
 
     Resolver::resolveClass(class1, context, NAMESPACE);
     context->addClass(NAMESPACE, class1);
@@ -110,9 +110,9 @@ void test01()
     }
 
     CIMInstance instance0(CIMName("MyClass"));
-    assert(instance0.getClassName().equal(CIMName("MyClass")));
+    PEGASUS_TEST_ASSERT(instance0.getClassName().equal(CIMName("MyClass")));
     instance0.setPath(CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
-    assert(instance0.getPath() ==
+    PEGASUS_TEST_ASSERT(instance0.getPath() ==
         CIMObjectPath("//localhost/root/cimv2:MyClass.Foo=1"));
 
     CIMInstance instance1(CIMName("MyClass"));
@@ -120,12 +120,12 @@ void test01()
 
     instance1.addProperty(CIMProperty(CIMName("message"), String("Goodbye")));
 
-    assert(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
 
-    assert(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("ratio")) == PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
-    assert(instance1.getPropertyCount() == 1);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 1);
 
     if (verbose)
     {
@@ -141,11 +141,11 @@ void test01()
 
     // Now test for properties after resolution.
 
-    assert(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
-    assert(instance1.getPropertyCount() == 3);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 3);
 
     // Now remove a property
 
@@ -153,12 +153,12 @@ void test01()
     posProperty = instance1.findProperty(CIMName("count"));
     instance1.removeProperty(posProperty);
 
-    assert(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
-    assert(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("ratio")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.findProperty(CIMName("nuts")) == PEG_NOT_FOUND);
 
-    assert(instance1.getPropertyCount() == 2);
+    PEGASUS_TEST_ASSERT(instance1.getPropertyCount() == 2);
 
     // Instance qualifier tests
 
@@ -166,12 +166,12 @@ void test01()
         CIMName("classcounter")));
 
     const CIMInstance instance2 = instance1.clone();
-    assert(instance2.identical(instance1));
-    assert(instance1.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
-    assert(instance2.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
-    assert(instance1.getQualifierCount() != 4);
-    assert(instance1.getQualifierCount() == 1);
-    assert(instance2.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(instance2.identical(instance1));
+    PEGASUS_TEST_ASSERT(instance1.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance2.findQualifier(CIMName("nuts")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(instance1.getQualifierCount() != 4);
+    PEGASUS_TEST_ASSERT(instance1.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(instance2.getQualifierCount() == 1);
 
     if (verbose)
     {
@@ -183,29 +183,29 @@ void test01()
     CIMConstInstance ccopy(cinstance1);
 
     cinstance1 = instance1;
-    assert(cinstance1.identical(instance1));
+    PEGASUS_TEST_ASSERT(cinstance1.identical(instance1));
 
-    assert(cinstance1.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(cinstance1.getQualifierCount() == 1);
     CIMConstQualifier ccq = cinstance1.getQualifier(cinstance1.findQualifier(
         CIMName("classcounter")));
-    assert(cinstance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cinstance1.findProperty(CIMName("message")) != PEG_NOT_FOUND);
     CIMConstProperty ccp =
         cinstance1.getProperty(cinstance1.findProperty(CIMName("message")));
 
     cinstance3 = cinstance1;
-    assert(cinstance3.identical(cinstance1));
+    PEGASUS_TEST_ASSERT(cinstance3.identical(cinstance1));
 
-    assert(cinstance1.getClassName() == CIMName("MyClass"));
-    assert(cinstance1.getClassName().equal(CIMName("MyClass")));
-    assert(cinstance1.getClassName().equal(CIMName("MYCLASS")));
-    assert(cinstance1.getClassName().equal(CIMName("myclass")));
-    assert(!cinstance1.getClassName().equal(CIMName("blob")));
+    PEGASUS_TEST_ASSERT(cinstance1.getClassName() == CIMName("MyClass"));
+    PEGASUS_TEST_ASSERT(cinstance1.getClassName().equal(CIMName("MyClass")));
+    PEGASUS_TEST_ASSERT(cinstance1.getClassName().equal(CIMName("MYCLASS")));
+    PEGASUS_TEST_ASSERT(cinstance1.getClassName().equal(CIMName("myclass")));
+    PEGASUS_TEST_ASSERT(!cinstance1.getClassName().equal(CIMName("blob")));
 
-    assert(cinstance1.getQualifierCount() != 4);
-    assert(cinstance1.getPropertyCount() == 2);
+    PEGASUS_TEST_ASSERT(cinstance1.getQualifierCount() != 4);
+    PEGASUS_TEST_ASSERT(cinstance1.getPropertyCount() == 2);
 
     CIMConstInstance cinstance2 = cinstance1.clone();
-    assert(cinstance2.identical(cinstance1));
+    PEGASUS_TEST_ASSERT(cinstance2.identical(cinstance1));
 
     if (verbose)
     {
@@ -214,7 +214,7 @@ void test01()
 
     cinstance1.buildPath(class1);
 
-    assert( !cinstance1.isUninitialized() );
+    PEGASUS_TEST_ASSERT( !cinstance1.isUninitialized() );
 
     delete context;
 }
@@ -238,11 +238,11 @@ void test02()
     cimInstance.addProperty(CIMProperty(CIMName("last"), String("Smith")));
     cimInstance.addProperty(CIMProperty(CIMName("age"), Uint8(101)));
 
-    assert(cimInstance.findProperty(CIMName("first")) != PEG_NOT_FOUND);
-    assert(cimInstance.findProperty(CIMName("last")) != PEG_NOT_FOUND);
-    assert(cimInstance.findProperty(CIMName("age")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("first")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("last")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(cimInstance.findProperty(CIMName("age")) != PEG_NOT_FOUND);
 
-    assert(cimInstance.getPropertyCount() == 3);
+    PEGASUS_TEST_ASSERT(cimInstance.getPropertyCount() == 3);
 
 
     CIMObjectPath instanceName =
@@ -250,7 +250,7 @@ void test02()
 
     CIMObjectPath tmp("myclass.age=101,first=\"John\",last=\"Smith\"");
 
-    assert(tmp.makeHashCode() == instanceName.makeHashCode());
+    PEGASUS_TEST_ASSERT(tmp.makeHashCode() == instanceName.makeHashCode());
 
     // Test CIMInstance::buildPath with incomplete keys in the instance
 
@@ -269,7 +269,7 @@ void test02()
         caughtNoSuchPropertyException = true;
     }
 
-    assert(caughtNoSuchPropertyException);
+    PEGASUS_TEST_ASSERT(caughtNoSuchPropertyException);
 }
 
 // Build the instance of an association class and test the build path functions.
@@ -345,9 +345,9 @@ void test03()
 
     String x ="MY_AssocClass.child=\"My_PersonClass.name=\\\"daughter\\\"\","
         "parent=\"MY_PersonClass.name=\\\"father\\\"\"";
-    assert(x == assocInstancePath.toString());
+    PEGASUS_TEST_ASSERT(x == assocInstancePath.toString());
     CIMObjectPath px = x;
-    assert(px.identical(assocInstancePath));
+    PEGASUS_TEST_ASSERT(px.identical(assocInstancePath));
 }
 
 Boolean _propertyIdentical(
@@ -433,10 +433,10 @@ void test04()
             XmlWriter::printInstanceElement(newInstance);
         }
 
-        assert(newInstance.getPropertyCount() == class1.getPropertyCount());
-        assert(newInstance.getQualifierCount() == class1.getQualifierCount());
-        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        assert(newInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == class1.getPropertyCount());
+        PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == class1.getQualifierCount());
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") != PEG_NOT_FOUND);
 
     }
 
@@ -447,10 +447,10 @@ void test04()
         CIMInstance newInstance =
             class1.buildInstance(false, true, CIMPropertyList());
 
-        assert(newInstance.getQualifierCount() == 0);
-        assert(newInstance.getPropertyCount() == class1.getPropertyCount());
-        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        assert(newInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == class1.getPropertyCount());
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") != PEG_NOT_FOUND);
     }
 
     //
@@ -462,8 +462,8 @@ void test04()
 
         CIMInstance newInstance = class1.buildInstance(false, true, pl1);
 
-        assert(newInstance.getQualifierCount() == 0);
-        assert(newInstance.getPropertyCount() == 0);
+        PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 0);
     }
 
     //
@@ -482,10 +482,10 @@ void test04()
             XmlWriter::printInstanceElement(newInstance);
         }
 
-        assert(newInstance.getPropertyCount() == 1);
-        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        assert(newInstance.findProperty("message") == PEG_NOT_FOUND);
-        assert(newInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
     }
 
     //
@@ -501,11 +501,11 @@ void test04()
 
         CIMInstance newInstance = class1.buildInstance(false, true, pl1);
 
-        assert(newInstance.getPropertyCount() == 1);
-        assert(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        assert(newInstance.findProperty("blob") == PEG_NOT_FOUND);
-        assert(newInstance.findProperty("message") == PEG_NOT_FOUND);
-        assert(newInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(newInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("blob") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.findProperty("message") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(newInstance.getQualifierCount() == 0);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -530,9 +530,9 @@ void test04()
         CIMInstance filterInstance = tstInstance.clone();
         filterInstance.filter(true, true, CIMPropertyList());
 
-        assert(tstInstance.identical(filterInstance));
-        assert(filterInstance.getPropertyCount() == 3);
-        assert(filterInstance.getQualifierCount() ==
+        PEGASUS_TEST_ASSERT(tstInstance.identical(filterInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
             tstInstance.getQualifierCount());
     }
 
@@ -557,10 +557,10 @@ void test04()
             XmlWriter::printInstanceElement(filterInstance);
         }
 
-        assert(filterInstance.getPropertyCount() == 1);
-        assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        assert(_propertyIdentical("ratio", filterInstance, tstInstance));
-        assert(filterInstance.getQualifierCount() ==
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("ratio", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
 
@@ -585,10 +585,10 @@ void test04()
             XmlWriter::printInstanceElement(filterInstance);
         }
 
-        assert(filterInstance.getPropertyCount() == 1);
-        assert(filterInstance.findProperty("message") != PEG_NOT_FOUND);
-        assert(_propertyIdentical("message", filterInstance, tstInstance));
-        assert(filterInstance.getQualifierCount() ==
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("message", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
 
@@ -613,9 +613,9 @@ void test04()
             XmlWriter::printInstanceElement(filterInstance);
         }
 
-        assert(filterInstance.getPropertyCount() == 1);
-        assert(filterInstance.findProperty("count") != PEG_NOT_FOUND);
-        assert(filterInstance.getQualifierCount() ==
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 1);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
 
@@ -634,9 +634,9 @@ void test04()
         CIMInstance filterInstance = tstInstance.clone();
         filterInstance.filter(true, true, pl1);
 
-        assert(filterInstance.getPropertyCount() == 0);
-        assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
-        assert(filterInstance.getQualifierCount() ==
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 0);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
             tstInstance.getQualifierCount());
     }
 
@@ -657,13 +657,13 @@ void test04()
         CIMInstance filterInstance = tstInstance.clone();
         filterInstance.filter(true, true, pl1);
 
-        assert(filterInstance.getPropertyCount() == 2);
-        assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
-        assert(filterInstance.findProperty("message") != PEG_NOT_FOUND);
-        assert(_propertyIdentical("message", filterInstance, tstInstance));
-        assert(filterInstance.findProperty("count") != PEG_NOT_FOUND);
-        assert(_propertyIdentical("count", filterInstance, tstInstance));
-        assert(filterInstance.getQualifierCount() ==
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 2);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("message") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("message", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("count") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(_propertyIdentical("count", filterInstance, tstInstance));
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() ==
                 tstInstance.getQualifierCount());
     }
 
@@ -679,13 +679,13 @@ void test04()
         CIMInstance filterInstance = tstInstance.clone();
         filterInstance.filter(false, true, CIMPropertyList());
 
-        assert(filterInstance.getPropertyCount() == 3);
-        assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        assert(filterInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
         for (Uint32 i = 0; i < filterInstance.getPropertyCount() ; i++)
         {
             CIMConstProperty p = filterInstance.getProperty(i);
-            assert(p.getQualifierCount() == 0);
+            PEGASUS_TEST_ASSERT(p.getQualifierCount() == 0);
         }
     }
 
@@ -704,9 +704,9 @@ void test04()
         CIMInstance filterInstance = tstInstance.clone();
         filterInstance.filter(false, true, pl1);
 
-        assert(filterInstance.getPropertyCount() == 0);
-        assert(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
-        assert(filterInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 0);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
     }
 
     //
@@ -730,13 +730,13 @@ void test04()
             mySubClass.buildInstance(true, true, CIMPropertyList());
         filterInstance.filter(false, true, CIMPropertyList());
 
-        assert(filterInstance.getPropertyCount() == 3);
-        assert(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
-        assert(filterInstance.getQualifierCount() == 0);
+        PEGASUS_TEST_ASSERT(filterInstance.getPropertyCount() == 3);
+        PEGASUS_TEST_ASSERT(filterInstance.findProperty("ratio") != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(filterInstance.getQualifierCount() == 0);
         for (Uint32 i = 0 ; i < filterInstance.getPropertyCount() ; i++)
         {
             CIMProperty p = filterInstance.getProperty(i);
-            assert(!(p.getClassOrigin() == CIMName()));
+            PEGASUS_TEST_ASSERT(!(p.getClassOrigin() == CIMName()));
 
         }
         filterInstance.filter(false, false, CIMPropertyList());
@@ -744,7 +744,7 @@ void test04()
         for (Uint32 i = 0 ; i < filterInstance.getPropertyCount() ; i++)
         {
             CIMProperty p = filterInstance.getProperty(i);
-            assert(p.getClassOrigin() == CIMName());
+            PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName());
         }
 
         CIMInstance filterInstance2 =
@@ -753,7 +753,7 @@ void test04()
         for (Uint32 i = 0 ; i < filterInstance2.getPropertyCount() ; i++)
         {
             CIMProperty p = filterInstance2.getProperty(i);
-            assert(p.getClassOrigin() == CIMName());
+            PEGASUS_TEST_ASSERT(p.getClassOrigin() == CIMName());
         }
     }
     delete context;
@@ -780,62 +780,62 @@ void test05()
         caughtException = true;
     }
 
-    assert(caughtException);
-    assert(instance1.getQualifierCount() == 3);
+    PEGASUS_TEST_ASSERT(caughtException);
+    PEGASUS_TEST_ASSERT(instance1.getQualifierCount() == 3);
 
     // Test that the correct qualifiers exist in the instance
 
     Uint32 qualifierIndex;
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier1"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier2"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier3"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier4"));
-    assert(qualifierIndex == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex == PEG_NOT_FOUND);
 
     // Clone the instance and test for the correct qualifiers
 
     CIMConstInstance instance2 = instance1.clone();
-    assert(instance2.getQualifierCount() == 3);
+    PEGASUS_TEST_ASSERT(instance2.getQualifierCount() == 3);
 
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier1"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier2"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier3"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier4"));
-    assert(qualifierIndex == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex == PEG_NOT_FOUND);
 
     // Remove Qualifier2 from instance1
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier2"));
     instance1.removeQualifier(qualifierIndex);
-    assert(instance1.getQualifierCount() == 2);
+    PEGASUS_TEST_ASSERT(instance1.getQualifierCount() == 2);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier2"));
-    assert(qualifierIndex == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex == PEG_NOT_FOUND);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier1"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     // Confirm that the qualifiers are still in instance2
 
-    assert(instance2.getQualifierCount() == 3);
+    PEGASUS_TEST_ASSERT(instance2.getQualifierCount() == 3);
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier1"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier2"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     // Remove a non-existant qualifier
 
@@ -850,35 +850,35 @@ void test05()
         caughtException = true;
     }
 
-    assert(caughtException);
+    PEGASUS_TEST_ASSERT(caughtException);
 
     // Remove Qualifier1 and Qualifier3 from instance1
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier1"));
     instance1.removeQualifier(qualifierIndex);
-    assert(instance1.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(instance1.getQualifierCount() == 1);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier3"));
     instance1.removeQualifier(qualifierIndex);
-    assert(instance1.getQualifierCount() == 0);
+    PEGASUS_TEST_ASSERT(instance1.getQualifierCount() == 0);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier1"));
-    assert(qualifierIndex == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex == PEG_NOT_FOUND);
 
     qualifierIndex = instance1.findQualifier(CIMName("Qualifier3"));
-    assert(qualifierIndex == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex == PEG_NOT_FOUND);
 
     // Confirm that the qualifiers are still in instance2
 
-    assert(instance2.getQualifierCount() == 3);
+    PEGASUS_TEST_ASSERT(instance2.getQualifierCount() == 3);
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier1"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier2"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 
     qualifierIndex = instance2.findQualifier(CIMName("Qualifier3"));
-    assert(qualifierIndex != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(qualifierIndex != PEG_NOT_FOUND);
 }
 
 int main(int argc, char** argv)

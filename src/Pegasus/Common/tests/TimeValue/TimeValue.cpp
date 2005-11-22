@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/TimeValue.h>
 #include <Pegasus/Common/System.h>
 
@@ -52,20 +52,20 @@ int main(int argc, char** argv)
     {
         cout << "milliseconds=" << ms << endl;
     }
-    assert(ms == (3 * 1000) + 100);
+    PEGASUS_TEST_ASSERT(ms == (3 * 1000) + 100);
 
     tv0.setSeconds(4);
     tv0.setMicroseconds(200000);
     ms = tv0.toMilliseconds();
-    assert(ms == (4 * 1000) + 200);
+    PEGASUS_TEST_ASSERT(ms == (4 * 1000) + 200);
 
     // Test the tomilliseconds function
     TimeValue tvx(1,0);
-    assert(tvx.toMilliseconds() == 1 * 1000);
+    PEGASUS_TEST_ASSERT(tvx.toMilliseconds() == 1 * 1000);
     tvx.setSeconds(2);
-    assert(tvx.toMilliseconds() == 2 * 1000);
+    PEGASUS_TEST_ASSERT(tvx.toMilliseconds() == 2 * 1000);
     tvx.setMicroseconds(500000);
-    assert(tvx.toMilliseconds() == ((2 * 1000) + 500));
+    PEGASUS_TEST_ASSERT(tvx.toMilliseconds() == ((2 * 1000) + 500));
 
 
     // Test time difference between two getCurrentTime calls.
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     if (verbose)
         cout << "milliseconds=" << milliseconds << endl;
 
-    assert(milliseconds >= 4500 && milliseconds <= 5500);
+    PEGASUS_TEST_ASSERT(milliseconds >= 4500 && milliseconds <= 5500);
 
     if (verbose)
         cout << System::getCurrentASCIITime() << endl;

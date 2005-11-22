@@ -39,7 +39,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMName.h>
@@ -84,7 +84,7 @@ void test01()
         CIMClass class0(CIMName ("//localhost/root/cimv2:MyClass"), 
             CIMName ("YourClass"));
 
-        assert(class0.getPath() == 
+        PEGASUS_TEST_ASSERT(class0.getPath() == 
             CIMObjectPath("//localhost/root/cimv2:MyClass"));
     }
     catch (InvalidNameException & ine)
@@ -109,18 +109,18 @@ void test01()
 	    .addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
 
     // Test the method count function
-    assert(class1.getClassName().equal(CIMName ("myclass")));
-    assert(class1.getSuperClassName() == CIMName ("YourClass"));
+    PEGASUS_TEST_ASSERT(class1.getClassName().equal(CIMName ("myclass")));
+    PEGASUS_TEST_ASSERT(class1.getSuperClassName() == CIMName ("YourClass"));
 
-    assert(class1.getMethodCount() ==1);
+    PEGASUS_TEST_ASSERT(class1.getMethodCount() ==1);
 
 
     // Test the findMethod and isMethod functions
-    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
-    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
-    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
-    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
     // Now add another method and reconfirm.
 
@@ -128,70 +128,70 @@ void test01()
 	.addParameter(CIMParameter(CIMName ("hostname"), CIMTYPE_STRING))
 	.addParameter(CIMParameter(CIMName ("port"), CIMTYPE_UINT32)));
 
-    assert(class1.getMethodCount() == 2);
+    PEGASUS_TEST_ASSERT(class1.getMethodCount() == 2);
 
     // Test the findMethod and isMethod functions
     // with two methods defined
-    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
-    assert(class1.findMethod(CIMName ("makeActive")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("makeActive")) != PEG_NOT_FOUND);
 
-    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
-    assert(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
-    assert(class1.findMethod(CIMName ("makeActive")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("isActive")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("makeActive")) != PEG_NOT_FOUND);
 
-    assert(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
 
     // Test RemoveMethod function
     Uint32 posMethod;
     posMethod = class1.findMethod(CIMName ("isActive"));
-    assert(posMethod != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(posMethod != PEG_NOT_FOUND);
 
     class1.removeMethod(posMethod);
 
-    assert(class1.findMethod(CIMName ("isActive")) == PEG_NOT_FOUND);
-    assert(class1.getMethodCount() == 1);
+    PEGASUS_TEST_ASSERT(class1.findMethod(CIMName ("isActive")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.getMethodCount() == 1);
 
     //ATTN: P3 TODO add tests for different case names
 
     //Qualifier manipulation tests  (find, remove)
 
-    assert(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
-    assert(class1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
-    assert(class1.findQualifier(CIMName ("qx")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("qx")) == PEG_NOT_FOUND);
 
-    assert(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
-    assert(class1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
-    assert(class1.findQualifier(CIMName ("association")) != PEG_NOT_FOUND);
-    assert(class1.isAssociation());
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q2")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("association")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.isAssociation());
 
     // Remove middle Qualifier "q2"
     Uint32 posQualifier;
     posQualifier = class1.findQualifier(CIMName ("q2"));
     CIMConstQualifier qconst = class1.getQualifier(posQualifier);
 
-    assert(class1.getQualifierCount() == 3);
-    assert(posQualifier <= class1.getQualifierCount());
+    PEGASUS_TEST_ASSERT(class1.getQualifierCount() == 3);
+    PEGASUS_TEST_ASSERT(posQualifier <= class1.getQualifierCount());
     class1.removeQualifier(posQualifier);
-    assert(class1.getQualifierCount() == 2);
+    PEGASUS_TEST_ASSERT(class1.getQualifierCount() == 2);
 
-    assert(class1.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
-    assert(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
-    assert(class1.isAssociation());
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q1")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.isAssociation());
 
 
     // Remove the first parameter "q1"
     posQualifier = class1.findQualifier(CIMName ("q1"));
 
-    assert(class1.getQualifierCount() == 2);
+    PEGASUS_TEST_ASSERT(class1.getQualifierCount() == 2);
     CIMQualifier cq = class1.getQualifier( class1.findQualifier(CIMName ("q1")));
-    assert(posQualifier <= class1.getQualifierCount());
+    PEGASUS_TEST_ASSERT(posQualifier <= class1.getQualifierCount());
     class1.removeQualifier(posQualifier);
-    assert(class1.getQualifierCount() == 1);
+    PEGASUS_TEST_ASSERT(class1.getQualifierCount() == 1);
 
-    assert(class1.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
-    assert(class1.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
-    assert(class1.isAssociation());
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.isAssociation());
 
 
     // ATTH: P3 Add tests for try block for outofbounds
@@ -200,28 +200,28 @@ void test01()
 
     //The property manipulation tests.
 
-    assert(class1.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
-    assert(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName ("count")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
 
-    assert(class1.findProperty(CIMName ("isActive")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName ("isActive")) == PEG_NOT_FOUND);
 
-    assert(class1.getPropertyCount() == 2);
+    PEGASUS_TEST_ASSERT(class1.getPropertyCount() == 2);
 
 
     Uint32  posProperty;
     posProperty = class1.findProperty(CIMName ("count"));
     CIMConstProperty constprop = class1.getProperty(posProperty);
-    assert(constprop.getClassOrigin() == CIMName("YourClass"));
-    assert(constprop.getPropagated());
+    PEGASUS_TEST_ASSERT(constprop.getClassOrigin() == CIMName("YourClass"));
+    PEGASUS_TEST_ASSERT(constprop.getPropagated());
     class1.removeProperty(posProperty);
-    assert(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
-    assert(class1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName ("message")) != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
 
-    assert(class1.getPropertyCount() == 1);
+    PEGASUS_TEST_ASSERT(class1.getPropertyCount() == 1);
     CIMProperty cp = class1.getProperty( class1.findProperty
         (CIMName ("message")));
-    assert(cp.getClassOrigin().isNull());
-    assert(!cp.getPropagated());
+    PEGASUS_TEST_ASSERT(cp.getClassOrigin().isNull());
+    PEGASUS_TEST_ASSERT(!cp.getPropagated());
 
 	if(verbose)
 	{
@@ -234,24 +234,24 @@ void test01()
     out.clear();
     XmlWriter::appendClassElement(out, class1);
     
-    assert(!class1.isAbstract());
+    PEGASUS_TEST_ASSERT(!class1.isAbstract());
 
     CIMName squal("q1");
-    assert(class1.findQualifier(squal) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(class1.findQualifier(squal) == PEG_NOT_FOUND);
     
-    assert(!class1.hasKeys());
+    PEGASUS_TEST_ASSERT(!class1.hasKeys());
     
     Array<CIMName> keyNames;
     class1.getKeyNames(keyNames);
 
     CIMClass c2(CIMName ("MyClass"));
 
-    assert(c2.getClassName().equal(CIMName ("myclass")));
+    PEGASUS_TEST_ASSERT(c2.getClassName().equal(CIMName ("myclass")));
 
 
     // Error uninitialized handle
     c2.setSuperClassName(CIMName ("CIM_Element"));
-    assert(c2.getSuperClassName() == CIMName ("CIM_Element"));
+    PEGASUS_TEST_ASSERT(c2.getSuperClassName() == CIMName ("CIM_Element"));
 
     CIMClass c3 = c2.clone();
     c3 = c2;
@@ -276,9 +276,9 @@ void test01()
     const CIMClass c8(class1);
 
     // Test the findMethod and isMethod functions
-    assert(c7.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c7.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
-    assert(c7.findQualifier(CIMName ("dummy")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c7.findQualifier(CIMName ("dummy")) == PEG_NOT_FOUND);
 
     try
     {
@@ -316,15 +316,15 @@ void test01()
 	    cout << "Exception: " << e.getMessage() << endl;
     }
     // Test the findMethod and isMethod functions
-    assert(c4.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c4.findMethod(CIMName ("DoesNotExist")) == PEG_NOT_FOUND);
 
     //Qualifier manipulation tests  (find, remove)
 
-    assert(c4.findQualifier(CIMName ("qx")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c4.findQualifier(CIMName ("qx")) == PEG_NOT_FOUND);
 
-    assert(c4.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
-    assert(c4.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
-    assert(c4.findQualifier(CIMName ("association")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c4.findQualifier(CIMName ("q1")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c4.findQualifier(CIMName ("q2")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c4.findQualifier(CIMName ("association")) == PEG_NOT_FOUND);
 
     posProperty = c4.findProperty(CIMName ("count"));
 
@@ -339,26 +339,26 @@ void test01()
 			cout << "Exception: " << e.getMessage() << endl;
     }
 
-    assert(c4.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(c4.findProperty(CIMName ("count")) == PEG_NOT_FOUND);
 
-    assert(c4.getClassName() == CIMName ("MyClass"));
-    assert(c4.getClassName().equal(CIMName ("MyClass")));
-    assert(c4.getClassName().equal(CIMName ("MYCLASS")));
-    assert(c4.getClassName().equal(CIMName ("myclass")));
-    assert(!c4.getClassName().equal(CIMName ("blob")));
+    PEGASUS_TEST_ASSERT(c4.getClassName() == CIMName ("MyClass"));
+    PEGASUS_TEST_ASSERT(c4.getClassName().equal(CIMName ("MyClass")));
+    PEGASUS_TEST_ASSERT(c4.getClassName().equal(CIMName ("MYCLASS")));
+    PEGASUS_TEST_ASSERT(c4.getClassName().equal(CIMName ("myclass")));
+    PEGASUS_TEST_ASSERT(!c4.getClassName().equal(CIMName ("blob")));
 
 
-    assert(c4.getSuperClassName() == CIMName ("YourClass"));
+    PEGASUS_TEST_ASSERT(c4.getSuperClassName() == CIMName ("YourClass"));
 
     // test the setSuperClassName function
     /* ATTN KS 29 April.  This test has problems.  Relook later. Think test, not code.
     c4.setSuperClassName(CIMName ("JunkClass")); 
-    assert(c4.getSuperClassName() == CIMName ("JunkClass")); 
+    PEGASUS_TEST_ASSERT(c4.getSuperClassName() == CIMName ("JunkClass")); 
     c4.setSuperClassName(CIMName ("YourClass"));
     */
-    assert(c5.getSuperClassName() == CIMName ("YourClass"));
+    PEGASUS_TEST_ASSERT(c5.getSuperClassName() == CIMName ("YourClass"));
 
-    assert(c5.getQualifierCount() == 0);
+    PEGASUS_TEST_ASSERT(c5.getQualifierCount() == 0);
     posQualifier = c5.findQualifier(CIMName ("q2"));
 
     // throws out of bounds

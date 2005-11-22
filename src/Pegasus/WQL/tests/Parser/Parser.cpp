@@ -34,7 +34,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/WQL/WQLParser.h>
@@ -53,9 +53,9 @@ void test01()
     //
 
     WQLSimplePropertySource source;
-    assert(source.addValue("x", WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
-    assert(source.addValue("y", WQLOperand(20, WQL_INTEGER_VALUE_TAG)));
-    assert(source.addValue("z", WQLOperand(1.5, WQL_DOUBLE_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("x", WQLOperand(10, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("y", WQLOperand(20, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("z", WQLOperand(1.5, WQL_DOUBLE_VALUE_TAG)));
 
     //
     // Define query:
@@ -94,29 +94,29 @@ void test01()
         //
         //  Test WQLSelectStatement functions
         //
-        assert (statement.getClassName().equal ("MyClass"));
-        assert (!statement.getAllProperties());
-        assert (statement.getSelectPropertyNameCount() == 3);
+        PEGASUS_TEST_ASSERT (statement.getClassName().equal ("MyClass"));
+        PEGASUS_TEST_ASSERT (!statement.getAllProperties());
+        PEGASUS_TEST_ASSERT (statement.getSelectPropertyNameCount() == 3);
         CIMName propName = statement.getSelectPropertyName (0);
-        assert ((propName.equal ("x")) || (propName.equal ("y")) || 
+        PEGASUS_TEST_ASSERT ((propName.equal ("x")) || (propName.equal ("y")) || 
                 (propName.equal ("z")));
         CIMPropertyList propList = statement.getSelectPropertyList();
-        assert (!propList.isNull());
-        assert (propList.size() == 3);
-        assert ((propList[0].equal ("x")) || (propList[0].equal ("y")) || 
+        PEGASUS_TEST_ASSERT (!propList.isNull());
+        PEGASUS_TEST_ASSERT (propList.size() == 3);
+        PEGASUS_TEST_ASSERT ((propList[0].equal ("x")) || (propList[0].equal ("y")) || 
                 (propList[0].equal ("z")));
-        assert (statement.hasWhereClause());
-        assert (statement.getWherePropertyNameCount() == 3);
+        PEGASUS_TEST_ASSERT (statement.hasWhereClause());
+        PEGASUS_TEST_ASSERT (statement.getWherePropertyNameCount() == 3);
         CIMName wherePropName = statement.getWherePropertyName (0);
-        assert ((wherePropName.equal ("x")) || (wherePropName.equal ("y")) || 
+        PEGASUS_TEST_ASSERT ((wherePropName.equal ("x")) || (wherePropName.equal ("y")) || 
                 (wherePropName.equal ("z")));
         CIMPropertyList wherePropList = statement.getWherePropertyList();
-        assert (!wherePropList.isNull());
-        assert (wherePropList.size() == 3);
-        assert ((wherePropList[0].equal ("x")) || 
+        PEGASUS_TEST_ASSERT (!wherePropList.isNull());
+        PEGASUS_TEST_ASSERT (wherePropList.size() == 3);
+        PEGASUS_TEST_ASSERT ((wherePropList[0].equal ("x")) || 
                 (wherePropList[0].equal ("y")) || 
                 (wherePropList[0].equal ("z")));
-        assert (statement.evaluateWhereClause(&source));
+        PEGASUS_TEST_ASSERT (statement.evaluateWhereClause(&source));
     }
     catch (Exception& e)
     {
@@ -133,10 +133,10 @@ void test02()
     //
 
     WQLSimplePropertySource source;
-    assert(source.addValue("a", WQLOperand(5, WQL_INTEGER_VALUE_TAG)));
-    assert(source.addValue("b", WQLOperand(25, WQL_INTEGER_VALUE_TAG)));
-    assert(source.addValue("c", WQLOperand(0.9, WQL_DOUBLE_VALUE_TAG)));
-    assert(source.addValue("d", WQLOperand("Test", WQL_STRING_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("a", WQLOperand(5, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("b", WQLOperand(25, WQL_INTEGER_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("c", WQLOperand(0.9, WQL_DOUBLE_VALUE_TAG)));
+    PEGASUS_TEST_ASSERT(source.addValue("d", WQLOperand("Test", WQL_STRING_VALUE_TAG)));
 
     //
     // Define query:
@@ -174,30 +174,30 @@ void test02()
         //
         //  Test WQLSelectStatement functions
         //
-        assert (statement.getClassName().equal ("YourClass"));
-        assert (!statement.getAllProperties());
-        assert (statement.getSelectPropertyNameCount() == 3);
+        PEGASUS_TEST_ASSERT (statement.getClassName().equal ("YourClass"));
+        PEGASUS_TEST_ASSERT (!statement.getAllProperties());
+        PEGASUS_TEST_ASSERT (statement.getSelectPropertyNameCount() == 3);
         CIMName propName = statement.getSelectPropertyName (2);
-        assert ((propName.equal ("a")) || (propName.equal ("c")) || 
+        PEGASUS_TEST_ASSERT ((propName.equal ("a")) || (propName.equal ("c")) || 
                 (propName.equal ("d")));
         CIMPropertyList propList = statement.getSelectPropertyList();
-        assert (!propList.isNull());
-        assert (propList.size() == 3);
-        assert ((propList[2].equal ("a")) || (propList[2].equal ("c")) || 
+        PEGASUS_TEST_ASSERT (!propList.isNull());
+        PEGASUS_TEST_ASSERT (propList.size() == 3);
+        PEGASUS_TEST_ASSERT ((propList[2].equal ("a")) || (propList[2].equal ("c")) || 
                 (propList[2].equal ("d")));
-        assert (statement.hasWhereClause());
-        assert (statement.getWherePropertyNameCount() == 4);
+        PEGASUS_TEST_ASSERT (statement.hasWhereClause());
+        PEGASUS_TEST_ASSERT (statement.getWherePropertyNameCount() == 4);
         CIMName wherePropName = statement.getWherePropertyName (3);
-        assert ((wherePropName.equal ("a")) || (wherePropName.equal ("b")) || 
+        PEGASUS_TEST_ASSERT ((wherePropName.equal ("a")) || (wherePropName.equal ("b")) || 
                 (wherePropName.equal ("c")) || (wherePropName.equal ("d")));
         CIMPropertyList wherePropList = statement.getWherePropertyList();
-        assert (!wherePropList.isNull());
-        assert (wherePropList.size() == 4);
-        assert ((wherePropList[3].equal ("a")) || 
+        PEGASUS_TEST_ASSERT (!wherePropList.isNull());
+        PEGASUS_TEST_ASSERT (wherePropList.size() == 4);
+        PEGASUS_TEST_ASSERT ((wherePropList[3].equal ("a")) || 
                 (wherePropList[3].equal ("b")) || 
                 (wherePropList[3].equal ("c")) || 
                 (wherePropList[3].equal ("d")));
-        assert (!statement.evaluateWhereClause(&source));
+        PEGASUS_TEST_ASSERT (!statement.evaluateWhereClause(&source));
     }
     catch (Exception& e)
     {
@@ -243,15 +243,15 @@ void test03()
         //
         //  Test WQLSelectStatement functions
         //
-        assert (statement.getClassName().equal ("AnotherClass"));
-        assert (statement.getAllProperties());
+        PEGASUS_TEST_ASSERT (statement.getClassName().equal ("AnotherClass"));
+        PEGASUS_TEST_ASSERT (statement.getAllProperties());
         CIMPropertyList propList = statement.getSelectPropertyList();
-        assert (propList.isNull());
-        assert (!statement.hasWhereClause());
-        assert (statement.getWherePropertyNameCount() == 0);
+        PEGASUS_TEST_ASSERT (propList.isNull());
+        PEGASUS_TEST_ASSERT (!statement.hasWhereClause());
+        PEGASUS_TEST_ASSERT (statement.getWherePropertyNameCount() == 0);
         CIMPropertyList wherePropList = statement.getWherePropertyList();
-        assert (!wherePropList.isNull());
-        assert (wherePropList.size() == 0);
+        PEGASUS_TEST_ASSERT (!wherePropList.isNull());
+        PEGASUS_TEST_ASSERT (wherePropList.size() == 0);
     }
     catch (Exception& e)
     {

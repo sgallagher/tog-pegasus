@@ -54,7 +54,7 @@
     Test that arrays of different size are not equal, etc.
 */
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/DeclContext.h>
 #include <Pegasus/Common/Resolver.h>
@@ -102,18 +102,18 @@ void test01(const T& x)
     {
         T t;
         v3.get(t);
-        assert (!v.isNull());
-        assert (!v.isArray());
-        assert (!v2.isNull());
-        assert(t == x);
-        assert (v3.typeCompatible(v2));
+        PEGASUS_TEST_ASSERT (!v.isNull());
+        PEGASUS_TEST_ASSERT (!v.isArray());
+        PEGASUS_TEST_ASSERT (!v2.isNull());
+        PEGASUS_TEST_ASSERT(t == x);
+        PEGASUS_TEST_ASSERT (v3.typeCompatible(v2));
         // Confirm that the constructor created Null, not array and correct type
-        assert (v4.isNull());
-        assert (!v4.isArray());
-        assert (v4.typeCompatible(v));
-        assert (v5.isNull());
-        assert (!v5.isArray());
-        assert (v5.typeCompatible(v));
+        PEGASUS_TEST_ASSERT (v4.isNull());
+        PEGASUS_TEST_ASSERT (!v4.isArray());
+        PEGASUS_TEST_ASSERT (v4.typeCompatible(v));
+        PEGASUS_TEST_ASSERT (v5.isNull());
+        PEGASUS_TEST_ASSERT (!v5.isArray());
+        PEGASUS_TEST_ASSERT (v5.typeCompatible(v));
 
         // Test toMof
         Buffer mofout;
@@ -153,7 +153,7 @@ void test01(const T& x)
         // Test for isNull and the setNullValue function
         CIMType type = v.getType();
         v.setNullValue(type, false);
-        assert(v.isNull());
+        PEGASUS_TEST_ASSERT(v.isNull());
 
         // get the String and XML outputs for v
         String valueString2 = v.toString();
@@ -173,9 +173,9 @@ void test01(const T& x)
         }
 #endif
         v.clear();
-        assert(v.isNull());
+        PEGASUS_TEST_ASSERT(v.isNull());
         //v2.clear();
-        //assert(v2.isNull();
+        //PEGASUS_TEST_ASSERT(v2.isNull();
 
     }
     catch(Exception& e)
@@ -212,27 +212,27 @@ void test02(const Array<T>& x)
     {
         Array<T> t;
         va3.get(t);
-        assert(t == x);
-        assert (va3.typeCompatible(va2));
-        assert (!va.isNull());
-        assert (va.isArray());
-        assert (!va2.isNull());
-        assert (va2.isArray());
-        assert (!va3.isNull());
-        assert (va3.isArray());
+        PEGASUS_TEST_ASSERT(t == x);
+        PEGASUS_TEST_ASSERT (va3.typeCompatible(va2));
+        PEGASUS_TEST_ASSERT (!va.isNull());
+        PEGASUS_TEST_ASSERT (va.isArray());
+        PEGASUS_TEST_ASSERT (!va2.isNull());
+        PEGASUS_TEST_ASSERT (va2.isArray());
+        PEGASUS_TEST_ASSERT (!va3.isNull());
+        PEGASUS_TEST_ASSERT (va3.isArray());
 
         // Note that this test depends on what is built.  Everything has 2 entries.
-        assert (va.getArraySize() == 3);
+        PEGASUS_TEST_ASSERT (va.getArraySize() == 3);
 
         // Confirm that va4 (and va5) is Null, and array and zero length
-        assert (va4.isNull());
-        assert (va4.isArray());
-        assert (va4.getArraySize() == 0);
-        assert (va4.typeCompatible(va));
-        assert (va5.isNull());
-        assert (va5.isArray());
-        assert (va5.getArraySize() == 0);
-        assert (va5.typeCompatible(va));
+        PEGASUS_TEST_ASSERT (va4.isNull());
+        PEGASUS_TEST_ASSERT (va4.isArray());
+        PEGASUS_TEST_ASSERT (va4.getArraySize() == 0);
+        PEGASUS_TEST_ASSERT (va4.typeCompatible(va));
+        PEGASUS_TEST_ASSERT (va5.isNull());
+        PEGASUS_TEST_ASSERT (va5.isArray());
+        PEGASUS_TEST_ASSERT (va5.getArraySize() == 0);
+        PEGASUS_TEST_ASSERT (va5.typeCompatible(va));
 
 
         // Test toMof
@@ -269,12 +269,12 @@ void test02(const Array<T>& x)
         // Set the initial one to Null
         CIMType type = va.getType();
         va.setNullValue(type, true, 0);
-        assert(va.isNull());
-        assert(va.isArray());
-        assert(va.getArraySize() == 0);
+        PEGASUS_TEST_ASSERT(va.isNull());
+        PEGASUS_TEST_ASSERT(va.isArray());
+        PEGASUS_TEST_ASSERT(va.getArraySize() == 0);
         va.setNullValue(type, false);
-        assert(va.isNull());
-        assert(!va.isArray());
+        PEGASUS_TEST_ASSERT(va.isNull());
+        PEGASUS_TEST_ASSERT(!va.isArray());
 
         // get the String and XML outputs for v
         String valueString2 = va.toString();
@@ -294,7 +294,7 @@ void test02(const Array<T>& x)
         }
 #endif
         va.clear();
-        assert(va.isNull());
+        PEGASUS_TEST_ASSERT(va.isNull());
     }
     catch(Exception& e)
     {
@@ -307,34 +307,34 @@ void test02(const Array<T>& x)
 template<class T1, class T2, class T3>
 void test03( Array<T1>& arrObj1, Array<T1>& arrObj2, T2 obj, T3 val1, T3 val2)
 {
-    assert( 10 == arrObj1.size() && arrObj1[5] == val1);
-    assert( 1 == arrObj2.size() && arrObj2[0] == val1);
+    PEGASUS_TEST_ASSERT( 10 == arrObj1.size() && arrObj1[5] == val1);
+    PEGASUS_TEST_ASSERT( 1 == arrObj2.size() && arrObj2[0] == val1);
     *obj = val2;
     arrObj2.append(obj,1);
-    assert( 2 == arrObj2.size() && arrObj2[1] == val2 );
+    PEGASUS_TEST_ASSERT( 2 == arrObj2.size() && arrObj2[1] == val2 );
     arrObj1.appendArray(arrObj2);
-    assert( 12 == arrObj1.size() && arrObj1[10] == val1 && arrObj1[11] == val2);
+    PEGASUS_TEST_ASSERT( 12 == arrObj1.size() && arrObj1[10] == val1 && arrObj1[11] == val2);
     arrObj2.clear();
-    assert( 0 == arrObj2.size() );
-    assert( 16 == arrObj1.getCapacity() && 8 == arrObj2.getCapacity() );
+    PEGASUS_TEST_ASSERT( 0 == arrObj2.size() );
+    PEGASUS_TEST_ASSERT( 16 == arrObj1.getCapacity() && 8 == arrObj2.getCapacity() );
     arrObj2.grow(10,val1);
-    assert( 10 == arrObj2.size() && arrObj2[5] == val1);
+    PEGASUS_TEST_ASSERT( 10 == arrObj2.size() && arrObj2[5] == val1);
     arrObj2.insert(10,val2);
-    assert( 11 == arrObj2.size() && arrObj2[10] == val2);
+    PEGASUS_TEST_ASSERT( 11 == arrObj2.size() && arrObj2[10] == val2);
     arrObj2.insert(10, obj, 1);
-    assert( 12 == arrObj2.size() );
+    PEGASUS_TEST_ASSERT( 12 == arrObj2.size() );
     arrObj2.prepend(val2);
-    assert( 13 == arrObj2.size() && arrObj2[12] == val2);
+    PEGASUS_TEST_ASSERT( 13 == arrObj2.size() && arrObj2[12] == val2);
     *obj = val1;
     arrObj2.prepend(obj,1);
-    assert( 14 == arrObj2.size() && arrObj2[0] == val1);
+    PEGASUS_TEST_ASSERT( 14 == arrObj2.size() && arrObj2[0] == val1);
     arrObj1.swap(arrObj2);
-    assert( 14 == arrObj1.size() && 12 == arrObj2.size() &&
+    PEGASUS_TEST_ASSERT( 14 == arrObj1.size() && 12 == arrObj2.size() &&
                         arrObj2[10] == val1 && arrObj1[12] == val2 );
     arrObj1.remove(1);
-    assert( 13 == arrObj1.size() );
+    PEGASUS_TEST_ASSERT( 13 == arrObj1.size() );
     arrObj1.remove(1,1);
-    assert( 12 == arrObj1.size() );
+    PEGASUS_TEST_ASSERT( 12 == arrObj1.size() );
 }
 
 int main(int argc, char** argv)
@@ -429,7 +429,7 @@ int main(int argc, char** argv)
     {
         caught_exception = true;
     }
-    assert (caught_exception == true);
+    PEGASUS_TEST_ASSERT (caught_exception == true);
     // Confirm that set() with an uninitialized CIMObject will throw exception.
     caught_exception = false;
     try
@@ -441,7 +441,7 @@ int main(int argc, char** argv)
     {
         caught_exception = true;
     }
-    assert (caught_exception == true);
+    PEGASUS_TEST_ASSERT (caught_exception == true);
 
     // Test CIMValue arrays
 
@@ -566,7 +566,7 @@ int main(int argc, char** argv)
     {
         caught_exception = true;
     }
-    assert (caught_exception == true);
+    PEGASUS_TEST_ASSERT (caught_exception == true);
     // Confirm that set() with an uninitialized CIMObject in the input
     // array will throw exception.
     caught_exception = false;
@@ -579,7 +579,7 @@ int main(int argc, char** argv)
     {
         caught_exception = true;
     }
-    assert (caught_exception == true);
+    PEGASUS_TEST_ASSERT (caught_exception == true);
 
     // Calling remaining  Array tests..
     CIMDateTime D1("19991224120000.000000+100");

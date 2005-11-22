@@ -34,7 +34,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/CIMClass.h>
@@ -69,7 +69,7 @@ void test01(const T& x)
     {
 	T t;
 	v3.get(t);
-	assert(t == x);
+	PEGASUS_TEST_ASSERT(t == x);
     }
     catch(Exception& e)
     {

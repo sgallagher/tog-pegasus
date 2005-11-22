@@ -563,35 +563,54 @@ private:
 
 // Define the macros for method entry/exit, and tracing a given string
 #ifdef PEGASUS_REMOVE_TRACE
-    #define PEG_METHOD_ENTER(traceComponent,methodName)
-    #define PEG_METHOD_EXIT()
-    #define PEG_TRACE_STRING(traceComponent,traceLevel,traceString)
+#   define PEG_METHOD_ENTER(traceComponent,methodName)
+#   define PEG_METHOD_EXIT()
+#   define PEG_TRACE_STRING(traceComponent,traceLevel,traceString)
+#   define PEG_TRACE(VAR_ARGS)
 #else
     /** Macro for tracing method entry
         @param    traceComponent  component being traced
         @param    methodName      name of the method
      */
-    #define PEG_METHOD_ENTER(traceComponent,methodName) \
-	const char *PEG_METHOD_NAME = methodName; \
-	const Uint32 PEG_TRACE_COMPONENT = traceComponent; \
-	Tracer::traceEnter(__FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME)
+#   define PEG_METHOD_ENTER(traceComponent,methodName) \
+	static const char *PEG_METHOD_NAME = methodName; \
+	static const Uint32 PEG_TRACE_COMPONENT = traceComponent; \
+	if (Tracer::isTraceOn()) \
+	{ \
+	    Tracer::traceEnter( \
+		__FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME); \
+	} \
 
     /** Macro for tracing method exit
      */
-    #define PEG_METHOD_EXIT() \
-	Tracer::traceExit(__FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME)
+#   define PEG_METHOD_EXIT() \
+	do \
+	{ \
+	    if (Tracer::isTraceOn()) \
+		Tracer::traceExit( \
+		    __FILE__,__LINE__,PEG_TRACE_COMPONENT,PEG_METHOD_NAME); \
+	} \
+	while (0)
 
     /** Macro for tracing a string
         @param    traceComponent  component being traced
         @param    traceLevel      trace level of the trace message
         @param    traceString     the string to be traced
      */
-    #define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) \
+#   define PEG_TRACE_STRING(traceComponent,traceLevel,traceString) \
 	do \
 	{ \
 	    if (Tracer::isTraceOn()) \
 		Tracer::trace( \
 		    __FILE__, __LINE__,traceComponent,traceLevel,traceString); \
+	} \
+	while (0)
+
+#   define PEG_TRACE(VAR_ARGS) \
+	do \
+	{ \
+	    if (Tracer::isTraceOn()) \
+		Tracer::trace VAR_ARGS; \
 	} \
 	while (0)
 

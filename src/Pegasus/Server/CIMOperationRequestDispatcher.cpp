@@ -2088,9 +2088,9 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
       return;
    }
 
-   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+   PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
        "CIMOperationRequestDispatcher::handleEnqueue - Case: $0",
-       request->getType());
+       request->getType()));
 
 // l10n
    // Set the client's requested language into this service thread.
@@ -2287,10 +2287,10 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
          request->includeClassOrigin,
          request->propertyList);
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                   "CIMOperationRequestDispatcher::handleGetClassRequest - Name Space: $0  Class name: $1",
                   request->nameSpace.getString(),
-                  request->className.getString());
+                  request->className.getString()));
    }
    catch(const CIMException& exception)
    {

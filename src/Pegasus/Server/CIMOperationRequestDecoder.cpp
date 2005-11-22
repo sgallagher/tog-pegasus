@@ -219,12 +219,13 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    String userName;
    String authType = String::EMPTY;
    Boolean closeConnect = httpMessage->getCloseConnect(); 
-   Tracer::trace(
+
+   PEG_TRACE((
        TRC_HTTP,
        Tracer::LEVEL3,
-       "CIMOperationRequestDecoder::handleHTTPMessage()- httpMessage->getCloseConnect() returned %d",
-       closeConnect);
-
+       "CIMOperationRequestDecoder::handleHTTPMessage()- "
+       "httpMessage->getCloseConnect() returned %d",
+       closeConnect));
 
    if ( httpMessage->authInfo->isAuthenticated() )
    {
@@ -593,8 +594,9 @@ void CIMOperationRequestDecoder::handleMethodCall(
        return;
    }
 
-   Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-	       "CIMOperationRequestdecoder - XML content: $0", content);
+   PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	       "CIMOperationRequestdecoder - XML content: $0", content));
+
    // Create a parser:
 
    XmlParser parser(content);

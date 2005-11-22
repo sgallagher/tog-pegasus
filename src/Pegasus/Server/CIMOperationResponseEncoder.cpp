@@ -92,9 +92,9 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 																					Buffer *bodygiven)
 {
 	static String funcname = "CIMOperationResponseEncoder::sendResponse: ";
-	String funcnameClassS = String(funcname + "for class " + name);
-	CString funcnameClass = funcnameClassS.getCString();
-	PEG_METHOD_ENTER(TRC_DISPATCHER, funcnameClass);
+ 	static String funcnameClassS = String(funcname + "for class " + name);
+ 	static CString funcnameClass = funcnameClassS.getCString();
+ 	PEG_METHOD_ENTER(TRC_DISPATCHER, funcnameClass);
 
 	if (! response)
 	{
@@ -271,13 +271,13 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
             httpMessage->message.getData(),
             httpMessage->message.size());
 	
-        Logger::put(
+        PEG_LOGGER_TRACE((
             Logger::STANDARD_LOG,
             System::CIMSERVER,
             Logger::TRACE,
             "CIMOperationResponseEncoder::sendResponse - QueueId: $0  "
             "XML content: $1",queueId,
-            String(message.getData(), message.size()));
+            String(message.getData(), message.size())));
 	
         httpMessage->setCloseConnect(closeConnect);
 	queue->enqueue(httpMessage.release());

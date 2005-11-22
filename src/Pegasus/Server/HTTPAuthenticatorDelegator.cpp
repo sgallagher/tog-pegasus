@@ -22,7 +22,7 @@
 // LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
 // PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
 // HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN _HTTP_HEADER_CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
@@ -58,6 +58,22 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
+static const String _HTTP_VERSION_1_0 = "HTTP/1.0";
+
+static const String _HTTP_METHOD_MPOST = "M-POST";
+static const String _HTTP_METHOD = "POST";
+
+static const String _HTTP_HEADER_CIMEXPORT = "CIMExport";
+static const String _HTTP_HEADER_CONNECTION = "Connection";
+static const String _HTTP_HEADER_CIMOPERATION = "CIMOperation";
+static const String _HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
+static const String _HTTP_HEADER_CONTENT_LANGUAGE = "Content-Language";
+static const String _HTTP_HEADER_AUTHORIZATION = "Authorization";
+static const String _HTTP_HEADER_PEGASUSAUTHORIZATION = "PegasusAuthorization";
+
+static const String _CONFIG_PARAM_ENABLEAUTHENTICATION = "enableAuthentication";
+
+static const String _TRUE = "true";
 
 HTTPAuthenticatorDelegator::HTTPAuthenticatorDelegator(
     Uint32 operationMessageQueueId,
@@ -263,7 +279,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     // Check for Connection: Close
     //
-    if(HTTPMessage::lookupHeader(headers, "Connection", connectClose, false))
+    if(HTTPMessage::lookupHeader(
+	headers, _HTTP_HEADER_CONNECTION, connectClose, false))
     {
        if (String::equalNoCase(connectClose, "Close"))
        {
@@ -290,7 +307,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         String operation;
 
         if ( HTTPMessage::lookupHeader(
-             headers, "CIMOperation", operation, true) )
+             headers, _HTTP_HEADER_CIMOPERATION, operation, true) )
         {
             //
             //  CIMOperation requests are not supported on the export connection
@@ -315,7 +332,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         // is authenticated by client certificate verification.
         //
         if ( HTTPMessage::lookupHeader(
-             headers, "CIMExport", operation, true) )
+             headers, _HTTP_HEADER_CIMEXPORT, operation, true) )
         {
             PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3,
                     "CIMExport request received on export connection");
@@ -372,7 +389,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Boolean authenticated = false;
 
     if (String::equal(
-        configManager->getCurrentValue("enableAuthentication"), "true"))
+        configManager->getCurrentValue(
+	    _CONFIG_PARAM_ENABLEAUTHENTICATION), _TRUE))
     {
         enableAuthentication = true;
             
@@ -578,7 +596,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 String acceptLanguageHeader;
                 if (HTTPMessage::lookupHeader(
                       headers,
-                  "Accept-Language",
+		      _HTTP_HEADER_ACCEPT_LANGUAGE,
                       acceptLanguageHeader,
                   false) == true)
             {
@@ -590,7 +608,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 String contentLanguageHeader;
                 if (HTTPMessage::lookupHeader(
                       headers,
-                  "Content-Language",
+                      _HTTP_HEADER_CONTENT_LANGUAGE,
                       contentLanguageHeader,
                   false) == true)
             {
@@ -633,12 +651,12 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     //
     //  Set HTTP method for the request
     //
-    if (methodName == "M-POST")
+    if (methodName == _HTTP_METHOD_MPOST)
     {
         httpMethod = HTTP_METHOD_M_POST;
     }
 
-    if (methodName != "M-POST" && methodName != "POST")
+    if (methodName != _HTTP_METHOD_MPOST && methodName != _HTTP_METHOD)
     {
         // Only POST and M-POST are implemented by this server
         _sendHttpError(
@@ -649,7 +667,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             closeConnect);
     }
     else if ((httpMethod == HTTP_METHOD_M_POST) &&
-             (httpVersion == "HTTP/1.0"))
+             (httpVersion == _HTTP_VERSION_1_0))
     {
         //
         //  M-POST method is not valid with version 1.0
@@ -666,8 +684,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         // Process M-POST and POST messages:
         //
-	Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-	    "HTTPAuthenticatorDelegator - M-POST/POST processing start");
+
+	PEG_LOGGER_TRACE((
+	    Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	    "HTTPAuthenticatorDelegator - M-POST/POST processing start"));
 
 	httpMessage->message.append('\0');
 
@@ -678,8 +698,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         //
         String authorization = String::EMPTY;
 
-        if ( HTTPMessage::lookupHeader(
-             headers, "PegasusAuthorization", authorization, false) &&
+        if ( HTTPMessage::lookupHeader(headers, 
+	    _HTTP_HEADER_PEGASUSAUTHORIZATION, authorization, false) &&
              enableAuthentication
            )
         {
@@ -749,7 +769,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 #endif	
 
         if ( HTTPMessage::lookupHeader(
-             headers, "Authorization", authorization, false) &&
+             headers, _HTTP_HEADER_AUTHORIZATION, authorization, false) &&
              enableAuthentication
            )
         {
@@ -858,10 +878,10 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             String cimOperation;
 
             if (HTTPMessage::lookupHeader(
-                headers, "CIMOperation", cimOperation, true))
+                headers, _HTTP_HEADER_CIMOPERATION, cimOperation, true))
             {
-		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-			    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",cimOperation);
+		PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+			    "HTTPAuthenticatorDelegator - CIMOperation: $0 ",cimOperation));
 
                 MessageQueue* queue =
                     MessageQueue::lookup(_operationMessageQueueId);
@@ -891,7 +911,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 }
             }
             else if (HTTPMessage::lookupHeader(
-                headers, "CIMExport", cimOperation, true))
+                headers, _HTTP_HEADER_CIMEXPORT, cimOperation, true))
             {
 		Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 			    "HTTPAuthenticatorDelegator - CIMExport: $0 ",cimOperation);

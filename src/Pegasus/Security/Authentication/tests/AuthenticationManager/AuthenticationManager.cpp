@@ -115,7 +115,7 @@ void testHttpAuthHeader()
 
     if (verbose) cout << "realm = " << respHeader << endl;
 
-    PEGASUS_ASSERT(respHeader.size() != 0);
+    PEGASUS_TEST_ASSERT(respHeader.size() != 0);
 }
 
 //
@@ -137,7 +137,7 @@ void testLocalAuthHeader_1()
     delete authInfo;
 
     Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_ASSERT(startQuote == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(startQuote == PEG_NOT_FOUND);
 }
 
 //
@@ -161,7 +161,7 @@ void testLocalAuthHeader_2()
     delete authInfo;
 
     Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_ASSERT(startQuote == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(startQuote == PEG_NOT_FOUND);
 }
 
 //
@@ -186,7 +186,7 @@ void testLocalAuthHeader_3()
     delete authInfo;
 
     Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_ASSERT(startQuote == PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(startQuote == PEG_NOT_FOUND);
 }
 
 //
@@ -211,14 +211,14 @@ void testLocalAuthSuccess()
     if (verbose) cout << "RespHeader: " << respHeader << endl;
 
     Uint32 startQuote = respHeader.find(0, '"');
-    PEGASUS_ASSERT(startQuote != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(startQuote != PEG_NOT_FOUND);
 
     Uint32 endQuote = respHeader.find(startQuote + 1, '"');
-    PEGASUS_ASSERT(endQuote != PEG_NOT_FOUND);
+    PEGASUS_TEST_ASSERT(endQuote != PEG_NOT_FOUND);
 
     String filePath = respHeader.subString(
         startQuote + 1, (endQuote - startQuote - 1));
-    PEGASUS_ASSERT(filePath.size() != 0);
+    PEGASUS_TEST_ASSERT(filePath.size() != 0);
 
     authHeader.clear();
     authHeader.append(localHeader);
@@ -252,7 +252,7 @@ void testLocalAuthSuccess()
 
     delete authInfo;
 
-    PEGASUS_ASSERT(authenticated);
+    PEGASUS_TEST_ASSERT(authenticated);
 }
 
 
@@ -286,7 +286,7 @@ void testBasicAuthSuccess()
 
     delete authInfo;
 
-    //PEGASUS_ASSERT(authenticated);
+    //PEGASUS_TEST_ASSERT(authenticated);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -360,7 +360,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
       cout << argv[0] << " Exception: " << e.getMessage() << endl;
-        PEGASUS_ASSERT(0);
+        PEGASUS_TEST_ASSERT(0);
     }
 
 #endif

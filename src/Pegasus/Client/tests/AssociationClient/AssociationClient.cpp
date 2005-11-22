@@ -244,7 +244,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
-        PEGASUS_ASSERT(gotException);
+        PEGASUS_TEST_ASSERT(gotException);
 
         // invalid resultRole parameter syntax
         String invalidResultRole = "3Taught_By";
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
-        PEGASUS_ASSERT(gotException);
+        PEGASUS_TEST_ASSERT(gotException);
 
         // ===================================================================
         // associatorNames
@@ -336,7 +336,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
-        PEGASUS_ASSERT(gotException);
+        PEGASUS_TEST_ASSERT(gotException);
 
         // invalid resultRole parameter syntax
         gotException = false;
@@ -365,7 +365,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
-        PEGASUS_ASSERT(gotException);
+        PEGASUS_TEST_ASSERT(gotException);
 
         // ===================================================================
         // references
@@ -421,7 +421,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
-        PEGASUS_ASSERT(gotException);
+        PEGASUS_TEST_ASSERT(gotException);
 
         // ===================================================================
         // referenceNames
@@ -477,7 +477,7 @@ int main(int argc, char** argv)
                 throw;
             }
         }
-        PEGASUS_ASSERT(gotException);
+        PEGASUS_TEST_ASSERT(gotException);
 
         // ===================================================================
         // Call the association methods with different filters specified.

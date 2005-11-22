@@ -468,7 +468,7 @@ void _sendTestIndication(CIMClient* client, const CIMName & methodName, Uint32 i
         inParams,
         outParams);
     retValue.get (result);
-    PEGASUS_ASSERT (result == 0);
+    PEGASUS_TEST_ASSERT (result == 0);
 
     //
     //  Allow time for the indication to be received and forwarded
@@ -668,7 +668,7 @@ void _setup (CIMClient & client, String& qlang,
             }
             else
             {
-               PEGASUS_ASSERT(0);
+               PEGASUS_TEST_ASSERT(0);
             }
             serverHandlerObjectPath = _createHandlerInstance (client,
                 SERVER_RESIDENT_HANDLER_NAME, destinationProtocol +

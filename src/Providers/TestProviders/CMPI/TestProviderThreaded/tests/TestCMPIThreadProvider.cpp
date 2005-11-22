@@ -148,7 +148,7 @@ test02 (CIMClient & client)
 	 exceptions ++;
   }
 
-  PEGASUS_ASSERT(exceptions ==  6);
+  PEGASUS_TEST_ASSERT(exceptions ==  6);
 
 }
 

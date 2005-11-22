@@ -442,14 +442,14 @@ int main(int argc, char ** argv)
                  SelectStatement* ss = qexpr.getSelectStatement();
 
                  String returnQuery = qexpr.getQuery();
-                 PEGASUS_ASSERT(returnQuery == query);
+                 PEGASUS_TEST_ASSERT(returnQuery == query);
 
                  String returnLang = qexpr.getQueryLanguage();
-                 PEGASUS_ASSERT(returnLang == lang);
+                 PEGASUS_TEST_ASSERT(returnLang == lang);
 
                  QueryExpression copy(qexpr);
-                 PEGASUS_ASSERT(copy.getQuery() == qexpr.getQuery());
-                 PEGASUS_ASSERT(copy.getQueryLanguage() == qexpr.getQueryLanguage());
+                 PEGASUS_TEST_ASSERT(copy.getQuery() == qexpr.getQuery());
+                 PEGASUS_TEST_ASSERT(copy.getQueryLanguage() == qexpr.getQueryLanguage());
 
                  _applyProjection(qexpr,_instances, testOption, lang);
                  _getPropertyList(qexpr,_instances, _ns, testOption,lang);

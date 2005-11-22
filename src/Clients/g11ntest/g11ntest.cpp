@@ -56,7 +56,7 @@ PEGASUS_USING_STD;
 #define TESTMACRO(EXCTYPE) throw new EXCTYPE;
 
 //#define MYASSERT ASSERTTEMP
-#define MYASSERT PEGASUS_ASSERT
+#define MYASSERT PEGASUS_TEST_ASSERT
 
 static const char* programVersion =  "1.0";
 Boolean skipICU = false;

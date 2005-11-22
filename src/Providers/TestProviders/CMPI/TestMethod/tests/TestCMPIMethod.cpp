@@ -56,15 +56,15 @@ Boolean verbose;
 void _checkStringValue
   (CIMValue & theValue, const String & value, Boolean null = false)
 {
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_STRING);
-  PEGASUS_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_STRING);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
   if (null)
     {
-      PEGASUS_ASSERT (theValue.isNull ());
+      PEGASUS_TEST_ASSERT (theValue.isNull ());
     }
   else
     {
-      PEGASUS_ASSERT (!theValue.isNull ());
+      PEGASUS_TEST_ASSERT (!theValue.isNull ());
       String result;
       theValue.get (result);
 
@@ -78,7 +78,7 @@ void _checkStringValue
 	    }
 	}
 
-      PEGASUS_ASSERT (result == value);
+      PEGASUS_TEST_ASSERT (result == value);
     }
 }
 
@@ -87,9 +87,9 @@ void
 _checkUint32Value (CIMValue & theValue, Uint32 value)
 {
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_UINT32);
-  PEGASUS_ASSERT (!theValue.isArray ());
-  PEGASUS_ASSERT (!theValue.isNull ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_UINT32);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (!theValue.isNull ());
 
   Uint32 result;
   theValue.get (result);
@@ -104,7 +104,7 @@ _checkUint32Value (CIMValue & theValue, Uint32 value)
 	}
     }
 
-  PEGASUS_ASSERT (result == value);
+  PEGASUS_TEST_ASSERT (result == value);
 }
 
 
@@ -193,7 +193,7 @@ test03 (CIMClient & client)
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
-    PEGASUS_ASSERT (outParams.size () == 1);
+    PEGASUS_TEST_ASSERT (outParams.size () == 1);
     CIMValue paramValue = outParams[0].getValue ();
     _checkStringValue (paramValue, "CMPIArgs");
   }
@@ -210,7 +210,7 @@ test03 (CIMClient & client)
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
-    PEGASUS_ASSERT (outParams.size () == 1);
+    PEGASUS_TEST_ASSERT (outParams.size () == 1);
     CIMValue paramValue = outParams[0].getValue ();
     _checkStringValue (paramValue, "Operation:2");
   }
@@ -227,7 +227,7 @@ test03 (CIMClient & client)
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
-    PEGASUS_ASSERT (outParams.size () == 1);
+    PEGASUS_TEST_ASSERT (outParams.size () == 1);
     CIMValue paramValue = outParams[0].getValue ();
     _checkStringValue (paramValue, "++++ CMPIArgs = Yes");
   }
@@ -244,7 +244,7 @@ test03 (CIMClient & client)
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
 
-    PEGASUS_ASSERT (outParams.size () == 1);
+    PEGASUS_TEST_ASSERT (outParams.size () == 1);
     CIMValue paramValue = outParams[0].getValue ();
     _checkStringValue (paramValue, "CIM_ERR_SUCCESS: Successful.");
   }
@@ -261,10 +261,10 @@ test03 (CIMClient & client)
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
     // Nothing is returned
-    PEGASUS_ASSERT (outParams.size () == 1);
+    PEGASUS_TEST_ASSERT (outParams.size () == 1);
 
     CIMValue paramValue = outParams[0].getValue ();
-    PEGASUS_ASSERT (paramValue.isNull ());
+    PEGASUS_TEST_ASSERT (paramValue.isNull ());
 
   }
   inParams.clear ();
@@ -280,10 +280,10 @@ test03 (CIMClient & client)
     // Check the return value. Make sure it is 0.
     _checkUint32Value (retValue, 0);
     // Nothing is returned
-    PEGASUS_ASSERT (outParams.size () == 1);
+    PEGASUS_TEST_ASSERT (outParams.size () == 1);
 
     CIMValue paramValue = outParams[0].getValue ();
-    PEGASUS_ASSERT (paramValue.isNull ());
+    PEGASUS_TEST_ASSERT (paramValue.isNull ());
 
   }
 }
@@ -306,15 +306,15 @@ test04 (CIMClient & client)
 					   inParams,
 					   outParams);
 
-  PEGASUS_ASSERT (retValue.getType () == CIMTYPE_OBJECT);
-  PEGASUS_ASSERT (!retValue.isArray ());
-  PEGASUS_ASSERT (!retValue.isNull ());
+  PEGASUS_TEST_ASSERT (retValue.getType () == CIMTYPE_OBJECT);
+  PEGASUS_TEST_ASSERT (!retValue.isArray ());
+  PEGASUS_TEST_ASSERT (!retValue.isNull ());
 
   CIMObject result;
   retValue.get (result);
 
   CIMObjectPath objPath  = result.getPath();
-  PEGASUS_ASSERT (objPath.toString() == "TestCMPI_Instance");
+  PEGASUS_TEST_ASSERT (objPath.toString() == "TestCMPI_Instance");
 
 }
 void
@@ -335,9 +335,9 @@ test05 (CIMClient & client)
 					   "returnDateTime",
 					   inParams,
 					   outParams);
-  PEGASUS_ASSERT (retValue.getType () == CIMTYPE_DATETIME);
-  PEGASUS_ASSERT (!retValue.isArray ());
-  PEGASUS_ASSERT (!retValue.isNull ());
+  PEGASUS_TEST_ASSERT (retValue.getType () == CIMTYPE_DATETIME);
+  PEGASUS_TEST_ASSERT (!retValue.isArray ());
+  PEGASUS_TEST_ASSERT (!retValue.isNull ());
 
 }
 void
@@ -361,9 +361,9 @@ test06 (CIMClient & client)
   } catch (const CIMException &e)
   {
 	  exception ++;
-  	PEGASUS_ASSERT (e.getCode() == CIM_ERR_NOT_FOUND);
+  	PEGASUS_TEST_ASSERT (e.getCode() == CIM_ERR_NOT_FOUND);
   }
-  PEGASUS_ASSERT (exception == 1);
+  PEGASUS_TEST_ASSERT (exception == 1);
 }
 void
 test07 (CIMClient & client)

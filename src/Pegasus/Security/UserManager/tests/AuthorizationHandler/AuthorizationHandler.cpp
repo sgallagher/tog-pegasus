@@ -86,7 +86,7 @@ int main(int argc, char** argv)
     }
     repositoryPath.append("/repository");
 
-    PEGASUS_ASSERT(FileSystem::isDirectory(repositoryPath));
+    PEGASUS_TEST_ASSERT(FileSystem::isDirectory(repositoryPath));
 
     CIMRepository* repository = new CIMRepository(repositoryPath);
 

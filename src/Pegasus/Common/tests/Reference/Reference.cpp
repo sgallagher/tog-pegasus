@@ -431,7 +431,7 @@ void test02()
     {
         colonException = true;
     }
-    PEGASUS_ASSERT(colonException);
+    PEGASUS_TEST_ASSERT(colonException);
 
     // test error cases
 

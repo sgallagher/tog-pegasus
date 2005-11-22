@@ -138,7 +138,7 @@ int main ()
         {
             cerr << "Parent failed to CreateProcess:" << GetLastError () 
                 << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
         }
 #elif defined (PEGASUS_OS_VMS)
         //
@@ -167,7 +167,7 @@ int main ()
               pipeFromChild->closeWriteHandle ();
 
               cerr << "Parent failed to execl: " << strerror (errno) << endl;
-              PEGASUS_ASSERT (0);
+              PEGASUS_TEST_ASSERT (0);
             }
             break;
 
@@ -181,7 +181,7 @@ int main ()
             pipeFromChild->closeWriteHandle ();
 
             cerr << "Parent failed to fork: " << strerror (errno) << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
             break;
 
           default:
@@ -206,7 +206,7 @@ int main ()
             pipeFromChild->closeWriteHandle ();
 
             cerr << "Parent failed to fork: " << strerror (errno) << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
         }
         else if (pid > 0)
         {
@@ -239,7 +239,7 @@ int main ()
                 pipeFromChild->closeWriteHandle ();
 
                 cerr << "Parent failed to execl: " << strerror (errno) << endl;
-                PEGASUS_ASSERT (0);
+                PEGASUS_TEST_ASSERT (0);
             }
         }
 #endif
@@ -266,14 +266,14 @@ int main ()
             {
                 cerr << "Parent failed to write request data: "
                     << writeBufferStatus << endl;
-                PEGASUS_ASSERT (0);
+                PEGASUS_TEST_ASSERT (0);
             }
         }
         else
         {
             cerr << "Parent failed to write request length: "
                 << writeBufferStatus << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
         }
 
         //
@@ -285,12 +285,12 @@ int main ()
         {
             cerr << "Parent failed to read response length: "
                 << readBufferStatus << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
         }
         if (bufferLength == 0)
         {
             cerr << "Parent read response length of 0" << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
         }
 
         AutoArrayPtr <char> responseBuffer (new char [bufferLength + 1]);
@@ -303,7 +303,7 @@ int main ()
         {
             cerr << "Parent failed to read response data: "
                 << readBufferStatus << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
         }
         responseBuffer.get () [bufferLength] = 0;
         if (verbose)
@@ -311,7 +311,7 @@ int main ()
             cout << "Response received by parent: " << responseBuffer.get () 
                 << endl;
         }
-        PEGASUS_ASSERT (strcmp (responseBuffer.get (), "Good-bye") == 0);
+        PEGASUS_TEST_ASSERT (strcmp (responseBuffer.get (), "Good-bye") == 0);
 
         //
         //  Test writeMessage and readMessage
@@ -338,13 +338,13 @@ int main ()
             {
                 cerr << "Parent failed to read response message: "
                     << readMessageStatus << endl;
-                PEGASUS_ASSERT (0);
+                PEGASUS_TEST_ASSERT (0);
             }
 
             AutoPtr<CIMGetInstanceResponseMessage> response;
             response.reset(
                 dynamic_cast<CIMGetInstanceResponseMessage*>(message));
-            PEGASUS_ASSERT (response.get() != 0);
+            PEGASUS_TEST_ASSERT (response.get() != 0);
 
             if (verbose)
             {
@@ -352,12 +352,12 @@ int main ()
                     << endl;
             }
 
-            PEGASUS_ASSERT (response->getType () ==
+            PEGASUS_TEST_ASSERT (response->getType () ==
                 CIM_GET_INSTANCE_RESPONSE_MESSAGE);
-            PEGASUS_ASSERT (response->messageId == String ("00000002"));
-            PEGASUS_ASSERT (response->cimException.getCode () == 
+            PEGASUS_TEST_ASSERT (response->messageId == String ("00000002"));
+            PEGASUS_TEST_ASSERT (response->cimException.getCode () == 
                 CIM_ERR_FAILED);
-            PEGASUS_ASSERT (((ContentLanguageListContainer)
+            PEGASUS_TEST_ASSERT (((ContentLanguageListContainer)
                 response->operationContext.get
                 (ContentLanguageListContainer::NAME)).getLanguages () ==
                 ContentLanguages::EMPTY);
@@ -366,7 +366,7 @@ int main ()
         {
             cerr << "Parent failed to write request message: "
                 << writeMessageStatus << endl;
-            PEGASUS_ASSERT (0);
+            PEGASUS_TEST_ASSERT (0);
         }
 
         //
@@ -379,7 +379,7 @@ int main ()
         try
         {
             AutoPtr <AnonymousPipe> pipeError1 (new AnonymousPipe ("g", NULL));
-            PEGASUS_ASSERT (false);
+            PEGASUS_TEST_ASSERT (false);
         }
         catch (Exception &)
         {
@@ -388,7 +388,7 @@ int main ()
         try
         {
             AutoPtr <AnonymousPipe> pipeError2 (new AnonymousPipe (NULL, "h"));
-            PEGASUS_ASSERT (false);
+            PEGASUS_TEST_ASSERT (false);
         }
         catch (Exception &)
         {
@@ -407,11 +407,11 @@ int main ()
         //
         writeBufferStatus = pipeToChild->writeBuffer 
             ((const char *) &bufferLength, sizeof (Uint32));
-        PEGASUS_ASSERT (writeBufferStatus == AnonymousPipe::STATUS_CLOSED);
+        PEGASUS_TEST_ASSERT (writeBufferStatus == AnonymousPipe::STATUS_CLOSED);
 
         readBufferStatus = pipeFromChild->readBuffer ((char *) &bufferLength, 
             sizeof (Uint32));
-        PEGASUS_ASSERT (readBufferStatus == AnonymousPipe::STATUS_CLOSED);
+        PEGASUS_TEST_ASSERT (readBufferStatus == AnonymousPipe::STATUS_CLOSED);
 
 #if defined (PEGASUS_OS_VMS)
           break;
@@ -421,12 +421,12 @@ int main ()
     catch (Exception & e)
     {
         cerr << "Exception occurred in parent: " << e.getMessage () << endl;
-        PEGASUS_ASSERT (0);
+        PEGASUS_TEST_ASSERT (0);
     }
     catch (...)
     {
         cerr << "Unknown error occurred in parent" << endl;
-        PEGASUS_ASSERT (0);
+        PEGASUS_TEST_ASSERT (0);
     }
     return 0;
 }

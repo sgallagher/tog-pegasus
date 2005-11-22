@@ -351,7 +351,7 @@ void test_service::_handle_incoming_operation(AsyncOpNode *operation)
    {
       Message *rq = operation->get_request();
 
-      PEGASUS_ASSERT(rq != 0 );
+      PEGASUS_TEST_ASSERT(rq != 0 );
       if ( rq && (rq->getMask() & message_mask::ha_async))
       {
 	 _handle_async_request(static_cast<AsyncRequest *>(rq));

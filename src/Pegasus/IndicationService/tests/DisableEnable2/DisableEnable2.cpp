@@ -129,7 +129,7 @@ void _sendIndicationShouldSucceed
         inParams,
         outParams);
     retValue.get (result);
-    PEGASUS_ASSERT (result == 0);
+    PEGASUS_TEST_ASSERT (result == 0);
 }
 
 void _sendIndicationShouldFail
@@ -151,7 +151,7 @@ void _sendIndicationShouldFail
         inParams,
         outParams);
     retValue.get (result);
-    PEGASUS_ASSERT (result == 1);
+    PEGASUS_TEST_ASSERT (result == 1);
 }
 
 void _sendIndicationShouldBeBlocked 
@@ -175,11 +175,11 @@ void _sendIndicationShouldBeBlocked
             inParams,
             outParams);
         retValue.get (result);
-        PEGASUS_ASSERT (false);
+        PEGASUS_TEST_ASSERT (false);
     }
     catch (CIMException & e)
     {
-        PEGASUS_ASSERT (e.getCode () == CIM_ERR_ACCESS_DENIED);
+        PEGASUS_TEST_ASSERT (e.getCode () == CIM_ERR_ACCESS_DENIED);
     }
 }
 

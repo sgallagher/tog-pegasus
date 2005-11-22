@@ -191,7 +191,7 @@ void test06()
     {
         exceptionCaught = true;
     }
-    PEGASUS_ASSERT(exceptionCaught);
+    PEGASUS_TEST_ASSERT(exceptionCaught);
 
     // Test constructor memory overflow
     exceptionCaught = false;
@@ -203,7 +203,7 @@ void test06()
     {
         exceptionCaught = true;
     }
-    PEGASUS_ASSERT(exceptionCaught);
+    PEGASUS_TEST_ASSERT(exceptionCaught);
 
     // Test constructor memory overflow
     exceptionCaught = false;
@@ -216,14 +216,14 @@ void test06()
     {
         exceptionCaught = true;
     }
-    PEGASUS_ASSERT(exceptionCaught);
+    PEGASUS_TEST_ASSERT(exceptionCaught);
 
     // Test reserveCapacity memory overflow
     {
         Array<Uint32> arr(128);
-        PEGASUS_ASSERT(arr.getCapacity() == 128);
+        PEGASUS_TEST_ASSERT(arr.getCapacity() == 128);
         arr.reserveCapacity(0xffff0000);
-        PEGASUS_ASSERT(arr.getCapacity() == 128);
+        PEGASUS_TEST_ASSERT(arr.getCapacity() == 128);
     }
 }
 

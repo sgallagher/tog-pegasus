@@ -310,7 +310,7 @@ void _checkSyntax(const String& textFormat)
             throw;
         }
     }
-    PEGASUS_ASSERT(gotException);
+    PEGASUS_TEST_ASSERT(gotException);
 
 }
 
@@ -458,7 +458,7 @@ void _testDefaultFormat()
 	IndicationFormatter::getFormattedIndText(subscriptionInstance,
 	indicationInstance, contentLangs);
 
-    PEGASUS_ASSERT(String::compare(formattedIndText, 
+    PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
 	expectedIndicationText) == 0);
 
 }
@@ -498,7 +498,7 @@ void _testFormat()
     formattedIndText = IndicationFormatter::getFormattedIndText(
 	subscriptionInstance, indicationInstance, contentLangs);
 
-    PEGASUS_ASSERT(String::compare(formattedIndText, 
+    PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
 	expectedIndicationText) == 0);
 
 }
@@ -519,7 +519,7 @@ void _checkIndicationText(
     String formattedIndText = IndicationFormatter::getFormattedIndText(
         subscriptionInstance, indicationInstance, contentLangs);
 
-    PEGASUS_ASSERT(String::compare(formattedIndText, 
+    PEGASUS_TEST_ASSERT(String::compare(formattedIndText, 
         expectedIndicationText) == 0);
 
 }

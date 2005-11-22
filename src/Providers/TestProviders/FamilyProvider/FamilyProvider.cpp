@@ -1144,7 +1144,7 @@ void FamilyProvider::deleteInstance(
                 localReference, handler);
             break;
         default:
-            PEGASUS_ASSERT(false);
+            PEGASUS_TEST_ASSERT(false);
     }
 	handler.complete();
 }
@@ -1339,7 +1339,7 @@ void FamilyProvider::associatorNames(
             break;
 
         default:
-            PEGASUS_ASSERT(false);
+            PEGASUS_TEST_ASSERT(false);
             throw CIMException(CIM_ERR_NOT_FOUND);
     }
 	// complete processing the request

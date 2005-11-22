@@ -77,7 +77,7 @@ void testAuthHeader()
     
     challenge = authInfo->getAuthChallenge();
 
-    PEGASUS_ASSERT(respHeader.size() != 0);
+    PEGASUS_TEST_ASSERT(respHeader.size() != 0);
 
     Uint32 startQuote = respHeader.find(0, '"');
     PEGASUS_TEST_ASSERT(startQuote != PEG_NOT_FOUND);
@@ -87,7 +87,7 @@ void testAuthHeader()
 
     filePath = respHeader.subString(startQuote + 1, (endQuote - startQuote - 1));
 
-    PEGASUS_ASSERT(filePath.size() != 0);
+    PEGASUS_TEST_ASSERT(filePath.size() != 0);
 }
 
 //
@@ -116,7 +116,7 @@ void testAuthenticationFailure_1()
     else
         if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -144,7 +144,7 @@ void testAuthenticationFailure_2()
     else
         if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -171,7 +171,7 @@ void testAuthenticationFailure_3()
     else
         if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -199,7 +199,7 @@ void testAuthenticationFailure_4()
     else
         if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -227,7 +227,7 @@ void testAuthenticationSuccess()
     else
         if (verbose) cout << "User " + testUser + " authentication failed.." << endl;
 
-    PEGASUS_ASSERT(authenticated);
+    PEGASUS_TEST_ASSERT(authenticated);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -280,7 +280,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
       cout << argv[0] << "Exception: " << e.getMessage() << endl;
-        PEGASUS_ASSERT(0);
+        PEGASUS_TEST_ASSERT(0);
     }
 
     delete authInfo;

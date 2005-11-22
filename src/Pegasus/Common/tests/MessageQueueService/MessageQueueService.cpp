@@ -221,7 +221,7 @@ void MessageQueueServer::_handle_incoming_operation(AsyncOpNode *operation,
    {
       Message *rq = operation->get_request();
 
-      PEGASUS_ASSERT(rq != 0 );
+      PEGASUS_TEST_ASSERT(rq != 0 );
       if ( rq->getMask() & message_mask::ha_async)
       {
 	 static_cast<AsyncMessage *>(rq)->_myself = thread;

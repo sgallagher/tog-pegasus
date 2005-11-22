@@ -108,7 +108,7 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
       (rq->getType () == async_messages::ASYNC_LEGACY_OP_START))
     {  
      try {
-      PEGASUS_ASSERT (_role == SERVER);
+      PEGASUS_TEST_ASSERT (_role == SERVER);
       Message *response_data =
         new Message (CIM_GET_INSTANCE_RESPONSE_MESSAGE);
       async_complete *response_msg =
@@ -123,7 +123,7 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
     }
   else if (rq->getType () == async_messages::CIMSERVICE_STOP)
     {
-      PEGASUS_ASSERT (_role == SERVER);
+      PEGASUS_TEST_ASSERT (_role == SERVER);
       _handle_stop ((CimServiceStop *) rq);
     }
   else
@@ -134,9 +134,9 @@ test_async_queue::_handle_async_request (AsyncRequest * rq)
 void
 test_async_queue::_handle_async_callback (AsyncOpNode * op)
 {
-  PEGASUS_ASSERT (_role == CLIENT);
+  PEGASUS_TEST_ASSERT (_role == CLIENT);
 
-  PEGASUS_ASSERT (op->read_state () & ASYNC_OPSTATE_COMPLETE);
+  PEGASUS_TEST_ASSERT (op->read_state () & ASYNC_OPSTATE_COMPLETE);
 
   Base::_handle_async_callback (op);
 }
@@ -157,8 +157,8 @@ test_async_queue::async_handleEnqueue (AsyncOpNode * op,
       Message *cim_rq = rq->get_action ();
       Message *cim_rp = rp->get_result_data ();
 
-      PEGASUS_ASSERT (cim_rq->getType () == CIM_GET_INSTANCE_REQUEST_MESSAGE);
-      PEGASUS_ASSERT (cim_rp->getType () ==
+      PEGASUS_TEST_ASSERT (cim_rq->getType () == CIM_GET_INSTANCE_REQUEST_MESSAGE);
+      PEGASUS_TEST_ASSERT (cim_rp->getType () ==
                       CIM_GET_INSTANCE_RESPONSE_MESSAGE);
       test_async_queue::msg_count++;
 

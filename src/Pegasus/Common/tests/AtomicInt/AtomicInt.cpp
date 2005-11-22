@@ -55,13 +55,13 @@ void test01()
 	}
 	i = 5;
 	i++;
-	PEGASUS_ASSERT( i.get() == 6 );
+	PEGASUS_TEST_ASSERT( i.get() == 6 );
 	i++;
-	PEGASUS_ASSERT( i.get() == 7 );
+	PEGASUS_TEST_ASSERT( i.get() == 7 );
 	i--;
-	PEGASUS_ASSERT( i.get() == 6 );
+	PEGASUS_TEST_ASSERT( i.get() == 6 );
 	i--;
-	PEGASUS_ASSERT( i.get() == 5 );
+	PEGASUS_TEST_ASSERT( i.get() == 5 );
 
 	if (verbose) 
 	    cout << "Testing: i+Uint32, i+AtomicInt, i-Uint32, etc.. "<<endl;

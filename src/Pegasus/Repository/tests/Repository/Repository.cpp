@@ -107,7 +107,7 @@ void test02(CIMRepository_Mode mode)
     }
     catch (CIMException& e)
     {
-	PEGASUS_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
+	PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_ALREADY_EXISTS);
 	// Ignore this!
     }
 
@@ -170,7 +170,7 @@ void test02(CIMRepository_Mode mode)
     catch (CIMException& e)
     {
         // execQuery operation is not supported yet
-		PEGASUS_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
+		PEGASUS_TEST_ASSERT(e.getCode() == CIM_ERR_NOT_SUPPORTED);
     }
 
     // Test to assure that delete of non-existant namespace

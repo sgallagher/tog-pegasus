@@ -62,7 +62,7 @@ static void TestExportIndication(CIMExportClient& client)
         testException = e;
     }
 
-    PEGASUS_ASSERT(testException.getCode() == CIM_ERR_NOT_SUPPORTED);
+    PEGASUS_TEST_ASSERT(testException.getCode() == CIM_ERR_NOT_SUPPORTED);
 }
 
 int main(int argc, char** argv)

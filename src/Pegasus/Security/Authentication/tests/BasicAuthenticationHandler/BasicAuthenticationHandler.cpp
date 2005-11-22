@@ -113,7 +113,7 @@ void testAuthHeader()
 
     if (verbose) cout << "realm = " << respHeader << endl;
 
-    PEGASUS_ASSERT(respHeader.size() != 0);
+    PEGASUS_TEST_ASSERT(respHeader.size() != 0);
 }
 
 //
@@ -145,7 +145,7 @@ void testAuthenticationFailure_1()
 
     delete authInfo;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -178,7 +178,7 @@ void testAuthenticationFailure_2()
 
     delete authInfo;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -208,7 +208,7 @@ void testAuthenticationFailure_3()
 
     delete authInfo;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -238,7 +238,7 @@ void testAuthenticationFailure_4()
 
     delete authInfo;
 
-    PEGASUS_ASSERT(!authenticated);
+    PEGASUS_TEST_ASSERT(!authenticated);
 }
 
 //
@@ -270,7 +270,7 @@ void testAuthenticationSuccess()
 
     delete authInfo;
 
-    //PEGASUS_ASSERT(authenticated);
+    //PEGASUS_TEST_ASSERT(authenticated);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -317,7 +317,7 @@ int main(int argc, char** argv)
         }
         repositoryPath.append("/repository");
 
-        PEGASUS_ASSERT(FileSystem::isDirectory(repositoryPath));
+        PEGASUS_TEST_ASSERT(FileSystem::isDirectory(repositoryPath));
 
         CIMRepository* repository = new CIMRepository(repositoryPath);
 
@@ -345,7 +345,7 @@ int main(int argc, char** argv)
     catch(Exception& e)
     {
       cout << argv[0] << " Exception: " << e.getMessage() << endl;
-        PEGASUS_ASSERT(0);
+        PEGASUS_TEST_ASSERT(0);
     }
 
 #endif

@@ -411,7 +411,7 @@ void _sendTestIndication
     }
 
     retValue.get (result);
-    PEGASUS_ASSERT (result == 0);
+    PEGASUS_TEST_ASSERT (result == 0);
 
     //
     //  Allow time for the indication to be received and forwarded

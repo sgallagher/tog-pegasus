@@ -93,20 +93,20 @@ void _checkStringProperty
    const String & name, const String & value, Boolean null = false)
 {
   Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+  PEGASUS_TEST_ASSERT (pos != PEG_NOT_FOUND);
 
   CIMProperty theProperty = instance.getProperty (pos);
   CIMValue theValue = theProperty.getValue ();
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_STRING);
-  PEGASUS_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_STRING);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
   if (null)
     {
-      PEGASUS_ASSERT (theValue.isNull ());
+      PEGASUS_TEST_ASSERT (theValue.isNull ());
     }
   else
     {
-      PEGASUS_ASSERT (!theValue.isNull ());
+      PEGASUS_TEST_ASSERT (!theValue.isNull ());
       String result;
       theValue.get (result);
 
@@ -120,7 +120,7 @@ void _checkStringProperty
             }
         }
 
-      PEGASUS_ASSERT (result == value);
+      PEGASUS_TEST_ASSERT (result == value);
     }
 }
 
@@ -128,14 +128,14 @@ void _checkUint16Property
   (CIMInstance & instance, const String & name, Uint16 value)
 {
   Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+  PEGASUS_TEST_ASSERT (pos != PEG_NOT_FOUND);
 
   CIMProperty theProperty = instance.getProperty (pos);
   CIMValue theValue = theProperty.getValue ();
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_UINT16);
-  PEGASUS_ASSERT (!theValue.isArray ());
-  PEGASUS_ASSERT (!theValue.isNull ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_UINT16);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (!theValue.isNull ());
   Uint16 result;
   theValue.get (result);
 
@@ -149,21 +149,21 @@ void _checkUint16Property
         }
     }
 
-  PEGASUS_ASSERT (result == value);
+  PEGASUS_TEST_ASSERT (result == value);
 }
 
 void _checkUint32Property
   (CIMInstance & instance, const String & name, Uint32 value)
 {
   Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+  PEGASUS_TEST_ASSERT (pos != PEG_NOT_FOUND);
 
   CIMProperty theProperty = instance.getProperty (pos);
   CIMValue theValue = theProperty.getValue ();
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_UINT32);
-  PEGASUS_ASSERT (!theValue.isArray ());
-  PEGASUS_ASSERT (!theValue.isNull ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_UINT32);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (!theValue.isNull ());
   Uint32 result;
   theValue.get (result);
 
@@ -177,21 +177,21 @@ void _checkUint32Property
         }
     }
 
-  PEGASUS_ASSERT (result == value);
+  PEGASUS_TEST_ASSERT (result == value);
 }
 
 void _checkUint64Property
   (CIMInstance & instance, const String & name, Uint64 value)
 {
   Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+  PEGASUS_TEST_ASSERT (pos != PEG_NOT_FOUND);
 
   CIMProperty theProperty = instance.getProperty (pos);
   CIMValue theValue = theProperty.getValue ();
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_UINT64);
-  PEGASUS_ASSERT (!theValue.isArray ());
-  PEGASUS_ASSERT (!theValue.isNull ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_UINT64);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (!theValue.isNull ());
   Uint64 result;
   theValue.get (result);
 
@@ -208,7 +208,7 @@ void _checkUint64Property
         }
     }
 
-  PEGASUS_ASSERT (result == value);
+  PEGASUS_TEST_ASSERT (result == value);
 }
 
 
@@ -244,7 +244,7 @@ _test1 (CIMClient & client)
           {
             // Only the third (second when starting from zero) and eight(7) won't
             // return instances.
-            //PEGASUS_ASSERT (i == 2 || i == 5 || i == 7 || i == 8 || i == 12);
+            //PEGASUS_TEST_ASSERT (i == 2 || i == 5 || i == 7 || i == 8 || i == 12);
             if (verbose)
               cerr <<i<< " No instance returned.. That is good" << endl;
           }
@@ -364,7 +364,7 @@ _test2 (CIMClient & client)
 	 exceptions ++;
   }
 
-  PEGASUS_ASSERT(exceptions ==  6);
+  PEGASUS_TEST_ASSERT(exceptions ==  6);
 
 }
 

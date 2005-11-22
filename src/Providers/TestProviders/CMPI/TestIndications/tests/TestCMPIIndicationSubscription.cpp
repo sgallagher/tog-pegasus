@@ -185,7 +185,7 @@ CIMInstance _buildSubscriptionInstance
 void _checkFilterOrHandlerPath
   (const CIMObjectPath & path, const CIMName & className, const String & name)
 {
-  PEGASUS_ASSERT (path.getClassName () == className);
+  PEGASUS_TEST_ASSERT (path.getClassName () == className);
   Array < CIMKeyBinding > keyBindings = path.getKeyBindings ();
   Boolean SCCNfound = false;
   Boolean SNfound = false;
@@ -196,36 +196,36 @@ void _checkFilterOrHandlerPath
       if (keyBindings[i].getName ().equal ("SystemCreationClassName"))
 	{
 	  SCCNfound = true;
-	  PEGASUS_ASSERT (keyBindings[i].getValue () ==
+	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
 			  System::getSystemCreationClassName ());
 	}
       else if (keyBindings[i].getName ().equal ("SystemName"))
 	{
 	  SNfound = true;
-	  PEGASUS_ASSERT (keyBindings[i].getValue () ==
+	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
 			  System::getFullyQualifiedHostName ());
 	}
       else if (keyBindings[i].getName ().equal ("CreationClassName"))
 	{
 	  CCNfound = true;
-	  PEGASUS_ASSERT (keyBindings[i].getValue () ==
+	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
 			  className.getString ());
 	}
       else if (keyBindings[i].getName ().equal ("Name"))
 	{
 	  Nfound = true;
-	  PEGASUS_ASSERT (keyBindings[i].getValue () == name);
+	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () == name);
 	}
       else
 	{
-	  PEGASUS_ASSERT (false);
+	  PEGASUS_TEST_ASSERT (false);
 	}
     }
 
-  PEGASUS_ASSERT (SCCNfound);
-  PEGASUS_ASSERT (SNfound);
-  PEGASUS_ASSERT (CCNfound);
-  PEGASUS_ASSERT (Nfound);
+  PEGASUS_TEST_ASSERT (SCCNfound);
+  PEGASUS_TEST_ASSERT (SNfound);
+  PEGASUS_TEST_ASSERT (CCNfound);
+  PEGASUS_TEST_ASSERT (Nfound);
 }
 
 void _checkSubscriptionPath
@@ -233,7 +233,7 @@ void _checkSubscriptionPath
    const String & filterName,
    const CIMName & handlerClass, const String & handlerName)
 {
-  PEGASUS_ASSERT (path.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION);
+  PEGASUS_TEST_ASSERT (path.getClassName () == PEGASUS_CLASSNAME_INDSUBSCRIPTION);
   Array < CIMKeyBinding > keyBindings = path.getKeyBindings ();
   Boolean filterFound = false;
   Boolean handlerFound = false;
@@ -244,7 +244,7 @@ void _checkSubscriptionPath
 	  filterFound = true;
 	  CIMObjectPath filterPath = _buildFilterOrHandlerPath
 	    (PEGASUS_CLASSNAME_INDFILTER, filterName);
-	  PEGASUS_ASSERT (keyBindings[i].getValue () ==
+	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
 			  filterPath.toString ());
 	}
       else if (keyBindings[i].getName ().equal ("Handler"))
@@ -252,17 +252,17 @@ void _checkSubscriptionPath
 	  handlerFound = true;
 	  CIMObjectPath handlerPath = _buildFilterOrHandlerPath
 	    (handlerClass, handlerName);
-	  PEGASUS_ASSERT (keyBindings[i].getValue () ==
+	  PEGASUS_TEST_ASSERT (keyBindings[i].getValue () ==
 			  handlerPath.toString ());
 	}
       else
 	{
-	  PEGASUS_ASSERT (false);
+	  PEGASUS_TEST_ASSERT (false);
 	}
     }
 
-  PEGASUS_ASSERT (filterFound);
-  PEGASUS_ASSERT (handlerFound);
+  PEGASUS_TEST_ASSERT (filterFound);
+  PEGASUS_TEST_ASSERT (handlerFound);
 }
 
 void _checkStringProperty
@@ -270,20 +270,20 @@ void _checkStringProperty
    const String & name, const String & value, Boolean null = false)
 {
   Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+  PEGASUS_TEST_ASSERT (pos != PEG_NOT_FOUND);
 
   CIMProperty theProperty = instance.getProperty (pos);
   CIMValue theValue = theProperty.getValue ();
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_STRING);
-  PEGASUS_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_STRING);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
   if (null)
     {
-      PEGASUS_ASSERT (theValue.isNull ());
+      PEGASUS_TEST_ASSERT (theValue.isNull ());
     }
   else
     {
-      PEGASUS_ASSERT (!theValue.isNull ());
+      PEGASUS_TEST_ASSERT (!theValue.isNull ());
       String result;
       theValue.get (result);
 
@@ -297,7 +297,7 @@ void _checkStringProperty
 	    }
 	}
 
-      PEGASUS_ASSERT (result == value);
+      PEGASUS_TEST_ASSERT (result == value);
     }
 }
 
@@ -305,14 +305,14 @@ void _checkUint16Property
   (CIMInstance & instance, const String & name, Uint16 value)
 {
   Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+  PEGASUS_TEST_ASSERT (pos != PEG_NOT_FOUND);
 
   CIMProperty theProperty = instance.getProperty (pos);
   CIMValue theValue = theProperty.getValue ();
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_UINT16);
-  PEGASUS_ASSERT (!theValue.isArray ());
-  PEGASUS_ASSERT (!theValue.isNull ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_UINT16);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (!theValue.isNull ());
   Uint16 result;
   theValue.get (result);
 
@@ -326,20 +326,20 @@ void _checkUint16Property
 	}
     }
 
-  PEGASUS_ASSERT (result == value);
+  PEGASUS_TEST_ASSERT (result == value);
 }
 void _checkUint64Property
   (CIMInstance & instance, const String & name, Uint64 value)
 {
   Uint32 pos = instance.findProperty (name);
-  PEGASUS_ASSERT (pos != PEG_NOT_FOUND);
+  PEGASUS_TEST_ASSERT (pos != PEG_NOT_FOUND);
 
   CIMProperty theProperty = instance.getProperty (pos);
   CIMValue theValue = theProperty.getValue ();
 
-  PEGASUS_ASSERT (theValue.getType () == CIMTYPE_UINT64);
-  PEGASUS_ASSERT (!theValue.isArray ());
-  PEGASUS_ASSERT (!theValue.isNull ());
+  PEGASUS_TEST_ASSERT (theValue.getType () == CIMTYPE_UINT64);
+  PEGASUS_TEST_ASSERT (!theValue.isArray ());
+  PEGASUS_TEST_ASSERT (!theValue.isNull ());
   Uint64 result;
   theValue.get (result);
 
@@ -356,7 +356,7 @@ void _checkUint64Property
 	}
     }
 
-  PEGASUS_ASSERT (result == value);
+  PEGASUS_TEST_ASSERT (result == value);
 }
 
 void _checkExceptionCode
@@ -372,7 +372,7 @@ void _checkExceptionCode
 	}
     }
 
-  PEGASUS_ASSERT (e.getCode () == expectedCode);
+  PEGASUS_TEST_ASSERT (e.getCode () == expectedCode);
 }
 
 void _deleteSubscriptionInstance

@@ -159,7 +159,7 @@ public:
 
     static T& ref(const CIMValueRep* rep)
     {
-	return *((T*)(&rep->u));
+	return *((T*)((void*)&rep->u));
     }
 
     static Array<T>* aptr(const CIMValueRep* rep)
@@ -169,7 +169,7 @@ public:
 
     static Array<T>& aref(const CIMValueRep* rep)
     {
-	return *((Array<T>*)(&rep->u));
+	return *((Array<T>*)((void*)&rep->u));
     }
 
     static void defaultConstruct(CIMValueRep* rep)
@@ -177,32 +177,32 @@ public:
 	if (IsRaw((T*)0))
 	    rep->u._uint64Value = (Uint64)0;
 	else
-	    new((T*)&rep->u) T();
+	    new((T*)((void*)&rep->u)) T();
     }
 
     static void copyConstruct(CIMValueRep* rep, const T& x)
     {
-	new((T*)&rep->u) T(x);
+	new((T*)((void*)&rep->u)) T(x);
     }
 
     static void copyConstructArray(CIMValueRep* rep, const Array<T>& x)
     {
-	new((Array<T>*)&rep->u) Array<T>(x);
+	new((Array<T>*)((void*)&rep->u)) Array<T>(x);
     }
 
     static void constructArrayWithSize(CIMValueRep* rep, Uint32 arraySize)
     {
-	new((Array<T>*)&rep->u) Array<T>(arraySize);
+	new((Array<T>*)((void*)&rep->u)) Array<T>(arraySize);
     }
 
     static void destruct(CIMValueRep* rep)
     {
-	((T*)&rep->u)->~T();
+	((T*)((void*)&rep->u))->~T();
     }
 
     static void destructArray(CIMValueRep* rep)
     {
-	((Array<T>*)&rep->u)->~Array<T>();
+	((Array<T>*)((void*)&rep->u))->~Array<T>();
     }
 
     static void setNull(

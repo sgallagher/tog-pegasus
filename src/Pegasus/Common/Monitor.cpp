@@ -74,15 +74,6 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-// Define a platform-neutral socket length type
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_VMS)
-typedef size_t PEGASUS_SOCKLEN_T;
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_OS_LINUX) || (defined(PEGASUS_OS_SOLARIS) && !defined(SUNOS_5_6))
-typedef socklen_t PEGASUS_SOCKLEN_T;
-#else
-typedef int PEGASUS_SOCKLEN_T;
-#endif
-
 static AtomicInt _connections(0);
 
 ////////////////////////////////////////////////////////////////////////////////

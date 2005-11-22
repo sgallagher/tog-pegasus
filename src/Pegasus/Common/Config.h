@@ -224,5 +224,4 @@ PEGASUS_NAMESPACE_END
 #define PEGASUS_STATIC_CDECL
 #endif
 
-
 #endif  /* Pegasus_Config_h */

@@ -82,30 +82,7 @@ PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
 
-//
-// Determine the correct type to use for the length passed to getsockname().
-// The default is to use the 'socklen_t'.
-//
-
-#if defined(PEGASUS_OS_TYPE_WINDOWS) || defined(PEGASUS_OS_OS400)
-#define PEGASUS_SOCKLEN_T   int
-#endif
-
-#if defined(PEGASUS_OS_HPUX) && !defined(_XOPEN_SOURCE_EXTENDED)
-#define PEGASUS_SOCKLEN_T   int
-#endif
-
-
-#if defined(PEGASUS_OS_VMS) || defined(PEGASUS_OS_ZOS)
-#define PEGASUS_SOCKLEN_T   unsigned
-#endif
-
-#ifndef PEGASUS_SOCKLEN_T
-#define PEGASUS_SOCKLEN_T   socklen_t
-#endif
-
 static int MAX_CONNECTION_QUEUE_LENGTH = -1;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -139,17 +116,11 @@ public:
     }
     struct sockaddr* address;
 
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_VMS)
-   size_t address_size;
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_PLATFORM_SOLARIS_SPARC_CC) && !defined(SUNOS_5_6))
-   socklen_t address_size;
-#else
-   int address_size;
-#endif
-      Mutex _connection_mut;
+    PEGASUS_SOCKLEN_T address_size;
+    Mutex _connection_mut;
 
-      PEGASUS_SOCKET socket;
-      Array<HTTPConnection*> connections;
+    PEGASUS_SOCKET socket;
+    Array<HTTPConnection*> connections;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -670,13 +641,7 @@ void HTTPAcceptor::_acceptConnection()
    // Accept the connection (populate the address):
 
    struct sockaddr* accept_address;
-#if defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_VMS)
-   size_t address_size;
-#elif defined(PEGASUS_PLATFORM_AIX_RS_IBMCXX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) || (defined(PEGASUS_OS_SOLARIS) && !defined(SUNOS_5_6))
-   socklen_t address_size;
-#else
-   int address_size;
-#endif
+   PEGASUS_SOCKLEN_T address_size;
 
    if (_localConnection)
    {

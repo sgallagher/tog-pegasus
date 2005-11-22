@@ -86,4 +86,6 @@
 
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
+#define PEGASUS_SOCKLEN_T size_t
+
 #endif /* Pegasus_Platform_VMS_ALPHA_DECCXX_h */

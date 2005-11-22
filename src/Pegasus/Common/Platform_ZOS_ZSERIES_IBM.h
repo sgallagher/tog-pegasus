@@ -107,4 +107,6 @@ inline int snprintf(char *sptr, size_t len, const char* form, ...)
 
 #define ZOS_DEFAULT_PEGASUS_REPOSITORY "/var/wbem"
 
+#define PEGASUS_SOCKLEN_T size_t
+
 #endif /* Pegasus_Platform_ZOS_ZSERIES_IBM_h */

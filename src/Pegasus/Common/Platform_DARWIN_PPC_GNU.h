@@ -61,4 +61,6 @@
 
 #define PEGASUS_HAVE_BROKEN_GLOBAL_CONSTRUCTION
 
+#define PEGASUS_SOCKLEN_T socklen_t
+
 #endif /* Pegasus_Platform_DARWIN_PPC_GNU_h */

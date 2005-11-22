@@ -52,4 +52,10 @@
 
 #define PEGASUS_MAXHOSTNAMELEN  256
 
+#if defined(_XOPEN_SOURCE_EXTENDED)
+# define PEGASUS_SOCKLEN_T socklen_t
+#else
+# define PEGASUS_SOCKLEN_T int
+#endif
+
 #endif /* Pegasus_Platform_HPUX_PARISC_ACC_h */

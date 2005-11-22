@@ -64,4 +64,6 @@
 
 #define AIX_RELEASE_PEGASUS_HOME "/opt/freeware/cimom/pegasus/etc"
 
+#define PEGASUS_SOCKLEN_T socklen_t
+
 #endif /* Pegasus_Platform_AIX_RS_IBMCXX_h */

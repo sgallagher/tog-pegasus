@@ -77,4 +77,6 @@
 #define PEGASUS_MAXHOSTNAMELEN 64
 #endif
 
+#define PEGASUS_SOCKLEN_T socklen_t
+
 #endif /* Pegasus_Platform_LINUX_IX86_GNU_h */

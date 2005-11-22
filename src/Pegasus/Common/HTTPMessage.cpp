@@ -48,7 +48,7 @@ PEGASUS_USING_STD;
 
 PEGASUS_NAMESPACE_BEGIN
 
-static const String _CONTENT_TYPE = "content-type";
+static const String _HTTP_HEADER_CONTENT_TYPE = "content-type";
 
 //------------------------------------------------------------------------------
 //
@@ -249,7 +249,7 @@ void HTTPMessage::printAll(ostream& os) const
     {
     	cout << headers[i].first << ": " << headers[i].second << endl;
 
-    	if (String::equalNoCase(headers[i].first, _CONTENT_TYPE))
+    	if (String::equalNoCase(headers[i].first, _HTTP_HEADER_CONTENT_TYPE))
     	{
     	    if (headers[i].second.find("image/") == 0)
     		image = true;

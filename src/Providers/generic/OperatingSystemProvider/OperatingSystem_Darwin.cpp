@@ -103,7 +103,7 @@ Uint16 OperatingSystem::GetOSType(void) const
 {
    Uint16 type = Unknown;
 
-   type = OS390;
+   type = MACOS;
 
    return(type);
 }

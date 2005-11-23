@@ -33,6 +33,7 @@
 //          Brian Lucier (lucier@us.ibm.com) 
 //
 // Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3591
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +63,7 @@ class PEGASUS_CQL_LINKAGE CQLTermRep
 
   CQLValue resolveValue(const CIMInstance& CI, const QueryContext& QueryCtx);
 
-  void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
+  void appendOperation(FactorOpType inFactorOpType, const CQLFactor& inFactor);
 
    String toString()const;
 

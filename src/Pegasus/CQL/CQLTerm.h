@@ -35,6 +35,7 @@
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3591
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +142,7 @@ class PEGASUS_CQL_LINKAGE CQLTerm
       @throw  - None.
       <I><B>Experimental Interface</B></I><BR>
   */
-  void appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor);
+  void appendOperation(FactorOpType inFactorOpType, const CQLFactor& inFactor);
 
   /**
       Converts the contents of the object to a String.

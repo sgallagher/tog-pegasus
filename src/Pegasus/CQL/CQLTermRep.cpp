@@ -33,6 +33,7 @@
 //          Brian Lucier (lucier@us.ibm.com) 
 //
 // Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) bug#3590
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3591
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +99,7 @@ CQLValue CQLTermRep::resolveValue(const CIMInstance& CI, const QueryContext& Que
    return returnVal;
 }
 
-void CQLTermRep::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor)
+void CQLTermRep::appendOperation(FactorOpType inFactorOpType, const CQLFactor& inFactor)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLTermRep::appendOperation()");
 

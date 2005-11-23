@@ -32,7 +32,7 @@
 //          Chuck Carmack (carmack@us.ibm.com)
 //          Brian Lucier (lucier@us.ibm.com) 
 //
-// Modified By:
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3591
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +79,7 @@ CQLValue CQLTerm::resolveValue(const CIMInstance& CI, const QueryContext& QueryC
   return _rep->resolveValue(CI,QueryCtx);
 }
 
-void CQLTerm::appendOperation(FactorOpType inFactorOpType, CQLFactor inFactor)
+void CQLTerm::appendOperation(FactorOpType inFactorOpType, const CQLFactor& inFactor)
 {
   _rep->appendOperation(inFactorOpType,inFactor);
 }

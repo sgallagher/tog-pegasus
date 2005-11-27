@@ -107,7 +107,7 @@
 // -- implement test providers for other provider types
 
 #include "LocalizedProvider.h"
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstdlib>
 
 // Globalization headers

@@ -57,7 +57,7 @@
 #include "CIMObjectPath.h"
 #include "CIMObject.h"
 #include "Array.h"
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -388,7 +388,7 @@ CIMValue::CIMValue(CIMType type, Boolean isArray, Uint32 arraySize)
 	    break;
 
 	default:
-	    assert(0);
+	    PEGASUS_ASSERT(0);
     }
 }
 
@@ -691,7 +691,7 @@ Uint32 CIMValue::getArraySize() const
 	    return CIMValueType<CIMObject>::arraySize(_rep);
 
 	default:
-	    assert(0);
+	    PEGASUS_ASSERT(0);
     }
 
     return 0;
@@ -776,7 +776,7 @@ void CIMValue::setNullValue(CIMType type, Boolean isArray, Uint32 arraySize)
 	    break;
 
 	default:
-	    assert(0);
+	    PEGASUS_ASSERT(0);
     }
 }
 
@@ -1364,7 +1364,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
                 return CIMValueType<CIMObject>::equalArray(_rep, x._rep);
 
 	    default:
-		assert(0);
+		PEGASUS_ASSERT(0);
         }
     }
     else
@@ -1421,7 +1421,7 @@ Boolean CIMValue::equal(const CIMValue& x) const
 		    CIMValueType<CIMObject>::ref(x._rep));
 
 	    default:
-		assert(0);
+		PEGASUS_ASSERT(0);
         }
     }
 
@@ -1563,7 +1563,7 @@ String CIMValue::toString() const
 	    }
 
 	    default:
-		assert(0);
+		PEGASUS_ASSERT(0);
         }
     }
     else
@@ -1635,7 +1635,7 @@ String CIMValue::toString() const
                 break;
 
 	    default:
-		assert(0);
+		PEGASUS_ASSERT(0);
         }
     }
 

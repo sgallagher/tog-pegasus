@@ -46,7 +46,7 @@
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 
 
@@ -466,7 +466,7 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
         sprintf(buffer_year, "%04d", tot_year);
         year = String(buffer_year);
         if (tot_year > 9999) {
-            assert(false);
+            PEGASUS_ASSERT(false);
             // the calculated year should never be greater then 9999
         }
 
@@ -544,7 +544,7 @@ CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
             Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
                 "Error when caculating months in CIMDateTime::CIMDateTime(Uint \
                           microSec, Boolean interval)");
-            assert(false);
+            PEGASUS_ASSERT(false);
         }
 
        char bu_mon [5];

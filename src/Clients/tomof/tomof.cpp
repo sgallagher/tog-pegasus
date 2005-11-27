@@ -39,7 +39,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/OptionManager.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Repository/CIMRepository.h>

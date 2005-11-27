@@ -167,7 +167,7 @@ public:
         <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getName() == CIMName ("getHostName"));
+            PEGASUS_ASSERT(m1.getName() == CIMName ("getHostName"));
         </pre>
     */
     const CIMName& getName() const;
@@ -190,7 +190,7 @@ public:
         <p><b>Example:</b>
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getType() == CIMTYPE_STRING);
+            PEGASUS_ASSERT(m1.getType() == CIMTYPE_STRING);
         </pre>
     */
     CIMType getType() const;
@@ -205,7 +205,7 @@ public:
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.setName(CIMName ("getVersion"));
-            assert(m1.getName() == CIMName ("getVersion"));
+            PEGASUS_ASSERT(m1.getName() == CIMName ("getVersion"));
         </pre>
     */
     void setType(CIMType type);
@@ -269,7 +269,7 @@ public:
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
-            assert(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+            PEGASUS_ASSERT(m1.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
         </pre>
     */
     Uint32 findQualifier(const CIMName& name) const;
@@ -332,7 +332,7 @@ public:
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
             m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
-            assert(m1.getQualifierCount() == 2);
+            PEGASUS_ASSERT(m1.getQualifierCount() == 2);
         </pre>
     */
     Uint32 getQualifierCount() const;
@@ -418,7 +418,7 @@ public:
         <p><b>Example:</b>
         <pre>
             CIMMethod m1;
-            assert(m1.isUninitialized());
+            PEGASUS_ASSERT(m1.isUninitialized());
         </pre>
      */
     Boolean isUninitialized() const;
@@ -431,7 +431,7 @@ public:
         <pre>
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             CIMConstMethod m2(CIMName ("test"), CIMTYPE_STRING);
-            assert(!m1.identical(m2));
+            PEGASUS_ASSERT(!m1.identical(m2));
         </pre>
     */
     Boolean identical(const CIMConstMethod& x) const;
@@ -589,7 +589,7 @@ public:
         <p><b>Example:</b>
         <pre>
             CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getName() == CIMName ("getHostName"));
+            PEGASUS_ASSERT(m1.getName() == CIMName ("getHostName"));
         </pre>
     */
     const CIMName& getName() const;
@@ -601,7 +601,7 @@ public:
         <p><b>Example:</b>
         <pre>
             CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
-            assert(m1.getType() == CIMTYPE_STRING);
+            PEGASUS_ASSERT(m1.getType() == CIMTYPE_STRING);
         </pre>
     */
     CIMType getType() const;
@@ -633,7 +633,7 @@ public:
             CIMMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
             CIMConstMethod m2(m1);
-            assert(m2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
+            PEGASUS_ASSERT(m2.findQualifier(CIMName ("stuff")) != PEG_NOT_FOUND);
         </pre>
     */
     Uint32 findQualifier(const CIMName& name) const;
@@ -666,7 +666,7 @@ public:
             m1.addQualifier(CIMQualifier(CIMName ("stuff"), true));
             m1.addQualifier(CIMQualifier(CIMName ("stuff2"), true));
             CIMConstMethod m2(m1);
-            assert(m2.getQualifierCount() == 2);
+            PEGASUS_ASSERT(m2.getQualifierCount() == 2);
         </pre>
     */
     Uint32 getQualifierCount() const;
@@ -713,7 +713,7 @@ public:
         <p><b>Example:</b>
         <pre>
             CIMConstMethod m1;
-            assert(m1.isUninitialized());
+            PEGASUS_ASSERT(m1.isUninitialized());
         </pre>
      */
     Boolean isUninitialized() const;
@@ -726,7 +726,7 @@ public:
         <pre>
             CIMConstMethod m1(CIMName ("getHostName"), CIMTYPE_STRING);
             CIMConstMethod m2(CIMName ("test"), CIMTYPE_STRING);
-            assert(!m1.identical(m2));
+            PEGASUS_ASSERT(!m1.identical(m2));
         </pre>
     */
     Boolean identical(const CIMConstMethod& x) const;

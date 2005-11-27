@@ -54,7 +54,7 @@ This Program was intended to be a test and demonstration tool for
 Pegasus.
 */
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cctype>
 #include <cstdlib>
 #include <cstdio>

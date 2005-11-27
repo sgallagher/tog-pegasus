@@ -32,7 +32,7 @@
 //
 //%=============================================================================
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include "RmDirHierCmd.h"
 #include "Files.h"

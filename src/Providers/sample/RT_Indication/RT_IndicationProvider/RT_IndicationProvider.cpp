@@ -36,7 +36,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMDateTime.h>
@@ -94,7 +94,7 @@ void RT_IndicationProvider::enableIndications (
     //
     if (_enabled)
     {
-        assert (false);
+        PEGASUS_ASSERT (false);
     }
 
     _enabled = true;

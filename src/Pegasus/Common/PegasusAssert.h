@@ -44,9 +44,12 @@
 // it is possible to revert back to assert.h 
 //     J Wunderlich 11/21/2005
 //
-// #include <assert.h>
-#include <cassert>
 
+#if (__cplusplus)
+#include <cassert>
+#else
+#include <assert.h>
+#endif
 
 /** define PEGASUS_ASSERT assertion statement.  This statement tests the
     condition defined by the parameters and if not True executes an

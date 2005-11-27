@@ -112,7 +112,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstdlib>
 #include <fstream>
 #include <Pegasus/Common/FileSystem.h>

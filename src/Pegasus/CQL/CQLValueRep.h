@@ -149,7 +149,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
         <pre>
             CQLValue   val1 = "def";
             CQLValue   val2 = "a";
-            assert (val2 < val1);
+            PEGASUS_ASSERT (val2 < val1);
         </pre>
     */
 
@@ -160,7 +160,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
         <pre>
             CQLValue   val1 = "def";
             CQLValue   val2 = "a";
-            assert (val2 < val1);
+            PEGASUS_ASSERT (val2 < val1);
         </pre>
     */
 
@@ -173,7 +173,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
             CQLValue  t1 = "abc";  // it's a string type
             CQLValue  t2 = "def";   // it's another string type
             CQLValue   t3 = t1 + t2;
-            assert(t3 == "abcdef");
+            PEGASUS_ASSERT(t3 == "abcdef");
         </pre>
     */
  
@@ -186,7 +186,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
             CQLValue  t1 = 5;  
             CQLValue  t2 = 2;   
             CQLValue   t3 = t1 - t2;
-            assert(t3 == 3);
+            PEGASUS_ASSERT(t3 == 3);
         </pre>
     */
  
@@ -199,7 +199,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
             CQLValue  t1 = 3;  
             CQLValue  t2 = 2;   
             CQLValue   t3 = t1 *  t2;
-            assert(t3 == 6);
+            PEGASUS_ASSERT(t3 == 6);
         </pre>
     */
 
@@ -212,7 +212,7 @@ class PEGASUS_CQL_LINKAGE CQLValueRep
             CQLValue  t1 = 6;  
             CQLValue  t2 = 2;   
             CQLValue   t3 = t1 /  t2;
-            assert(t3 == 2);
+            PEGASUS_ASSERT(t3 == 2);
         </pre>
     */
 

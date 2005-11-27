@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <fstream>
 #include <iostream>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/XmlReader.h>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/XmlWriter.h>

@@ -74,6 +74,7 @@
 /* << Mon Sep 16 14:00:36 2002 mdd >> */
 
 #include "slp_client.h"
+#include <Pegasus/Common/PegasusAssert.h>
 
 /*********************************************************************/
 /*********************************************************************/
@@ -192,7 +193,7 @@ struct da_list *da_node_exists(struct da_list *head, const void *key)
 
 void free_da_list_members(struct da_list *da)
 {
-  assert( ! _LSLP_IS_HEAD(da));
+  PEGASUS_ASSERT( ! _LSLP_IS_HEAD(da));
   if(da->url != NULL)
     free(da->url);
   if(da->scope != NULL)
@@ -207,7 +208,7 @@ void free_da_list_members(struct da_list *da)
 
 void free_da_list_node(struct da_list *da)
 {
-  assert( ! _LSLP_IS_HEAD(da));
+  PEGASUS_ASSERT( ! _LSLP_IS_HEAD(da));
   free_da_list_members(da);
   free(da);
 }
@@ -217,7 +218,7 @@ void free_da_list_node(struct da_list *da)
 void free_da_list(struct da_list *list)
 {
   struct da_list *temp;
-  assert(_LSLP_IS_HEAD(list));
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
   temp = list->next;
   while( ! _LSLP_IS_HEAD(temp)) {
     _LSLP_UNLINK(temp);
@@ -252,7 +253,7 @@ struct rply_list *rpl_node_exists(struct rply_list *head, const void *key)
 
 void free_rply_list_members(struct rply_list *rply)
 {
-  assert(! _LSLP_IS_HEAD(rply));
+  PEGASUS_ASSERT(! _LSLP_IS_HEAD(rply));
   if(rply->url != NULL)
     free(rply->url);
   if(rply->auth != NULL)
@@ -261,7 +262,7 @@ void free_rply_list_members(struct rply_list *rply)
 
 void free_rply_list_node(struct rply_list *rply)
 {
-  assert(! _LSLP_IS_HEAD(rply));
+  PEGASUS_ASSERT(! _LSLP_IS_HEAD(rply));
   free_rply_list_members(rply);
   free(rply);
 }
@@ -270,7 +271,7 @@ void free_rply_list_node(struct rply_list *rply)
 void free_rply_list(struct rply_list *list)
 {
   struct rply_list *temp;
-  assert(_LSLP_IS_HEAD(list));
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
   temp = list->next;
   while( ! _LSLP_IS_HEAD(temp)){
     _LSLP_UNLINK(temp);
@@ -304,7 +305,7 @@ struct reg_list *reg_node_exists(struct reg_list *head, const void *key)
 
 void free_reg_list_members(struct reg_list *reg)
 {
-  assert(! _LSLP_IS_HEAD(reg));
+  PEGASUS_ASSERT(! _LSLP_IS_HEAD(reg));
   if(reg->url != NULL)
     free(reg->url);
   if(reg->attributes != NULL)
@@ -317,7 +318,7 @@ void free_reg_list_members(struct reg_list *reg)
 
 void free_reg_list_node(struct reg_list *reg)
 {
-  assert(! _LSLP_IS_HEAD(reg));
+  PEGASUS_ASSERT(! _LSLP_IS_HEAD(reg));
   free_reg_list_members(reg);
   free(reg);
 }
@@ -326,7 +327,7 @@ void free_reg_list_node(struct reg_list *reg)
 void free_reg_list(struct reg_list *list)
 {
   struct reg_list *temp;
-  assert( _LSLP_IS_HEAD(list));
+  PEGASUS_ASSERT( _LSLP_IS_HEAD(list));
   temp = list->next;
   while(! _LSLP_IS_HEAD(temp)) {
     _LSLP_UNLINK(temp);
@@ -360,7 +361,7 @@ struct url_entry *url_node_exists(struct url_entry *head, const void *key)
 
 void free_url_entry_members(struct url_entry *url)
 {
-  assert(! _LSLP_IS_HEAD(url));
+  PEGASUS_ASSERT(! _LSLP_IS_HEAD(url));
   if(url->url != NULL)
     free(url->url);
   if(url->auth_blocks != NULL)
@@ -369,7 +370,7 @@ void free_url_entry_members(struct url_entry *url)
 
 void free_url_node(struct url_entry *node)
 {
-  assert(! _LSLP_IS_HEAD(node));
+  PEGASUS_ASSERT(! _LSLP_IS_HEAD(node));
   free_url_entry_members(node);
   free(node);
 }
@@ -378,7 +379,7 @@ void free_url_node(struct url_entry *node)
 void free_url_list(struct url_entry *list)
 {
   struct url_entry *temp;
-  assert( _LSLP_IS_HEAD(list));
+  PEGASUS_ASSERT( _LSLP_IS_HEAD(list));
   temp = list->next;
   while(! _LSLP_IS_HEAD(temp)) {
     _LSLP_UNLINK(temp);
@@ -967,7 +968,7 @@ BOOL prepare_query( struct slp_client *client,
 
 	  /* <<< Thu Jun 10 08:51:03 2004 mdd >>>  force the spi string to be zero length*/
 
-	  assert(total_len == bptr - client->_msg_buf);
+	  PEGASUS_ASSERT(total_len == bptr - client->_msg_buf);
 	  /*  always add an attr extension to an srvrq if there is room */
 	  if(total_len + 9 <= LSLP_MTU ) {
 	    _LSLP_SETNEXTEXT(client->_msg_buf, total_len);
@@ -1132,7 +1133,7 @@ void set_separators(struct slp_client *client, char fs, char rs)
 
 lslpMsg *get_response( struct slp_client *client, lslpMsg *head)
 {
-  assert(head != NULL && _LSLP_IS_HEAD(head));
+  PEGASUS_ASSERT(head != NULL && _LSLP_IS_HEAD(head));
   if( _LSLP_IS_EMPTY(&(client->replies)))
     return NULL;
 
@@ -2678,7 +2679,7 @@ int srv_reg_all( struct slp_client *client,
   int registrations = 0;
   DEBUG_PRINT((DEBUG_ENTER, "srv_reg_all "));
 
-  assert(client != NULL && url != NULL && attributes != NULL && service_type != NULL && scopes != NULL);
+  PEGASUS_ASSERT(client != NULL && url != NULL && attributes != NULL && service_type != NULL && scopes != NULL);
   if(client == NULL || url == NULL || attributes == NULL || service_type == NULL || scopes == NULL )
     {
       DEBUG_PRINT((DEBUG_EXIT, "srv_reg_all:err "));
@@ -2728,7 +2729,7 @@ int  srv_reg_local(struct slp_client *client,
   uint32 target_addr_save;
   int convergence_save;
   DEBUG_PRINT((DEBUG_ENTER, "srv_reg_local "));
-  assert(client != NULL && url != NULL && attributes != NULL && service_type != NULL && scopes != NULL);
+  PEGASUS_ASSERT(client != NULL && url != NULL && attributes != NULL && service_type != NULL && scopes != NULL);
   if(client == NULL || url == NULL || attributes == NULL || service_type == NULL || scopes == NULL )
     {
       DEBUG_PRINT((DEBUG_EXIT, "srv_reg_local:err "));
@@ -2779,7 +2780,7 @@ void __srv_reg_local ( struct slp_client *client,
 
   DEBUG_PRINT((DEBUG_ENTER, "__srv_reg_local "));
 
-  assert(client != NULL && url != NULL && attributes != NULL && \
+  PEGASUS_ASSERT(client != NULL && url != NULL && attributes != NULL && \
 	 service_type != NULL && scopes != NULL);
 
   url_copy = strdup(url);
@@ -3326,7 +3327,7 @@ void decode_attrreq(struct slp_client *client, SOCKADDR_IN *remote)
 char *lslp_foldString(char *s)
   {
   char *src, *dst;
-  assert(s != 0);
+  PEGASUS_ASSERT(s != 0);
   src = s;
   while(isspace(*src))
     src++;
@@ -3364,12 +3365,12 @@ BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   int16 attrLen = 0, lenSave;
   char *bptr;
   BOOL ccode = FALSE, hit = TRUE;
-  assert(buf != NULL);
-  assert(len != NULL && *len > 3);
+  PEGASUS_ASSERT(buf != NULL);
+  PEGASUS_ASSERT(len != NULL && *len > 3);
 
   DEBUG_PRINT((DEBUG_ENTER, "lslpStuffAttrList "));
 
-/*   assert(list != NULL); */
+/*   PEGASUS_ASSERT(list != NULL); */
   if (buf == NULL || len == NULL || *len < 3 )
     return(FALSE);
   /* always return TRUE on an empty list so we can continue to build the */
@@ -3392,7 +3393,7 @@ BOOL lslpStuffAttrList(char **buf, int16 *len, lslpAttrList *list, lslpAttrList 
   (*buf) += 2;	 /* reserve space for the attrlist length short */
   (*len) -= 2;
   while (! _LSLP_IS_HEAD(attrs) && attrLen + 1 < *len) {
-    assert(attrs->type != head);
+    PEGASUS_ASSERT(attrs->type != head);
     if(include != NULL && _LSLP_IS_HEAD(include) && (! _LSLP_IS_EMPTY(include))) {
       included = include->next;
       hit = FALSE;
@@ -3558,9 +3559,9 @@ lslpAttrList *lslpUnstuffAttr(char **buf, int16 *len, int16 *err)
 {
   int16 tempLen;
   lslpAttrList *temp = NULL;
-  assert(buf != NULL && *buf != NULL);
-  assert(len != NULL);
-  assert(err != NULL);
+  PEGASUS_ASSERT(buf != NULL && *buf != NULL);
+  PEGASUS_ASSERT(len != NULL);
+  PEGASUS_ASSERT(err != NULL);
   *err = 0;
 
   DEBUG_PRINT((DEBUG_ENTER, "lslpUnstuffAttr "));
@@ -3604,7 +3605,7 @@ lslpURL *lslpAllocURLList(void)
 /* url MUST be unlinked from list */
 void lslpFreeURL(lslpURL *url)
 {
-  assert(url != NULL);
+  PEGASUS_ASSERT(url != NULL);
   if (url->url != NULL)
     free(url->url);
   if ( url->authBlocks != NULL)
@@ -3621,8 +3622,8 @@ void lslpFreeURLList(lslpURL *list)
 {								
   lslpURL *temp;
 
-  assert(list != NULL);
-  assert(_LSLP_IS_HEAD(list));
+  PEGASUS_ASSERT(list != NULL);
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
   while(! (_LSLP_IS_EMPTY(list)))
     {
       temp = list->next;
@@ -3641,9 +3642,9 @@ void lslpFreeURLList(lslpURL *list)
 /* this routine may return FALSE AND alter the buffer and length */
 BOOL  lslpStuffURL(char **buf, int16 *len, lslpURL *url)
 {
-  assert((buf != NULL) && (*buf != NULL));
-  assert((len != NULL) && (*len > 8));
-  assert((url != NULL) && (! _LSLP_IS_HEAD(url)));
+  PEGASUS_ASSERT((buf != NULL) && (*buf != NULL));
+  PEGASUS_ASSERT((len != NULL) && (*len > 8));
+  PEGASUS_ASSERT((url != NULL) && (! _LSLP_IS_HEAD(url)));
 
   DEBUG_PRINT((DEBUG_ENTER, "lslpStuffURL "));
 
@@ -3673,9 +3674,9 @@ BOOL  lslpStuffURL(char **buf, int16 *len, lslpURL *url)
 BOOL lslpStuffURLList(char **buf, int16 *len, lslpURL *list)
 {
   BOOL ccode = TRUE;
-  assert((buf != NULL) && (*buf != NULL));
-  assert((len != NULL) && (*len > 8));
-  assert((list != NULL) && (_LSLP_IS_HEAD(list)));
+  PEGASUS_ASSERT((buf != NULL) && (*buf != NULL));
+  PEGASUS_ASSERT((len != NULL) && (*len > 8));
+  PEGASUS_ASSERT((list != NULL) && (_LSLP_IS_HEAD(list)));
 
   DEBUG_PRINT((DEBUG_ENTER, "lslpStuffURLList "));
 
@@ -3694,9 +3695,9 @@ lslpURL *lslpUnstuffURL(char **buf, int16 *len, int16 *err)
 
   char *tempurl;
   lslpURL *temp;
-  assert(buf != NULL && *buf != NULL);
-  assert(len != NULL && *len > 8);
-  assert(err != NULL);
+  PEGASUS_ASSERT(buf != NULL && *buf != NULL);
+  PEGASUS_ASSERT(len != NULL && *len > 8);
+  PEGASUS_ASSERT(err != NULL);
   *err = 0;
 
   DEBUG_PRINT((DEBUG_ENTER, "lslpUnstuffURL "));
@@ -3730,7 +3731,7 @@ lslpURL *lslpUnstuffURL(char **buf, int16 *len, int16 *err)
 
 void lslpFreeFilterTree(lslpLDAPFilter *root)
 {
-  assert(root != NULL);
+  PEGASUS_ASSERT(root != NULL);
   if( ! _LSLP_IS_EMPTY( &(root->children) ) ) {
     lslpFreeFilterTree((lslpLDAPFilter *)root->children.next);
   }
@@ -3775,7 +3776,7 @@ BOOL lslpEvaluateOperation(int compare_result, int operation)
 /* evaluates attr values, not names */
 BOOL lslpEvaluateAttributes(const lslpAttrList *filter, const lslpAttrList *registered, int op)
 {
-  assert(filter != NULL && registered != NULL && (! _LSLP_IS_HEAD(filter)) && (! _LSLP_IS_HEAD(registered))) ;
+  PEGASUS_ASSERT(filter != NULL && registered != NULL && (! _LSLP_IS_HEAD(filter)) && (! _LSLP_IS_HEAD(registered))) ;
   /* first ensure they are the same type  */
   switch(filter->type) {
   case opaque:
@@ -3818,9 +3819,9 @@ BOOL lslpEvaluateAttributes(const lslpAttrList *filter, const lslpAttrList *regi
 
 BOOL lslpEvaluateFilterTree(lslpLDAPFilter *filter, const lslpAttrList *attrs)
 {
-  assert(filter != NULL);
-  assert(attrs != NULL);
-  assert(! _LSLP_IS_HEAD(filter));
+  PEGASUS_ASSERT(filter != NULL);
+  PEGASUS_ASSERT(attrs != NULL);
+  PEGASUS_ASSERT(! _LSLP_IS_HEAD(filter));
   if(filter == NULL || (_LSLP_IS_HEAD(filter)) || attrs == NULL)
     return FALSE;
 
@@ -3934,9 +3935,9 @@ BOOL lslpStuffScopeList(char **buf, int16 *len, lslpScopeList *list)
   int16 scopeLen = 0, lenSave;
   char *bptr;
   BOOL ccode = FALSE;
-  assert(buf != NULL);
-  assert(len != NULL && *len > 3);
-  assert(list != NULL);
+  PEGASUS_ASSERT(buf != NULL);
+  PEGASUS_ASSERT(len != NULL && *len > 3);
+  PEGASUS_ASSERT(list != NULL);
   if (buf == NULL || len == NULL || *len < 3 || list == NULL)
     return(FALSE);
   /* always return TRUE on an empty list so we can continue to build the */
@@ -3997,9 +3998,9 @@ lslpScopeList *lslpUnstuffScopeList(char **buf, int16 *len, int16 *err)
 {
   int16 tempLen;
   lslpScopeList *temp = NULL;
-  assert(buf != NULL && *buf != NULL);
-  assert(len != NULL);
-  assert(err != NULL);
+  PEGASUS_ASSERT(buf != NULL && *buf != NULL);
+  PEGASUS_ASSERT(len != NULL);
+  PEGASUS_ASSERT(err != NULL);
   *err = 0;
   tempLen = _LSLP_GETSHORT(*buf, 0);
   (*buf += 2);
@@ -4033,8 +4034,8 @@ BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b)
   if((a == NULL) || (b == NULL))
     return(TRUE);
 
-  assert(_LSLP_IS_HEAD(a));
-  assert(_LSLP_IS_HEAD(b));
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(a));
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(b));
   if((_LSLP_IS_EMPTY(a)) || (_LSLP_IS_EMPTY(b))) {
     return(FALSE);
   }
@@ -4042,7 +4043,7 @@ BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b)
     a = a->next;
     while(!(_LSLP_IS_HEAD(b->next))) {
       b = b->next;
-      assert((a->scope != NULL) && (b->scope != NULL));
+      PEGASUS_ASSERT((a->scope != NULL) && (b->scope != NULL));
 #ifndef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
       if(! strcasecmp(a->scope, b->scope)) {
 #else
@@ -4067,8 +4068,8 @@ BOOL lslp_scope_intersection(lslpScopeList *a, lslpScopeList *b)
 /* caseless compare that folds whitespace */
 int lslp_string_compare(char *s1, char *s2)
 {
-  assert(s1 != NULL);
-  assert(s2 != NULL);
+  PEGASUS_ASSERT(s1 != NULL);
+  PEGASUS_ASSERT(s2 != NULL);
   lslp_foldString(s1);
   lslp_foldString(s2);
   if( TRUE == lslp_pattern_match(s1, s2, FALSE))
@@ -4097,7 +4098,7 @@ int lslp_isscope(int c)
 BOOL lslp_islegal_scope(char *s)
 {
   char *temp;
-  assert(s != NULL);
+  PEGASUS_ASSERT(s != NULL);
   if(! strlen(s)) {
     return(FALSE);
   }
@@ -4114,8 +4115,8 @@ BOOL lslp_islegal_scope(char *s)
 BOOL lslp_srvtype_match(const char *s, char *r)
 {
   char *sp;
-  assert(s != NULL);
-  assert(r != NULL);
+  PEGASUS_ASSERT(s != NULL);
+  PEGASUS_ASSERT(r != NULL);
   /* check to see if search is for an abstract service type */
   sp = (char *)r;
   while(*sp != 0x00) { sp++; }
@@ -4147,7 +4148,7 @@ lslpScopeList *lslpAllocScopeList(void)
 
 void lslpFreeScope(lslpScopeList *s)
 {
-  assert(s != NULL);
+  PEGASUS_ASSERT(s != NULL);
   if (s->scope != NULL)
     free(s->scope);
   free(s);
@@ -4156,8 +4157,8 @@ void lslpFreeScope(lslpScopeList *s)
 void lslpFreeScopeList(lslpScopeList *head)
 {
   lslpScopeList *temp;
-  assert(head != NULL);
-  assert(_LSLP_IS_HEAD(head));
+  PEGASUS_ASSERT(head != NULL);
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(head));
   while (! (_LSLP_IS_EMPTY(head)))
     {
       temp = head->next;
@@ -4204,7 +4205,7 @@ lslpSrvRegHead *lslpAllocSrvRegList(void)
 
 void lslpFreeSrvReg(lslpSrvRegList *s)
 {
-  assert(s != NULL);
+  PEGASUS_ASSERT(s != NULL);
   if(s->url != NULL)
     lslpFreeURL(s->url);
   if (s->srvType != NULL)
@@ -4221,8 +4222,8 @@ void lslpFreeSrvReg(lslpSrvRegList *s)
 void lslpFreeSrvRegList(lslpSrvRegHead *head)
 {
   lslpSrvRegList *temp;
-  assert(head != NULL);
-  assert(_LSLP_IS_HEAD(head));
+  PEGASUS_ASSERT(head != NULL);
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(head));
   while (!  (_LSLP_IS_EMPTY((struct lslp_srv_reg_instance *)head)))
     {
       temp = head->next;
@@ -4266,8 +4267,8 @@ void lslpFreeAuthList(lslpAuthBlock *list)
 {								
   lslpAuthBlock *temp;
 
-  assert(list != NULL);
-  assert(_LSLP_IS_HEAD(list));
+  PEGASUS_ASSERT(list != NULL);
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(list));
   while(! (_LSLP_IS_EMPTY(list)))
     {
       temp = list->next;
@@ -4289,9 +4290,9 @@ BOOL lslpStuffAuthList(char **buf, int16 *len, lslpAuthBlock *list)
   int16 numAuths = 0;
   lslpAuthBlock *auths;
   BOOL ccode = TRUE;
-  assert(buf != NULL);
-  assert(len != NULL);
-  /*   assert(list != NULL); */
+  PEGASUS_ASSERT(buf != NULL);
+  PEGASUS_ASSERT(len != NULL);
+  /*   PEGASUS_ASSERT(list != NULL); */
   if (buf == NULL || *buf == NULL || len == NULL )
     return(FALSE);
   /* always return true on an empty list so we can continue to build the */
@@ -4316,7 +4317,7 @@ BOOL lslpStuffAuthList(char **buf, int16 *len, lslpAuthBlock *list)
       _LSLP_SETLONG(*buf, auths->timestamp, 4);
       /* store spi string length */
       _LSLP_SETSHORT(*buf, auths->spiLen, 8);
-      assert(strlen(auths->spi) + 1 == auths->spiLen );
+      PEGASUS_ASSERT(strlen(auths->spi) + 1 == auths->spiLen );
       /* store the spi string */
       strcpy((*buf) + 10, auths->spi);
       /* store the authentication block */
@@ -4343,9 +4344,9 @@ lslpAuthBlock *lslpUnstuffAuthList(char **buf, int16 *len, int16 *err)
 {
   int16 tempLen;
   lslpAuthBlock *list = NULL, *temp;
-  assert(buf != NULL && *buf != NULL);
-  assert(len != NULL);
-  assert(err != NULL);
+  PEGASUS_ASSERT(buf != NULL && *buf != NULL);
+  PEGASUS_ASSERT(len != NULL);
+  PEGASUS_ASSERT(err != NULL);
   *err = 0;
   tempLen = _LSLP_GETBYTE(*buf, 0);        /* get the number of auth-blocks */
   (*buf) += 1;                                /* advance to the auth blocks */
@@ -4412,10 +4413,10 @@ uint32 lslpCheckSum(char *s, int16 l)
 	uint32 c;
 	BOOL pad = 0;
 	uint16 a = 0, b = 0, *p;
-	assert(s != NULL);
+	PEGASUS_ASSERT(s != NULL);
 	if (l == 1)
 		return(0);
-	assert(l > 1);
+	PEGASUS_ASSERT(l > 1);
 	if (l & 0x01)
 		pad = TRUE;
 	p = (uint16 *)s;
@@ -4443,7 +4444,7 @@ lslpHdr * lslpAllocHdr(void)
 
 void lslpFreeHdr(lslpHdr *hdr)
 {
-  assert(hdr != NULL);
+  PEGASUS_ASSERT(hdr != NULL);
   if (hdr->data != NULL)
     free(hdr->data);
   free(hdr);
@@ -4451,7 +4452,7 @@ void lslpFreeHdr(lslpHdr *hdr)
 
 void lslpDestroySrvReq(struct lslp_srv_req *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->prList != NULL)
     free(r->prList);
   if (r->srvcType != NULL)
@@ -4468,7 +4469,7 @@ void lslpDestroySrvReq(struct lslp_srv_req *r, char flag)
 
 void lslpDestroySrvRply(struct lslp_srv_rply *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->urlList != NULL)
     lslpFreeURLList(r->urlList);
   if(r->attr_list != NULL)
@@ -4479,7 +4480,7 @@ void lslpDestroySrvRply(struct lslp_srv_rply *r, char flag)
 
 void lslpDestroySrvReg(struct lslp_srv_reg *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->url != NULL)
     lslpFreeURLList(r->url);
   if (r->srvType != NULL)
@@ -4496,14 +4497,14 @@ void lslpDestroySrvReg(struct lslp_srv_reg *r, char flag)
 
 void lslpDestroySrvAck(struct lslp_srv_ack *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
     free(r);
 }	
 
 void lslpDestroyDAAdvert(struct lslp_da_advert *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->url != NULL)
     free(r->url);
   if (r->scopeList != NULL)
@@ -4520,7 +4521,7 @@ void lslpDestroyDAAdvert(struct lslp_da_advert *r, char flag)
 
 void lslpDestroySAAdvert(struct lslp_sa_advert *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->url != NULL)
     free(r->url);
   if (r->scopeList != NULL)
@@ -4535,7 +4536,7 @@ void lslpDestroySAAdvert(struct lslp_sa_advert *r, char flag)
 
 void lslpDestroySrvTypeReq(struct lslp_srvtype_req *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->prList != NULL)
     free(r->prList);
   if (r->nameAuth != NULL)
@@ -4549,7 +4550,7 @@ void lslpDestroySrvTypeReq(struct lslp_srvtype_req *r, char flag)
 
 void lslpDestroySrvTypeReply(struct lslp_srvtype_rep *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->srvTypeList != NULL)
     free(r->srvTypeList);
   if (flag == LSLP_DESTRUCTOR_DYNAMIC)
@@ -4559,7 +4560,7 @@ void lslpDestroySrvTypeReply(struct lslp_srvtype_rep *r, char flag)
 
 void lslpDestroyAttrReq(struct lslp_attr_req *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->prList != NULL)
     free(r->prList);
   if (r->url != NULL)
@@ -4577,7 +4578,7 @@ void lslpDestroyAttrReq(struct lslp_attr_req *r, char flag)
 
 void lslpDestroyAttrReply(struct lslp_attr_rep *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->attrList != NULL)
     free(r->attrList);
   if (r->authBlocks != NULL)
@@ -4590,7 +4591,7 @@ void lslpDestroyAttrReply(struct lslp_attr_rep *r, char flag)
 
 void lslpDestroySrvDeReg(struct lslp_srv_dereg *r, char flag)
 {
-  assert(r != NULL);
+  PEGASUS_ASSERT(r != NULL);
   if (r->scopeList != NULL)
     free(r->scopeList);
   if (r->urlList != NULL)
@@ -4619,7 +4620,7 @@ lslpMsg *alloc_slp_msg(BOOL head)
 
 void lslpDestroySLPMsg(lslpMsg *msg, char flag)
 {
-  assert(msg != NULL);
+  PEGASUS_ASSERT(msg != NULL);
   switch (msg->type)
     {
     case srvReq:
@@ -4670,7 +4671,7 @@ BOOL lslp_predicate_match(lslpAttrList *a, char *b)
   lslpLDAPFilter *ftree;
   if(a == NULL)
     return FALSE;
-  assert(_LSLP_IS_HEAD(a));
+  PEGASUS_ASSERT(_LSLP_IS_HEAD(a));
   if(b == NULL || ! strlen(b))
     return(TRUE);		/*  no predicate - aways tests TRUE  */
   if(NULL != (ftree = _lslpDecodeLDAPFilter(b))) {
@@ -4697,7 +4698,7 @@ struct lslp_srv_rply_out *_lslpProcessSrvReq(struct slp_client *client,
 
   DEBUG_PRINT((DEBUG_ENTER, "_lslpProcessSrvReq "));
 
-  assert(msg != NULL);
+  PEGASUS_ASSERT(msg != NULL);
   if(msg != NULL && temp_rply != NULL) {
     if((temp_rply->errCode = errCode) == 0) {
       buf = (char *)calloc(LSLP_MTU, sizeof(char));
@@ -4856,7 +4857,7 @@ BOOL lslp_pattern_match(const char *string, const char *pattern, BOOL case_sensi
  }
   recursion_level++;
 
-  assert(string != NULL && pattern != NULL);
+  PEGASUS_ASSERT(string != NULL && pattern != NULL);
 
   while(1) {
     p = *pattern;
@@ -4983,7 +4984,7 @@ BOOL lslp_pattern_match(const char *string, const char *pattern, BOOL case_sensi
 char * lslp_get_next_ext(char *hdr_buf)
 {
   int32 len;
-  assert(hdr_buf != NULL);
+  PEGASUS_ASSERT(hdr_buf != NULL);
   if( 0 != _LSLP_GETNEXTEXT(hdr_buf)) {
     len = _LSLP_GETLENGTH(hdr_buf);
     if(len > _LSLP_GETNEXTEXT(hdr_buf)) {

@@ -165,7 +165,7 @@ public:
         @return CIMName containing the property name. For example, 
         <pre>
         CIMProperty p1("count", Uint32(231));
-        assert(p1.getName() == "count");
+        PEGASUS_ASSERT(p1.getName() == "count");
         </pre>
     */
     const CIMName& getName() const;

@@ -2924,7 +2924,7 @@ Array<CIMObject> InteropProvider::localReferences(
     targetAssocClass classEnum  = _verifyValidAssocClassInput(targetAssocClassName);
 
     // resultClass should NEVER be NULL in Pegasus.
-    assert(!resultClass.isNull());
+    PEGASUS_ASSERT(!resultClass.isNull());
 
     // enumerate all reference instances of the resultClass (i.e. the association)
     CIMObjectPath classReference(objectName.getHost(), objectName.getNameSpace(),

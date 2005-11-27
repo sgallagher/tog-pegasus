@@ -34,7 +34,7 @@
 #ifndef _Pegasus_Common_Packer_h
 #define _Pegasus_Common_Packer_h
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>

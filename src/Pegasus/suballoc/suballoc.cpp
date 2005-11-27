@@ -486,7 +486,7 @@ Boolean peg_suballocator::_Allocate(Sint32 vector, Sint32 index, Sint32 code)
 void peg_suballocator::DeInitSubAllocator(void *handle)
 {
    Sint32 i, o, waitCode;
-   assert(handle != 0);
+   PEGASUS_ASSERT(handle != 0);
 //   _UnfreedNodes(handle); 
    if( handle != (void *) &internal_handle)
       free((void *)handle);
@@ -695,7 +695,7 @@ void peg_suballocator::PutNode(Sint32 vector, Sint32 index, SUBALLOC_NODE *node)
 
    // mark the node as available, unlink it, and relink it
    // to the front of the list
-   assert(node != NULL);
+   PEGASUS_ASSERT(node != NULL);
    // gain ownership of semHandles[index];
    // delete insert the node at the front of the list - 
    // this will make it faster to get the node
@@ -755,7 +755,7 @@ void *peg_suballocator::vs_malloc(size_t size, void *handle, int type, const Sin
    SUBALLOC_NODE *temp;
    Sint8 *g;
    
-   assert(size != 0);
+   PEGASUS_ASSERT(size != 0);
      
    if (! (size >> 8))
    {
@@ -800,7 +800,7 @@ void *peg_suballocator::vs_malloc(size_t size)
 {
    SUBALLOC_NODE *temp;
    Sint8 *g;
-   assert(size != 0);
+   PEGASUS_ASSERT(size != 0);
      
    if (! (size >> 8))
    {
@@ -886,7 +886,7 @@ void peg_suballocator::vs_free(void *m,
 {
    // we don't need to grab any semaphores - 
    // called routines will do that for us
-   assert( m != NULL);
+   PEGASUS_ASSERT( m != NULL);
    
    SUBALLOC_NODE *temp = _CheckNode(m, type, file, line);
    memset(temp->d_classname, 0x00, MAX_CLASS_LEN + 1);
@@ -917,7 +917,7 @@ void peg_suballocator::vs_free(void *m)
 {
    // we don't need to grab any semaphores - 
    // called routines will do that for us
-   assert( m != 0 );
+   PEGASUS_ASSERT( m != 0 );
    SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
    temp--;
    
@@ -1142,7 +1142,7 @@ Uint32 peg_suballocator::CheckMemory(void *m)
 
 Uint32 peg_suballocator::_CheckNode(void *m)
 {
-   assert(m != NULL);
+   PEGASUS_ASSERT(m != NULL);
    SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
    temp--;
    
@@ -1158,7 +1158,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
 							      Sint8 *file, 
 							      Uint32 line)
 {
-   assert(m != NULL);
+   PEGASUS_ASSERT(m != NULL);
    SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
    temp--;
    if( (temp->flags & AVAIL ) )
@@ -1216,7 +1216,7 @@ peg_suballocator::SUBALLOC_NODE *peg_suballocator::_CheckNode(void *m,
 
 void peg_suballocator::PrintNodeInfo(void *m, Sint8 *output_file, Sint8 *file, Uint32 line)
 {
-   assert(m != NULL);
+   PEGASUS_ASSERT(m != NULL);
    SUBALLOC_NODE *temp = (SUBALLOC_NODE *)m;
    temp--;
    FILE *output = fopen(output_file, "a+");

@@ -103,7 +103,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Constants.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstdlib>
 #include <Pegasus/Common/FileSystem.h>
 #include <Pegasus/Common/Monitor.h>

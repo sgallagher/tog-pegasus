@@ -79,7 +79,7 @@ public:
         An array created with this constructor is Null.
         <pre>
             CIMPropertyList pl;
-            assert(pl.isNull());
+            PEGASUS_ASSERT(pl.isNull());
         </pre>
     */
     CIMPropertyList();
@@ -139,7 +139,7 @@ public:
         false is returned.  For example:
         <pre>
             CIMPropertyList pl;
-            assert(pl.isNull());    // Newly created object is Null
+            PEGASUS_ASSERT(pl.isNull());    // Newly created object is Null
         </pre>
         Therefore the a new instance of the CIMPropertyList object is
         created, pl, with null values.
@@ -165,7 +165,7 @@ public:
         n.append("name");
         n.append("type");
         CIMPropertyList pl(n);
-        assert(pl[0] == CIMName("name"));
+        PEGASUS_ASSERT(pl[0] == CIMName("name"));
     </pre>
     */
     const CIMName& operator[](Uint32 index) const;

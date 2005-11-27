@@ -32,7 +32,7 @@
  *  Originated: December 17, 2001 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-nucleus.h,v 1.5 2005/02/05 23:01:30 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-nucleus.h,v 1.6 2005/11/27 03:11:39 jim.wunderlich Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -114,7 +114,7 @@ UINT32  tcpst_inet_addr(char *);
 //jeb#include <sys/socket.h>
 //jeb#include <sys/select.h>
 //jeb#include <netdb.h>
-//jeb#include <assert.h>
+//jeb#include <Pegasus/Common/PegasusAssert.h>
 //jeb#include <memory.h>
 //jeb#include <string.h>
 //jeb#include <ctype.h>
@@ -297,7 +297,7 @@ UINT32  tcpst_inet_addr(char *);
 
 #define SLPDBG
 //#ifdef SLPDBG
-//void assert(int);
+//void PEGASUS_ASSERT(int);
 #define assert(a) _system_info((!(a)),"ASSERT:%s/%d", __FILE__, __LINE__)
 //#else
 //#define assert(a) ((void)0)

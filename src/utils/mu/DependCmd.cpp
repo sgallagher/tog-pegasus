@@ -38,7 +38,7 @@
 #include <set>
 #include <cstdio>
 #include <cstddef>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 
 #if defined (OS_WINDOWS) || defined (OS_VMS)
 # define OBJ_EXT ".obj"
@@ -301,7 +301,7 @@ void ProcessFile(
             "Infinite include file recursion? nesting level reached 100");
     }
 
-    assert(fp != NULL);
+    PEGASUS_ASSERT(fp != NULL);
 
     // For each line in the file:
 

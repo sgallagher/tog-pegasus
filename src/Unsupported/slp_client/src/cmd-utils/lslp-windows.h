@@ -32,7 +32,7 @@
  *  Originated: December 31, 1999 
  *	Original Author: Mike Day md@soft-hackle.net
  *                                mdday@us.ibm.com 
- *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-windows.h,v 1.6 2005/02/05 23:01:30 karl Exp $ 	                                                            
+ *  $Header: /cvs/MSB/pegasus/src/Unsupported/slp_client/src/cmd-utils/Attic/lslp-windows.h,v 1.7 2005/11/27 03:11:39 jim.wunderlich Exp $ 	                                                            
  *               					                    
  *  Copyright (c) 2001 - 2003  IBM                                          
  *  Copyright (c) 2000 - 2003 Michael Day                                    
@@ -81,7 +81,7 @@ extern "C" {
 #include <tchar.h>
 #include <sys/types.h> 
 #include <sys/timeb.h> 
-#include <assert.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <errno.h>
 
 typedef char int8;

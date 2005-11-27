@@ -101,7 +101,7 @@
 #endif
 
 #include <time.h>
-#include <assert.h>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <stdio.h>
 #include <string.h>
 #include <memory.h>
@@ -448,7 +448,7 @@ inline int peg_suballocator::CREATE_MUTEX(PEGASUS_MUTEX_T *mut)
 
 inline void peg_suballocator::WAIT_MUTEX(PEGASUS_MUTEX_T *mut, Uint32 msec, int *result)
 {
-   assert(mut && *mut && result);
+   PEGASUS_ASSERT(mut && *mut && result);
    *result = WaitForSingleObject(*mut, INFINITE);
    return;
 }

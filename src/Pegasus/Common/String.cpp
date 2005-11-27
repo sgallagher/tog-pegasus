@@ -37,7 +37,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <cstring>
 #include "InternalException.h"
 #include "CommonUTF.h"
@@ -891,7 +891,7 @@ void String::remove(Uint32 index, Uint32 n)
     if (_rep->refs.get() != 1)
         _rep = StringRep::copyOnWrite(_rep);
 
-    assert(index + n <= _rep->size);
+    PEGASUS_ASSERT(index + n <= _rep->size);
 
     size_t rem = _rep->size - (index + n);
     Uint16* data = _rep->data;
@@ -1102,8 +1102,8 @@ void String::toUpper()
 
 int String::compare(const String& s1, const String& s2, Uint32 n)
 {
-    assert(n <= s1._rep->size);
-    assert(n <= s2._rep->size);
+    PEGASUS_ASSERT(n <= s1._rep->size);
+    PEGASUS_ASSERT(n <= s2._rep->size);
 
     // Ignoring error in which n is greater than s1.size() or s2.size()
     return _compare(s1._rep->data, s2._rep->data, n);

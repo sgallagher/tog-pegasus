@@ -49,7 +49,7 @@
     5. Do percentages
 */
 #include <Pegasus/Common/Config.h>
-#include <cassert>
+#include <Pegasus/Common/PegasusAssert.h>
 #include <stdlib.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Common/HTTPConnector.h>

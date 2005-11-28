@@ -30,14 +30,13 @@
 // Author: Willis White (whiwill@us.ibm.com)
 //
 // Modified By: Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3674
+//              Muni S Reddy, IBM(mreddy@in.ibm.com) for Bug# 4227
 //
 //%/////////////////////////////////////////////////////////////b////////////////
 
 
 #include "ClientPerfDataStore.h"
 #include <Pegasus/Common/XmlWriter.h>
-
-PEGASUS_USING_STD;
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN

@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
-// Modified By:
+// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,34 +46,34 @@ String Formatter::Arg::toString() const
 {
     switch (_type)
     {
-	case INTEGER:
-	{
-	    char buffer[32];
-	    sprintf(buffer, "%d", _integer);
-	    return buffer;
-	}
+        case INTEGER:
+        {
+            char buffer[32];
+            sprintf(buffer, "%d", _integer);
+            return buffer;
+        }
 
-	case UINTEGER:
-	{
-	    char buffer[32];
-	    sprintf(buffer, "%u", _integer);
-	    return buffer;
-	}
+        case UINTEGER:
+        {
+            char buffer[32];
+            sprintf(buffer, "%u", _integer);
+            return buffer;
+        }
 
-	case BOOLEAN:
-	{
-	    //char buffer[32];
-	    //buffer = (_boolean ? "true": "false");
-	    //return buffer;
-	    return  (_boolean ? "true": "false");
-	}
+        case BOOLEAN:
+        {
+            //char buffer[32];
+            //buffer = (_boolean ? "true": "false");
+            //return buffer;
+            return  (_boolean ? "true": "false");
+        }
 
-	case REAL:
-	{
-	    char buffer[32];
-	    sprintf(buffer, "%f", _real);
-	    return buffer;
-	}
+        case REAL:
+        {
+            char buffer[32];
+            sprintf(buffer, "%f", _real);
+            return buffer;
+        }
 
         case LINTEGER:
         {
@@ -89,16 +89,16 @@ String Formatter::Arg::toString() const
             return buffer;
         }
 
-	case STRING:
-	    return _string;
+        case STRING:
+            return _string;
 
-	case CSTRLIT:
-	    return String(_cstrlit->str, _cstrlit->size);
-	    break;
+        case CSTRLIT:
+            return String(_cstrlit->str, _cstrlit->size);
+            break;
 
-	case VOIDT:
-	default:
-	    return String();
+        case VOIDT:
+        default:
+            return String();
     }
 }
 
@@ -247,7 +247,7 @@ static inline char* _append_unsigned(char* end, T x)
 
     do
     {
-        *--p = '0' + (x % 10);
+        *--p = '0' + static_cast<char>(x % 10);
     }
     while ((x /= 10) != 0);
 
@@ -258,93 +258,93 @@ void Formatter::Arg::appendToString(String& out) const
 {
     switch (_type)
     {
-	case INTEGER:
-	{
-	    Sint32 x = _integer;
+        case INTEGER:
+        {
+            Sint32 x = _integer;
 
-	    if (x >= 0 && x < 128)
-		out.append(_num_strings[x].str, _num_strings[x].size);
-	    else
-	    {
-		char buffer[32];
-		int n = sprintf(buffer, "%d", x);
-		out.append(buffer, n);
-	    }
-	    break;
-	}
+            if (x >= 0 && x < 128)
+                out.append(_num_strings[x].str, _num_strings[x].size);
+            else
+            {
+                char buffer[32];
+                int n = sprintf(buffer, "%d", x);
+                out.append(buffer, n);
+            }
+            break;
+        }
 
-	case UINTEGER:
-	{
-	    Uint32 x = _uinteger;
+        case UINTEGER:
+        {
+            Uint32 x = _uinteger;
 
-	    if (x < 128)
-		out.append(_num_strings[x].str, _num_strings[x].size);
-	    else
-	    {
-		char buffer[32];
-		int n = sprintf(buffer, "%u", x);
-		out.append(buffer, n);
-	    }
-	    break;
-	}
+            if (x < 128)
+                out.append(_num_strings[x].str, _num_strings[x].size);
+            else
+            {
+                char buffer[32];
+                int n = sprintf(buffer, "%u", x);
+                out.append(buffer, n);
+            }
+            break;
+        }
 
-	case BOOLEAN:
-	{
-	    if (_boolean)
-		out.append("true", 4);
-	    else
-		out.append("false", 5);
-	    break;
-	}
+        case BOOLEAN:
+        {
+            if (_boolean)
+                out.append("true", 4);
+            else
+                out.append("false", 5);
+            break;
+        }
 
-	case REAL:
-	{
-	    char buffer[32];
-	    int n = sprintf(buffer, "%f", _real);
-	    out.append(buffer, n);
-	    break;
-	}
+        case REAL:
+        {
+            char buffer[32];
+            int n = sprintf(buffer, "%f", _real);
+            out.append(buffer, n);
+            break;
+        }
 
         case LINTEGER:
         {
             char buffer[32];
             int n = sprintf(
-		buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", _lInteger);
+                buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", _lInteger);
             out.append(buffer, n);
-	    break;
+            break;
         }
 
         case ULINTEGER:
         {
-	    Uint64 x = _lUInteger;
+            Uint64 x = _lUInteger;
 
-	    if (x < 128)
-		out.append(_num_strings[x].str, _num_strings[x].size);
-	    else
-	    {
-		char buffer[32];
-		char* end = &buffer[32];
-		char* p = _append_unsigned(end, x);
-		out.append(p, end - p);
-	    }
-	    break;
+            if (x < 128)
+                out.append(_num_strings[x].str, _num_strings[x].size);
+            else
+            {
+                char buffer[32];
+                char* end = &buffer[32];
+                char* p = _append_unsigned(end, x);
+                out.append(p, end - p);
+            }
+            break;
         }
 
-	case STRING:
-	{
-	    out.append(_string);
-	    break;
-	}
+        case STRING:
+        {
+            out.append(_string);
+            break;
+        }
 
-	case CSTRLIT:
-	{
-	    out.append(_cstrlit->str, _cstrlit->size);
-	    break;
-	}
+        case CSTRLIT:
+        {
+            out.append(_cstrlit->str, _cstrlit->size);
+            break;
+        }
 
-	case VOIDT:
-	default:
-	    break;
+        case VOIDT:
+        default:
+            break;
     }
 }
 
@@ -390,57 +390,57 @@ String Formatter::format(
 
     for (;;)
     {
-	//// Skip over non-special characters:
+        //// Skip over non-special characters:
 
-	const Uint16* start = p;
+        const Uint16* start = p;
 
-	while (*p < 128 && _isNonSpecial[*p])
-	    p++;
+        while (*p < 128 && _isNonSpecial[*p])
+            p++;
 
-	//// Append any non-special characters.
+        //// Append any non-special characters.
 
-	size_t r = p - start;
+        size_t r = p - start;
 
-	if (r)
-	    result.append((const Char16*)start, r);
+        if (r)
+            result.append((const Char16*)start, r);
 
-	//// Process next special character:
+        //// Process next special character:
 
-	if (*p == '$')
-	{
-	    Uint16 c = p[1];
+        if (*p == '$')
+        {
+            Uint16 c = p[1];
 
-	    switch (c - '0')
-	    {
-		case 0: arg0.appendToString(result); break;
-		case 1: arg1.appendToString(result); break;
-		case 2: arg2.appendToString(result); break;
-		case 3: arg3.appendToString(result); break;
-		case 4: arg4.appendToString(result); break;
-		case 5: arg5.appendToString(result); break;
-		case 6: arg6.appendToString(result); break;
-		case 7: arg7.appendToString(result); break;
-		case 8: arg8.appendToString(result); break;
-		case 9: arg9.appendToString(result); break;
-		default: break;
-	    }
+            switch (c - '0')
+            {
+                case 0: arg0.appendToString(result); break;
+                case 1: arg1.appendToString(result); break;
+                case 2: arg2.appendToString(result); break;
+                case 3: arg3.appendToString(result); break;
+                case 4: arg4.appendToString(result); break;
+                case 5: arg5.appendToString(result); break;
+                case 6: arg6.appendToString(result); break;
+                case 7: arg7.appendToString(result); break;
+                case 8: arg8.appendToString(result); break;
+                case 9: arg9.appendToString(result); break;
+                default: break;
+            }
 
-	    p += 2;
-	}
-	else if (*p == '\\')
-	{
-	    result.append(p[1]);
-	    p += 2;
-	}
-	else if (*p == '\0')
-	{
-	    break;
-	}
-	else
-	{
-	    result.append(p[0]);
-	    p++;
-	}
+            p += 2;
+        }
+        else if (*p == '\\')
+        {
+            result.append(p[1]);
+            p += 2;
+        }
+        else if (*p == '\0')
+        {
+            break;
+        }
+        else
+        {
+            result.append(p[0]);
+            p++;
+        }
     }
 
 #if 0

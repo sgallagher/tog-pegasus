@@ -161,11 +161,10 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
 
 HandlerTable::~HandlerTable()
 {
-	for( Uint32 i = 0; i < _handlers.size(); i++ )
-	{
-		delete _handlers[i].handler;
-		cout<<endl<<"this is : "<<i;
-	}
+    for( Uint32 i = 0; i < _handlers.size(); i++ )
+    {
+        delete _handlers[i].handler;
+    }
 }
 
 PEGASUS_NAMESPACE_END

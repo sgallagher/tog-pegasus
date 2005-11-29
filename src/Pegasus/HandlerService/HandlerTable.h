@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,7 @@
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
 // Modified By: Yi Zhou, Hewlett-Packard Company (yi.zhou@hp.com)
+//              Vageesh Umesh, IBM (vagumesh@in.ibm.com) for BUG#2543
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -50,14 +51,14 @@ class CreateHandlerReturnedNull : public Exception
 public:
 
     CreateHandlerReturnedNull(
-	const String& libName, 
+	const String& libName,
 	const String& funcName)
 	: Exception(funcName + " returned null in library " + libName) { }
 };
- 
-// The handler table maintains a list of handlers which have been 
-// dynamically loaded. It maintains a mapping between string 
-// handler identifiers and handlers. Indication Processor will use the 
+
+// The handler table maintains a list of handlers which have been
+// dynamically loaded. It maintains a mapping between string
+// handler identifiers and handlers. Indication Processor will use the
 // handler table to find handler for the purposes of request dispatching.
 
 class PEGASUS_HANDLER_SERVICE_LINKAGE HandlerTable
@@ -69,6 +70,7 @@ public:
     CIMHandler* getHandler(const String& handlerId,
 			   CIMRepository* repository);
 
+    ~HandlerTable();
 
 private:
 

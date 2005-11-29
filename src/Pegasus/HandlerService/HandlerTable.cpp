@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,11 +29,12 @@
 //
 // Author: Nitin Upasani, Hewlett-Packard Company (Nitin_Upasani@hp.com)
 //
-// Modified By: Sushma Fernandes, 
+// Modified By: Sushma Fernandes,
 //                 Hewlett-Packard Company (sushma_fernandes@hp.com)
-//            : Yi Zhou Hewlett-Packard Company (yi_zhou@hp.com)
-//		Sean Keenan (sean.keenan@hp.com)
+//              Yi Zhou Hewlett-Packard Company (yi_zhou@hp.com)
+//              Sean Keenan (sean.keenan@hp.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP # 101
+//              Vageesh Umesh, IBM (vagumesh@in.ibm.com) for BUG#2543
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +108,7 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
         String("/") + FileSystem::buildLibraryFileName(handlerId));
 #endif
 
-    DynamicLibraryHandle libraryHandle = 
+    DynamicLibraryHandle libraryHandle =
 	System::loadDynamicLibrary(fileName.getCString());
 
     if (!libraryHandle) {
@@ -144,7 +145,7 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
     if (!handler)
     {
 	throw CreateHandlerReturnedNull(
-	    fileName, 
+	    fileName,
 	    functionName);
     }
     else
@@ -156,6 +157,15 @@ CIMHandler* HandlerTable::_loadHandler(const String& handlerId)
     }
 
     return handler;
+}
+
+HandlerTable::~HandlerTable()
+{
+	for( Uint32 i = 0; i < _handlers.size(); i++ )
+	{
+		delete _handlers[i].handler;
+		cout<<endl<<"this is : "<<i;
+	}
 }
 
 PEGASUS_NAMESPACE_END

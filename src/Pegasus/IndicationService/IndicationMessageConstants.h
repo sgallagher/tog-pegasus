@@ -136,6 +136,12 @@ static const char _MSG_INVALID_INSTANCES [] =
 static const char _MSG_INVALID_INSTANCES_KEY [] =
     "IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCES_IGNORED";
 
+static const char _MSG_INVALID_INSTANCE [] =
+    "An invalid Subscription instance was ignored: $0";
+
+static const char _MSG_INVALID_INSTANCE_KEY [] =
+    "IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCE_IGNORED";
+
 static const char _MSG_PROVIDER_NO_LONGER_SERVING [] =
     "Provider ($0) is no longer serving subscription ($1) in namespace $2";
 

@@ -597,9 +597,9 @@ void IndicationService::_initialize (void)
             //  This instance from the repository is invalid
             //  Log a message and skip it
             //
-            Logger::put (Logger::STANDARD_LOG , System::CIMSERVER,
+            Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::WARNING,
-                "An invalid Subscription instance was ignored: " +
+                _MSG_INVALID_INSTANCE_KEY, _MSG_INVALID_INSTANCE,
                 e.getMessage ());
             continue;
         }

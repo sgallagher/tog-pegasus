@@ -3501,6 +3501,12 @@ CIM server listening on HTTPS port {0}."}
          */
          IndicationService.IndicationService._MSG_PROPERTY_NOT_SUPPORTED:string {"PGS10228: Property {0} is not supported in class {1}."}
 
+        /**
+        * @note  PGS10229:
+        *    Substitution {0} is a string containing an Exception message
+        */
+        IndicationService.IndicationService.INVALID_SUBSCRIPTION_INSTANCE_IGNORED:string {"PGS10229: An invalid Subscription instance was ignored: {0}."}
+
         // ==========================================================
         // Messages for IndicationHandlerService
         //  Please use message prefix "PGS10400"

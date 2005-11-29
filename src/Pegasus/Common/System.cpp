@@ -30,13 +30,14 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Rudy Schuet (rudy.schuet@compaq.com) 11/12/01
-//					added nsk platform support
-//				Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
-//					replaced instances of "| ios::binary" with
-//					PEGASUS_OR_IOS_BINARY
+//                  added nsk platform support
+//              Ramnath Ravindran (Ramnath.Ravindran@compaq.com) 03/21/2002
+//                  replaced instances of "| ios::binary" with
+//                  PEGASUS_OR_IOS_BINARY
 //              Robert Kieninger, IBM (kieningr@de.ibm.com) for Bug#667
 //              Dave Sudlik, IBM (dsudlik@us.ibm.com) for Bug#1462
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +52,7 @@
 #include "System.h"
 #include "Socket.h"
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 # include <windows.h>
 #else
 # include <arpa/inet.h>

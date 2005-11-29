@@ -49,7 +49,7 @@
 #include <iostream>
 #include "Socket.h"
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 #include <windows.h>
 #else
 # include <cctype>
@@ -359,7 +359,7 @@ void HTTPAcceptor::_bind()
 
 // set the close-on-exec bit for this file handle.
 // any unix that forks needs this bit set.
-#if !defined PEGASUS_PLATFORM_WIN32_IX86_MSVC && !defined(PEGASUS_OS_VMS)
+#if !defined PEGASUS_OS_TYPE_WINDOWS && !defined(PEGASUS_OS_VMS)
    int sock_flags;
  if( (sock_flags = fcntl(_rep->socket, F_GETFD, 0)) < 0)
    {
@@ -675,7 +675,7 @@ void HTTPAcceptor::_acceptConnection()
    }
 
 // set the close on exec flag
-#if !defined PEGASUS_PLATFORM_WIN32_IX86_MSVC && !defined(PEGASUS_OS_VMS)
+#if !defined(PEGASUS_OS_TYPE_WINDOWS) && !defined(PEGASUS_OS_VMS)
    int sock_flags;
  if( (sock_flags = fcntl(socket, F_GETFD, 0)) < 0)
    {

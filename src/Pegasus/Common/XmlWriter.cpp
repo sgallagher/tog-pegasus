@@ -352,17 +352,17 @@ static void _xmlWritter_appendChar(Buffer& out, const Char16& c)
 inline void _appendSpecialChar7(Buffer& out, char c)
 {
     if (_isSpecialChar7[int(c)])
-	out.append(_specialChars[int(c)].str, _specialChars[int(c)].size);
+        out.append(_specialChars[int(c)].str, _specialChars[int(c)].size);
     else
-	out.append(c);
+        out.append(c);
 }
 
 inline void _xmlWritter_appendSpecialChar(Buffer& out, const Char16& c)
 {
     if (c < 128)
-	_appendSpecialChar7(out, char(c));
+        _appendSpecialChar7(out, char(c));
     else
-	_xmlWritter_appendChar(out, c);
+        _xmlWritter_appendChar(out, c);
 }
 
 static void _xmlWritter_appendSpecialChar(PEGASUS_STD(ostream)& os, char c)
@@ -428,7 +428,7 @@ void _xmlWritter_appendSurrogatePair(Buffer& out, Uint16 high, Uint16 low)
 inline void _xmlWritter_appendSpecial(PEGASUS_STD(ostream)& os, const char* str)
 {
     while (*str)
-	_xmlWritter_appendSpecialChar(os, *str++);
+        _xmlWritter_appendSpecialChar(os, *str++);
 }
 
 void XmlWriter::append(Buffer& out, const Char16& x)
@@ -750,14 +750,14 @@ String XmlWriter::encodeURICharacters(const String& uriString)
     {
         Uint16 c = uriString[i];
 
-	if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
-	   ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
-	{
-	    Char16 highSurrogate = uriString[i];
-	    Char16 lowSurrogate = uriString[++i];
+        if(((c >= FIRST_HIGH_SURROGATE) && (c <= LAST_HIGH_SURROGATE)) ||
+           ((c >= FIRST_LOW_SURROGATE) && (c <= LAST_LOW_SURROGATE)))
+        {
+            Char16 highSurrogate = uriString[i];
+            Char16 lowSurrogate = uriString[++i];
 
-	    _xmlWritter_appendSurrogatePair(utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
-	}
+            _xmlWritter_appendSurrogatePair(utf8, Uint16(highSurrogate),Uint16(lowSurrogate));
+        }
         else
         {
             _xmlWritter_appendChar(utf8, uriString[i]);
@@ -789,7 +789,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
 
     char* nameSpaceCopy = strdup(nameSpace.getString().getCString());
 
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if !defined(PEGASUS_COMPILER_MSVC)
     char *last;
     for (const char* p = strtok_r(nameSpaceCopy, "/", &last); p;
          p = strtok_r(NULL, "/", &last))
@@ -797,7 +797,7 @@ void XmlWriter::appendLocalNameSpacePathElement(
     for (const char* p = strtok(nameSpaceCopy, "/"); p; p = strtok(NULL, "/"))
 #endif
     {
-	out << STRLIT("<NAMESPACE NAME=\"") << p << STRLIT("\"/>\n");
+        out << STRLIT("<NAMESPACE NAME=\"") << p << STRLIT("\"/>\n");
     }
     free(nameSpaceCopy);
 

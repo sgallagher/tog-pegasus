@@ -29,11 +29,13 @@
 //
 // Author: Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
+// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "SpinLock.h"
 
-#if !defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 # define PEGASUS_SPINLOCK_USE_PTHREADS
 #endif
 

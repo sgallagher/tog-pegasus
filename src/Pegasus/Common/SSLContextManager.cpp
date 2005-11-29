@@ -29,7 +29,7 @@
 //
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
 //
-// Modified By:
+// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@
 
 #ifdef PEGASUS_HAS_SSL
 
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 //Use the X509_NAME in wincrypt.h on Windows.  See X509.h for more info.
 #include <windows.h>
 #include <wincrypt.h>
@@ -106,7 +106,7 @@ SSLContextManager::~SSLContextManager()
 // and CIMServer::_getExportSSLContext() methods.
 //
 void SSLContextManager::createSSLContext(Uint32 contextType,
-    const String& trustStore, const String& certPath, const String& keyPath, 
+    const String& trustStore, const String& certPath, const String& keyPath,
     const String& crlStore, Boolean callback, const String& randFile)
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLContextManager::createSSLContext()");
@@ -121,19 +121,19 @@ void SSLContextManager::createSSLContext(Uint32 contextType,
         //
         if ( callback )
         {
-            _sslContext = new SSLContext(trustStore, certPath, 
-                keyPath, crlStore, 
+            _sslContext = new SSLContext(trustStore, certPath,
+                keyPath, crlStore,
                 (SSLCertificateVerifyFunction*)verifyClientOptionalCallback,
                 randFile);
         }
         else if ( trustStore != String::EMPTY )
         {
-            _sslContext = new SSLContext(trustStore, certPath, 
+            _sslContext = new SSLContext(trustStore, certPath,
                 keyPath, crlStore, 0, randFile);
         }
-        else 
+        else
         {
-            _sslContext = new SSLContext(String::EMPTY, certPath, 
+            _sslContext = new SSLContext(String::EMPTY, certPath,
                 keyPath, crlStore, 0, randFile);
         }
     }
@@ -146,7 +146,7 @@ void SSLContextManager::createSSLContext(Uint32 contextType,
         // Note: Trust store is used by default on Export connections,
         // verification callback function is not used.
         //
-        _exportSSLContext = new SSLContext(trustStore, certPath, 
+        _exportSSLContext = new SSLContext(trustStore, certPath,
             keyPath, crlStore, 0, randFile);
     }
 
@@ -206,7 +206,7 @@ void SSLContextManager::reloadTrustStore(Uint32 contextType)
     X509_STORE* newStore = _getNewX509Store(trustStore);
 
     //
-    // acquire write lock to Context object and then overwrite the trust 
+    // acquire write lock to Context object and then overwrite the trust
     // store cache
     //
     {
@@ -251,7 +251,7 @@ void SSLContextManager::reloadCRLStore()
 
     //update the CRL store for both the server and the export server since they share the same CRL store
     X509_STORE* crlStore;
-    
+
     {
         WriteLock contextLock(_sslContextObjectLock);
         if (_sslContext)
@@ -277,16 +277,16 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2,
         "Reloading certificates from the store: " + storePath);
 
-    X509_STORE* newStore = X509_STORE_new(); 
+    X509_STORE* newStore = X509_STORE_new();
 
     //
-    // Check if there is a CA certificate file or directory specified. 
+    // Check if there is a CA certificate file or directory specified.
     // If specified, load the certificates from the specified store path.
     //
     if (FileSystem::isDirectory(storePath))
     {
-        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(newStore, 
-                                              X509_LOOKUP_hash_dir()); 
+        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(newStore,
+                                              X509_LOOKUP_hash_dir());
         if (storeLookup == NULL)
         {
             X509_STORE_free(newStore);
@@ -300,13 +300,13 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
-        X509_LOOKUP_add_dir(storeLookup, 
-            storePath.getCString(), X509_FILETYPE_PEM); 
+        X509_LOOKUP_add_dir(storeLookup,
+            storePath.getCString(), X509_FILETYPE_PEM);
     }
     else if (FileSystem::exists(storePath))
     {
-        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(newStore, 
-                                                     X509_LOOKUP_file()); 
+        X509_LOOKUP* storeLookup = X509_STORE_add_lookup(newStore,
+                                                     X509_LOOKUP_file());
         if (storeLookup == NULL)
         {
             X509_STORE_free(newStore);
@@ -320,8 +320,8 @@ X509_STORE* SSLContextManager::_getNewX509Store(const String& storePath)
             PEG_METHOD_EXIT();
             throw SSLException(parms);
         }
-        X509_LOOKUP_load_file(storeLookup, 
-            storePath.getCString(), X509_FILETYPE_PEM); 
+        X509_LOOKUP_load_file(storeLookup,
+            storePath.getCString(), X509_FILETYPE_PEM);
     }
     else
     {

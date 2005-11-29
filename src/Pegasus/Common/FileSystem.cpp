@@ -457,7 +457,7 @@ String FileSystem::buildLibraryFileName(const String &libraryName)
     // Add the necessary prefix and suffix to convert the library name to its
     // corresponding file name.
     //
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
     fileName = libraryName + String(".dll");
 #elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
     fileName = String("lib") + libraryName + String(".sl");

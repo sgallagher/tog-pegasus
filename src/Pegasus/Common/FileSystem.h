@@ -461,7 +461,7 @@ inline Boolean OpenAppend(PEGASUS_STD(ofstream)& os, const String& path)
 
 inline String FileSystem::getPathDelimiter() 
 {
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
   return String(";");
 #else
   return String(":");

@@ -45,7 +45,7 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_COMPILER_MSVC)
 #define snprintf _snprintf
 #endif
 

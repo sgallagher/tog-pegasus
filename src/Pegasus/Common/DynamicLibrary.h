@@ -42,7 +42,7 @@
 
 #include <Pegasus/Common/Linkage.h>
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <windows.h>
 #endif
 
@@ -55,7 +55,7 @@ PEGASUS_NAMESPACE_BEGIN
 class PEGASUS_COMMON_LINKAGE DynamicLibrary
 {
 public:
-    #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+    #if defined(PEGASUS_OS_TYPE_WINDOWS)
       typedef HMODULE LIBRARY_HANDLE;
       typedef FARPROC LIBRARY_SYMBOL;
     #elif defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)

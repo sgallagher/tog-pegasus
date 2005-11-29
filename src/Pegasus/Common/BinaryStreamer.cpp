@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,9 +29,9 @@
 //
 // Author: Adrian Schuur (schuur@de.ibm.com) - PEP 164
 //
-// Modified By: 
+// Modified By:
 //     Dave Sudlik (dsudlik@us.ibm.com)
-//     David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
+//     David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3666
 //     Michael Brasher (mike-brasher@austin.rr.com)
 //     Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
@@ -79,7 +79,7 @@ static void _checkMagicByte(const Buffer& in, Uint32& pos)
     Packer::unpackUint8(in, pos, magicByte);
 
     if (magicByte != MAGIC_BYTE)
-	throw BinException("Bad magic byte");
+        throw BinException("Bad magic byte");
 }
 
 struct Header
@@ -88,7 +88,7 @@ struct Header
     Uint8 versionNumber;
 
     // The object type (see BinaryObjectType enum).
-    Uint8 objectType; 
+    Uint8 objectType;
 };
 
 static void _packHeader(Buffer& out, Uint8 objectType)
@@ -105,10 +105,10 @@ static void _checkHeader(
     Packer::unpackUint8(in, pos, header.objectType);
 
     if (header.objectType != expectedObjectType)
-	throw BinException("Unexpected object type");
+        throw BinException("Unexpected object type");
 
     if (header.versionNumber != VERSION_NUMBER)
-	throw BinException("Unsupported version");
+        throw BinException("Unsupported version");
 }
 
 inline void _unpack(const Buffer& in, Uint32& pos, Boolean& x)
@@ -194,19 +194,19 @@ template<class T>
 struct UnpackArray
 {
     static void func(
-	const Buffer& in, Uint32& pos, size_t n, CIMValue& value)
+        const Buffer& in, Uint32& pos, Uint32 n, CIMValue& value)
     {
-	Array<T> array;
-	array.reserveCapacity(n);
+        Array<T> array;
+        array.reserveCapacity(n);
 
-	for (size_t i = 0; i < n; i++)
-	{
-	    T tmp;
-	    _unpack(in, pos, tmp);
-	    array.append(tmp);
-	}
+        for (Uint32 i = 0; i < n; i++)
+        {
+            T tmp;
+            _unpack(in, pos, tmp);
+            array.append(tmp);
+        }
 
-	value.set(array);
+        value.set(array);
     }
 };
 
@@ -214,11 +214,11 @@ template<class T>
 struct UnpackScalar
 {
     static void func(
-	const Buffer& in, Uint32& pos, CIMValue& value)
+        const Buffer& in, Uint32& pos, CIMValue& value)
     {
-	T tmp;
-	_unpack(in, pos, tmp);
-	value.set(tmp);
+        T tmp;
+        _unpack(in, pos, tmp);
+        value.set(tmp);
     }
 };
 
@@ -227,16 +227,16 @@ struct UnpackQualifiers
 {
     static void func(const Buffer& in, Uint32& pos, OBJECT& x)
     {
-	Uint32 n;
-	Packer::unpackSize(in, pos, n);
+        Uint32 n;
+        Packer::unpackSize(in, pos, n);
 
-	CIMQualifier q;
+        CIMQualifier q;
 
-	for (size_t i = 0; i < n; i++)
-	{
-	    BinaryStreamer::_unpackQualifier(in, pos, q);
-	    x.addQualifier(q);
-	}
+        for (size_t i = 0; i < n; i++)
+        {
+            BinaryStreamer::_unpackQualifier(in, pos, q);
+            x.addQualifier(q);
+        }
     }
 };
 
@@ -245,11 +245,11 @@ struct PackQualifiers
 {
     static void func(Buffer& out, REP* rep)
     {
-	Uint32 n = rep->getQualifierCount();
-	Packer::packSize(out, n);
+        Uint32 n = rep->getQualifierCount();
+        Packer::packSize(out, n);
 
-	for (Uint32 i = 0; i < n; i++)
-	    BinaryStreamer::_packQualifier(out, rep->getQualifier(i));
+        for (Uint32 i = 0; i < n; i++)
+            BinaryStreamer::_packQualifier(out, rep->getQualifier(i));
     }
 };
 
@@ -258,16 +258,16 @@ struct UnpackProperties
 {
     static void func(const Buffer& in, Uint32& pos, OBJECT& x)
     {
-	Uint32 n;
-	Packer::unpackSize(in, pos, n);
+        Uint32 n;
+        Packer::unpackSize(in, pos, n);
 
-	CIMProperty p;
+        CIMProperty p;
 
-	for (size_t i = 0; i < n; i++)
-	{
-	    BinaryStreamer::_unpackProperty(in, pos, p);
-	    x.addProperty(p);
-	}
+        for (size_t i = 0; i < n; i++)
+        {
+            BinaryStreamer::_unpackProperty(in, pos, p);
+            x.addProperty(p);
+        }
     }
 };
 
@@ -276,16 +276,16 @@ struct UnpackMethods
 {
     static void func(const Buffer& in, Uint32& pos, OBJECT& x)
     {
-	Uint32 n;
-	Packer::unpackSize(in, pos, n);
+        Uint32 n;
+        Packer::unpackSize(in, pos, n);
 
-	CIMMethod m;
+        CIMMethod m;
 
-	for (size_t i = 0; i < n; i++)
-	{
-	    BinaryStreamer::_unpackMethod(in, pos, m);
-	    x.addMethod(m);
-	}
+        for (size_t i = 0; i < n; i++)
+        {
+            BinaryStreamer::_unpackMethod(in, pos, m);
+            x.addMethod(m);
+        }
     }
 };
 
@@ -344,126 +344,126 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
     Uint32 n = x.getArraySize();
 
     if (x.isArray())
-	Packer::packSize(out, n);
+        Packer::packSize(out, n);
 
     Packer::packBoolean(out, x.isNull());
 
     if (x.isNull())
-	return;
+        return;
 
     if (x.isArray())
     {
-	switch (x.getType()) 
-	{
-	    case CIMTYPE_BOOLEAN:
-		Packer::packBoolean(
-		    out, CIMValueType<Boolean>::aref(rep).getData(), n);
-		break;
+        switch (x.getType())
+        {
+            case CIMTYPE_BOOLEAN:
+                Packer::packBoolean(
+                    out, CIMValueType<Boolean>::aref(rep).getData(), n);
+                break;
 
-	    case CIMTYPE_SINT8:
-	    case CIMTYPE_UINT8:
-		Packer::packUint8(
-		    out, CIMValueType<Uint8>::aref(rep).getData(), n);
-		break;
+            case CIMTYPE_SINT8:
+            case CIMTYPE_UINT8:
+                Packer::packUint8(
+                    out, CIMValueType<Uint8>::aref(rep).getData(), n);
+                break;
 
-	    case CIMTYPE_SINT16:
-	    case CIMTYPE_UINT16:
-	    case CIMTYPE_CHAR16:
-		Packer::packUint16(
-		    out, CIMValueType<Uint16>::aref(rep).getData(), n);
-		break;
+            case CIMTYPE_SINT16:
+            case CIMTYPE_UINT16:
+            case CIMTYPE_CHAR16:
+                Packer::packUint16(
+                    out, CIMValueType<Uint16>::aref(rep).getData(), n);
+                break;
 
-	    case CIMTYPE_SINT32:
-	    case CIMTYPE_UINT32:
-	    case CIMTYPE_REAL32:
-		Packer::packUint32(
-		    out, CIMValueType<Uint32>::aref(rep).getData(), n);
-		break;
+            case CIMTYPE_SINT32:
+            case CIMTYPE_UINT32:
+            case CIMTYPE_REAL32:
+                Packer::packUint32(
+                    out, CIMValueType<Uint32>::aref(rep).getData(), n);
+                break;
 
-	    case CIMTYPE_SINT64:
-	    case CIMTYPE_UINT64:
-	    case CIMTYPE_REAL64:
-		Packer::packUint64(
-		    out, CIMValueType<Uint64>::aref(rep).getData(), n);
-		break;
+            case CIMTYPE_SINT64:
+            case CIMTYPE_UINT64:
+            case CIMTYPE_REAL64:
+                Packer::packUint64(
+                    out, CIMValueType<Uint64>::aref(rep).getData(), n);
+                break;
 
-	    case CIMTYPE_STRING:
-		Packer::packString(out, 
-		    CIMValueType<String>::aref(rep).getData(), n);
-		break;
+            case CIMTYPE_STRING:
+                Packer::packString(out,
+                    CIMValueType<String>::aref(rep).getData(), n);
+                break;
 
-	    case CIMTYPE_DATETIME:
-	    {
-		const Array<CIMDateTime>& a = 
-		    CIMValueType<CIMDateTime>::aref(rep);
+            case CIMTYPE_DATETIME:
+            {
+                const Array<CIMDateTime>& a =
+                    CIMValueType<CIMDateTime>::aref(rep);
 
-		for (Uint32 i = 0; i < n; i++) 
-		    Packer::packString(out, a[i].toString());
-		break;
-	    }
+                for (Uint32 i = 0; i < n; i++)
+                    Packer::packString(out, a[i].toString());
+                break;
+            }
 
-	    case CIMTYPE_REFERENCE:
-	    {
-		const Array<CIMObjectPath>& a = 
-		    CIMValueType<CIMObjectPath>::aref(rep);
+            case CIMTYPE_REFERENCE:
+            {
+                const Array<CIMObjectPath>& a =
+                    CIMValueType<CIMObjectPath>::aref(rep);
 
-		for (Uint32 i = 0; i < n; i++) 
-		    Packer::packString(out, a[i].toString());
-		break;
-	    }
+                for (Uint32 i = 0; i < n; i++)
+                    Packer::packString(out, a[i].toString());
+                break;
+            }
 
-	    case CIMTYPE_OBJECT:
-		break;
-	}
+            case CIMTYPE_OBJECT:
+                break;
+        }
     }
     else
     {
-	switch (x.getType()) 
-	{
-	    case CIMTYPE_BOOLEAN:
-		Packer::packBoolean(out, rep->u._booleanValue);
-		break;
+        switch (x.getType())
+        {
+            case CIMTYPE_BOOLEAN:
+                Packer::packBoolean(out, rep->u._booleanValue);
+                break;
 
-	    case CIMTYPE_SINT8:
-	    case CIMTYPE_UINT8:
-		Packer::packUint8(out, rep->u._uint8Value);
-		break;
+            case CIMTYPE_SINT8:
+            case CIMTYPE_UINT8:
+                Packer::packUint8(out, rep->u._uint8Value);
+                break;
 
-	    case CIMTYPE_SINT16:
-	    case CIMTYPE_UINT16:
-	    case CIMTYPE_CHAR16:
-		Packer::packUint16(out, rep->u._uint16Value);
-		break;
+            case CIMTYPE_SINT16:
+            case CIMTYPE_UINT16:
+            case CIMTYPE_CHAR16:
+                Packer::packUint16(out, rep->u._uint16Value);
+                break;
 
-	    case CIMTYPE_SINT32:
-	    case CIMTYPE_UINT32:
-	    case CIMTYPE_REAL32:
-		Packer::packUint32(out, rep->u._uint32Value);
-		break;
+            case CIMTYPE_SINT32:
+            case CIMTYPE_UINT32:
+            case CIMTYPE_REAL32:
+                Packer::packUint32(out, rep->u._uint32Value);
+                break;
 
-	    case CIMTYPE_SINT64:
-	    case CIMTYPE_UINT64:
-	    case CIMTYPE_REAL64:
-		Packer::packUint64(out, rep->u._uint64Value);
-		break;
+            case CIMTYPE_SINT64:
+            case CIMTYPE_UINT64:
+            case CIMTYPE_REAL64:
+                Packer::packUint64(out, rep->u._uint64Value);
+                break;
 
-	    case CIMTYPE_STRING:
-		Packer::packString(out, CIMValueType<String>::ref(rep));
-		break;
+            case CIMTYPE_STRING:
+                Packer::packString(out, CIMValueType<String>::ref(rep));
+                break;
 
-	    case CIMTYPE_DATETIME:
-		Packer::packString(
-		    out, CIMValueType<CIMDateTime>::ref(rep).toString());
-		break;
+            case CIMTYPE_DATETIME:
+                Packer::packString(
+                    out, CIMValueType<CIMDateTime>::ref(rep).toString());
+                break;
 
-	    case CIMTYPE_REFERENCE:
-		Packer::packString(
-		    out, CIMValueType<CIMObjectPath>::ref(rep).toString());
-		break;
+            case CIMTYPE_REFERENCE:
+                Packer::packString(
+                    out, CIMValueType<CIMObjectPath>::ref(rep).toString());
+                break;
 
-	    case CIMTYPE_OBJECT:
-		break;
-	}
+            case CIMTYPE_OBJECT:
+                break;
+        }
     }
 }
 
@@ -481,160 +481,160 @@ void BinaryStreamer::_unpackValue(
     Uint32 arraySize = 0;
 
     if (isArray)
-	Packer::unpackSize(in, pos, arraySize);
+        Packer::unpackSize(in, pos, arraySize);
 
     Boolean isNull;
     Packer::unpackBoolean(in, pos, isNull);
 
     if (isNull)
     {
-	x = CIMValue(type, isArray, arraySize);
-	return;
+        x = CIMValue(type, isArray, arraySize);
+        return;
     }
 
     if (isArray)
     {
-	CIMValue cimValue(type, isArray, arraySize);
+        CIMValue cimValue(type, isArray, arraySize);
 
-	switch (type) 
-	{
-	    case CIMTYPE_BOOLEAN:
-		UnpackArray<Boolean>::func(in, pos, arraySize, cimValue);
-		break;
+        switch (type)
+        {
+            case CIMTYPE_BOOLEAN:
+                UnpackArray<Boolean>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_UINT8:
-		UnpackArray<Uint8>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_UINT8:
+                UnpackArray<Uint8>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_SINT8:
-		UnpackArray<Sint8>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_SINT8:
+                UnpackArray<Sint8>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_UINT16:
-		UnpackArray<Uint16>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_UINT16:
+                UnpackArray<Uint16>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_SINT16:
-		UnpackArray<Sint16>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_SINT16:
+                UnpackArray<Sint16>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_UINT32:
-		UnpackArray<Uint32>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_UINT32:
+                UnpackArray<Uint32>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_SINT32:
-		UnpackArray<Sint32>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_SINT32:
+                UnpackArray<Sint32>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_UINT64:
-		UnpackArray<Uint64>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_UINT64:
+                UnpackArray<Uint64>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_SINT64:
-		UnpackArray<Sint64>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_SINT64:
+                UnpackArray<Sint64>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_REAL32:
-		UnpackArray<Real32>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_REAL32:
+                UnpackArray<Real32>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_REAL64:
-		UnpackArray<Real64>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_REAL64:
+                UnpackArray<Real64>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_CHAR16:
-		UnpackArray<Char16>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_CHAR16:
+                UnpackArray<Char16>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_STRING:
-		UnpackArray<String>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_STRING:
+                UnpackArray<String>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_DATETIME:
-		UnpackArray<CIMDateTime>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_DATETIME:
+                UnpackArray<CIMDateTime>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_REFERENCE:
-		UnpackArray<CIMObjectPath>::func(in, pos, arraySize, cimValue);
-		break;
+            case CIMTYPE_REFERENCE:
+                UnpackArray<CIMObjectPath>::func(in, pos, arraySize, cimValue);
+                break;
 
-	    case CIMTYPE_OBJECT:
-		break;
-	}
+            case CIMTYPE_OBJECT:
+                break;
+        }
 
-	x = cimValue;
+        x = cimValue;
     }
     else
     {
-	CIMValue cimValue(type, isArray);
+        CIMValue cimValue(type, isArray);
 
-	switch (type) 
-	{
-	    case CIMTYPE_BOOLEAN:
-		UnpackScalar<Boolean>::func(in, pos, cimValue);
-		break;
+        switch (type)
+        {
+            case CIMTYPE_BOOLEAN:
+                UnpackScalar<Boolean>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_UINT8:
-		UnpackScalar<Uint8>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_UINT8:
+                UnpackScalar<Uint8>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_SINT8:
-		UnpackScalar<Sint8>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_SINT8:
+                UnpackScalar<Sint8>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_UINT16:
-		UnpackScalar<Uint16>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_UINT16:
+                UnpackScalar<Uint16>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_SINT16:
-		UnpackScalar<Sint16>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_SINT16:
+                UnpackScalar<Sint16>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_UINT32:
-		UnpackScalar<Uint32>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_UINT32:
+                UnpackScalar<Uint32>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_SINT32:
-		UnpackScalar<Sint32>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_SINT32:
+                UnpackScalar<Sint32>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_UINT64:
-		UnpackScalar<Uint64>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_UINT64:
+                UnpackScalar<Uint64>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_SINT64:
-		UnpackScalar<Sint64>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_SINT64:
+                UnpackScalar<Sint64>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_REAL32:
-		UnpackScalar<Real32>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_REAL32:
+                UnpackScalar<Real32>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_REAL64:
-		UnpackScalar<Real64>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_REAL64:
+                UnpackScalar<Real64>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_CHAR16:
-		UnpackScalar<Char16>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_CHAR16:
+                UnpackScalar<Char16>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_STRING:
-		UnpackScalar<String>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_STRING:
+                UnpackScalar<String>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_DATETIME:
-		UnpackScalar<CIMDateTime>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_DATETIME:
+                UnpackScalar<CIMDateTime>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_REFERENCE:
-		UnpackScalar<CIMObjectPath>::func(in, pos, cimValue);
-		break;
+            case CIMTYPE_REFERENCE:
+                UnpackScalar<CIMObjectPath>::func(in, pos, cimValue);
+                break;
 
-	    case CIMTYPE_OBJECT:
-		break;
-	}
+            case CIMTYPE_OBJECT:
+                break;
+        }
 
-	x = cimValue;
+        x = cimValue;
     }
 
     return;
@@ -678,7 +678,7 @@ void BinaryStreamer::_unpackProperty(
     Packer::unpackBoolean(in, pos, propagated);
 
     CIMProperty cimProperty(
-	name, value, arraySize, referenceClassName, classOrigin, propagated);
+        name, value, arraySize, referenceClassName, classOrigin, propagated);
 
     UnpackQualifiers<CIMProperty>::func(in, pos, cimProperty);
 
@@ -719,7 +719,7 @@ void BinaryStreamer::_unpackParameter(
     _unpackName(in, pos, referenceClassName);
 
     CIMParameter cimParameter(
-	name, type, isArray, arraySize, referenceClassName);
+        name, type, isArray, arraySize, referenceClassName);
 
     UnpackQualifiers<CIMParameter>::func(in, pos, cimParameter);
 
@@ -732,7 +732,7 @@ void BinaryStreamer::_packParameters(Buffer& out, CIMMethodRep* rep)
     Packer::packSize(out, n);
 
     for (Uint32 i = 0; i < n; i++)
-	BinaryStreamer::_packParameter(out, rep->getParameter(i));
+        BinaryStreamer::_packParameter(out, rep->getParameter(i));
 }
 
 void BinaryStreamer::_unpackParameters(
@@ -743,9 +743,9 @@ void BinaryStreamer::_unpackParameters(
 
     for (size_t i = 0; i < n; i++)
     {
-	CIMParameter q;
-	_unpackParameter(in, pos, q);
-	x.addParameter(q);
+        CIMParameter q;
+        _unpackParameter(in, pos, q);
+        x.addParameter(q);
     }
 }
 
@@ -805,7 +805,7 @@ void BinaryStreamer::_packProperties(Buffer& out, CIMObjectRep* rep)
     Packer::packSize(out, n);
 
     for (Uint32 i = 0; i < n; i++)
-	BinaryStreamer::_packProperty(out, rep->getProperty(i));
+        BinaryStreamer::_packProperty(out, rep->getProperty(i));
 }
 
 void BinaryStreamer::_packMethods(Buffer& out, CIMClassRep* rep)
@@ -814,7 +814,7 @@ void BinaryStreamer::_packMethods(Buffer& out, CIMClassRep* rep)
     Packer::packSize(out, n);
 
     for (Uint32 i = 0; i < n; i++)
-	BinaryStreamer::_packMethod(out, rep->getMethod(i));
+        BinaryStreamer::_packMethod(out, rep->getMethod(i));
 }
 
 void BinaryStreamer::_packScope(Buffer& out, const CIMScope& x)
@@ -853,7 +853,7 @@ void BinaryStreamer::_unpackType(
 }
 
 void BinaryStreamer::encode(
-    Buffer& out, 
+    Buffer& out,
     const CIMClass& x)
 {
     CIMClassRep* rep = x._rep;
@@ -868,8 +868,8 @@ void BinaryStreamer::encode(
 }
 
 void BinaryStreamer::decode(
-    const Buffer& in, 
-    unsigned int pos, 
+    const Buffer& in,
+    unsigned int pos,
     CIMClass& x)
 {
     _checkMagicByte(in, pos);
@@ -894,7 +894,7 @@ void BinaryStreamer::decode(
 }
 
 void BinaryStreamer::encode(
-    Buffer& out, 
+    Buffer& out,
     const CIMInstance& x)
 {
     CIMInstanceRep* rep = x._rep;
@@ -907,8 +907,8 @@ void BinaryStreamer::encode(
 }
 
 void BinaryStreamer::decode(
-    const Buffer& in, 
-    unsigned int pos, 
+    const Buffer& in,
+    unsigned int pos,
     CIMInstance& x)
 {
     _checkMagicByte(in, pos);
@@ -929,7 +929,7 @@ void BinaryStreamer::decode(
 }
 
 void BinaryStreamer::encode(
-    Buffer& out, 
+    Buffer& out,
     const CIMQualifierDecl& x)
 {
     _packMagicByte(out);
@@ -942,8 +942,8 @@ void BinaryStreamer::encode(
 }
 
 void BinaryStreamer::decode(
-    const Buffer& in, 
-    unsigned int pos, 
+    const Buffer& in,
+    unsigned int pos,
     CIMQualifierDecl& x)
 {
     _checkMagicByte(in, pos);

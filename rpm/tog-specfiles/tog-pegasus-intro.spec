@@ -8,6 +8,7 @@
 # (chkconfig --level=345 tog-pegasus on) after installation.
 #
 
+%define srcRelease 1
 Summary:   OpenPegasus WBEM Services for Linux
 Name:      tog-pegasus
 Group:     Systems Management/Base
@@ -15,7 +16,7 @@ License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 URL:       http://www.openpegasus.org
 
-Source:    ftp://www.opengroup.org/pegasus/%{name}-%{version}-%{release}.tar.gz
+Source:    ftp://www.opengroup.org/pegasus/%{name}-%{version}-%{srcRelease}.tar.gz
 
 BuildRequires:      bash, sed, grep, coreutils, procps, gcc, gcc-c++
 BuildRequires:      libstdc++, make, pam-devel

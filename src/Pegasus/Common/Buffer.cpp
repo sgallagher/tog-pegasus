@@ -38,7 +38,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 BufferRep Buffer::_empty_rep = { 0, 0, {0} };
 
-static const size_t MIN_CAPACITY = 32;
+static const size_t MIN_CAPACITY = 2048;
 
 static Uint32 _next_pow_2(Uint32 x)
 {

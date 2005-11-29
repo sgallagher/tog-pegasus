@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -41,22 +41,19 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMDateTime.h>
 
-PEGASUS_USING_PEGASUS;
-PEGASUS_USING_STD;
-
 class OperatingSystem
 {
    public:
 
       enum OSTYPE {
-           Unknown, Other, MACOS, ATTUNIX, DGUX, DECNT, Digital_Unix, 
-           OpenVMS, HP_UX, AIX, MVS, OS400, OS2, JavaVM, MSDOS, WIN3x, 
+           Unknown, Other, MACOS, ATTUNIX, DGUX, DECNT, Digital_Unix,
+           OpenVMS, HP_UX, AIX, MVS, OS400, OS2, JavaVM, MSDOS, WIN3x,
            WIN95, WIN98, WINNT, WINCE, NCR3000, NetWare, OSF,
-           DCOS, Reliant_UNIX, SCO_UnixWare, SCO_OpenServer, Sequent, 
-           IRIX, Solaris, SunOS, U6000, ASERIES, TandemNSK, TandemNT, 
+           DCOS, Reliant_UNIX, SCO_UnixWare, SCO_OpenServer, Sequent,
+           IRIX, Solaris, SunOS, U6000, ASERIES, TandemNSK, TandemNT,
            BS2000, LINUX, Lynx, XENIX, VM_ESA, Interactive_UNIX,
-           BSDUNIX, FreeBSD, NetBSD, GNU_Hurd, OS9, MACH_Kernel, 
-           Inferno, QNX, EPOC, IxWorks, VxWorks, MiNT, BeOS, HP_MPE, 
+           BSDUNIX, FreeBSD, NetBSD, GNU_Hurd, OS9, MACH_Kernel,
+           Inferno, QNX, EPOC, IxWorks, VxWorks, MiNT, BeOS, HP_MPE,
            NextStep, PalmPilot, Rhapsody, Windows_2000, Dedicated,
            OS_390, VSE, TPF, Windows_Me
            };
@@ -92,7 +89,7 @@ class OperatingSystem
       Boolean getMaxProcsPerUser(Uint32& maxProcsPerUser);
       Boolean getSystemUpTime(Uint64& systemUpTime);
       Boolean getOperatingSystemCapability(String& operatingSystemCapability);
-      
+
    protected:
       Uint64 _totalVM();
       Uint32 _reboot();

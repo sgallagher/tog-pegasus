@@ -45,7 +45,6 @@
 #include <sstream>
 #include <iomanip>
 
-
 OperatingSystem::OperatingSystem(void)
 {
 }

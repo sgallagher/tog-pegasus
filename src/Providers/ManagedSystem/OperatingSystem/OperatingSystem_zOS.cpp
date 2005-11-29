@@ -33,6 +33,8 @@
 //
 //%////////////////////////////////////////////////////////////////////////////
 
+#include "OperatingSystem.h"
+
 #include <sys/utsname.h>
 //#include <__ftp.h>
 #include <netdb.h>

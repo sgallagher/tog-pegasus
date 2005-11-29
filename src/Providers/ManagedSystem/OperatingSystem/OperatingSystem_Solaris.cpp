@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 // Author: Jim Wunderlich <Jim_Wunderlich@prodigy.net>
 //
-// Modified By: 
+// Modified By:
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
-#include "OperatingSystemProvider.h"
+#include "OperatingSystem.h"
 
 #include <iostream>
 #include <set>
@@ -77,7 +77,7 @@ Boolean OperatingSystem::getName(String& osName)
 {
     struct utsname  unameInfo;
 
-    // Call uname and check for any errors. 
+    // Call uname and check for any errors.
     if (uname(&unameInfo) < 0)
     {
        return false;
@@ -205,7 +205,7 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 
     struct utsname  unameInfo;
 
-    // Call uname and check for any errors. 
+    // Call uname and check for any errors.
 
     if (uname(&unameInfo) < 0)
     {
@@ -270,7 +270,7 @@ return false;
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 {
-   // Get the date and time from the system. 
+   // Get the date and time from the system.
    localDateTime = CIMDateTime::getCurrentDateTime();
    return true;
 }
@@ -288,7 +288,7 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
     time_t systemTime;
     struct tm tmval;
 
-    // Get the time from the system. 
+    // Get the time from the system.
     systemTime = time(0);
     localtime_r(&systemTime, &tmval);
     currentTimeZone = - (Sint16) (timezone / 60);
@@ -302,7 +302,7 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
 }
 
 /**
-   getNumberOfLicensedUsers method for Solaris implementation of OS Provider 
+   getNumberOfLicensedUsers method for Solaris implementation of OS Provider
 
    Always returns 0 for unlimited
   */
@@ -545,7 +545,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 /**
    getOperatingSystemCapability handles a Pegasus extension of the DMTF defined
    CIM_Operating System. This attribute is defined as a string either "64 bit"
-   or "32 bit". On the Solaris side we will determine that by measuring 
+   or "32 bit". On the Solaris side we will determine that by measuring
    the number
    of bytes allocated for pointers because this implementation will change
    based on the underlying processor architecture. 32-bit 64-bit... 128-bit
@@ -583,13 +583,13 @@ Uint32 OperatingSystem::_reboot()
 {
 /*
 ******************************************************
-ATTN: At the time of implementation the Provider Manager will not call 
+ATTN: At the time of implementation the Provider Manager will not call
 this function. The code is defined out becasue it is not clear that all
-users would want this supportted. If it were to be supported then at a 
-minimum the user must be athenticated or the code should run switch and 
+users would want this supportted. If it were to be supported then at a
+minimum the user must be athenticated or the code should run switch and
 run on behalf of the caller rather than as the CIMOM and then let the
 system validate the users credentials and permissions to determine if
-the calling user has the authority to invoke a shutdown or a reboot.  
+the calling user has the authority to invoke a shutdown or a reboot.
 ******************************************************
 */
 
@@ -639,18 +639,18 @@ Uint32 OperatingSystem::_shutdown()
 {
 /*
 ******************************************************
-ATTN: At the time of implementation the Provider Manager will not call 
+ATTN: At the time of implementation the Provider Manager will not call
 this function. The code is defined out becasue it is not clear that all
-users would want this supportted. If it were to be supported then at a 
-minimum the user must be athenticated or the code should run switch and 
+users would want this supportted. If it were to be supported then at a
+minimum the user must be athenticated or the code should run switch and
 run on behalf of the caller rather than as the CIMOM and then let the
 system validate the users credentials and permissions to determine if
-the calling user has the authority to invoke a shutdown or a reboot.  
+the calling user has the authority to invoke a shutdown or a reboot.
 ******************************************************
 */
 
    return false;
- 
+
 #ifdef NOTDEF
    const char *poweroff[] = { "poweroff", NULL };
    const char *paths[] = { "/sbin", "/usr/sbin", "/usr/local/sbin", NULL };

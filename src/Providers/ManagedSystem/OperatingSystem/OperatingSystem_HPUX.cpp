@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 // Author: Jim Metcalfe, Hewlett-Packard Company (jim_metcalfe@hp.com)
 //
-// Modified By: 
+// Modified By:
 //         Susan Campbell, Hewlett-Packard Company (susan_campbell@hp.com)
 //          Bapu Patil (bapu_patil@hp.com)
 //
@@ -37,6 +37,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
+
+#include "OperatingSystem.h"
 
 #include <iostream>
 #include <set>
@@ -79,7 +81,7 @@ static Boolean _getOSName(String& osName)
 {
     struct utsname  unameInfo;
 
-    // Call uname and check for any errors. 
+    // Call uname and check for any errors.
     if (uname(&unameInfo) < 0)
     {
        return false;
@@ -92,8 +94,8 @@ static Boolean _getOSName(String& osName)
 
 /**
    getUtilGetHostName method for the HP-UX implementation of the OS Provider
-   
-   This supporting utility function gets the name of the host system 
+
+   This supporting utility function gets the name of the host system
    from gethostname and gethostbyname.
 
   */
@@ -110,7 +112,7 @@ static Boolean getUtilGetHostName(String& csName)
     hostName[sizeof(hostName)-1] = 0;
 
     // Now get the official hostname.  If this call fails then return
-    // the value from gethostname().                                 
+    // the value from gethostname().
 
     if (he=gethostbyname(hostName))
     {
@@ -170,10 +172,10 @@ Boolean OperatingSystem::getDescription(String& description)
 /**
    getInstallDate method for HP-UX implementation of OS provider
 
-   Need to determine reliable method of knowing install date 
+   Need to determine reliable method of knowing install date
    one possibility is date of /stand/vmunix (but not always
    truly the date the OS was installed. For now, don't return
-   any date (function returns FALSE).                    
+   any date (function returns FALSE).
 */
 Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
 {
@@ -185,13 +187,13 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
 /**
    getStatus method for HP-UX implementation of OS provider
 
-   Would like to be able to return and actual status vs. just   
+   Would like to be able to return and actual status vs. just
    always Unknown, but didn't know how to differentiate between
    OK and Degraded (assuming they are the only values that make
-   sense, since the CIMOM is up and running), but one could see  
-   an argument for including Stopping if the Shutdown or Reboot 
+   sense, since the CIMOM is up and running), but one could see
+   an argument for including Stopping if the Shutdown or Reboot
    methods have been invoked. For now, always return "Unknown".
-*/                                 
+*/
 Boolean OperatingSystem::getStatus(String& status)
 {
 
@@ -206,7 +208,7 @@ Boolean OperatingSystem::getStatus(String& status)
 /**
    getVersion method for HP-UX implementation of OS provider
 
-   Uses uname system call and extracts the release information 
+   Uses uname system call and extracts the release information
    (e.g., B.11.20).  Version field in uname actually contains
    user license info (thus isn't included).
 
@@ -218,7 +220,7 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 
     struct utsname  unameInfo;
 
-    // Call uname and check for any errors. 
+    // Call uname and check for any errors.
 
     if (uname(&unameInfo) < 0)
     {
@@ -266,12 +268,12 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
     int tzMinutesEast;
 
     // Get the static information from the pstat call to the system.
- 
+
     if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
     {
 	return false;
     }
-    // Get the boot time and convert to local time. 
+    // Get the boot time and convert to local time.
 
 // ATTN-SLC-P2-17-Apr-02: use CIMOM DateTime function & consistency, BZ#45
 
@@ -284,7 +286,7 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
         tzMinutesEast += 60;
     }
 
-    // Format the date. 
+    // Format the date.
     sprintf(
         dateTimeBuffer,
         "%04d%02d%02d%02d%02d%02d.%06d%+04d",
@@ -304,11 +306,11 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
    getLocalDateTime method for HP-UX implementation of OS Provider
 
    Gets information from localtime call, converted to CIM
-   DateTime format. 
+   DateTime format.
   */
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 {
-    // Get the date and time from the system. 
+    // Get the date and time from the system.
     localDateTime = CIMDateTime::getCurrentDateTime();
     return true;
 }
@@ -324,7 +326,7 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
     time_t systemTime;
     struct tm tmval;
 
-    // Get the time from the system. 
+    // Get the time from the system.
     systemTime = time(0);
     localtime_r(&systemTime, &tmval);
     currentTimeZone = - (Sint16) (timezone / 60);
@@ -343,14 +345,14 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
    Calls uname and checks the version string (to get user license
    information.  This version field doesn't currently distinguish
    between 128, 256, and unlimited user licensed (all = U).
-   Need to determine how to differentiate and fix this, for now return 
+   Need to determine how to differentiate and fix this, for now return
    0 (which is unlimited).  Don't know if uname -l has same limitation.
   */
 Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
 {
     struct utsname  unameInfo;
 
-    // Call uname and check for any errors. 
+    // Call uname and check for any errors.
     if (uname(&unameInfo) < 0)
     {
        return false;
@@ -364,7 +366,7 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32& numberOfLicensedUsers)
         case 'D' : { numberOfLicensedUsers = 64; break; }
         case 'E' : { numberOfLicensedUsers = 8; break; }
         case 'U' : {
-            // U could be 128, 256, or unlimited 
+            // U could be 128, 256, or unlimited
             // need to find test system with 128 or 256 user license
             // to determine if uname -l has correct value
             // for now, return 0 = unlimited
@@ -416,7 +418,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
     {
         return false;
     }
-        
+
     numberOfProcesses = psd.psd_activeprocs;
 
     return true;
@@ -433,15 +435,15 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32& mMaxProcesses)
 
     if (pstat_getstatic(&pst, sizeof(pst), (size_t)1, 0) == -1)
     {
-       return false; 
+       return false;
     }
-        
+
     mMaxProcesses = pst.max_proc;
 
     return true;
 }
 
-/** 
+/**
    _totalVM method for HP-UX implementation of HP-UX
 
    Gets information from swapinfo -q command (already in KB).
@@ -454,23 +456,23 @@ Uint64 OperatingSystem::_totalVM()
     FILE             * mswapInfo;
     Uint32             swapSize;
 
-    // Initialize the return parameter in case swapinfo is not available. 
+    // Initialize the return parameter in case swapinfo is not available.
     swapSize = 0;
 
-    // Use a pipe to invoke swapinfo. 
+    // Use a pipe to invoke swapinfo.
     if ((mswapInfo = popen("/usr/sbin/swapinfo -q 2>/dev/null", "r")) != NULL)
     {
-        // Now extract the total swap space size from the swapinfo output. 
+        // Now extract the total swap space size from the swapinfo output.
         while (fgets(mline, 80, mswapInfo))
         {
            sscanf(mline, "%d", &swapSize);
-        }  // end while 
+        }  // end while
 
         (void)pclose (mswapInfo);
     }
     return swapSize;
 }
-/** 
+/**
    getTotalSwapSpaceSize method for HP-UX implementation of HP-UX
 
    Gets information from swapinfo -q command (techically not swap
@@ -481,16 +483,16 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64& mTotalSwapSpaceSize)
 {
     mTotalSwapSpaceSize = _totalVM();
     if (mTotalSwapSpaceSize != 0)
-       return true; 
+       return true;
     else
        return false;
 }
 
-/** 
+/**
    getTotalVirutalMemorySize method for HP-UX implementation of HP-UX
 
    Gets information from swapinfo -q command (techically not swap
-   space, it's paging).  Same as the information returned for 
+   space, it's paging).  Same as the information returned for
    TotalSwapSpace.
 
   */
@@ -501,12 +503,12 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
 
     total = _totalVM();
     if (total != 0)
-       return true; 
+       return true;
     else
        return false;
-} 
+}
 
-/** 
+/**
    getFreeVirutalMemorySize method for HP-UX implementation of HP-UX
 
    Gets information from swapinfo -at command (the Free column)
@@ -520,18 +522,18 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
     Uint32             swapUsed = 0;
     Uint32             swapFree = 0;
 
-    // Initialize the return parameter in case swapinfo is not available. 
+    // Initialize the return parameter in case swapinfo is not available.
     freeVirtualMemory = 0;
 
-    // Use a pipe to invoke swapinfo. 
+    // Use a pipe to invoke swapinfo.
     if ((mswapInfo = popen("/usr/sbin/swapinfo -at 2>/dev/null", "r")) != NULL)
     {
-        // Now extract the total swap space size from the swapinfo output. 
+        // Now extract the total swap space size from the swapinfo output.
         while (fgets(mline, 80, mswapInfo))
         {
            sscanf(mline, "total %u %u %u", &swapAvailable,
                   &swapUsed, &swapFree);
-        }  // end while 
+        }  // end while
 
         (void)pclose (mswapInfo);
     }
@@ -542,7 +544,7 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
         return false;
 }
 
-/** 
+/**
    getFreePhysicalMemory method for HP-UX implementation of HP-UX
 
    Gets information from the pstat system call (psd_free field)
@@ -575,7 +577,7 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 /**
    getTotalVisibleMemorySize method for HP-UX implementation of OS Provider
 
-   Gets information from pstat (pst.physcial_memory adjusted for page size) 
+   Gets information from pstat (pst.physcial_memory adjusted for page size)
    */
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 {
@@ -589,7 +591,7 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
     }
 
     // Feb-25-2005:  Correct value to reflect Kbytes instead of Mbytes
-    psize = pst.page_size / 1024;  
+    psize = pst.page_size / 1024;
     total = ((float)pst.physical_memory * psize);
     memory = total;
     return true;
@@ -617,7 +619,7 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64& freeSpaceInPagingFile
     return true;
 }
 
-static Boolean getMaxProcMemViaKmtune(Boolean are32bit, 
+static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
                                       Uint64& maxProcMemSize)
 {
     char               mline[80];
@@ -628,7 +630,7 @@ static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
     Uint64             maxdsiz_64bit = 0;
     Uint64             maxssiz_64bit = 0;
     Uint64             maxtsiz_64bit = 0;
-   
+
     if (are32bit)
     {
        // Use a pipe to invoke kmtune (since don't have gettune on 11.0)
@@ -641,7 +643,7 @@ static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
              sscanf(mline, "maxdsiz %x", &maxdsiz);
              sscanf(mline, "maxssiz %x", &maxssiz);
              sscanf(mline, "maxtsiz %x", &maxtsiz);
-          }    // end while 
+          }    // end while
 
           (void)pclose (mtuneInfo);
           maxProcMemSize = (maxdsiz + maxssiz + maxtsiz);
@@ -651,8 +653,8 @@ static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
     }  // end if are32bit
     else   // are 64bit, different parameter names must be used
     {
-       // Use a pipe to invoke kmtune (since don't have gettune on all OSs) 
-       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz_64bit " 
+       // Use a pipe to invoke kmtune (since don't have gettune on all OSs)
+       if ((mtuneInfo = popen("/usr/sbin/kmtune -q maxdsiz_64bit "
                               "-q maxssiz_64bit -q maxtsiz_64bit "
                               "2> /dev/null","r")) != NULL)
        {
@@ -662,7 +664,7 @@ static Boolean getMaxProcMemViaKmtune(Boolean are32bit,
               sscanf(mline, "maxdsiz_64bit %llx", &maxdsiz_64bit);
               sscanf(mline, "maxssiz_64bit %llx", &maxssiz_64bit);
               sscanf(mline, "maxtsiz_64bit %llx", &maxtsiz_64bit);
-           }  // end while 
+           }  // end while
 
            (void)pclose (mtuneInfo);
            maxProcMemSize = (maxdsiz_64bit + maxssiz_64bit
@@ -683,8 +685,8 @@ static Boolean getMaxProcMemViaGettune(Boolean are32bit,
     uint64_t         maxssiz_64bit = 0;
     uint64_t         maxtsiz_64bit = 0;
     uint64_t         total = 0;
-                                      
-    // we may be compiling on a system without gettune, but 
+
+    // we may be compiling on a system without gettune, but
     // run-time would have checked version and only be here
     // if we expect to have the gettune system call in libc
 
@@ -705,8 +707,8 @@ static Boolean getMaxProcMemViaGettune(Boolean are32bit,
     if (gettune_sym == NULL)
     {
        return false;
-    }       
-    
+    }
+
     if (are32bit)
     {
        if (gettune_sym("maxdsiz", &maxdsiz) != 0)
@@ -730,7 +732,7 @@ static Boolean getMaxProcMemViaGettune(Boolean are32bit,
        total  = maxdsiz_64bit + maxtsiz_64bit + maxssiz_64bit;
        maxProcMemSize = total;
        return true;
-    }       
+    }
 }
 
 /**
@@ -738,10 +740,10 @@ static Boolean getMaxProcMemViaGettune(Boolean are32bit,
 
    Calculate values by summing kernel tunable values for max data size, max
    stack size, and max text size.  Different names if 32-bit vs. 64-bit.
-   NOT the pstat() pst_maxmem value; that is the amount of physical 
+   NOT the pstat() pst_maxmem value; that is the amount of physical
    memory available to all user processes when the system first boots.
 
-   Could use the gettune(2) system call on some systems, but it isn't 
+   Could use the gettune(2) system call on some systems, but it isn't
    available for 11.0.  kmtune format changes in release 11.20, so will
    have separate paths anyway (vs. same kmtune parsing for all releases).
    Thus, chose to parse for 11.0, and use gettune for other releases.
@@ -750,50 +752,50 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64& maxProcessMemorySize)
 {
     long               ret;
 
-    // Initialize the return parameter in case kmtune is not available. 
+    // Initialize the return parameter in case kmtune is not available.
     maxProcessMemorySize = 0;
-    
+
     ret = sysconf (_SC_KERNEL_BITS);
     if (ret == -1)
-    { 
+    {
        return false;
     }
-   
-    // First, check if we're an 11.0 system, if so, use kmtune parsing 
+
+    // First, check if we're an 11.0 system, if so, use kmtune parsing
     // If have many such checks, can store off Release/Version versus
     // getting as needed.
 
     struct utsname  unameInfo;
-    // Call uname and check for any errors. 
+    // Call uname and check for any errors.
     if (uname(&unameInfo) < 0)
     {
        return false;
     }
 
     // Need to check if 32-bit or 64-bit to use the suitable name
-    if (ret == 32) 
+    if (ret == 32)
     {  // we're 32 bit
-       if (strcmp(unameInfo.release,"B.11.00")==0) 
+       if (strcmp(unameInfo.release,"B.11.00")==0)
        {
           // Use kmtune on 11.0 (since don't have gettune)
           return (getMaxProcMemViaKmtune(true, maxProcessMemorySize));
        }
-       else 
-       { 
+       else
+       {
           // can use gettune call 11.11 and onwards (won't be WBEM pre-11.0)
           return (getMaxProcMemViaGettune(true, maxProcessMemorySize));
        }
     } // end if (ret == 32)
 
     else   // so ret was 64 (only returns -1, 32, or 64)
-    {   
-       if (strcmp(unameInfo.release,"B.11.00")==0) 
+    {
+       if (strcmp(unameInfo.release,"B.11.00")==0)
        {
           // Use kmtune on 11.0 (since don't have gettune)
           return (getMaxProcMemViaKmtune(false, maxProcessMemorySize));
        }
-       else 
-       { 
+       else
+       {
           // can use gettune call 11.11 and onwards (won't be WBEM pre-11.0)
           return (getMaxProcMemViaGettune(false, maxProcessMemorySize));
        }
@@ -887,7 +889,7 @@ Boolean OperatingSystem::getMaxProcsPerUser (Uint32& maxProcsPerUser)
    Calculates the information from the local time and boot time.
    Could also consider use of uptime information.  Ideally, would
    like to have consistency across the time-related properties
-   (e.g., uptime = local time - Boot time). 
+   (e.g., uptime = local time - Boot time).
   */
 Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 {
@@ -912,7 +914,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 /**
    getOperatingSystemCapability method for HP-UX implementation of OS Provider
 
-   Gets information from sysconf call (using _SC_KERNEL_BITS).  
+   Gets information from sysconf call (using _SC_KERNEL_BITS).
    */
 Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
 {
@@ -939,7 +941,7 @@ Boolean OperatingSystem::getOperatingSystemCapability(String& scapability)
    Finds executable in /sbin, /usr/bin, or /usr/local/sbin and invokes.
    Currently disabled (as we don't want folks rebooting systems yet)
 
-   Invokes as via system system call, so have full checking of user's 
+   Invokes as via system system call, so have full checking of user's
    authorization (already authenticated by CIMOM)
    */
 Uint32 OperatingSystem::_reboot()

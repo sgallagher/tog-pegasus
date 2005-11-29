@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Logger.h>
-#include "OperatingSystemProvider.h"
+#include "OperatingSystem.h"
 
 #include <time.h>
 #include <timers.h>
@@ -85,12 +85,12 @@ OperatingSystem::~OperatingSystem(void)
 //
 // ================================================================================
 // NAME              : getUtilGetHostName
-// DESCRIPTION       : Gets the name of the host system from gethostname 
+// DESCRIPTION       : Gets the name of the host system from gethostname
 //                      and gethostbyname.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -123,13 +123,13 @@ static Boolean getUtilGetHostName(String & csName)
 
 //
 // ================================================================================
-// NAME              : convertToCIMDateString 
+// NAME              : convertToCIMDateString
 // DESCRIPTION       : Converts a tm struct to a CIMDateTime formatted
 //                      char *.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -151,12 +151,12 @@ int convertToCIMDateString(struct tm *t, char *time)
 
 //
 // ================================================================================
-// NAME              : get_time 
+// NAME              : get_time
 // DESCRIPTION       : Returns a tm structure, which contains the current time.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -187,9 +187,9 @@ struct tm *get_time()
 // NAME              : GetFreeMem
 // DESCRIPTION       : kernel routine - link/sysexe to pick up SCH$GL_FREECNT
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -207,11 +207,11 @@ int GetFreeMem(long *pFreeMem)
 //
 // ================================================================================
 // NAME              : getCSName
-// DESCRIPTION       : 
+// DESCRIPTION       :
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -225,9 +225,9 @@ Boolean OperatingSystem::getCSName(String & csName)
 // NAME              : getName
 // DESCRIPTION       : Calls uname() to get the operating system name.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -251,9 +251,9 @@ Boolean OperatingSystem::getName(String & osName)
 // NAME              : getCaption
 // DESCRIPTION       : Return a string constant for the caption.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -268,9 +268,9 @@ Boolean OperatingSystem::getCaption(String & caption)
 // NAME              : getDescription
 // DESCRIPTION       : Return a string constant for the description.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -286,12 +286,12 @@ Boolean OperatingSystem::getDescription(String & description)
 //
 // ================================================================================
 // NAME              : getInstallDate
-// DESCRIPTION       : Get the date that the OS was installed. Requires 
+// DESCRIPTION       : Get the date that the OS was installed. Requires
 //                      VMS SYSLCK priviledge.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -459,9 +459,9 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime & installDate)
 // NAME              : getStatus
 // DESCRIPTION       : Since the OS is up and running, we'll return unknown here.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -476,9 +476,9 @@ Boolean OperatingSystem::getStatus(String & status)
 // NAME              : getVersion
 // DESCRIPTION       : Uses uname system call to extract the release and version.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -505,9 +505,9 @@ Boolean OperatingSystem::getVersion(String & osVersion)
 // NAME              : getOSType
 // DESCRIPTION       : Return OSType value for OpenVms.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -522,9 +522,9 @@ Boolean OperatingSystem::getOSType(Uint16 & osType)
 // NAME              : getOtherTypeDescription
 // DESCRIPTION       : Return NULL since we have an OSType.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -539,9 +539,9 @@ otherTypeDescription = String::EMPTY;
 // NAME              : getLastBootUpTime
 // DESCRIPTION       : Get the time the OS was last booted.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -657,9 +657,9 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime & lastBootUpTime)
 // NAME              : getLocalDateTime
 // DESCRIPTION       : Get the local date and time.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -688,9 +688,9 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime & localDateTime)
 // NAME              : getCurrentTimeZone
 // DESCRIPTION       : Get the number of minutes that OS is offset from GMT.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -720,9 +720,9 @@ Boolean OperatingSystem::getCurrentTimeZone(Sint16 & currentTimeZone)
 // NAME              : getNumberOfLicensedUsers
 // DESCRIPTION       : Get the number of user licenses for the OS.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -834,9 +834,9 @@ Boolean OperatingSystem::getNumberOfLicensedUsers(Uint32 & numberOfLicensedUsers
 // NAME              : getNumberOfUsers
 // DESCRIPTION       : Number of user sessions.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1074,8 +1074,8 @@ Boolean OperatingSystem::getNumberOfUsers(Uint32 & numberOfUsers)
 // NAME              : getNumberOfProcesses
 // DESCRIPTION       : Number of process contexts currently loaded or running.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
 // NOTES             : VMS WORLD priviledge is needed for this routine.
 // ================================================================================
 //
@@ -1255,9 +1255,9 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32 & numberOfProcesses)
 // NAME              : getMaxNumberOfProcesses
 // DESCRIPTION       : Maximum number of process contexts supported.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1302,9 +1302,9 @@ Boolean OperatingSystem::getMaxNumberOfProcesses(Uint32 & mMaxProcesses)
 // NAME              : getTotalSwapSpaceSize
 // DESCRIPTION       : Total system swap space in Kbytes.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1349,10 +1349,10 @@ Boolean OperatingSystem::getTotalSwapSpaceSize(Uint64 & mTotalSwapSpaceSize)
 // NAME              : getTotalVirtualMemorySize
 // DESCRIPTION       : Number of Kbytes of virtual memory for this process.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
 // NOTES             : This doesn't map well in VMS. Pagefile quota is the closest
-//                     thing but it's per process and reports the quota from the 
+//                     thing but it's per process and reports the quota from the
 //                     current process.
 // ================================================================================
 //
@@ -1392,10 +1392,10 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64 & total)
 // NAME              : getFreeVirtualMemory
 // DESCRIPTION       : Number of Kbytes of unused virtual memory for this process.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : This doesn't map well in VMS. Free pagefile quota of the 
-//                      default process is the closest thing to the requested 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             : This doesn't map well in VMS. Free pagefile quota of the
+//                      default process is the closest thing to the requested
 //                      value.
 // ================================================================================
 //
@@ -1435,9 +1435,9 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64 & freeVirtualMemory)
 // NAME              : getFreePhysicalMemory
 // DESCRIPTION       : Number of Kbytes of physical memory unused.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1478,9 +1478,9 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64 & total)
 // NAME              : getTotalVisibleMemorySize
 // DESCRIPTION       : Number of Kbytes of physical memory.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1525,12 +1525,12 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64 & memory)
 //
 // ================================================================================
 // NAME              : getSizeStoredInPagingFiles
-// DESCRIPTION       : Number of Kbytes that can be stored in the OS's paging 
+// DESCRIPTION       : Number of Kbytes that can be stored in the OS's paging
 //                      files.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1573,12 +1573,12 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64 & total)
 //
 // ================================================================================
 // NAME              : getFreeSpaceInPagingFiles
-// DESCRIPTION       : Number of Kbytes that can be mapped into the OS's paging 
+// DESCRIPTION       : Number of Kbytes that can be mapped into the OS's paging
 //                      files without causing other pages to be swapped out.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1624,9 +1624,9 @@ Boolean OperatingSystem::getFreeSpaceInPagingFiles(Uint64 & freeSpaceInPagingFil
 // DESCRIPTION       : Maximum amount of Kbytes of memory that can be allocated to
 //                      this process.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1669,13 +1669,13 @@ Boolean OperatingSystem::getMaxProcessMemorySize(Uint64 & maxProcessMemorySize)
 //
 // ================================================================================
 // NAME              : getDistributed
-// DESCRIPTION       : Determine whether the OS is distributed across several 
-//                      nodes. If the system is a cluster member, it is 
+// DESCRIPTION       : Determine whether the OS is distributed across several
+//                      nodes. If the system is a cluster member, it is
 //                      distributed.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1720,9 +1720,9 @@ Boolean OperatingSystem::getDistributed(Boolean & distributed)
 // NAME              : getMaxProcsPerUser
 // DESCRIPTION       : Maximum number of procs this user can have.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1767,9 +1767,9 @@ Boolean OperatingSystem::getMaxProcsPerUser(Uint32 & maxProcsPerUser)
 // NAME              : getSystemUpTime
 // DESCRIPTION       : Elapsed time since the OS was booted, in seconds.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1881,9 +1881,9 @@ Boolean OperatingSystem::getSystemUpTime(Uint64 & mUpTime)
 // NAME              : getOperatingSystemCapability
 // DESCRIPTION       : The OS capability.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1898,9 +1898,9 @@ Boolean OperatingSystem::getOperatingSystemCapability(String & scapability)
 // NAME              : _reboot
 // DESCRIPTION       : Method to reboot the system.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 
@@ -1914,9 +1914,9 @@ Uint32 OperatingSystem::_reboot()
 // NAME              : _shutdown
 // DESCRIPTION       : Method to shutdown system.
 // ASSUMPTIONS       : None
-// PRE-CONDITIONS    : 
-// POST-CONDITIONS   : 
-// NOTES             : 
+// PRE-CONDITIONS    :
+// POST-CONDITIONS   :
+// NOTES             :
 // ================================================================================
 //
 

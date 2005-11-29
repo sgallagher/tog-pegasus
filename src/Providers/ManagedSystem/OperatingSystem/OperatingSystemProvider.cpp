@@ -42,6 +42,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Provider/ProviderException.h>
+
+PEGASUS_USING_PEGASUS;
+
 #include "OperatingSystemProvider.h"
 #include "OperatingSystem.h"
 

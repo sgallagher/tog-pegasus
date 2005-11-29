@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -37,7 +37,9 @@
 //               Marek Szermutzky, IBM, (mszermutzky@de.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#include "OperatingSystem.h"
+#include <Pegasus/Common/Config.h>
+
+PEGASUS_USING_PEGASUS;
 
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "OperatingSystem_HPUX.cpp"
@@ -52,7 +54,7 @@
 #elif defined (PEGASUS_OS_VMS)
 # include "OperatingSystem_Vms.cpp"
 #elif defined (PEGASUS_OS_SOLARIS)
-# include "OperatingSystem_Solaris.cpp" 
+# include "OperatingSystem_Solaris.cpp"
 #elif defined (PEGASUS_OS_ZOS)
 #include "OperatingSystem_zOS.cpp"
 #else

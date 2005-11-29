@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -40,12 +40,15 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
+PEGASUS_USING_PEGASUS;
+PEGASUS_USING_STD;
+
 #include "OperatingSystemProvider.h"
 
 #define OSP_DEBUG(X) // cout << "OS Provider" << X << endl;
-#define OPERATINGSYSTEMPROVIDERNAME "PG_OperatingSystemProvider" 
+#define OPERATINGSYSTEMPROVIDERNAME "PG_OperatingSystemProvider"
 
-extern "C" 
+extern "C"
 PEGASUS_EXPORT CIMProvider* PegasusCreateProvider(const String& providerName)
 {
    if (String::equalNoCase(providerName, OPERATINGSYSTEMPROVIDERNAME))

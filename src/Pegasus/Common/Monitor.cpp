@@ -571,12 +571,12 @@ Boolean Monitor::run(Uint32 milliseconds)
                         // read the data
                         // and set ourself back to IDLE
 
-		   	_entries[indx]._status.get() == _MonitorEntry::BUSY;
+		   	_entries[indx]._status = _MonitorEntry::BUSY;
 			static char buffer[2];
       			Socket::disableBlocking(_entries[indx].socket);
       			Sint32 amt = Socket::read(_entries[indx].socket,&buffer, 2);
       			Socket::enableBlocking(_entries[indx].socket);
-			_entries[indx]._status.get() == _MonitorEntry::IDLE;
+			_entries[indx]._status = _MonitorEntry::IDLE;
 		}
 		else
 		{

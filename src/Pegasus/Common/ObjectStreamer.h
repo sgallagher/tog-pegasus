@@ -63,7 +63,7 @@ public:
 
    virtual void write(PEGASUS_STD(ostream)& os, Buffer& in)
    {
-      os.write((char*)in.getData(), in.size());
+      os.write(in.getData(), static_cast<PEGASUS_STD(streamsize)>(in.size()));
    }
 };
 

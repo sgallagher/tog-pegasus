@@ -32,7 +32,8 @@
 #ifndef _Pegasus_StringRep_h
 #define _Pegasus_StringRep_h
 
-#include <Pegasus/Common/IPC.h>
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/AtomicInt.h>
 #include <new>
 
 PEGASUS_NAMESPACE_BEGIN

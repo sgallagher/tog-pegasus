@@ -29,10 +29,10 @@
 //
 // Author: Mike Brasher (mbrasher@austin.rr.com)
 //
-// Modified By: 
+// Modified By:
 //     Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //     Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3297
-//     David Dillard, VERITAS Software Corp. (david.dillard@veritas.com)
+//     David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //     Mike Brasher (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ PEGASUS_NAMESPACE_BEGIN
 // Compile-time macros (undefined by default).
 //
 //     PEGASUS_STRING_NO_THROW -- suppresses throwing of exceptions
-//      
+//
 //     PEGASUS_STRING_NO_UTF8 -- don't generate slower UTF8 code.
 //
 //==============================================================================
@@ -70,7 +70,7 @@ PEGASUS_NAMESPACE_BEGIN
 // Note: this table is much faster than the system toupper(). Please do not
 // change.
 
-const Uint8 _toUpperTable[256] = 
+const Uint8 _toUpperTable[256] =
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -109,7 +109,7 @@ const Uint8 _toUpperTable[256] =
 // Note: this table is much faster than the system tulower(). Please do not
 // change.
 
-const Uint8 _toLowerTable[256] = 
+const Uint8 _toLowerTable[256] =
 {
     0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
     0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -339,8 +339,8 @@ static void _StringThrowBadUTF8(Uint32 index)
 }
 
 static size_t _copyFromUTF8(
-    Uint16* dest, 
-    const char* src, 
+    Uint16* dest,
+    const char* src,
     size_t n,
     size_t& utf8_error_index)
 {
@@ -435,7 +435,7 @@ static size_t _copyFromUTF8(
     return p - dest;
 }
 
-// Note: dest must be at least three times src (plus an extra byte for 
+// Note: dest must be at least three times src (plus an extra byte for
 // terminator).
 static inline size_t _copyToUTF8(char* dest, const Uint16* src, size_t n)
 {
@@ -813,11 +813,11 @@ void String::reserveCapacity(Uint32 cap)
 
 CString String::getCString() const
 {
-    // A UTF8 string can have three times as many characters as its UTF16 
-    // counterpart, so we allocate extra memory for the worst case. In the 
+    // A UTF8 string can have three times as many characters as its UTF16
+    // counterpart, so we allocate extra memory for the worst case. In the
     // best case, we may need only one third of the memory allocated. But
-    // downsizing the string afterwards is expensive and unecessary since 
-    // CString objects are usually short-lived (disappearing after only a few 
+    // downsizing the string afterwards is expensive and unecessary since
+    // CString objects are usually short-lived (disappearing after only a few
     // instructions). CString objects are typically created on the stack as
     // means to obtain a char* pointer.
 
@@ -924,7 +924,7 @@ Uint32 String::find(Char16 c) const
     Uint16* p = (Uint16*)_find(_rep->data, _rep->size, c);
 
     if (p)
-        return p - _rep->data;
+        return static_cast<Uint32>(p - _rep->data);
 
     return PEG_NOT_FOUND;
 }
@@ -939,7 +939,7 @@ Uint32 String::find(Uint32 index, Char16 c) const
     Uint16* p = (Uint16*)_find(_rep->data + index, _rep->size - index, c);
 
     if (p)
-        return p - _rep->data;
+        return static_cast<Uint32>(p - _rep->data);
 
     return PEG_NOT_FOUND;
 }
@@ -960,7 +960,7 @@ Uint32 StringFindAux(
             break;
 
         if (memcmp(p, s, n * sizeof(Uint16)) == 0)
-            return p - _rep->data;
+            return static_cast<Uint32>(p - _rep->data);
 
         p++;
         rem -= p - data;
@@ -988,7 +988,7 @@ Uint32 String::reverseFind(Char16 c) const
     while (q != p)
     {
         if (*--q == x)
-            return q - p;
+            return static_cast<Uint32>(q - p);
     }
 
     return PEG_NOT_FOUND;
@@ -1004,8 +1004,8 @@ void String::toLower()
             _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
-        // Since context-sensitive casing looks at adjacent chars, this 
-        // prevents optimizations where the us-ascii is converted before 
+        // Since context-sensitive casing looks at adjacent chars, this
+        // prevents optimizations where the us-ascii is converted before
         // calling ICU.
         // The string may shrink or expand after the convert.
 
@@ -1016,7 +1016,7 @@ void String::toLower()
 
         int32_t newSize = u_strToLower(
             NULL, 0, (UChar*)_rep->data, _rep->size, NULL, &err);
-        
+
         err = U_ZERO_ERROR;
 
         //// Reserve enough space for the result.
@@ -1058,8 +1058,8 @@ void String::toUpper()
             _rep = StringRep::copyOnWrite(_rep);
 
         // This will do a locale-insensitive, but context-sensitive convert.
-        // Since context-sensitive casing looks at adjacent chars, this 
-        // prevents optimizations where the us-ascii is converted before 
+        // Since context-sensitive casing looks at adjacent chars, this
+        // prevents optimizations where the us-ascii is converted before
         // calling ICU.
         // The string may shrink or expand after the convert.
 
@@ -1245,7 +1245,7 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 
     if (*p2)
         return false;
-    
+
     return true;
 
 #else /* PEGASUS_HAS_ICU */
@@ -1258,7 +1258,7 @@ Boolean String::equalNoCase(const String& s1, const char* s2)
 
 Boolean String::equal(const String& s1, const String& s2)
 {
-    return s1._rep->size == s2._rep->size && memcmp(s1._rep->data, 
+    return s1._rep->size == s2._rep->size && memcmp(s1._rep->data,
         s2._rep->data, s1._rep->size * sizeof(Uint16)) == 0;
 }
 
@@ -1294,7 +1294,7 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
     const char* utf8str = cstr;
     os << utf8str;
     return os;
-#else    
+#else
 
 #if defined(PEGASUS_HAS_ICU)
 
@@ -1310,10 +1310,10 @@ PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& os, const String& str)
         os << buf;
         os.flush();
         delete [] buf;
-        return os;       
+        return os;
     }
 
-#endif  // PEGASUS_HAS_ICU 
+#endif  // PEGASUS_HAS_ICU
 
     for (Uint32 i = 0, n = str.size(); i < n; i++)
     {
@@ -1392,11 +1392,11 @@ String optimizations:
                 return (x & 0xFF00) ? x : _upper[x];
             }
 
-        This outperforms the system implementation by avoiding an anding 
+        This outperforms the system implementation by avoiding an anding
         operation.
 
-    6.  Implemented char* version of the following member functions to 
-        eliminate unecessary creation of anonymous string objects 
+    6.  Implemented char* version of the following member functions to
+        eliminate unecessary creation of anonymous string objects
         (temporaries).
 
             String(const String& s1, const char* s2);
@@ -1426,7 +1426,7 @@ String optimizations:
             String operator+(const String& s1, const char* s2)
             String operator+(const char* s1, const String& s2)
 
-    7.  Optimized _roundUpToPow2(), used in rounding the capacity to the next 
+    7.  Optimized _roundUpToPow2(), used in rounding the capacity to the next
         power of two (algorithm from the book "Hacker's Delight").
 
             static Uint32 _roundUpToPow2(Uint32 x)
@@ -1446,7 +1446,7 @@ String optimizations:
             }
 
     8.  Implemented "concatenating constructors" to eliminate temporaries
-        created by operator+(). This scheme employs the "return-value 
+        created by operator+(). This scheme employs the "return-value
         optimization" described by Stan Lippman.
 
             inline String operator+(const String& s1, const String& s2)
@@ -1464,13 +1464,13 @@ String optimizations:
         Uint16 in any case.
 
     12. Implemented conditional logic (#if) allowing error checking logic to
-        be excluded to better performance. Examples include bounds checking 
+        be excluded to better performance. Examples include bounds checking
         and null-pointer checking.
 
     13. Used memcpy() and memcmp() where possible. These are implemented using
         the rep family of intructions under Intel and are much faster.
 
-    14. Used loop unrolling, jump-tables, and short-circuiting to reduce UTF8 
+    14. Used loop unrolling, jump-tables, and short-circuiting to reduce UTF8
         copy routine overhead.
 
     15. Added ASCII7 form of the constructor and assign().

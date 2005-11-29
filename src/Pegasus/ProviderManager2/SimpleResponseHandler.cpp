@@ -163,11 +163,11 @@ void SimpleInstanceResponseHandler::clear(void)
 
 void SimpleInstanceResponseHandler::deliver(const CIMInstance & instance)
 {
-    Logger::put(
+    PEG_LOGGER_TRACE((
         Logger::STANDARD_LOG,
         System::CIMSERVER,
         Logger::TRACE,
-        "SimpleInstanceResponseHandler::deliver()");
+        "SimpleInstanceResponseHandler::deliver()"));
 
     _objects.append(instance);
 

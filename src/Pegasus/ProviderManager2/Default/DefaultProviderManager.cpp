@@ -389,11 +389,13 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleEnumerateInstancesRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE, 
+	    "DefaultProviderManager::handleEnumerateInstancesRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->className.getString());
+            request->className.getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -486,11 +488,13 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
     // process the request
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleEnumerateInstanceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleEnumerateInstanceNamesRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->className.getString());
+            request->className.getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -578,11 +582,13 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleCreateInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleCreateInstanceRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->newInstance.getPath().getClassName().getString());
+            request->newInstance.getPath().getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -672,11 +678,13 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleModifyInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleModifyInstanceRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->modifiedInstance.getPath().getClassName().getString());
+            request->modifiedInstance.getPath().getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -770,11 +778,13 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleDeleteInstanceRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleDeleteInstanceRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
+            request->instanceName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -862,11 +872,13 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleExecQueryRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleExecQueryRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->className.getString());
+            request->className.getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -962,11 +974,13 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
     // process the request
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleAssociatorsRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleAssociatorsRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
+            request->objectName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1062,11 +1076,13 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
     // process the request
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleAssociationNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleAssociationNamesRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
+            request->objectName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1159,11 +1175,13 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
     // process the request
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleReferencesRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleReferencesRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
+            request->objectName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1262,11 +1280,13 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
     // process the request
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleReferenceNamesRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleReferenceNamesRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->objectName.getClassName().getString());
+            request->objectName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1361,11 +1381,13 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleGetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleGetPropertyRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
+            request->instanceName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1456,11 +1478,13 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleSetPropertyRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleSetPropertyRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
+            request->instanceName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1554,11 +1578,13 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
 
     try
     {
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleInvokeMethodRequest - Host name: $0  Name space: $1  Class name: $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleInvokeMethodRequest - "
+	    "Host name: $0  Name space: $1  Class name: $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            request->instanceName.getClassName().getString());
+            request->instanceName.getClassName().getString()));
 
         // make target object path
         CIMObjectPath objectPath(
@@ -1662,11 +1688,13 @@ Message * DefaultProviderManager::handleCreateSubscriptionRequest(const Message 
             }
         }
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Class name(s): $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleCreateSubscriptionRequest - "
+	    "Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            temp);
+            temp));
 
 		CIMInstance req_provider, req_providerModule;
 		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
@@ -1807,11 +1835,13 @@ Message * DefaultProviderManager::handleModifySubscriptionRequest( const Message
             }
         }
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleCreateSubscriptionRequest - Host name: $0  Name space: $1  Class name(s): $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleCreateSubscriptionRequest - "
+	    "Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            temp);
+            temp));
 			
 		CIMInstance req_provider, req_providerModule;
 		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
@@ -1929,11 +1959,13 @@ Message * DefaultProviderManager::handleDeleteSubscriptionRequest(const Message 
             }
         }
 
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "DefaultProviderManager::handleDeleteSubscriptionRequest - Host name: $0  Name space: $1  Class name(s): $2",
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
+            "DefaultProviderManager::handleDeleteSubscriptionRequest - "
+	    "Host name: $0  Name space: $1  Class name(s): $2",
             System::getHostName(),
             request->nameSpace.getString(),
-            temp);
+            temp));
 
 		CIMInstance req_provider, req_providerModule;
 		ProviderIdContainer pidc = (ProviderIdContainer)request->operationContext.get(ProviderIdContainer::NAME);
@@ -2543,7 +2575,7 @@ void DefaultProviderManager::_callEnableIndications
         PEG_TRACE_STRING (TRC_PROVIDERMANAGER, Tracer::LEVEL2,
             "CIMException: " + e.getMessage ());
 
-        Logger::put_l (Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::WARNING,
             "ProviderManager.Default.DefaultProviderManager."
                 "ENABLE_INDICATIONS_FAILED",
             "Failed to enable indications for provider $0: $1.", 

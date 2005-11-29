@@ -227,12 +227,13 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             _totalReceivedNotSupported++;
         }
         _totalReceivedErrors++;
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE,
             String(func + "Response has error. "
-                "Name Space: $0  Class name: $1 Response Sequence: $2"),
+            "Name Space: $0  Class name: $1 Response Sequence: $2"),
             _nameSpace.getString(),
             _className.getString(),
-            _totalReceived);
+            _totalReceived));
     }
 
     Boolean isComplete = response.isComplete();
@@ -275,7 +276,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
         }
         else
         {
-            Logger::put(
+            PEG_LOGGER_TRACE((
                 Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                 func + "All completed responses ($0) for current request "
                     "have been accounted for but expected count ($1) does "
@@ -284,7 +285,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
                 _totalReceivedComplete,
                 _totalReceivedExpected,
                 _totalReceived,
-                _totalReceivedErrors);
+                _totalReceivedErrors));
             Tracer::trace(
                 __FILE__, __LINE__, TRC_DISCARDED_DATA, Tracer::LEVEL2,
                 "All completed responses (%u) for current request "
@@ -466,8 +467,9 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
                 static const char failMsg[] = "Invalid response type to aggregate: ";
                 char typeP[11];
                 sprintf(typeP,"%u", type);
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    String(func) + String(failMsg) + String(typeP));
+                PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+		    Logger::TRACE,
+                    String(func) + String(failMsg) + String(typeP)));
                 PEGASUS_ASSERT(0);
                 break;
         } // switch
@@ -538,8 +540,8 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
     {
         static const char failMsg[] =
             "Failed to resequence/aggregate/forward response";
-        Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            String(func) + String(failMsg));
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	    Logger::TRACE, String(func) + String(failMsg)));
 
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)
             response->cimException =
@@ -927,11 +929,12 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
             // Get the complete list of subclass names
             _repository->getSubClassNames(nameSpace,
                  className, true, subClassNames);
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                        "CIMOperationRequestDispatcher::_getSubClassNames - "
-                            "Name Space: $0  Class name: $1",
-                        nameSpace.getString(),
-                        className.getString());
+            PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+		Logger::TRACE,
+                "CIMOperationRequestDispatcher::_getSubClassNames - "
+                "Name Space: $0  Class name: $1",
+                nameSpace.getString(),
+                className.getString()));
         }
         catch(...)
         {
@@ -1262,7 +1265,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
             " provider " + providerInfo.controlProviderName + " found."
             + " return = " + (providerInfo.hasProvider ? "true" : "false"));
 
-    Logger::put(
+    PEG_LOGGER_TRACE((
         Logger::STANDARD_LOG,
         System::CIMSERVER,
         Logger::TRACE,
@@ -1270,7 +1273,7 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupNewInstanceProvider(
         nameSpace.getString(),
         className.getString(),
         providerInfo.serviceName,
-        providerInfo.controlProviderName);
+        providerInfo.controlProviderName));
 
     PEG_METHOD_EXIT();
 
@@ -2288,9 +2291,10 @@ void CIMOperationRequestDispatcher::handleGetClassRequest(
          request->propertyList);
 
       PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                  "CIMOperationRequestDispatcher::handleGetClassRequest - Name Space: $0  Class name: $1",
-                  request->nameSpace.getString(),
-                  request->className.getString()));
+	  "CIMOperationRequestDispatcher::handleGetClassRequest - "
+	  "Name Space: $0  Class name: $1",
+          request->nameSpace.getString(),
+          request->className.getString()));
    }
    catch(const CIMException& exception)
    {
@@ -2345,13 +2349,14 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
 
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
-       Logger::put(
+       PEG_LOGGER_TRACE((
            Logger::STANDARD_LOG,
            System::CIMSERVER,
            Logger::TRACE,
-           "CIMOperationRequestDispatcher::handleGetInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+           "CIMOperationRequestDispatcher::handleGetInstanceRequest - "
+	   "CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
            request->nameSpace.getString(),
-           className.getString());
+           className.getString()));
 
       CIMGetInstanceResponseMessage* response =
           new CIMGetInstanceResponseMessage(
@@ -2494,10 +2499,11 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
          request->nameSpace,
          request->className);
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                  "CIMOperationRequestDispatcher::handleDeleteClassRequest - Name Space: $0  Class Name: $1",
-                  request->nameSpace.getString(),
-                  request->className.getString());
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	  "CIMOperationRequestDispatcher::handleDeleteClassRequest - "
+	  "Name Space: $0  Class Name: $1", 
+	  request->nameSpace.getString(),
+	  request->className.getString()));
 
    }
 
@@ -2550,13 +2556,14 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
 
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
-       Logger::put(
+       PEG_LOGGER_TRACE((
            Logger::STANDARD_LOG,
            System::CIMSERVER,
            Logger::TRACE,
-           "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+           "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - "
+	   "CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
            request->nameSpace.getString(),
-           className.getString());
+           className.getString()));
 
       CIMDeleteInstanceResponseMessage* response =
          new CIMDeleteInstanceResponseMessage(
@@ -2617,13 +2624,14 @@ void CIMOperationRequestDispatcher::handleDeleteInstanceRequest(
               request->nameSpace,
               request->instanceName);
 
-          Logger::put(
+          PEG_LOGGER_TRACE((
               Logger::STANDARD_LOG,
               System::CIMSERVER,
               Logger::TRACE,
-              "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - Name Space: $0  Instance Name: $1",
+              "CIMOperationRequestDispatcher::handleDeleteInstanceRequest - "
+	      "Name Space: $0  Instance Name: $1",
               request->nameSpace.getString(),
-              request->instanceName.toString());
+              request->instanceName.toString()));
       }
       catch(const CIMException& exception)
       {
@@ -2691,10 +2699,11 @@ void CIMOperationRequestDispatcher::handleCreateClassRequest(
          request->newClass,
          ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
             getLanguages());
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                  "CIMOperationRequestDispatcher::handleCreateClassRequest - Name Space: $0  Class Name: $1",
-                  request->nameSpace.getString(),
-                  request->newClass.getClassName().getString());
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	  "CIMOperationRequestDispatcher::handleCreateClassRequest - "
+	  "Name Space: $0  Class Name: $1",
+          request->nameSpace.getString(),
+          request->newClass.getClassName().getString()));
    }
    catch(const CIMException& exception)
    {
@@ -2745,13 +2754,14 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
 
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
-       Logger::put(
+       PEG_LOGGER_TRACE((
            Logger::STANDARD_LOG,
            System::CIMSERVER,
            Logger::TRACE,
-           "CIMOperationRequestDispatcher::handleCreateInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+           "CIMOperationRequestDispatcher::handleCreateInstanceRequest - "
+	   "CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
            request->nameSpace.getString(),
-           className.getString());
+           className.getString()));
 
        CIMCreateInstanceResponseMessage* response =
            new CIMCreateInstanceResponseMessage(
@@ -2820,13 +2830,14 @@ void CIMOperationRequestDispatcher::handleCreateInstanceRequest(
                    ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
                        getLanguages());
 
-           Logger::put(
+           PEG_LOGGER_TRACE((
                Logger::STANDARD_LOG,
                System::CIMSERVER,
                Logger::TRACE,
-               "CIMOperationRequestDispatcher::handleCreateInstanceRequest - Name Space: $0  Instance name: $1",
+               "CIMOperationRequestDispatcher::handleCreateInstanceRequest - "
+	       "Name Space: $0  Instance name: $1",
                request->nameSpace.getString(),
-               request->newInstance.getClassName().getString());
+               request->newInstance.getClassName().getString()));
        }
        catch(const CIMException& exception)
        {
@@ -2950,13 +2961,14 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
 
    if (checkClassException.getCode() != CIM_ERR_SUCCESS)
    {
-       Logger::put(
+       PEG_LOGGER_TRACE((
            Logger::STANDARD_LOG,
            System::CIMSERVER,
            Logger::TRACE,
-           "CIMOperationRequestDispatcher::handleModifyInstanceRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+           "CIMOperationRequestDispatcher::handleModifyInstanceRequest - "
+	   "CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
            request->nameSpace.getString(),
-           className.getString());
+           className.getString()));
 
        CIMModifyInstanceResponseMessage* response =
            new CIMModifyInstanceResponseMessage(
@@ -3021,13 +3033,14 @@ void CIMOperationRequestDispatcher::handleModifyInstanceRequest(
               request->includeQualifiers,request->propertyList,
               ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages());
 
-          Logger::put(
+          PEG_LOGGER_TRACE((
               Logger::STANDARD_LOG,
               System::CIMSERVER,
               Logger::TRACE,
-              "CIMOperationRequestDispatcher::handleModifiedInstanceRequest - Name Space: $0  Instance name: $1",
+              "CIMOperationRequestDispatcher::handleModifiedInstanceRequest - "
+	      "Name Space: $0  Instance name: $1",
               request->nameSpace.getString(),
-              request->modifiedInstance.getClassName().getString());
+              request->modifiedInstance.getClassName().getString()));
       }
       catch(const CIMException& exception)
       {
@@ -3099,10 +3112,11 @@ void CIMOperationRequestDispatcher::handleEnumerateClassesRequest(
          request->includeQualifiers,
          request->includeClassOrigin);
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::handleEnumerateClassesRequest - Name Space: $0  Class name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::handleEnumerateClassesRequest - "
+	 "Name Space: $0  Class name: $1",
          request->nameSpace.getString(),
-         request->className.getString());
+         request->className.getString()));
    }
 
    catch(const CIMException& exception)
@@ -3158,10 +3172,11 @@ void CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest(
          request->className,
          request->deepInheritance);
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest - Name Space: $0  Class name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::handleEnumerateClassNamesRequest - "
+	 "Name Space: $0  Class name: $1",
          request->nameSpace.getString(),
-         request->className.getString());
+         request->className.getString()));
    }
    catch(const CIMException& exception)
    {
@@ -3321,14 +3336,15 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
     // of instances returned.
     if(providerCount > _maximumEnumerateBreadth)
     {
-        Logger::put(
+        PEG_LOGGER_TRACE((
             Logger::STANDARD_LOG,
             System::CIMSERVER,
             Logger::TRACE,
-            "Request-too-broad exception.  Namespace: $0  Class Name: $1  Limit: $2  ProviderCount: $3",
+            "Request-too-broad exception.  Namespace: $0  Class Name: $1  "
+	    "Limit: $2  ProviderCount: $3",
             request->nameSpace.getString(),
             request->className.getString(),
-            _maximumEnumerateBreadth, providerCount);
+            _maximumEnumerateBreadth, providerCount));
 
         PEG_TRACE_STRING(
             TRC_DISPATCHER,
@@ -3691,7 +3707,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
     // of instances returned.
     if(providerCount > _maximumEnumerateBreadth)
     {
-        Logger::put(
+        PEG_LOGGER_TRACE((
             Logger::STANDARD_LOG,
             System::CIMSERVER,
             Logger::TRACE,
@@ -3699,7 +3715,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
             "Class Name: $1 Limit: $2  ProviderCount: $3",
             request->nameSpace.getString(),
             request->className.getString(),
-            _maximumEnumerateBreadth, providerCount);
+            _maximumEnumerateBreadth, providerCount));
 
         PEG_TRACE_STRING(
             TRC_DISPATCHER,
@@ -4039,11 +4055,11 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
         return;
     }
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "CIMOperationRequestDispatcher::handleAssociators - "
             "Name Space: $0  Class name: $1",
         request->nameSpace.getString(),
-        request->objectName.toString());
+        request->objectName.toString()));
 
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -4397,11 +4413,11 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesRequest(
         return;
     }
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "CIMOperationRequestDispatcher::handleAssociatorNames - "
             "Name Space: $0  Class name: $1",
         request->nameSpace.getString(),
-        request->objectName.toString());
+        request->objectName.toString()));
 
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -4727,11 +4743,11 @@ void CIMOperationRequestDispatcher::handleReferencesRequest(
         return;
     }
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "CIMOperationRequestDispatcher::handleReferences - "
             "Name Space: $0  Class name: $1",
         request->nameSpace.getString(),
-        request->objectName.toString());
+        request->objectName.toString()));
 
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -5059,11 +5075,11 @@ void CIMOperationRequestDispatcher::handleReferenceNamesRequest(
         return;
     }
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
         "CIMOperationRequestDispatcher::handleReferenceNames - "
             "Name Space: $0  Class name: $1",
         request->nameSpace.getString(),
-        request->objectName.toString());
+        request->objectName.toString()));
 
     //  ATTN-CAKG-P2-20020726:  The following condition does not correctly
     //  distinguish instanceNames from classNames in every case
@@ -5447,8 +5463,10 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
       if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
-         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CIMOperationRequestDispatcher::handleSetPropertyRequest - CIM exception has occurred.");
+         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, 
+	     System::CIMSERVER, Logger::TRACE,
+            "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
+	    "CIM exception has occurred."));
          CIMSetPropertyResponseMessage* response =
             new CIMSetPropertyResponseMessage(
                request->messageId,
@@ -5511,12 +5529,15 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             request->newValue,
             ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
                getLanguages());
-         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CIMOperationRequestDispatcher::handleSetPropertyRequest - Name Space: $0  Instance Name: $1  Property Name: $2  New Value: $3",
-            request->nameSpace.getString(),
-            request->instanceName.getClassName().getString(),
-            request->propertyName.getString(),
-            request->newValue.toString());
+         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	     Logger::TRACE, 
+	     "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
+	     "Name Space: $0  Instance Name: $1  Property Name: $2  New "
+	     "Value: $3",
+             request->nameSpace.getString(),
+             request->instanceName.getClassName().getString(),
+             request->propertyName.getString(),
+             request->newValue.toString()));
       }
       catch(const CIMException& exception)
       {
@@ -5581,10 +5602,11 @@ void CIMOperationRequestDispatcher::handleGetQualifierRequest(
          request->nameSpace,
          request->qualifierName);
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::handleGetQualifierRequest - Name Space: $0  Qualifier Name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::handleGetQualifierRequest - "
+	 "Name Space: $0  Qualifier Name: $1",
          request->nameSpace.getString(),
-         request->qualifierName.getString());
+         request->qualifierName.getString()));
    }
    catch(const CIMException& exception)
    {
@@ -5637,10 +5659,11 @@ void CIMOperationRequestDispatcher::handleSetQualifierRequest(
          request->qualifierDeclaration,
          ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
             getLanguages());
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::handleSetQualifierRequest - Name Space: $0  Qualifier Name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+	 "CIMOperationRequestDispatcher::handleSetQualifierRequest - "
+	 "Name Space: $0  Qualifier Name: $1",
          request->nameSpace.getString(),
-         request->qualifierDeclaration.getName().getString());
+         request->qualifierDeclaration.getName().getString()));
    }
    catch(const CIMException& exception)
    {
@@ -5692,10 +5715,11 @@ void CIMOperationRequestDispatcher::handleDeleteQualifierRequest(
          request->qualifierName);
 
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::handleDeleteQualifierRequest - Name Space: $0  Qualifier Name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::handleDeleteQualifierRequest - "
+	 "Name Space: $0  Qualifier Name: $1",
          request->nameSpace.getString(),
-         request->qualifierName.getString());
+         request->qualifierName.getString()));
    }
 
    catch(const CIMException& exception)
@@ -5748,9 +5772,10 @@ void CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest(
       qualifierDeclarations = _repository->enumerateQualifiers(
          request->nameSpace);
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest - Name Space: $0",
-         request->nameSpace.getString());
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::handleEnumerateQualifiersRequest - "
+	 "Name Space: $0",
+         request->nameSpace.getString()));
    }
 
    catch(const CIMException& exception)
@@ -5874,8 +5899,10 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
       if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
-         Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-            "CIMOperationRequestDispatcher::handleInvokeMethodRequest - CIM exception has occurred.");
+         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+	     Logger::TRACE,
+            "CIMOperationRequestDispatcher::handleInvokeMethodRequest - "
+	    "CIM exception has occurred."));
          response =
             new CIMInvokeMethodResponseMessage(
                request->messageId,
@@ -5908,10 +5935,11 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
                                                        className.getString());
        }
 
-       Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-          "CIMOperationRequestDispatcher::handleInvokeMethodRequest - CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
+       PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+          "CIMOperationRequestDispatcher::handleInvokeMethodRequest - "
+	  "CIM exist exception has occurred.  Name Space: $0  Class Name: $1",
           request->nameSpace.getString(),
-          className.getString());
+          className.getString()));
       CIMInvokeMethodResponseMessage* response =
          new CIMInvokeMethodResponseMessage(
             request->messageId,
@@ -6020,11 +6048,12 @@ void CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation(
         "CIMOperationRequestDispatcher::handleAssociatorNamesResponseAggregation");
     CIMAssociatorNamesResponseMessage * toResponse =
         (CIMAssociatorNamesResponseMessage *) poA->getResponse(0);
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::AssociatorNames Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::AssociatorNames Response - "
+	"Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
-        poA->numberResponses());
+        poA->numberResponses()));
 
     // This double loop has 2 purposes:
     // 1. To work backward and delete each response off the end of the array
@@ -6076,11 +6105,12 @@ void CIMOperationRequestDispatcher::handleAssociatorsResponseAggregation(
     CIMAssociatorsResponseMessage * toResponse =
     (CIMAssociatorsResponseMessage *) poA->getResponse(0);
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::Associators Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::Associators Response - "
+	"Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
-        poA->numberResponses());
+        poA->numberResponses()));
 
     // This double loop has 2 purposes:
     // 1. To work backward and delete each response off the end of the array
@@ -6133,11 +6163,12 @@ void CIMOperationRequestDispatcher::handleReferencesResponseAggregation(
     CIMReferencesResponseMessage * toResponse =
         (CIMReferencesResponseMessage *) poA->getResponse(0);
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::References Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::References Response - "
+	"Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
-        poA->numberResponses());
+        poA->numberResponses()));
 
     // This double loop has 2 purposes:
     // 1. To work backward and delete each response off the end of the array
@@ -6193,11 +6224,12 @@ void CIMOperationRequestDispatcher::handleReferenceNamesResponseAggregation(
 
     // Work backward and delete each response off the end of the array
     // adding it to the toResponse, which is really the first response.
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::ReferenceNames Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::ReferenceNames Response - "
+	"Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
-        poA->numberResponses());
+        poA->numberResponses()));
 
     // This double loop has 2 purposes:
     // 1. To work backward and delete each response off the end of the array
@@ -6248,11 +6280,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesResponseAggregat
     CIMEnumerateInstanceNamesResponseMessage * toResponse =
         (CIMEnumerateInstanceNamesResponseMessage *) poA->getResponse(0);
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::EnumerateInstanceNames Response - Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::EnumerateInstanceNames Response - "
+	"Name Space: $0  Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
-        poA->numberResponses());
+        poA->numberResponses()));
 
     // Work backward and delete each response off the end of the array
     for(Uint32 i = poA->numberResponses() - 1; i > 0; i--)
@@ -6286,11 +6319,12 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
     CIMEnumerateInstancesResponseMessage * toResponse =
         (CIMEnumerateInstancesResponseMessage *)poA->getResponse(0);
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Name Space: $0 Class name: $1 Response Count: poA->numberResponses",
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation"
+	"- Name Space: $0 Class name: $1 Response Count: poA->numberResponses",
         poA->_nameSpace.getString(),
         poA->_className.getString(),
-        poA->numberResponses());
+        poA->numberResponses()));
 
     CIMEnumerateInstancesRequestMessage * request =
         (CIMEnumerateInstancesRequestMessage *)poA->getRequest();
@@ -6309,11 +6343,13 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesResponseAggregation(
         poA->deleteResponse(i);
     }
 
-    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-        "CIMOperationRequestDispatcher::EnumerateInstancesResponseAggregation - Local Only: $0 Include Qualifiers: $1 Include Class Origin: $2",
+    PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+        "CIMOperationRequestDispatcher::"
+	"EnumerateInstancesResponseAggregation - "
+	"Local Only: $0 Include Qualifiers: $1 Include Class Origin: $2",
         (request->localOnly == true ? "true" : "false"),
         (request->includeQualifiers == true ? "true" : "false"),
-        (request->includeClassOrigin == true ? "true" : "false"));
+        (request->includeClassOrigin == true ? "true" : "false")));
 
     PEG_METHOD_EXIT();
 }
@@ -6483,10 +6519,13 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                         false, //includeClassOrigin,
                         CIMPropertyList());
 
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-                    "CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes - Name Space: $0  Class Name: $1",
+                PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+		    Logger::TRACE,
+                    "CIMOperationRequestDispatcher::"
+		    "_fixInvokeMethodParameterTypes - "
+		    "Name Space: $0  Class Name: $1",
                     request->nameSpace.getString(),
-                    request->instanceName.getClassName().getString());
+                    request->instanceName.getClassName().getString()));
                 }
                 catch (CIMException&)
                 {
@@ -6600,10 +6639,11 @@ void CIMOperationRequestDispatcher::_fixSetPropertyValueType(
          false, //includeClassOrigin,
          CIMPropertyList());
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::_fixSetPropertyValueType - Name Space: $0  Class Name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::_fixSetPropertyValueType - "
+	 "Name Space: $0  Class Name: $1",
          request->nameSpace.getString(),
-         request->instanceName.getClassName().getString());
+         request->instanceName.getClassName().getString()));
    }
    catch (CIMException& exception)
    {
@@ -6693,10 +6733,11 @@ void CIMOperationRequestDispatcher::_checkExistenceOfClass(
          false,
          CIMPropertyList());
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::_checkExistenceOfClass - Name Space: $0  Class Name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::_checkExistenceOfClass - "
+	 "Name Space: $0  Class Name: $1",
          nameSpace.getString(),
-         className.getString());
+         className.getString()));
    }
    catch(const CIMException& exception)
    {
@@ -6748,10 +6789,11 @@ CIMClass CIMOperationRequestDispatcher::_getClass(
          true,
          CIMPropertyList());
 
-      Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
-         "CIMOperationRequestDispatcher::_getClass - Name Space: $0  Class Name: $1",
+      PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+         "CIMOperationRequestDispatcher::_getClass - "
+	 "Name Space: $0  Class Name: $1",
          nameSpace.getString(),
-         className.getString());
+         className.getString()));
    }
    catch(const CIMException& exception)
    {

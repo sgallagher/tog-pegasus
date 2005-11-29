@@ -397,10 +397,12 @@ Boolean ProviderRegistrationManager::lookupInstanceProvider(
 
             // l10n
 
-            // throw PEGASUS_CIM_EXCEPTION(CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
-            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED,
-                                          MessageLoaderParms(CAPABILITY_NOT_REGISTERED_KEY,
-                                          CAPABILITY_NOT_REGISTERED));
+            // throw PEGASUS_CIM_EXCEPTION(
+	    //     CIM_ERR_FAILED, CAPABILITY_NOT_REGISTERED);
+	    static MessageLoaderParms _parms(
+		CAPABILITY_NOT_REGISTERED_KEY, CAPABILITY_NOT_REGISTERED);
+
+            throw PEGASUS_CIM_EXCEPTION_L(CIM_ERR_FAILED, _parms);
         }
 
         Array<CIMInstance> instances = providerCapability->getInstances();

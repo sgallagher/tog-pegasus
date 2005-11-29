@@ -34,8 +34,7 @@
 #include <Pegasus/Common/Constants.h>
 #include "Cimop.h"
 #include <iostream>
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#else
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <unistd.h>
 #endif
 #include <stdlib.h>
@@ -1317,7 +1316,7 @@ String _displayProperty(const CIMProperty &p)
   {
     s.append("[");
 
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
+#if defined(PEGASUS_COMPILER_MSVC)
     char buf[40];
     sprintf( buf, "%d", v.getArraySize() );
 #else

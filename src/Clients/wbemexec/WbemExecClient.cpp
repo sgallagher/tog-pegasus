@@ -53,7 +53,7 @@
 #include "WbemExecClient.h"
 
 #include <iostream>
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 # include <windows.h>
 #else
 # include <netinet/in.h>

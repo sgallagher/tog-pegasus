@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,7 +29,7 @@
 //
 // Author: Mike Day (mdday@us.ibm.com)
 //
-// Modified By:
+// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,10 +38,9 @@
 
 #include <Pegasus/Common/Config.h>
 #include <sys/types.h>
-#if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
-#else
+#if !defined(PEGASUS_OS_TYPE_WINDOWS)
 #include <unistd.h>
-#endif 
+#endif
 #include <Pegasus/Common/PegasusAssert.h>
 #include <iostream>
 #include <stdio.h>
@@ -67,14 +66,14 @@ class async_start : public AsyncOperationStart
 {
    public:
       typedef AsyncOperationStart Base;
-      
-      async_start(AsyncOpNode *op, 
+
+      async_start(AsyncOpNode *op,
 		  Uint32 start_q,
 		  Uint32 completion_q,
 		  Message *op_data);
 
       virtual ~async_start(void) { }
-      
+
 
    private:
       friend class test_async_queue;
@@ -88,11 +87,11 @@ class async_complete: public AsyncOperationResult
       async_complete(const async_start & start_op,
 		     Uint32 result,
 		     Message *result_data);
-      
+
       virtual ~async_complete(void) {    delete _result_data; }
-      
+
       Message *get_result_data(void);
-      
+
    private:
       Message *_result_data;
       friend class test_async_queue;
@@ -101,7 +100,7 @@ class async_complete: public AsyncOperationResult
 
 class test_async_queue : public MessageQueueService
 {
-   public: 
+   public:
       typedef MessageQueueService Base;
 
       enum ROLE
@@ -109,42 +108,40 @@ class test_async_queue : public MessageQueueService
 	 CLIENT,
 	 SERVER
       };
-      
+
       test_async_queue(ROLE role);
       virtual ~test_async_queue(void) { }
 
-      // pure virtuals that will go away eventually 
+      // pure virtuals that will go away eventually
       void handleEnqueue(void)
       {
 	 Message *msg = dequeue();
 	 if(msg)
 	    handleEnqueue(msg);
       }
-      
+
       void handleEnqueue(Message *msg)
       {
 	 delete msg;
       }
-      
-      // static callback function 
+
+      // static callback function
       static void async_handleEnqueue(AsyncOpNode *op, MessageQueue *, void *);
       static void async_handleSafeEnqueue(Message *, void *, void *);
-      
+
       static AtomicInt msg_count;
       AtomicInt _die_now;
    protected:
       virtual Boolean messageOK(const Message *);
       virtual void _handle_async_request(AsyncRequest *req);
       virtual void _handle_async_callback(AsyncOpNode *operation);
-      
+
 
    private:
       test_async_queue(void);
       void _handle_stop(CimServiceStop *stop);
-      
+
       ROLE _role;
-
-
 };
 
 

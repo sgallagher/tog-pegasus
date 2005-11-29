@@ -39,8 +39,7 @@
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //              Willis White, IBM <whiwill@us.ibm.com)
 //              Josephine Eskaline Joyce, IBM <jojustin@in.ibm.com) for Bug#2108
-//              David Dillard, VERITAS Software Corp.
-//                  (david.dillard@veritas.com)
+//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //              John Alex, IBM (johnalex@us.ibm.com) - Bug#2290
 //
 //%/////////////////////////////////////////////////////////////////////////////
@@ -53,7 +52,7 @@
 
 #include <iostream>
 #include <fstream>
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#ifdef PEGASUS_OS_TYPE_WINDOWS
 # include <windows.h>
 #else
 # include <netinet/in.h>

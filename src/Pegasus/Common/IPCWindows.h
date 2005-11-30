@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -33,15 +33,17 @@
 //             (checked in: Markus Mueller sedgewick_de@yahoo.de)
 //              Mary Hinton (m.hinton@verizon.net)
 //              Steve Hills (steve.hills@ncr.com)
+//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 
 #define _WIN32_WINNT 0x0400
 
-#include <process.h>  
+#include <process.h>
 
 //
-// PLEASE DO NOT REMOVE THE DEFINTION OF FD_SETSIZE!
+// PLEASE DO NOT REMOVE THE DEFINITION OF FD_SETSIZE!
 //
 
 #ifndef FD_SETSIZE
@@ -55,7 +57,7 @@
 #include <winbase.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include <sys/timeb.h> 
+#include <sys/timeb.h>
 #include <errno.h>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
@@ -67,13 +69,13 @@ typedef HANDLE  PEGASUS_THREAD_TYPE;
 typedef HANDLE  PEGASUS_MUTEX_TYPE;
 
 typedef struct {
-      PEGASUS_SEMAPHORE_TYPE  sem;
-      PEGASUS_THREAD_TYPE  owner;
+    PEGASUS_SEMAPHORE_TYPE  sem;
+    PEGASUS_THREAD_TYPE  owner;
 } PEGASUS_SEM_HANDLE ;
 
 typedef struct {
-      HANDLE  mut;
-      PEGASUS_THREAD_TYPE owner;
+    HANDLE  mut;
+    PEGASUS_THREAD_TYPE owner;
 } PEGASUS_MUTEX_HANDLE ;
 
 
@@ -86,8 +88,8 @@ typedef unsigned PEGASUS_THREAD_RETURN;
 #define PEGASUS_THREAD_CDECL __stdcall
 
 typedef struct {
-      PEGASUS_THREAD_TYPE thid;
-      void * thatt;
+    PEGASUS_THREAD_TYPE thid;
+    void * thatt;
 } PEGASUS_THREAD_HANDLE ;
 
 
@@ -101,8 +103,8 @@ typedef struct {
 typedef HANDLE PEGASUS_COND_TYPE;
 
 typedef struct {
-      PEGASUS_COND_TYPE cond;
-      PEGASUS_THREAD_TYPE owner;
+    PEGASUS_COND_TYPE cond;
+    PEGASUS_THREAD_TYPE owner;
 } PEGASUS_COND_HANDLE;
 
 #endif // platform conditional  type
@@ -124,20 +126,20 @@ typedef LONG  PEGASUS_ATOMIC_TYPE ;
 
 #if defined(PEGASUS_PLATFORM_WIN32_IX86_MSVC)
 
-// no native rw lock for windows -- use the generic one 
+// no native rw lock for windows -- use the generic one
 
 #endif // platform read/write type
 
 
-//struct timeval 
+//struct timeval
 //{
 //      long int tv_sec;      long int tv_usec;
 //};
 
 struct timezone
 {
-      int tz_minuteswest;
-      int tz_dsttime;
+    int tz_minuteswest;
+    int tz_dsttime;
 };
 
 
@@ -145,14 +147,14 @@ struct timezone
 
 inline int pegasus_gettimeofday(struct timeval *tv)
 {
-	struct _timeb timebuffer;   
-	if (tv == NULL)
-		return(-1);
-	_ftime( &timebuffer );
-	tv->tv_sec = timebuffer.time;
-	tv->tv_usec = ( timebuffer.millitm * 1000 );
-	return(0);
-} 
+    struct _timeb timebuffer;
+    if (tv == NULL)
+        return(-1);
+    _ftime( &timebuffer );
+    tv->tv_sec = static_cast<long>(timebuffer.time);
+    tv->tv_usec = ( timebuffer.millitm * 1000 );
+    return(0);
+}
 
 // Markus: new implementation with higher resolution
 // that is needed for performance statistics
@@ -160,7 +162,7 @@ inline int pegasus_gettimeofday(struct timeval *tv)
 
 
 
-THIS ROUTINE IS BROKEN << Thu Mar 20 10:24:14 2003 mdd >> 
+THIS ROUTINE IS BROKEN << Thu Mar 20 10:24:14 2003 mdd >>
 inline int pegasus_gettimeofday(struct timeval *tv)
 {
    if (tv == NULL){
@@ -182,34 +184,34 @@ inline int pegasus_gettimeofday(struct timeval *tv)
       return(0);
    }
 }
-	
+
 */
 inline int PEGASUS_COMMON_LINKAGE gettimeofday(struct timeval *tv, struct timezone *tz)
 {
-  return(pegasus_gettimeofday(tv));
+    return(pegasus_gettimeofday(tv));
 }
 
 PEGASUS_NAMESPACE_BEGIN
 
-inline PEGASUS_COMMON_LINKAGE void pegasus_yield(void)
+inline PEGASUS_COMMON_LINKAGE void pegasus_yield()
 {
-  Sleep(0);
+    Sleep(0);
 }
 
-// pthreads cancellation calls 
-inline  PEGASUS_COMMON_LINKAGE void disable_cancel(void)
+// pthreads cancellation calls
+inline  PEGASUS_COMMON_LINKAGE void disable_cancel()
 {
-  ;
+    ;
 }
 
-inline  PEGASUS_COMMON_LINKAGE void enable_cancel(void)
+inline  PEGASUS_COMMON_LINKAGE void enable_cancel()
 {
-  ;
+    ;
 }
 
 
 // Windows does not have equivalent functionality with Unix-like
-// operating systems. Be careful using these next two 
+// operating systems. Be careful using these next two
 // macros. There is no pop routine in windows. Further, windows
 // does not allow passing parameters to exit functions. !!
 inline PEGASUS_COMMON_LINKAGE void native_cleanup_push( void (*)(void *), void *) { ; }
@@ -218,32 +220,32 @@ inline PEGASUS_COMMON_LINKAGE void native_cleanup_pop(Boolean) { ; }
 
 inline void PEGASUS_COMMON_LINKAGE init_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   InitializeCriticalSection(crit);
+    InitializeCriticalSection(crit);
 }
 
 inline void PEGASUS_COMMON_LINKAGE enter_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   EnterCriticalSection(crit);
+    EnterCriticalSection(crit);
 }
 
 inline void PEGASUS_COMMON_LINKAGE try_crit(PEGASUS_CRIT_TYPE *crit)
 {
-  EnterCriticalSection(crit); 
+    EnterCriticalSection(crit);
 }
 
 inline void PEGASUS_COMMON_LINKAGE exit_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   LeaveCriticalSection(crit);
+    LeaveCriticalSection(crit);
 }
 
 inline void PEGASUS_COMMON_LINKAGE destroy_crit(PEGASUS_CRIT_TYPE *crit)
 {
-   DeleteCriticalSection(crit);
+    DeleteCriticalSection(crit);
 }
 
-inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self(void) 
-{ 
-   return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
+inline PEGASUS_THREAD_TYPE PEGASUS_COMMON_LINKAGE pegasus_thread_self()
+{
+    return((PEGASUS_THREAD_TYPE)GetCurrentThreadId());
 }
 
 // l10n start
@@ -251,69 +253,66 @@ typedef DWORD PEGASUS_THREAD_KEY_TYPE;
 
 inline Uint32 pegasus_key_create(PEGASUS_THREAD_KEY_TYPE * key)
 {
-	// Note: destructor is not supported
-	*key = TlsAlloc();
-	if (*key == -1)
-		return 1;
-	return 0;	
-} 
+    // Note: destructor is not supported
+    *key = TlsAlloc();
+    if (*key == -1)
+        return 1;
+    return 0;
+}
 
 inline Uint32 pegasus_key_delete(PEGASUS_THREAD_KEY_TYPE key)
 {
-	if (TlsFree(key))
-		return 0;
-	return 1;			
-} 
+    if (TlsFree(key))
+        return 0;
+    return 1;
+}
 
 inline void * pegasus_get_thread_specific(PEGASUS_THREAD_KEY_TYPE key)
 {
-	return TlsGetValue(key);
-} 
+    return TlsGetValue(key);
+}
 
 inline Uint32 pegasus_set_thread_specific(PEGASUS_THREAD_KEY_TYPE key,
-										 void * value)
+                                         void * value)
 {
-	if (TlsSetValue(key, value))
-		return 0;
-	return 1;
-} 
+    if (TlsSetValue(key, value))
+        return 0;
+    return 1;
+}
 // l10n end
 
 inline void PEGASUS_COMMON_LINKAGE exit_thread(PEGASUS_THREAD_RETURN rc)
 {
-  _endthreadex(rc);
+    _endthreadex(rc);
 }
 
 inline void PEGASUS_COMMON_LINKAGE pegasus_sleep(int ms)
 {
-   if(ms == 0)
-   {
-      Sleep(0);
-      return;
-   }
-   
-   struct _timeb end, now;
-   _ftime( &end );
-   end.time += (ms / 1000);
-   ms -= (ms / 1000);
-   end.millitm += ms;
-	
-   do 
-   {
-      Sleep(0);
-      _ftime(&now);
-      
-   } while( end.millitm > now.millitm && end.time >= now.time);
+    if(ms == 0)
+    {
+        Sleep(0);
+        return;
+    }
+
+    struct _timeb end, now;
+    _ftime( &end );
+    end.time += (ms / 1000);
+    ms -= (ms / 1000);
+    end.millitm += ms;
+
+    do
+    {
+        Sleep(0);
+        _ftime(&now);
+
+    } while( end.millitm > now.millitm && end.time >= now.time);
 }
 
 
 inline void PEGASUS_COMMON_LINKAGE destroy_thread(PEGASUS_THREAD_TYPE th, PEGASUS_THREAD_RETURN rc)
 {
-   TerminateThread(th, rc);
+    TerminateThread(th, rc);
 }
 
 
 PEGASUS_NAMESPACE_END
-
-
-

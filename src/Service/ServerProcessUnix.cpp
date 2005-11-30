@@ -192,16 +192,15 @@ int verify_process_name(char *directory, const char* server_process_name)
     }
 
     // allocate memory for the result
-    char * process_name;
-    process_name = (char*) malloc(close_paren - open_paren - 1);
+    AutoArrayPtr<char> process_name(new char[close_paren - open_paren]);
 
     // copy the process name into the result  
-    strncpy (process_name, open_paren + 1, close_paren - open_paren -1);
+    strncpy (process_name.get(), open_paren + 1, close_paren - open_paren -1);
 
     // strncpy doesn't NULL-terminate the result, so do it here
-    process_name[close_paren - open_paren -1] = '\0';
+    process_name.get()[close_paren - open_paren -1] = '\0';
 
-    if (strcmp(process_name, server_process_name) != 0)
+    if (strcmp(process_name.get(), server_process_name) != 0)
     {
         return -1;
     }

@@ -32,6 +32,8 @@ DIR = Providers/TestProviders/DefaultInstanceProvider
 
 include $(ROOT)/mak/config.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARY = PG_DefaultInstanceProvider
 
 LIBRARIES = \

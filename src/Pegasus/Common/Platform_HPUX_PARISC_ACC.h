@@ -58,4 +58,8 @@
 # define PEGASUS_SOCKLEN_T int
 #endif
 
+#ifdef PEGASUS_INTERNALONLY
+typedef int streamsize;
+#endif
+
 #endif /* Pegasus_Platform_HPUX_PARISC_ACC_h */

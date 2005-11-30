@@ -192,11 +192,8 @@ static void _PutRecord(ofstream& os, Array<String>& fields)
         // Calling getCString to ensure utf-8 goes to the file
         // Calling write to ensure no data conversion by the stream
         CString  buffer = _Escape(fields[i]).getCString();
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-        os.write((const char *)buffer, strlen((const char *)buffer));
-#else
-        os.write((const char *)buffer, static_cast<streamsize>(strlen((const char *)buffer)));
-#endif
+        os.write((const char *)buffer,
+            static_cast<streamsize>(strlen((const char *)buffer)));
         os << endl;
     }
     os << endl;

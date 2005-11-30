@@ -626,11 +626,8 @@ Boolean InstanceIndexFile::_appendEntry(
     // Calling getCString to ensure that utf-8 goes to the file
     // Calling write to ensure no data conversion by the stream
     CString name = instanceName.toString().getCString(); 
-#ifdef PEGASUS_PLATFORM_HPUX_PARISC_ACC
-    fs.write((const char *)name, strlen((const char *)name));
-#else
-    fs.write((const char *)name, static_cast<streamsize>(strlen((const char *)name)));
-#endif
+    fs.write((const char *)name,
+        static_cast<streamsize>(strlen((const char *)name)));
     fs << endl;
 
     PEG_METHOD_EXIT();

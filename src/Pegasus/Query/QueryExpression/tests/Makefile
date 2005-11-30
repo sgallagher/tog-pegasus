@@ -38,6 +38,8 @@ endif
 include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
+
 LIBRARIES = \
     pegrepository \
     pegqueryexpression \

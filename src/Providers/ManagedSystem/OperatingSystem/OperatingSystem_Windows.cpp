@@ -37,8 +37,11 @@
 //%////////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
+
+#if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
 #include <psapi.h>
 #include <pdh.h>
+#endif
 
 #include "OperatingSystem.h"
 
@@ -58,7 +61,6 @@ Boolean OperatingSystem::getCSName(String& csName)
     unsigned long nSize = 2048;
     char value[2048];
 
-
     if(!GetComputerName(value, &nSize))
     {
         //Hostname cannot be retrieved
@@ -69,7 +71,6 @@ Boolean OperatingSystem::getCSName(String& csName)
     {
         csName.assign(value);
     }
-
 
     return true;
 }
@@ -85,7 +86,6 @@ Boolean OperatingSystem::getName(String& osName)
     osvi.dwOSVersionInfoSize = sizeof(osvi);
 
     ::GetVersionEx(&osvi);
-
 
     // Get the Base Windows Platform
     switch (osvi.dwPlatformId)
@@ -133,65 +133,10 @@ Boolean OperatingSystem::getName(String& osName)
 
             break;
 
-        case VER_PLATFORM_WIN32s:
+        default:
 
-            versionName.assign("Microsoft Win32s");
             break;
     }
-
-
-    // The following block may be used as a guide to get additional platform
-    // information, if the Windows Platform SDK is installed with Visual C++.
-    // If so, remember to use the OSVERSIONINFOEX structure instead of
-    // OSVERSIONINFO as given in this implementation.
-
-    // NOTE : Additional code changes and header information may be
-    // required to make the following block work
-
-    /*
-        // Test for the workstation type.
-        if ( osvi.wProductType == VER_NT_WORKSTATION )
-        {
-            if( osvi.dwMajorVersion == 4 )
-                versionName.append( " Workstation 4.0" );
-            else if( osvi.wSuiteMask & VER_SUITE_PERSONAL )
-                versionName.append( " Home Edition" );
-            else
-                versionName.append( " Professional" );
-        }
-        // Test for the server type.
-        else if ( osvi.wProductType == VER_NT_SERVER )
-        {
-            if( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
-            {
-                if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-                    versionName.append( " Datacenter Edition" );
-                else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-                    versionName.append( " Enterprise Edition" );
-                else if ( osvi.wSuiteMask == VER_SUITE_BLADE )
-                    versionName.append( " Web Edition" );
-                else
-                    versionName.append( " Standard Edition" );
-             }
-             else if( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
-             {
-                 if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-                     versionName.append( " Datacenter Server" );
-                 else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-                     versionName.append( " Advanced Server" );
-                 else
-                     versionName.append( " Server" );
-             }
-
-             else  // Windows NT 4.0
-             {
-                 if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-                     versionName.append ("Server 4.0, Enterprise Edition" );
-                 else
-                     versionName.append ( "Server 4.0" );
-             }
-        } // EndIf for VER_NT_SERVER
-     */
 
     osName.assign(versionName);
     return true;
@@ -199,7 +144,6 @@ Boolean OperatingSystem::getName(String& osName)
 
 Boolean OperatingSystem::getCaption(String& caption)
 {
-
    caption.assign("The current Operating System");
 
    return true;
@@ -207,7 +151,6 @@ Boolean OperatingSystem::getCaption(String& caption)
 
 Boolean OperatingSystem::getDescription(String& description)
 {
-
     description.assign("This instance reflects the Operating System"
         " on which the CIMOM is executing (as distinguished from instances"
         " of other installed operating systems that could be run).");
@@ -232,7 +175,6 @@ Boolean OperatingSystem::getInstallDate(CIMDateTime& installDate)
    */
 Boolean OperatingSystem::getStatus(String& status)
 {
-
 // ATTN-SLC-P3-17-Apr-02: Get true Windows status (vs. Unknown) BZ#44
 
    status.assign("Unknown");
@@ -261,35 +203,59 @@ Boolean OperatingSystem::getVersion(String& osVersion)
 
 Boolean OperatingSystem::getOSType(Uint16& osType)
 {
-
    osType = Unknown;
 
-   OSVERSIONINFO ver;
+   OSVERSIONINFO osvi;
 
-   ::memset(&ver, 0, sizeof(ver));
+   ::memset(&osvi, 0, sizeof(osvi));
 
-   ver.dwOSVersionInfoSize = sizeof(ver);
+   osvi.dwOSVersionInfoSize = sizeof(osvi);
 
-   ::GetVersionEx(&ver);
+   ::GetVersionEx(&osvi);
 
-   // values defined under the topic "Getting the System Version" in the Win32 platform SDK
-   if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion <= 4)) {
-      osType = WINNT;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 0)) {
-      osType = Windows_2000;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_NT) && (ver.dwMajorVersion == 5) && (ver.dwMinorVersion == 1)) {
-      osType = Windows_2000;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 0)) {
-      osType = WIN95;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 10)) {
-      osType = WIN98;
-   }
-   else if((ver.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) && (ver.dwMajorVersion == 4) && (ver.dwMinorVersion == 90)) {
-      osType = Windows_Me;
+   switch (osvi.dwPlatformId)
+   {
+       case VER_PLATFORM_WIN32_NT:
+
+           if ( osvi.dwMajorVersion <= 4 )
+           {
+               osType = WINNT;
+           }
+           else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
+           {
+               osType = Windows_2000;
+           }
+           else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )
+           {
+               osType = Windows_XP;
+           }
+           else if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2 )
+           {
+               osType = Windows_2003;
+           }
+
+           break;
+
+       case VER_PLATFORM_WIN32_WINDOWS:
+
+           if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
+           {
+               osType = WIN95;
+           }
+           else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
+           {
+               osType = WIN98;
+           }
+           else if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
+           {
+               osType = Windows_Me;
+           }
+
+           break;
+
+       default:
+
+           break;
    }
 
    return(true);
@@ -322,9 +288,11 @@ Boolean OperatingSystem::getLastBootUpTime(CIMDateTime& lastBootUpTime)
         s2[23] = s1[23];
 
         lastBootUpTime = CIMDateTime(s2);
+
+        return(true);
     }
 
-    return(true);
+    return(false);
 }
 
 Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
@@ -360,7 +328,6 @@ Boolean OperatingSystem::getLocalDateTime(CIMDateTime& localDateTime)
 
 Boolean OperatingSystem::getCurrentTimeZone(Sint16& currentTimeZone)
 {
-
    currentTimeZone = 0;
 
    TIME_ZONE_INFORMATION timezone;
@@ -404,6 +371,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 {
     numberOfProcesses = 0;
 
+    #if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
     DWORD processHandles[1024];
     DWORD size = 0;
 
@@ -417,6 +385,7 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
     {
         numberOfProcesses = size / sizeof(processHandles[0]);
     }
+    #endif
 
     return(numberOfProcesses == 0 ? false : true);
 }
@@ -453,7 +422,6 @@ Boolean OperatingSystem::getTotalVirtualMemorySize(Uint64& total)
 
 Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
 {
-
    freeVirtualMemory = 0;
 
    MEMORYSTATUS mem;
@@ -467,12 +435,10 @@ Boolean OperatingSystem::getFreeVirtualMemory(Uint64& freeVirtualMemory)
    freeVirtualMemory = mem.dwAvailVirtual / 1024;
 
    return(true);
-
 }
 
 Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 {
-
    total = 0;
 
    MEMORYSTATUS mem;
@@ -490,7 +456,6 @@ Boolean OperatingSystem::getFreePhysicalMemory(Uint64& total)
 
 Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 {
-
    memory = 0;
 
    MEMORYSTATUS mem;
@@ -511,7 +476,6 @@ Boolean OperatingSystem::getTotalVisibleMemorySize(Uint64& memory)
 
 Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 {
-
    total = 0;
 
    MEMORYSTATUS mem;
@@ -530,7 +494,6 @@ Boolean OperatingSystem::getSizeStoredInPagingFiles(Uint64& total)
 Boolean OperatingSystem::getFreeSpaceInPagingFiles(
                                               Uint64& freeSpaceInPagingFiles)
 {
-
    freeSpaceInPagingFiles = 0;
 
    MEMORYSTATUS mem;
@@ -578,6 +541,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 {
     mUpTime = 0;
 
+    #if (_MSC_VER >= 1300) || defined(PEGASUS_WINDOWS_SDK_HOME)
     HANDLE query = 0;
 
     LONG rc =
@@ -619,6 +583,7 @@ Boolean OperatingSystem::getSystemUpTime(Uint64& mUpTime)
 
         ::PdhCloseQuery(query);
     }
+    #endif
 
     return(mUpTime == 0 ? false : true);
 }
@@ -637,4 +602,3 @@ Uint32 OperatingSystem::_shutdown()
 {
    return false;
 }
-

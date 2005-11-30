@@ -33,6 +33,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// These must be global to all threads
+
+static int stackMul = 2;
+static bool doneOnce = false;
+
 PEGASUS_NAMESPACE_BEGIN
 
 static sigset_t *block_signal_mask(sigset_t * sig)
@@ -58,18 +63,60 @@ Thread::Thread(
 	PEGASUS_THREAD_RETURN(PEGASUS_THREAD_CDECL * start) (void *),
 	void *parameter,
 	Boolean detached)
-        : _is_detached(detached),
-          _cancel_enabled(true),
-          _cancelled(false),
-          _suspend_count(),
-          _start(start),
-          _cleanup(true),
-          _tsd(true),
-          _thread_parm(parameter),
-          _exit_code(0)
+:_is_detached(detached),
+_cancel_enabled(true),
+_cancelled(false),
+_suspend_count(),
+_start(start),
+_cleanup(true),
+_tsd(true),
+_thread_parm(parameter),
+_exit_code(0)
 {
   pthread_attr_init(&_handle.thatt);
   size_t stacksize;
+
+  // 
+  // This code uses a, 'hidden' (non-documented), VMS only, logical 
+  //  name (environment variable), PEGASUS_VMS_THREAD_STACK_MULTIPLIER,
+  //  to allow in the field adjustment of the thread stack size.
+  //
+  // We only check for the logical name once to not have an
+  //  impact on performance.
+  // 
+  // Note:  This code may have problems in a multithreaded environment
+  //  with the setting of doneOnce to true.
+  // 
+  // Current code in Cimserver and the clients do some serial thread
+  //  creations first so this is not a problem now.
+  // 
+  if (!doneOnce)
+  {
+    // 
+    // Test for the logical name.
+    // 
+    const char *env = getenv("PEGASUS_VMS_THREAD_STACK_MULTIPLIER");
+    if (env)
+    {
+      // 
+      // The logical is defined, convert it to a number and
+      //  test it's validity.
+      // 
+      char *end = NULL;
+      stackMul = strtol(env, &end, 10);
+      if (*end)
+      {
+        // 
+        // Not valid, set to the default multiplier
+        // 
+        stackMul = 2;
+      }
+    }
+    // 
+    // Don't come through here again.
+    // 
+    doneOnce = true;
+  }
 
   // 
   // Get the system default thread stack size
@@ -77,9 +124,9 @@ Thread::Thread(
   if (pthread_attr_getstacksize(&_handle.thatt, &stacksize) == 0)
   {
     // 
-    // replace it with the Pegasus VMS default thread stack size.
+    // Replace it with the VMS default thread stack size.
     // 
-    int rc = pthread_attr_setstacksize(&_handle.thatt, stacksize * 2);
+    int rc = pthread_attr_setstacksize(&_handle.thatt, stacksize * stackMul);
     // 
     // Make sure it succeeded
     // 

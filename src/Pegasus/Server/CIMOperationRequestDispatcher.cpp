@@ -227,7 +227,7 @@ void OperationAggregate::resequenceResponse(CIMResponseMessage& response)
             _totalReceivedNotSupported++;
         }
         _totalReceivedErrors++;
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
 	    Logger::TRACE,
             String(func + "Response has error. "
             "Name Space: $0  Class name: $1 Response Sequence: $2"),
@@ -467,7 +467,7 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
                 static const char failMsg[] = "Invalid response type to aggregate: ";
                 char typeP[11];
                 sprintf(typeP,"%u", type);
-                PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+                PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
 		    Logger::TRACE,
                     String(func) + String(failMsg) + String(typeP)));
                 PEGASUS_ASSERT(0);
@@ -540,7 +540,7 @@ CIMOperationRequestDispatcher::_enqueueResponse(OperationAggregate *&poA,
     {
         static const char failMsg[] =
             "Failed to resequence/aggregate/forward response";
-        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+        PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
 	    Logger::TRACE, String(func) + String(failMsg)));
 
         if (response->cimException.getCode() != CIM_ERR_SUCCESS)
@@ -723,7 +723,7 @@ Boolean CIMOperationRequestDispatcher::_lookupInternalProvider(
                         PEGASUS_QUEUENAME_CONTROLSERVICE);
 
          // PG_NAMESPACE - Implements subclass of CIM_Namespace managed by
-         // InteropProvider. 
+         // InteropProvider.
          _routing_table.insert_record(PEGASUS_CLASSNAME_PGNAMESPACE,
                         _wild,
                         DynamicRoutingTable::INTERNAL,
@@ -929,7 +929,7 @@ Array<CIMName> CIMOperationRequestDispatcher::_getSubClassNames(
             // Get the complete list of subclass names
             _repository->getSubClassNames(nameSpace,
                  className, true, subClassNames);
-            PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+            PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
 		Logger::TRACE,
                 "CIMOperationRequestDispatcher::_getSubClassNames - "
                 "Name Space: $0  Class name: $1",
@@ -1145,41 +1145,82 @@ ProviderInfo CIMOperationRequestDispatcher::_lookupInstanceProvider(
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
         if(_enableNormalization)
         {
-            providerInfo.hasProviderNormalization = true;
+            // normalization is enabled for all providers unless they
+            // have an old interface version or are explicity excluded by
+            // the excludeModulesFromNormalization configuration option.
 
-            // get the provder module version
-            /*
+            // check interface type and version
+
+            String interfaceType;
+            String interfaceVersion;
+
+            // get the provder interface type
+            if((pos = pmInstance.findProperty("InterfaceType")) != PEG_NOT_FOUND)
+            {
+                pmInstance.getProperty(pos).getValue().get(interfaceType);
+            }
+
+            // get the provder interface version
             if((pos = pmInstance.findProperty("InterfaceVersion")) != PEG_NOT_FOUND)
             {
-                String interfaceVersion;
-
                 pmInstance.getProperty(pos).getValue().get(interfaceVersion);
+            }
 
-                if(String::compare(interfaceVersion, "2.5.0") < 0)
+            // compare the interface type and vesion
+            if(String::equalNoCase(interfaceType, "C++Default"))
+            {
+                // version must be greater than 2.5.0
+                if(String::compare(interfaceVersion, "2.5.0") >= 0)
                 {
-                    providerInfo.hasProviderNormalization = false;
+                    providerInfo.hasProviderNormalization = true;
                 }
             }
-            */
+            else if(String::equalNoCase(interfaceType, "CMPI"))
+            {
+                // version must be greater than 2.0.0
+                if(String::compare(interfaceVersion, "2.0.0") >= 0)
+                {
+                    providerInfo.hasProviderNormalization = true;
+                }
+            }
+            else if(String::equalNoCase(interfaceType, "JMPI"))
+            {
+                // version must be greater than 1.0.0
+                if(String::compare(interfaceVersion, "1.0.0") >= 0)
+                {
+                    providerInfo.hasProviderNormalization = true;
+                }
+            }
+
+            // check for module exclusion
+
+            String moduleName;
 
             // get the provder module name
             if((pos = pmInstance.findProperty("Name")) != PEG_NOT_FOUND)
             {
-                String moduleName;
-
                 pmInstance.getProperty(pos).getValue().get(moduleName);
+            }
 
-                // check if module name is on the excludeModulesFromNormalization list
-                for(Uint32 i = 0, n = _excludeModulesFromNormalization.size(); i < n; i++)
+            // check if module name is on the excludeModulesFromNormalization list
+            for(Uint32 i = 0, n = _excludeModulesFromNormalization.size(); i < n; i++)
+            {
+                if(String::equalNoCase(moduleName, _excludeModulesFromNormalization[i]))
                 {
-                    if(String::equalNoCase(moduleName, _excludeModulesFromNormalization[i]))
-                    {
-                        providerInfo.hasProviderNormalization = false;
+                    providerInfo.hasProviderNormalization = false;
 
-                        break;
-                    }
+                    break;
                 }
             }
+
+            PEG_TRACE_STRING(
+                TRC_DISPATCHER,
+                Tracer::LEVEL4,
+                "Normalization for provider module " +
+                    moduleName +
+                    " is " +
+                    (providerInfo.hasProviderNormalization ? "enabled" : "disabled") +
+                    ".");
         }
 #endif
 
@@ -2501,7 +2542,7 @@ void CIMOperationRequestDispatcher::handleDeleteClassRequest(
 
       PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
 	  "CIMOperationRequestDispatcher::handleDeleteClassRequest - "
-	  "Name Space: $0  Class Name: $1", 
+	  "Name Space: $0  Class Name: $1",
 	  request->nameSpace.getString(),
 	  request->className.getString()));
 
@@ -4010,7 +4051,7 @@ void CIMOperationRequestDispatcher::handleAssociatorsRequest(
     }
 
     // Validate resultRole parameter syntax
-    if ((request->resultRole != String::EMPTY) && 
+    if ((request->resultRole != String::EMPTY) &&
 	(!CIMName::legal(request->resultRole)))
     {
 	CIMException cimException = PEGASUS_CIM_EXCEPTION(
@@ -5463,7 +5504,7 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
 
       if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
-         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, 
+         PEG_LOGGER_TRACE((Logger::STANDARD_LOG,
 	     System::CIMSERVER, Logger::TRACE,
             "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
 	    "CIM exception has occurred."));
@@ -5529,8 +5570,8 @@ void CIMOperationRequestDispatcher::handleSetPropertyRequest(
             request->newValue,
             ((ContentLanguageListContainer)request->operationContext.get(ContentLanguageListContainer::NAME)).
                getLanguages());
-         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
-	     Logger::TRACE, 
+         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
+	     Logger::TRACE,
 	     "CIMOperationRequestDispatcher::handleSetPropertyRequest - "
 	     "Name Space: $0  Instance Name: $1  Property Name: $2  New "
 	     "Value: $3",
@@ -5899,7 +5940,7 @@ void CIMOperationRequestDispatcher::handleInvokeMethodRequest(
 
       if (cimException.getCode() != CIM_ERR_SUCCESS)
       {
-         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+         PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
 	     Logger::TRACE,
             "CIMOperationRequestDispatcher::handleInvokeMethodRequest - "
 	    "CIM exception has occurred."));
@@ -6519,7 +6560,7 @@ void CIMOperationRequestDispatcher::_fixInvokeMethodParameterTypes(
                         false, //includeClassOrigin,
                         CIMPropertyList());
 
-                PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER, 
+                PEG_LOGGER_TRACE((Logger::STANDARD_LOG, System::CIMSERVER,
 		    Logger::TRACE,
                     "CIMOperationRequestDispatcher::"
 		    "_fixInvokeMethodParameterTypes - "

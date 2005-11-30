@@ -84,7 +84,13 @@ poststarttests:
 	$(SHH)CLI ei "TST_LabeledLineageDynamic" -n "$(PROVIDERNS)" --sum -count 6
 	$(SHH)CLI ni "TST_LabeledLineageDynamic" -n "$(PROVIDERNS)" --sum -count 6
 
-	@$(ECHO) 3. +++++ TST_Person Testing Family provider in  $(PROVIDERNS)
+	@$(ECHO) 3. +++++ TST_Person Testing getInstance Family provider in  $(PROVIDERNS)
+
+	$(SHH)CLI gi "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)CLI gi "TST_PersonDynamicSubClass.name=\"AnotherKid\"" -n "$(PROVIDERNS)" --sum -count 1
+	$(SHH)CLI gi "TST_PersonDynamic.name=\"Father\"" -n "$(PROVIDERNS)" --sum -count 1
+
+	@$(ECHO) 4. +++++ TST_Person Testing Family provider in  $(PROVIDERNS)
 
 	$(SHH)CLI ei "TST_Person" -n "$(PROVIDERNS)" --sum -count 14
 	$(SHH)CLI ni "TST_Person" -n "$(PROVIDERNS)" --sum -count 14
@@ -97,21 +103,21 @@ poststarttests:
 	$(SHH)CLI an "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" --sum -count 2
 	$(SHH)CLI a  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" --sum -count 2
 
-	@$(ECHO) 4. +++++ TST_Person Testing with  resultClass filters
+	@$(ECHO) 5. +++++ TST_Person Testing with  resultClass filters
 
 	$(SHH)CLI rn "TST_Person" -n "$(PROVIDERNS)" -rc TST_Lineage --sum -count 1
 	$(SHH)CLI r "TST_Person" -n "$(PROVIDERNS)" -rc TST_Lineage --sum -count 1
 	$(SHH)CLI rn "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc TST_Lineage --sum -count 2
 	$(SHH)CLI r  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc TST_Lineage --sum -count 2
 
-	@$(ECHO) 5. ++++ TST_Person Testing with assocClass filter
+	@$(ECHO) 6. ++++ TST_Person Testing with assocClass filter
 
 	$(SHH)CLI an "TST_Person" -n "$(PROVIDERNS)" -ac  "TST_Lineage" --sum -count 1
 	$(SHH)CLI a "TST_Person" -n "$(PROVIDERNS)" -ac "TST_Lineage" --sum -count 1
 	$(SHH)CLI an "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -ac "TST_Lineage" --sum -count 2
 	$(SHH)CLI a  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -ac "TST_Lineage" --sum -count 2
 
-	@$(ECHO) 6. ++++ TST_Person Testing with role filter alone
+	@$(ECHO) 7. ++++ TST_Person Testing with role filter alone
 
 	$(SHH)CLI rn "TST_Person" -n "$(PROVIDERNS)" -r parent --sum -count 4
 	$(SHH)CLI r "TST_Person" -n "$(PROVIDERNS)" -r parent --sum -count 4
@@ -123,14 +129,14 @@ poststarttests:
 	$(SHH)CLI rn "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -r child --sum -count 0
 	$(SHH)CLI r  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -r child --sum -count 0
 
-	@$(ECHO) 7. +++++ TEST_Person Test with role and result class
+	@$(ECHO) 8. +++++ TEST_Person Test with role and result class
 
 	$(SHH)CLI rn "TST_Person" -n "$(PROVIDERNS)" -rc  TST_Lineage -r parent --sum -count 1
 	$(SHH)CLI r "TST_Person" -n "$(PROVIDERNS)" -rc  TST_Lineage -r parent --sum -count 1
 	$(SHH)CLI rn "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc  TST_Lineage -r parent --sum -count 2
 	$(SHH)CLI r  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc  TST_Lineage -r parent --sum -count 2
 
-	@$(ECHO) 8. ++++ TST_Person Test with errors in role and result class
+	@$(ECHO) 9. ++++ TST_Person Test with errors in role and result class
 
 # Bypassing following tests because they generate exception return from provider
 # The error is valid because Provider does exception on bad property.
@@ -146,15 +152,15 @@ poststarttests:
 #	CLI rn "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc  "TST_Lineage" -r junk --sum -count 0
 #	CLI r  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc  "TST_Lineage" -r junk --sum -count 0
 
-	@$(ECHO) 9. ++++ tests for associations with  result class and result role.
+	@$(ECHO) 10. ++++ tests for associations with  result class and result role.
 
 	$(SHH)CLI an  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc  TST_Lineage -r child --sum -count 0
 #	$(SHH)CLI an  "TST_Person.name=\"Mike\"" -n "$(PROVIDERNS)" -rc  TST_Lineage -r junk --sum -count 0
 
-#	@$(ECHO) 10. +++++ TST_Person with result Class filters but with bad Class
+#	@$(ECHO) 11. +++++ TST_Person with result Class filters but with bad Class
 #Note that we can add more tests here.
 
-	@$(ECHO) 11. +++++ TST_PersonDynamic Family class Operations in  $(PROVIDERNS)
+	@$(ECHO) 12. +++++ TST_PersonDynamic Family class Operations in  $(PROVIDERNS)
 
 	$(SHH)CLI ei "TST_PersonDynamic" -n "$(PROVIDERNS)" --sum -count 6
 	$(SHH)CLI ni "TST_PersonDynamic" -n "$(PROVIDERNS)" --sum -count 6
@@ -163,7 +169,7 @@ poststarttests:
 	$(SHH)CLI an "TST_PersonDynamic" -n "$(PROVIDERNS)" --sum -count 2
 	$(SHH)CLI a  "TST_PersonDynamic" -n "$(PROVIDERNS)" --sum -count 2
 
-	@$(ECHO) 12. +++++ TST_PersonDynamic and Family provider with simple class operations
+	@$(ECHO) 13. +++++ TST_PersonDynamic and Family provider with simple class operations
  
 	$(SHH)CLI rn "TST_PersonDynamic.name=\"Father\"" -n "$(PROVIDERNS)" --sum -count 6
 	$(SHH)CLI r "TST_PersonDynamic.name=\"Father\"" -n "$(PROVIDERNS)" --sum -count 6
@@ -174,14 +180,14 @@ poststarttests:
 
 	$(SHH)CLI rn "TST_PersonDynamic.name=\"father\"" -n "$(PROVIDERNS)" --sum -count 0
 
-	@$(ECHO) 13. ++++ Test TST_PersonDynamic classes with  resultClass/AssocClass options
+	@$(ECHO) 14. ++++ Test TST_PersonDynamic classes with  resultClass/AssocClass options
 
 	$(SHH)CLI rn "TST_PersonDynamic" -n "$(PROVIDERNS)" -rc TST_LineageDynamic --sum -count 1
 	$(SHH)CLI r "TST_PersonDynamic" -n "$(PROVIDERNS)" -rc TST_LineageDynamic --sum -count 1
 	$(SHH)CLI an "TST_PersonDynamic" -n "$(PROVIDERNS)" -ac TST_LineageDynamic --sum -count 1
 	$(SHH)CLI a "TST_PersonDynamic" -n "$(PROVIDERNS)" -ac TST_LineageDynamic --sum -count 1
 
-	@$(ECHO) 14. ++++ TST_PersonDynamic instances with resultClass/AssociationClass options
+	@$(ECHO) 15. ++++ TST_PersonDynamic instances with resultClass/AssociationClass options
 
 	$(SHH)CLI rn "TST_PersonDynamic.name=\"Father\"" -n "$(PROVIDERNS)" -rc TST_LineageDynamic --sum -count 3
 	$(SHH)CLI r "TST_PersonDynamic.name=\"Father\"" -n "$(PROVIDERNS)" -rc TST_LineageDynamic --sum -count 3
@@ -189,7 +195,7 @@ poststarttests:
 	$(SHH)CLI a "TST_PersonDynamic.name=\"Father\"" -n "$(PROVIDERNS)" -ac TST_LineageDynamic --sum -count 3
 	$(SHH)CLI a "TST_PersonDynamic.name=\"Father\"" -n "$(PROVIDERNS)" -ac TST_LineageDynamic --sum -count 3
 
-	@$(ECHO) 15. ++++ TST_PersonDynamic association with resultClass role option
+	@$(ECHO) 16. ++++ TST_PersonDynamic association with resultClass role option
 
 	$(SHH)CLI an "TST_PersonDynamic" -n "$(PROVIDERNS)" -rc TST_Lineage --sum -count 0
 	$(SHH)CLI an "TST_PersonDynamic" -n "$(PROVIDERNS)" -rc TST_PersonDynamic --sum -count 1

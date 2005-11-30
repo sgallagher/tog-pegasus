@@ -788,6 +788,10 @@ void FamilyProvider::getInstance(
             _getInstance(_instances, context, instanceReference,
                 includeQualifiers, includeClassOrigin, propertyList, handler);
             break;
+        case TST_PERSONDYNAMICSUBCLASS:
+            _getInstance(_instancesSubclass, context, instanceReference,
+                includeQualifiers, includeClassOrigin, propertyList, handler);
+            break;
         case TST_LINEAGEDYNAMIC:
             _getInstance(_instancesLineageDynamic, context, instanceReference,
                 includeQualifiers, includeClassOrigin, propertyList, handler);

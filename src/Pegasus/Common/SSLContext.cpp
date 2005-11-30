@@ -40,6 +40,8 @@
 
 #ifdef PEGASUS_HAS_SSL
 
+#include <Pegasus/Common/Config.h>
+
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 //Bugzilla 2366
 //Use the X509_NAME in wincrypt.h on Windows.  See X509.h for more info.

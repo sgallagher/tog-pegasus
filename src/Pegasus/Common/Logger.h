@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -30,6 +30,7 @@
 // Author: Mike Brasher (mbrasher@bmc.com)
 //
 // Modified By: Dave Rosckes (rosckes@us.ibm.com)
+//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -62,20 +63,20 @@ class PEGASUS_COMMON_LINKAGE Logger
 {
 public:
 
-    enum LogFileType 
+    enum LogFileType
     {
-        TRACE_LOG, 
-        STANDARD_LOG, 
+        TRACE_LOG,
+        STANDARD_LOG,
         ERROR_LOG,
         DEBUG_LOG
     };
 
     enum { NUM_LOGS = 4 };
-      
-    /** Log file Level - Defines the loglevel of the log entry irrespective of 
-        which log file it goes into. This is actually a bit mask as defined in 
-        logger.cpp. Thus, it serves both as a level of indication of the 
-        seriousness and possibly as a mask to select what is logged. 
+
+    /** Log file Level - Defines the loglevel of the log entry irrespective of
+        which log file it goes into. This is actually a bit mask as defined in
+        logger.cpp. Thus, it serves both as a level of indication of the
+        seriousness and possibly as a mask to select what is logged.
         ATTN: The selection test has not been done.
     */
     static const Uint32 TRACE;
@@ -86,13 +87,13 @@ public:
 
     /** Puts a message to the defined log file
         @param logFileType - Type of log file (Trace, etc.)
-        @param systemId  - ID of the system generating the log entry within 
+        @param systemId  - ID of the system generating the log entry within
         Pegasus. This is user defined but generally breaks down into major
         Pegasus components.
         @param level logLevel of the log entry. To be used both t0
-        mark the log entry and tested against a mask to determine if log 
+        mark the log entry and tested against a mask to determine if log
         entry should be written.
-        @param formatString     Format definition string for the Log. See the 
+        @param formatString     Format definition string for the Log. See the
         Formatter for details.
         @param Arg0 - Arg 9 - Up to 9 arguments representing the variables
         that go into the log entry.
@@ -159,15 +160,15 @@ public:
 
     /** put_l - Puts a localized message to the defined log file
         @param logFileType - Type of log file (Trace, etc.)
-        @param systemId  - ID of the system generating the log entry within 
+        @param systemId  - ID of the system generating the log entry within
         Pegasus. This is user defined but generally breaks down into major
         Pegasus components.
         @param level logLevel of the log entry. To be used both t0
-        mark the log entry and tested against a mask to determine if log 
+        mark the log entry and tested against a mask to determine if log
         entry should be written.
-        @param messageId Message ID of the format string to load from 
-        the resource bundle. 
-        @param formatString     Default format definition string. See the 
+        @param messageId Message ID of the format string to load from
+        the resource bundle.
+        @param formatString     Default format definition string. See the
         Formatter for details.  This will be used as the default format string
         in case the resource bundle cannot be found.
         @param Arg0 - Arg 9 - Up to 9 arguments representing the variables
@@ -181,7 +182,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,                    
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
@@ -200,7 +201,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,                    
+        const String& messageId,
         const String& formatString);
 
     /** Optimized one-argument form of put_l().
@@ -209,7 +210,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,                    
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0);
 
@@ -219,7 +220,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,                    
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1);
@@ -230,7 +231,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         Uint32 logLevel,
-        const String& messageId,                    
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
@@ -238,7 +239,7 @@ public:
 
 #endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
-    /** Puts a message to the define log. Should only be used for trace type 
+    /** Puts a message to the define log. Should only be used for trace type
         logs.
     */
     static void trace(
@@ -255,7 +256,7 @@ public:
         const Formatter::Arg& arg6 = Formatter::DEFAULT_ARG,
         const Formatter::Arg& arg7 = Formatter::DEFAULT_ARG,
         const Formatter::Arg& arg8 = Formatter::DEFAULT_ARG,
-        const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG); 
+        const Formatter::Arg& arg9 = Formatter::DEFAULT_ARG);
 
     /** Optimized three-argument form of trace().
     */
@@ -304,7 +305,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,                       
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
@@ -323,7 +324,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,                       
+        const String& messageId,
         const String& formatString);
 
     /** Optimized one-argument form of trace_l().
@@ -332,7 +333,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,                       
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0);
 
@@ -342,7 +343,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,                       
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1);
@@ -353,7 +354,7 @@ public:
         LogFileType logFileType,
         const String& systemId,
         const Uint32 logComponent,
-        const String& messageId,                       
+        const String& messageId,
         const String& formatString,
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
@@ -387,15 +388,15 @@ public:
         <pre>
         if (Logger::wouldLog(Logger::TRACE))
         {
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, 
+            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER,
                 Logger::TRACE, "HTTPMessage - HTTP header name: $0  "
                 "HTTP header value: $1" ,name,value);
         }
         </pre>
     */
-    static bool wouldLog(Uint32 logLevel)
+    static Boolean wouldLog(Uint32 logLevel)
     {
-        return _severityMask & logLevel;
+        return (_severityMask & logLevel) != 0;
     }
 
 private:

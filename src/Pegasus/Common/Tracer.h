@@ -32,6 +32,7 @@
 // Modified By: Jenny Yu, Hewlett-Packard Company (jenny_yu@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -380,7 +381,7 @@ public:
      */
     static void setModuleName(const String& moduleName);
 
-    static bool isTraceOn() { return _traceOn; }
+    static Boolean isTraceOn() { return _traceOn; }
 
 private:
 
@@ -389,7 +390,7 @@ private:
         Used to wrap the public static trace interface methods to avoid
         obsolete calls when tracing is turned off.
      */
-    static Uint32 _traceOn;
+    static Boolean _traceOn;
 
     static const char   _COMPONENT_SEPARATOR;
     static const Uint32 _NUM_COMPONENTS;

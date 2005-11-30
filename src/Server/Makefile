@@ -191,6 +191,11 @@ createSSLTrustDirectories:
 	@$(MKDIRHIER) $(PEGASUS_HOME)/indication_trust
 	@$(MKDIRHIER) $(PEGASUS_HOME)/crl
 
+removeSSLTrustDirectories:
+	@$(RMDIRHIER) $(PEGASUS_HOME)/cimserver_trust
+	@$(RMDIRHIER) $(PEGASUS_HOME)/indication_trust
+	@$(RMDIRHIER) $(PEGASUS_HOME)/crl
+
 stageServerSSLFiles-SystemSpecific:
 	@$(MAKE) -f $(ROOT)/src/Server/Makefile cleanupSSLFiles
 	@$(COPY) ssl.rnd $(PEGASUS_HOME)

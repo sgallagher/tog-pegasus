@@ -228,12 +228,24 @@ servertestsclean: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
 
-
 servertestssetup: FORCE
+ifdef PEGASUS_HAS_SSL
+# The association between user names and certificates is stored in the repository.  If the
+# repository is recreated, we also need to re-initialize the trust store directories.
+# Otherwise, the truststore content will be out-of-sync with the mapping stored in the
+# repository.
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile removeSSLTrustDirectories
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile createSSLTrustDirectories
+endif
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstart
 	$(SLEEP) 5
+ifdef PEGASUS_HAS_SSL
+ifdef PEGASUS_TEST_USER_DEFINED
+	ssltrustmgr -a -c pegtest -f $(PEGASUS_HOME)/server.pem
+endif
+endif
 
 servertests: servertestsclean servertestssetup serversuite
 	@ $(ECHO) "+++++ TestMakefile servertests suites complete"
@@ -349,19 +361,22 @@ run_IndInit_TS1:
 ##  Configuration Options: (none)
 ##
 ###############################################################################
-INDSSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true
+INDSSL_TS1a_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=false
 INDSSL_TS1a_TEST_CMDS = \
-	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient@@-f@@Makefile@@wql_10_1@@p=HTTPS
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient@@-f@@Makefile@@run_TS1_AuthenticationDisabled
+
+INDSSL_TS1b_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true sslClientVerificationMode=required
 INDSSL_TS1b_TEST_CMDS = \
-	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient@@-f@@Makefile@@cql_10_1@@p=HTTPS
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Providers/TestProviders/IndicationStressTestProvider/testclient@@-f@@Makefile@@run_TS1_AuthenticationEnabled
+
 
 ifdef PEGASUS_HAS_SSL
 run_INDSSL_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
-            CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1_CONFIG_OPTIONS)" \
+            CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1a_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(INDSSL_TS1a_TEST_CMDS)"
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
-            CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1_CONFIG_OPTIONS)" \
+            CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1b_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(INDSSL_TS1b_TEST_CMDS)"
 else
 run_INDSSL_TS1: FORCE

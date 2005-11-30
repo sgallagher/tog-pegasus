@@ -162,3 +162,35 @@ cql_1000_100:
 
 testsclean:
 	$(PROGRAM) cleanup
+
+run_TS1_AuthenticationEnabled: testsclean run_TS1_INTERNAL run_TS1_HTTPS_VERIFY_USER
+	@ $(ECHO) run_TS1_AuthenticationEnabled  +++++ passed all test
+
+run_TS1_AuthenticationDisabled: testsclean run_TS1_INTERNAL run_TS1_HTTP run_TS1_HTTPS
+	@ $(ECHO) run_TS1_AuthenticationDisabled  +++++ passed all test
+
+run_TS1_INTERNAL:
+	$(PROGRAM) setup WQL
+	$(PROGRAM) run 10 1
+	$(PROGRAM) cleanup
+
+run_TS1_HTTP:
+	$(PROGRAM) setup WQL HTTP
+	$(PROGRAM) run 10 1
+	$(PROGRAM) cleanup
+
+run_TS1_HTTPS:
+ifdef PEGASUS_HAS_SSL
+ifdef PEGASUS_TEST_USER_DEFINED
+	$(PROGRAM) setup WQL HTTPS
+	$(PROGRAM) run 10 1
+endif
+endif
+
+run_TS1_HTTPS_VERIFY_USER:
+ifdef PEGASUS_HAS_SSL
+ifdef PEGASUS_TEST_USER_DEFINED
+	$(PROGRAM) setup WQL HTTPS
+	$(PROGRAM) run 10 1 pegtest
+endif
+endif

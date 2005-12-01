@@ -147,9 +147,9 @@ public:
 
         <pre>
         CIMName n;
-        PEGASUS_ASSERT(n.isNull());
+        assert(n.isNull());
         n = "name";
-        PEGASUS_ASSERT(!n.isNull());
+        assert(!n.isNull());
         </pre>
     */
     Boolean isNull() const;
@@ -160,7 +160,7 @@ public:
         <pre>
         CIMName n("name");
         n.clear();
-        PEGASUS_ASSERT(n.isNull());
+        assert(n.isNull());
         </pre>
     */
     void clear();
@@ -193,8 +193,8 @@ public:
         @return Returns true if the name is legal, otherwise false.
 
         <pre>
-        PEGASUS_ASSERT(CIMName::legal("name"));
-        PEGASUS_ASSERT(!CIMName::legal("3types"));
+        assert(CIMName::legal("name"));
+        assert(!CIMName::legal("3types"));
         </pre>
     */
     static Boolean legal(const String& name);
@@ -359,9 +359,9 @@ public:
             @return true if Null or false if not Null.
             <pre>
                         CIMName n;
-                        PEGASUS_ASSERT(n.isNull());
+                        assert(n.isNull());
                         n = "name";
-                        PEGASUS_ASSERT(!n.isNull());
+                        assert(!n.isNull());
             </pre>
         */
     Boolean isNull() const;
@@ -372,7 +372,7 @@ public:
             <pre>
                         CIMNamespaceName ns("root/test");
                         ns.clear();
-                        PEGASUS_ASSERT(ns.isNull());
+                        assert(ns.isNull());
             </pre>
         */
     void clear();
@@ -383,7 +383,7 @@ public:
                 <pre>
                 CIMNamespaceName ns("root/test");
                 CIMNamespaceName ns1("root/test");
-                PEGASUS_ASSERT( ns.equal(ns1);
+                assert( ns.equal(ns1);
             </pre>
     */
     Boolean equal(const CIMNamespaceName& name) const;
@@ -393,7 +393,7 @@ public:
         @param name String to test for legality.
         @return true if the given name is legal, false otherwise.
         <pre>
-                PEGASUS_ASSERT(CIMNamespaceName::legal("root/test"));
+                assert(CIMNamespaceName::legal("root/test"));
         </pre>
     */
     static Boolean legal(const String& name);

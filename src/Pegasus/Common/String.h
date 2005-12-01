@@ -234,7 +234,7 @@ public:
     @return Length of the String in characters. For example,
     <pre>
         String s = "abcd";
-        PEGASUS_ASSERT(s.size() == 4);
+        assert(s.size() == 4);
     </pre>
         returns a value of 4 for the length.
     */
@@ -318,7 +318,7 @@ public:
     <pre>
         String test = "abc";
         test.append(Char16('d'));
-        PEGASUS_ASSERT(test == "abcd");
+        assert(test == "abcd");
     </pre>
     @exception bad_alloc Thrown if there is insufficient memory.
     */
@@ -338,7 +338,7 @@ public:
     <pre>
         String test = "abc";
         test.append("def");
-        PEGASUS_ASSERT(test == "abcdef");
+        assert(test == "abcdef");
     </pre>
     @exception bad_alloc Thrown if there is insufficient memory.
     */
@@ -354,11 +354,11 @@ public:
         String s;
         s = "abc";
         s.remove(0, 1);
-        PEGASUS_ASSERT(String::equal(s, "bc"));
-        PEGASUS_ASSERT(s.size() == 2);
+        assert(String::equal(s, "bc"));
+        assert(s.size() == 2);
         s.remove(0);
-        PEGASUS_ASSERT(String::equal(s, ""));
-        PEGASUS_ASSERT(s.size() == 0);
+        assert(String::equal(s, ""));
+        assert(s.size() == 0);
     </pre>
     @exception IndexOutOfBoundsException If size is greater than
     length of String plus starting index for remove.
@@ -461,7 +461,7 @@ public:
         String s1 = "Hello World";
         String s2 = s1;
         String s3(s2);
-        PEGASUS_ASSERT(String::equal(s1, s3));
+        assert(String::equal(s1, s3));
     </pre>
     */
     static Boolean equal(const String& str1, const String& str2);
@@ -547,7 +547,7 @@ PEGASUS_COMMON_LINKAGE PEGASUS_STD(ostream)& operator<<(
         String t1 = "abc";
         String t2;
         t2 = t1 + "def"
-        PEGASUS_ASSERT(t2 == "abcdef");
+        assert(t2 == "abcdef");
     </pre>
 */
 PEGASUS_COMMON_LINKAGE String operator+(const String& str1, const String& str2);
@@ -556,7 +556,7 @@ PEGASUS_COMMON_LINKAGE String operator+(const String& str1, const String& str2);
     <pre>
         String t1 = "def";
         String t2 = "a";
-        PEGASUS_ASSERT (t2 < t1);
+        assert (t2 < t1);
     </pre>
     @param str1 REVIEWERS: Insert description here.
     @param str2 REVIEWERS: Insert description here.

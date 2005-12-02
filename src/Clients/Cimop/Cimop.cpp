@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,6 +28,8 @@
 //==============================================================================
 //
 // Author: Mike Glantz, Hewlett-Packard Company (michael_glantz@hp.com)
+//
+// Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -109,11 +111,11 @@ int main(const int argc, const char **argv)
   // Get namespace from environment or use default
   p = getenv("CIM_NAMESPACE");
   _nameSpace = (p==0)? DEFAULT_NAMESPACE:p;
-  
+
   // Get user from environment or don't specify
   p = getenv("CIM_USER");
   _userName = (p==0)? String::EMPTY : p;
-  
+
   // Get password from environment or use empty
   p = getenv("CIM_PASSWORD");
   _passWord = (p==0)? String::EMPTY : p;
@@ -247,10 +249,10 @@ int _getClass(const int argc, const char **argv)
   cout << "class " << cldef.getClassName().getString() << " : "
     << cldef.getSuperClassName().getString() << endl;
   cout << "{" << endl;
-  
+
   // Now the properties
   // No qualifiers except [key], but specify type, array
-  for (int i=0; i<cldef.getPropertyCount(); i++)
+  for (Uint32 i=0; i<cldef.getPropertyCount(); i++)
   {
     CIMProperty p = cldef.getProperty(i);
     cout << "  ";
@@ -269,9 +271,9 @@ int _getClass(const int argc, const char **argv)
     // final eol
     cout << ";" << endl;
   }
-  
+
   // need to do methods
-  for (int i=0; i<cldef.getMethodCount(); i++)
+  for (Uint32 i=0; i<cldef.getMethodCount(); i++)
   {
     CIMMethod m = cldef.getMethod(i);
     // output type
@@ -280,13 +282,13 @@ int _getClass(const int argc, const char **argv)
     cout << m.getName().getString() << "(";
     // output parameters
     // new line if there are any parameters
-    for (int j=0; j<m.getParameterCount(); j++)
+    for (Uint32 j=0; j<m.getParameterCount(); j++)
     {
       CIMParameter p = m.getParameter(j);
       // output IN/OUT qualifiers on a fresh line
       cout << endl << "    [ ";
       // loop through qualifiers looking for IN, OUT
-      for (int k=0; k<p.getQualifierCount(); k++)
+      for (Uint32 k=0; k<p.getQualifierCount(); k++)
       {
         // when one found, output its value
         CIMQualifier q = p.getQualifier(k);
@@ -313,11 +315,11 @@ int _getClass(const int argc, const char **argv)
     // finish output
     cout << ";" << endl;
   }
-  
+
   // final brace and done
   cout << "};" << endl;
 
-  return 0; 
+  return 0;
 }
 
 // ===============================================================
@@ -364,12 +366,12 @@ int _enumerateClassNames(const int argc, const char **argv)
   if (0!=getenv("CIM_NAMESPACE"))
     cerr << "Classes in namespace " << _nameSpace << ":" << endl;
 
-  for (int i=0; i<cn.size(); i++)
+  for (Uint32 i=0; i<cn.size(); i++)
   {
     // print class name after current tab amount
     cout << tab << cn[i].getString() << endl;
     // recurse to print subclasses of this class with a larger tab
-    if (_recursiveClassEnum( cn[i], tab+"  " )!=0) return 1; 
+    if (_recursiveClassEnum( cn[i], tab+"  " )!=0) return 1;
   }
   return 0;
 }
@@ -385,7 +387,7 @@ int _getInstance(const int argc, const char **argv)
     _giUsage();
     return 1;
   }
-  
+
   // need to get class definition to find keys
   // first arg is name of class
   CIMClass cldef;
@@ -407,7 +409,7 @@ int _getInstance(const int argc, const char **argv)
                                        _nameSpace,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
-  
+
   // else if there's another arg and it's "list", enumInstNames and print
   // a list from which user will select (return if none)
   else if (String::equalNoCase("list",argv[1]))
@@ -416,7 +418,7 @@ int _getInstance(const int argc, const char **argv)
     // An empty ObjectPath means nothing was selected
     if (ref.identical(CIMObjectPath())) return 0;
   }
-    
+
   // else there's another arg but it's invalid
   else
   {
@@ -460,10 +462,10 @@ int _enumerateInstances(const int argc, const char **argv)
     cerr << /* "enumerateInstances: " << */ e.getMessage() << endl;
     return 1;
   }
-  
+
   cerr << ia.size() << " instances" << endl;
-  
-  for (int i=0; i<ia.size(); i++)
+
+  for (Uint32 i=0; i<ia.size(); i++)
   {
     cout << endl;
     // display property names and values
@@ -484,7 +486,7 @@ int _enumerateInstanceNames(const int argc, const char **argv)
     return 1;
   }
 
-  Array<CIMObjectPath> iNames; 
+  Array<CIMObjectPath> iNames;
   try
   {
     iNames = _c.enumerateInstanceNames( _nameSpace, argv[0] );
@@ -497,7 +499,7 @@ int _enumerateInstanceNames(const int argc, const char **argv)
 
   cerr << iNames.size() << " instance(s)" << endl;
 
-  for (int i=0; i<iNames.size(); i++)
+  for (Uint32 i=0; i<iNames.size(); i++)
     cout << "  " << iNames[i].toString() << endl;
   return 0;
 }
@@ -513,7 +515,7 @@ int _getProperty(const int argc, const char **argv)
     _gpUsage();
     return 1;
   }
-  
+
   // need to get class definition to find keys
   // first arg is name of class
   CIMClass cldef;
@@ -537,7 +539,7 @@ int _getProperty(const int argc, const char **argv)
                                                    _inputInstanceKeys(cldef) );
 
   // else if the next arg and is "list", enumInstNames and print
-  // a list from which user will select  
+  // a list from which user will select
   else if (String::equalNoCase("list",argv[1]))
   {
     ref = _selectInstance( argv[0] );
@@ -555,7 +557,7 @@ int _getProperty(const int argc, const char **argv)
   // if no more args, display property names and ask which
   if (argc < 3)
   {
-    int n;
+    Uint32 n;
     for (n=0; n<cldef.getPropertyCount(); n++)
     {
       pDef=cldef.getProperty(n);
@@ -595,7 +597,7 @@ int _getProperty(const int argc, const char **argv)
   }
 
   cout << "  " << pDef.getName().getString();
-  
+
   if (v.isArray()) cout << "[" << v.getArraySize() << "]";
 
   if (v.isNull()) cout << "=NULL";
@@ -621,7 +623,7 @@ int _setProperty(const int argc, const char **argv)
     _spUsage();
     return 1;
   }
-  
+
   // need to get class definition to find keys
   // first arg is name of class
   CIMClass cldef;
@@ -645,7 +647,7 @@ int _setProperty(const int argc, const char **argv)
                                                    _inputInstanceKeys(cldef) );
 
   // else if the next arg is "list", do enumInstNames and print
-  // a list from which user will select  
+  // a list from which user will select
   else if (String::equalNoCase("list",argv[1]))
   {
     ref = _selectInstance( argv[0] );
@@ -664,7 +666,7 @@ int _setProperty(const int argc, const char **argv)
   // if no more args, display property names and ask which to set
   if (argc < 3)
   {
-    int n;
+    Uint32 n;
     for (n=0; n<cldef.getPropertyCount(); n++)
     {
       cout << n+1 << ": ";
@@ -790,13 +792,13 @@ int _createInstance(const int argc, const char **argv)
     _ciUsage();
     return 1;
   }
-  
+
   // get class definition
   CIMClass cldef;
 
   // Handle special case of __Namespace
   if (String::equalNoCase(argv[0],"__namespace")) cldef = _makeNamespaceClass();
-    
+
   else
   {
     try
@@ -814,7 +816,7 @@ int _createInstance(const int argc, const char **argv)
   Array<CIMKeyBinding> keys;
 
   // prompt user for property values
-  for (int i=0; i<cldef.getPropertyCount(); i++)
+  for (Uint32 i=0; i<cldef.getPropertyCount(); i++)
   {
     // display the property
     CIMProperty pDef(cldef.getProperty(i));
@@ -877,7 +879,7 @@ int _modifyInstance(const int argc, const char **argv)
     _miUsage();
     return 1;
   }
-  
+
   // need to get class definition to find keys
   // first arg is name of class
   CIMClass cldef;
@@ -901,7 +903,7 @@ int _modifyInstance(const int argc, const char **argv)
                                     _inputInstanceKeys(cldef) );
 
   // if the next arg is "list", do enumInstNames and print
-  // a list from which user will select  
+  // a list from which user will select
   else if (String::equalNoCase("list",argv[1]))
   {
     ref = _selectInstance( argv[0] );
@@ -928,7 +930,7 @@ int _modifyInstance(const int argc, const char **argv)
   }
 
   // display property names and ask which to modify
-  int n;
+  Uint32 n;
   for (n=0; n<cldef.getPropertyCount(); n++)
   {
     cout << n+1 << ": ";
@@ -962,7 +964,7 @@ int _modifyInstance(const int argc, const char **argv)
     gets(v);
 
     // remove property if one of same name exists
-    int p=tmpInst.findProperty(pDef.getName().getString());
+    Uint32 p=tmpInst.findProperty(pDef.getName().getString());
     if (p!=PEG_NOT_FOUND) tmpInst.removeProperty(p);
     // insert a property with this value in the instance
     pDef.setValue(_makeValue(v,pDef));
@@ -979,7 +981,7 @@ int _modifyInstance(const int argc, const char **argv)
 
   // need to re-ask if n=999, and use null propertyList
   if (n==999)
-    for (int i=0; i<cldef.getPropertyCount(); i++)
+    for (Uint32 i=0; i<cldef.getPropertyCount(); i++)
     {
       CIMProperty pDef(cldef.getProperty(i));
       cout << cimTypeToString(pDef.getType()) << " " << pDef.getName().getString();
@@ -1029,7 +1031,7 @@ int _deleteInstance(const int argc, const char **argv)
     _diUsage();
     return 1;
   }
-  
+
   // need to get class definition to find keys
   // first arg is name of class
   CIMClass cldef;
@@ -1058,7 +1060,7 @@ int _deleteInstance(const int argc, const char **argv)
                                        _nameSpace,
                                        argv[0],
                                        _inputInstanceKeys(cldef));
-  
+
   // else if there's another arg and it's "list", enumInstNames and print
   // a list from which user will select (return if none)
   else if (String::equalNoCase("list",argv[1]))
@@ -1067,7 +1069,7 @@ int _deleteInstance(const int argc, const char **argv)
     // An empty ObjectPath means nothing was selected
     if (ref.identical(CIMObjectPath())) return 0;
   }
-    
+
   // else there's another arg but it's invalid
   else
   {
@@ -1188,7 +1190,7 @@ int _enumerateQualifiers(const int argc, const char **argv)
 Array<CIMKeyBinding> _inputInstanceKeys(CIMClass &cldef)
 {
   Array<CIMKeyBinding> kb;
-  for (int i=0; i<cldef.getPropertyCount(); i++)
+  for (Uint32 i=0; i<cldef.getPropertyCount(); i++)
   {
     CIMProperty prop = cldef.getProperty(i);
     if (_isKey(prop))
@@ -1252,7 +1254,7 @@ CIMObjectPath _selectInstance(const String &clnam)
   }
 
   // Display them, numbered starting at 1
-  int i;
+  Uint32 i;
   for (i=0; i<iNames.size(); i++)
     cout << i+1 << ": " << iNames[i].toString() << endl;
   i = 0;
@@ -1275,7 +1277,7 @@ CIMObjectPath _selectInstance(const String &clnam)
 
 void _displayInstance(CIMInstance &inst)
 {
-  for (int j=0; j<inst.getPropertyCount(); j++)
+  for (Uint32 j=0; j<inst.getPropertyCount(); j++)
     cout << "  " << _displayProperty(inst.getProperty(j)) << endl;
 }
 
@@ -1309,22 +1311,16 @@ Boolean _isKey(const CIMProperty &p)
 String _displayProperty(const CIMProperty &p)
 {
   String s = p.getName().getString();
-  
+
   CIMValue v = p.getValue();
 
   if (v.isArray())
   {
-    s.append("[");
-
-#if defined(PEGASUS_COMPILER_MSVC)
     char buf[40];
-    sprintf( buf, "%d", v.getArraySize() );
-#else
-    s.append(ultoa(v.getArraySize()));
-#endif
-    s.append("]");
+    sprintf( buf, "[%u]", v.getArraySize() );
+    s.append(buf);
   }
-  
+
   s.append(" = ");
 
   if (v.isNull())
@@ -1675,7 +1671,7 @@ int _recursiveClassEnum(const CIMName &className, String tab)
     return 1;
   }
 
-  for (int i=0; i<cn.size(); i++)
+  for (Uint32 i=0; i<cn.size(); i++)
   {
     cout << tab << cn[i].getString() << endl;
     if (_recursiveClassEnum( cn[i], tab+"  " ) != 0) return 1;

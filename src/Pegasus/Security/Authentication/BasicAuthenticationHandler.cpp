@@ -142,6 +142,15 @@ Boolean BasicAuthenticationHandler::authenticate(
     {
         authInfo->setAuthenticatedUser(userName);
     }
+    else
+    {
+        //
+        //  Log a message for basic authentication failure
+        //
+        Logger::put_l (Logger::STANDARD_LOG, System::CIMSERVER,
+                       Logger::INFORMATION,  BASIC_AUTHENTICATION_FAILED_KEY, 
+                       BASIC_AUTHENTICATION_FAILED, userName );
+    }
 #endif
 
     PEG_METHOD_EXIT();

@@ -52,6 +52,12 @@ PEGASUS_NAMESPACE_BEGIN
     Implements the AuthenticationHandler for Basic authentication
 */
 
+static const char BASIC_AUTHENTICATION_FAILED_KEY [] = 
+    "Security.Authentication.BasicAuthenticationHandler.BASIC_AUTHENTICATION_FAILED";
+
+static const char BASIC_AUTHENTICATION_FAILED [] = 
+  "Authentication failed for user=$0.";
+
 class PEGASUS_SECURITY_LINKAGE BasicAuthenticationHandler : public Authenticator
 {
 public:
@@ -84,6 +90,7 @@ public:
         AuthenticationInfo* authInfo = 0);
 
     Boolean validateUser(const String& userName);
+
 
 private:
 

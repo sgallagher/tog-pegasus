@@ -5603,6 +5603,16 @@ ProviderManager.CMPI.CMPIProviderModule.CONFLICTING_CMPI_STYLE:string {"PGS16506
         */
         src.Service.ServerProcessUnix.CIMSERVER_START_TIMEOUT:string {"PGS17000: The cimserver command timed out waiting for the CIM server to start."}
 
+        // ==========================================================
+        // Messages for Security BasicAuthenticationHandler
+        //  Please use message prefix "PGS17200"
+        // ==========================================================
+
+        /**
+        * @note  PGS17200:
+        *    Substitution {0} is a user name (a string)
+        */
+        Security.Authentication.BasicAuthenticationHandler.BASIC_AUTHENTICATION_FAILED:string {"PGS17200: Authentication failed for user {0}."}
 
 // ==============================================================================
 // END OF RESOURCE BUNDLE

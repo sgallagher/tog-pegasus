@@ -88,7 +88,15 @@
 #endif
 
 
-#define PEGASUS_TEST_ASSERT(COND) if (!(COND)) abort()
+#define PEGASUS_TEST_ASSERT(COND)                                 \
+do                                                                \
+{                                                                 \
+  if (!(COND))							  \
+    {								  \
+      printf("PEGASUS_TEST_ASSERT failed in file %s at line %d\n",__FILE__, __LINE__); \
+      abort();							  \
+    }								  \
+} while (0)
 
 
 #endif  /* Pegasus_Assert_h */

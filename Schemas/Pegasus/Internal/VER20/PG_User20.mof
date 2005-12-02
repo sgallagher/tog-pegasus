@@ -59,7 +59,7 @@ class PG_User
     [Description
 	("Method to change user's password. "
 	 "The oldPassword parameter specifies the user's current password. "
-	 "The newPassword parameter specifies the user's new password. " ) ]
+	 "The newPassword parameter specifies the user's new password." ) ]
 
     Uint32 modifyPassword( [IN] string oldPassword, [IN] string newPassword);
 

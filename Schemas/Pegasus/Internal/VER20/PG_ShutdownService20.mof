@@ -47,12 +47,12 @@
 class PG_ShutdownService
 {
      [Description 
-         ("Method to shutdown the CIM server.  If force is set "
+         ("Method to shutdown the CIM server. If force is set "
           "to TRUE, the CIM server will be shutdown regardless if there "
-          "are outstanding CIM operation requests.  The timeout value "
+          "are outstanding CIM operation requests. The timeout value "
           "is the amount of time in seconds that the CIM Server will "
           "wait for all the outstanding CIM operation requests to complete "
-          "before shutting down the CIM server.  If the specified timeout "
+          "before shutting down the CIM server. If the specified timeout "
           "expires and force is FALSE, CIM server will not be shutdown.") ]
            
      Uint32 shutdown( [IN] boolean force, [IN] uint32 timeout);

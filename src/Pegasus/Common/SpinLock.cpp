@@ -47,7 +47,8 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-SpinLock sharedSpinLocks[PEGASUS_NUM_SHARED_SPIN_LOCKS];
+SpinLock spinLockPool[PEGASUS_NUM_SHARED_SPIN_LOCKS];
+int spinLockPoolInitialized;
 
 #ifdef PEGASUS_SPINLOCK_USE_PTHREADS
 pthread_mutex_t _spinLockInitMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -55,27 +56,79 @@ pthread_mutex_t _spinLockInitMutex = PTHREAD_MUTEX_INITIALIZER;
 static Mutex _spinLockInitMutex;
 #endif
 
-void SpinLockConditionalCreate(SpinLock& lock)
+void SpinLockCreatePool()
 {
-    // Use double-checked locking pattern to avoid mutex lock when possible.
+    // There's no need to check spinLockPoolInitialized before locking the
+    // mutex, because the caller can check the flag before calling this
+    // function.
 
-    if (lock.initialized == 0)
+#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
+    pthread_mutex_lock(&_spinLockInitMutex);
+#else
+    _spinLockInitMutex.lock(pegasus_thread_self());
+#endif
+
+    if (spinLockPoolInitialized == 0)
     {
-#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
-	pthread_mutex_lock(&_spinLockInitMutex);
-#else
-	_spinLockInitMutex.lock(pegasus_thread_self());
-#endif
+        for (size_t i = 0; i < PEGASUS_NUM_SHARED_SPIN_LOCKS; i++)
+            SpinLockCreate(spinLockPool[i]);
 
-	if (lock.initialized == 0)
-	    SpinLockCreate(lock);
-
-#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
-	pthread_mutex_unlock(&_spinLockInitMutex);
-#else
-	_spinLockInitMutex.unlock();
-#endif
+        spinLockPoolInitialized = 1;
     }
+
+#ifdef PEGASUS_SPINLOCK_USE_PTHREADS
+    pthread_mutex_unlock(&_spinLockInitMutex);
+#else
+    _spinLockInitMutex.unlock();
+#endif
 }
+
+#if defined(PEGASUS_SPINLOCK_USE_PTHREADS)
+
+// This function is called prior to forking.  We must obtain a lock
+// on every mutex that the child will inherit.  These will remain locked
+// until they are unlocked (by _unlockSpinLockPool()).  This prevents a
+// child process from waiting indefinitely on a mutex that was locked by
+// another thread in the parent process during the fork.
+
+void _lockSpinLockPool()
+{
+    // Initialize the spinlock pool if not already done.
+
+    if (spinLockPoolInitialized == 0)
+        SpinLockCreatePool();
+
+    pthread_mutex_lock(&_spinLockInitMutex);
+
+    for (size_t i = 0; i < PEGASUS_NUM_SHARED_SPIN_LOCKS; i++)
+        SpinLockLock(spinLockPool[i]);
+}
+
+// This function is called after forking.  It unlocks the mutexes that
+// were locked by _lockSpinLockPool() before the fork.
+
+void _unlockSpinLockPool()
+{
+    pthread_mutex_unlock(&_spinLockInitMutex);
+
+    for (size_t i = 0; i < PEGASUS_NUM_SHARED_SPIN_LOCKS; i++)
+        SpinLockUnlock(spinLockPool[i]);
+}
+
+class SpinLockInitializer
+{
+public:
+    SpinLockInitializer()
+    {
+        pthread_atfork(
+            _lockSpinLockPool,
+            _unlockSpinLockPool,
+            _unlockSpinLockPool);
+    }
+};
+
+static SpinLockInitializer spinLockInitializer;
+
+#endif /* PEGASUS_SPINLOCK_USE_PTHREADS */
 
 PEGASUS_NAMESPACE_END

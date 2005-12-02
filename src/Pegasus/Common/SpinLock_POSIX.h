@@ -44,13 +44,11 @@ PEGASUS_NAMESPACE_BEGIN
 struct SpinLock
 {
     pthread_spinlock_t lock;
-    Uint32 initialized;
 };
 
 inline void SpinLockCreate(SpinLock& x)
 {
     pthread_spin_init(&x.lock, 0);
-    x.initialized = 1;
 }
 
 inline void SpinLockDestroy(SpinLock& x)

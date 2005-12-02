@@ -49,7 +49,6 @@ struct SpinLock
 {
     pthread_mutexattr_t attr;
     pthread_mutex_t mutex;
-    Uint32 initialized;
 };
 
 inline void SpinLockCreate(SpinLock& x)
@@ -57,7 +56,6 @@ inline void SpinLockCreate(SpinLock& x)
     pthread_mutexattr_init(&x.attr);
     pthread_mutexattr_setspin_np(&x.attr, PTHREAD_MUTEX_SPINONLY_NP);
     pthread_mutex_init(&x.mutex, &x.attr);
-    x.initialized = 1;
 }
 
 inline void SpinLockDestroy(SpinLock& x)

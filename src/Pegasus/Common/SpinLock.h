@@ -52,17 +52,18 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// This array defines spin locks shared across the system. Note that these
-// are initialized in a lazy fashion. Before using one, check the initialized
-// member. If zero, then call SpinLockConditionalCreate().
-extern SpinLock sharedSpinLocks[PEGASUS_NUM_SHARED_SPIN_LOCKS];
+// This array defines spin locks shared across the system. These are 
+// initialized by calling SpinLockCreatePool().
+extern SpinLock spinLockPool[PEGASUS_NUM_SHARED_SPIN_LOCKS];
 
-// Calls SpinLockCreate() on the given lock if lock.initialized is zero. The
-// function uses a mutex so it is safe to call this function from multiple
-// threads on the very same lock (only one of the calls will succeed.
-void SpinLockConditionalCreate(SpinLock& lock);
+// This flag is 0 until SpinLockCreatePool() is called, which sets it
+// to 1.
+extern int spinLockPoolInitialized;
 
-// Maps an address into the sharedSpinLocks[] array defined above. This is used
+// Initializes the global pool of mutexes.
+void SpinLockCreatePool();
+
+// Maps an address into the spinLockPool[] array defined above. This is used
 // to assign objects (by their addresses) to a shared lock. Collisions are 
 // okay.
 inline size_t SpinLockIndex(const void* x)
@@ -71,6 +72,10 @@ inline size_t SpinLockIndex(const void* x)
     // anyway due to alignment properties.
     return ((unsigned long)x >> 2) % PEGASUS_NUM_SHARED_SPIN_LOCKS;
 }
+
+// Call this function before forking to unlock the spinlocks in the global
+// spinlock pool (spinLockPool).
+void SpinLockInit();
 
 PEGASUS_NAMESPACE_END
 

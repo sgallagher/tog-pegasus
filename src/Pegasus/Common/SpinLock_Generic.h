@@ -49,13 +49,11 @@ struct SpinLock
 	char mutex[sizeof(Mutex)];
 	Uint64 alignment8;
     };
-    Uint32 initialized;
 };
 
 inline void SpinLockCreate(SpinLock& x)
 {
     new(&x.mutex) Mutex;
-    x.initialized = 1;
 }
 
 inline void SpinLockDestroy(SpinLock& x)

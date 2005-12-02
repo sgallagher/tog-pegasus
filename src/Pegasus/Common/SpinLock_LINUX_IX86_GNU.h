@@ -45,14 +45,12 @@ struct SpinLock
 {
     // Available when zero.
     volatile int lock;
-    Uint32 initialized;
 };
 
 inline void SpinLockCreate(SpinLock& x)
 {
     // Available when one.
     x.lock = 1;
-    x.initialized = 1;
 }
 
 inline void SpinLockDestroy(SpinLock& x)

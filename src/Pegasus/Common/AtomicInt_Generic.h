@@ -49,10 +49,9 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 inline AtomicIntTemplate<AtomicType>::AtomicIntTemplate(Uint32 n)
 {
     _rep.n = n;
-    size_t i = SpinLockIndex(&_rep);
 
-    if (sharedSpinLocks[i].initialized == 0)
-	SpinLockConditionalCreate(sharedSpinLocks[i]);
+    if (spinLockPoolInitialized == 0)
+	SpinLockCreatePool();
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
@@ -66,9 +65,9 @@ inline Uint32 AtomicIntTemplate<AtomicType>::get() const
 {
     Uint32 tmp;
     size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
+    SpinLockLock(spinLockPool[i]);
     tmp = _rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
+    SpinLockUnlock(spinLockPool[i]);
     return tmp;
 }
 
@@ -76,27 +75,27 @@ PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::set(Uint32 n)
 {
     size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
+    SpinLockLock(spinLockPool[i]);
     _rep.n = n;
-    SpinLockUnlock(sharedSpinLocks[i]);
+    SpinLockUnlock(spinLockPool[i]);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::inc()
 {
     size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
+    SpinLockLock(spinLockPool[i]);
     _rep.n++;
-    SpinLockUnlock(sharedSpinLocks[i]);
+    SpinLockUnlock(spinLockPool[i]);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
 inline void AtomicIntTemplate<AtomicType>::dec()
 {
     size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
+    SpinLockLock(spinLockPool[i]);
     _rep.n--;
-    SpinLockUnlock(sharedSpinLocks[i]);
+    SpinLockUnlock(spinLockPool[i]);
 }
 
 PEGASUS_TEMPLATE_SPECIALIZATION
@@ -104,9 +103,9 @@ inline bool AtomicIntTemplate<AtomicType>::decAndTestIfZero()
 {
     Uint32 tmp;
     size_t i = SpinLockIndex(&_rep);
-    SpinLockLock(sharedSpinLocks[i]);
+    SpinLockLock(spinLockPool[i]);
     tmp = --_rep.n;
-    SpinLockUnlock(sharedSpinLocks[i]);
+    SpinLockUnlock(spinLockPool[i]);
     return tmp == 0;
 }
 

@@ -1133,19 +1133,7 @@ void CIMValue::get(CIMObject& x) const
         throw TypeMismatchException();
 
     if (!_rep->isNull)
-    {
-	if (_rep->refs.get() != 1)
-	{
-	    // We have to make our own unique copy since we are about to
-	    // return an object to the caller that he can modify; thereby,
-	    // changing the one we refer to as well.
-
-	    CIMObject tmp = CIMValueType<CIMObject>::ref(_rep);
-	    ((CIMValue*)this)->set(tmp);
-	}
-
-        x = CIMValueType<CIMObject>::ref(_rep);
-    }
+        x = CIMValueType<CIMObject>::ref(_rep).clone();
 }
 
 void CIMValue::get(Array<Boolean>& x) const

@@ -43,6 +43,7 @@
 #include <iostream>
 #include <cstring>
 #include "HTTPMessage.h"
+#include "ArrayIterator.h"
 
 PEGASUS_USING_STD;
 
@@ -293,10 +294,12 @@ void HTTPMessage::printAll(ostream& os) const
  */
 
 void HTTPMessage::lookupHeaderPrefix(
-    Array<HTTPHeader>& headers,
+    Array<HTTPHeader>& headers_,
     const String& fieldName,
     String& prefix)
 {
+	ArrayIterator<HTTPHeader> headers(headers_);
+
 	static const char keyword[] = "CIM";
 	prefix.clear();
 
@@ -329,11 +332,13 @@ void HTTPMessage::lookupHeaderPrefix(
 }
 
 Boolean HTTPMessage::lookupHeader(
-    Array<HTTPHeader>& headers,
+    Array<HTTPHeader>& headers_,
     const String& fieldName,
     String& fieldValue,
     Boolean allowNamespacePrefix)
 {
+    ArrayIterator<HTTPHeader> headers(headers_);
+
     for (Uint32 i = 0, n = headers.size(); i < n; i++)
     {
         if (String::equalNoCase(headers[i].first, fieldName) ||

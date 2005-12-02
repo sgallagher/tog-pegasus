@@ -48,6 +48,7 @@
 #include <Pegasus/Common/HTTPConnection.h>
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/Exception.h>
+#include "ArrayIterator.h"
 
 #ifdef PEGASUS_OS_TYPE_WINDOWS
 # if defined(FD_SETSIZE) && FD_SETSIZE != 1024
@@ -354,25 +355,27 @@ Boolean Monitor::run(Uint32 milliseconds)
 
     AutoMutex autoEntryMutex(_entry_mut);
 
+    ArrayIterator<_MonitorEntry> entries(_entries);
+
     // Check the stopConnections flag.  If set, clear the Acceptor monitor entries
     if (_stopConnections.get() == 1)
     {
-        for ( int indx = 0; indx < (int)_entries.size(); indx++)
+        for ( int indx = 0; indx < (int)entries.size(); indx++)
         {
-            if (_entries[indx]._type == Monitor::ACCEPTOR)
+            if (entries[indx]._type == Monitor::ACCEPTOR)
             {
-                if ( _entries[indx]._status.get() != _MonitorEntry::EMPTY)
+                if ( entries[indx]._status.get() != _MonitorEntry::EMPTY)
                 {
-                   if ( _entries[indx]._status.get() == _MonitorEntry::IDLE ||
-                        _entries[indx]._status.get() == _MonitorEntry::DYING )
+                   if ( entries[indx]._status.get() == _MonitorEntry::IDLE ||
+                        entries[indx]._status.get() == _MonitorEntry::DYING )
                    {
                        // remove the entry
-		       _entries[indx]._status = _MonitorEntry::EMPTY;
+		       entries[indx]._status = _MonitorEntry::EMPTY;
                    }
                    else
                    {
                        // set status to DYING
-                      _entries[indx]._status = _MonitorEntry::DYING;
+                      entries[indx]._status = _MonitorEntry::DYING;
                    }
                }
            }
@@ -381,9 +384,9 @@ Boolean Monitor::run(Uint32 milliseconds)
 	_stopConnectionsSem.signal();
     }
 
-    for( int indx = 0; indx < (int)_entries.size(); indx++)
+    for( int indx = 0; indx < (int)entries.size(); indx++)
     {
-			 const _MonitorEntry &entry = _entries[indx];
+			 const _MonitorEntry &entry = entries[indx];
        if ((entry._status.get() == _MonitorEntry::DYING) &&
 					 (entry._type == Monitor::CONNECTION))
        {
@@ -420,8 +423,8 @@ Boolean Monitor::run(Uint32 milliseconds)
           // Once HTTPAcceptor completes processing of the close
           // connection, the lock is re-requested and processing of
           // the for loop continues.  This is safe with the current
-          // implementation of the _entries object.  Note that the
-          // loop condition accesses the _entries.size() on each
+          // implementation of the entries object.  Note that the
+          // loop condition accesses the entries.size() on each
           // iteration, so that a change in size while the mutex is
           // unlocked will not result in an ArrayIndexOutOfBounds
           // exception.
@@ -441,15 +444,15 @@ Boolean Monitor::run(Uint32 milliseconds)
         because we have to traverse the entire array.
     */
     PEGASUS_SOCKET maxSocketCurrentPass = 0;
-    for( int indx = 0; indx < (int)_entries.size(); indx++)
+    for( int indx = 0; indx < (int)entries.size(); indx++)
     {
-       if(maxSocketCurrentPass < _entries[indx].socket)
-            maxSocketCurrentPass = _entries[indx].socket;
+       if(maxSocketCurrentPass < entries[indx].socket)
+            maxSocketCurrentPass = entries[indx].socket;
 
-       if(_entries[indx]._status.get() == _MonitorEntry::IDLE)
+       if(entries[indx]._status.get() == _MonitorEntry::IDLE)
        {
            _idleEntries++;
-           FD_SET(_entries[indx].socket, &fdread);
+           FD_SET(entries[indx].socket, &fdread);
        }
     }
 
@@ -483,7 +486,7 @@ Boolean Monitor::run(Uint32 milliseconds)
           "Monitor::run - errorno = %d has occurred on select.", errno);
        // The EBADF error indicates that one or more or the file
        // descriptions was not valid. This could indicate that
-       // the _entries structure has been corrupted or that
+       // the entries structure has been corrupted or that
        // we have a synchronization error.
 
        PEGASUS_ASSERT(errno != EBADF);
@@ -493,30 +496,30 @@ Boolean Monitor::run(Uint32 milliseconds)
        Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
           "Monitor::run select event received events = %d, monitoring %d idle entries",
            events, _idleEntries);
-       for( int indx = 0; indx < (int)_entries.size(); indx++)
+       for( int indx = 0; indx < (int)entries.size(); indx++)
        {
           // The Monitor should only look at entries in the table that are IDLE (i.e.,
           // owned by the Monitor).
-          if((_entries[indx]._status.get() == _MonitorEntry::IDLE) &&
-             (FD_ISSET(_entries[indx].socket, &fdread)))
+          if((entries[indx]._status.get() == _MonitorEntry::IDLE) &&
+             (FD_ISSET(entries[indx].socket, &fdread)))
           {
-             MessageQueue *q = MessageQueue::lookup(_entries[indx].queueId);
+             MessageQueue *q = MessageQueue::lookup(entries[indx].queueId);
              Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
                   "Monitor::run indx = %d, queueId =  %d, q = %p",
-                  indx, _entries[indx].queueId, q);
+                  indx, entries[indx].queueId, q);
              PEGASUS_ASSERT(q !=0);
 
              try
              {
-                if(_entries[indx]._type == Monitor::CONNECTION)
+                if(entries[indx]._type == Monitor::CONNECTION)
                 {
                    Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
-                     "_entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
+                     "entries[indx].type for indx = %d is Monitor::CONNECTION", indx);
                    static_cast<HTTPConnection *>(q)->_entry_index = indx;
 
                    // Do not update the entry just yet. The entry gets updated once
                    // the request has been read.
-                   //_entries[indx]._status = _MonitorEntry::BUSY;
+                   //entries[indx]._status = _MonitorEntry::BUSY;
 
                    // If allocate_and_awaken failure, retry on next iteration
 /* Removed for PEP 183.
@@ -525,7 +528,7 @@ Boolean Monitor::run(Uint32 milliseconds)
                    {
                       Tracer::trace(TRC_DISCARDED_DATA, Tracer::LEVEL2,
                           "Monitor::run: Insufficient resources to process request.");
-                      _entries[indx]._status = _MonitorEntry::IDLE;
+                      entries[indx]._status = _MonitorEntry::IDLE;
                       return true;
                    }
 */
@@ -566,17 +569,17 @@ Boolean Monitor::run(Uint32 milliseconds)
 		   //}
 // end Added for PEP 183
 		}
-	        else if( _entries[indx]._type == Monitor::INTERNAL){
+	        else if( entries[indx]._type == Monitor::INTERNAL){
 			// set ourself to BUSY,
                         // read the data
                         // and set ourself back to IDLE
 
-		   	_entries[indx]._status = _MonitorEntry::BUSY;
+		   	entries[indx]._status = _MonitorEntry::BUSY;
 			static char buffer[2];
-      			Socket::disableBlocking(_entries[indx].socket);
-      			Sint32 amt = Socket::read(_entries[indx].socket,&buffer, 2);
-      			Socket::enableBlocking(_entries[indx].socket);
-			_entries[indx]._status = _MonitorEntry::IDLE;
+      			Socket::disableBlocking(entries[indx].socket);
+      			Sint32 amt = Socket::read(entries[indx].socket,&buffer, 2);
+      			Socket::enableBlocking(entries[indx].socket);
+			entries[indx]._status = _MonitorEntry::IDLE;
 		}
 		else
 		{
@@ -584,12 +587,12 @@ Boolean Monitor::run(Uint32 milliseconds)
                      "Non-connection entry, indx = %d, has been received.", indx);
 		   int events = 0;
 		   events |= SocketMessage::READ;
-		   Message *msg = new SocketMessage(_entries[indx].socket, events);
-		   _entries[indx]._status = _MonitorEntry::BUSY;
+		   Message *msg = new SocketMessage(entries[indx].socket, events);
+		   entries[indx]._status = _MonitorEntry::BUSY;
                    autoEntryMutex.unlock();
 		   q->enqueue(msg);
                    autoEntryMutex.lock();
-		   _entries[indx]._status = _MonitorEntry::IDLE;
+		   entries[indx]._status = _MonitorEntry::IDLE;
 
 		   return true;
 		}

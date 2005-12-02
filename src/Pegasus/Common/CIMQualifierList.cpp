@@ -48,6 +48,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include "StrLit.h"
+#include "ArrayIterator.h"
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;
@@ -95,9 +96,11 @@ void CIMQualifierList::removeQualifier(Uint32 index)
 
 Uint32 CIMQualifierList::find(const CIMName& name) const
 {
-    for (Uint32 i = 0, n = _qualifiers.size(); i < n; i++)
+    ConstArrayIterator<CIMQualifier> qualifiers(_qualifiers);
+
+    for (Uint32 i = 0, n = qualifiers.size(); i < n; i++)
     {
-	if (name.equal(_qualifiers[i].getName()))
+	if (name.equal(qualifiers[i].getName()))
 	    return i;
     }
 

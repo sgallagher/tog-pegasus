@@ -64,10 +64,14 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
   ifdef PEGASUS_WINDOWS_SDK_HOME
 	FLAGS += -DPEGASUS_WINDOWS_SDK_HOME
     SYS_INCLUDES += -I$(PEGASUS_WINDOWS_SDK_HOME)/include
-    EXTRA_LIBRARIES += -LIBPATH:$(PEGASUS_WINDOWS_SDK_HOME)/lib
+    EXTRA_LIBRARIES += -LIBPATH:$(PEGASUS_WINDOWS_SDK_HOME)/lib psapi.lib
+  else
+    ifneq ($(CL_MAJOR_VERSION),12)
+      EXTRA_LIBRARIES += psapi.lib
+    endif    
   endif
 
-  EXTRA_LIBRARIES += psapi.lib pdh.lib
+  EXTRA_LIBRARIES += pdh.lib
 endif
 
 include $(ROOT)/mak/dynamic-library.mak

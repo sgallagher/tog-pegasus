@@ -54,7 +54,9 @@ DIRS = \
 	UserContextTestProvider \
 	UserContextTestProvider/testclient \
 	CIMOMHandleTestProvider \
-	CIMOMHandleTestProvider/testclient
+	CIMOMHandleTestProvider/testclient \
+	TestAggregationOutputProvider \
+	TestAggregationOutputProvider/testclient
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \

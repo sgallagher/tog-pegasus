@@ -35,6 +35,7 @@
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2498
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //              David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4547
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -93,9 +94,9 @@ Boolean Tracer::_traceOn = false;
 // Single Instance of Tracer is maintained for each process.
 ////////////////////////////////////////////////////////////////////////////////
 Tracer::Tracer()
-    : _traceHandler(new TraceFileHandler()),
-      _traceComponentMask(new Boolean[_NUM_COMPONENTS]),
-      _traceLevelMask(0)
+    : _traceComponentMask(new Boolean[_NUM_COMPONENTS]),
+      _traceLevelMask(0),
+      _traceHandler(new TraceFileHandler())
 {
     // Initialize ComponentMask array to false
     for (Uint32 index=0;index < _NUM_COMPONENTS;

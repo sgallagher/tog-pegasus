@@ -35,6 +35,7 @@
 //              Willis White (whiwill@us.ibm.com)
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for Bug#3449
 //              Aruran, IBM(ashanmug@in.ibm.com) for Bug# 3684
+//              Melvin Solomon, IBM(msolomon@in.ibm.com) for Bug# 3866
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -360,10 +361,11 @@ int main(int argc, char** argv)
 
 
         // First print the header for table of values
-        printf("%-25s%10s %10s %10s %10s %10s\n%-25s%10s %10s %10s %10s %10s\n",
-               "CIM", "Number of", "CIMOM", "Provider",
+        printf("%-25s%10s %10s %10s %10s %10s\n%-25s%10s %10s %10s %10s %10s\n%-25s\n",
+               "CIM", "Number of", "CIM Server", "Provider",
                 "Request", "Response",
-               "Operation", "Requests", "Time", "Time", "Size", "Size");
+               "Operation", "Requests", "Time", "Time", "Size", "Size",
+               "-------------------------------------------------------------------------------");
 
 
 

@@ -388,16 +388,42 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
     Boolean enableAuthentication = false;
     Boolean authenticated = false;
 
+#ifdef PEGASUS_KERBEROS_AUTHENTICATION   
+    CIMKerberosSecurityAssociation *sa = NULL; 
+	// The presence of a Security Association indicates that Kerberos is being used
+	// Reset flag for subsequent calls to indicate that no Authorization
+        // record was sent. If one was sent the flag will be appropriately reset later.
+	// The sa is maintained while the connection is active.
+        sa = httpMessage->authInfo->getSecurityAssociation();   
+        if (sa)   
+        {   
+            sa->setClientSentAuthorization(false);   
+        }   
+#endif   	
+
+
     if (String::equal(
         configManager->getCurrentValue(
 	    _CONFIG_PARAM_ENABLEAUTHENTICATION), _TRUE))
     {
         enableAuthentication = true;
-            
+           #ifdef PEGASUS_KERBEROS_AUTHENTICATION 
+        // If we are using Kerberos (sa pointer is set), the client has already authenticated, and the client is NOT attempting to re-authenticate (dermined by an Authorization record being sent), then we want to set the local authenticate flag to true so that the authentication logic is skipped.
+        String authstr = String::EMPTY;  
+        if (sa && sa->getClientAuthenticated() &&
+            !HTTPMessage::lookupHeader(headers, "Authorization", authstr, false)) 
+        { 
+          authenticated = true; 
+        } 
+        if (!sa)
+        { 
+          authenticated = httpMessage->authInfo->isAuthenticated();
+        } 
+#else 
         // Client may have already authenticated via SSL.
         // In this case, no further attempts to authenticate the client are made
         authenticated = httpMessage->authInfo->isAuthenticated();
-
+#endif
         // If the request was authenticated via SSL, append the username to the IdentityContainer
         String cimOperation;
         if (authenticated && 
@@ -756,17 +782,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
             }
         }
 
-#ifdef PEGASUS_KERBEROS_AUTHENTICATION
-	// The presence of a Security Association indicates that Kerberos is being used
-	// Reset flag for subsequent calls to indicate that no Authorization
-        // record was sent. If one was sent the flag will be appropriately reset later.
-	// The sa is maintained while the connection is active.
-        CIMKerberosSecurityAssociation *sa = httpMessage->authInfo->getSecurityAssociation();
-        if (sa)
-        {
-            sa->setClientSentAuthorization(false);
-        }
-#endif	
+
 
         if ( HTTPMessage::lookupHeader(
              headers, _HTTP_HEADER_AUTHORIZATION, authorization, false) &&
@@ -819,7 +835,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                 }
 	    }  // first not authenticated check
 	}  // "Authorization" header check
-
+ } //end if(!authenticated && enableAuthentication)
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 	// The pointer to the sa is created in the authenticator so we need to also
 	// assign it here.
@@ -867,7 +883,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 	}
 #endif
 
-    } //end if(!authenticated && enableAuthentication)
+   
 
 
         if ( authenticated || !enableAuthentication )

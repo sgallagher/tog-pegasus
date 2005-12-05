@@ -31,6 +31,7 @@
 //          Mary Hinton (m.hinton@verizon.net)
 //
 // Modified By: Adrian Schuur (schuur&de.ibm.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4228
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -143,8 +144,8 @@ static CMD_STRUCT CommandTable[] =
     {ID_DeleteClass,             "deleteclass",   2 ,       "dc", "Delete one Class <classname> "  },
     {ID_GetProperty,             "getproperty",   2 ,       "gp", "TBD "  },
     {ID_SetProperty,             "setproperty",   2 ,       "sp", "TBD "  },
-    {ID_GetQualifier,            "getqualifier",  2 ,       "sq", "Get Qualifier <qualifiername> "  },
-    {ID_SetQualifier,            "setqualifier",  2 ,       "gc", "Not suported "  },
+    {ID_GetQualifier,            "getqualifier",  2 ,       "gq", "Get Qualifier <qualifiername> "  },
+    {ID_SetQualifier,            "setqualifier",  2 ,       "sq", "Not suported "  },
     {ID_EnumerateQualifiers,     "enumeratequalifiers",2 ,  "eq", "Enumerate all Qualifiers "  },
     {ID_DeleteQualifier,         "deletequalifier",  2 ,    "dq", "Delete qualifer <qualifiername> "  },
     {ID_Associators,             "associators",   2 ,       "a" , 

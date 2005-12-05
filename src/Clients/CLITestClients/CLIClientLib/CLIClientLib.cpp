@@ -58,10 +58,10 @@ String _toString(Boolean x)
     return(x ? "true" : "false");
 }
 /** Select one item from an array of items presented to
-    the user. This preents the list and requests user input for
+    the user. This prints the list and requests user input for
     the response.
     @param selectList Array<String> list of items from which the
-    user is to select one.  Each item should be a printable string.
+    user has to select one.  Each item should be a printable string.
     @param what String that defines for the output string what type
     of items the select is based on (ex: "Instance Names");
     @return Uint32 representing the item to be selected.
@@ -412,13 +412,17 @@ void outputFormatQualifierDecl(const OutputType format, const CIMQualifierDecl& 
         mofFormat(cout, x.getData(), 4);
     }
     else
+    {
         cout << "Format type error" << endl;
+    }
 }
 
 void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
 {
     if (format == OUTPUT_XML)
+    {
         XmlWriter::printValueElement(myValue, cout);
+    }
     else if (format == OUTPUT_MOF)
     {
         Buffer x;
@@ -429,7 +433,9 @@ void outputFormatCIMValue(const OutputType format, const CIMValue& myValue)
         mofFormat(cout, x.getData(), 4);
     }
     else
+	{
         cout << " Format type error" << endl;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -758,11 +764,15 @@ int getInstance(CIMClient& client, Options& opts)
     if (opts.summary)
     {
         if (opts.time)
+        {
             cout << opts.saveElapsedTime << endl;
+        }
     }
     else
+    {
         outputFormatInstance(opts.outputType, cimInstance);
-    return(0);
+	}
+	return(0);
 }
 
 /****
@@ -856,7 +866,9 @@ int createInstance(CIMClient& client, Options& opts)
     if (opts.summary)
     {
         if (opts.time)
+        {
             cout << opts.saveElapsedTime << endl;
+        }
     }
     else
     {
@@ -957,7 +969,7 @@ int enumerateClasses(CIMClient& client, Options& opts)
 
     if (opts.summary)
     {
-      String s = "classes";
+        String s = "classes";
         _displaySummary(classes.size(), s, opts.className.getString(),opts);
     }
     else
@@ -1039,11 +1051,14 @@ int getClass(CIMClient& client, Options& opts)
     if (opts.summary)
     {
         if (opts.time)
+        {
             cout << opts.saveElapsedTime << endl;
+        }
     }
     else
+    {
         outputFormatClass(opts.outputType, cimClass);
-
+    }
     return(0);
 }
 
@@ -1645,9 +1660,6 @@ int enumerateNamespaces_Namespace(CIMClient& client, Options& opts)
 
     }
 
-
-
-
     if (!usingPegasus)
     {
         Array<CIMNamespaceName> namespaceNames;
@@ -1770,7 +1782,7 @@ void GetOptions(
         //optionname defaultvalue rqd  type domain domainsize clname hlpmsg
     {
         {"count", "29346", false, Option::WHOLE_NUMBER, 0, 0, "count",
-                            "Expected count of objects returned if the summary set. Tests this count and display difference. Term nonzero if test fails  "},
+                            "Expected count of objects returned if the summary set. Tests this count and display difference. Return nonzero if test fails  "},
 
         {"debug", "false", false, Option::BOOLEAN, 0, 0, "d",
                             "More detailed debug messages "},
@@ -1903,8 +1915,9 @@ void GetOptions(
     //cout << "Config file from " << configFile << endl;
 
     if (FileSystem::exists(configFile))
-             om.mergeFile(configFile);
-
+    {
+        om.mergeFile(configFile);
+    }
     om.mergeCommandLine(argc, argv);
 
     om.checkRequiredOptions();
@@ -2044,14 +2057,14 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     if (om.isTrue("full help"))
     {
-                printHelpMsg(argv[0], usage, usageDetails, om);
-                exit(0);
+        printHelpMsg(argv[0], usage, usageDetails, om);
+        exit(0);
     }
 
     if (om.isTrue("help"))
     {
-                showUsage(argv[0]);
-                exit(0);
+        showUsage(argv[0]);
+        exit(0);
     }
     if (om.isTrue("version"))
     {
@@ -2164,9 +2177,9 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
 
     // Evaluate connectiontimeout option.
     opts.connectionTimeout = 0;
-    if(!om.lookupIntegerValue("connecttimeout", opts.connectionTimeout))
+    if (!om.lookupIntegerValue("connecttimeout", opts.connectionTimeout))
     {
-            opts.connectionTimeout = 0;
+        opts.connectionTimeout = 0;
     }
 
     if (verboseTest && debug && opts.connectionTimeout != 0)
@@ -2174,9 +2187,9 @@ int CheckCommonOptionValues(OptionManager& om, char** argv, Options& opts)
         cout << "Connection Timeout= " << opts.connectionTimeout << " Seconds" << endl;
     }
 
-    if(!om.lookupIntegerValue("delay", opts.delay))
+    if (!om.lookupIntegerValue("delay", opts.delay))
     {
-            opts.delay = 0;
+        opts.delay = 0;
     }
 
     if (verboseTest && debug && opts.delay != 0)

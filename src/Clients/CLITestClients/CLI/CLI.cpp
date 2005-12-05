@@ -439,7 +439,7 @@ int main(int argc, char** argv)
     catch(Exception &e)
     {
         cerr << "Pegasus Exception: " << e.getMessage() <<
-              ". Trying to connect to " << opts.location << endl;
+              " Trying to connect to " << opts.location << endl;
         exit(1);
     }
 

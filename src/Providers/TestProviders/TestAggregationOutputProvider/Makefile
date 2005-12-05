@@ -43,4 +43,3 @@ SOURCES = \
    TestAggregationOutputProvider.cpp
 
 include $(ROOT)/mak/library.mak
-

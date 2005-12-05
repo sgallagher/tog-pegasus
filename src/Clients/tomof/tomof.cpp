@@ -35,6 +35,7 @@
 //               Amit K Arora (amita@in.ibm.com) for Bug# 1081 (mofFormat())
 //               David Dillard, VERITAS Software Corp.
 //                   (david.dillard@veritas.com)
+//               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4551
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -395,7 +396,7 @@ void printHelp(char* name, OptionManager om)
     trailer.append("\n  tomof CIM_DOOR - Shows mof for CIM_Door from default namespace");
     //trailer.append("\n  tomof *door* - Shows mof for classes with 'door' in name.");
     //trailer.append("\n  tomof -o *software* - Lists Class names with 'door' in name.");
-    trailer.append("\n  tomof - outputs mof for all classes");
+    trailer.append("\n  tomof -a - outputs mof for all classes");
     trailer.append("\n  tomof -c - outputs mof for all classes using client interface.");
     trailer.append("\n  tomof -q - Outputs mof for qualifiers and classes");
 

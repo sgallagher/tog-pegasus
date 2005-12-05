@@ -33,12 +33,14 @@
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#2076
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3475
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/Tracer.h>
+#include "Stack.h"
 #include "MessageQueue.h"
 #include "MessageQueueService.h"
 PEGASUS_USING_STD;
@@ -57,35 +59,38 @@ void MessageQueue::remove_myself(Uint32 qid)
     _queueTable.remove(qid);
 }
 
+static Stack<Uint32> _qid_stack;
+static Uint32 _qid_next = CIMOM_Q_ID + 1;
+static Mutex _qid_mutex;
 
 Uint32 MessageQueue::getNextQueueId()
 {
-    static Uint32 _nextQueueId = 2;
+    // If _qid_stack is empty, return _qid_next (and then increment _qid_next).
+    // Else return the top of the stack.
 
-    //
-    // Lock mutex:
-    //
-    static Mutex _id_mut ;
-    AutoMutex autoMut(_id_mut);
+    AutoMutex autoMutex(_qid_mutex);
 
-    Uint32 queueId;
+    if (_qid_stack.isEmpty())
+        return _qid_next++;
 
-    // Assign the next queue ID that is not already in use
-    do
-    {
-        // Handle wrap around and never assign zero or one as a queue id:
-        if (_nextQueueId == 0)
-        {
-            _nextQueueId = 2;
-        }
-
-        queueId = _nextQueueId++;
-    } while (lookup(queueId) != 0);
-
+    Uint32 queueId = _qid_stack.top();
+    _qid_stack.pop();
     return queueId;
 }
 
+void MessageQueue::putQueueId(Uint32 queueId)
+{
+    // Put the queueId on the top of the stack.
 
+    AutoMutex autoMutex(_qid_mutex);
+    // Ignore an attempt to return the well-known queue id (CIMOM_Q_ID).
+    // This id is reserved for the CIMOM queue.
+
+    if (queueId == CIMOM_Q_ID)
+        return;
+
+    _qid_stack.push(queueId);
+}
 
 MessageQueue::MessageQueue(
     const char* name,
@@ -140,6 +145,10 @@ MessageQueue::~MessageQueue()
        _front = _front->_next;
        delete tmp;
     }
+    
+    // Return the queue id.
+
+    putQueueId(_queueId);
 
     PEG_METHOD_EXIT();
 }

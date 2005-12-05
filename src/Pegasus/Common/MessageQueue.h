@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBm (ashanmug@in.ibm.com) for Bug# 3475
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -237,6 +238,10 @@ public:
     @exception IPCException Thrown if an IPC error occurs.
     */
     static Uint32 getNextQueueId();
+
+    /** Put the queue id into the stack.
+    */
+    static void putQueueId(Uint32 queueId);
 
 protected:
     static void remove_myself(Uint32);

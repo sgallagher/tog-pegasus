@@ -35,7 +35,7 @@
 
 #include "SpinLock.h"
 
-#if !defined(PEGASUS_OS_TYPE_WINDOWS)
+#if  !defined(PEGASUS_OS_VMS) &&  !defined(PEGASUS_OS_TYPE_WINDOWS)
 # define PEGASUS_SPINLOCK_USE_PTHREADS
 #endif
 

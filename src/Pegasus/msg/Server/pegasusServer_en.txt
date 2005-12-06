@@ -3923,6 +3923,17 @@ CIM server listening on HTTPS port {0}."}
         */
         Common.Monitor.TICKLE_ACCEPT:string {"PGS14207: Received error number {0} while accepting the internal socket connection."}
 
+        // ==========================================================
+        // Messages for Security BasicAuthenticationHandler
+        //  Please use message prefix "PGS17200"
+        // ==========================================================
+
+        /**
+        * @note  PGS17200:
+        *    Substitution {0} is a user name (a string)
+        */
+        Security.Authentication.BasicAuthenticationHandler.BASIC_AUTHENTICATION_FAILED:string {"PGS17200: Authentication failed for user {0}."}
+
  // ============================================================================== 
  // END OF RESOURCE BUNDLE 
  // DO NOT ADD MESSAGES AFTER THE FOLLOWING '}' 

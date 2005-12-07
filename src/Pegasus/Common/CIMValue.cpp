@@ -1133,6 +1133,9 @@ void CIMValue::get(CIMObject& x) const
         throw TypeMismatchException();
 
     if (!_rep->isNull)
+        // We have to clone our own unique copy since we are about to
+        // return an object to the caller that he can modify; thereby,
+        // changing the one we refer to as well.
         x = CIMValueType<CIMObject>::ref(_rep).clone();
 }
 
@@ -1278,16 +1281,15 @@ void CIMValue::get(Array<CIMObject>& x) const
 
     if (!_rep->isNull)
     {
-	if (_rep->refs.get() != 1)
-	{
-	    // We have to make our own unique copy since we are about to
-	    // return an object to the caller that he can modify; thereby,
-	    // changing the one we refer to as well.
-	    Array<CIMObject> tmp = CIMValueType<CIMObject>::aref(_rep);
-	    ((CIMValue*)this)->set(tmp);
-	}
+        x.clear();
 
-        x = CIMValueType<CIMObject>::aref(_rep);
+        // We have to clone our own unique copy since we are about to
+        // return an object to the caller that he can modify; thereby,
+        // changing the one we refer to as well.
+        for (Uint32 i = 0, n = CIMValueType<CIMObject>::arraySize(_rep); i < n; i++)
+        {
+            x.append(CIMValueType<CIMObject>::aref(_rep)[i].clone());
+        }
     }
 }
 

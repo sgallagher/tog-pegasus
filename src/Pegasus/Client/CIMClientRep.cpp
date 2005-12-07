@@ -215,7 +215,7 @@ void CIMClientRep::_disconnect()
 void CIMClientRep::_reconnect()
 {
     _disconnect();
-    _authenticator.setRequestMessage(0);
+    _authenticator.clearReconnect();
     _connect();
 }
 

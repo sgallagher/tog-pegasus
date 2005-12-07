@@ -317,6 +317,13 @@ Message* ClientAuthenticator::getRequestMessage()
     return _requestMessage.get();
 }
 
+void ClientAuthenticator::clearReconnect()
+{
+    _requestMessage = 0;
+    _realm = String::EMPTY;
+    _challengeReceived = false;
+}
+
 Message* ClientAuthenticator::releaseRequestMessage()
 {
     return _requestMessage.release();

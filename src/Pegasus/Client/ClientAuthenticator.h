@@ -63,7 +63,7 @@ public:
     */
     String buildRequestAuthHeader();
 
-    /** Check whether the response header has authentication challenge 
+    /** Check whether the response header has authentication challenge
         (i.e, WWW-Authenticate header).
     */
     Boolean checkResponseHeaderForChallenge(Array<HTTPHeader> headers);
@@ -76,6 +76,8 @@ public:
         retaining memory ownership for the message.
     */
     Message* getRequestMessage();
+
+    void clearReconnect();
 
     /** Get the request message saved for resending on a challenge and
         release memory ownership for the message.

@@ -49,7 +49,12 @@ CL_MAJOR_VERSION := $(word 1, $(subst .,  , $(CL_VERSION)))
 #
 # The flags set here should be valid for VC 6.
 #
-CXX_VERSION_FLAGS := -GX
+# The -Zm105 flag was added as part of bug 4418 to resolve this compile error:
+#   C:\Program Files\Microsoft Visual Studio\VC98\include\xlocale(467) : 
+#   fatal error C1076: compiler limit : internal heap limit reached; use /Zm to 
+#   specify a higher limit
+# 
+CXX_VERSION_FLAGS := -GX -Zm105
 CXX_VERSION_DEBUG_FLAGS :=
 CXX_VERSION_RELEASE_FLAGS :=
 LINK_VERSION_RELEASE_FLAGS :=

@@ -417,6 +417,50 @@ int main(int argc, char** argv)
 
     test01(CIMObject(instance1));
 
+    // Specific test to verify the cloning of CIMObjects when set as and 
+    // gotten from a CIMValue.
+    CIMValue v1;
+    // Create CIMValue v1 of type CIMTYPE_OBJECT (ie. CIMObject)
+    v1.set(CIMObject(instance1));
+    // Change the "count" property of instance1, and then verify
+    // that the CIMValue v1, that was set from instance1, is
+    // not affected (ie. tests clone() on CIMValue::set() ).
+    Uint32 propIx = instance1.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v2 = instance1.getProperty(propIx).getValue();
+    Uint32 propCount;
+    v2.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    instance1.removeProperty(propIx);
+    instance1.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    CIMObject object2;
+    v1.get(object2);
+    CIMInstance instance1a(object2);
+    propIx = instance1a.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v3 = instance1a.getProperty(propIx).getValue();
+    v3.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    // Now change the "count" property of instance1a, which was obtained
+    // from a get of CIMValue v1. Again, the underlying CIMValue should
+    // not be affected (ie. tests clone() on CIMValue::get() ).
+    instance1a.removeProperty(propIx);
+    instance1a.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    CIMObject object3;
+    v1.get(object3);
+    CIMInstance instance1b(object3);
+    propIx = instance1b.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    CIMValue v4 = instance1b.getProperty(propIx).getValue();
+    v4.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+
     // Specific test for setting value as a null CIMObject() (see bug 3373).
     // Confirm that CIMValue() with an uninitialized CIMObject will throw exception.
     Boolean caught_exception = false;
@@ -425,7 +469,7 @@ int main(int argc, char** argv)
         CIMObject obj = CIMObject();
         CIMValue y(obj);
     }
-    catch(UninitializedObjectException& e)
+    catch(UninitializedObjectException&)
     {
         caught_exception = true;
     }
@@ -437,7 +481,7 @@ int main(int argc, char** argv)
         CIMValue y;
         y.set(CIMObject());
     }
-    catch(UninitializedObjectException& e)
+    catch(UninitializedObjectException&)
     {
         caught_exception = true;
     }
@@ -500,9 +544,9 @@ int main(int argc, char** argv)
     test02(arr9);
 
     Array<Real32> arr10;
-    arr10.append(1.55);
-    arr10.append(2.66);
-    arr10.append(3.77);
+    arr10.append(1.55F);
+    arr10.append(2.66F);
+    arr10.append(3.77F);
     test02(arr10);
 
     Array<Real64> arr11;
@@ -553,6 +597,49 @@ int main(int argc, char** argv)
     arr16.append(CIMObject(instance3));
     test02(arr16);
 
+    // Specific test to verify the cloning of CIMObjects when set as and 
+    // gotten from a CIMValue.
+    CIMValue v1array;
+    // Create CIMValue v1 of type CIMTYPE_OBJECT (ie. CIMObject)
+    v1array.set(arr16);
+    // Change the "count" property of arr16[1], and then verify
+    // that the CIMValue v1array, that was set from arr16, is
+    // not affected (ie. tests clone() on CIMValue::set() ).
+    propIx = arr16[1].findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    v2 = arr16[1].getProperty(propIx).getValue();
+    v2.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    arr16[1].removeProperty(propIx);
+    arr16[1].addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+	    .addQualifier(CIMQualifier(CIMName ("counter"), true))
+	    .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+	    .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    Array<CIMObject> object2array;
+    v1array.get(object2array);
+    CIMInstance instance2a(object2array[1]);
+    propIx = instance2a.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    v3 = instance2a.getProperty(propIx).getValue();
+    v3.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+    // Now change the "count" property of instance2a, which was obtained
+    // from a get of CIMValue v1array. Again, the underlying CIMValue should
+    // not be affected (ie. tests clone() on CIMValue::get() ).
+    instance2a.removeProperty(propIx);
+    instance2a.addProperty(CIMProperty(CIMName ("count"), Uint32(65))
+       .addQualifier(CIMQualifier(CIMName ("counter"), true))
+       .addQualifier(CIMQualifier(CIMName ("min"), String("0")))
+       .addQualifier(CIMQualifier(CIMName ("max"), String("1"))));
+    Array<CIMObject> object3array;
+    v1array.get(object3array);
+    CIMInstance instance2b(object3array[1]);
+    propIx = instance2b.findProperty(CIMName("count"));
+    PEGASUS_TEST_ASSERT(propIx != PEG_NOT_FOUND);
+    v4 = instance2b.getProperty(propIx).getValue();
+    v4.get(propCount);
+    PEGASUS_TEST_ASSERT(propCount == 55);
+
     // Specific test for setting value as a null CIMObject() (see bug 3373).
     // Confirm that CIMValue() with an uninitialized CIMObject in the input
     // array will throw exception.
@@ -562,7 +649,7 @@ int main(int argc, char** argv)
     {
         CIMValue y(arr16);
     }
-    catch(UninitializedObjectException& e)
+    catch(UninitializedObjectException&)
     {
         caught_exception = true;
     }
@@ -575,7 +662,7 @@ int main(int argc, char** argv)
         CIMValue y;
         y.set(arr16);
     }
-    catch(UninitializedObjectException& e)
+    catch(UninitializedObjectException&)
     {
         caught_exception = true;
     }

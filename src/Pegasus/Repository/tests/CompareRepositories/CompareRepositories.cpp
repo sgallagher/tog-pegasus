@@ -238,9 +238,13 @@ int main(int argc, char** argv)
     }
 
     if (!failures)
+    {
       cout << argv[0] << ": +++++ passed all tests" << endl;
+      return 0;
+    }
     else
+    {
       cerr << argv[0] << ": +++++ There were " << failures << " failures" << endl;
-
-    return 0;
+      return 1;
+    }
 }

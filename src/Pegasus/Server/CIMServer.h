@@ -47,6 +47,7 @@
 #include <Pegasus/Common/Cimom.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Common/SSLContext.h>
+#include <Pegasus/Repository/CIMRepository.h>
 
 #include "HTTPAuthenticatorDelegator.h"
 #include "ProviderMessageFacade.h"

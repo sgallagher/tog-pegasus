@@ -660,6 +660,10 @@ void CIMServer::shutdown()
 {
     PEG_METHOD_ENTER(TRC_SERVER, "CIMServer::shutdown()");
 
+#ifdef PEGASUS_DEBUG
+    _repository->DisplayCacheStatistics();
+#endif
+
     _dieNow = true;
     _cimserver->tickle_monitor();
 

@@ -31,6 +31,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //              (carolann_graves@hp.com)
+//              Abhijeet Bhattacharya, IBM(abhbhatt@in.ibm.com) for Bug#4543
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -221,6 +222,13 @@ int main(int argc, char** argv)
     repositoryRoot.append("/repository");
 
     CIMRepository_Mode mode;
+    if(argc==1)
+    {
+	  cout << argv[0] << ": No argument provided: " << endl;
+          cout <<"Usage: EnumerateClassNames [XML | BIN]" << endl;
+	  return 1;	
+    }
+    
     if (!strcmp(argv[1],"XML") )
       {
 	mode.flag = CIMRepository_Mode::NONE;
@@ -234,7 +242,8 @@ int main(int argc, char** argv)
       else
 	{
 	  cout << argv[0] << ": invalid argument: " << argv[1] << endl;
-	  return 0;
+          cout <<"Usage: EnumerateClassNames [XML | BIN]" << endl;
+	  return 1;
 	}
 
     CIMRepository r (repositoryRoot, mode);

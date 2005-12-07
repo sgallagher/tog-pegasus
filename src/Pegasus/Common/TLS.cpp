@@ -76,6 +76,8 @@ SSLSocket::SSLSocket(
 {
     PEG_METHOD_ENTER(TRC_SSL, "SSLSocket::SSLSocket()");
 
+    _sslReadErrno = 0;
+
     //
     // create the SSLConnection area
     //
@@ -146,10 +148,11 @@ Boolean SSLSocket::incompleteReadOccurred(Sint32 retCode)
     Sint32 err = SSL_get_error(_SSLConnection, retCode);
 
     Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-        "SSLSocket::incompleteReadOccurred : err = %d", err);
+        "In SSLSocket::incompleteReadOccurred : err = %d", err);
 
-    return((err == SSL_ERROR_WANT_READ ||
-            err == SSL_ERROR_WANT_WRITE));
+    return ((err == SSL_ERROR_SYSCALL) && (_sslReadErrno == EAGAIN || _sslReadErrno == EINTR)) ||
+            err == SSL_ERROR_WANT_READ ||
+            err == SSL_ERROR_WANT_WRITE;
 }
 
 Sint32 SSLSocket::read(void* ptr, Uint32 size)
@@ -160,6 +163,8 @@ Sint32 SSLSocket::read(void* ptr, Uint32 size)
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: (r) ");
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, SSL_state_string_long(_SSLConnection) );
     rc = SSL_read(_SSLConnection, (char *)ptr, size);
+
+    _sslReadErrno = errno;
 
     PEG_METHOD_EXIT();
     return rc;

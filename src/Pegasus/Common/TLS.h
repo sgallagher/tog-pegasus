@@ -118,6 +118,7 @@ private:
     PEGASUS_SOCKET _socket;
     SSLContext * _SSLContext;
     ReadWriteSem * _sslContextObjectLock;
+    Uint32 _sslReadErrno;
 
     AutoPtr<SSLCallbackInfo> _SSLCallbackInfo;
     Boolean _certificateVerified;

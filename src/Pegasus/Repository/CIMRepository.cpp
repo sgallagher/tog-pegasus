@@ -3509,4 +3509,16 @@ void CIMRepository::setDeclContext(RepositoryDeclContext *context)
     PEG_METHOD_EXIT();
 }
 
+#ifdef PEGASUS_DEBUG
+    void CIMRepository::DisplayCacheStatistics(void)
+    {
+#ifdef PEGASUS_USE_CLASS_CACHE
+        cout << "Repository Class Cache Statistics:" << endl;
+        _classCache.DisplayCacheStatistics();
+#endif
+        cout << "Repository Qualifier Cache Statistics:" << endl;
+        _qualifierCache.DisplayCacheStatistics();
+    }
+#endif
+
 PEGASUS_NAMESPACE_END

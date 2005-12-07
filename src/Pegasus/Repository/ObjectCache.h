@@ -58,6 +58,17 @@ public:
 
     bool evict(const String& path);
 
+#ifdef PEGASUS_DEBUG
+    void DisplayCacheStatistics(void)
+    {
+        cout << "  Size (current/max): " << _numEntries << "/" << _maxEntries << endl;
+        cout << "  Requests satisfied from cache: " << _cacheReadHit << endl;
+        cout << "  Requests *not* satisfied from cache: " << _cacheReadMiss << " (implies write to cache)" << endl;
+        cout << "  Cache entries \"aged out\" due to cache size constraints: " << _cacheRemoveLRU << endl;
+    }
+#endif
+
+
 private:
 
     static Uint32 _hash(const String& s)
@@ -91,11 +102,22 @@ private:
     size_t _numEntries;
     size_t _maxEntries;
     Mutex _mutex;
+
+#ifdef PEGASUS_DEBUG
+    Uint32 _cacheReadHit;
+    Uint32 _cacheReadMiss;
+    Uint32 _cacheRemoveLRU;
+#endif
+
+
 };
 
 template<class OBJECT>
 ObjectCache<OBJECT>::ObjectCache(size_t maxEntries) : 
     _front(0), _back(0), _numEntries(0), _maxEntries(maxEntries)
+#ifdef PEGASUS_DEBUG
+    , _cacheReadHit(0), _cacheReadMiss(0), _cacheRemoveLRU(0)
+#endif
 {
     memset(_chains, 0, sizeof(_chains));
 }
@@ -184,6 +206,9 @@ void ObjectCache<OBJECT>::put(const String& path, OBJECT& object)
 
 	delete entry;
 	_numEntries--;
+#ifdef PEGASUS_DEBUG
+    _cacheRemoveLRU++;
+#endif
     }
 
     _mutex.unlock();
@@ -208,6 +233,9 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
         if (code == p->code && _equal(p->path, path))
 	{
 	    object = p->object.clone();
+#ifdef PEGASUS_DEBUG
+        _cacheReadHit++;
+#endif
 	    _mutex.unlock();
 	    return true;
 	}
@@ -215,6 +243,9 @@ bool ObjectCache<OBJECT>::get(const String& path, OBJECT& object)
 
     /// Not found!
 
+#ifdef PEGASUS_DEBUG
+    _cacheReadMiss++;
+#endif
     _mutex.unlock();
     return false;
 }

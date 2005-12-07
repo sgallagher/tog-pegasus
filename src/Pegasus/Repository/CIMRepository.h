@@ -378,7 +378,11 @@ public:
     virtual Boolean isRemoteNameSpace(
         const CIMNamespaceName& nameSpaceName,
 	String & remoteInfo);
-	
+
+#ifdef PEGASUS_DEBUG
+    void DisplayCacheStatistics(void);
+#endif
+
 protected:
 
     // Internal getClass implementation that does not do access control

@@ -147,6 +147,19 @@ void snmpDeliverTrap_netsnmp::_createSession(
     char *errStr;
     String exceptionStr;
 
+    // Defined default MIB modules (in net-snmp-config.h) do not need to be 
+    // loaded and loading them can cause some stderr;
+    // use environment variable MIBS to override the default MIB modules.
+    // If there is no MIBS environment variable, add it in. 
+
+    char *envVar;
+    envVar = getenv("MIBS");
+
+    if (envVar == NULL)
+    {
+        putenv("MIBS=");
+    }
+
     // Initialize the mib reader
     netsnmp_set_mib_directory("");
     init_mib();

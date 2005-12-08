@@ -92,7 +92,7 @@ endif
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 FLAGS = -g -KPIC -mt -xs -xildoff
 else
-FLAGS = -O -KPIC -mt -xildoff -s -xipo=1
+FLAGS = -O4 -KPIC -mt -xildoff -s -xipo=1
 endif
 
 SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet

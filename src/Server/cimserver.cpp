@@ -48,6 +48,7 @@
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3452
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4183
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1065,7 +1066,15 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
             if(!(end != 0 && *end == '\0'))
             {
                 InvalidPropertyValue e("httpsPort", httpsPort);
-                cerr << e.getMessage() << endl;
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                              "src.Server.cimserver.SERVER_NOT_STARTED",
+                              "cimserver not started:  $0", e.getMessage());
+#if !defined(PEGASUS_OS_OS400)
+                MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
+                                         "cimserver not started: $0", e.getMessage());
+                PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
+                                  << PEGASUS_STD(endl);
+#endif
                 exit(1);
             }
         }
@@ -1092,7 +1101,15 @@ int CIMServerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOpti
             if(!(end != 0 && *end == '\0'))
             {
                 InvalidPropertyValue e("httpPort", httpPort);
-                cerr << e.getMessage() << endl;
+                Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+                              "src.Server.cimserver.SERVER_NOT_STARTED",
+                              "cimserver not started:  $0", e.getMessage());
+#if !defined(PEGASUS_OS_OS400)
+                MessageLoaderParms parms("src.Server.cimserver.SERVER_NOT_STARTED",
+                                             "cimserver not started: $0", e.getMessage());
+                PEGASUS_STD(cerr) << argv[0] << ": " << MessageLoader::getMessage(parms)
+                                  << PEGASUS_STD(endl);
+#endif
                 exit(1);
             }
         }

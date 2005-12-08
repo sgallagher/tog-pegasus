@@ -32,6 +32,7 @@
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //              Vijay Eli, (vijayeli@in.ibm.com) fix for #2572
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4144
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -2856,11 +2857,11 @@ PEGASUS_USING_STD;
 
 int main (int argc, char* argv [])
 {
-    SSLTrustMgr    command = SSLTrustMgr();
-    int            retCode;
-
     //l10n set message loading to process locale
     MessageLoader::_useProcessLocale = true;
+    
+    SSLTrustMgr    command = SSLTrustMgr();
+    int            retCode;
 
 #ifdef PEGASUS_OS_OS400
 

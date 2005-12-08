@@ -148,7 +148,11 @@ void CMPIProvider::initialize(CIMOMHandle & cimom,
         broker.bft=CMPI_Broker_Ftab;
         broker.eft=CMPI_BrokerEnc_Ftab;
         broker.xft=CMPI_BrokerExt_Ftab;
-        broker.clsCache=NULL;
+        {
+            WriteLock writeLock (broker.rwsemClassCache);
+
+            broker.clsCache=new ClassCache();
+        }
         broker.name=name;
 
         const OperationContext opc;
@@ -291,13 +295,18 @@ Boolean CMPIProvider::tryTerminate(void)
 */ 
 void CMPIProvider::_terminate(Boolean terminating)
 {
-    if (broker.clsCache) {
-	ClassCache::Iterator i=broker.clsCache->start();
-	for (; i; i++) {
-        delete i.value(); }
-	delete broker.clsCache;
-	broker.clsCache=NULL;
-    }
+   {
+      WriteLock writeLock (broker.rwsemClassCache);
+
+      if (broker.clsCache) {
+         ClassCache::Iterator i=broker.clsCache->start();
+         for (; i; i++) {
+            delete i.value();
+         }
+         delete broker.clsCache;
+         broker.clsCache=NULL;
+      }
+   }
 
     const OperationContext opc;
     CMPIStatus rc={CMPI_RC_OK,NULL};

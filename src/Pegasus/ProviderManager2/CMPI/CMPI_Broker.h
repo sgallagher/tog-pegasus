@@ -67,6 +67,7 @@ class CMPIProvider;
 
 struct CMPI_Broker : CMPIBroker {
    ClassCache *clsCache;
+   ReadWriteSem rwsemClassCache;
    Mutex mtx;
    String name;
    CMPIProvider *provider;

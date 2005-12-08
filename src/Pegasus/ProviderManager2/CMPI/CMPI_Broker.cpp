@@ -76,13 +76,17 @@ CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop) {
    String clsId=cop.getNameSpace().getString()+":"+cop.getClassName().getString();
    CIMClass *ccp;
 
-   AutoMutex mtx(((CMPI_Broker*)mb)->mtx);
-   if (xBroker->clsCache) {
+   {
+      ReadLock readLock (xBroker->rwsemClassCache);
+
       if (xBroker->clsCache->lookup(clsId,ccp)) return ccp;
    }
-   else xBroker->clsCache=new ClassCache();
 
    try {
+      WriteLock writeLock (xBroker->rwsemClassCache);
+
+      if (xBroker->clsCache->lookup(clsId,ccp)) return ccp;
+
       CIMClass cc=CM_CIMOM(mb)->getClass(
                   OperationContext(),
 		  cop.getNameSpace(),
@@ -98,6 +102,7 @@ CIMClass* mbGetClass(const CMPIBroker *mb, const CIMObjectPath &cop) {
    catch (const CIMException &e) {
       DDD(cout<<"### exception: mbGetClass - code: "<<e.getCode()<<" msg: "<<e.getMessage()<<endl);
    }
+
    return NULL;
 }
 

@@ -5480,6 +5480,25 @@ CIM server listening on HTTPS port {0}."}
 	*/
 	ProviderManager.CMPI.CMPIProviderModule.WRONG_LIBRARY:string {"PGS16505: ({0}) Provider is not a CMPI style provider. Cannot find {1}_Create<mi-type>MI symbol."}
 
+        // ==========================================================
+        // Messages for JMPIProviderManager
+        //  Please use message prefix "PGS17200 - PGS17399"
+        // ==========================================================
+
+        /**
+          * @note PGS17200
+          *    Substitution {0} is the filename of the provider
+          *    Substitution {1} is the name of the provider
+          *    Substitution {2} is the operatating system message string
+          */
+        ProviderManager.JMPI.JMPIProviderModule.CANNOT_LOAD_LIBRARY:string {"PGS17200: ({0}:{1}):Cannot load library, error: {2}"}
+
+        /**
+          * @note PGS17201
+          * DO NOT TRANSLATE "JVM"
+          */
+        ProviderManager.JMPI.JMPIProviderManager.INIT_JVM_FAILED:string {"PGS17201: Could not initialize the JVM (Java Virtual Machine) runtime environment."}
+
 
 	/**
 	* @note PGS16506

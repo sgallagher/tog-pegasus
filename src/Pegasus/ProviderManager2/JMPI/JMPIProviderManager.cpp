@@ -530,6 +530,19 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
+////////DDD(debugPrintMethodPointers (env, (jclass)pr.jProviderClass));
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -820,6 +833,17 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         JvmVector *jv = 0;
 
         env = JMPIjvm::attachThread(&jv);
+
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1177,11 +1201,22 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4, "Calling provider.enumerateInstanceNames: " + pr.getName());
 
-        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Calling provider : enumerateInstanceNames"<<pr.getName()<<PEGASUS_STD(endl));
+        DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Calling provider : enumerateInstanceNames: "<<pr.getName()<<PEGASUS_STD(endl));
 
         JvmVector *jv = 0;
 
         env = JMPIjvm::attachThread(&jv);
+
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1481,6 +1516,17 @@ Message * JMPIProviderManager::handleCreateInstanceRequest(const Message * messa
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -1610,11 +1656,21 @@ Message * JMPIProviderManager::handleModifyInstanceRequest(const Message * messa
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,"Calling provider.modifyInstance: " + pr.getName());
 
         DDD(PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleModifyInstanceRequest: Calling provider "<<PEGASUS_STD(hex)<<(int)&pr<<PEGASUS_STD(dec)<<", name = "<<pr.getName ()<<", module = "<<pr.getModule()<<" modifyInstance: "<<pr.getName()<<PEGASUS_STD(endl));
-////////DDD(debugPrintMethodPointers (env, (jclass)pr.jProviderClass));
 
         JvmVector *jv = 0;
 
         env = JMPIjvm::attachThread(&jv);
+
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -1783,6 +1839,17 @@ Message * JMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -1894,6 +1961,17 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
         JvmVector *jv = 0;
 
         env = JMPIjvm::attachThread(&jv);
+
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -2221,6 +2299,17 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -2510,6 +2599,17 @@ Message * JMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -2749,6 +2849,17 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
         JvmVector *jv = 0;
 
         env = JMPIjvm::attachThread(&jv);
+
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -3020,6 +3131,17 @@ Message * JMPIProviderManager::handleReferenceNamesRequest(const Message * messa
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -3242,6 +3364,17 @@ Message * JMPIProviderManager::handleGetPropertyRequest(const Message * message)
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -3386,6 +3519,17 @@ Message * JMPIProviderManager::handleSetPropertyRequest(const Message * message)
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -3527,6 +3671,17 @@ Message * JMPIProviderManager::handleInvokeMethodRequest(const Message * message
         JvmVector *jv = 0;
 
         env = JMPIjvm::attachThread(&jv);
+
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
@@ -3859,6 +4014,17 @@ Message * JMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
 
         env = JMPIjvm::attachThread(&jv);
 
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
+
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 
         STAT_GETSTARTTIME;
@@ -4029,6 +4195,17 @@ Message * JMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
         JvmVector *jv = 0;
 
         env = JMPIjvm::attachThread(&jv);
+
+        if (!env)
+        {
+            PEG_METHOD_EXIT();
+
+            STAT_COPYDISPATCHER
+
+            throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                           MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                              "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+        }
 
         JMPIProvider::pm_service_op_lock op_lock(&pr);
 

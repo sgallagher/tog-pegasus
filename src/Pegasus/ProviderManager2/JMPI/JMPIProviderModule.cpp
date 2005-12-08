@@ -15,7 +15,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -74,15 +74,22 @@ JMPIProviderModule::~JMPIProviderModule(void)
 
 ProviderVector JMPIProviderModule::load(const String & providerName)
 {
-   ProviderVector pv;
-   JvmVector *jv;
+    ProviderVector  pv;
+    JvmVector      *jv  = NULL;
+    JNIEnv         *env = JMPIjvm::attachThread(&jv);
 
-   JNIEnv *env=JMPIjvm::attachThread(&jv);
-   pv.jProvider=JMPIjvm::getProvider(env,_fileName,_className,
-        providerName.getCString(),&pv.jProviderClass);
-   JMPIjvm::detachThread();
+    if (env)
+    {
+       pv.jProvider = JMPIjvm::getProvider (env,
+                                            _fileName,
+                                            _className,
+                                            providerName.getCString(),
+                                            &pv.jProviderClass);
+       JMPIjvm::detachThread ();
+    }
 
-    if (pv.jProvider == 0) {
+    if (pv.jProvider == 0)
+    {
         String s0 = "ProviderLoadFailure";
         throw Exception(MessageLoaderParms("ProviderManager.JMPIProviderModule.CANNOT_LOAD_LIBRARY",
             "$0 ($1:$2):Cannot load library",

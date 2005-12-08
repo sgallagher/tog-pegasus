@@ -112,6 +112,13 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
     JvmVector *jv  = 0;
     JNIEnv    *env = JMPIjvm::attachThread(&jv);
 
+    if (!env)
+    {
+        throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_FAILED,
+                                       MessageLoaderParms("ProviderManager.JMPI.INIT_JVM_FAILED",
+                                                          "Could not initialize the JVM (Java Virtual Machine) runtime environment."));
+    }
+
     // public abstract void initialize (org.pegasus.jmpi.CIMOMHandle ch)
     //        throws org.pegasus.jmpi.CIMException
     jmethodID id = env->GetMethodID((jclass)jProviderClass,

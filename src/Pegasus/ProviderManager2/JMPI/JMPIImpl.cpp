@@ -201,7 +201,7 @@ jclass JMPIjvm::getGlobalClassRef(JNIEnv *env, const char* name)
 
 JMPIjvm::JMPIjvm()
 {
-   initJVM();
+   initJVM ();
 }
 
 JMPIjvm::~JMPIjvm()
@@ -280,6 +280,7 @@ int JMPIjvm::destroyJVM()
       JvmVector *jv;
 
       attachThread(&jv);
+
       jvm->DestroyJavaVM();
 
       jvm = NULL;
@@ -291,8 +292,17 @@ int JMPIjvm::destroyJVM()
    return -1;
 }
 
-int JMPIjvm::initJVM()
+Mutex JMPIjvm::_initMutex;
+
+int JMPIjvm::initJVM ()
 {
+   AutoMutex lock (_initMutex);
+
+   if (jvm != NULL)
+   {
+      return 0;
+   }
+
    JavaVMInitArgs vm_args;
    jint res;
    char *envstring;
@@ -424,27 +434,56 @@ int JMPIjvm::initJVM()
    }
 
    if (res!=0) {
+      jv.initRc=1;
+
       DDD(PEGASUS_STD(cerr) << "--- JMPIjvm::initJVM(): Can not create Java VM"<<PEGASUS_STD(endl));
 
-      exit(1);
+      return -1;
    }
-   jv.jvm=jvm;
 
    cacheIDs(env);
 
    if (env->ExceptionOccurred()) {
+      jv.initRc=1;
+
       env->ExceptionDescribe();
-      exit(1);
+
+#ifdef JAVA_DESTROY_VM_WORKS
+
+      JvmVector *jv = NULL;
+
+      attachThread (&jv);
+
+      jvm->DestroyJavaVM ();
+
+      jvm = NULL;
+#endif
+
+      return -1;
    }
+
+   jv.initRc=1;
+   jv.jvm=jvm;
 
    return res;
 }
 
-JNIEnv* JMPIjvm::attachThread(JvmVector **jvp) {
-   JNIEnv* env;
-   if (jvm==NULL) initJVM();
-   jvm->AttachCurrentThread((void**)&env,NULL);
+JNIEnv* JMPIjvm::attachThread(JvmVector **jvp)
+{
+   JNIEnv* env = NULL;
+
+   if (jvm == NULL)
+   {
+      initJVM ();
+
+      if (jvm == NULL)
+         return NULL;
+   }
+
+   jvm->AttachCurrentThread ((void**)&env,NULL);
+
    *jvp=&jv;
+
    return env;
 }
 

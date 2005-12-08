@@ -113,6 +113,8 @@ class JMPIjvm {
 
    static ClassTable  _classTable;
    static ObjectTable _objectTable;
+
+   static Mutex _initMutex;
 };
 
 class _nameSpace {

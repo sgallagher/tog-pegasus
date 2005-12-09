@@ -571,6 +571,10 @@ void IndicationService::_initialize (void)
         (activeSubscriptions);
     noProviderSubscriptions.clear ();
 
+    Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+        "%u active subscription(s) found on initialization",
+        activeSubscriptions.size ());
+
     String condition;
     String query;
     String queryLanguage;
@@ -582,16 +586,23 @@ void IndicationService::_initialize (void)
         //
         //  Check for expired subscription
         //
-        try{
+        try
+        {
             if (_isExpired (activeSubscriptions [i]))
             {
-               CIMObjectPath path = activeSubscriptions [i].getPath ();
+                CIMObjectPath path = activeSubscriptions [i].getPath ();
+
+                Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                    "Deleting expired subscription on initialization: %s",
+                    (const char *) path.toString ().getCString ());
+
                 _deleteExpiredSubscription (path);
-               // If subscription is expired delete the subscription
-               // and continue on to the next one.
-               continue;
+                // If subscription is expired delete the subscription
+                // and continue on to the next one.
+                continue;
             }
-        } catch (DateTimeOutOfRangeException& e)
+        }
+        catch (DateTimeOutOfRangeException& e)
         {
             //
             //  This instance from the repository is invalid
@@ -612,6 +623,11 @@ void IndicationService::_initialize (void)
 
         if (indicationProviders.size () == 0)
         {
+            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                "No providers found for subscription on initialization: %s",
+                (const char *)
+                activeSubscriptions [i].getPath ().toString ().getCString ());
+
             //
             //  There are no providers that can support this subscription
             //  Implement the subscription's On Fatal Error Policy
@@ -689,6 +705,11 @@ void IndicationService::_initialize (void)
 
         if (acceptedProviders.size () == 0)
         {
+            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                "No providers accepted subscription on initialization: %s",
+                (const char *)
+                activeSubscriptions [i].getPath ().toString ().getCString ());
+
             //
             //  No providers accepted the subscription
             //  Implement the subscription's On Fatal Error Policy
@@ -721,7 +742,7 @@ void IndicationService::_initialize (void)
                     (_CLASS_NO_PROVIDER_ALERT, subscriptions);
 
                 Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                    "Sending NoProvider Alert for %d subscriptions",
+                    "Sending NoProvider Alert for %u subscriptions",
                     subscriptions.size ());
                 _sendAlerts (subscriptions, indicationInstance);
 #endif
@@ -779,7 +800,7 @@ void IndicationService::_initialize (void)
             (_CLASS_NO_PROVIDER_ALERT, noProviderSubscriptions);
 
         Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-            "Sending NoProvider Alert for %d subscriptions",
+            "Sending NoProvider Alert for %u subscriptions",
             noProviderSubscriptions.size ());
         _sendAlerts (noProviderSubscriptions, indicationInstance);
 #endif
@@ -848,7 +869,7 @@ void IndicationService::_terminate (void)
         //  Send CimomShutdownAlertIndication to each unique handler instance
         //
         Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-            "Sending CIMServerShutdown Alert for %d subscriptions",
+            "Sending CIMServerShutdown Alert for %u subscriptions",
             activeSubscriptions.size ());
         _sendAlerts (activeSubscriptions, indicationInstance);
     }
@@ -2738,7 +2759,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
         //  Send NoProviderAlertIndication to each unique handler instance
         //
         Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-            "Sending NoProvider Alert for %d subscriptions",
+            "Sending NoProvider Alert for %u subscriptions",
             formerSubscriptions.size ());
         _sendAlerts (formerSubscriptions, indicationInstance);
 #endif
@@ -2834,7 +2855,7 @@ void IndicationService::_handleNotifyProviderTerminationRequest
             //  instance
             //
             Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
-                "Sending ProviderDisabled Alert for %d subscriptions",
+                "Sending ProviderDisabled Alert for %u subscriptions",
                 providerSubscriptions.size ());
             _sendAlerts (providerSubscriptions, indicationInstance);
 #endif
@@ -5065,14 +5086,13 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
     Array <ProviderClassList> indicationProviders;
     Array <CIMInstance> providerInstances;
     Array <CIMInstance> providerModuleInstances;
-    Boolean duplicate = false;
 
     CIMPropertyList requiredPropertyList;
 
     //
     //  For each indication subclass, get providers
     //
-    for (Uint32 i = 0; i < indicationSubclasses.size (); i++)
+    for (Uint32 i = 0, n = indicationSubclasses.size (); i < n; i++)
     {
         //  Get required property list from filter query (WHERE clause)
         //  from this indication subclass
@@ -5096,21 +5116,25 @@ Array <ProviderClassList> IndicationService::_getIndicationProviders (
             PEGASUS_ASSERT (providerInstances.size () ==
                             providerModuleInstances.size ());
 
-            duplicate = false;
+            Tracer::trace (TRC_INDICATION_SERVICE, Tracer::LEVEL4,
+                "%u indication provider(s) found for class %s",
+                providerInstances.size (),
+                (const char *) 
+                indicationSubclasses[i].getString ().getCString ());
 
             //
             //  Merge into list of ProviderClassList structs
             //
-            for (Uint32 j = 0; j < providerInstances.size () && !duplicate; j++)
+            for (Uint32 j = 0, n = providerInstances.size (); j < n; j++)
             {
                 provider.classList.clear ();
-                duplicate = false;
+                Boolean duplicate = false;
 
                 //
                 //  See if indication provider is already in list
                 //
-                for (Uint32 k = 0;
-                     k < indicationProviders.size () && !duplicate; k++)
+                for (Uint32 k = 0, n = indicationProviders.size ();
+                     k < n && !duplicate; k++)
                 {
                     if ((providerInstances [j].getPath ().identical
                         (indicationProviders [k].provider.getPath ())) &&

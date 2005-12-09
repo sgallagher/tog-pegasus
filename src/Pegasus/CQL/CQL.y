@@ -50,7 +50,7 @@
 #endif
 
 int yylex();
-char msg[100];
+static char msg[100];
 void printf_(char * msg){
 	if(DEBUG_GRAMMAR == 1)
 		printf("%s\n",msg);

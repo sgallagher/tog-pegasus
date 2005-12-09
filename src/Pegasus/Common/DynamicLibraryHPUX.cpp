@@ -41,6 +41,7 @@
 
 #include <dl.h>
 
+# include <dlfcn.h>
 PEGASUS_NAMESPACE_BEGIN
 
 // the HPUX dynamic library load and unload routines do not keep a reference 
@@ -109,11 +110,10 @@ Boolean DynamicLibrary::load(void)
 
     CString cstr = _fileName.getCString();
 
-    //_handle = shl_load(cstr,BIND_IMMEDIATE|DYNAMIC_PATH|BIND_VERBOSE, 0L);
-    _handle = shl_load(cstr, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
+    _handle = dlopen(cstr, RTLD_NOW | RTLD_GLOBAL);
 
     // increment handle if valid
-    if(_handle == 0)
+    if(_handle != 0)
     {
         _increment_handle(_handle);
     }
@@ -130,7 +130,7 @@ Boolean DynamicLibrary::unload(void)
     // reference count is 0
     if((_handle != 0) && (_decrement_handle(_handle) == 0))
     {
-        shl_unload(reinterpret_cast<shl_t>(_handle));
+        dlclose(reinterpret_cast<shl_t>(_handle));
     }
 
     _handle = 0;
@@ -152,17 +152,7 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(
     {
         CString cstr = symbolName.getCString();
 
-        if(shl_findsym((shl_t *)&_handle, cstr, TYPE_UNDEFINED, &func) == 0)
-        {
-            return(func);
-        }
-
-        // NOTE: should the underscore be prepended by the caller or should
-        // this be a compile time option?
-
-        cstr = String(String("_") + symbolName).getCString();
-
-        if(shl_findsym((shl_t *)_handle, cstr, TYPE_UNDEFINED, &func) == 0)
+        if (func = (LIBRARY_SYMBOL)::dlsym(_handle, (const char *)cstr))
         {
             return(func);
         }

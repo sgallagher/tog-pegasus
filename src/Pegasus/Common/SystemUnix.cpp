@@ -45,6 +45,7 @@
 
 #ifdef PEGASUS_OS_HPUX
 # include <dl.h>
+# include <dlfcn.h>
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
@@ -428,24 +429,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                   "Attempting to load library %s", fileName);
 
-#if defined(PEGASUS_OS_HPUX)
-    void* handle;
-    if (bindVerbose)
-    {
-        handle = shl_load(fileName,
-            BIND_IMMEDIATE | DYNAMIC_PATH | BIND_VERBOSE, 0L);
-    }
-    else
-    {
-        handle = shl_load(fileName, BIND_IMMEDIATE | DYNAMIC_PATH, 0L);
-    }
-    Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
-                  "After loading lib %s, error code is %d", fileName,
-                  (handle == (void *)0)?errno:0);
-
-    PEG_METHOD_EXIT();
-    return DynamicLibraryHandle(handle);
-#elif defined(PEGASUS_OS_TRU64)
+#if defined(PEGASUS_OS_TRU64)
     PEG_METHOD_EXIT();
     return DynamicLibraryHandle(dlopen(fileName, RTLD_NOW));
 #elif defined(PEGASUS_OS_ZOS)
@@ -470,37 +454,19 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
-    // ATTN: Should this method indicate success/failure?
-#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)
-    dlclose(libraryHandle);
-#endif
-
-#ifdef PEGASUS_OS_HPUX
-    // Note: shl_unload will unload the library even if it has been loaded
-    // multiple times.  No reference count is kept.
-    int ignored = shl_unload(reinterpret_cast<shl_t>(libraryHandle));
-#endif
-
 #ifdef PEGASUS_OS_OS400
    OS400_UnloadDynamicLibrary((int)libraryHandle);
-#endif
-
-#ifdef PEGASUS_OS_AIX
-    dlclose(libraryHandle);
-#endif
-
-#ifdef PEGASUS_OS_ZOS
+#elif defined(PEGASUS_OS_ZOS)
     dllfree(reinterpret_cast<dllhandle *> (libraryHandle));
+#else
+    dlclose(libraryHandle);
 #endif
 }
 
 String System::dynamicLoadError() {
     // ATTN: Is this safe in a multi-threaded process?  Should this string
     // be returned from loadDynamicLibrary?
-#ifdef PEGASUS_OS_HPUX
-    // If shl_load() returns NULL, errno is set to indicate the error
-    return strerror(errno);
-#elif defined(PEGASUS_OS_ZOS)
+#ifdef PEGASUS_OS_ZOS
     return String();
 #elif defined(PEGASUS_OS_OS400)
     return String(OS400_DynamicLoadError());
@@ -515,27 +481,8 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     DynamicLibraryHandle libraryHandle,
     const char* symbolName)
 {
-#ifdef PEGASUS_OS_HPUX
-    char* p = (char*)symbolName;
-    void* proc = 0;
 
-    if (shl_findsym((shl_t*)&libraryHandle, symbolName, TYPE_UNDEFINED,
-                    &proc) == 0)
-    {
-        return DynamicSymbolHandle(proc);
-    }
-
-    if (shl_findsym((shl_t*)libraryHandle,
-                    (String("_") + symbolName).getCString(),
-                    TYPE_UNDEFINED,
-                    &proc) == 0)
-    {
-        return DynamicSymbolHandle(proc);
-    }
-
-    return 0;
-
-#elif defined(PEGASUS_OS_ZOS)
+#ifdef PEGASUS_OS_ZOS
     return DynamicSymbolHandle(dllqueryfn((dllhandle *)libraryHandle,
                                (char*)symbolName));
 

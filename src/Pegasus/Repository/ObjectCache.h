@@ -61,10 +61,15 @@ public:
 #ifdef PEGASUS_DEBUG
     void DisplayCacheStatistics(void)
     {
-        cout << "  Size (current/max): " << _numEntries << "/" << _maxEntries << endl;
-        cout << "  Requests satisfied from cache: " << _cacheReadHit << endl;
-        cout << "  Requests *not* satisfied from cache: " << _cacheReadMiss << " (implies write to cache)" << endl;
-        cout << "  Cache entries \"aged out\" due to cache size constraints: " << _cacheRemoveLRU << endl;
+        PEGASUS_STD(cout) << "  Size (current/max): " << _numEntries <<
+            "/" << _maxEntries << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) << "  Requests satisfied from cache: " <<
+            _cacheReadHit << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) << "  Requests *not* satisfied from cache: " <<
+            _cacheReadMiss << " (implies write to cache)" << PEGASUS_STD(endl);
+        PEGASUS_STD(cout) <<
+            "  Cache entries \"aged out\" due to cache size constraints: " <<
+            _cacheRemoveLRU << PEGASUS_STD(endl);
     }
 #endif
 

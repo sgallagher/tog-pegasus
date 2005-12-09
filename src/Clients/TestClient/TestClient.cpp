@@ -61,6 +61,15 @@
 // Rempve SLP #include <slp/slp.h>
 #endif
 
+/**
+  Here, exit(2) is being used to signal a timeout exception,
+  and exit(1) to any other exception, everywhere an exception
+  is required to exit.
+
+  The exit(0), is being used to signal that TestClient
+  terminated normally
+*/
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -564,6 +573,11 @@ static void TestInstanceGetOperations(CIMClient* client, Boolean activeTest,
                     cerr << e.getMessage() << endl;
                  }
            }
+       catch(ConnectionTimeoutException& e)
+       {
+           PEGASUS_STD(cerr) << "Warning: " << e.getMessage() << PEGASUS_STD(endl);
+           exit(2);
+       }
        catch(Exception& e)
        {
            PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
@@ -963,7 +977,11 @@ static void TestMethodOperations( CIMClient* client, Boolean
             }
             cout << "Executed " << testRepeat << " methods" << endl;
     }
-
+    catch(ConnectionTimeoutException& e)
+    {
+        PEGASUS_STD(cerr) << "Warning: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(2);
+    }
     catch(Exception& e)
     {
         PEGASUS_STD(cerr) << "Error: " << e.getMessage() << PEGASUS_STD(endl);
@@ -1053,6 +1071,11 @@ static void TestInvokeMethod(
             }
             cout << "Executed " << testRepeat << " methods" << endl;
         }
+    }
+    catch(ConnectionTimeoutException& e)
+    {
+        PEGASUS_STD(cerr) << "Warning: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(2);
     }
     catch(Exception& e)
     {
@@ -1303,7 +1326,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL executeTests(void *parm){
         elapsedTime.stop();
         testEnd(elapsedTime.getElapsed());
     }catch(Exception e){
-        cout << e.getMessage() << endl;
+      cout << e.getMessage() << endl;
     }
     }
     my_thread->exit_self((PEGASUS_THREAD_RETURN)5);
@@ -1384,6 +1407,11 @@ void connectClient(
         }
 
         cout << "Client Connected" << endl;
+    }
+    catch(ConnectionTimeoutException& e)
+    {
+        PEGASUS_STD(cerr) << "Warning: " << e.getMessage() << PEGASUS_STD(endl);
+        exit(2);
     }
     catch(Exception& e)
     {

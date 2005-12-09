@@ -319,7 +319,7 @@ Message* ClientAuthenticator::getRequestMessage()
 
 void ClientAuthenticator::clearReconnect()
 {
-    _requestMessage = 0;
+    _requestMessage.reset();
     _realm = String::EMPTY;
     _challengeReceived = false;
 }

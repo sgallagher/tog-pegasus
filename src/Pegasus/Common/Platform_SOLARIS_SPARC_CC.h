@@ -69,4 +69,8 @@
 # define PEGASUS_SOCKLEN_T socklen_t
 #endif
 
+#ifdef PEGASUS_INTERNALONLY
+using namespace std;
+#endif
+
 #endif /* Pegasus_Platform_SOLARIS_SPARC_CC_h */

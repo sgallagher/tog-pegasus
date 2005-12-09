@@ -120,10 +120,13 @@ class SpinLockInitializer
 public:
     SpinLockInitializer()
     {
+// ATTN: Temporary workaround for Bug 4559
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_SOLARIS)
         pthread_atfork(
             _lockSpinLockPool,
             _unlockSpinLockPool,
             _unlockSpinLockPool);
+#endif
     }
 };
 

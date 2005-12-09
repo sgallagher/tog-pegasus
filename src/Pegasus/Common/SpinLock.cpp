@@ -33,6 +33,11 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#if defined(PEGASUS_OS_SOLARIS)
+# include <sys/types.h>
+# include <unistd.h>
+#endif
+
 #include "SpinLock.h"
 
 #if  !defined(PEGASUS_OS_VMS) &&  !defined(PEGASUS_OS_TYPE_WINDOWS)
@@ -91,7 +96,7 @@ void SpinLockCreatePool()
 // child process from waiting indefinitely on a mutex that was locked by
 // another thread in the parent process during the fork.
 
-void _lockSpinLockPool()
+extern "C" void _lockSpinLockPool()
 {
     // Initialize the spinlock pool if not already done.
 
@@ -107,7 +112,7 @@ void _lockSpinLockPool()
 // This function is called after forking.  It unlocks the mutexes that
 // were locked by _lockSpinLockPool() before the fork.
 
-void _unlockSpinLockPool()
+extern "C" void _unlockSpinLockPool()
 {
     pthread_mutex_unlock(&_spinLockInitMutex);
 

@@ -16,7 +16,7 @@ License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 URL:       http://www.openpegasus.org
 
-Source:    ftp://www.opengroup.org/pegasus/%{name}-%{version}-%{srcRelease}.tar.gz
+Source:    %{name}-%{version}-%{srcRelease}.tar.gz
 
 BuildRequires:      bash, sed, grep, coreutils, procps, gcc, gcc-c++
 BuildRequires:      libstdc++, make, pam-devel

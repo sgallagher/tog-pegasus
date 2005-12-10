@@ -258,6 +258,66 @@ stageINCLUDE:
 	@$(COPY) $(INCLUDE_SRCPATH)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h \
                  $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h
 
+create_ProductInstallationVerificationScript: 
+	@$(RM) $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS SYSETM DIRECTORIES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_INCLUDE_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS DEVEL DIRECTORIES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_SAMPLES_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(foreach i, $(SAMPLE_DIRS), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMLES_DIR)/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(ECHO-E) "ls -ld $(PEGASUS_INCLUDE_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(foreach i, $(INCLUDE_DIRS), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_INCLUDE_DIR)/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(ECHO-E) "ls -ld $(PEGASUS_HTML_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS INCLUDE FILES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(foreach i, $(INCLUDE_FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_INCLUDE_DIR)/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS SAMPLE FILES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(CLIENTSRCPATH2FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(CLIENTSRCPATH3FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(CLIENTSRCPATH4FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/Associations/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(PROVIDERSCPATH1FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Providers/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(PROVIDERSRCPATH2FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Providers/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(PROVIDERSRCPATH3FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(PROVIDERSRCPATH4FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(foreach i, $(PROVIDERSRCPATH5FILES), $(ECHO-E) "ls -ld" \
+             "$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall;)
+	@$(ECHO-E) "ls -l $(PEGASUS_SAMPLES_DIR)/mak/config.mak" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+	@$(ECHO-E) "ls -l" \
+             "$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak" \
+             >> $(PEGASUS_HOME)/PegasusVerifyDevelInstall
+
 createPlatformFile:
 	@$(ECHO) "ifndef PEGASUS_PROVIDER_LIB_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
 	@$(ECHO) "   PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_LIB_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
@@ -325,7 +385,7 @@ _append_preunSectionToSpecFile:
 
 _append_filesSectionToSpecFile:
 	@$(ECHO-E) "%files devel"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "%defattr($(Prw_______),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_x___))" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%defattr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_xr_x))" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_DOC_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

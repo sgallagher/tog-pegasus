@@ -37,7 +37,12 @@
 #ifndef Pegasus_ConfigFileDir_h
 #define Pegasus_ConfigFileDir_h
 
-#if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
+#include <Pegasus/Config/ProductDirectoryStructure.h>
+static char CURRENT_CONFIG_FILE [] = PEGASUS_CURRENT_CONFIG_FILE_PATH;
+static char PLANNED_CONFIG_FILE [] = PEGASUS_PLANNED_CONFIG_FILE_PATH;
+static char CIMSERVER_START_FILE [] = PEGASUS_CIMSERVER_START_FILE;
+#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
 #include "ConfigFileDirLinux.h"
 #elif PEGASUS_PLATFORM_HPUX_ACC
 #include "ConfigFileDirHpux.h"

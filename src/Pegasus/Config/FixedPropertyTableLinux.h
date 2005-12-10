@@ -33,6 +33,10 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+#if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
+#include <Pegasus/Config/ProductDirectoryStructure.h>
+#endif
+
 #ifdef PEGASUS_USE_RELEASE_CONFIG_OPTIONS
     {"httpPort",            "5988"},
     {"httpsPort",           "5989"},
@@ -45,6 +49,20 @@
     {"enableBinaryRepository", "false"},
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && !defined(PEGASUS_OS_LSB)
+#if defined(PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS)
+    {"traceFilePath",       PEGASUS_TRACE_FILE_PATH},
+#if !defined(PEGASUS_USE_SYSLOGS)
+    {"logdir",              PEGASUS_LOG_DIR}, 
+#endif
+    {"passwordFilePath",     PEGASUS_CONFIG_DIR"/cimserver.passwd"},
+    {"sslCertificateFilePath", PEGASUS_SSL_CERT_FILE_PATH},
+    {"sslKeyFilePath",       PEGASUS_SSL_KEY_FILE_PATH},
+    {"sslTrustStore",        PEGASUS_SSL_SERVER_TRUSTSTORE},
+    {"exportSSLTrustStore",  PEGASUS_SSL_EXPORT_TRUSTSTORE},
+    {"crlStore",             PEGASUS_SSL_SERVER_CRL},
+    {"repositoryDir",        PEGASUS_REPOSITORY_DIR},
+    {"providerDir",          PEGASUS_PROVIDER_LIB_DIR":/usr/lib/cmpi"},
+#else
     {"traceFilePath",       "/var/opt/tog-pegasus/cache/trace/cimserver.trc"},
 #if !defined(PEGASUS_USE_SYSLOGS)
     {"logdir",              "/var/opt/tog-pegasus/log"},
@@ -58,6 +76,7 @@
     {"repositoryDir",       "/var/opt/tog-pegasus/repository"},
     {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/lib/cmpi"},
     {"messageDir",         "/opt/tog-pegasus/share/locale/ICU_Messages"},
+#endif
 #endif
 #if defined(PEGASUS_USE_RELEASE_DIRS) && defined(PEGASUS_OS_LSB)
     {"traceFilePath",       "/var/opt/lsb-pegasus/cache/cimserver.trc"},

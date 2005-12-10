@@ -350,6 +350,9 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #define PEGASUS_PROVIDER_AGENT_PROC_NAME  "bin/cimprovagt"
 
 #ifdef PEGASUS_USE_RELEASE_DIRS
+#ifdef PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS
+# include <Pegasus/Common/ProductDirectoryStructure.h>
+#else
 # if defined(PEGASUS_OS_HPUX)
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/hp/sslshare/client.pem"
@@ -424,6 +427,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/wbem_var/opt/wbem/bin/cimprovagt"
 # endif
+#endif
 #endif
 
 // Constant defines for path to icu resource bundles

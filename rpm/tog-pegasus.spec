@@ -61,7 +61,7 @@ License:   Open Group Pegasus Open Source
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 URL:       http://www.openpegasus.org
 
-Source:    ftp://www.opengroup.org/pegasus/%{name}-%{version}-%{srcRelease}.tar.gz
+Source:    %{name}-%{version}-%{srcRelease}.tar.gz
 
 BuildRequires:      bash, sed, grep, coreutils, procps, gcc, gcc-c++
 BuildRequires:      libstdc++, make, pam-devel
@@ -94,26 +94,26 @@ sources.
 
 %global OPENSSL_HOME /usr/include/openssl
 %global OPENSSL_BIN /usr/bin
-%global PEGASUS_PEM_DIR /etc/opt/tog-pegasus
+%global PEGASUS_PEM_DIR /etc/Pegasus
 %global PEGASUS_SSL_CERT_FILE server.pem
 %global PEGASUS_SSL_KEY_FILE file.pem
 %global PEGASUS_SSL_TRUSTSTORE client.pem
 %global PAM_CONFIG_DIR /etc/pam.d
-%global PEGASUS_CONFIG_DIR /etc/opt/tog-pegasus
-%global PEGASUS_VARDATA_DIR /var/opt/tog-pegasus
-%global PEGASUS_VARDATA_CACHE_DIR /var/opt/tog-pegasus/cache
+%global PEGASUS_CONFIG_DIR /etc/Pegasus
+%global PEGASUS_VARDATA_DIR /var/lib/Pegasus
+%global PEGASUS_VARDATA_CACHE_DIR /var/lib/Pegasus/cache
 %global PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  /var/run/tog-pegasus/socket/cimxml.socket
 %global PEGASUS_CIMSERVER_START_FILE /var/run/tog-pegasus/cimserver.pid
-%global PEGASUS_REPOSITORY_DIR /var/opt/tog-pegasus/repository
-%global PEGASUS_PREV_REPOSITORY_DIR_NAME  prev_repository
-%global PEGASUS_REPOSITORY_PARENT_DIR  /var/opt/tog-pegasus
-%global PEGASUS_PREV_REPOSITORY_DIR /var/opt/tog-pegasus/prev_repository
-%global PEGASUS_SBIN_DIR /opt/tog-pegasus/sbin
-%global PEGASUS_DOC_DIR /opt/tog-pegasus/share/doc
+%global PEGASUS_REPOSITORY_DIR /var/lib/Pegasus/repository
+%global PEGASUS_PREV_REPOSITORY_DIR_NAME prev_repository
+%global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
+%global PEGASUS_PREV_REPOSITORY_DIR /var/lib/Pegasus/prev_repository
+%global PEGASUS_SBIN_DIR /usr/sbin
+%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.5
 
 %global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 %global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
-%global PEGASUS_INSTALL_LOG /var/opt/tog-pegasus/log/install.log
+%global PEGASUS_INSTALL_LOG /var/lib/Pegasus/log/install.log
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-arch.spec
 #
@@ -194,6 +194,8 @@ export PEGASUS_EXTRA_LINK_FLAGS="$RPM_OPT_FLAGS"
 #export PEGASUS_EXTRA_LINK_FLAGS="$RPM_OPT_FLAGS -g -pie -Wl,-z,relro,-z,now,-z,nodlopen,-z,noexecstack"
 
 make -f $PEGASUS_ROOT/Makefile.Release create_ProductVersionFile
+make -f $PEGASUS_ROOT/Makefile.Release create_CommonProductDirectoriesInclude
+make -f $PEGASUS_ROOT/Makefile.Release create_ConfigProductDirectoriesInclude
 make -f $PEGASUS_ROOT/Makefile.Release all
 make -f $PEGASUS_ROOT/Makefile.Release repository
 #
@@ -271,26 +273,26 @@ fi
 %post
 if [ $1 -eq 1 ]; then
    echo `date` > %PEGASUS_INSTALL_LOG 2>&1
-   %define PEGASUS_CONFIG_DIR /etc/opt/tog-pegasus
-   %define PEGASUS_PEM_DIR /etc/opt/tog-pegasus
+   %define PEGASUS_CONFIG_DIR /etc/Pegasus
+   %define PEGASUS_PEM_DIR /etc/Pegasus
    %define PEGASUS_SSL_CERT_FILE server.pem
    %define PEGASUS_SSL_KEY_FILE file.pem
    %define PEGASUS_SSL_TRUSTSTORE client.pem
 
    # Create Symbolic Links for SDK Libraries
    #
-   ln -sf libpegclient.so.1 /opt/tog-pegasus/lib/libpegclient.so
-   ln -sf libpegcommon.so.1 /opt/tog-pegasus/lib/libpegcommon.so
-   ln -sf libpegprovider.so.1 /opt/tog-pegasus/lib/libpegprovider.so
-   ln -sf libDefaultProviderManager.so.1 /opt/tog-pegasus/lib/libDefaultProviderManager.so
-   ln -sf libCIMxmlIndicationHandler.so.1 /opt/tog-pegasus/lib/libCIMxmlIndicationHandler.so
-   ln -sf libCMPIProviderManager.so.1 /opt/tog-pegasus/lib/libCMPIProviderManager.so
+   ln -sf libpegclient.so.1 /usr/lib/libpegclient.so
+   ln -sf libpegcommon.so.1 /usr/lib/libpegcommon.so
+   ln -sf libpegprovider.so.1 /usr/lib/libpegprovider.so
+   ln -sf libDefaultProviderManager.so.1 /usr/lib/libDefaultProviderManager.so
+   ln -sf libCIMxmlIndicationHandler.so.1 /usr/lib/libCIMxmlIndicationHandler.so
+   ln -sf libCMPIProviderManager.so.1 /usr/lib/libCMPIProviderManager.so
 
    # Create Symbolic Links for Packaged Provider Libraries
    #
-   ln -sf libComputerSystemProvider.so.1 /opt/tog-pegasus/providers/lib/libComputerSystemProvider.so
-   ln -sf libOSProvider.so.1 /opt/tog-pegasus/providers/lib/libOSProvider.so
-   ln -sf libProcessProvider.so.1 /opt/tog-pegasus/providers/lib/libProcessProvider.so
+   ln -sf libComputerSystemProvider.so.1 /usr/lib/Pegasus/providers/libComputerSystemProvider.so
+   ln -sf libOSProvider.so.1 /usr/lib/Pegasus/providers/libOSProvider.so
+   ln -sf libProcessProvider.so.1 /usr/lib/Pegasus/providers/libProcessProvider.so
 
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
@@ -350,12 +352,12 @@ fi
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-preun.spec
 
 %preun devel
-make --directory /opt/tog-pegasus/samples -s clean
+make --directory /usr/share/Pegasus/samples -s clean
 
 %if %{PEGASUS_BUILD_TEST_RPM}
 %preun test
-make --directory /opt/tog-pegasus/test -s unsetupTEST
-[ -d /var/opt/tog-pegasus/testrepository ] &&  rm -rf /var/opt/tog-pegasus/testrepository;
+make --directory /usr/share/Pegasus/test -s unsetupTEST
+[ -d /var/lib/Pegasus/testrepository ] &&  rm -rf /var/lib/Pegasus/testrepository;
 
 %endif
 %postun
@@ -374,79 +376,73 @@ fi;
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-postun.spec
 
 %files
-%defattr(640,root,pegasus,750)
-%dir /opt/tog-pegasus
-%dir /opt/tog-pegasus/share
-%dir /opt/tog-pegasus/share/doc
-%dir /opt/tog-pegasus/share/man
-%dir /opt/tog-pegasus/share/man/man1
-%dir /opt/tog-pegasus/share/man/man8
-%dir /opt/tog-pegasus/lib
-%dir /opt/tog-pegasus/providers
-%dir /opt/tog-pegasus/providers/lib
-%dir /opt/tog-pegasus/sbin
-%dir /opt/tog-pegasus/bin
-%dir /opt/tog-pegasus/scripts
-%dir /opt/tog-pegasus/mof
-%dir /opt/tog-pegasus/mof/CIM29
-%dir /opt/tog-pegasus/mof/Pegasus
-%dir /var/opt/tog-pegasus
-%dir /var/opt/tog-pegasus/cache
-%dir /var/opt/tog-pegasus/log
-%dir /var/opt/tog-pegasus/cache/localauth
+%defattr(600, root, pegasus, 755)
+%dir /usr/share/doc/tog-pegasus-2.5
+%dir /usr/lib/Pegasus
+%dir /usr/lib/Pegasus/providers
+%dir /usr/share/Pegasus
+%dir /usr/share/Pegasus/scripts
+%dir /usr/share/Pegasus/mof
+%dir /usr/share/Pegasus/mof/CIM29
+%dir /usr/share/Pegasus/mof/Pegasus
+%dir /var/lib/Pegasus
+%dir /var/lib/Pegasus/cache
+%dir /var/lib/Pegasus/log
+%dir /var/lib/Pegasus/cache/localauth
 %dir /var/run/tog-pegasus
-%dir /etc/opt/tog-pegasus
 
+%dir %attr(750, root, pegasus) /etc/Pegasus
 %dir %attr(1555,root,pegasus) /var/run/tog-pegasus/socket
-%dir %attr(1777,root,pegasus) /var/opt/tog-pegasus/cache/trace
+%dir %attr(1777,root,pegasus) /var/lib/Pegasus/cache/trace
 
-/var/opt/tog-pegasus/repository
-/opt/tog-pegasus/mof/CIM29/*
-/opt/tog-pegasus/mof/Pegasus/*
+%dir %attr(750, root, pegasus) /var/lib/Pegasus/repository
+/var/lib/Pegasus/repository/*
+/usr/share/Pegasus/mof/CIM29/*
+/usr/share/Pegasus/mof/Pegasus/*
 
 %config %attr(750,root,pegasus) /etc/init.d/tog-pegasus
-%config(noreplace) /var/opt/tog-pegasus/cimserver_planned.conf
-%config(noreplace) /etc/opt/tog-pegasus/access.conf
+%config(noreplace) /var/lib/Pegasus/cimserver_planned.conf
+%config(noreplace) /etc/Pegasus/access.conf
 %config(noreplace) /etc/pam.d/wbem
 
-%ghost %config(noreplace) /etc/opt/tog-pegasus/ssl.cnf
-%ghost %config(noreplace) /etc/opt/tog-pegasus/client.pem
-%ghost %config(noreplace) /etc/opt/tog-pegasus/server.pem
-%ghost %config(noreplace) /etc/opt/tog-pegasus/file.pem
-%ghost /var/opt/tog-pegasus/log/install.log
+%ghost %config(noreplace) /etc/Pegasus/ssl.cnf
+%ghost %config(noreplace) /etc/Pegasus/client.pem
+%ghost %config(noreplace) /etc/Pegasus/server.pem
+%ghost %config(noreplace) /etc/Pegasus/file.pem
+%ghost /var/lib/Pegasus/log/install.log
 
-%attr(750,root,pegasus) /opt/tog-pegasus/sbin/*
-%attr(755,root,pegasus) /opt/tog-pegasus/bin/*
-%attr(755,root,pegasus) /opt/tog-pegasus/lib/*.so.1
-%attr(755,root,pegasus) /opt/tog-pegasus/providers/lib/*.so.1
-%attr(750,root,pegasus) /opt/tog-pegasus/scripts/*
-/opt/tog-pegasus/share/man/man1/*
-/opt/tog-pegasus/share/man/man8/*
+%attr(750,root,pegasus) /usr/sbin/*
+%attr(755,root,pegasus) /usr/bin/*
+%attr(755,root,pegasus) /usr/lib/*.so.1
+%attr(755,root,pegasus) /usr/lib/Pegasus/providers/*.so.1
+%attr(750,root,pegasus) /usr/share/Pegasus/scripts/*
+%attr(644,root,pegasus) /usr/share/man/man1/*
+%attr(640,root,pegasus) /usr/share/man/man8/*
 
-%doc %attr(444,root,pegasus) /opt/tog-pegasus/license.txt
-%doc %attr(444,root,pegasus) /opt/tog-pegasus/share/doc/Admin_Guide_Release.pdf
-%doc %attr(444,root,pegasus) /opt/tog-pegasus/share/doc/PegasusSSLGuidelines.htm
-/opt/tog-pegasus/lib/libpegclient.so
-/opt/tog-pegasus/lib/libpegcommon.so
-/opt/tog-pegasus/lib/libpegprovider.so
-/opt/tog-pegasus/lib/libDefaultProviderManager.so
-/opt/tog-pegasus/lib/libCIMxmlIndicationHandler.so
-/opt/tog-pegasus/lib/libCMPIProviderManager.so
-/opt/tog-pegasus/providers/lib/libComputerSystemProvider.so
-/opt/tog-pegasus/providers/lib/libOSProvider.so
-/opt/tog-pegasus/providers/lib/libProcessProvider.so
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.5/Admin_Guide_Release.pdf
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.5/PegasusSSLGuidelines.htm
+%doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.5/license.txt
+/usr/lib/libpegclient.so
+/usr/lib/libpegcommon.so
+/usr/lib/libpegprovider.so
+/usr/lib/libDefaultProviderManager.so
+/usr/lib/libCIMxmlIndicationHandler.so
+/usr/lib/libCMPIProviderManager.so
+/usr/lib/Pegasus/providers/libComputerSystemProvider.so
+/usr/lib/Pegasus/providers/libOSProvider.so
+/usr/lib/Pegasus/providers/libProcessProvider.so
 
 %files devel
-%defattr(640,root,pegasus,750)
-/opt/tog-pegasus/include
-/opt/tog-pegasus/samples
-/opt/tog-pegasus/share/doc/*
-/opt/tog-pegasus/html
-%attr(755,root,pegasus) /opt/tog-pegasus/providers/lib/*.so
+%defattr(644,root,pegasus,755)
+/usr/include
+/usr/share/Pegasus/samples
+/usr/share/doc/tog-pegasus-2.5/*
+/usr/share/Pegasus/html
+%attr(755,root,pegasus) /usr/lib/Pegasus/providers/*.so
 
 %if %{PEGASUS_BUILD_TEST_RPM}
 %files test
 %defattr(-,root,pegasus,-)
-/opt/tog-pegasus/test
-/var/opt/tog-pegasus/testrepository
+/usr/share/Pegasus/test
+/var/lib/Pegasus/testrepository
 %endif

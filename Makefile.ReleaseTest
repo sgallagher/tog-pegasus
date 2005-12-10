@@ -54,7 +54,7 @@ PEGASUS_TEST_REPOSITORY_NAME = testrepository
 endif
 
 TEST_BIN_FILES_SRCPATH = $(PEGASUS_HOME)/bin
-TEST_LIB_FILES_SRCPATH = $(PEGASUS_HOME)/lib
+TEST_LIB_FILES_SRCPATH = $(PEGASUS_HOME)/$(PEGASUS_ARCH_LIB)
 TEST_MAK_FILES_SRCPATH = $(ROOT)/mak
 
 MAK_FILES = \
@@ -127,7 +127,7 @@ TESTSUITE_CMDS_2 = \
 stageTEST:
 	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/bin
-	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/$(PEGASUS_ARCH_LIB)
 	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/mak
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_makfiles
 	@$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s stage_testproviderfiles
@@ -140,7 +140,7 @@ stage_makfiles:
 	@$(foreach i, $(MAK_FILES), $(COPY) $(TEST_MAK_FILES_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/mak/$(i);)
 
 stage_testproviderfiles:
-	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(COPY) $(TEST_LIB_FILES_SRCPATH)/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(COPY) $(TEST_LIB_FILES_SRCPATH)/$(i)$(LIB_SUFFIX) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/$(PEGASUS_ARCH_LIB)/$(i)$(LIB_SUFFIX);)
 
 stage_prestarttests:
 	@$(foreach i, $(PRESTARTTEST_FILES), $(COPY) $(TEST_BIN_FILES_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/bin/$(i);)
@@ -163,7 +163,7 @@ create_Makefile:
 
 createMakefile_providerlinks:
 	@$(ECHO-E) "create_providerlinks:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
-	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\t@$(MAKE) createlink OBJECT=$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\t@$(MAKE) createlink OBJECT=$(PEGASUS_TEST_DIR)/$(PEGASUS_ARCH_LIB)/$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
 	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "remove_providerlinks:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\trm -f $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
@@ -240,7 +240,7 @@ preinstall:
 	 @$(MAKE) --directory=$(ROOT) -f Makefile.ReleaseTest -s preinstall_setreleasepermissions
 
 preinstall_setreleasepermissions:
-	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.ReleaseTest setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX);)
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(MAKE) -f $(ROOT)/Makefile.ReleaseTest setpermissions PERMISSIONS="$(Prwxr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/$(PEGASUS_ARCH_LIB)/$(i)$(LIB_SUFFIX);)
 
 _append_preunSectionToSpecFile:
 	@$(ECHO-E) "%if %{PEGASUS_BUILD_TEST_RPM}" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
@@ -260,4 +260,47 @@ _append_filesSectionToSpecFile:
 	@$(ECHO-E) "$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)" \
                        >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%endif" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+
+create_ProductInstallationVerificationScript:
+	@$(RM) $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS TEST DIRECTORIES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_TEST_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_TEST_DIR)/bin" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_TEST_DIR)/$(PEGASUS_ARCH_LIB)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_TEST_DIR)/mak" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "ls -ld" \
+            "$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS TEST MAKE FILES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(foreach i, $(MAK_FILES), $(ECHO-E) \
+             "ls -l $(PEGASUS_TEST_DIR)/mak/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall;)
+	@$(ECHO-E) "ls -l $(PEGASUS_TEST_DIR)/Makefile" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS TEST PROVIDER FILES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) \
+             "ls -l $(PEGASUS_TEST_DIR)/$(PEGASUS_ARCH_LIB)/$(i)$(LIB_SUFFIX)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall;)
+	@$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) \
+             "ls -l $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall;)
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS PRESTARTTEST FILES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(foreach i, $(PRESTARTTEST_FILES), $(ECHO-E) \
+             "ls -l $(PEGASUS_TEST_DIR)/bin/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall;)
+	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS POSTSTARTTEST FILES\"" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall
+	@$(foreach i, $(POSTSTARTTEST_FILES), $(ECHO-E) \
+             "ls -l $(PEGASUS_TEST_DIR)/bin/$(i)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyTestInstall;)
+
+
 

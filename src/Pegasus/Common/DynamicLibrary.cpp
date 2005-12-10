@@ -40,7 +40,9 @@
 
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
 # include "DynamicLibraryWindows.cpp"
-#elif defined(PEGASUS_OS_TYPE_UNIX) 
+#elif defined(PEGASUS_OS_HPUX)
+# include "DynamicLibraryHPUX.cpp"
+#elif defined(PEGASUS_OS_TYPE_UNIX)
 # include "DynamicLibraryUnix.cpp"
 #elif defined(PEGASUS_OS_VMS)
 # include "DynamicLibraryVms.cpp"

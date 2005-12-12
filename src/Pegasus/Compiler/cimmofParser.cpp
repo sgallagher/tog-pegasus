@@ -39,9 +39,30 @@
 //              Terry Martin, Hewlett-Packard Company (terry.martin@hp.com)
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// bug 4573 - cimmof include file search path processing is inadequate
+//
+// Bug 4573 changed the behavior of the processing for locating specified
+//  include files. The new procssing is based on the include file processing 
+//  behaviour used by the C compiler.
+//
+//      The search path for included files previously was:
+//          1. try to open the file in the current working directory.
+//          2. process the include path array from the cimof(l) cmdline
+//             processing which always include "dot" as a default search
+//             path and then any paths specified on the command line 
+//             with the -I option.
+//
+//      The search path for included files now is:
+//          1. try to open the file in the same directory as the current
+//             file being processed.
+//          2. process the include path array from the cimof(l) cmdline
+//             processing which only includes paths specified on the 
+//             command line with the -I option.
+//
 
 //
 // implementation of valueFactory
@@ -287,13 +308,38 @@ int
 cimmofParser::enterInlineInclude(const String &filename) {
   int ret = 1;
   FILE *f = 0;
+  String localFilename = filename;
 
-  f = fopen(filename.getCString(), "r");
+  // convert any back slash (\) to forward slash (/) 
+  FileSystem::translateSlashes(localFilename);
+
+#ifdef DEBUG_INCLUDE
+  cout << "cimmofParser::enterInlineInclude - searching for include file = " << localFilename << endl; // DEBUG
+#endif // DEBUG_INCLUDE
+
   if (!f) {
+    // check local include path first
+
+#ifdef DEBUG_INCLUDE
+    cout << "cimmofParser::enterInlineInclude - trying local path = " << get_current_filenamePath() << endl; // DEBUG
+#endif // DEBUG_INCLUDE
+    String s = get_current_filenamePath() + "/" + localFilename;
+    
+    if ( (f = fopen(s.getCString(), "r")) ) {
+      _includefile = s;
+    }    
+  }
+   
+   if (!f) {
+    // if cmdline search compiler cmd line include paths
     if (_cmdline) {
       const Array<String> &include_paths = _cmdline->get_include_paths();
       for (unsigned int i = 0; i < include_paths.size(); i++) {
-        String s = include_paths[i] + "/" + filename;
+#ifdef DEBUG_INCLUDE
+	cout << "cimmofParser::enterInlineInclude - trying path[" << i << "] = " << include_paths[i] << endl; //DEBUG
+#endif // DEBUG_INCLUDE
+        String s = include_paths[i] + "/" + localFilename;
+
         if ( (f = fopen(s.getCString(), "r")) ) {
           _includefile = s;
           break;
@@ -302,9 +348,8 @@ cimmofParser::enterInlineInclude(const String &filename) {
     } else {  // incorrect call:  cmdline should have been set
       return ret;
     }
-  } else {
-    _includefile = filename;
-  }
+   }
+
   if (f) {
      ret = enterInlineInclude((const FILE *)f);
   } else {
@@ -323,7 +368,11 @@ cimmofParser::enterInlineInclude(const FILE *f) {
     bs->buffer_state = buf;
     bs->filename = get_current_filename();
     bs->lineno = get_lineno();
+    bs->filenamePath = get_current_filenamePath();
     push_statebuff(bs);
+#ifdef DEBUG_INCLUDE
+    // cout << "enterInlineInclude setting current_filename = " << _includefile << endl; // DEBUG
+#endif // DEBUG_INCLUDE
     set_current_filename(_includefile);
     set_lineno(0);
     return setInputBuffer(f, false);

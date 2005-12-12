@@ -30,6 +30,7 @@
 // Author: Bob Blair (bblair@bmc.com)
 //
 // Modified By:
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +58,8 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Stack.h>
 #include <Pegasus/Compiler/Linkage.h>
+#include <Pegasus/Common/FileSystem.h>
+
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -65,6 +68,8 @@ PEGASUS_USING_PEGASUS;
 #define CIMMOF_ARRAY_VALUE     2
 #define CIMMOF_REFERENCE_VALUE 3
 #define CIMMOF_NULL_VALUE      4
+
+// #define  DEBUG_INCLUDE // enables include file processing debug printout
 
 typedef struct typedInitializerValue {
     Uint16 type;
@@ -75,6 +80,7 @@ struct bufstate {
 	void *buffer_state; // the YY_BUFFER_STATE of the stacked context
 	String filename;    // the name of the file open in the stacked context
 	int    lineno;      // the line number of the file
+	String filenamePath; //the path of the file open in the stacked context
 };
 
 class PEGASUS_COMPILER_LINKAGE  parser {
@@ -83,6 +89,7 @@ class PEGASUS_COMPILER_LINKAGE  parser {
   Stack<bufstate*> _include_stack;  // a stack of YY_BUFFER_STATEs
   String _current_filename; // name of the file being parsed
   unsigned int _lineno;     // current line number in the file 
+  String _current_filenamePath; // path of the file being parsed
  protected:
   void push_statebuff(bufstate *statebuff) { _include_stack.push(statebuff); }
   bufstate *pop_statebuff();
@@ -112,8 +119,43 @@ class PEGASUS_COMPILER_LINKAGE  parser {
   // We keep track of the filename associated with the current input
   // buffer so we can report on it.
   void set_current_filename(const String &filename)
-  	{ _current_filename = filename; }
+  	{ 
+	  _current_filename = filename;
+
+#ifdef DEBUG_INCLUDE
+	  cout << "cimmof parser - setting path = " << get_current_filenamePath() << endl; // DEBUG
+#endif // DEBUG_INCLUDE
+
+	  String includePathTemp = FileSystem::extractFilePath(filename);
+	  
+	  // ************************************************************
+	  // if the filename path consisted of just the file name 
+	  // becasue it is in the current directory then extractFilePath
+	  // returns just the filename rather than "dot". The following 
+	  // test is to prevent adding file names to the include path.
+	  // ****************************************************************
+	  if (includePathTemp == filename)
+	    {
+	      includePathTemp = ".";
+	    }
+
+	    set_current_filenamePath(includePathTemp);	  
+
+#ifdef DEBUG_INCLUDE
+	    cout << "cimmof parser set filename = " << filename 
+                 << " include path = " << get_current_filenamePath()
+		 << endl; // DEBUG
+#endif //  DEBUG_INCLUDE
+	}
+
   const String &get_current_filename() const { return _current_filename; }
+
+  // We keep track of the filename path associated with the current input
+  // buffer so we can use it to search for include files in that same directory
+  void set_current_filenamePath(const String &filenamePath)
+  	{ _current_filenamePath = filenamePath; }
+
+  const String &get_current_filenamePath() const { return _current_filenamePath; }
 
   // Ditto the line number
   void set_lineno(int n) { _lineno = n; }

@@ -36,6 +36,7 @@
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) - Bug#3370
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +46,34 @@
 // process the command line, getting the repository location and
 // the include path list and the other options
 //
+//
+// bug 4573 - cimmof include file search path processing is inadequate
+//
+// Bug 4573 changed the behavior of the processing for locating specified
+//  include files. The new procssing is based on the include file processing 
+//  behaviour used by the C compiler.
+//
+//      The search path for included files previously was:
+//          1. try to open the file in the current working directory.
+//          2. process the include path array from the cimof(l) cmdline
+//             processing which always include "dot" as a default search
+//             path and then any paths specified on the command line 
+//             with the -I option.
+//
+//      The search path for included files now is:
+//          1. try to open the file in the same directory as the current
+//             file being processed.
+//          2. process the include path array from the cimof(l) cmdline
+//             processing which only includes paths specified on the 
+//             command line with the -I option.
+//
+//
+//
+//
+//
+//
+//
+
 
 #include <Pegasus/Common/Config.h>
 #include <fstream>
@@ -362,7 +391,6 @@ applyDefaults(mofCompilerOptions &cmdlinedata) {
   cmdlinedata.reset_suppress_warnings();
   cmdlinedata.reset_suppress_all_messages();
   cmdlinedata.reset_trace();
-  cmdlinedata.add_include_path(".");
   cmdlinedata.set_namespacePath(ROOTCIMV2);
   cmdlinedata.set_repository_name(REPOSITORY_NAME_DEFAULT);
   cmdlinedata.set_repository_mode(REPOSITORY_MODE_DEFAULT);

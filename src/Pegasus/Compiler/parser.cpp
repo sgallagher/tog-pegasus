@@ -31,9 +31,30 @@
 //
 // Modified By:
 //              Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//              Jim Wunderlich (Jim_Wunderlich@prodigy.net)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
+// bug 4573 - cimmof include file search path processing is inadequate
+//
+// Bug 4573 changed the behavior of the processing for locating specified
+//  include files. The new procssing is based on the include file processing 
+//  behaviour used by the C compiler.
+//
+//      The search path for included files previously was:
+//          1. try to open the file in the current working directory.
+//          2. process the include path array from the cimof(l) cmdline
+//             processing which always include "dot" as a default search
+//             path and then any paths specified on the command line 
+//             with the -I option.
+//
+//      The search path for included files now is:
+//          1. try to open the file in the same directory as the current
+//             file being processed.
+//          2. process the include path array from the cimof(l) cmdline
+//             processing which only includes paths specified on the 
+//             command line with the -I option.
+//
 
 //
 // implementation of valueFactory 
@@ -93,6 +114,7 @@ parser::wrap() {
     setInputBuffer(v->buffer_state, true);
     set_current_filename(v->filename);
     set_lineno(v->lineno);
+    set_current_filenamePath(v->filenamePath);
     delete v;
     return 0;  // more data available
   } else {

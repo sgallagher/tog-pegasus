@@ -35,7 +35,7 @@
 // ==================================================================
 [ Version ("2.0.0"), Description (
     "Defines the attributes in a Pegasus SLP template. The SLP template is "
-    "based on the DMTF WBEM SLP Template.  Each property in this class "
+    "based on the DMTF WBEM SLP Template. Each property in this class "
     "represents one object in the template registration. Note that today "
     "this class is used only as a presentation tool and not to actually "
     "set template properties. Note that M type attributes are reported "
@@ -58,7 +58,7 @@ class PG_WBEMSLPTemplate {
     "the location of one service access point offered by the WBEM Server " 
     "over TCP transport. This attribute must provide sufficient addressing " 
     "information so that the WBEM Server can be addressed directly using " 
-    "the URL.  The WBEM URI Mapping is defined in the WBEM URI Mapping " 
+    "the URL. The WBEM URI Mapping is defined in the WBEM URI Mapping " 
     "Specification (DSP0207)." )]
    string template_url_syntax;
 
@@ -78,7 +78,7 @@ class PG_WBEMSLPTemplate {
 
    // string service_location_tcp;
    
-   [Description (" The communication mechanism (protocol) used by the CIM Object Manager for "
+   [Description ("The communication mechanism (protocol) used by the CIM Object Manager for "
     "this service-location-tcp defined in this advertisement. This information " 
     "MUST be the CIM_ObjectManagerCommunicationMechanism.CommunicationMechanism. " 
     "property value.")]
@@ -92,30 +92,30 @@ class PG_WBEMSLPTemplate {
     "a free-form string." )]
    string OtherCommunicationMechanismDescription;
    
-   [Description (" Namespace within the target WBEM Server where the CIM Interop Schema can be "
+   [Description ("Namespace within the target WBEM Server where the CIM Interop Schema can be "
     "accessed. Multiple namespaces may be provided. Each namespace provided "
     "MUST contain the same information." )]
    string InteropSchemaNamespace;
    
    [Description ("The version of the protocol. It MUST be the "
-    "CIM_ObjectManagerCommunicationMechanism.Version property value. ")]
+    "CIM_ObjectManagerCommunicationMechanism.Version property value.")]
    string ProtocolVersion;
    
    [Description ("ProfilesSupported defines the CIM Operation profiles supported by the "
     "CIM Object Manager. This attribute MUST be the "
     "CIM_ObjectManagerCommunicationMechansim.FunctionalProfilesSupported "
-    "property value. ")]
+    "property value.")]
    string FunctionaProfilesSupported;
    
    [Description ("Other profile description if the \"other\" value is set in the ProfilesSupported "
-    "attribute.  This attribute is optional because it is returned only if the \"other\" "
+    "attribute. This attribute is optional because it is returned only if the \"other\" "
     "value is set in the ProfilesSupported attribute. If provided it MUST "
     "be equal to the CIM_ObjectManagerCommunicationMechanism.FunctionalProfileDescriptions "
-    "property value. ")]
+    "property value.")]
    string FunctionalProfileDescriptions;
    
    [Description ("Defines whether the CIM Object Manager supports batch operations. "
-    "This attribute MUST be the CIM_ObjectManagerCommunicationMechanism.MultipleOperationsSupported. ")]
+    "This attribute MUST be the CIM_ObjectManagerCommunicationMechanism.MultipleOperationsSupported.")]
    boolean MultipleOperationsSupported;
    
    [Description ("Defines the authentication mechanism supported by the CIM Object Manager. "
@@ -123,11 +123,11 @@ class PG_WBEMSLPTemplate {
     "CIM_ObjectManagerCommunicationMechanism.AuthenticationMechanismsSupported property value.")]
    string AuthenticationMechanismsSupported;
    
-   [Description (" Defines other Authentication mechanisms supported by the CIM Object Manager "
+   [Description ("Defines other Authentication mechanisms supported by the CIM Object Manager "
     "in the case where the \"Other\" value is set in any of the "
     "AuthenticationMechanismSupported attribute values. If provided, this attribute MUST be the "
     "CIM_ObjectManagerCommunicationMechanism.AuthenticationMechansimDescriptions "
-    "property value. ")]
+    "property value.")]
    string OtherAuthenticationDescription;
    
    [Description ("Namespace(s) supported on the CIM Object Manager. "
@@ -151,7 +151,7 @@ class PG_WBEMSLPTemplate {
    [Description ("RegisteredProfilesSupported defines the Profiles that "
     "this WBEM Server has support for. Each entry in this " 
     "attribute MUST be in the form of " 
-    "Organization:Profile Name{:Subprofile Name} ")]
+    "Organization:Profile Name{:Subprofile Name}")]
    string RegisteredProfilesSupported;
    
    [ Description ("String representing the complete registered template. "

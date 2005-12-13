@@ -43,6 +43,7 @@
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMProperty.h>
 #include <Pegasus/Common/System.h>
+#include <cstring>
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;

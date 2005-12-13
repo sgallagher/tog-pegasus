@@ -48,3 +48,6 @@ include $(ROOT)/mak/program.mak
 tests:
 
 poststarttests:
+ifdef PEGASUS_METRICS_DIRECTORY
+	$(PROGRAM) -D$(PEGASUS_METRICS_DIRECTORY)
+endif

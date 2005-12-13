@@ -184,6 +184,12 @@ private:
     Boolean _hostNameSet;
 
     /**
+        If specified, the reports describing the performance results will
+        be written to this directory.
+    */
+    String _resultsDirectory;
+
+    /**
 
         The port to be used when the command is executed. The
         port number must be the port number on which the
@@ -274,6 +280,11 @@ private:
         The option character used to specify the hostname.
      */
     static const char   _OPTION_HOSTNAME;
+
+    /**
+        The option character used to specify the results directory.
+     */
+    static const char   _OPTION_RESULTS_DIRECTORY;
 
     /**
         The option character used to specify the port number.

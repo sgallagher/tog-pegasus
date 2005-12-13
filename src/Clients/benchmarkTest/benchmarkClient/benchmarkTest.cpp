@@ -57,6 +57,8 @@
 #include "benchmarkTest.h"
 #include "../benchmarkDefinition/benchmarkDefinition.h"
 
+FILE *_resultsFileHandle = NULL;
+String _startTime;
 
 #ifndef PLATFORM_PRODUCT_VERSION
  #define PLATFORM_PRODUCT_VERSION "1.0.0"
@@ -104,6 +106,9 @@ const char benchmarkTestCommand::_OPTION_ITERATIONS     = 'i';
 //    The option character used to specify the TESTID parameter.
 const char benchmarkTestCommand::_OPTION_TESTID         = 'n';
 
+//    The option character used to specify the TESTID parameter.
+const char benchmarkTestCommand::_OPTION_RESULTS_DIRECTORY  = 'D';
+
 //    The option character used to specify that a debug option is requested.
 const char   benchmarkTestCommand::_OPTION_DEBUG        = 'd';
 
@@ -146,6 +151,7 @@ benchmarkTestCommand::benchmarkTestCommand ()
 {
 
     _hostName            = String ();
+    _resultsDirectory        = String ();
     _hostNameSet         = false;
     _portNumber          = WBEM_DEFAULT_HTTP_PORT;
     _portNumberSet       = false;
@@ -187,10 +193,12 @@ benchmarkTestCommand::benchmarkTestCommand ()
     usage.append (" password ] [ -");
     usage.append (_OPTION_TIMEOUT);
     usage.append (" timeout ] [ -");
+    usage.append (_OPTION_RESULTS_DIRECTORY);
+    usage.append (" resultsDirectory ] [ -");
     usage.append (_OPTION_ITERATIONS);
     usage.append (" iterations ] [ -");
     usage.append (_OPTION_TESTID);
-    usage.append (" test number ] [ -");
+    usage.append (" testNumber ] [ -");
     usage.append (_OPTION_DEBUG);
     usage.append (_DEBUG_OPTION1);
     usage.append (" [ -");
@@ -253,7 +261,8 @@ String benchmarkTestCommand::_promptForPassword( ostream& outPrintWriter )
     //  Construct host address
     //
 
-    if ((!_hostNameSet) && (!_portNumberSet) && (!_userNameSet) && (!_passwordSet))
+    if ((!_hostNameSet) && (!_portNumberSet) && \
+        (!_userNameSet) && (!_passwordSet))
     {
         connectToLocal = true;
     }
@@ -360,6 +369,8 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
     GetOptString.append (_OPTION_USERNAME);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_PASSWORD);
+    GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
+    GetOptString.append (_OPTION_RESULTS_DIRECTORY);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
     GetOptString.append (_OPTION_ITERATIONS);
     GetOptString.append (getoopt::GETOPT_ARGUMENT_DESIGNATOR);
@@ -517,6 +528,20 @@ void benchmarkTestCommand::setCommand (Uint32 argc, char* argv [])
                     }
                     _password = getOpts [i].Value ();
                     _passwordSet = true;
+                    break;
+                }
+
+                case _OPTION_RESULTS_DIRECTORY:
+                {
+                    if (getOpts.isSet (_OPTION_RESULTS_DIRECTORY) > 1)
+                    {
+                        //
+                        // More than one log directory option was found
+                        //
+                        DuplicateOptionException e (_OPTION_RESULTS_DIRECTORY);
+                        throw e;
+                    }
+                    _resultsDirectory = getOpts [i].Value ();
                     break;
                 }
 
@@ -730,9 +755,12 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
         CIMObjectPath instanceRef = cimNInstances[0].getPath();
         if ( !(instanceRef.getClassName().equal(CSINFO_CLASSNAME)))
         {
-           errPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
-           errPrintWriter << "Expected ClassName = " << CSINFO_CLASSNAME.getString() << endl;
-           errorExit(errPrintWriter, "EnumerateInstances failed.  Incorrect class name returned.");
+           errPrintWriter << "Returned ClassName = "
+               << instanceRef.getClassName().getString() << endl;
+           errPrintWriter << "Expected ClassName = "
+               << CSINFO_CLASSNAME.getString() << endl;
+           errorExit(errPrintWriter,
+               "EnumerateInstances failed.  Incorrect class name returned.");
         }
 
         for (Uint32 j = 0; j < cimNInstances[0].getPropertyCount(); j++)
@@ -741,7 +769,8 @@ void benchmarkTestCommand::_getCSInfo(ostream& outPrintWriter,
            if (propertyName.equal(CIMName("OtherIdentifyingInfo")))
            {
                outPrintWriter << "Model = "
-                 << cimNInstances[0].getProperty(j).getValue().toString() << endl;
+                   << cimNInstances[0].getProperty(j).getValue().toString()
+                   << endl;
            }
         }
 
@@ -797,9 +826,12 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
         CIMObjectPath instanceRef = cimNInstances[0].getPath();
         if ( !(instanceRef.getClassName().equal(OSINFO_CLASSNAME)) )
         {
-           errPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
-           errPrintWriter << "Expected ClassName = " << OSINFO_CLASSNAME.getString() << endl;
-           errorExit(errPrintWriter, "enumerateInstances failed.  Incorrect class name returned.");
+           errPrintWriter << "Returned ClassName = "
+               << instanceRef.getClassName().getString() << endl;
+           errPrintWriter << "Expected ClassName = "
+               << OSINFO_CLASSNAME.getString() << endl;
+           errorExit(errPrintWriter,
+               "enumerateInstances failed.  Incorrect class name returned.");
         }
 
         for (Uint32 j = 0; j < cimNInstances[0].getPropertyCount(); j++)
@@ -808,13 +840,15 @@ void benchmarkTestCommand::_getOSInfo(ostream& outPrintWriter,
            if (propertyName.equal(CIMName("CSName")))
            {
                outPrintWriter << "Computer System Name = "
-                 << cimNInstances[0].getProperty(j).getValue().toString() << endl;
+                   << cimNInstances[0].getProperty(j).getValue().toString()
+                   << endl;
            }
 
            if (propertyName.equal(CIMName("Version")))
            {
                outPrintWriter << "Version = "
-                 << cimNInstances[0].getProperty(j).getValue().toString() << endl;
+                   << cimNInstances[0].getProperty(j).getValue().toString()
+                   << endl;
            }
         }
 
@@ -841,7 +875,7 @@ void benchmarkTestCommand::_getSystemConfiguration(
 
 void benchmarkTestCommand::_getTestConfiguration(
                       ostream& outPrintWriter,
-                                      ostream& errPrintWriter)
+                      ostream& errPrintWriter)
 {
     Boolean isConnected = false;
     CIMClient client;
@@ -863,7 +897,7 @@ void benchmarkTestCommand::_getTestConfiguration(
         Uint32 numberOfInstances;
 
         for (Uint32 i = 0, n = classNames.size(); i < n; i++)
-    {
+        {
             if (CIM_ERR_SUCCESS == test.getConfiguration(classNames[i],
                  numberOfProperties, sizeOfPropertyValue, numberOfInstances))
             {
@@ -898,9 +932,9 @@ CIMObjectPath benchmarkTestCommand::_buildObjectPath(
     Array<CIMKeyBinding> keys;
 
     keys.append(CIMKeyBinding("Identifier", Identifier.toString(),
-                              CIMKeyBinding::NUMERIC));
+        CIMKeyBinding::NUMERIC));
 
-    return CIMObjectPath(String(), CIMNamespaceName(NAMESPACE), className, keys);
+    return CIMObjectPath(String(),CIMNamespaceName(NAMESPACE),className,keys);
 }
 
 Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
@@ -926,7 +960,7 @@ Boolean benchmarkTestCommand::_invokeProviderModuleMethod(
         moduleRef.setNameSpace(PEGASUS_NAMESPACENAME_PROVIDERREG);
         moduleRef.setClassName(PEGASUS_CLASSNAME_PROVIDERMODULE);
         CIMKeyBinding kb1(CIMName ("Name"), moduleName,
-                CIMKeyBinding::STRING);
+            CIMKeyBinding::STRING);
         Array<CIMKeyBinding> keys;
         keys.append(kb1);
 
@@ -983,11 +1017,19 @@ void benchmarkTestCommand::dobenchmarkTest1(
         double elapsedTime = stopwatchTime.getElapsed();
 
         outPrintWriter << testID;
-        outPrintWriter <<  ": Benchmark Test #1: Connect/Disconnect Test" << endl;
+        outPrintWriter <<  ": Benchmark Test #1: Connect/Disconnect Test"
+            << endl;
         outPrintWriter << _iterations << " requests processed in "
-                       << stopwatchTime.getElapsed() << " Seconds "
-                       << "(Average Elapse Time = " << elapsedTime/_iterations
-                       << ")" << endl << endl;
+            << stopwatchTime.getElapsed() << " Seconds "
+            << "(Average Elapse Time = " << elapsedTime/_iterations
+            << ")" << endl << endl;
+
+        if (_resultsFileHandle != NULL)
+        {
+            fprintf(_resultsFileHandle,
+            "Connect/Disconnect\t%f\t", elapsedTime);
+        }
+
     }  // end try
 
     catch(const Exception& e)
@@ -1041,22 +1083,32 @@ void benchmarkTestCommand::dobenchmarkTest2(
         CIMObjectPath instanceRef = cimInstance.getPath();
         if ( !(instanceRef.getClassName().equal(className)))
         {
-            outPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
-            outPrintWriter << "Expected ClassName = " << className.getString() << endl;
-            errorExit(errPrintWriter, "getInstance failed.  Incorrect class name returned.");
+            outPrintWriter << "Returned ClassName = "
+                << instanceRef.getClassName().getString() << endl;
+            outPrintWriter << "Expected ClassName = "
+                << className.getString() << endl;
+            errorExit(errPrintWriter,
+                "getInstance failed.  Incorrect class name returned.");
         }
 
         stopwatchTime.stop();
 
         double elapsedTime = stopwatchTime.getElapsed();
 
-        outPrintWriter << testID << ": Benchmark Test #2: Load Provider Test on class "
-                       << className.getString() << endl;
+        outPrintWriter << testID
+            << ": Benchmark Test #2: Load Provider Test on class "
+            << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
         outPrintWriter << "Unload Module time = " << _unloadModuleTime << endl;
         outPrintWriter << "First getInstance request processed in "
-                       << elapsedTime << " Seconds "
-                       << endl << endl;
+            << elapsedTime << " Seconds "
+            << endl << endl;
+
+        if (_resultsFileHandle != NULL)
+        {
+            fprintf(_resultsFileHandle,
+            "Load/Unload\t%f\t", elapsedTime);
+        }
 
         client.disconnect();
 
@@ -1064,7 +1116,7 @@ void benchmarkTestCommand::dobenchmarkTest2(
 
     catch(const Exception& e)
     {
-      errorExit(errPrintWriter, e.getMessage());
+         errorExit(errPrintWriter, e.getMessage());
     }
 }
 
@@ -1109,14 +1161,18 @@ void benchmarkTestCommand::dobenchmarkTest3(
             CIMObjectPath instanceRef = cimInstance.getPath();
             if ( !(instanceRef.getClassName().equal(className)))
             {
-                outPrintWriter << "Returned ClassName = " << instanceRef.getClassName().getString() << endl;
-                outPrintWriter << "Expected ClassName = " << className.getString() << endl;
-                errorExit(errPrintWriter, "getInstance failed. Incorrect class name returned.");
+                outPrintWriter << "Returned ClassName = "
+                    << instanceRef.getClassName().getString() << endl;
+                outPrintWriter << "Expected ClassName = "
+                    << className.getString() << endl;
+                errorExit(errPrintWriter,
+                    "getInstance failed. Incorrect class name returned.");
             }
 
             if ( cimInstance.getPropertyCount() != numberOfProperties+1)
             {
-                errorExit(errPrintWriter, "getInstance failed. Incorrect number of properties returned.");
+                errorExit(errPrintWriter, "getInstance failed. "
+                   "Incorrect number of properties returned.");
             }
         }
 
@@ -1125,15 +1181,25 @@ void benchmarkTestCommand::dobenchmarkTest3(
         double elapsedTime = stopwatchTime.getElapsed();
 
         outPrintWriter << testID << ": Benchmark Test #3: getInstance Test on "
-                       << className.getString() << endl;
+            << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
-        outPrintWriter << "Number of Non-Key Properties Returned  = " << numberOfProperties << endl
-                       << "Size of Each Non-Key Property Returned  = " << sizeOfPropertyValue << endl
-                       << "Number of Instances Returned = " << 1 << endl;
+        outPrintWriter << "Number of Non-Key Properties Returned  = "
+            << numberOfProperties << endl
+            << "Size of Each Non-Key Property Returned  = "
+            << sizeOfPropertyValue << endl
+            << "Number of Instances Returned = " << 1 << endl;
         outPrintWriter << _iterations << " requests processed in "
-                       << elapsedTime << " Seconds "
-                       << "(Average Elapse Time = " << elapsedTime/_iterations
-                       << ")" << endl << endl;
+            << elapsedTime << " Seconds "
+            << "(Average Elapse Time = " << elapsedTime/_iterations
+            << ")" << endl << endl;
+
+        if (_resultsFileHandle != NULL)
+        {
+            fprintf(_resultsFileHandle,
+                "getInstance\t%s\t%f\t",
+                (const char *)className.getString().getCString(),
+                elapsedTime/_iterations);
+        }
 
         client.disconnect();
 
@@ -1188,14 +1254,17 @@ void benchmarkTestCommand::dobenchmarkTest4(
            numberInstances = cimInstanceNames.size();
            if (numberInstances != expectedNumberOfInstances)
            {
-              errorExit(errPrintWriter, "enumerateInstanceNames failed. Incorrect number of instances returned.");
+              errorExit(errPrintWriter,
+                  "enumerateInstanceNames failed. "
+                  "Incorrect number of instances returned.");
            }
 
            for (Uint32 j = 0; j < numberInstances; j++)
            {
               if ( !(cimInstanceNames[j].getClassName().equal(className)))
               {
-                 errorExit(errPrintWriter, "enumerateInstanceNames failed. Incorrect class name returned.");
+                 errorExit(errPrintWriter, "enumerateInstanceNames failed. "
+                    "Incorrect class name returned.");
               }
 
             }   // end for looping through instances
@@ -1205,15 +1274,26 @@ void benchmarkTestCommand::dobenchmarkTest4(
 
         double elapsedTime = stopwatchTime.getElapsed();
 
-        outPrintWriter << testID << ": Benchmark Test #4: enumerateInstanceNames Test on class "
-                       << className.getString() << endl;
+        outPrintWriter << testID
+            << ": Benchmark Test #4: enumerateInstanceNames Test on class "
+            << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
-        outPrintWriter << "Number of Non-Key Properties Returned  = " << 0 << endl
-                       << "Number of Instances Returned = " << expectedNumberOfInstances << endl;
+        outPrintWriter << "Number of Non-Key Properties Returned  = "
+            << 0 << endl
+            << "Number of Instances Returned = "
+            << expectedNumberOfInstances << endl;
         outPrintWriter << _iterations << " requests processed in "
-                       << elapsedTime << " Seconds "
-                       << "(Average Elapse Time = " << elapsedTime/_iterations
-                       << ")" << endl << endl;
+            << elapsedTime << " Seconds "
+            << "(Average Elapse Time = " << elapsedTime/_iterations
+            << ")" << endl << endl;
+
+        if (_resultsFileHandle != NULL)
+        {
+            fprintf(_resultsFileHandle,
+                "enumerateInstanceNames\t%s\t%f\t",
+                (const char *)className.getString().getCString(),
+                elapsedTime/_iterations);
+        }
 
         client.disconnect();
     }  // end try
@@ -1276,7 +1356,9 @@ void benchmarkTestCommand::dobenchmarkTest5(
            numberInstances = cimNInstances.size();
            if (numberInstances != expectedNumberOfInstances)
            {
-              errorExit(errPrintWriter, "enumerateInstances failed. Incorrect number of instances returned.");
+              errorExit(errPrintWriter,
+                  "enumerateInstances failed. "
+                  "Incorrect number of instances returned.");
            }
 
            for (Uint32 j = 0; j < numberInstances; j++)
@@ -1284,12 +1366,14 @@ void benchmarkTestCommand::dobenchmarkTest5(
               CIMObjectPath instanceRef = cimNInstances[j].getPath ();
               if ( !(instanceRef.getClassName().equal(className)))
               {
-                 errorExit(errPrintWriter, "enumerateInstances failed. Incorrect class name returned.");
+                 errorExit(errPrintWriter, "enumerateInstances failed. "
+                    "Incorrect class name returned.");
               }
 
               if ( cimNInstances[j].getPropertyCount() != numberOfProperties+1)
               {
-                 errorExit(errPrintWriter, "enumerateInstances failed. Incorrect number of properties returned.");
+                 errorExit(errPrintWriter, "enumerateInstances failed. "
+                    "Incorrect number of properties returned.");
               }
 
             }   // end for looping through instances
@@ -1299,16 +1383,28 @@ void benchmarkTestCommand::dobenchmarkTest5(
 
         double elapsedTime = stopwatchTime.getElapsed();
 
-        outPrintWriter << testID << ": Benchmark Test #5: enumerateInstances Test on class "
-                       << className.getString() << endl;
+        outPrintWriter << testID
+            << ": Benchmark Test #5: enumerateInstances Test on class "
+            << className.getString() << endl;
         outPrintWriter << "Connect time = " << connectTime << endl;
-        outPrintWriter << "Number of Non-Key Properties Returned  = " << numberOfProperties << endl
-                       << "Size of Each Non-Key Property Returned  = " << sizeOfPropertyValue << endl
-                       << "Number of Instances Returned = " << expectedNumberOfInstances << endl;
+        outPrintWriter << "Number of Non-Key Properties Returned  = "
+            << numberOfProperties << endl
+            << "Size of Each Non-Key Property Returned  = "
+            << sizeOfPropertyValue << endl
+            << "Number of Instances Returned = "
+            << expectedNumberOfInstances << endl;
         outPrintWriter << _iterations << " requests processed in "
-                       << elapsedTime << " Seconds "
-                       << "(Average Elapse Time = " << elapsedTime/_iterations
-                       << ")" << endl << endl;
+            << elapsedTime << " Seconds "
+            << "(Average Elapse Time = " << elapsedTime/_iterations
+            << ")" << endl << endl;
+
+        if (_resultsFileHandle != NULL)
+        {
+            fprintf(_resultsFileHandle,
+                "enumerateInstances\t%s\t%f\t",
+                (const char *)className.getString().getCString(),
+                elapsedTime/_iterations);
+        }
 
         client.disconnect();
     }  // end try
@@ -1337,7 +1433,25 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
                                       ostream& errPrintWriter)
 {
 
-     benchmarkDefinition test;
+    benchmarkDefinition test;
+
+    if (_resultsDirectory != String::EMPTY)
+    {
+        String resultsFile = _resultsDirectory;
+        resultsFile.append("/benchmarkTestResults0001.txt");
+        _resultsFileHandle = fopen(resultsFile.getCString(), "a+");
+    }
+    else
+    {
+        _resultsFileHandle = NULL;
+    }
+
+    if (_resultsFileHandle != NULL)
+    {
+        _startTime = System::getCurrentASCIITime().getCString();
+        fprintf(_resultsFileHandle, "%s\t",
+            (const char *)_startTime.getCString());
+    }
 
     try
     {
@@ -1348,53 +1462,70 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
           Tracer::setTraceLevel(Tracer::LEVEL4);
         }
 
-    Uint32 testID = 0;
+        Uint32 testID = 0;
 
-    if (_generateReport)
-    {
-           benchmarkTestCommand::_getSystemConfiguration(outPrintWriter, errPrintWriter);
+        if (_generateReport)
+        {
+             benchmarkTestCommand::_getSystemConfiguration( 
+                 outPrintWriter, errPrintWriter);
         }
 
-        benchmarkTestCommand::_getTestConfiguration(outPrintWriter, errPrintWriter);
+        benchmarkTestCommand::_getTestConfiguration(outPrintWriter,
+            errPrintWriter);
 
-    testID++;
-    if (!_testIDSet || (testID == _testID))
-    {
-           benchmarkTestCommand::dobenchmarkTest1(testID, outPrintWriter, errPrintWriter);
+        testID++;
+        if (!_testIDSet || (testID == _testID))
+        {
+             benchmarkTestCommand::dobenchmarkTest1(
+                 testID, outPrintWriter, errPrintWriter);
         }
 
-    testID++;
-    if (!_testIDSet || (testID == _testID))
-    {
-           benchmarkTestCommand::dobenchmarkTest2(testID, _testClassNames[0],
-                                                  outPrintWriter, errPrintWriter);
+        testID++;
+        if (!_testIDSet || (testID == _testID))
+        {
+             benchmarkTestCommand::dobenchmarkTest2(
+                 testID, _testClassNames[0], outPrintWriter, errPrintWriter);
         }
 
         for (Uint32 i = 0, n = _testClassNames.size(); i < n; i++)
 
-    {
-        testID++;
-        if (!_testIDSet || (testID == _testID))
         {
-                benchmarkTestCommand::dobenchmarkTest3(testID, _testClassNames[i],
-                                                  outPrintWriter, errPrintWriter);
+            if ((_resultsFileHandle != NULL) && ((i+1) % 10) == 0)
+            {
+               fclose(_resultsFileHandle);
+               String resultsFile = _resultsDirectory;
+               char s[40];
+               sprintf(s, "/benchmarkTestResults%.4u.txt", (i/10)+1);
+               resultsFile.append(s);
+               _resultsFileHandle = fopen(resultsFile.getCString(), "a+");
+               if (_resultsFileHandle != NULL)
+               {
+                   fprintf(_resultsFileHandle, "%s\t",
+                       (const char *)_startTime.getCString());
+               }
+            }
+    
+            testID++;
+            if (!_testIDSet || (testID == _testID))
+            {
+                 benchmarkTestCommand::dobenchmarkTest3(testID,
+                     _testClassNames[i], outPrintWriter, errPrintWriter);
             }
 
-        testID++;
-        if (!_testIDSet || (testID == _testID))
-        {
-                benchmarkTestCommand::dobenchmarkTest4(testID, _testClassNames[i],
-                                                  outPrintWriter, errPrintWriter);
+            testID++;
+            if (!_testIDSet || (testID == _testID))
+            {
+                 benchmarkTestCommand::dobenchmarkTest4(testID,
+                     _testClassNames[i], outPrintWriter, errPrintWriter);
             }
 
-        testID++;
-        if (!_testIDSet || (testID == _testID))
-        {
-                benchmarkTestCommand::dobenchmarkTest5(testID, _testClassNames[i],
-                                                  outPrintWriter, errPrintWriter);
+            testID++;
+            if (!_testIDSet || (testID == _testID))
+            {
+                  benchmarkTestCommand::dobenchmarkTest5(testID,
+                      _testClassNames[i], outPrintWriter, errPrintWriter);
             }
         }
-
     }
     catch (const benchmarkTestException& e)
     {
@@ -1416,6 +1547,12 @@ Uint32 benchmarkTestCommand::execute (ostream& outPrintWriter,
             e.what () << endl;
       return (RC_ERROR);
      }
+
+    if (_resultsFileHandle != NULL)
+    {
+        fprintf(_resultsFileHandle, "\n");
+        fclose(_resultsFileHandle);
+    }
 
     return (RC_SUCCESS);
 }

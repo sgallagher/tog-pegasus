@@ -52,7 +52,11 @@
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# ifdef PEGASUS_DEFAULT_OOP_ON
+    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
     {"httpPort", "", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -69,7 +73,11 @@
     {"tempLocalAuthDir", PEGASUS_LOCAL_AUTH_DIR, IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
     {"enableSSLTrustStoreAutoUpdate", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# ifdef PEGASUS_DEFAULT_OOP_ON
+    {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
+# endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif
 

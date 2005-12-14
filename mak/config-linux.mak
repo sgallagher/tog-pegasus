@@ -34,9 +34,26 @@ PEGASUS_PLATFORM_LINUX_GENERIC_GNU = 1
 DEFINES += -DPEGASUS_PLATFORM_LINUX_GENERIC_GNU
 DEFINES += -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
+#########################################################################
+##
+## Platform specific compile options controlled by environment variables
+## are set here.  
+##
+#########################################################################
+
+
+# Enable OOP by default if preference not already set in the environment
+#
+ifndef PEGASUS_DEFAULT_OOP_ON
+PEGASUS_DEFAULT_OOP_ON = true
+endif
+
+
 # Enable CMPI by default.
 #
 PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=yes
+
+#########################################################################
 
 OS = linux
 

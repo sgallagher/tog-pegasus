@@ -56,10 +56,10 @@
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     // Removed because unresolved PEP 66 KS{"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifdef PEGASUS_DEFAULT_OOP_FALSE
-    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
+# ifdef PEGASUS_DEFAULT_OOP_ON
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #else
@@ -81,10 +81,10 @@
     {"enableRemotePrivilegedUserAccess", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifdef PEGASUS_DEFAULT_OOP_FALSE
-    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
-# else
+# ifdef PEGASUS_DEFAULT_OOP_ON
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
+# else
+    {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
 # endif
     {"maxProviderProcesses", "0", IS_STATIC, 0, 0, IS_VISIBLE}
 #endif

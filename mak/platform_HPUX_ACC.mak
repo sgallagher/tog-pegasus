@@ -52,6 +52,23 @@ ifdef PEGASUS_PURIFY
  SYS_INCLUDES += -I$(PURIFY_HOME)
 endif
 
+#########################################################################
+##
+## Platform specific compile options controlled by environment variables
+## are set here.  
+##
+#########################################################################
+
+# Enable OOP by default if preference not already set in the environment
+#
+ifndef PEGASUS_DEFAULT_OOP_ON
+PEGASUS_DEFAULT_OOP_ON = true
+endif
+
+
+
+#########################################################################
+
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -DPEGASUS_PLATFORM_HPUX_ACC
 
 DEFINES += -DPEGASUS_USE_SYSLOGS

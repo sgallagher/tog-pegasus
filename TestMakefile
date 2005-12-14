@@ -316,23 +316,25 @@ endif
 ##
 ##  Configuration Options: forceProviderProcesses=true
 ##
+##  If PEGASUS_DEFAULT_OOP_ON is set, then tests are run with OOP disabled
+##  since tests have already been run with OOP enabled.
+##
+##
 ###############################################################################
+ifeq ($(PEGASUS_DEFAULT_OOP_ON),true)
 OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=true
-ifndef PEGASUS_DEFAULT_OOP_FALSE
-    ifeq ($(OS),HPUX)
-        OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
-    endif
-    ifeq ($(OS),linux)
-        OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
-    endif
+else
+OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
 endif
+
 OOP_TS1_TEST_CMDS = \
-        TestClient
+        $(MAKE)@@--directory=$(PEGASUS_ROOT)@@Makefile@@-s@@poststarttests
 
 run_OOP_TS1:
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
+
 ###############################################################################
 
 ###############################################################################

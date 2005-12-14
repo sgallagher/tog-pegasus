@@ -59,14 +59,10 @@
 #include <Pegasus/Common/CIMDateTime.h>
 #include <Pegasus/Common/PegasusVersion.h>
 
-
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
 const String DEFAULT_NAMESPACE = "root/cimv2";
-
-static const char * usage = "blah blah";
-static const char * extra = "more blah";
 
 //------------------------------------------------------------------------------
 //
@@ -79,13 +75,14 @@ static void _indent(PEGASUS_STD(ostream)& os, Uint32 level, Uint32 indentSize)
     Uint32 n = level * indentSize;
     if (n > 50)
     {
-    cout << "Jumped Ship " << level << " size " << indentSize << endl;
-    exit(1);
+        cout << "Jumped Ship " << level << " size " << indentSize << endl;
+        exit(1);
     }
 
     for (Uint32 i = 0; i < n; i++)
-    os << ' ';
+        os << ' ';
 }
+
 void mofFormat(
     PEGASUS_STD(ostream)& os,
     const char* text,
@@ -101,75 +98,73 @@ void mofFormat(
     char prevchar='\0';
     while ((c = *tmp++) != '\0')
     {
-    count++;
-    // This is too simplistic and must move to a token based mini parser
-    // but will do for now. One problem is tokens longer than 12 characters that
-    // overrun the max line length.
-    switch (c)
-    {
-        case '\n':
-        os << Sint8(c);
-        prevchar = c;
-        count = 0 + (indent * indentSize);
-        _indent(os, indent, indentSize);
-        break;
-
-        case '\"':   // quote
-        os << Sint8(c);
-        prevchar = c;
-        quoteState = !quoteState;
-        break;
-
-        case ' ':
-        os << Sint8(c);
-        prevchar = c;
-        if (count > 66)
+        count++;
+        // This is too simplistic and must move to a token based mini parser
+        // but will do for now. One problem is tokens longer than 12 characters that
+        // overrun the max line length.
+        switch (c)
         {
-            if (quoteState)
-            {
-            os << "\"\n";
-            _indent(os, indent + 1, indentSize);
-            os <<"\"";
-            }
-            else
-            {
-            os <<"\n";
-            _indent(os, indent + 1,  indentSize);
-            }
-            count = 0 + ((indent + 1) * indentSize);
-        }
-        break;
-        case '[':
-        if (prevchar == '\n')
-        {
-            indent++;
-            _indent(os, indent,  indentSize);
-            qualifierState = true;
-        }
-        os << Sint8(c);
-        prevchar = c;
-        break;
+            case '\n':
+                os << Sint8(c);
+                prevchar = c;
+                count = 0 + (indent * indentSize);
+                _indent(os, indent, indentSize);
+                break;
 
-        case ']':
-        if (qualifierState)
-        {
-            if (indent > 0)
-            indent--;
-            qualifierState = false;
+            case '\"':   // quote
+                os << Sint8(c);
+                prevchar = c;
+                quoteState = !quoteState;
+                break;
+
+            case ' ':
+                os << Sint8(c);
+                prevchar = c;
+                if (count > 66)
+                {
+                    if (quoteState)
+                    {
+                        os << "\"\n";
+                        _indent(os, indent + 1, indentSize);
+                        os <<"\"";
+                    }
+                    else
+                    {
+                        os <<"\n";
+                        _indent(os, indent + 1,  indentSize);
+                    }
+                    count = 0 + ((indent + 1) * indentSize);
+                }
+                break;
+            case '[':
+                if (prevchar == '\n')
+                {
+                    indent++;
+                    _indent(os, indent,  indentSize);
+                    qualifierState = true;
+                }
+                os << Sint8(c);
+                prevchar = c;
+                break;
+
+            case ']':
+                if (qualifierState)
+                {
+                    if (indent > 0)
+                        indent--;
+                    qualifierState = false;
+                }
+                os << Sint8(c);
+                prevchar = c;
+                break;
+
+            default:
+                os << Sint8(c);
+                prevchar = c;
         }
-        os << Sint8(c);
-        prevchar = c;
-        break;
-
-        default:
-        os << Sint8(c);
-        prevchar = c;
-    }
-
     }
     delete [] var;
 }
-
 
 /* method to build an OptionManager object - which holds and organizes options and the properties */
 
@@ -181,29 +176,29 @@ void GetOptions(
 {
     static const char* outputFormats[] = { "xml", "mof", "txt"};
     static const Uint32 NUM_OUTPUTFORMATS = sizeof(outputFormats) /
-                                            sizeof(outputFormats[0]);
+        sizeof(outputFormats[0]);
 
     static struct OptionRow optionsTable[] =
-        //The values in the OptionRows below are:
-        //optionname, defaultvalue, is required, type, domain, domainsize, flag, hlpmsg
+    //The values in the OptionRows below are:
+    //optionname, defaultvalue, is required, type, domain, domainsize, flag, hlpmsg
     {
         {"port", "5988", false, Option::INTEGER, 0, 0, "p",
-                                        "specifies port" },
+                "specifies port"},
 
         {"location", "localhost", false, Option::STRING, 0, 0, "h",
-                                        "specifies hostname of system" },
+                "specifies hostname of system"},
 
         {"version", "false", false, Option::BOOLEAN, 0, 0, "-version",
-                                        "Displays software Version "},
+                "Displays software Version "},
 
         {"help", "false", false, Option::BOOLEAN, 0, 0, "-help",
-                            "Prints help message with command line options "},
+                "Prints help message with command line options "},
 
         {"user name","",false,Option::STRING, 0, 0, "u",
-                             "specifies user loging in"},
+                "specifies user loging in"},
 
         {"password","",false,Option::STRING, 0, 0, "w",
-                             "login password for user"},
+                "login password for user"},
 
     };
     const Uint32 NUM_OPTIONS = sizeof(optionsTable) / sizeof(optionsTable[0]);
@@ -219,70 +214,39 @@ void GetOptions(
         om.mergeFile(configFile);
     }
 
-
     om.mergeCommandLine(argc, argv);
 
     om.checkRequiredOptions();
-
 }
-
-/*void printHelp(char* name, OptionManager om)
-{
-    String header = "Usage ";
-    header.append(name);
-
-    //om.printOptionsHelpTxt(header, trailer);
-}       */
-
-/* PrintHelp - This is temporary until we expand the options manager to allow
-   options help to be defined with the OptionRow entries and presented from
-   those entries.
-*/
-void printHelpMsg(const char* pgmName, const char* usage, const char* extraHelp,
-                OptionManager om)
-{
-    cout << endl << pgmName << endl;
-    cout << "Usage: " << pgmName << endl << usage << endl;
-    cout << endl;
-    // ATTN: KS om.printHelp(const char* pgmName, OptionManager om);
-    cout << extraHelp << endl;
-
-}
-
-
-
 
 int main(int argc, char** argv)
 {
 
     // Get options (from command line and from configuration file); this
-    // removes corresponding options and their arguments fromt he command
+    // removes corresponding options and their arguments from the command
     // line.
-
 
     OptionManager om;
 
     try
     {
-         String testHome = ".";
-                 GetOptions(om, argc, argv, testHome);
-         // om.print();
+        String testHome = ".";
+        GetOptions(om, argc, argv, testHome);
+        // om.print();
     }
     catch (Exception& e)
     {
-         cerr << argv[0] << ": " << e.getMessage() << endl;
-         String header = "Usage ";
-         String trailer = "";
-         om.printOptionsHelpTxt(header, trailer);
-         exit(1);
+        cerr << argv[0] << ": " << e.getMessage() << endl;
+        String header = "Usage ";
+        String trailer = "";
+        om.printOptionsHelpTxt(header, trailer);
+        exit(1);
     }
-
 
     // Establish the namespace from the input parameters
     String nameSpace = "root/cimv2";
 
-
-    // Check to see if user asked for help (-h or --help otpion)
+    // Check to see if user asked for help (--help option)
     if (om.valueEquals("help", "true"))
     {
         String header = "Usage ";
@@ -290,23 +254,20 @@ int main(int argc, char** argv)
         om.printOptionsHelpTxt(header, trailer);
         exit(0);
     }
-     else if (om.valueEquals("version", "true"))
+    else if (om.valueEquals("version", "true"))
     {
         cerr << "Version " << PEGASUS_PRODUCT_VERSION << endl;
         exit(0);
     }
 
-
-
     //Get hostname form (option manager) command line if none use default
     String location;
     om.lookupValue("location", location);
 
-
     //Get port number from (option manager) command line if none use defualt
     String str_port;
     Uint32 port;
-    if(om.lookupValue("port", str_port))
+    if (om.lookupValue("port", str_port))
     {
         port = (Uint32) atoi(str_port.getCString());
     }
@@ -317,12 +278,11 @@ int main(int argc, char** argv)
     om.lookupValue("user name", userN);
     om.lookupValue("pass word", passW);
 
- /****************************************************
- The next sectoin of code connects to the server and enumerates all the instances of the
- CIM_CIMOMStatisticalData class. The instances are held in an Array named instances. The
- output of cimperf is a table of averages, the last piece of code in this section prints the
- header of this table
- */
+    /*
+    The next section of code connects to the server and enumerates all the 
+    instances of the CIM_CIMOMStatisticalData class. The instances are held in
+    an Array named "instances". The output of cimperf is a table of averages.
+    */
 
 
     String className = "CIM_CIMOMStatisticalData";
@@ -333,17 +293,16 @@ int main(int argc, char** argv)
         client.connect(location, port, userN, passW);
     }
 
-    catch(Exception& e)
+    catch (Exception& e)
     {
-      cerr << argv[0] << " Exception connecting to : " << location << endl;
-      cerr << e.getMessage() << endl;
-      exit(1);
+        cerr << argv[0] << " Exception connecting to : " << location << endl;
+        cerr << e.getMessage() << endl;
+        exit(1);
     }
 
 
     try
     {
-    //  printf("right befoe enumerateInstances\n");
         Boolean localOnly = false;
         Boolean deepInheritance = false;
         Boolean includeQualifiers = false;
@@ -351,45 +310,36 @@ int main(int argc, char** argv)
 
         Array<CIMInstance> instances;
         instances = client.enumerateInstances(nameSpace,
-                               className,
-                               deepInheritance,
-                               localOnly,
-                               includeQualifiers,
-                               includeClassOrigin);
-
-
-
+            className,
+            deepInheritance,
+            localOnly,
+            includeQualifiers,
+            includeClassOrigin);
 
         // First print the header for table of values
         printf("%-25s%10s %10s %10s %10s %10s\n%-25s%10s %10s %10s %10s %10s\n%-25s\n",
-               "CIM", "Number of", "CIM Server", "Provider",
-                "Request", "Response",
-               "Operation", "Requests", "Time", "Time", "Size", "Size",
-               "-------------------------------------------------------------------------------");
+            "CIM", "Number of", "CIM Server", "Provider",
+            "Request", "Response",
+            "Operation", "Requests", "Time", "Time", "Size", "Size",
+            "-------------------------------------------------------------------------------");
 
-
-
-  /*****************************************************************************
-  This section of code loops through all the instances of CIM_CIMOMStatisticalData
-  (one for each intrinsic request type) and gathers the NumberofOperations, CIMOMElapsedTime,
-   ProviderElapsedTime, ResponseSize and RequestSize for each instance. Averages are abtained
-   be dividing times and sizes by NumberofOperatons.
-  */
-
-
+        // This section of code loops through all the instances of 
+        // CIM_CIMOMStatisticalData (one for each intrinsic request type) and
+        // gathers the NumberofOperations, CIMOMElapsedTime, 
+        // ProviderElapsedTime, ResponseSize and RequestSize for each instance.
+        // Averages are abtained by dividing times and sizes by 
+        // NumberofOperatons.
 
         for (Uint32 inst = 0; inst < instances.size(); inst++)
         {
             CIMInstance instance = instances[inst];
 
-            // Get the request type property for this instance
+            // Get the request type property for this instance.
             // Note that for the moment it is simply an integer.
-
             Uint32 pos;
             CIMProperty p;
             String statName;
             CIMValue v;
-
 
             if ((pos = instance.findProperty("ElementName")) != PEG_NOT_FOUND)
             {
@@ -398,8 +348,6 @@ int main(int argc, char** argv)
                 if (v.getType() == CIMTYPE_STRING)
                 {
                     v.get(statName);
-
-            
                 }
             }
             else
@@ -407,8 +355,7 @@ int main(int argc, char** argv)
                 statName = "UNKNOWN";
             }
 
- 
-            //get number of requests property - "NumberofOperations"
+            // Get number of requests property - "NumberofOperations"
             Uint64 numberOfRequests = 0;
             if ((pos = instance.findProperty("NumberOfOperations")) != PEG_NOT_FOUND)
             {
@@ -422,92 +369,78 @@ int main(int argc, char** argv)
 
                 }
                 else
+                {
                     cerr << "NumberofOperations was not a CIMTYPE_SINT64 and should be" << endl;
+                }
             }
             else
+            {
                 cerr << "Could not find NumberofOperations" << endl;
+            }
 
             // Get the total CIMOM Time property "CIMOMElapsedTime"
+            // in order to calculate the averageCimomTime.
             CIMDateTime totalCimomTime;
             Sint64 averageCimomTime = 0;
-            Uint64 totalCT=0;
-
-//debug code
-//printf("this is right before CimomElapsedTime part\n");
+            Uint64 totalCT = 0;
 
             if ((pos = instance.findProperty("CimomElapsedTime")) != PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
                 v = p.getValue();
 
-                //debug code
-            //printf("this is the CimomElapsedTime outer loop\n");
-
                 if (v.getType() == CIMTYPE_DATETIME)
                 {
                     v.get(totalCimomTime);
                     totalCT = totalCimomTime.toMicroSeconds();
-
-                    //***********debug
-            //      printf("this is the CimomElapsedTime inner loop\n");
                 }
                 else
+                {
                     cerr << "Error Property value " << "CimomElapsedTime" << endl;
+                }
             }
             else
-                cerr << "Error Property " << "CimomElapsedTime" << endl;
-
-            
-            if ((totalCT == 0) || (numberOfRequests == 0))
             {
-                averageCimomTime =0;
+                cerr << "Error Property " << "CimomElapsedTime" << endl;
             }
-            else
-                averageCimomTime = totalCT/numberOfRequests;
 
-
-
+            if (numberOfRequests != 0)
+            {
+                averageCimomTime = totalCT / numberOfRequests;
+            }
 
             // Get the total Provider Time property "ProviderElapsedTime"
             CIMDateTime totalProviderTime;
             Uint64 averageProviderTime = 0;
-            Uint64 totalPT=0;
-
-         //printf("this is after figuring averageCimomTime and before provider Elapsed time\n");
+            Uint64 totalPT = 0;
 
             if ((pos = instance.findProperty("ProviderElapsedTime")) != PEG_NOT_FOUND)
             {
                 p = (instance.getProperty(pos));
                 v = p.getValue();
-                                if (v.getType() == CIMTYPE_DATETIME)
-                                {
+                if (v.getType() == CIMTYPE_DATETIME)
+                {
                     v.get(totalProviderTime);
                     totalPT = totalProviderTime.toMicroSeconds();
-
-                    //***********debug
-                //  printf("the providerElapsed time inner loop\n");
-
                 }
                 else
+                {
                     cerr << "Error Property Vlaue " << "ProviderElapsedTime" << endl;
+                }
             }
             else
-                cerr << "Error Property " << "ProviderElapsedTime" << endl;
-
-
-            if ((totalPT == 0) || (numberOfRequests == 0))
             {
-                averageProviderTime = 0;
+                cerr << "Error Property " << "ProviderElapsedTime" << endl;
             }
-            else
-            averageProviderTime = totalPT/numberOfRequests;
 
+            if (numberOfRequests != 0)
+            {
+                averageProviderTime = totalPT / numberOfRequests;
+            }
 
             // Get the total Response size property "ResponseSize"
-
             Uint64 totalResponseSize = 0;
             Uint64 averageResponseSize = 0;
-
 
             if ((pos = instance.findProperty("ResponseSize")) != PEG_NOT_FOUND)
             {
@@ -517,31 +450,25 @@ int main(int argc, char** argv)
                 if (v.getType() == CIMTYPE_UINT64)
                 {
                     v.get(totalResponseSize);
-
-                    //***********debug
-                    //printf("the totalResponsSize innner loop \n");
                 }
                 else
+                {
                     cerr << "RequestSize is not of type CIMTYPE_SINT64" << endl ;
+                }
             }
             else
+            {
                 cerr << "Could not find ResponseSize property" << endl;
-
-            if ((totalCimomTime != 0) && (totalResponseSize != 0)) {
-                averageResponseSize =  totalResponseSize / numberOfRequests;
-
-
-                //***********debug
-              //printf("the averageResponseSize is %d\n",averageResponseSize);
             }
-            else
-  
-            totalResponseSize = 0;
-            //Get the total request size property "RequestSize"
 
+            if (numberOfRequests != 0)
+            {
+                averageResponseSize =  totalResponseSize / numberOfRequests;
+            }
+
+            //Get the total request size property "RequestSize"
             Uint64 totalRequestSize = 0;
             Uint64 averageRequestSize = 0;
-
 
             if ((pos = instance.findProperty("RequestSize")) != PEG_NOT_FOUND)
             {
@@ -551,44 +478,40 @@ int main(int argc, char** argv)
                 if (v.getType() == CIMTYPE_UINT64)
                 {
                     v.get(totalRequestSize);
-
-                    //***********debug
-                    //printf("the totalRequestSize inner loop\n");
                 }
                 else
+                {
                     cerr << "RequestSize is not of type CIMTYPE_SINT64" << endl ;
+                }
             }
             else
+            {
                 cerr << "Could not find RequestSize property" << endl;
+            }
 
             if (numberOfRequests != 0)
             {
                 averageRequestSize = totalRequestSize / numberOfRequests;
-
-            //***********debug
-                 // printf("the elementName is %d",averageRequestSize);
             }
 
-
-
-    //if StatisticalData::copyGSD is FALSE this will only return 0's
+            //if StatisticalData::copyGSD is FALSE this will only return 0's
 
             printf("%-25s"
-                   "%10"  PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
-                   "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
-               (const char*)statName.getCString(),
-               numberOfRequests, averageCimomTime,
-               averageProviderTime, averageRequestSize,
-               averageResponseSize);
+                "%10"  PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u"
+                "%11" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
+                (const char*)statName.getCString(),
+                numberOfRequests, averageCimomTime,
+                averageProviderTime, averageRequestSize,
+                averageResponseSize);
         }
     }
-    catch(Exception& e)
+    catch (Exception& e)
     {
-      cerr << argv[0] << "Exception : " << e.getMessage() << endl;
-      exit(1);
+        cerr << argv[0] << "Exception : " << e.getMessage() << endl;
+        exit(1);
     }
 
     return 0;

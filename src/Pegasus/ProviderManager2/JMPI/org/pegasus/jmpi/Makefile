@@ -67,6 +67,7 @@ PACKAGEDIR = org/pegasus/jmpi
    CIMMethodProvider.class \
    \
    InstanceProvider.class \
+   InstanceProvider2.class \
    MethodProvider.class \
    AssociatorProvider.class \
    EventProvider.class \

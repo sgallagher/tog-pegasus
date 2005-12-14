@@ -40,10 +40,7 @@ public interface InstanceProvider extends CIMProvider
 {
     public CIMInstance getInstance                         (CIMObjectPath cop,
                                                             CIMClass      cimClass,
-                                                            boolean       localOnly,
-                                                            boolean       includeQualifiers,
-                                                            boolean       includeClassOrigin,
-                                                            String        propertyList[])
+                                                            boolean       localOnly)
         throws CIMException;
 
 
@@ -61,24 +58,24 @@ public interface InstanceProvider extends CIMProvider
          throws CIMException;
 
 
-    public abstract Vector enumerateInstances              (CIMObjectPath cop,
-                                                            CIMClass      cimClass,
+    // enumerateInstances
+    public abstract Vector enumInstances                   (CIMObjectPath cop,
                                                             boolean       deep,
-                                                            boolean       localOnly,
-                                                            boolean       includeQualifiers,
-                                                            boolean       includeClassOrigin,
-                                                            String        propertyList[])
+                                                            CIMClass      cimClass,
+                                                            boolean       localOnly)
         throws CIMException;
 
 
-    public abstract Vector enumerateInstanceNames          (CIMObjectPath cop,
+    // enumerateInstanceNames
+    public abstract Vector enumInstances                   (CIMObjectPath cop,
+                                                            boolean       deep,
                                                             CIMClass      cimClass)
         throws CIMException;
 
 
     public abstract Vector execQuery                       (CIMObjectPath cop,
-                                                            CIMClass      cimClass,
                                                             String        queryStatement,
-                                                            String        queryLanguage)
+                                                            int           queryLanguage,
+                                                            CIMClass      cimClass)
         throws CIMException;
 };

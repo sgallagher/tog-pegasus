@@ -47,7 +47,7 @@ import org.pegasus.jmpi.CIMValue;
 import org.pegasus.jmpi.CIMProperty;
 import org.pegasus.jmpi.CIMOMHandle;
 
-public class Provider1 implements InstanceProvider   {
+public class Provider1 implements InstanceProvider2 {
     static int            count       = 0;
     static int[]          arrayValues = {1,2};
     static String         myClassName = "EXP_UnitaryComputerSystem";
@@ -98,8 +98,6 @@ public class Provider1 implements InstanceProvider   {
 
     public Vector enumerateInstances (CIMObjectPath cop,
                                       CIMClass      cimClass,
-                                      boolean       deep,
-                                      boolean       localOnly,
                                       boolean       includeQualifiers,
                                       boolean       includeClassOrigin,
                                       String        propertyList[])
@@ -108,10 +106,8 @@ public class Provider1 implements InstanceProvider   {
 
 	Vector test=new Vector();
 
-	if (!deep && !(cimClass.getName().equals(myClassName)))
+	if (!(cimClass.getName().equals(myClassName)))
 	    return(test);
-
-System.err.println("Deep = "+deep);
 
 	CIMInstance ci=myClass.newInstance();
 	ci.setName("example");
@@ -126,7 +122,6 @@ System.err.println("Deep = "+deep);
 
     public CIMInstance getInstance (CIMObjectPath cop,
                                     CIMClass      cimClass,
-                                    boolean       localOnly,
                                     boolean       includeQualifiers,
                                     boolean       includeClassOrigin,
                                     String        propertyList[])

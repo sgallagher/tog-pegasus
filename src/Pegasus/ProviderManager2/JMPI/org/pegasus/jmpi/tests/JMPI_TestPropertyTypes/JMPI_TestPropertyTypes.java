@@ -50,7 +50,7 @@ import org.pegasus.jmpi.*;
 import java.util.*;
 
 
-public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider, EventProvider
+public class JMPI_TestPropertyTypes implements InstanceProvider2, MethodProvider, EventProvider
 {
    CIMOMHandle ch;
 
@@ -283,7 +283,6 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
    public CIMInstance getInstance(CIMObjectPath cop,
                                   CIMClass      cimClass,
-                                  boolean       localOnly,
                                   boolean       includeQualifiers,
                                   boolean       includeClassOrigin,
                                   String        propertyList[])
@@ -376,8 +375,6 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 
    public Vector enumerateInstances (CIMObjectPath cop,
                                      CIMClass      cimClass,
-                                     boolean       deep,
-                                     boolean       localOnly,
                                      boolean       includeQualifiers,
                                      boolean       includeClassOrigin,
                                      String        propertyList[])
@@ -385,8 +382,6 @@ public class JMPI_TestPropertyTypes implements InstanceProvider, MethodProvider,
 //////System.out.println ("enumerateInstances");
 //////System.out.println ("enumerateInstances: cop = " + cop);
 //////System.out.println ("enumerateInstances: cimClass = " + cimClass);
-//////System.out.println ("enumerateInstances: deep = " + deep);
-//////System.out.println ("enumerateInstances: localOnly = " + localOnly);
 //////System.out.println ("enumerateInstances: includeQualifiers = " + includeQualifiers);
 //////System.out.println ("enumerateInstances: includeClassOrigin = " + includeClassOrigin);
 //////System.out.println ("enumerateInstances: propertyList = " + propertyList);

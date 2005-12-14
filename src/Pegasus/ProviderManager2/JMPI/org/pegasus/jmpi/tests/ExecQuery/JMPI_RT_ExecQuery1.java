@@ -37,7 +37,7 @@ package org.pegasus.jmpi.tests.ExecQuery;
 import org.pegasus.jmpi.*;
 import java.util.*;
 
-public class JMPI_RT_ExecQuery1 implements InstanceProvider
+public class JMPI_RT_ExecQuery1 implements InstanceProvider2
 {
     public class ConvertibleVector extends Vector
     {
@@ -171,7 +171,6 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
 
     public CIMInstance getInstance (CIMObjectPath cop,
                                     CIMClass      cimClass,
-                                    boolean       localOnly,
                                     boolean       includeQualifiers,
                                     boolean       includeClassOrigin,
                                     String        propertyList[])
@@ -181,7 +180,6 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
         {
             System.out.println ("JMPI_RT_ExecQuery1::getInstance: cop       = " + cop);
             System.out.println ("JMPI_RT_ExecQuery1::getInstance: cimClass  = " + cimClass);
-            System.out.println ("JMPI_RT_ExecQuery1::getInstance: localOnly = " + localOnly);
         }
 
         // ensure the InstanceId key is valid
@@ -286,8 +284,6 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
 
     public Vector enumerateInstances (CIMObjectPath cop,
                                       CIMClass      cimClass,
-                                      boolean       deep,
-                                      boolean       localOnly,
                                       boolean       includeQualifiers,
                                       boolean       includeClassOrigin,
                                       String        propertyList[])
@@ -295,10 +291,11 @@ public class JMPI_RT_ExecQuery1 implements InstanceProvider
     {
         if (this.fDebug)
         {
-            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: cop       = " + cop);
-            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: deep      = " + deep);
-            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: cimClass  = " + cimClass);
-            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: localOnly = " + localOnly);
+            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: cop                = " + cop);
+            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: cimClass           = " + cimClass);
+            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: includeQualifiers  = " + includeQualifiers);
+            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: includeClassOrigin = " + includeClassOrigin);
+            System.out.println ("JMPI_RT_ExecQuery1::enumInstances: propertyList       = " + propertyList);
         }
 
         // ensure the Namespace is valid

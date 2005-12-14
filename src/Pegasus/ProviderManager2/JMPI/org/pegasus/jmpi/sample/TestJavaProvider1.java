@@ -33,7 +33,7 @@ import org.pegasus.jmpi.*;
 import java.util.*;
 
 
-public class TestJavaProvider1 implements InstanceProvider
+public class TestJavaProvider1 implements InstanceProvider2
 {
    private Hashtable data=new Hashtable();
    CIMOMHandle ch;
@@ -76,7 +76,6 @@ public class TestJavaProvider1 implements InstanceProvider
 
    public CIMInstance getInstance(CIMObjectPath op,
                                   CIMClass      cc,
-                                  boolean       localOnly,
                                   boolean       includeQualifiers,
                                   boolean       includeClassOrigin,
                                   String        propertyList[])
@@ -151,8 +150,6 @@ public class TestJavaProvider1 implements InstanceProvider
 
    public Vector enumerateInstances (CIMObjectPath cop,
                                      CIMClass      cimClass,
-                                     boolean       deep,
-                                     boolean       localOnly,
                                      boolean       includeQualifiers,
                                      boolean       includeClassOrigin,
                                      String        propertyList[])

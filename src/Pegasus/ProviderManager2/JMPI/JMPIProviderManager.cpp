@@ -93,7 +93,7 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
       {"snia 2.0","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;Z)Ljava/util/Vector;"},
       {"pegasus 2.4","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMInstance;"},
       /* Begin Fix for 4189 */
-      {"pegasus 2.5","enumerateInstances","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZZ[Ljava/lang/String;)Ljava/util/Vector;"},
+      {"pegasus 2.5","enumerateInstances","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Ljava/util/Vector;"},
       /* End Fix for 4189 */
       {"snia 2.0","enumInstances","(Lorg/pegasus/jmpi/CIMObjectPath;ZLorg/pegasus/jmpi/CIMClass;)Ljava/util/Vector;"},
       {"pegasus 2.4","enumerateInstanceNames","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;)[Lorg/pegasus/jmpi/CIMObjectPath;"},
@@ -101,7 +101,7 @@ void JMPIProviderManager::debugPrintMethodPointers (JNIEnv *env, jclass jc)
       {"snia 2.0","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;Z)Lorg/pegasus/jmpi/CIMInstance;"},
       {"pegasus 2.4","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;ZZZ[Ljava/lang/String;Lorg/pegasus/jmpi/CIMClass;)Lorg/pegasus/jmpi/CIMInstance;"},
       /* Begin Fix for 4238 */
-      {"pegasus 2.5","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;"},
+      {"pegasus 2.5","getInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;"},
       /* End Fix for 4238 */
       {"snia 2.0","createInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)Lorg/pegasus/jmpi/CIMObjectPath;"},
       {"snia 2.0","setInstance","(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMInstance;)V"},
@@ -552,14 +552,13 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
         /* Fix for 4238 */
         // public abstract org.pegasus.jmpi.CIMInstance getInstance (org.pegasus.jmpi.CIMObjectPath cop,
         //                                                           org.pegasus.jmpi.CIMClass      cimClass,
-        //                                                           boolean                        localOnly
         //                                                           boolean                        includeQualifiers,
         //                                                           boolean                        includeClassOrigin,
         //                                                           String                         propertyList[])
         //        throws org.pegasus.jmpi.CIMException
         id = env->GetMethodID((jclass)pr.jProviderClass,
                               "getInstance",
-                              "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;");
+                              "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Lorg/pegasus/jmpi/CIMInstance;");
 
         if (id != NULL)
         {
@@ -692,7 +691,6 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
                                                                id,
                                                                jop,
                                                                jcimClass,
-                                                               JMPI_LOCALONLY,
                                                                JMPI_INCLUDE_QUALIFIERS,
                                                                request->includeClassOrigin,
                                                                jPropertyList);
@@ -854,15 +852,13 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         /* Fix for 4189 */
         // public java.util.Vector enumerateInstances (org.pegasus.jmpi.CIMObjectPath cop,
         //                                             org.pegasus.jmpi.CIMClass      cimClass,
-        //                                             boolean                        deep,
-        //                                             boolean                        localOnly,
         //                                             boolean                        includeQualifiers,
         //                                             boolean                        includeClassOrigin,
         //                                             java.lang.String[]             propertyList)
         //         throws org.pegasus.jmpi.CIMException
         id = env->GetMethodID((jclass)pr.jProviderClass,
                               "enumerateInstances",
-                              "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZZZ[Ljava/lang/String;)Ljava/util/Vector;");
+                              "(Lorg/pegasus/jmpi/CIMObjectPath;Lorg/pegasus/jmpi/CIMClass;ZZ[Ljava/lang/String;)Ljava/util/Vector;");
 
         if (id != NULL)
         {
@@ -1015,8 +1011,6 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                                                                id,
                                                                jcop,
                                                                jcc,
-                                                               request->deepInheritance,
-                                                               JMPI_LOCALONLY,
                                                                JMPI_INCLUDE_QUALIFIERS,
                                                                request->includeClassOrigin,
                                                                jPropertyList);

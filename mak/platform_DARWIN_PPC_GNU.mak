@@ -40,10 +40,11 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM) -D_POSIX_PTHREAD_SEMANTICS -D B
 
 DEFINES += -DPEGASUS_OS_DARWIN
 
+# ATTN: Added linking option -bind_at_load , Temporary workaround for Bug 4433 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
-FLAGS = -g -W -Wall -Wno-unused -fPIC
+FLAGS = -g -W -Wall -Wno-unused -fPIC -bind_at_load
 else
-FLAGS = -O2 -W -Wall -Wno-unused -fPIC
+FLAGS = -O2 -W -Wall -Wno-unused -fPIC -bind_at_load
 endif
 
 SYS_LIBS = -lpthread -ldl

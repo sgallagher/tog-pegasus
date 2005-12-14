@@ -46,6 +46,7 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/HashTable.h>
+#include <Pegasus/Common/Mutex.h>
 
 PEGASUS_NAMESPACE_BEGIN
 

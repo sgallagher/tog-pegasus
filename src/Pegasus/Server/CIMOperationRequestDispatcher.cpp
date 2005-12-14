@@ -2438,7 +2438,7 @@ void CIMOperationRequestDispatcher::handleGetInstanceRequest(
        }
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-       if(_enableNormalization)
+       if(_enableNormalization && providerInfo.hasProviderNormalization)
        {
            requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
        }
@@ -3610,7 +3610,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstancesRequest(
         }
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        if(_enableNormalization)
+        if(_enableNormalization && providerInfo.hasProviderNormalization)
         {
             requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
         }
@@ -3977,7 +3977,7 @@ void CIMOperationRequestDispatcher::handleEnumerateInstanceNamesRequest(
         }
 
 #ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
-        if(_enableNormalization)
+        if(_enableNormalization && providerInfo.hasProviderNormalization)
         {
             requestCopy->operationContext.insert(CachedClassDefinitionContainer(cimClass));
         }

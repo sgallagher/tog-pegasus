@@ -1,8 +1,4 @@
 /*
-    $Log: CIMOperations.dxx,v $
-    Revision 1.2  2001/02/23 20:27:46  karl
-    correct documentation
-
     This file defines the basic operations functions for Pegasus
     ATTN: This is still not complete.
 */

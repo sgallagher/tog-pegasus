@@ -1,46 +1,6 @@
 /* PegasusDoc.dxx - Top Level file for Developer Documentation.
 This file defines the document strucuture and provides the introduction
-
-        Fixed file name case for use on GNU/Linux:
-            Header file "StopWatch.h" is actually "Stopwatch.h"
-            "objectives.dxx" is actually "Objectives.dxx"
-            "Architecture.dxx" is actually "architecture.dxx"
-            "Components.dxx" is actually "components.dxx"
-            "installation.dxx" is actually "Installation.dxx"
-            "MOFCompiler.dxx" is actually "MOFcompiler.dxx"
-            "CIMObjects.dxx" is actually "cimobjects.dxx"
-            "CIMOBJECTTable.dxx" is actually "CIMobjectTable.dxx"
-            "Classes.dxx" is actually "classes.dxx"
-            "Interfaces.dxx" is actually "interfaces.dxx"
-            "FAQ.dxx" is actually "FAQ.DXX"
-
-	$Log: PegasusDoc.dxx,v $
-	Revision 1.22  2003/06/06 20:55:19  karl
-	update the controller for the Pegasus Developers manual in accord with the PEP to update documentation
-	
-	Revision 1.21  2002/02/16 17:38:44  kumpf
-	Modify Doc++ build environment to support Unix environments.
-	
-	Revision 1.20  2001/12/13 14:53:21  mike
-	Merged dev branch into main trunk.
-	
-	Revision 1.19.2.3  2001/10/05 21:16:41  kumpf
-	HP-RK Fix case for platforms with case-sensitive file names.
-	
-	Revision 1.19.2.2  2001/09/21 05:47:58  karl
-	doc change to TOG formats
-	
-	Revision 1.19.2.1  2001/09/13 21:29:24  karl
-	Update to no Frame work
-	
-	Revision 1.19  2001/05/27 10:11:50  karl
-	Clean up object tables
-	
-	Revision 1.18  2001/05/21 17:33:33  karl
-	Update version number
-	
-	
-	$Author: karl $
+        
 */
 /* do not change the following Name.  Used in the Frame definition.
 If you change it, the HTML Frame must also be changed.

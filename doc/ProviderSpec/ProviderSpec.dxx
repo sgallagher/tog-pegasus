@@ -22,7 +22,6 @@
 //==============================================================================
 /* PegasusDoc.dxx - Top Level file for Pegasus Provider Specification.
 This file defines the document strucuture and provides the introduction
-	$Author: kumpf $
 */
 /* WARNING: do not change the following Name.  It is 
    used in the TOC definition.

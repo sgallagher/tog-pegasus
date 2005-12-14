@@ -1,12 +1,4 @@
-
 /*
-  $Log: CIMobjectTable.dxx,v $
-  Revision 1.2  2001/05/27 10:11:50  karl
-  Clean up object tables
-
-  Revision 1.1  2001/02/23 20:29:05  karl
-  documentation cleanup
-
 Table of the CIM Objects.
 */
  /** @name CIM Object Table

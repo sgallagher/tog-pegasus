@@ -1,10 +1,4 @@
-/*
-	$Log: ProviderInterfaces.dxx,v $
-	Revision 1.1  2001/01/24 14:18:48  karl
-	import Dev Doc Files
-	
-	$Author: karl $
-*/
+
 /** @name Pegasus Provider Interfaces
 
 ATTN: Today this section is under construction

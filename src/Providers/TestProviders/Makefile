@@ -70,9 +70,9 @@ DIRS += \
 	CMPI/TestFail_3 \
 	CMPI/TestFail_3/tests \
 	CMPI/TestFail_4 \
-	CMPI/TestProviderThreaded
-#	CMPI/TestProviderThreaded/tests   temporarily disabled, see bug 4334
-#	CMPI/TestFail_4/tests \           temporarily disabled, see bug 4334
+	CMPI/TestFail_4/tests \
+	CMPI/TestProviderThreaded \
+	CMPI/TestProviderThreaded/tests
 
 ifndef PEGASUS_DISABLE_CQL
 #DIRS += \

@@ -115,7 +115,8 @@ TestCMPIFail_4ProviderModifyInstance (CMPIInstanceMI * mi,
                                       const CMPIInstance * ci,
                                       const char **properties)
 {
-  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
+// The following line is commented out until bug 4591 is resolved.
+//  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
 					  // in which CMReturnDone without a previous CMReturnInstance would
 					  // crash cimserver.
   CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
@@ -127,7 +128,8 @@ TestCMPIFail_4ProviderDeleteInstance (CMPIInstanceMI * mi,
                                       const CMPIResult * rslt,
                                       const CMPIObjectPath * cop)
 {
-  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
+// The following line is commented out until bug 4591 is resolved.
+//  CMReturnDone(rslt); // This out-of-place macro was added to test bug #4107 
 					  // in which CMReturnDone without a previous CMReturnInstance would
 					  // crash cimserver.
   CMReturnWithChars (_broker, CMPI_RC_ERR_NOT_FOUND, _msg);
@@ -166,7 +168,7 @@ static CMPIInstanceMIFT instMIFT__ = {
     TestCMPIFail_4ProviderDeleteInstance, 
     NULL
 };
-CMPIInstanceMI *
+CMPI_EXTERN_C CMPIInstanceMI *
 TestCMPIFail_4Provider_Create_InstanceMI (const CMPIBroker * brkr,
                                           const CMPIContext * ctx,
                                           CMPIStatus * rc)

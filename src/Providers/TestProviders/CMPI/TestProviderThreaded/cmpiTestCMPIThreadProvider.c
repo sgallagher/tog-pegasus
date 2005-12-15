@@ -278,7 +278,7 @@ static CMPIInstanceMIFT instMIFT__ =
   TestCMPIThreadProviderDeleteInstance,
   NULL,                         //TestCMPIThreadProviderExecQuery,
 };
-CMPIInstanceMI *
+CMPI_EXTERN_C CMPIInstanceMI *
 TestCMPIThreadProvider_Create_InstanceMI (const CMPIBroker * brkr,
                                           const CMPIContext * ctx,
                                           CMPIStatus * rc)

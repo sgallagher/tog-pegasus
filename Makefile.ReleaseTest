@@ -58,9 +58,7 @@ PRESTARTTEST_FILES = \
    TestValidateClass \
    TestValue \
    TracerTest \
-   IPC \
-   CompAssoc \
-   UserManagerTest
+   IPC
 
 PEGASUS_TEST_PROVIDERS = \
    libSampleInstanceProvider \
@@ -116,10 +114,16 @@ create_Makefile:
 	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_prestarttests
 	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_poststarttests
 	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_tests
+	@$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile.ReleaseTest createMakefile_clean
 
 createMakefile_providerlinks:
 	@$(ECHO-E) "create_providerlinks:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\t@$(MAKE) createlink OBJECT=$(PEGASUS_TEST_DIR)/lib/$(i)$(LIB_SUFFIX) LINKNAME=$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
+	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+
+createMakefile_clean:
+	@$(ECHO-E) "clean:" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	$(foreach i, $(PEGASUS_TEST_PROVIDERS), $(ECHO-E) "\t@$(RM) $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile ;)
 	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 
 createMakefile_prestarttests:
@@ -142,6 +146,7 @@ createMakefile_tests:
 	@$(ECHO-E) "\t@$(MAKE) prestarttests" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_1)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_1)\"" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 	@$(ECHO-E) "\t@$(MAKE) runTestSuite CIMSERVER_CONFIG_OPTIONS=\"$(TESTSUITE_CONFIG_2)\" TESTSUITE_CMDS=\"$(TESTSUITE_CMDS_2)\"" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
+	@$(ECHO-E) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_DIR)/Makefile
 
 create_repository:
 	$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_TEST_REPOSITORY_DIR)/$(PEGASUS_TEST_REPOSITORY_NAME)

@@ -212,6 +212,7 @@ mkdir -p $RPM_BUILD_ROOT/%PEGASUS_DOC_DIR
 mkdir -p $RPM_BUILD_ROOT/%PEGASUS_MAN_DIR/{man1,man8}
 mkdir -p $RPM_BUILD_ROOT%PEGASUS_MOF_DIR/{CIM28,Pegasus}
 mkdir -p $RPM_BUILD_ROOT%PEGASUS_LOCAL_DOMAIN_SOCKET_DIR
+mkdir -p $RPM_BUILD_ROOT%PEGASUS_REPOSITORY_DIR
 
 export PEGASUS_ROOT=$RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
 export PEGASUS_HOME=$RPM_BUILD_ROOT/usr/pegasus
@@ -265,10 +266,20 @@ install -D -m 0755  $PEGASUS_HOME/lib/libCMPIProviderManager.so.1   $RPM_BUILD_R
 install -D -m 0755  $PEGASUS_HOME/lib/libcmpiCppImpl.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libcmpiCppImpl.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libDefaultProviderManager.so.1   $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libDefaultProviderManager.so.1 
 
+touch $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegcommon.so
+touch $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegclient.so
+touch $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libpegprovider.so
+touch $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libDefaultProviderManager.so
+touch $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libCMPIProviderManager.so
+touch $RPM_BUILD_ROOT%PEGASUS_DEST_LIB_DIR/libCIMxmlIndicationHandler.so
+
 install -D -m 0755  $PEGASUS_HOME/lib/libComputerSystemProvider.so.1    $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libComputerSystemProvider.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libOSProvider.so.1    $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libOSProvider.so.1
 install -D -m 0755  $PEGASUS_HOME/lib/libProcessProvider.so.1    $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libProcessProvider.so.1
 
+touch $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libComputerSystemProvider.so
+touch $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libOSProvider.so
+touch $RPM_BUILD_ROOT%PEGASUS_PROVIDER_LIB_DIR/libProcessProvider.so
 #
 # CIM schema
 #
@@ -416,8 +427,8 @@ install -D -m 0444  $PEGASUS_ROOT/Schemas/Pegasus/ManagedSystem/VER20/PG_UnixPro
 #
 # Initial Repository
 #
-mkdir -p  $RPM_BUILD_ROOT%PEGASUS_NEW_REPOSITORY_DIR
-cp -rf $PEGASUS_HOME/repository/*  $RPM_BUILD_ROOT%PEGASUS_NEW_REPOSITORY_DIR
+mkdir -p  $RPM_BUILD_ROOT%PEGASUS_REPOSITORY_DIR
+cp -rf $PEGASUS_HOME/repository/*  $RPM_BUILD_ROOT%PEGASUS_REPOSITORY_DIR
 
 #
 # cimserver config files
@@ -596,7 +607,6 @@ mkdir -p  $RPM_BUILD_ROOT%PEGASUS_TEST_REPOSITORY_DIR
 cp -rf %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_REPOSITORY_DIR/*  $RPM_BUILD_ROOT%PEGASUS_TEST_REPOSITORY_DIR
 
 install -D -m 0444 %PEGASUS_TEST_STAGING_DIR/%PEGASUS_TEST_DIR/Makefile %TEST_DEST_PATH/Makefile
-install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/CompAssoc $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/CompAssoc
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/InvokeMethod2 $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/InvokeMethod2
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/IPC $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/IPC
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestAbstract $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestAbstract
@@ -633,7 +643,6 @@ install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestToMof $RPM
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestValidateClass $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestValidateClass
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TestValue $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TestValue
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/TracerTest $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/TracerTest
-install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_BIN_DIR/UserManagerTest $RPM_BUILD_ROOT%PEGASUS_TEST_BIN_DIR/UserManagerTest
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleFamilyProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleFamilyProvider.so.1
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1 $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1
 install -D -m 0755 %PEGASUS_TEST_STAGING_DIR%PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1   $RPM_BUILD_ROOT%PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1
@@ -648,29 +657,26 @@ rm -Rf $PEGASUS_HOME
 [ "$RPM_BUILD_ROOT" != "/" ] && [ -d $RPM_BUILD_ROOT ] && rm -rf $RPM_BUILD_ROOT;
 
 %pre
+# Check if the cimserver is running
+rm -f %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STOPPED
+isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
+if [ "$isRunning" ]; then
+     %PEGASUS_SBIN_DIR/cimserver -s
+     touch %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STOPPED
+fi
+if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]
+then
+   mv %PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR`date '+%Y-%m-%d-%s.%N'`.rpmsave;
+fi
 if [ -d %PEGASUS_REPOSITORY_DIR ]
 then
-  #
-  # Save the current repository to prev_repository.
-  #
-  if [[ -d %PEGASUS_REPOSITORY_DIR ]]
-  then
-      if [[ -d %PEGASUS_PREV_REPOSITORY_DIR ]]
-      then
-        mv %PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR`date '+%Y-%m-%d-%s.%N'`.rpmsave;
-      fi
-
-      mv %PEGASUS_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR
-  fi
+   mv %PEGASUS_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR
 fi
 
 %post
-if [ $1 -eq 1 ]; then
 mkdir -p %PEGASUS_LOG_DIR
 %define INSTALL_LOG %PEGASUS_LOG_DIR/install.log
 echo `date` >%INSTALL_LOG 2>&1
-
-/usr/lib/lsb/install_initd /etc/init.d/tog-pegasus
 
 # Create symbolic links for client libs
 #
@@ -689,6 +695,8 @@ ln -sf libComputerSystemProvider.so.1 libComputerSystemProvider.so
 ln -sf libOSProvider.so.1 libOSProvider.so
 ln -sf libProcessProvider.so.1 libProcessProvider.so
 
+if [ $1 -eq 1 ]; then
+/usr/lib/lsb/install_initd /etc/init.d/tog-pegasus
 #
 #  Set up the openssl certificate
 #
@@ -748,13 +756,16 @@ echo " Stop it:"
 echo " /etc/init.d/tog-pegasus stop"
 echo " To set up PATH and MANPATH in /etc/profile"
 echo " run /opt/tog-pegasus/sbin/settogpath.";
-mv %PEGASUS_NEW_REPOSITORY_DIR %PEGASUS_REPOSITORY_DIR
 fi
-
-%triggerpostun -- tog-pegasus < 2.4.3
-if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]
+if  [ -d %PEGASUS_PREV_REPOSITORY_DIR ]
 then
+  mv %PEGASUS_REPOSITORY_DIR %PEGASUS_NEW_REPOSITORY_DIR
   mv %PEGASUS_PREV_REPOSITORY_DIR %PEGASUS_REPOSITORY_DIR
+fi
+if [ -f %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STOPPED ]
+then
+    rm %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STOPPED
+    %PEGASUS_SBIN_DIR/cimserver
 fi
 
 %if %{PEGASUS_BUILD_TEST_RPM}
@@ -771,14 +782,30 @@ make tests
 
 %preun
 if [ $1 -eq 0 ]; then
-# Check if the cimserver is running
-isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
-if [ "$isRunning" ]; then
+   # Check if the cimserver is running
+   isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
+   if [ "$isRunning" ]; then
         %PEGASUS_SBIN_DIR/cimserver -s  
+   fi
+   rm -f %PEGASUS_VARDATA_DIR/cimserver_current.conf;
+   rm -f %PEGASUS_LOG_DIR/install.log;
+   [ -d %PEGASUS_NEW_REPOSITORY_DIR ] && rm -rf  %PEGASUS_NEW_REPOSITORY_DIR;
+   [ -d %PEGASUS_REPOSITORY_DIR ] && rm -rf  %PEGASUS_REPOSITORY_DIR;
+   [ -d %PEGASUS_VARDATA_CACHE_DIR ] && rm -rf  %PEGASUS_VARDATA_CACHE_DIR;
+   rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_DIR/cimxml.socket;
+   rm -f %PEGASUS_VARRUN_DIR/cimserver.pid;
+   # Delete the Link to the rc.* Startup Directories
+   /usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;
 fi
-# Delete the Link to the rc.* Startup Directories
-/usr/lib/lsb/remove_initd /etc/init.d/tog-pegasus;
-fi
+
+%preun devel
+make --directory  %PEGASUS_SAMPLES_DIR -s clean
+make --directory  %PEGASUS_SAMPLES_DIR/Providers/Load deregisterproviders
+
+%if %{PEGASUS_BUILD_TEST_RPM}
+%preun test
+make --directory  %PEGASUS_TEST_DIR -s clean
+%endif
 
 %postun
 if [ $1 -eq 0 ]; then
@@ -788,14 +815,28 @@ fi
 %files
 %defattr(-,root,root)
 %dir %attr(-,root,root) %PEGASUS_PROD_DIR
+%dir %attr(-,root,root) %PEGASUS_BIN_DIR
+%dir %attr(-,root,root) %PEGASUS_SBIN_DIR
+%dir %attr(-,root,root) %PEGASUS_DEST_LIB_DIR
 %dir %attr(-,root,root) %PEGASUS_LOCAL_AUTH_DIR
 %dir %attr(-,root,root) %PEGASUS_CONFIG_DIR
 %dir %attr(-,root,root) %PEGASUS_VARDATA_DIR
+%dir %attr(-,root,root) %PEGASUS_VARDATA_CACHE_DIR
 %dir %attr(-,root,root) %PEGASUS_LOG_DIR
+%dir %attr(-,root,root) %PEGASUS_PRODSHARE_DIR
+%dir %attr(-,root,root) %PEGASUS_DOC_DIR
+%dir %attr(-,root,root) %PEGASUS_MAN_DIR
+%dir %attr(-,root,root) %PEGASUS_MAN_DIR/man1
+%dir %attr(-,root,root) %PEGASUS_MAN_DIR/man8
+%dir %attr(-,root,root) %PEGASUS_PROVIDER_DIR
 %dir %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR
+%dir %attr(-,root,root) %PEGASUS_MOF_DIR
+%dir %attr(-,root,root) %PEGASUS_MOF_DIR/CIM28
+%dir %attr(-,root,root) %PEGASUS_MOF_DIR/Pegasus
+%dir %attr(-,root,root) %PEGASUS_VARRUN_DIR
 %dir %attr(1555,root,root) %PEGASUS_LOCAL_DOMAIN_SOCKET_DIR
 %defattr(-,root,root)
-%PEGASUS_NEW_REPOSITORY_DIR
+%PEGASUS_REPOSITORY_DIR
 %doc %PEGASUS_PROD_DIR/%PEGASUS_LICENSE_FILE
 %doc %PEGASUS_DOC_DIR/Admin_Guide_Release_2.4.pdf
 %doc %PEGASUS_MANUSER_DIR/cimmof.1
@@ -937,14 +978,14 @@ fi
 %config(noreplace) %attr(-,root,root) %PEGASUS_VARDATA_DIR/%PEGASUS_PLANNED_CONFIG_FILE
 %config(noreplace) %attr(-,root,root) /etc/init.d/tog-pegasus
 %config(noreplace) %attr(-,root,root) %PAM_CONF/wbem
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimauth
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimserver
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimservera
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimuser
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimconfig
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/init_repository
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/settogpath
-%attr(0544,root,root) %PEGASUS_SBIN_DIR/cimprovagt
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/cimauth
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/cimserver
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/cimservera
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/cimuser
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/cimconfig
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/init_repository
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/settogpath
+%attr(0500,root,root) %PEGASUS_SBIN_DIR/cimprovagt
 %attr(0555,root,root) %PEGASUS_BIN_DIR/cimmof
 %attr(0555,root,root) %PEGASUS_BIN_DIR/cimmofl
 %attr(0555,root,root) %PEGASUS_BIN_DIR/cimprovider
@@ -981,9 +1022,39 @@ fi
 %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libOSProvider.so.1
 %attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libProcessProvider.so.1
 
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegcommon.so
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegclient.so
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libpegprovider.so
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libDefaultProviderManager.so
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCMPIProviderManager.so
+%attr(-,root,root) %PEGASUS_DEST_LIB_DIR/libCIMxmlIndicationHandler.so
+
+%attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libComputerSystemProvider.so
+%attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libOSProvider.so
+%attr(-,root,root) %PEGASUS_PROVIDER_LIB_DIR/libProcessProvider.so
 
 %files devel
 %defattr(0444,root,root)
+%dir %attr(-,root,root) %PEGASUS_INCLUDE_DIR
+%dir %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus
+%dir %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client
+%dir %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Common
+%dir %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Consumer
+%dir %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Provider
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/EnumInstances
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/InvokeMethod
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Clients/DefaultC++/SendTestIndications
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/IndicationProvider
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/InstanceProvider
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/MethodProvider
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/DefaultC++/SimpleDisplayConsumer
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers/Load
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/Providers
+%dir %attr(-,root,root) %PEGASUS_SAMPLES_DIR/mak
 %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClientException.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/CIMClient.h
 %attr(-,root,root) %PEGASUS_INCLUDE_DIR/Pegasus/Client/Linkage.h
@@ -1083,8 +1154,11 @@ fi
 
 %if %{PEGASUS_BUILD_TEST_RPM}
 %files test
+%dir %attr(-,root,root) %PEGASUS_TEST_DIR
+%dir %attr(-,root,root) %PEGASUS_TEST_DIR/bin
+%dir %attr(-,root,root) %PEGASUS_TEST_DIR/lib
+%dir %attr(-,root,root) %PEGASUS_TEST_DIR/mak
 %attr(-,root,root) %PEGASUS_TEST_DIR/Makefile
-%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/CompAssoc
 %attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/InvokeMethod2
 %attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/IPC
 %attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestAbstract
@@ -1121,7 +1195,6 @@ fi
 %attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestValidateClass
 %attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TestValue
 %attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/TracerTest
-%attr(0555,root,root) %PEGASUS_TEST_BIN_DIR/UserManagerTest
 %attr(-,root,root) %PEGASUS_TEST_LIB_DIR/libSampleFamilyProvider.so.1
 %attr(-,root,root) %PEGASUS_TEST_LIB_DIR/libSampleInstanceProvider.so.1
 %attr(-,root,root) %PEGASUS_TEST_LIB_DIR/libSampleMethodProvider.so.1

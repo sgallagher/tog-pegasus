@@ -465,6 +465,13 @@ void IndicationService::_initialize (void)
     _validPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
     _supportedPersistenceTypes.append (_PERSISTENCE_PERMANENT);
     _supportedPersistenceTypes.append (_PERSISTENCE_TRANSIENT);
+    _validSNMPVersion.append (_SNMPV1_TRAP);
+    _validSNMPVersion.append (_SNMPV2C_TRAP);
+    _validSNMPVersion.append (_SNMPV2C_INFORM);
+    _validSNMPVersion.append (_SNMPV3_TRAP);
+    _validSNMPVersion.append (_SNMPV3_INFORM);
+    _supportedSNMPVersion.append (_SNMPV1_TRAP);
+    _supportedSNMPVersion.append (_SNMPV2C_TRAP);
 
     //
     //  Set arrays of names of supported properties for each class
@@ -3651,6 +3658,13 @@ Boolean IndicationService::_canCreate (
                 //
                 _checkRequiredProperty (instance, _PROPERTY_SNMPVERSION,
                     CIMTYPE_UINT16, _MSG_PROPERTY);
+                                                                      
+                // Currently, only SNMPv1 trap and SNMPv2C trap are supported,
+                // verify if the value of SNMPVersion is one of them
+
+                _checkValue(instance, _PROPERTY_SNMPVERSION,
+                    _validSNMPVersion, _supportedSNMPVersion); 
+
                 //
                 //  For each remaining property, verify that if the property
                 //  exists in the instance it is of the correct type
@@ -4353,6 +4367,73 @@ void IndicationService::_checkSupportedProperties (
                     instance.getProperty (i).getName ().getString (),
                     className.getString ()));
         }
+    }
+
+    PEG_METHOD_EXIT ();
+}
+
+void IndicationService::_checkValue (
+    const CIMInstance & instance,
+    const CIMName & propertyName,
+    const Array <Uint16> & validValues,
+    const Array <Uint16> & supportedValues)
+{
+    PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
+        "IndicationService::_checkValue");
+
+    Uint16 theValue;
+
+    // get the property value
+    Uint32 propPos = instance.findProperty (propertyName);
+    if (propPos != PEG_NOT_FOUND)
+    {
+	CIMValue propertyValue = (instance.getProperty(propPos)).getValue();
+
+        if (!(propertyValue.isNull()))
+        {
+            propertyValue.get(theValue);
+
+            // Validate the value
+            // Note: Valid values are defined by the PG Events MOF
+            if (!Contains(validValues, theValue))
+            {
+                String exceptionStr = _MSG_INVALID_VALUE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_INVALID_PARAMETER,
+                    MessageLoaderParms (_MSG_INVALID_VALUE_FOR_PROPERTY_KEY,
+                    exceptionStr,
+                    theValue,
+                    propertyName.getString()));
+                
+            }
+
+            // Check for valid values that are not supported 
+            // Note: Supported values are a subset of the valid values 
+            // Some valid values, as defined in the MOF, are not currently 
+            // supported 
+            if (!Contains(supportedValues, theValue))
+            {
+                String exceptionStr = _MSG_UNSUPPORTED_VALUE;
+                exceptionStr.append ("$0");
+                exceptionStr.append (_MSG_FOR_PROPERTY);
+                exceptionStr.append ("$1");
+
+                PEG_METHOD_EXIT ();
+
+                throw PEGASUS_CIM_EXCEPTION_L (CIM_ERR_NOT_SUPPORTED,
+                    MessageLoaderParms (_MSG_UNSUPPORTED_VALUE_FOR_PROPERTY_KEY,
+                    exceptionStr,
+                    theValue,
+                    propertyName.getString()));
+                
+            }
+        }
+
     }
 
     PEG_METHOD_EXIT ();

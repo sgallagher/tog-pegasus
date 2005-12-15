@@ -372,6 +372,27 @@ private:
         const CIMInstance & instance);
 
     /**
+        Validates value of the specified Uint16 property in the instance. 
+        If the value of the property is not a valid value, or is not a 
+        supported value, an exception is thrown.
+
+        @param   instance              instance to be validated
+        @param   propertyName          name of property to be validated
+        @param   validValues           set of valid values for property
+        @param   supportedValues       set of supported values for property
+                                                                              
+        @exception   CIM_ERR_NOT_SUPPORTED      if the property value is not 
+                                                supported
+                     CIM_ERR_INVALID_PARAMETER  if the property value is not 
+                                                valid
+     */
+    void _checkValue (
+        const CIMInstance & instance,
+        const CIMName & propertyName,
+        const Array <Uint16> & validValues,
+        const Array <Uint16> & supportedValues);
+
+    /**
         Determines if the user is authorized to modify the instance, and if the
         specified modification is supported.  Currently, the only modification
         supported is of the Subscription State property of the Subscription
@@ -1186,15 +1207,18 @@ private:
         RepeatNotificationPolicy: Unknown, Other, None, Suppress, Delay
         OnFatalErrorPolicy: Ignore, Disable, Remove
         PersistenceType: Permanent, Transient
+        SNMPVersion: SNMPv1 Trap, SNMPv2C Trap
      */
     Array <Uint16> _validStates;
     Array <Uint16> _validRepeatPolicies;
     Array <Uint16> _validErrorPolicies;
     Array <Uint16> _validPersistenceTypes;
+    Array <Uint16> _validSNMPVersion;
     Array <Uint16> _supportedStates;
     Array <Uint16> _supportedRepeatPolicies;
     Array <Uint16> _supportedErrorPolicies;
     Array <Uint16> _supportedPersistenceTypes;
+    Array <Uint16> _supportedSNMPVersion;
 
     /**
         Arrays of names of supported properties for each class

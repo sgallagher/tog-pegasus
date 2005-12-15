@@ -93,6 +93,13 @@ enum AlertType {_TYPE_OTHER = 1, _TYPE_COMMUNICATIONS = 2, _TYPE_QOS = 3,
      _TYPE_PROCESSING = 4, _TYPE_DEVICE = 5, _TYPE_ENVIRONMENTAL = 6,
      _TYPE_MODELCHANGE = 7, _TYPE_SECURITY = 8};
 
+/**
+    Values for the SNMPVersion property of the PG_IndicationHandlerSNMPMapper 
+    class, as defined in the PG Events MOF
+ */
+enum SnmpVersion {_SNMPV1_TRAP = 2, _SNMPV2C_TRAP = 3, _SNMPV2C_INFORM = 4,
+     _SNMPV3_TRAP = 5, _SNMPV3_INFORM = 6};
+
 //
 //  Class names
 //

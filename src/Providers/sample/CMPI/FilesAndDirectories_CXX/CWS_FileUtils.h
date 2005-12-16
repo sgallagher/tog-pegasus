@@ -27,58 +27,37 @@
 //
 //==============================================================================
 //
+// Please be aware that the CMPI C++ API is NOT a standard currently.
+//
 //%/////////////////////////////////////////////////////////////////////////////
+#ifndef CWS_FILEUTILS_H
+#define CWS_FILEUTILS_H
 
-#include "cwsutil.h"
+#include <Providers/sample/CMPI/CWS_Util/cwsutil.h>
+#include <Pegasus/Provider/CMPI/CmpiBroker.h>
+#include <Pegasus/Provider/CMPI/CmpiInstance.h>
+#include <Pegasus/Provider/CMPI/CmpiObjectPath.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
-int main(int argc, char * argv[])
-{
-  void     *enumhdl;
-  CWS_FILE  filebuf;
-
-  if (argc != 2) {
-    fprintf(stderr,"usage: %s directory\n",argv[0]);
-    exit(-1);
-  }
-
-  printf("=== Searching for plain files in %s \n",argv[1]);
-  enumhdl = CWS_Begin_Enum(argv[1],CWS_TYPE_PLAIN);
-  if (enumhdl) {
-    while (CWS_Next_Enum(enumhdl,&filebuf))
-#if defined (CMPI_PLATFORM_WIN32_IX86_MSVC)
-      printf("--- File: %s Size: %I64d Mode: %u\n",
+#if defined SIMULATED
+ #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
 #else
-      printf("--- File: %s Size: %lld Mode: %u\n",
-#endif
-	     filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
-    CWS_End_Enum(enumhdl);
-  }
-
-  printf("=== Searching for directories in %s \n",argv[1]);
-  enumhdl = CWS_Begin_Enum(argv[1],CWS_TYPE_DIR);
-  if (enumhdl) {
-    while (CWS_Next_Enum(enumhdl,&filebuf))
-#if defined (CMPI_PLATFORM_WIN32_IX86_MSVC)
-      printf("--- Dir: %s Size: %I64d Mode: %u\n",
-#else
-      printf("--- Dir: %s Size: %lld Mode: %u\n",
+ #define CWS_FILEROOT  "/tmp"
 #endif
 
-	     filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
-    CWS_End_Enum(enumhdl);
-  }
+char * CSCreationClassName();
+char * CSName();
+char * FSCreationClassName();
+char * FSName();
 
-  printf("=== Direct Access to Directory %s \n",argv[1]);
-  if (CWS_Get_File(argv[1],&filebuf))
-#if defined (CMPI_PLATFORM_WIN32_IX86_MSVC)
-    printf("--- Dir: %s Size: %I64d Mode: %u\n",
-#else
-    printf("--- Dir: %s Size: %lld Mode: %u\n",
+
+CmpiObjectPath makePath(const char *classname, 
+			const char *nameSpace, const CWS_FILE *cwsf);
+CmpiInstance   makeInstance(const char *classname, 
+			    const char *nameSpace, const CWS_FILE *cwsf, 
+			    const char **projection);
+int            makeFileBuf(const CmpiInstance& instance, CWS_FILE *cwsf);
+char         **projection2Filter(const CmpiArray& ar);
+void           freeFilter(char**);
+
+
 #endif
-	   filebuf.cws_name, filebuf.cws_size, filebuf.cws_mode);
-  
-  return 0;
-}

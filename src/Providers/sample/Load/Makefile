@@ -87,6 +87,10 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" RT_Sample.mof
 	@ $(ECHO) +++++ Registering CMPI ProcessIndication Provider  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" RT_SampleR.mof
+
+	@ $(ECHO) +++++ Registering FilesAndDir CXX schema Providers  ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CWS_FilesAndDir_CXX_R.mof
+
 endif
 
 # Load the sample mof through the Client interface compiler but do not
@@ -124,6 +128,9 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" RT_Sample.mof
 	@ $(ECHO) +++++ Registering CMPI ProcessIndication Provider  ...
 	@ cimmof "-n$(INTEROPNS)" RT_SampleR.mof
+
+	@ $(ECHO) +++++ Registering FilesAndDir_CXX_R schema Providers  ...
+	@ cimmof "-n$(INTEROPNS)" CWS_FilesAndDir_CXX_R.mof
 endif
 
 removerepository:
@@ -147,6 +154,7 @@ endif
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m FilesAndDirectoriesModule
 	cimprovider -r -m CMPI_RT_SampleProviderModule
+	cimprovider -r -m FilesAndDirectoriesModule_CXX
 endif
 
 depend:

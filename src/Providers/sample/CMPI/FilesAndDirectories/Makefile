@@ -41,14 +41,15 @@ LOCAL_DEFINES = -DSIMULATED
 
 VMS_HAS_CC = yes
 
+LIBRARIES = cmpiCWS_Util
+
 LIBRARY = FilesAndDirectories
 
 SOURCES = \
    CWS_PlainFile.c \
    CWS_FileUtils.c \
    CWS_Directory.c \
-   CWS_DirectoryContainsFile.c \
-   cwsutil.c
+   CWS_DirectoryContainsFile.c 
 
 include $(ROOT)/mak/library.mak
 

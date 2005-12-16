@@ -27,37 +27,43 @@
 //
 //==============================================================================
 //
+// Please be aware that the CMPI C++ API is NOT a standard currently.
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef CWS_FILEUTILS_H
-#define CWS_FILEUTILS_H
+#ifndef CWS_DIRECTORYCONTAINSFILE_H
+#define CWS_DIRECTORYCONTAINSFILE_H
 
-#include "../CWS_Util/cwsutil.h"
-#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <Pegasus/Provider/CMPI/CmpiAssociationMI.h>
 
-#if defined SIMULATED
- #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
-#else
- #define CWS_FILEROOT  "/tmp"
-#endif
+class CWS_DirectoryContainsFile : public CmpiAssociationMI
+{
+ public:  
+  CWS_DirectoryContainsFile(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-#if defined CWS_DEBUG
- #define SILENT 0
-#else
- #define SILENT 1
-#endif
+  virtual ~CWS_DirectoryContainsFile();
+	
+  virtual int isUnloadable() const;
+	
+  virtual CmpiStatus associators
+    (const CmpiContext& ctx, CmpiResult& rslt,
+     const CmpiObjectPath& op, const char* asscClass, const char* resultClass,
+     const char* role, const char* resultRole, const char** properties);
+  virtual CmpiStatus associatorNames
+    (const CmpiContext& ctx, CmpiResult& rslt,
+     const CmpiObjectPath& op, const char* assocClass, const char* resultClass,
+     const char* role, const char* resultRole);
+   virtual CmpiStatus references
+     (const CmpiContext& ctx, CmpiResult& rslt,
+      const CmpiObjectPath& op, const char* resultClass, const char* role ,
+      const char** properties);
+   virtual CmpiStatus referenceNames
+     (const CmpiContext& ctx, CmpiResult& rslt,
+      const CmpiObjectPath& op, const char* resultClass, const char* role);
 
-char * CSCreationClassName();
-char * CSName();
-char * FSCreationClassName();
-char * FSName();
+ private:
+  CmpiBroker cppBroker;
 
-
-CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
-			 const char *Namespace, CWS_FILE *cwsf);
-CMPIInstance   *makeInstance(const CMPIBroker *broker, const char *classname,
-			     const char *Namespace, CWS_FILE *cwsf);
-int             makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf);
-int silentMode();
+};
 
 #endif

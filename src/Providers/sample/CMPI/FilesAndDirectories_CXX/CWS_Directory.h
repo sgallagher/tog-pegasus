@@ -27,68 +27,52 @@
 //
 //==============================================================================
 //
+// Please be aware that the CMPI C++ API is NOT a standard currently.
+//
 //%/////////////////////////////////////////////////////////////////////////////
+#ifndef CWS_DIRECTORY_H
+#define CWS_DIRECTORY_H
 
-#ifndef CWSUTIL_H
-#define CWSUTIL_H
+#include <Pegasus/Provider/CMPI/CmpiInstanceMI.h>
+#include <Pegasus/Provider/CMPI/CmpiMethodMI.h>
 
-#include <time.h>
-
-#ifdef __cplusplus 
-/*extern "C" {*/
-#endif
+class CWS_Directory : public CmpiInstanceMI
+{
+ public:
   
-/* ------------------------------------------------------------------
- * Utilities for file info retrieval
- * ----------------------------------------------------------------- */
+  CWS_Directory(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-#define CWS_MAXPATH    1025
+  virtual ~CWS_Directory();
+	
+  virtual int isUnloadable() const;
+	
+  virtual CmpiStatus enumInstanceNames(const CmpiContext& ctx, 
+				       CmpiResult& rslt,
+				       const CmpiObjectPath& cop);
+     
+  virtual CmpiStatus enumInstances(const CmpiContext& ctx, CmpiResult& rslt,
+				   const CmpiObjectPath& cop,
+				   const char* *properties);
+  
+  virtual CmpiStatus getInstance(const CmpiContext& ctx, CmpiResult& rslt,
+				 const CmpiObjectPath& cop,
+				 const char* *properties);
+  
+  virtual CmpiStatus createInstance(const CmpiContext& ctx, 
+				    CmpiResult& rslt,
+				    const CmpiObjectPath& cop,
+				    const CmpiInstance& inst);
+  
+  virtual CmpiStatus setInstance(const CmpiContext& ctx, CmpiResult& rslt,
+				 const CmpiObjectPath& cop,
+				 const CmpiInstance& inst,
+				 const char* *properties);
+  
+  virtual CmpiStatus deleteInstance(const CmpiContext& ctx, CmpiResult& rslt,
+				    const CmpiObjectPath& cop);
+ private:
+  CmpiBroker cppBroker;
 
-#define CWS_TYPE_DIR   'd'
-#define CWS_TYPE_PLAIN 'f'
-
-#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
-#define SINT64 __int64
-#define strcasecmp _stricmp
-char * dirname(char *path);
-#else
-#define SINT64 long long
-#endif
-
-struct _CWS_FILE {
-  char      cws_name[CWS_MAXPATH];
-  SINT64 cws_size;
-  time_t    cws_ctime;
-  time_t    cws_mtime;
-  time_t    cws_atime;
-  unsigned  cws_mode;
 };
-typedef struct _CWS_FILE CWS_FILE;
-
-/* ------------------------------------------------------------------
- * File Enumeration Support, use like this:
- *
- *  CWS_FILE filebuf;
- *  void * hdl = CWS_Begin_Enum("/test",CWS_TYPE_FILE);
- *  if (hdl) {
- *    while(CWS_Next_Enum(hdl,&filebuf) {...}
- *    CWS_End_Enum(hdl);
- *  }
- * ----------------------------------------------------------------- */
-
-
-
-void* CWS_Begin_Enum(const char *topdir, int filetype);
-int CWS_Next_Enum(void *handle, CWS_FILE* cwsf);
-void CWS_End_Enum(void *handle);
-
-int CWS_Get_File(const char *file, CWS_FILE* cwsf);
-int CWS_Update_File(CWS_FILE* cwsf);
-int CWS_Create_Directory(CWS_FILE* cwsf);
-int CWS_Get_FileType(const char *file, char* typestring, size_t tslen);
-
-#ifdef __cplusplus 
-/*}*/
-#endif
 
 #endif

@@ -30,7 +30,7 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "CWS_FileUtils.h"
-#include "cwsutil.h"
+#include "../CWS_Util/cwsutil.h"
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
 #include <Pegasus/Provider/CMPI/cmpimacs.h>

@@ -31,6 +31,7 @@ ROOT = ../..
 include $(ROOT)/mak/config.mak
 
 DIRS = \
+   CWS_Util \
    FilesAndDirectories 
 
 include $(ROOT)/mak/recurse.mak

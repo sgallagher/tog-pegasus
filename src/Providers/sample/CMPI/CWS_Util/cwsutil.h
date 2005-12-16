@@ -29,35 +29,66 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef CWS_FILEUTILS_H
-#define CWS_FILEUTILS_H
+#ifndef CWSUTIL_H
+#define CWSUTIL_H
 
-#include "../CWS_Util/cwsutil.h"
-#include <Pegasus/Provider/CMPI/cmpidt.h>
+#include <time.h>
+#include <Pegasus/Provider/CMPI/cmpimacs.h> // Only needed for CMPI_EXTERN_C
+#ifdef __cplusplus 
+//extern "C" {
+#endif
+  
+/* ------------------------------------------------------------------
+ * Utilities for file info retrieval
+ * ----------------------------------------------------------------- */
 
-#if defined SIMULATED
- #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
+#define CWS_MAXPATH    1025
+
+#define CWS_TYPE_DIR   'd'
+#define CWS_TYPE_PLAIN 'f'
+
+#ifdef PEGASUS_PLATFORM_WIN32_IX86_MSVC
+#define SINT64 __int64
+#define strcasecmp _stricmp
+CMPI_EXTERN_C char * dirname(char *path);
 #else
- #define CWS_FILEROOT  "/tmp"
+#define SINT64 long long
 #endif
 
-#if defined CWS_DEBUG
- #define SILENT 0
-#else
- #define SILENT 1
+struct _CWS_FILE {
+  char      cws_name[CWS_MAXPATH];
+  SINT64 cws_size;
+  time_t    cws_ctime;
+  time_t    cws_mtime;
+  time_t    cws_atime;
+  unsigned  cws_mode;
+};
+typedef struct _CWS_FILE CWS_FILE;
+
+/* ------------------------------------------------------------------
+ * File Enumeration Support, use like this:
+ *
+ *  CWS_FILE filebuf;
+ *  void * hdl = CWS_Begin_Enum("/test",CWS_TYPE_FILE);
+ *  if (hdl) {
+ *    while(CWS_Next_Enum(hdl,&filebuf) {...}
+ *    CWS_End_Enum(hdl);
+ *  }
+ * ----------------------------------------------------------------- */
+
+
+
+CMPI_EXTERN_C void* CWS_Begin_Enum(const char *topdir, int filetype);
+CMPI_EXTERN_C int CWS_Next_Enum(void *handle, CWS_FILE* cwsf);
+CMPI_EXTERN_C void CWS_End_Enum(void *handle);
+
+CMPI_EXTERN_C int CWS_Get_File(const char *file, CWS_FILE* cwsf);
+CMPI_EXTERN_C int CWS_Update_File(CWS_FILE* cwsf);
+CMPI_EXTERN_C int CWS_Create_Directory(CWS_FILE* cwsf);
+CMPI_EXTERN_C int CWS_Get_FileType(const char *file, char* typestring, size_t tslen);
+
+#ifdef __cplusplus 
+/*}*/
 #endif
-
-char * CSCreationClassName();
-char * CSName();
-char * FSCreationClassName();
-char * FSName();
-
-
-CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
-			 const char *Namespace, CWS_FILE *cwsf);
-CMPIInstance   *makeInstance(const CMPIBroker *broker, const char *classname,
-			     const char *Namespace, CWS_FILE *cwsf);
-int             makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf);
-int silentMode();
 
 #endif

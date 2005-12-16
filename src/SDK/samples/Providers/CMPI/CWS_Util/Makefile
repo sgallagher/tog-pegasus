@@ -26,29 +26,16 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../..
+include $(ROOT)/mak/config.mak
 
-DIRS = \
-	InstanceProvider \
-	InstanceQueryProvider \
-	MethodProvider \
-	IndicationProvider \
-	SNMPIndicationProvider \
-	RT_Indication \
-	AssociationProvider \
-	AssociationProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg
+LIBRARY = cmpiCWS_Util
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
-	CMPI/CWS_Util \
-	CMPI/FilesAndDirectories \
-	CMPI/FilesAndDirectories/tests \
-	CMPI/FilesAndDirectories_CXX \
-	CMPI/FilesAndDirectories_CXX/tests
-	CMPI/ProcessIndication \
-	CMPI/ProcessIndication/tests 
-endif
+SOURCE_DIR = Providers/CMPI/CWS_Util
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+SOURCES = \
+   cwsutil.c 
+
+include $(ROOT)/mak/library.mak
+
+tests:

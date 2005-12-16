@@ -152,6 +152,7 @@ SAMPLES_DIRS = \
    Providers/DefaultC++/AssociationProvider \
    Providers/CMPI \
    Providers/CMPI/FilesAndDirectories \
+   Providers/CMPI/CWS_Util \
    Providers/Load \
    mak
 
@@ -197,6 +198,7 @@ PROVIDERSRCPATH1FILES = \
    DefaultC++/SimpleDisplayConsumer/Makefile \
    CMPI/Makefile \
    CMPI/FilesAndDirectories/Makefile \
+   CMPI/CWS_Util/Makefile \
    DefaultC++/AssociationProvider/Makefile
 
 PROVIDERSRCPATH2FILES = \
@@ -210,11 +212,11 @@ PROVIDERSRCPATH2FILES = \
 
 #CMPI provider.
 PROVIDERSRCPATH2FILES += \
-     CMPI/FilesAndDirectories/cwssimdata.c \
-     CMPI/FilesAndDirectories/cwsutil.h \
+     CMPI/CWS_Util/cwssimdata.c \
+     CMPI/CWS_Util/cwsutil.h \
+     CMPI/CWS_Util/cwsutil.c \
      CMPI/FilesAndDirectories/CWS_Directory.c \
      CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c \
-     CMPI/FilesAndDirectories/cwsutil.c \
      CMPI/FilesAndDirectories/CWS_FileUtils.c \
      CMPI/FilesAndDirectories/CWS_PlainFile.c \
      CMPI/FilesAndDirectories/CWS_FileUtils.h 

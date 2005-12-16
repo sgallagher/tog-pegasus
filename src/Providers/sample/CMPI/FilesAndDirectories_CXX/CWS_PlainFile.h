@@ -27,37 +27,57 @@
 //
 //==============================================================================
 //
+// Please be aware that the CMPI C++ API is NOT a standard currently.
+//
 //%/////////////////////////////////////////////////////////////////////////////
+#ifndef CWS_PLAINFILE_H
+#define CWS_PLAINFILE_H
 
-#ifndef CWS_FILEUTILS_H
-#define CWS_FILEUTILS_H
+#include <Pegasus/Provider/CMPI/CmpiInstanceMI.h>
+#include <Pegasus/Provider/CMPI/CmpiMethodMI.h>
 
-#include "../CWS_Util/cwsutil.h"
-#include <Pegasus/Provider/CMPI/cmpidt.h>
+class CWS_PlainFile : public CmpiInstanceMI, public CmpiMethodMI
+{
+ public:
+  
+  CWS_PlainFile(const CmpiBroker &mbp, const CmpiContext& ctx);
 
-#if defined SIMULATED
- #define CWS_FILEROOT  "/Simulated/CMPI/tests/"
-#else
- #define CWS_FILEROOT  "/tmp"
-#endif
+  virtual ~CWS_PlainFile();
+	
+  virtual int isUnloadable() const;
+	
+  virtual CmpiStatus enumInstanceNames(const CmpiContext& ctx, 
+				       CmpiResult& rslt,
+				       const CmpiObjectPath& cop);
+     
+  virtual CmpiStatus enumInstances(const CmpiContext& ctx, CmpiResult& rslt,
+				   const CmpiObjectPath& cop,
+				   const char* *properties);
+  
+  virtual CmpiStatus getInstance(const CmpiContext& ctx, CmpiResult& rslt,
+				 const CmpiObjectPath& cop,
+				 const char* *properties);
+  
+  virtual CmpiStatus createInstance(const CmpiContext& ctx, 
+				    CmpiResult& rslt,
+				    const CmpiObjectPath& cop,
+				    const CmpiInstance& inst);
+  
+  virtual CmpiStatus setInstance(const CmpiContext& ctx, CmpiResult& rslt,
+				 const CmpiObjectPath& cop,
+				 const CmpiInstance& inst,
+				 const char* *properties);
+  
+  virtual CmpiStatus deleteInstance(const CmpiContext& ctx, CmpiResult& rslt,
+				    const CmpiObjectPath& cop);
 
-#if defined CWS_DEBUG
- #define SILENT 0
-#else
- #define SILENT 1
-#endif
+  virtual CmpiStatus invokeMethod(const CmpiContext& ctx, CmpiResult& rslt,
+				  const CmpiObjectPath& cop, 
+				  const char *method,
+				  const CmpiArgs& in, CmpiArgs& out);
+ private:
+  CmpiBroker cppBroker;
 
-char * CSCreationClassName();
-char * CSName();
-char * FSCreationClassName();
-char * FSName();
-
-
-CMPIObjectPath *makePath(const CMPIBroker *broker, const char *classname,
-			 const char *Namespace, CWS_FILE *cwsf);
-CMPIInstance   *makeInstance(const CMPIBroker *broker, const char *classname,
-			     const char *Namespace, CWS_FILE *cwsf);
-int             makeFileBuf(const CMPIInstance *instance, CWS_FILE *cwsf);
-int silentMode();
+};
 
 #endif

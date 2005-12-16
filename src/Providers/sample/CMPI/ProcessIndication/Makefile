@@ -26,26 +26,24 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = $(PEGASUS_ROOT)
 
-DIRS = \
-	InstanceProvider \
-	InstanceQueryProvider \
-	MethodProvider \
-	IndicationProvider \
-	SNMPIndicationProvider \
-	RT_Indication \
-	AssociationProvider \
-	AssociationProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg
+DIR = Providers/sample/CMPI/ProcessIndication
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
-	CMPI/FilesAndDirectories \
-	CMPI/FilesAndDirectories/tests \
-	CMPI/ProcessIndication \
-	CMPI/ProcessIndication/tests
+include $(ROOT)/mak/config.mak
+
+ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+    CXX = cc
+    FLAGS += -W"c,SSCOMM"
 endif
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+VMS_HAS_CC = yes
+
+LIBRARY = CMPI_RT_Sample
+
+SOURCES = \
+	CMPI_RT_Sample.c
+
+include $(ROOT)/mak/library.mak
+
+tests:

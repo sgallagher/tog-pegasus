@@ -82,6 +82,11 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
+
+	@ $(ECHO) +++++ Installing the MOF file for CMPI ProcessIndication Provider
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" RT_Sample.mof
+	@ $(ECHO) +++++ Registering CMPI ProcessIndication Provider  ...
+	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" RT_SampleR.mof
 endif
 
 # Load the sample mof through the Client interface compiler but do not
@@ -114,6 +119,11 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
 	@ cimmof "-n$(INTEROPNS)" CWS_FilesAndDirR.mof
+
+	@ $(ECHO) +++++ Installing the MOF file for CMPI ProcessIndication Provider
+	@ cimmof "-n$(SAMPLEPROVIDERNS)" RT_Sample.mof
+	@ $(ECHO) +++++ Registering CMPI ProcessIndication Provider  ...
+	@ cimmof "-n$(INTEROPNS)" RT_SampleR.mof
 endif
 
 removerepository:
@@ -136,6 +146,7 @@ endif
 	cimprovider -r -m SimpleDisplayConsumerModule
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 	cimprovider -r -m FilesAndDirectoriesModule
+	cimprovider -r -m CMPI_RT_SampleProviderModule
 endif
 
 depend:

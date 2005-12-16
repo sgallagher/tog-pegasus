@@ -26,26 +26,35 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
+ROOT = ../../../../../../
+DIR = Providers/sample/CMPI/ProcessIndication/tests
 
-DIRS = \
-	InstanceProvider \
-	InstanceQueryProvider \
-	MethodProvider \
-	IndicationProvider \
-	SNMPIndicationProvider \
-	RT_Indication \
-	AssociationProvider \
-	AssociationProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg
+include $(ROOT)/mak/config.mak
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
-	CMPI/FilesAndDirectories \
-	CMPI/FilesAndDirectories/tests \
-	CMPI/ProcessIndication \
-	CMPI/ProcessIndication/tests
-endif
+LIBRARIES = \
+     pegserver \
+     pegclient \
+     pegrepository \
+     pegconfig \
+     pegcommon
 
-include $(PEGASUS_ROOT)/mak/recurse.mak
+EXTRA_INCLUDES = $(SYS_INCLUDES)
+
+LOCAL_DEFINES = -DPEGASUS_INTERNALONLY 
+
+PROGRAM = RT_Sample_Subscription
+
+SOURCES = RT_Sample_Subscription.cpp
+
+include $(ROOT)/mak/program.mak
+include $(ROOT)/test/config.mak
+
+tests:
+
+poststarttests:
+	@$(ECHO) $(PROGRAM) test
+	@$(PROGRAM) test
+	@$(ECHO) +++ $(PROGRAM) passed successfully +++
+
+install:
+

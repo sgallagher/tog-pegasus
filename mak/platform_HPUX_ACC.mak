@@ -61,8 +61,8 @@ endif
 
 # Enable OOP by default if preference not already set in the environment
 #
-ifndef PEGASUS_DEFAULT_OOP_ON
-PEGASUS_DEFAULT_OOP_ON = true
+ifndef PEGASUS_DEFAULT_ENABLE_OOP
+PEGASUS_DEFAULT_ENABLE_OOP = true
 endif
 
 

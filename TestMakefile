@@ -316,12 +316,12 @@ endif
 ##
 ##  Configuration Options: forceProviderProcesses=true
 ##
-##  If PEGASUS_DEFAULT_OOP_ON is set, then tests are run with OOP disabled
+##  If PEGASUS_DEFAULT_ENABLE_OOP is set, then tests are run with OOP disabled
 ##  since tests have already been run with OOP enabled.
 ##
 ##
 ###############################################################################
-ifeq ($(PEGASUS_DEFAULT_OOP_ON),true)
+ifeq ($(PEGASUS_DEFAULT_ENABLE_OOP),true)
 OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=false
 else
 OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=true

@@ -50,7 +50,7 @@
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     // Removed for now because unresolved PEP {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifdef PEGASUS_DEFAULT_OOP_ON
+# ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},
@@ -68,7 +68,7 @@
     {"enableIndicationService", "true", IS_STATIC, 0, 0, IS_VISIBLE},
     {"maximumEnumerationBreadth", "50", IS_STATIC, 0, 0, IS_VISIBLE},
     {"sslClientVerificationMode", "disabled", IS_STATIC, 0, 0, IS_VISIBLE},
-# ifdef PEGASUS_DEFAULT_OOP_ON
+# ifdef PEGASUS_DEFAULT_ENABLE_OOP
     {"forceProviderProcesses", "true", IS_STATIC, 0, 0, IS_VISIBLE},
 # else
     {"forceProviderProcesses", "false", IS_STATIC, 0, 0, IS_VISIBLE},

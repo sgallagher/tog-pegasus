@@ -419,12 +419,12 @@ endif
 # PEP 72
 # Allow Out-of-Process Providers to be disabled by default
 #
-ifdef PEGASUS_DEFAULT_OOP_ON
-  ifeq ($(PEGASUS_DEFAULT_OOP_ON),true)
-    DEFINES += -DPEGASUS_DEFAULT_OOP_ON
+ifdef PEGASUS_DEFAULT_ENABLE_OOP
+  ifeq ($(PEGASUS_DEFAULT_ENABLE_OOP),true)
+    DEFINES += -DPEGASUS_DEFAULT_ENABLE_OOP
   else
-    ifneq ($(PEGASUS_DEFAULT_OOP_ON),false)
-      $(error PEGASUS_DEFAULT_OOP_ON ($(PEGASUS_DEFAULT_OOP_ON)) invalid, must be true or false)
+    ifneq ($(PEGASUS_DEFAULT_ENABLE_OOP),false)
+      $(error PEGASUS_DEFAULT_ENABLE_OOP ($(PEGASUS_DEFAULT_ENABLE_OOP)) invalid, must be true or false)
     endif 
   endif
 endif

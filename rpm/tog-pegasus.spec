@@ -799,8 +799,22 @@ if [ $1 -eq 0 ]; then
 fi
 
 %preun devel
-make --directory  %PEGASUS_SAMPLES_DIR -s clean
-make --directory  %PEGASUS_SAMPLES_DIR/Providers/Load deregisterproviders
+if [ $1 -eq 0 ]; then
+   # Check if the cimserver is running
+   rm -f %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STARTED
+   isRunning=`ps -el | grep cimserver | grep -v "grep cimserver"`
+   if [ ! "$isRunning" ]; then
+        %PEGASUS_SBIN_DIR/cimserver 
+        touch %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STARTED
+   fi 
+   make --directory  %PEGASUS_SAMPLES_DIR -s clean
+   make --directory  %PEGASUS_SAMPLES_DIR/Providers/Load -i deregisterproviders
+   if [ -f %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STARTED ]
+   then
+        rm %PEGASUS_SBIN_DIR/RPM_CIMSERVER_STARTED
+        %PEGASUS_SBIN_DIR/cimserver -s
+   fi
+fi
 
 %if %{PEGASUS_BUILD_TEST_RPM}
 %preun test

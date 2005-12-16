@@ -46,7 +46,7 @@ DIRS += \
 	CMPI/FilesAndDirectories \
 	CMPI/FilesAndDirectories/tests \
 	CMPI/FilesAndDirectories_CXX \
-	CMPI/FilesAndDirectories_CXX/tests
+	CMPI/FilesAndDirectories_CXX/tests \
 	CMPI/ProcessIndication \
 	CMPI/ProcessIndication/tests 
 endif

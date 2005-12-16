@@ -373,7 +373,8 @@ INDSSL_TS1b_TEST_CMDS = \
 
 
 ifdef PEGASUS_HAS_SSL
-run_INDSSL_TS1:
+ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
+run_INDSSL_TS1: FORCE
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(INDSSL_TS1a_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(INDSSL_TS1a_TEST_CMDS)"
@@ -382,7 +383,11 @@ run_INDSSL_TS1:
             TESTSUITE_CMDS="$(INDSSL_TS1b_TEST_CMDS)"
 else
 run_INDSSL_TS1: FORCE
-	@ $(ECHO) "PEGASUS_HAS_SSL not defined: Skipping run_INDSSL_TS1"
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_INDSSL_TS1"	
+endif
+else
+run_INDSSL_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_INDSSL_TS1"
 endif
 
 
@@ -403,13 +408,18 @@ SSL_TS1_TEST_CMDS = \
        $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests@@SSLCertificateTest1
 
 ifdef PEGASUS_HAS_SSL
+ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
 run_SSL_TS1: FORCE
 	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
             CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
             TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
 else
 run_SSL_TS1: FORCE
-	@ $(ECHO) "PEGASUS_HAS_SSL not defined: Skipping run_SSL_TS1 poststarttest"
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping run_SSL_TS1"	
+endif
+else
+run_SSL_TS1: FORCE
+	@ $(ECHO) "+++++ PEGASUS_HAS_SSL not defined: Skipping run_SSL_TS1 poststarttest"
 
 endif
 
@@ -816,8 +826,12 @@ standardtests: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthentication
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestLocalSecurity
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestRemoteSecurity
+ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthorization
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestAuthorization
+else
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping EnableAuthorization and TestAuthorization "	
+endif
 	@ $(ECHO) "+++++ TestMakefile standardtests complete"
 
 TestNoSecurity:

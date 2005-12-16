@@ -126,7 +126,7 @@ DIRS += \
 	ControlProviders/Statistic/test
 endif
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 DIRS += \
     ControlProviders/InteropProvider \
     ControlProviders/InteropProvider/tests

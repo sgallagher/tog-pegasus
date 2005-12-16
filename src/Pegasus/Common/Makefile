@@ -177,7 +177,7 @@ SOURCES = $(SOURCES1) $(SOURCES2)
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
   SOURCES += $(SOURCES_SLP)
 endif
 

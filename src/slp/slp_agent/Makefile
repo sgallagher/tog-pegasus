@@ -50,7 +50,7 @@ OBJECTS = $(SOURCES:.cpp=$(OBJ))
 
 include $(ROOT)/mak/library.mak
 
-#ifdef PEGASUS_ENABLE_SLP
+#ifeq ($(PEGASUS_ENABLE_SLP),true)
 #$(SOURCES): common
 #common :
 #	@ $(MAKE) -SC $(ROOT)/src/Pegasus/Common

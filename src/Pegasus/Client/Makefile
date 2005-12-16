@@ -35,7 +35,7 @@ ifdef PEGASUS_HAS_SSL
   SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
   FLAGS += -DPEGASUS_SLP_CLIENT_INTERFACE_WRAPPER
 endif
 
@@ -48,7 +48,7 @@ LIBRARY = pegclient
 LIBRARIES = \
     pegcommon
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 ifneq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 LIBRARIES += pegslp_client
 endif
@@ -69,7 +69,7 @@ SOURCES = \
 SOURCES_SLP = \
     CIMServerDiscovery.cpp
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
   SOURCES += $(SOURCES_SLP)
 endif
 
@@ -81,7 +81,7 @@ ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
 SYS_LIBS = ws2_32.lib advapi32.lib
 endif
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 $(SOURCES): slp_client
 slp_client :
 	@ $(MAKE) -SC $(ROOT)/src/slp/slp_client

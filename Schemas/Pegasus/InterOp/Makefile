@@ -38,7 +38,7 @@ include $(ROOT)/mak/config.mak
 include $(ROOT)/mak/configschema.mak
 
 # Create a single variable to control schema compile
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 	PEGASUS_BUILD_INTEROP=TRUE
 endif
 ifndef PEGASUS_DISABLE_PERFINST

@@ -30,7 +30,7 @@ ROOT = ..
 
 include $(ROOT)/mak/config.mak
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 DIRS = Platforms utils Pegasus slp Clients Providers Service Server
 else
 DIRS = Platforms utils Pegasus Clients Providers Service Server

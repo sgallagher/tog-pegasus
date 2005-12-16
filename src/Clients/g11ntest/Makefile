@@ -52,7 +52,7 @@ SOURCES = g11ntest.cpp
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifneq ($(OS),HPUX)
-    ifdef PEGASUS_ENABLE_SLP
+    ifeq ($(PEGASUS_ENABLE_SLP),true)
        LIBRARIES += pegslp
     endif
   endif

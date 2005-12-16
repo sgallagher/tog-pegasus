@@ -490,11 +490,11 @@ endif
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
 #
-# Use PEGASUS_ENABLE_SLP to enable SLP functions in the Pegasus standard
-# compile on those platforms that do not enable it by default.
+# PEGASUS_DISABLE_SLP has been depracated. New use model is:
 #
-# Use PEGASUS_DISABLE_SLP to disable SLP on those platforms that enable
-# it by default. 
+# Use PEGASUS_ENABLE_SLP=true  to enable  compilation of SLP functions.
+#
+# Use PEGASUS_ENABLE_SLP=false to disable compilation of SLP functions. 
 #
 # Currently (Aug. 12, 2005) Windows is the only platform that enables SLP 
 # by default.
@@ -504,11 +504,28 @@ endif
 # the variable PEGASUS_ENABLE_SLP. 
 #
 #
+
 ifdef PEGASUS_ENABLE_SLP
   ifdef PEGASUS_DISABLE_SLP
     $(error Conflicting defines PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP both set)
   endif
+endif
+
+ifdef PEGASUS_DISABLE_SLP
+    $(error PEGASUS_DISABLE_SLP has been deprecated. Please use PEGASUS_ENABLE_SLP=[true/false] )
+
+PEGASUS_ENABLE_SLP=false
+
+endif
+
+ifdef PEGASUS_ENABLE_SLP
+  ifeq ($(PEGASUS_ENABLE_SLP),true)
     DEFINES += -DPEGASUS_ENABLE_SLP
+  else
+    ifneq ($(PEGASUS_ENABLE_SLP),false)
+      $(error PEGASUS_ENABLE_SLP ($(PEGASUS_ENABLE_SLP)) invalid, must be true or false)
+    endif 
+  endif
 endif
 
 # set PEGASUS_DEBUG into the DEFINES if it exists.

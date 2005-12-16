@@ -34,7 +34,7 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
   FLAGS += -DPEGASUS_ENABLE_SLP
 endif
 

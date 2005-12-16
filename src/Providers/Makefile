@@ -42,7 +42,7 @@ DIRS = \
     IndicationConsumer
 	
 	
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 DIRS += \
     slp
 endif

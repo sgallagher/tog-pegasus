@@ -65,7 +65,7 @@ LIBRARIES = \
 	ProviderRegistrationProvider\
 	NamespaceProvider
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 LIBRARIES += \
 	InteropProvider
 endif

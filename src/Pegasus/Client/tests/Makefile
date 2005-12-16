@@ -35,7 +35,7 @@ DIRS = AssociationClient Client InvokeMethod2 EnumInstances DeleteNamespace Clie
 DIRS_SLP = \
     slp
 
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
   DIRS += $(DIRS_SLP)
 endif
 

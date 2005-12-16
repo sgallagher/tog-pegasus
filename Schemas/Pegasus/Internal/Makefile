@@ -56,7 +56,7 @@ repository:
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTERNALNS)" "$(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof"
 	@ $(ECHO) +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_MOF_PATH)" "-n$(INTERNALNS)" "$(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof"
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 	@ $(ECHO) +++++ Loading PG_SLPTemplate.mof into $(INTERNALNS) namespace...
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_MOF_PATH)" "-n$(INTERNALNS)" "$(PG_MOF_PATH)/PG_SLPTemplate.mof"
 endif
@@ -67,7 +67,7 @@ repositoryServer:
 	@ cimmof "-n$(INTERNALNS)" "$(CIM_SCHEMA_DIR)/Core$(CIM_SCHEMA_VER)_Qualifiers.mof"
 	@ $(ECHO) +++++ Loading PG_InternalSchema$(PG_SCHEMA_VER).mof into $(INTERNALNS) namespace...
 	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTERNALNS)" "$(PG_MOF_PATH)/PG_InternalSchema$(PG_SCHEMA_VER).mof"
-ifdef PEGASUS_ENABLE_SLP
+ifeq ($(PEGASUS_ENABLE_SLP),true)
 	@ $(ECHO) +++++ Loading PG_SLPTemplate.mof into $(INTERNALNS) namespace...
 	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTERNALNS)" "$(PG_MOF_PATH)/PG_SLPTemplate.mof"
 endif

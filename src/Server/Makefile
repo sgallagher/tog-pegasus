@@ -73,7 +73,7 @@ ifndef PEGASUS_DISABLE_PERFINST
        CIMOMStatDataProvider \
        InteropProvider 
 else
-    ifdef PEGASUS_ENABLE_SLP
+    ifeq ($(PEGASUS_ENABLE_SLP),true)
         LIBRARIES += \
             InteropProvider 
     endif
@@ -86,7 +86,7 @@ endif
 
 ifneq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
   ifneq ($(OS),HPUX)
-    ifdef PEGASUS_ENABLE_SLP
+    ifeq ($(PEGASUS_ENABLE_SLP),true)
       LIBRARIES += pegslp
     endif
   endif

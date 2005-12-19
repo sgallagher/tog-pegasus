@@ -31,6 +31,7 @@
 //
 // Modified By: David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1674,22 +1675,20 @@ Boolean IndicationFormatter::_canLocalize(
 	return (false);
     }
 
-    Array<ContentLanguageElement> elements;
-    contentLangs.getAllLanguageElements(elements);
-
     // If the Content-Languages has multiple language tag, do not localize
-    if (elements.size() > 1)
+    if (contentLangs.size() > 1)
     {
         // there is more then one language tags
 	PEG_METHOD_EXIT();
 	return (false);
     }
-    else if (elements.size() == 1)
+    else if (contentLangs.size() == 1)
     {
         // get the locale
-        String language = elements[0].getLanguage();
-        String country = elements[0].getCountry();
-        String variant = elements[0].getVariant();
+        LanguageTag languageTag = contentLangs.getLanguageTag(0);
+        String language = languageTag.getLanguage();
+        String country = languageTag.getCountry();
+        String variant = languageTag.getVariant();
 
         locale = Locale((const char *) language.getCString(),
 			(const char *) country.getCString(),

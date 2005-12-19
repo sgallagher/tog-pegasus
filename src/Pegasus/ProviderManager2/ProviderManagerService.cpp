@@ -855,7 +855,7 @@ void ProviderManagerService::indicationCallback(
 		AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
 	}catch(const Exception &)
 	{
-		request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
+		request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages()));
 	}    
 	
 	if (_indicationServiceQueueId == PEG_NOT_FOUND)

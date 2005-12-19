@@ -2516,9 +2516,20 @@ not be valid."}
 
         /**
         * @note  PGS08203:
-        *   Do not translate the word 'Content-Language' since it is a standard HTTP header
         */
-        Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING:string {"PGS08203: Content-Language does not contain ending \")\" character."}
+        Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING:string {"PGS08203: Closing \")\" character is missing."}
+
+        /**
+        * @note  PGS08204:
+        *   Substitution {0} is the malformed language tag value
+        */
+        Common.LanguageParser.MALFORMED_LANGUAGE_TAG:string {"PGS08204: Malformed language tag \"{0}\"."}
+
+        /**
+        * @note  PGS08205:
+        *   Substitution {0} is the invalid language tag value
+        */
+        Common.LanguageParser.INVALID_LANGUAGE_TAG:string {"PGS08205: Invalid language tag \"{0}\"."}
 
 
         // ==========================================================

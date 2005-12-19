@@ -54,6 +54,7 @@
 #include "CIMExportRequestDecoder.h"
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/MessageLoader.h>
+#include <Pegasus/Common/LanguageParser.h>
 
 PEGASUS_USING_STD;
 
@@ -387,8 +388,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    }
 
 // l10n start
-   AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;;
-   ContentLanguages contentLanguages = ContentLanguages::EMPTY;
+   AcceptLanguages acceptLanguages;
+   ContentLanguages contentLanguages;
    try 
    { 
 	if(httpMessage->acceptLanguagesDecoded){
@@ -402,7 +403,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 		      acceptLanguageHeader,
 	    	  false) == true)
 	    {
-			acceptLanguages = AcceptLanguages(acceptLanguageHeader);
+	        acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
+	            acceptLanguageHeader);
 	    }
 	}
 	
@@ -417,7 +419,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
 		      contentLanguageHeader,
 	    	  false) == true)
 	    {						
-			contentLanguages = ContentLanguages(contentLanguageHeader);      
+	        contentLanguages = LanguageParser::parseContentLanguageHeader(
+	            contentLanguageHeader);
 	    }
 	}
 	
@@ -890,7 +893,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	{
 		cimmsg->operationContext.insert(IdentityContainer(userName));
 		cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
-		cimmsg->operationContext.set(AcceptLanguageListContainer(AcceptLanguages::EMPTY));
+		cimmsg->operationContext.set(AcceptLanguageListContainer(AcceptLanguages()));
 	}
 	else
 	{

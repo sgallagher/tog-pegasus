@@ -31,6 +31,7 @@
 //
 // Modified By: Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -89,24 +90,24 @@ public:
     virtual void createClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
+	const ContentLanguages& contentLangs = ContentLanguages()) = 0;
 
     virtual CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
+	const ContentLanguages& contentLangs = ContentLanguages()) = 0;
 
     virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
+	const ContentLanguages& contentLangs = ContentLanguages()) = 0;
 
     virtual void modifyInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
+	const ContentLanguages& contentLangs = ContentLanguages()) = 0;
 
     virtual Array<CIMClass> enumerateClasses(
         const CIMNamespaceName& nameSpace,
@@ -182,7 +183,7 @@ public:
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
         const CIMValue& newValue = CIMValue(),
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
+	const ContentLanguages& contentLangs = ContentLanguages()) = 0;
 
     virtual CIMQualifierDecl getQualifier(
         const CIMNamespaceName& nameSpace,
@@ -191,7 +192,7 @@ public:
     virtual void setQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY) = 0;
+	const ContentLanguages& contentLangs = ContentLanguages()) = 0;
 
     virtual void deleteQualifier(
         const CIMNamespaceName& nameSpace,

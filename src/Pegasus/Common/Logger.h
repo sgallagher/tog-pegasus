@@ -156,8 +156,6 @@ public:
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2);
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
     /** put_l - Puts a localized message to the defined log file
         @param logFileType - Type of log file (Trace, etc.)
         @param systemId  - ID of the system generating the log entry within
@@ -237,8 +235,6 @@ public:
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2);
 
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
-
     /** Puts a message to the define log. Should only be used for trace type
         logs.
     */
@@ -295,8 +291,6 @@ public:
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2);
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
     /** Puts a localized message to the log. Should only be used
         for trace type logs.
@@ -359,8 +353,6 @@ public:
         const Formatter::Arg& arg0,
         const Formatter::Arg& arg1,
         const Formatter::Arg& arg2);
-
-#endif /* PEGASUS_USE_EXPERIMENTAL_INTERFACES */
 
     /** setHomeDirectory
     */

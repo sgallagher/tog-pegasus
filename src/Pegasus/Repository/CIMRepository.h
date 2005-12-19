@@ -126,19 +126,19 @@ public:
     virtual void createClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& newClass,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
+	const ContentLanguages& contentLangs = ContentLanguages());
 
     /// createInstance
     virtual CIMObjectPath createInstance(
         const CIMNamespaceName& nameSpace,
         const CIMInstance& newInstance,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
+	const ContentLanguages& contentLangs = ContentLanguages());
 
     /// modifyClass
     virtual void modifyClass(
         const CIMNamespaceName& nameSpace,
         const CIMClass& modifiedClass,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
+	const ContentLanguages& contentLangs = ContentLanguages());
 
     /// modifyInstance
     virtual void modifyInstance(
@@ -146,7 +146,7 @@ public:
         const CIMInstance& modifiedInstance,
         Boolean includeQualifiers = true,
         const CIMPropertyList& propertyList = CIMPropertyList(),
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
+	const ContentLanguages& contentLangs = ContentLanguages());
 
     /// enumerateClasses
     virtual Array<CIMClass> enumerateClasses(
@@ -269,7 +269,7 @@ public:
         const CIMObjectPath& instanceName,
         const CIMName& propertyName,
         const CIMValue& newValue = CIMValue(),
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
+	const ContentLanguages& contentLangs = ContentLanguages());
 
     /// getQualifier
     virtual CIMQualifierDecl getQualifier(
@@ -280,7 +280,7 @@ public:
     virtual void setQualifier(
         const CIMNamespaceName& nameSpace,
         const CIMQualifierDecl& qualifierDecl,
-	const ContentLanguages& contentLangs = ContentLanguages::EMPTY);
+	const ContentLanguages& contentLangs = ContentLanguages());
 
     /// deleteQualifier
     virtual void deleteQualifier(

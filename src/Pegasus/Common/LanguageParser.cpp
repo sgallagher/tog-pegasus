@@ -31,6 +31,7 @@
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703, 3704
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -40,245 +41,453 @@
 #include <Pegasus/Common/MessageLoader.h> //l10n
 #include <cstring>
 
-//PEGASUS_USING_STD;
+#ifdef PEGASUS_HAS_ICU
+# include <unicode/locid.h>
+#endif
+#if defined(PEGASUS_OS_OS400)
+# include "OS400ConvertChar.h"
+#endif
+
 PEGASUS_NAMESPACE_BEGIN
 
-const LanguageParser LanguageParser::EMPTY = LanguageParser();
+static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
 
-void LanguageParser::parseHdr(Array<String> &values, String hdr){
-	// look for ',' which designates distict (Accept/Content)-Language fields
-	// the form: [languagetag, languagetag, languagetag] so whitespace removal
-	// may be necessary.
-	// then store them in the array
-	PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseHdr");
-	Uint32 i = 0;
-	while( i != PEG_NOT_FOUND ){
-		i = hdr.find(",");
-		if( i != PEG_NOT_FOUND ){
-			values.append(hdr.subString(0,i));
-			while(hdr[i+1] == ' ') i++;  // get rid of whitespace after ","
-			hdr = hdr.subString(i+1);
-		}
-		else{  // only one field, build an object with it
-			values.append(hdr);
-		}
-	}
-	PEG_METHOD_EXIT();
-}
+AcceptLanguages LanguageParser::parseAcceptLanguageHeader(
+    const String& acceptLanguageHeader)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseAcceptLanguageHeader");
 
-Real32 LanguageParser::parseAcceptLanguageValue(String &language_tag, String hdr){
-	// look for ';' in hdr, that means we have a quality value to capture
-    // if not, we only have a language
-    
-    // if hdr begins with "x-" then we have a non-IANA (private) language tag
-	 PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseAcceptLanguageValue");
-    Uint32 i;
-    Boolean validate_length = true;
-	if((( i = hdr.find("x-")) != PEG_NOT_FOUND ) && (i == 0)){
-		hdr = convertPrivateLanguageTag(hdr);
-		validate_length = false;	
-	}
-	
-	// get rid of any beginning or trailing whitespaces
-	Uint32 j;
-	while( (j = hdr.find(" ")) != PEG_NOT_FOUND ){
-		hdr.remove(j,1);
-	}
-	
-    Real32 quality = 1;
-	i = hdr.find(";");
-	if(i != PEG_NOT_FOUND){ // extract and store language and quality
-		if(isValid(hdr.subString(0,i), validate_length)){
-			language_tag = hdr.subString(0,i);
-			if(hdr.size() > i + 3)
-				hdr.remove(0,i+3);  // remove everything but the quality value
-			else{
-				MessageLoaderParms parms("Common.LanguageParser.INVALID_QUALITY_VALUE",
-									 "AcceptLanguage contains an invalid quality value");
-				throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));	
-			}
-		}
-		else{
-			//l10n
-			//throw InvalidAcceptLanguageHeader(
-				//"AcceptLanguage contains too many characters or non-alpha characters");
-			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_AL",
-									 "AcceptLanguage contains too many characters or non-alpha characters");
-			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
-		}
-		//validate quality 	
-		quality = atof(hdr.getCString());
-		if(quality > 1.0 || quality < 0.0){
-			//l10n
-			//throw InvalidAcceptLanguageHeader(
-				//"AcceptLanguage contains an invalid quality value");
-			MessageLoaderParms parms("Common.LanguageParser.INVALID_QUALITY_VALUE",
-									 "AcceptLanguage contains an invalid quality value");
-			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
-		}
-	}
-	else{	// extract and store language, quality defaults to 1.0
-		if(isValid(hdr, validate_length)) language_tag = hdr;
-		else{ 
-			//l10n
-			//throw InvalidAcceptLanguageHeader(
-				//"AcceptLanguage contains too many characters or non-alpha characters");
-			MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_AL",
-									 "AcceptLanguage contains too many characters or non-alpha characters");
-			throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
-		}
-	}
-	
-	PEG_METHOD_EXIT();
-	return quality;
-}
+    AcceptLanguages acceptLanguages;
 
-String LanguageParser::parseContentLanguageValue(const String& hdr){
-	// we are looking for the language part of the hdr only,
-	// according to the RFC, there may be parenthesized strings
-	// that describe the purpose of the language, we need to ignore those
-	PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseContentLanguageValue");
-	String value = hdr;
-	Uint32 i,j;
-	while((i = value.find("(")) != PEG_NOT_FOUND){ // get rid of anything in parenthesis in hdr if found
-		if((j = value.find(")")) != PEG_NOT_FOUND)
-			value.remove(i, (j-i)+1);
-		else{
-			//l10n
-			  //throw InvalidContentLanguageHeader(
-							//"ContentLanguage does not contain terminating ) character");
-			MessageLoaderParms parms("Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING",
-									 "ContentLanguage does not contain terminating ) character");
-			throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
-		}
-	}
-	// get rid of any beginning or trailing whitespaces
-	while( (i = value.find(" ")) != PEG_NOT_FOUND ){
-		value.remove(i,1);
-	}
-	if(!isValid(value)){
-		//l10n
-		 //throw InvalidContentLanguageHeader(
-							//"ContentLanguage contains too many characters or non-alpha characters");
-		MessageLoaderParms parms("Common.LanguageParser.TOO_MANY_OR_NON_ALPHA_CHARACTERS_CL",
-								 "ContentLanguage contains too many characters or non-alpha characters");
-		throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
-	
-	}
-	PEG_METHOD_EXIT();
-	return value;
-}
-
-String LanguageParser::getLanguage(const String & language_tag){
-	// given a language_tag: en-US-mn we want to return "en"
-	Uint32 i;
-	if((i = language_tag.find(findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND)
-		return language_tag.subString(0,i);
-	return String(language_tag);
-} 
-
-String LanguageParser::getCountry(const String & language_tag){
-	// given a language_tag: en-US-mn we want to return "US"
-	Uint32 i,j;
-	if( (i = language_tag.find(findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND )
-		if( (j = language_tag.find(i+1, findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND )
-			return language_tag.subString(i+1, j-(i+1));
-		else 
-			return language_tag.subString(i+1);
-	return String::EMPTY;
-}
-
-String LanguageParser::getVariant(const String & language_tag){
-	// given a language_tag: en-US-mn we want to return "mn"
-	Uint32 i;
-	if( (i = language_tag.find(findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND )
-		if( (i = language_tag.find(i+1, findSeparator(language_tag.getCString()))) != PEG_NOT_FOUND )
-			return language_tag.subString(i+1);
-	return String::EMPTY;
-}
-
-void LanguageParser::parseLanguageSubtags(Array<String> &subtags, String language_tag){
-    PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseLanguageSubtags");
-	Uint32 i;
-	char separator = findSeparator(language_tag.getCString());
-	while( (i = language_tag.find(Char16(separator))) != PEG_NOT_FOUND ){
-			subtags.append(language_tag.subString(0,i));
-			language_tag.remove(0,i + 1);		
-	}
-	if(language_tag.size() > 0)
-		subtags.append(language_tag);
-	PEG_METHOD_EXIT();
-}
-
-Boolean LanguageParser::isValid(const String& language_tag, Boolean validate_length){
-	//break the String down into parts(subtags), then validate each part
-	
-	if(language_tag == "*") return true;
-	
-	Array<String> subtags;
-	parseLanguageSubtags(subtags, language_tag);
-	if(subtags.size() > 0){ 
-		for(Uint32 i = 0; i < subtags.size(); i++){
-			//length should be 8 or less AND all characters should be A-Z or a-z
-			if((validate_length && subtags[i].size() > 8) || !checkAlpha(subtags[i].getCString()))
-				return false;
-		}
-	}
-	else{ //nothing back from parseLanguageSubtags
-		return false;
-	}
-	return true;
-}
-
-String LanguageParser::convertPrivateLanguageTag(const String & language_tag){
-	// figure out if its a unix style locale or windows locale
-	Uint32 i;
-	if(( i = language_tag.find("pegasus-")) != PEG_NOT_FOUND ){
-		String str;
-		str = language_tag.subString(i+5);
-		//language_tag = language_tag.subString(i+5);  // capture the remainder of the string
-		return String(replaceSeparator(str.getCString(), '-'));
-	}
-	//else if( (i = language_tag.find("win-")) != PEG_NOT_FOUND ){
-	  // return language_tag.subString(i+4);  // capture the remainder of the string
-		// call windows ID to ICU convert routine or locmap.c function here
-	//}
-	else{
-		return language_tag;
-	}		
-}
-
-Boolean LanguageParser::checkAlpha(const CString & _str){
-	Uint32 length = (Uint32) strlen(_str);
-	for(Uint32 i = 0; i < length; i++)
-		if( !isalpha(_str[i]) )
-			return false;
-	return true;
-}
-
-char LanguageParser::findSeparator(const CString & _str){
-	Uint32 length = (Uint32) strlen(_str);
-	for(Uint32 i = 0; i < length; i++)
-		if(!isalnum(_str[i]))
-			return _str[i];
-	return '\0';
-}
-
-CString LanguageParser::replaceSeparator(const CString & _s, char new_sep){
-    const Uint32 length = (Uint32) strlen(_s);
-    AutoArrayPtr<char> _str(new char[length + 1]);
-    strcpy(_str.get(),_s);
-    for(Uint32 i = 0; i < length; i++)
+    try
     {
-        if (!isalnum(_str.get()[i]))
+        Array<String> languageElements;
+        LanguageParser::_parseLanguageHeader(
+            acceptLanguageHeader,
+            languageElements);
+
+        for (Uint32 i = 0; i < languageElements.size(); i++)
         {
-            _str.get()[i] = new_sep;
+            String languageTagString;
+            Real32 qualityValue;
+            LanguageParser::_parseAcceptLanguageElement(
+                languageElements[i], languageTagString, qualityValue);
+            acceptLanguages.insert(LanguageTag(languageTagString), qualityValue);
         }
     }
-	const String retval(_str.get());
-    _str.release();
-    return(retval.getCString());
+    catch (Exception& e)
+    {
+        throw InvalidAcceptLanguageHeader(e.getMessage());
+    }
+
+    PEG_METHOD_EXIT();
+    return acceptLanguages;
 }
 
+ContentLanguages LanguageParser::parseContentLanguageHeader(
+    const String& contentLanguageHeader)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseContentLanguageHeader");
+
+    ContentLanguages contentLanguages;
+
+    try
+    {
+        Array<String> languageElements;
+        LanguageParser::_parseLanguageHeader(
+            contentLanguageHeader,
+            languageElements);
+
+        for (Uint32 i = 0; i < languageElements.size(); i++)
+        {
+            contentLanguages.append(LanguageTag(languageElements[i]));
+        }
+    }
+    catch (Exception& e)
+    {
+        throw InvalidContentLanguageHeader(e.getMessage());
+    }
+
+    PEG_METHOD_EXIT();
+    return contentLanguages;
+}
+
+void LanguageParser::parseLanguageTag(
+    const String& languageTagString,
+    String& language,
+    String& country,
+    String& variant)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseLanguageTag");
+
+    language.clear();
+    country.clear();
+    variant.clear();
+
+    if (languageTagString == "*")
+    {
+        // Parsing and validation is complete
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    Boolean isStandardFormat = true;    // RFC 3066 (ISO 639, ISO 3166)
+    Array<String> subtags;
+
+    _parseLanguageSubtags(subtags, languageTagString);
+
+    // _parseLanguageSubtags() always returns at least one subtag.
+    PEGASUS_ASSERT(subtags.size() > 0);
+
+    // Validate the primary subtag.
+    // Given a languageTagString "en-US-mn" the language is "en".
+
+    language = subtags[0];
+
+    if ((language == "i") || (language == "x"))
+    {
+        // These primary tags are allowed, but are not ISO 639 compliant
+        isStandardFormat = false;
+        language.clear();
+    }
+    else if ((language.size() != 2) && (language.size() != 3))
+    {
+        // Except for "i" and "x", primary tags must be 2 or 3 characters,
+        // according to RFC 3066.
+        MessageLoaderParms parms(
+            "Common.LanguageParser.INVALID_LANGUAGE_TAG",
+            "Invalid language tag \"$0\".", languageTagString);
+        PEG_METHOD_EXIT();
+        throw Exception(MessageLoader::getMessage(parms));
+    }
+
+    if (subtags.size() == 1)
+    {
+        // If only the primary subtag is present, we are done!
+        PEG_METHOD_EXIT();
+        return;
+    }
+
+    // Validate the second subtag.
+    // Given a languageTagString "en-US-mn" the country is "US".
+
+    if (subtags[1].size() == 1)
+    {
+        // The second subtag may not be a single character according to
+        // RFC 3066.
+        MessageLoaderParms parms(
+            "Common.LanguageParser.INVALID_LANGUAGE_TAG",
+            "Invalid language tag \"$0\".", languageTagString);
+        PEG_METHOD_EXIT();
+        throw Exception(MessageLoader::getMessage(parms));
+    }
+
+    if (isStandardFormat)
+    {
+        Uint32 variantIndex = 1;
+
+        if (subtags[1].size() == 2)
+        {
+            country = subtags[1];
+            variantIndex = 2;
+        }
+
+        Uint32 numSubtags = subtags.size();
+
+        if (variantIndex < numSubtags)
+        {
+            variant = subtags[variantIndex++];
+
+            while (variantIndex < numSubtags)
+            {
+                variant.append(LANGUAGE_TAG_SEPARATOR_CHAR);
+                variant.append(subtags[variantIndex++]);
+            }
+        }
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+void LanguageParser::validateQualityValue(Real32 quality)
+{
+    if ((quality > 1.0) || (quality < 0.0))
+    {
+        MessageLoaderParms parms(
+            "Common.LanguageParser.INVALID_QUALITY_VALUE",
+            "AcceptLanguage contains an invalid quality value");
+        throw InvalidAcceptLanguageHeader(MessageLoader::getMessage(parms));
+    }
+}
+
+String LanguageParser::buildAcceptLanguageHeader(
+    const AcceptLanguages& acceptLanguages)
+{
+    String alString;
+    Uint32 numAcceptLanguages = acceptLanguages.size();
+
+    for (Uint32 i = 0; i < numAcceptLanguages; i++)
+    {
+        alString.append(acceptLanguages.getLanguageTag(i).toString());
+
+        Real32 q = acceptLanguages.getQualityValue(i);
+        if (q != 1.0)
+        {
+            char qValueString[6];
+            sprintf(qValueString, "%4.3f", q);
+            alString.append(";q=");
+            alString.append(qValueString);
+        }
+
+        if (i < numAcceptLanguages - 1)
+        {
+            alString.append(",");
+        }
+    }
+
+    return alString;
+}
+
+String LanguageParser::buildContentLanguageHeader(
+    const ContentLanguages& contentLanguages)
+{
+    String clString;
+    Uint32 numContentLanguages = contentLanguages.size();
+
+    for (Uint32 i = 0; i < numContentLanguages; i++)
+    {
+        clString.append(contentLanguages.getLanguageTag(i).toString());
+
+        if (i < numContentLanguages - 1)
+        {
+            clString.append(",");
+        }
+    }
+
+    return clString;
+}
+
+AcceptLanguages LanguageParser::getDefaultAcceptLanguages()
+{
+#if defined(PEGASUS_HAS_MESSAGES) && defined(PEGASUS_HAS_ICU)
+    Locale default_loc = Locale::getDefault();
+
+# ifdef PEGASUS_OS_OS400
+    char* tmp = (char*)default_loc.getName();
+    char tmp_[100];
+    EtoA(strcpy(tmp_,tmp));
+    try
+    {
+        return AcceptLanguages(tmp_);
+    }
+# else
+    try
+    {
+        return AcceptLanguages(default_loc.getName());
+    }
+# endif
+    catch (const InvalidAcceptLanguageHeader& e)
+    {
+        Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+           "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
+           "Could not convert the system locale to a valid accept-language "
+               "format");
+        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
+            e.getMessage());
+        return AcceptLanguages("*");
+    }
+#endif
+
+    return AcceptLanguages();
+}
+
+void LanguageParser::_parseLanguageHeader(
+    const String& languageHeaderValue,
+    Array<String>& languageElements)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::_parseLanguageHeader");
+
+    languageElements.clear();
+    String element;
+
+    for (Uint32 i=0, len=languageHeaderValue.size(); i<len; i++)
+    {
+        Char16 nextChar = languageHeaderValue[i];
+
+        if (isascii(nextChar) && isspace(nextChar))
+        {
+            // Ignore whitespace
+        }
+        else if (nextChar == '(')
+        {
+            // Ignore comments
+            while (i < len)
+            {
+                // Search for the closing parenthesis
+                if (languageHeaderValue[i] == ')')
+                {
+                    break;
+                }
+
+                // Skip over escape characters
+                if (languageHeaderValue[i] == '\\')
+                {
+                    i++;
+                }
+
+                i++;
+            }
+
+            // Check for a missing closing parenthesis
+            if (i >= len)
+            {
+                MessageLoaderParms parms(
+                    "Common.LanguageParser.DOES_NOT_CONTAIN_TERMINATING",
+                    "Closing \")\" character is missing.");
+                throw Exception(MessageLoader::getMessage(parms));
+            }
+        }
+        else if (nextChar == ',')
+        {
+            // Check for the end of the element
+            languageElements.append(element);
+            element.clear();
+        }
+        else
+        {
+            // Unescape an escape character
+            if ((nextChar == '\\') && (i < len-1))
+            {
+                nextChar = languageHeaderValue[++i];
+            }
+
+            // Include this character in the value
+            element.append(nextChar);
+        }
+    }
+
+    // Include the last element in the languageElements array
+    languageElements.append(element);
+
+    PEG_METHOD_EXIT();
+}
+
+void LanguageParser::_parseAcceptLanguageElement(
+    const String& acceptLanguageElement,
+    String& languageTag,
+    Real32& quality)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::_parseAcceptLanguageElement");
+
+    // look for ';' in acceptLanguageElement, that means we have a
+    // quality value to capture.  If not present, we only have a language tag.
+
+    Uint32 semicolonIndex = acceptLanguageElement.find(";");
+    if (semicolonIndex != PEG_NOT_FOUND)
+    {
+        // Separate the language tag and quality value
+
+        String qualityString =
+            acceptLanguageElement.subString(semicolonIndex+1);
+        languageTag = acceptLanguageElement.subString(0, semicolonIndex);
+
+        // Parse the quality value
+
+        char dummyChar;
+        int scanfConversions = sscanf(
+            qualityString.getCString(),
+            "q=%f%c", &quality, &dummyChar);
+
+        if ((scanfConversions != 1) ||
+            (qualityString.size() > 7))
+        {
+            MessageLoaderParms parms(
+                "Common.LanguageParser.INVALID_QUALITY_VALUE",
+                "AcceptLanguage contains an invalid quality value");
+            PEG_METHOD_EXIT();
+            throw Exception(MessageLoader::getMessage(parms));
+        }
+    }
+    else
+    {
+        languageTag = acceptLanguageElement;
+        quality = 1.0;
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+void LanguageParser::_parseLanguageSubtags(
+    Array<String>& subtags,
+    const String& languageTagString)
+{
+    PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::_parseLanguageSubtags");
+
+    // Parse the language tag into subtags
+
+    Uint32 subtagIndex = 0;
+    Uint32 separatorIndex;
+    while ((separatorIndex = languageTagString.find(
+                subtagIndex, LANGUAGE_TAG_SEPARATOR_CHAR)) != PEG_NOT_FOUND)
+    {
+        subtags.append(languageTagString.subString(
+            subtagIndex, separatorIndex - subtagIndex));
+        subtagIndex = separatorIndex + 1;
+    }
+    subtags.append(languageTagString.subString(subtagIndex));
+
+    // Validate the syntax of each of the subtags
+
+    for (Uint32 i = 0, n = subtags.size(); i < n; i++)
+    {
+        if (((i == 0) && !_isValidPrimarySubtagSyntax(subtags[i])) ||
+            ((i > 0) && !_isValidSubtagSyntax(subtags[i])))
+        {
+            MessageLoaderParms parms(
+                "Common.LanguageParser.MALFORMED_LANGUAGE_TAG",
+                "Malformed language tag \"$0\".", languageTagString);
+            PEG_METHOD_EXIT();
+            throw Exception(MessageLoader::getMessage(parms));
+        }
+    }
+
+    PEG_METHOD_EXIT();
+}
+
+Boolean LanguageParser::_isValidPrimarySubtagSyntax(const String& subtag)
+{
+    if ((subtag.size() == 0) || (subtag.size() > 8))
+    {
+        return false;
+    }
+
+    for (Uint32 i = 0, n = subtag.size(); i < n; i++)
+    {
+        if (!(isascii(subtag[i]) && isalpha(subtag[i])))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+Boolean LanguageParser::_isValidSubtagSyntax(const String& subtag)
+{
+    if ((subtag.size() == 0) || (subtag.size() > 8))
+    {
+        return false;
+    }
+
+    for (Uint32 i = 0, n = subtag.size(); i < n; i++)
+    {
+        if (!(isascii(subtag[i]) && isalnum(subtag[i])))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 PEGASUS_NAMESPACE_END

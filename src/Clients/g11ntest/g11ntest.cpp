@@ -29,6 +29,8 @@
 //
 // Author: Chuck Carmack (carmack@us.ibm.com)
 //
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/Config.h>
@@ -49,6 +51,7 @@
 
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/LanguageParser.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
@@ -204,8 +207,8 @@ static void TestUTFRepository( CIMClient& client,
     {
       // The repository does not support these headers and will throw errors
       // if they are used.
-      client.setRequestAcceptLanguages(AcceptLanguages::EMPTY);
-      client.setRequestContentLanguages(ContentLanguages::EMPTY);
+      client.setRequestAcceptLanguages(AcceptLanguages());
+      client.setRequestContentLanguages(ContentLanguages());
 
         String utf16String(utf16Chars);
     String utf16FileName(utfRepChars);
@@ -568,8 +571,9 @@ static void TestLocalizedMethods( CIMClient& client,
   {
      // Before we begin, set the language objects to be sent to the provider
      AcceptLanguages AL_DE;
-     AL_DE.insert(AcceptLanguageElement("de", float(0.8)));
-     ContentLanguages CL_DE("de");
+     AL_DE.insert(LanguageTag("de"), 0.8);
+     ContentLanguages CL_DE;
+     CL_DE.append(LanguageTag("de"));
      client.setRequestAcceptLanguages(AL_DE);
      client.setRequestContentLanguages(CL_DE);
 
@@ -627,7 +631,8 @@ static void TestLocalizedMethods( CIMClient& client,
      MYASSERT (outChar16 == outParam2);
 
      if (verboseTest)
-        cout << "Checking returned Content-Language = " << CL_DE << endl;
+        cout << "Checking returned Content-Language = " <<
+            LanguageParser::buildContentLanguageHeader(CL_DE) << endl;
 
      MYASSERT(CL_DE == client.getResponseContentLanguages());
 
@@ -685,7 +690,8 @@ static Array<CIMInstance> EnumerateSampleInstances(CIMClient &client,
   Boolean localOnly = false;
   Boolean includeQualifiers = true;
   Boolean includeClassOrigin = false;
-  ContentLanguages CL_EN("en");
+  ContentLanguages CL_EN;
+  CL_EN.append(LanguageTag("en"));
   const String RBPROP = "ResourceBundleString";
   String expectedDftString = "ResourceBundleString DEFAULT";
 
@@ -704,7 +710,8 @@ static Array<CIMInstance> EnumerateSampleInstances(CIMClient &client,
   if (skipICU)
   {
       if (verboseTest)
-          cout << "Checking expected response ContentLanguages: " << CL_EN << endl;
+          cout << "Checking expected response ContentLanguages: " <<
+            LanguageParser::buildContentLanguageHeader(CL_EN) << endl;
 
       // Note - the LocalizedProvider is setting en in Content-Languages to override
       // the MessageLoader.
@@ -714,7 +721,8 @@ static Array<CIMInstance> EnumerateSampleInstances(CIMClient &client,
   else
   {
       if (verboseTest)
-          cout << "Checking expected response ContentLanguages: " << contentLangs << endl;
+          cout << "Checking expected response ContentLanguages: " <<
+              LanguageParser::buildContentLanguageHeader(contentLangs) << endl;
 
       MYASSERT(contentLangs == client.getResponseContentLanguages());
   }
@@ -759,16 +767,21 @@ static void TestLocalizedInstances( CIMClient& client,
   const String TESTSTRINGPROP = "TestString";
   const String IDPROP = "Identifier";
 
-  ContentLanguages CL_DE("de");
+  ContentLanguages CL_DE;
+  CL_DE.append(LanguageTag("de"));
   String expectedDEString = "ResourceBundleString DE";
-  ContentLanguages CL_FR("fr");
+  ContentLanguages CL_FR;
+  CL_FR.append(LanguageTag("fr"));
   String expectedFRString = "ResourceBundleString FR";
-  ContentLanguages CL_Dft = ContentLanguages::EMPTY;
-  ContentLanguages CL_EN("en");
+  ContentLanguages CL_Dft;
+  ContentLanguages CL_EN;
+  CL_EN.append(LanguageTag("en"));
   String expectedDftString = "ResourceBundleString DEFAULT";
 
-  ContentLanguages CL_HOMER("x-homer");
-  ContentLanguages CL_ES("es");
+  ContentLanguages CL_HOMER;
+  CL_HOMER.append(LanguageTag("x-homer"));
+  ContentLanguages CL_ES;
+  CL_ES.append(LanguageTag("es"));
 
   String expectedUTF16String(utf16Chars);
 
@@ -814,17 +827,17 @@ static void TestLocalizedInstances( CIMClient& client,
           if (skipICU)
           {
              // Not requesting translated messages from the provider
-             acceptLangs1 = AcceptLanguages::EMPTY;
+             acceptLangs1.clear();
           }
           else
           {
-             acceptLangs1.insert(AcceptLanguageElement("fr", float(0.5)));
-             acceptLangs1.insert(AcceptLanguageElement("de", float(0.8)));
-             acceptLangs1.insert(AcceptLanguageElement("es", float(0.4)));
+             acceptLangs1.insert(LanguageTag("fr"), 0.5);
+             acceptLangs1.insert(LanguageTag("de"), 0.8);
+             acceptLangs1.insert(LanguageTag("es"), 0.4);
           }
 
       cout << endl << "INSTANCE TEST 1: Enumerate Instances with AcceptLanguages = "
-                       << acceptLangs1 << endl;
+          << LanguageParser::buildAcceptLanguageHeader(acceptLangs1) << endl;
 
           Array<CIMInstance> cimNInstances = EnumerateSampleInstances(
                                                client,
@@ -849,11 +862,11 @@ static void TestLocalizedInstances( CIMClient& client,
           if (skipICU)
           {
              // Not requesting translated messages from the provider
-             acceptLangs2 = AcceptLanguages::EMPTY;
+             acceptLangs2.clear();
           }
           else
           {
-             acceptLangs2.insert(AcceptLanguageElement("de", float(0.8)));
+             acceptLangs2.insert(LanguageTag("de"), 0.8);
           }
 
           client.setRequestAcceptLanguages(acceptLangs2);
@@ -871,14 +884,16 @@ static void TestLocalizedInstances( CIMClient& client,
           if (skipICU)
           {
               if (verboseTest)
-                  cout << "Checking expected response ContentLanguages: " << CL_EN << endl;
+                  cout << "Checking expected response ContentLanguages: " <<
+                      LanguageParser::buildContentLanguageHeader(CL_EN) << endl;
 
               MYASSERT(CL_EN == client.getResponseContentLanguages());
           }
           else
           {
               if (verboseTest)
-                  cout << "Checking expected response ContentLanguages: " << CL_DE << endl;
+                  cout << "Checking expected response ContentLanguages: " <<
+                      LanguageParser::buildContentLanguageHeader(CL_DE) << endl;
 
               MYASSERT(CL_DE == client.getResponseContentLanguages());
           }
@@ -918,7 +933,8 @@ static void TestLocalizedInstances( CIMClient& client,
 
               if (verboseTest)
                   cout << "Modifying the language of an instance of the subclass to "
-                       << CL_HOMER << endl;
+                       << LanguageParser::buildContentLanguageHeader(CL_HOMER)
+                       << endl;
 
               client.setRequestContentLanguages(CL_HOMER);
 
@@ -928,7 +944,7 @@ static void TestLocalizedInstances( CIMClient& client,
 
               //  Enumerate the instances starting at the base class, with deep inheritance.
               AcceptLanguages acceptLangs3;
-              acceptLangs3.insert(AcceptLanguageElement("x-homer", float(0.8)));
+              acceptLangs3.insert(LanguageTag("x-homer"), 0.8);
 
               client.setRequestAcceptLanguages(acceptLangs3);
 
@@ -946,7 +962,7 @@ static void TestLocalizedInstances( CIMClient& client,
               if (verboseTest)
                   cout << "Checking expected empty response ContentLanguages" << endl;
 
-              MYASSERT(ContentLanguages::EMPTY == client.getResponseContentLanguages());
+              MYASSERT(ContentLanguages() == client.getResponseContentLanguages());
           } // else active tests
 
           //
@@ -957,13 +973,13 @@ static void TestLocalizedInstances( CIMClient& client,
           //
 
           AcceptLanguages acceptLangs4;
-          acceptLangs4.insert(AcceptLanguageElement("x-martian",float(0.8)));
-          acceptLangs4.insert(AcceptLanguageElement("x-pig-latin", float(0.1)));
-          acceptLangs4.insert(AcceptLanguageElement("x-men", float(0.4)));
+          acceptLangs4.insert(LanguageTag("x-martian"), 0.8);
+          acceptLangs4.insert(LanguageTag("x-pig-latin"), 0.1);
+          acceptLangs4.insert(LanguageTag("x-men"), 0.4);
           client.setRequestAcceptLanguages(acceptLangs4);
 
           cout << endl << "INSTANCE TEST 4: Get Instance with AcceptLanguages = "
-           << acceptLangs4 << endl;
+           << LanguageParser::buildAcceptLanguageHeader(acceptLangs4) << endl;
 
           //  Find an instance of the base-class from the first enumerate
           Uint32 j = 0;
@@ -1012,19 +1028,20 @@ static void TestLocalizedInstances( CIMClient& client,
           if (skipICU)
           {
              // Not requesting translated messages from the provider
-             acceptLangs5 = AcceptLanguages::EMPTY;
+             acceptLangs5.clear();
           }
           else
           {
-             acceptLangs5.insert(AcceptLanguageElement("x-martian", float(0.8)));
-             acceptLangs5.insert(AcceptLanguageElement("fr", float(0.1)));
-             acceptLangs5.insert(AcceptLanguageElement("x-men", float(0.4)));
+             acceptLangs5.insert(LanguageTag("x-martian"), 0.8);
+             acceptLangs5.insert(LanguageTag("fr"), 0.1);
+             acceptLangs5.insert(LanguageTag("x-men"), 0.4);
           }
 
           client.setRequestAcceptLanguages(acceptLangs5);
 
           cout << endl << "INSTANCE TEST 5: Get Instance with AcceptLanguages = "
-               << acceptLangs5 << endl;
+               << LanguageParser::buildAcceptLanguageHeader(acceptLangs5)
+               << endl;
 
           CIMInstance instance5 = client.getInstance(
                 NAMESPACE,
@@ -1064,7 +1081,7 @@ static void TestLocalizedInstances( CIMClient& client,
           //
 
           cout << endl << "INSTANCE TEST 6: Create Instance with ContentLanguages = "
-               << CL_FR
+               << LanguageParser::buildContentLanguageHeader(CL_FR)
                << "  and UTF-16 string." << endl;
 
           if (!activeTest)
@@ -1092,15 +1109,15 @@ static void TestLocalizedInstances( CIMClient& client,
               client.createInstance(NAMESPACE, frInstance);
 
               AcceptLanguages acceptLangs6;
-              acceptLangs6.insert(AcceptLanguageElement("x-martian", float(0.8)));
-              acceptLangs6.insert(AcceptLanguageElement("fr", float(0.1)));
-              acceptLangs6.insert(AcceptLanguageElement("x-men", float(0.4)));
+              acceptLangs6.insert(LanguageTag("x-martian"), 0.8);
+              acceptLangs6.insert(LanguageTag("fr"), 0.1);
+              acceptLangs6.insert(LanguageTag("x-men"), 0.4);
               client.setRequestAcceptLanguages(acceptLangs6);
 
               if (verboseTest)
-                    cout << "Getting the instance just created, using AcceptLanguages = "
-                         << acceptLangs6
-                 << endl;
+                  cout << "Getting the instance just created, using AcceptLanguages = "
+                      << LanguageParser::buildAcceptLanguageHeader(acceptLangs6)
+                      << endl;
 
               CIMInstance instance6 = client.getInstance(
                   NAMESPACE,
@@ -1157,7 +1174,8 @@ static void TestLocalizedInstances( CIMClient& client,
           //
 
           cout << endl << "INSTANCE TEST 7: Modify Instance with ContentLanguages = " <<
-                 CL_HOMER << "  and UTF-16 string." << endl;
+                 LanguageParser::buildContentLanguageHeader(CL_HOMER) <<
+                 " and UTF-16 string." << endl;
 
           if (!activeTest)
           {
@@ -1185,13 +1203,13 @@ static void TestLocalizedInstances( CIMClient& client,
                                   includeQualifiers);
 
               AcceptLanguages acceptLangs7;
-              acceptLangs7.insert(AcceptLanguageElement("x-homer", float(0.8)));
+              acceptLangs7.insert(LanguageTag("x-homer"), 0.8);
               client.setRequestAcceptLanguages(acceptLangs7);
 
               if (verboseTest)
-                    cout << "Getting the instance just modified, using AcceptLanguages = "
-                         << acceptLangs7
-                         << endl;
+                  cout << "Getting the instance just modified, using AcceptLanguages = "
+                      << LanguageParser::buildAcceptLanguageHeader(acceptLangs7)
+                      << endl;
 
               CIMInstance instance7 = client.getInstance(
                                                        NAMESPACE,
@@ -1241,18 +1259,18 @@ static void TestLocalizedInstances( CIMClient& client,
           if (skipICU)
           {
              // Not requesting translated messages from the provider
-             acceptLangs8 = AcceptLanguages::EMPTY;
+             acceptLangs8.clear();
           }
           else
           {
-             acceptLangs8.insert(AcceptLanguageElement("es", float(1.0)));
-             acceptLangs8.insert(AcceptLanguageElement("fr", float(0.9)));
+             acceptLangs8.insert(LanguageTag("es"), 1.0);
+             acceptLangs8.insert(LanguageTag("fr"), 0.9);
           }
 
           client.setRequestAcceptLanguages(acceptLangs8);
 
           cout << endl << "INSTANCE TEST 8: Delete Instance with AcceptLanguages = " <<
-                            acceptLangs8 << endl;
+              LanguageParser::buildAcceptLanguageHeader(acceptLangs8) << endl;
 
           // Try to delete baseInstance, expect an exception
           if (verboseTest)
@@ -1323,7 +1341,11 @@ static void TestServerMessages( CIMClient& client,
 
         // Build the Accept-Languages for the getClass request using the lang
         // specified by the user
-        AcceptLanguages acceptLangs1(reqLang);
+        AcceptLanguages acceptLangs1;
+        if (reqLang.size() > 0)
+        {
+            acceptLangs1 = LanguageParser::parseAcceptLanguageHeader(reqLang);
+        }
 
         // This is the "class not found" message expected back from the server.
         // Since we don't know what the message text will be for a given langauge,
@@ -1333,7 +1355,11 @@ static void TestServerMessages( CIMClient& client,
 
         // This is the language of the "class not found" message back from the server,
         // as specified by the user
-        ContentLanguages expectedCL(rspLang);
+        ContentLanguages expectedCL;
+        if (rspLang.size() > 0)
+        {
+            expectedCL = LanguageParser::parseContentLanguageHeader(rspLang);
+        }
 
         // Parms for the getClass API call
         const CIMNamespaceName NAMESPACE = CIMNamespaceName ("root/SampleProvider");
@@ -1352,47 +1378,50 @@ static void TestServerMessages( CIMClient& client,
         if (skipICU)
         {
            // Not requesting translated messages from the provider
-           acceptLangsDE = AcceptLanguages::EMPTY;
+           acceptLangsDE.clear();
         }
         else
         {
-           acceptLangsDE.insert(AcceptLanguageElement("de", float(0.1)));
-           acceptLangsDE.insert(AcceptLanguageElement("x-a", float(0.2)));
-           acceptLangsDE.insert(AcceptLanguageElement("x-b", float(0.3)));
+           acceptLangsDE.insert(LanguageTag("de"), 0.1);
+           acceptLangsDE.insert(LanguageTag("x-a"), 0.2);
+           acceptLangsDE.insert(LanguageTag("x-b"), 0.3);
         }
 
         AcceptLanguages acceptLangsFR;
         if (skipICU)
         {
            // Not requesting translated messages from the provider
-           acceptLangsFR = AcceptLanguages::EMPTY;
+           acceptLangsFR.clear();
         }
         else
         {
-           acceptLangsFR.insert(AcceptLanguageElement("fr", float(0.1)));
-           acceptLangsFR.insert(AcceptLanguageElement("x-a", float(0.2)));
-           acceptLangsFR.insert(AcceptLanguageElement("x-b", float(0.3)));
+           acceptLangsFR.insert(LanguageTag("fr"), 0.1);
+           acceptLangsFR.insert(LanguageTag("x-a"), 0.2);
+           acceptLangsFR.insert(LanguageTag("x-b"), 0.3);
         }
 
         AcceptLanguages acceptLangsES;
         if (skipICU)
         {
            // Not requesting translated messages from the provider
-           acceptLangsES = AcceptLanguages::EMPTY;
+           acceptLangsES.clear();
         }
         else
         {
-           acceptLangsES.insert(AcceptLanguageElement("es", float(0.1)));
-           acceptLangsES.insert(AcceptLanguageElement("x-a", float(0.2)));
-           acceptLangsES.insert(AcceptLanguageElement("x-b", float(0.3)));
+           acceptLangsES.insert(LanguageTag("es"), 0.1);
+           acceptLangsES.insert(LanguageTag("x-a"), 0.2);
+           acceptLangsES.insert(LanguageTag("x-b"), 0.3);
         }
 
         // The expected results from the enumerate
-        ContentLanguages CL_DE("de");
+        ContentLanguages CL_DE;
+        CL_DE.append(LanguageTag("de"));
         String expectedDEString = "ResourceBundleString DE";
-        ContentLanguages CL_FR("fr");
+        ContentLanguages CL_FR;
+        CL_FR.append(LanguageTag("fr"));
         String expectedFRString = "ResourceBundleString FR";
-        ContentLanguages CL_ES("es");
+        ContentLanguages CL_ES;
+        CL_ES.append(LanguageTag("es"));
         String expectedESString = "ResourceBundleString ES";
 
         cout << endl << "SERVER MESSAGE TESTS: Send requests that test server language support"
@@ -1481,7 +1510,7 @@ static void TestServerMessages( CIMClient& client,
                case 0:
 //                 if (verboseTest)
 //                     cout << "Sending the enumerate instance request " << i <<
-//                              ". Lang = " << acceptLangsDE << endl;
+//                              ". Lang = " << acceptLangsDE.toString() << endl;
 
                    EnumerateSampleInstances(
                                            client,
@@ -1493,7 +1522,7 @@ static void TestServerMessages( CIMClient& client,
                case 1:
 //                 if (verboseTest)
 //                     cout << "Sending the enumerate instance request " << i <<
-//                              ". Lang = " << acceptLangsFR << endl;
+//                              ". Lang = " << acceptLangsFR.toString() << endl;
 
                    EnumerateSampleInstances(
                                            client,
@@ -1505,7 +1534,7 @@ static void TestServerMessages( CIMClient& client,
                case 2:
 //                 if (verboseTest)
 //                     cout << "Sending the enumerate instance request " << i <<
-//                              ". Lang = " << acceptLangsES << endl;
+//                              ". Lang = " << acceptLangsES.toString() << endl;
 
                    EnumerateSampleInstances(
                                            client,
@@ -1907,8 +1936,9 @@ static void TestLocalizedIndications( CIMClient& client,
     // Set the language objects to be sent to the provider
     // This is required by the provider
     AcceptLanguages AL_DE;
-    AL_DE.insert(AcceptLanguageElement("de", float(0.8)));
-    ContentLanguages CL_DE("de");
+    AL_DE.insert(LanguageTag("de"), 0.8);
+    ContentLanguages CL_DE;
+    CL_DE.append(LanguageTag("de"));
     client.setRequestAcceptLanguages(AL_DE);
     client.setRequestContentLanguages(CL_DE);
 
@@ -1951,11 +1981,12 @@ static void TestLocalizedIndications( CIMClient& client,
     MYASSERT(char16 == utf16Chars[0]);
 
     // Verify that the Content-Language of the indication got to us
-    ContentLanguages expectedCL("x-world");
+    ContentLanguages expectedCL;
+    expectedCL.append(LanguageTag("x-world"));
 
     if (verboseTest)
       cout << "Checking the indication for ContentLanguages = "
-           << expectedCL.toString() << endl;
+           << LanguageParser::buildContentLanguageHeader(expectedCL) << endl;
 
     ContentLanguageListContainer cntr =
       indicationContext.get(ContentLanguageListContainer::NAME);
@@ -2088,8 +2119,9 @@ Boolean setServerDefaultMessageLoading(CIMClient & client,
   // Set the language objects to be sent to the LocalizedProvider
   // This is required by the provider
   AcceptLanguages AL_DE;
-  AL_DE.insert(AcceptLanguageElement("de", float(0.8)));
-  ContentLanguages CL_DE("de");
+  AL_DE.insert(LanguageTag("de"), 0.8);
+  ContentLanguages CL_DE;
+  CL_DE.append(LanguageTag("de"));
   client.setRequestAcceptLanguages(AL_DE);
   client.setRequestContentLanguages(CL_DE);
 

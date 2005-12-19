@@ -176,7 +176,7 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
    Buffer message = XmlWriter::formatSimpleEMethodRspMessage(
       CIMName ("ExportIndication"), response->messageId, 
       response->getHttpMethod(),
-      ContentLanguages::EMPTY,
+      ContentLanguages(),
       body);
 
    sendResponse(response->queueIds.top(), message,closeConnect);

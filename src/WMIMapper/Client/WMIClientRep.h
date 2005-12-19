@@ -95,17 +95,17 @@ public:
 	// l10n start
 	AcceptLanguages getRequestAcceptLanguages() const 
 	{ 
-		return AcceptLanguages::EMPTY;
+		return AcceptLanguages();
 	};
 	
 	ContentLanguages getRequestContentLanguages() const 
 	{ 
-		return ContentLanguages::EMPTY; 
+		return ContentLanguages(); 
 	};
 	
 	ContentLanguages getResponseContentLanguages() const 
 	{ 
-		return ContentLanguages::EMPTY; 
+		return ContentLanguages(); 
 	};
 
 	void setRequestAcceptLanguages(const AcceptLanguages& langs) { };

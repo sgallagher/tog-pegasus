@@ -39,6 +39,7 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/ProviderManager2/ProviderAgent/ProviderAgent.h>
 
@@ -103,7 +104,7 @@ int main(int argc, char* argv[])
         AcceptLanguages default_al;
         try
         {
-            default_al = AcceptLanguages::getDefaultAcceptLanguages();   
+            default_al = LanguageParser::getDefaultAcceptLanguages();   
             Thread::setLanguages(new AcceptLanguages(default_al));
         }
         catch (InvalidAcceptLanguageHeader& e)

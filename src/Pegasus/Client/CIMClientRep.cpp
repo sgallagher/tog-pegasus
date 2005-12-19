@@ -49,6 +49,7 @@
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/System.h>
+#include <Pegasus/Common/LanguageParser.h>
 
 #include <iostream>
 #include <fstream>
@@ -82,8 +83,8 @@ CIMClientRep::CIMClientRep(Uint32 timeoutMilliseconds)
     _httpConnector.reset(new HTTPConnector(_monitor.get()));
 
 // l10n
-    requestAcceptLanguages = AcceptLanguages::EMPTY;
-    requestContentLanguages = ContentLanguages::EMPTY;
+    requestAcceptLanguages.clear();
+    requestContentLanguages.clear();
 }
 
 CIMClientRep::~CIMClientRep()
@@ -442,7 +443,7 @@ void CIMClientRep::setRequestContentLanguages(const ContentLanguages& langs)
 
 void CIMClientRep::setRequestDefaultLanguages()
 {
-    requestAcceptLanguages = AcceptLanguages::getDefaultAcceptLanguages();
+    requestAcceptLanguages = LanguageParser::getDefaultAcceptLanguages();
 }
 
 // l10n end
@@ -1092,7 +1093,7 @@ Message* CIMClientRep::_doRequest(
 
 
     // Sending a new request, so clear out the response Content-Languages
-    responseContentLanguages = ContentLanguages::EMPTY;
+    responseContentLanguages.clear();
 
     _requestEncoder->enqueue(request.get());
     request.release();

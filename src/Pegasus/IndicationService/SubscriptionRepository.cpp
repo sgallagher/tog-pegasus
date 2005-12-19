@@ -37,6 +37,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/LanguageParser.h>
 
 #include "IndicationConstants.h"
 #include "SubscriptionRepository.h"
@@ -97,14 +98,15 @@ CIMObjectPath SubscriptionRepository::createInstance (
     {
         instance.addProperty (CIMProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS,
-            acceptLangs.toString ()));
+            LanguageParser::buildAcceptLanguageHeader(acceptLangs)));
     }
     else
     {
         CIMProperty langs = instance.getProperty
             (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS));
-        langs.setValue (CIMValue (acceptLangs.toString ()));
+        langs.setValue (CIMValue (
+            LanguageParser::buildAcceptLanguageHeader(acceptLangs)));
     }
 
     ContentLanguages contentLangs = contentLanguages;
@@ -113,14 +115,15 @@ CIMObjectPath SubscriptionRepository::createInstance (
     {
         instance.addProperty (CIMProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS,
-            contentLangs.toString ()));
+            LanguageParser::buildContentLanguageHeader(contentLangs)));
     }
     else
     {
         CIMProperty langs = instance.getProperty
             (instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS));
-        langs.setValue (CIMValue (contentLangs.toString ()));
+        langs.setValue (CIMValue (
+            LanguageParser::buildContentLanguageHeader(contentLangs)));
     }
     // l10n -end
 

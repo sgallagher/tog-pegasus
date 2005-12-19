@@ -267,7 +267,7 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     }
     catch(Exception &)
     {
-        temp.insert(ContentLanguageListContainer(ContentLanguages::EMPTY));
+        temp.insert(ContentLanguageListContainer(ContentLanguages()));
     }
 
     return(temp);
@@ -2163,7 +2163,7 @@ OperationContext InternalCIMOMHandleRep::getResponseContext()
     Thread* curThrd = Thread::getCurrent();
     if (curThrd == NULL)
     {
-        ctx.insert(ContentLanguageListContainer(ContentLanguages::EMPTY));
+        ctx.insert(ContentLanguageListContainer(ContentLanguages()));
     }
     else
     {
@@ -2173,7 +2173,7 @@ OperationContext InternalCIMOMHandleRep::getResponseContext()
 
         if (contentLangs == NULL)
         {
-            ctx.insert(ContentLanguageListContainer(ContentLanguages::EMPTY));
+            ctx.insert(ContentLanguageListContainer(ContentLanguages()));
         }
         else
         {

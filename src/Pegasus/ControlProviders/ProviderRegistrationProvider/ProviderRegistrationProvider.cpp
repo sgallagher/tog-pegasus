@@ -875,7 +875,7 @@ void ProviderRegistrationProvider::deleteInstance(
 
 // l10n
     // Get the client's list of preferred languages for the response
-    AcceptLanguages al = AcceptLanguages::EMPTY;
+    AcceptLanguages al;
     try 
     {
         AcceptLanguageListContainer al_container = 
@@ -1094,7 +1094,7 @@ void ProviderRegistrationProvider::invokeMethod(
 
 // l10n
     // Get the client's list of preferred languages for the response
-    AcceptLanguages al = AcceptLanguages::EMPTY;
+    AcceptLanguages al;
     try 
     {
         AcceptLanguageListContainer al_container = 

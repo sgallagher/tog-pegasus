@@ -109,6 +109,7 @@
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/DynListener/DynamicListener.h>
 #include <Pegasus/DynListener/DynamicListenerConfig.h>
@@ -805,7 +806,7 @@ MessageLoader::_useProcessLocale = false;
     Thread::setCurrent(dummyInitialThread);
     AcceptLanguages default_al;
     try{
-         default_al = AcceptLanguages::getDefaultAcceptLanguages();
+         default_al = LanguageParser::getDefaultAcceptLanguages();
          Thread::setLanguages(new AcceptLanguages(default_al));
     }catch(InvalidAcceptLanguageHeader& e){
           Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,

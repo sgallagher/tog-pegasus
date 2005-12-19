@@ -26,105 +26,137 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-// 
+//
 // Author: Humberto Rivero (hurivero@us.ibm.com)
-// 
-// Modified By:
+//
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
- 
+
 #include <Pegasus/Common/ContentLanguages.h>
 #include <Pegasus/Common/LanguageParser.h>
-#include <Pegasus/Common/LanguageElementContainerRep.h>
+#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/InternalException.h>
+#include <Pegasus/Common/ArrayInternal.h>
+
 PEGASUS_NAMESPACE_BEGIN
- 
+
 //////////////////////////////////////////////////////////////
 //
-// ContentLanguages::
+// ContentLanguagesRep
 //
 //////////////////////////////////////////////////////////////
- 
-const ContentLanguages ContentLanguages::EMPTY = ContentLanguages();
 
-ContentLanguages::ContentLanguages(): LanguageElementContainer(){
-}
-
-ContentLanguages::ContentLanguages(String hdr): LanguageElementContainer(){
-    if(hdr.size() > 0){
-        Array<String> values;
-        LanguageParser lp;
-        lp.parseHdr(values,hdr);
-        buildLanguageElements(values);
-    }
-}
-
-ContentLanguages::ContentLanguages(const Array<LanguageElement> & container):LanguageElementContainer(container){
-}
-
-ContentLanguages::ContentLanguages(const Array<ContentLanguageElement> &aContainer){ 
-    for(Uint32 i = 0; i < aContainer.size(); i++)
-        LanguageElementContainer::append(aContainer[i]);
-    
-}
-
-ContentLanguages::ContentLanguages(const ContentLanguages &rhs): LanguageElementContainer(rhs){
-}
-
-ContentLanguages::~ContentLanguages(){}
-
-void ContentLanguages::append(ContentLanguageElement element){
-    _rep->append(element);
-}
-
-ContentLanguageElement ContentLanguages::getLanguageElement(Uint32 index) const{
-    return ContentLanguageElement(_rep->getLanguageElement(index));
-}
-
-void ContentLanguages::getAllLanguageElements(Array<ContentLanguageElement> & elements) const{
-    Array<LanguageElement> tmp = _rep->getAllLanguageElements();
-    for(Uint32 i = 0; i < tmp.size(); i++)
-        elements.append(ContentLanguageElement(tmp[i]));
-}    
-
-Array<ContentLanguageElement> ContentLanguages::getAllLanguageElements()const{
-    Array<ContentLanguageElement> elements;
-    Array<LanguageElement> tmp = _rep->getAllLanguageElements();
-        for(Uint32 i = 0; i < tmp.size(); i++)
-            elements.append(ContentLanguageElement(tmp[i]));
-    return elements;
-}
-
-ContentLanguageElement ContentLanguages::itrNext(){
-    return ContentLanguageElement(_rep->itrNext());
-}
-
-PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, const ContentLanguages &cl){
-    for(Uint32 i = 0; i < cl.size(); i++){
-        stream << cl.getLanguageElement(i);
-        if(i != (cl.size()-1)) 
-            stream << ", ";
-    }
-    return stream;
-}
-
-ContentLanguages& ContentLanguages::operator=(const ContentLanguages &rhs)
+class ContentLanguagesRep
 {
-    if (&rhs != this)
-        LanguageElementContainer::operator=(rhs);
-    return *this;    
+public:
+    Array<LanguageTag> container;
+};
+
+//////////////////////////////////////////////////////////////
+//
+// ContentLanguages
+//
+//////////////////////////////////////////////////////////////
+
+ContentLanguages::ContentLanguages()
+{
+    _rep = new ContentLanguagesRep();
 }
 
-Sint32 ContentLanguages::find(String language_tag)const {
-    return _rep->find(language_tag);    
+ContentLanguages::ContentLanguages(const ContentLanguages& contentLanguages)
+{
+    _rep = new ContentLanguagesRep();
+    AutoPtr<ContentLanguagesRep> rep(_rep);
+
+    _rep->container = contentLanguages._rep->container;
+
+    rep.release();
 }
 
-void ContentLanguages::buildLanguageElements(Array<String> values){
-    for(Uint32 i = 0; i < values.size(); i++){
-        String language_tag;
-        LanguageParser lp;
-        language_tag = lp.parseContentLanguageValue(values[i]);
-        append(ContentLanguageElement(language_tag));
+ContentLanguages::~ContentLanguages()
+{
+    delete _rep;
+}
+
+ContentLanguages& ContentLanguages::operator=(
+    const ContentLanguages& contentLanguages)
+{
+    if (&contentLanguages != this)
+    {
+        _rep->container = contentLanguages._rep->container;
     }
+    return *this;
+}
+
+Uint32 ContentLanguages::size() const
+{
+    return _rep->container.size();
+}
+
+LanguageTag ContentLanguages::getLanguageTag(Uint32 index) const
+{
+    return LanguageTag(_rep->container[index]);
+}
+
+void ContentLanguages::append(const LanguageTag& languageTag)
+{
+    // Disallow "*" language tag
+    if (languageTag.toString() == "*")
+    {
+        MessageLoaderParms parms(
+            "Common.LanguageParser.INVALID_LANGUAGE_TAG",
+            "Invalid language tag \"$0\".", languageTag.toString());
+        throw InvalidContentLanguageHeader(MessageLoader::getMessage(parms));
+    }
+
+    _rep->container.append(languageTag);
+}
+
+void ContentLanguages::remove(Uint32 index)
+{
+    _rep->container.remove(index);
+}
+
+Uint32 ContentLanguages::find(const LanguageTag& languageTag) const
+{
+    for (Uint32 i = 0; i < _rep->container.size(); i++)
+    {
+        if (languageTag == _rep->container[i])
+        {
+            return i;
+        }
+    }
+    return PEG_NOT_FOUND;
+}
+
+void ContentLanguages::clear()
+{
+    _rep->container.clear();
+}
+
+Boolean ContentLanguages::operator==(
+    const ContentLanguages& contentLanguages) const
+{
+    if (_rep->container.size() != contentLanguages._rep->container.size())
+    {
+        return false;
+    }
+
+    for (Uint32 i = 0; i < _rep->container.size(); i++)
+    {
+        if (_rep->container[i] != contentLanguages._rep->container[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+Boolean ContentLanguages::operator!=(
+    const ContentLanguages& contentLanguages) const
+{
+    return !(*this == contentLanguages);
 }
 
 PEGASUS_NAMESPACE_END

@@ -159,7 +159,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       virtual void exportIndication(
          const String& url,
          const CIMInstance& instance,
-         const ContentLanguages& contentLanguages = ContentLanguages::EMPTY);
+         const ContentLanguages& contentLanguages = ContentLanguages());
 
    private:
 

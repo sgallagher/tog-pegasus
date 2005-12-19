@@ -49,6 +49,7 @@
 #include "HTTPAuthenticatorDelegator.h"
 #include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/LanguageParser.h>
  
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -614,8 +615,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
 
 // l10n start
-   AcceptLanguages acceptLanguages = AcceptLanguages::EMPTY;
-   ContentLanguages contentLanguages = ContentLanguages::EMPTY;
+   AcceptLanguages acceptLanguages;
+   ContentLanguages contentLanguages;
    try
    {
                 // Get and validate the Accept-Language header, if set
@@ -626,8 +627,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                       acceptLanguageHeader,
                   false) == true)
             {
-                        acceptLanguages = AcceptLanguages(acceptLanguageHeader);
-			httpMessage->acceptLanguagesDecoded = true;
+                acceptLanguages = LanguageParser::parseAcceptLanguageHeader(
+                    acceptLanguageHeader);
+		httpMessage->acceptLanguagesDecoded = true;
             }
                                                                                                                                                              
                 // Get and validate the Content-Language header, if set
@@ -638,8 +640,9 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                       contentLanguageHeader,
                   false) == true)
             {
-                        contentLanguages = ContentLanguages(contentLanguageHeader);
-			httpMessage->contentLanguagesDecoded = true;
+                contentLanguages = LanguageParser::parseContentLanguageHeader(
+                    contentLanguageHeader);
+		httpMessage->contentLanguagesDecoded = true;
             }
    }
    catch (Exception &e)

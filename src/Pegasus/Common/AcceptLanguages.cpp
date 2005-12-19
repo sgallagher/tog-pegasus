@@ -30,22 +30,30 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3514
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <Pegasus/Common/AcceptLanguages.h>
 #include <Pegasus/Common/LanguageParser.h>
-#include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/InternalException.h>
-#include <Pegasus/Common/LanguageElementContainerRep.h>
-#ifdef PEGASUS_HAS_ICU
-# include <unicode/locid.h>
-#endif
-#if defined(PEGASUS_OS_OS400)
-# include "OS400ConvertChar.h"
-#endif
+#include <Pegasus/Common/AutoPtr.h>
+#include <Pegasus/Common/ArrayInternal.h>
 
 PEGASUS_NAMESPACE_BEGIN
+
+//////////////////////////////////////////////////////////////
+//
+// AcceptLanguagesRep
+//
+//////////////////////////////////////////////////////////////
+
+class AcceptLanguagesRep
+{
+public:
+    Array<LanguageTag> languageTags;
+    Array<Real32> qualityValues;
+};
 
 //////////////////////////////////////////////////////////////
 //
@@ -53,235 +61,124 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //////////////////////////////////////////////////////////////
 
-const AcceptLanguages AcceptLanguages::EMPTY = AcceptLanguages();
-
 AcceptLanguages::AcceptLanguages()
-    : LanguageElementContainer()
 {
+    _rep = new AcceptLanguagesRep();
 }
 
-AcceptLanguages::AcceptLanguages(const String& hdr)
+AcceptLanguages::AcceptLanguages(const AcceptLanguages& acceptLanguages)
 {
-    if (hdr.size() > 0)
-    {
-        Array<String> values;
-        LanguageParser lp;
-        lp.parseHdr(values,hdr);
-        buildLanguageElements(values);
-        prioritize();
-    }
-}
+    _rep = new AcceptLanguagesRep();
+    AutoPtr<AcceptLanguagesRep> rep(_rep);
 
-AcceptLanguages::AcceptLanguages(const Array<LanguageElement>& aContainer)
-    : LanguageElementContainer(aContainer)
-{
-    prioritize();
-}
+    _rep->languageTags = acceptLanguages._rep->languageTags;
+    _rep->qualityValues = acceptLanguages._rep->qualityValues;
 
-AcceptLanguages::AcceptLanguages(const Array<AcceptLanguageElement>& aContainer)
-{
-    for (Uint32 i = 0; i < aContainer.size(); i++)
-    {
-        LanguageElementContainer::append(aContainer[i]);
-    }
-    prioritize();
-}
-
-AcceptLanguages::AcceptLanguages(const AcceptLanguages& rhs)
-    : LanguageElementContainer(rhs)
-{
+    rep.release();
 }
 
 AcceptLanguages::~AcceptLanguages()
 {
+    delete _rep;
 }
 
-String AcceptLanguages::toString() const
+AcceptLanguages& AcceptLanguages::operator=(
+    const AcceptLanguages& acceptLanguages)
 {
-    String s;
-    for (Uint32 i = 0; i < _rep->container.size(); i++)
+    if (&acceptLanguages != this)
     {
-        s.append(_rep->container[i].toString());
-        if ((_rep->container[i].getLanguage() != "*") &&
-            (_rep->container[i].getQuality() != 1))
-        {
-            char q[6];
-            sprintf(q,"%4.3f", _rep->container[i].getQuality());
-            s.append(";q=").append(q);
-        }
-        if (i < _rep->container.size() - 1)
-        {
-            s.append(",");
-        }
-    }
-    return s;
-}
-
-PEGASUS_STD(ostream)& operator<<(
-    PEGASUS_STD(ostream)& stream,
-    const AcceptLanguages& al)
-{
-    stream << al.toString();
-    return stream;
-}
-
-AcceptLanguages& AcceptLanguages::operator=(const AcceptLanguages& rhs)
-{
-    if (&rhs != this)
-    {
-        LanguageElementContainer::operator=(rhs);
+        _rep->languageTags = acceptLanguages._rep->languageTags;
+        _rep->qualityValues = acceptLanguages._rep->qualityValues;
     }
     return *this;
 }
 
-AcceptLanguageElement AcceptLanguages::getLanguageElement(Uint32 index) const
+Uint32 AcceptLanguages::size() const
 {
-    return AcceptLanguageElement(_rep->getLanguageElement(index));
+    return _rep->languageTags.size();
 }
 
-void AcceptLanguages::getAllLanguageElements(
-    Array<AcceptLanguageElement>& elements) const
+LanguageTag AcceptLanguages::getLanguageTag(Uint32 index) const
 {
-    Array<LanguageElement> tmp = _rep->getAllLanguageElements();
-    for (Uint32 i = 0; i < tmp.size(); i++)
+    return _rep->languageTags[index];
+}
+
+Real32 AcceptLanguages::getQualityValue(Uint32 index) const
+{
+    return _rep->qualityValues[index];
+}
+
+void AcceptLanguages::insert(
+    const LanguageTag& languageTag,
+    Real32 qualityValue)
+{
+    LanguageParser::validateQualityValue(qualityValue);
+
+    // Insert in order of descending quality value
+
+    Uint32 index;
+    const Uint32 maxIndex = _rep->languageTags.size();
+
+    for (index = 0; index < maxIndex; index++)
     {
-        elements.append(AcceptLanguageElement(tmp[i]));
+        if (_rep->qualityValues[index] < qualityValue)
+        {
+            // Insert the new element before the element at this index
+            break;
+        }
     }
-}
 
-Array<AcceptLanguageElement> AcceptLanguages::getAllLanguageElements() const
-{
-    Array<AcceptLanguageElement> elements;
-    Array<LanguageElement> tmp = _rep->getAllLanguageElements();
-    for (Uint32 i = 0; i < tmp.size(); i++)
-    {
-        elements.append(AcceptLanguageElement(tmp[i]));
-    }
-    return elements;
-}
-
-AcceptLanguageElement AcceptLanguages::itrNext()
-{
-    return AcceptLanguageElement(_rep->itrNext());
-}
-
-void AcceptLanguages::insert(const AcceptLanguageElement& element)
-{
-    _rep->append(element);
-    prioritize();
+    _rep->languageTags.insert(index, languageTag);
+    _rep->qualityValues.insert(index, qualityValue);
 }
 
 void AcceptLanguages::remove(Uint32 index)
 {
-    _rep->remove(index);
-    prioritize();
+    _rep->languageTags.remove(index);
+    _rep->qualityValues.remove(index);
 }
 
-Uint32 AcceptLanguages::remove(const AcceptLanguageElement& element)
+Uint32 AcceptLanguages::find(const LanguageTag& languageTag) const
 {
-    int rc;
-    if ((rc = _rep->remove(element)) != -1)
+    for (Uint32 i = 0; i < _rep->languageTags.size(); i++)
     {
-        prioritize();
-    }
-    return rc;
-}
-
-Uint32 AcceptLanguages::find(const AcceptLanguageElement& element) const
-{
-    for (Uint32 i = 0; i < _rep->container.size(); i++)
-    {
-        if (element.getTag() == _rep->container[i].getTag())
+        if (languageTag == _rep->languageTags[i])
         {
-            if (element.getQuality() == _rep->container[i].getQuality())
-            {
-                return i;
-            }
+            return i;
         }
     }
     return PEG_NOT_FOUND;
 }
 
-Uint32 AcceptLanguages::find(const String & language_tag, Real32 quality) const
+void AcceptLanguages::clear()
 {
-    return find(AcceptLanguageElement(language_tag,quality));
+    _rep->languageTags.clear();
+    _rep->qualityValues.clear();
 }
 
-void AcceptLanguages::buildLanguageElements(const Array<String>& values)
+Boolean AcceptLanguages::operator==(
+    const AcceptLanguages& acceptLanguages) const
 {
-    for (Uint32 i = 0; i < values.size(); i++)
+    if (_rep->languageTags.size() != acceptLanguages._rep->languageTags.size())
     {
-        String language_tag;
-        Real32 quality;
-        LanguageParser lp;
-        quality = lp.parseAcceptLanguageValue(language_tag,values[i]);
-        append(AcceptLanguageElement(language_tag,quality));
-    }
-}
-
-AcceptLanguages AcceptLanguages::getDefaultAcceptLanguages()
-{
-#if defined(PEGASUS_HAS_MESSAGES) && defined(PEGASUS_HAS_ICU)
-    Locale default_loc = Locale::getDefault();
-
-# ifdef PEGASUS_OS_OS400
-    char* tmp = (char*)default_loc.getName();
-    char tmp_[100];
-    EtoA(strcpy(tmp_,tmp));
-    try
-    {
-        return AcceptLanguages(tmp_);
-    }
-# else
-    try
-    {
-        return AcceptLanguages(default_loc.getName());
-    }
-# endif
-    catch (const InvalidAcceptLanguageHeader& e)
-    {
-        Logger::put_l(Logger::ERROR_LOG,System::CIMSERVER,Logger::SEVERE,
-           "src.Server.cimserver.FAILED_TO_GET_PROCESS_LOCALE",
-           "Could not convert the system locale to a valid accept-language "
-               "format");
-        Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
-            e.getMessage());
-        return AcceptLanguages("*");
-    }
-#endif
-
-    return AcceptLanguages();
-}
-
-void AcceptLanguages::prioritize()
-{
-    // sort according to quality value; if two qualities are equal then
-    // preference is given to the existing order of the objects in the array.
-
-    //array is already sorted
-    if (_rep->container.size() <= 1)
-    {
-        return;
+        return false;
     }
 
-    Boolean changed;
-    int n = _rep->container.size();
-    do
+    for (Uint32 i = 0; i < _rep->languageTags.size(); i++)
     {
-        n--;               // make loop smaller each time.
-        changed = false; // assume this is last pass over array
-        for (int i=0; i<n; i++)
+        if ((_rep->languageTags[i] != acceptLanguages._rep->languageTags[i]) ||
+            (_rep->qualityValues[i] != acceptLanguages._rep->qualityValues[i]))
         {
-            if (_rep->container[i].getQuality() <
-                _rep->container[i+1].getQuality())
-            {
-                LanguageElement temp = _rep->container[i];
-                _rep->container[i] = _rep->container[i+1];
-                _rep->container[i+1] = temp;
-                changed = true;  // after an exchange, must look again
-            }
+            return false;
         }
-    } while (changed);
+    }
+    return true;
+}
+
+Boolean AcceptLanguages::operator!=(
+    const AcceptLanguages& acceptLanguages) const
+{
+    return !(*this == acceptLanguages);
 }
 
 PEGASUS_NAMESPACE_END

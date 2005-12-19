@@ -30,6 +30,7 @@
 // Author: Humberto Rivero (hurivero@us.ibm.com)
 //
 // Modified By: Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for Bug#3032
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CommonUTF.h>
 #include <Pegasus/Common/FileSystem.h>
+#include <Pegasus/Common/LanguageParser.h>
 #include <iostream>
 #ifdef PEGASUS_OS_OS400
 #include "OS400ConvertChar.h"
@@ -152,7 +154,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 #else
 			String localeStr(_locale);	
 #endif
-    			parms.contentlanguages.append(ContentLanguageElement(localeStr));
+    			parms.contentlanguages.append(LanguageTag(localeStr));
     			ures_close(resbundl);
 			} else {
 				//cout << "PROCESS_LOCALE: could not open resouce, formatting default message" << endl;
@@ -175,21 +177,22 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 
 	
 		char locale_ICU[size_locale_ICU];
-		AcceptLanguageElement language_element = AcceptLanguageElement::EMPTY;
 
 		// iterate through AcceptLanguages, use the first resource bundle match
-		acceptlanguages.itrStart();
 		//cout << "LOOPING THROUGH ACCEPTLANGUAGES..." << endl;
 		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Looping through AcceptLanguages...");
-		while((language_element = acceptlanguages.itrNext()) != AcceptLanguageElement::EMPTY_REF){
+		for (Uint32 index = 0; index < acceptlanguages.size(); index++)
+		{
+			LanguageTag languageTag =
+			    acceptlanguages.getLanguageTag(index);
 #ifdef PEGASUS_OS_OS400
-		        CString cstr = language_element.getTag().getCString();
+		        CString cstr = languageTag.toString().getCString();
 			const char *atoe = cstr;
 			AtoE((char*)atoe);
 		
 		         uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
 #else
-			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);
+			uloc_getName((const char*)(languageTag.toString()).getCString(), locale_ICU, size_locale_ICU, &status);
 #endif
 			//cout << "locale_ICU = " << locale_ICU << endl;
 			// TODO: check to see if we have previously cached the resource bundle
@@ -197,9 +200,9 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			resbundl = ures_open((const char*)resbundl_path_ICU, locale_ICU, &status);
 
 			if(U_SUCCESS(status)) {
-				//cout << "ACCEPTLANGUAGES LOOP: opened resource bundle with " << language_element.getTag() << endl;
+				//cout << "ACCEPTLANGUAGES LOOP: opened resource bundle with " << languageTag.toString() << endl;
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "ACCEPTLANGUAGES LOOP: opened resource bundle with:");
-				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, language_element.getTag());
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, languageTag.toString());
 				if(status == U_USING_FALLBACK_WARNING || status == U_USING_DEFAULT_WARNING){
 					//we want to use the ICU fallback behaviour in the following cases ONLY
 					//cout << "ACCEPTLANGUAGES LOOP: ICU warns using FALLBACK or DEFAULT" << endl;
@@ -233,7 +236,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 #else
 						String localeStr(_locale);
 #endif
-						parms.contentlanguages.append(ContentLanguageElement(localeStr));
+						parms.contentlanguages.append(LanguageTag(localeStr));
 						ures_close(resbundl);
 						break;
 					}
@@ -241,15 +244,15 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				else{  // we found an exact resource bundle match, extract, and set ContentLanguage
 					//cout << "ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH" << endl;
 					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"ACCEPTLANGUAGES LOOP: found an EXACT resource bundle MATCH:");
-					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,language_element.getTag());
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,languageTag.toString());
 					msg = extractICUMessage(resbundl,parms);
-					parms.contentlanguages.append(ContentLanguageElement(language_element.getTag()));
+					parms.contentlanguages.append(LanguageTag(languageTag.toString()));
     				ures_close(resbundl);
     				break;
 				}
 			} else { // possible errors, ex: message path incorrect
     			// for now do nothing, let the while loop continue
-    			//cout << "ACCEPTLANGUAGES LOOP: could NOT open a resource for: " << language_element.getTag() << endl;
+    			//cout << "ACCEPTLANGUAGES LOOP: could NOT open a resource for: " << languageTag.toString() << endl;
 			}
 			status = U_ZERO_ERROR;  // reset status
 		}
@@ -258,16 +261,16 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		if(msg.size() == 0 && acceptlanguages.size() > 0){
 			//cout << "USING ICU FALLBACK" << endl;
 			PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"No message was loaded, using ICU fallback behaviour.");
-			language_element = acceptlanguages.getLanguageElement(0);
+			languageTag = acceptlanguages.getLanguageTag(0);
 
 #ifdef PEGASUS_OS_OS400
-		        CString cstr = language_element.getTag().getCString();
+		        CString cstr = languageTag.toString().getCString();
 			const char *atoe = cstr;
 			AtoE((char*)atoe);
 			
 			uloc_getName(atoe, locale_ICU, size_locale_ICU, &status);
 #else
-			uloc_getName((const char*)(language_element.getTag()).getCString(), locale_ICU, size_locale_ICU, &status);
+			uloc_getName((const char*)(languageTag.toString()).getCString(), locale_ICU, size_locale_ICU, &status);
 #endif
 			//cout << "locale_ICU in fallback = " << locale_ICU << endl;
 			status = U_ZERO_ERROR;
@@ -275,9 +278,9 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			const char * _locale = NULL;
 			if(U_SUCCESS(status)) {
 				if(status == U_USING_DEFAULT_WARNING){
-					//cout << "PRIORITY ICU FALLBACK: using default resource bundle with " << language_element.getTag() << endl;
+					//cout << "PRIORITY ICU FALLBACK: using default resource bundle with " << languageTag.toString() << endl;
 					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"PRIORITY ICU FALLBACK: using default resource bundle with ");
-					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, language_element.getTag());
+					PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, languageTag.toString());
 					status = U_ZERO_ERROR;
 
                // Reopen the bundle in the root locale
@@ -305,7 +308,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 #endif
 				}
 				    if(localeStr != "root")					   
-				      parms.contentlanguages.append(ContentLanguageElement(localeStr)); 
+				      parms.contentlanguages.append(LanguageTag(localeStr)); 
 				    ures_close(resbundl);
 			}
 		}
@@ -319,7 +322,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle" << endl;
 				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4,"EXHAUSTED ACCEPTLANGUAGES: opened root resource bundle");
 				msg = extractICUMessage(resbundl,parms);
-				//parms.contentlanguages.append(ContentLanguageElement(String(ures_getLocale(resbundl,&status))));
+				//parms.contentlanguages.append(LanguageTag(String(ures_getLocale(resbundl,&status))));
             ures_close(resbundl);
 			}else {
 				//cout << "EXHAUSTED ACCEPTLANGUAGES: could NOT open root resource bundle" << endl;
@@ -854,8 +857,8 @@ void MessageLoaderParms::_init()
     useICUfallback = false;
 #endif
 
-    acceptlanguages = AcceptLanguages::EMPTY;
-    contentlanguages = ContentLanguages::EMPTY;
+    acceptlanguages.clear();
+    contentlanguages.clear();
 
     arg0 = Formatter::DEFAULT_ARG;
     arg1 = Formatter::DEFAULT_ARG;
@@ -882,8 +885,10 @@ String MessageLoaderParms::toString()
     s.append("msg_id = " + msg_id + "\n");
     s.append("default_msg = " + default_msg + "\n");
     s.append("msg_src_path = " + msg_src_path + "\n");
-    s.append("acceptlanguages = " + acceptlanguages.toString() + "\n");
-    s.append("contentlanguages = " + contentlanguages.toString() + "\n");
+    s.append("acceptlanguages = " +
+        LanguageParser::buildAcceptLanguageHeader(acceptlanguages) + "\n");
+    s.append("contentlanguages = " +
+        LanguageParser::buildContentLanguageHeader(contentlanguages) + "\n");
 
     s.append("useProcessLocale = " + processLoc + "\n");
     s.append("useThreadLocale = " + threadLoc + "\n");

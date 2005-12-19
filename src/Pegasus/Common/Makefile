@@ -61,14 +61,9 @@ SOURCES1 = \
     Buffer.cpp \
     CharSet.cpp \
     LanguageParser.cpp \
-    LanguageElement.cpp \
-    LanguageElementRep.cpp \
-    AcceptLanguageElement.cpp \
-    ContentLanguageElement.cpp \
-    LanguageElementContainer.cpp \
-    LanguageElementContainerRep.cpp \
     AcceptLanguages.cpp \
     ContentLanguages.cpp \
+    LanguageTag.cpp \
     MessageLoader.cpp \
     Char16Inline.cpp \
     CIMClass.cpp \

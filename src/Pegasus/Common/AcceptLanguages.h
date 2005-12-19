@@ -33,8 +33,7 @@
 #define Pegasus_AcceptLanguages_h
 
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/LanguageElementContainer.h>
-#include <Pegasus/Common/AcceptLanguageElement.h>
+#include <Pegasus/Common/LanguageTag.h>
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
@@ -49,141 +48,117 @@ class AcceptLanguagesRep;
 //////////////////////////////////////////////////////////////
 
 /** <I><B>Experimental Interface</B></I><BR>
-    This class is a container class for AcceptLanguageElement
+    This class represents an list of languages that a reader can understand
+    (as may be specified in an HTTP Accept-Language header value).  It is
+    managed as a prioritized list of LanguageTag objects and quality values.
  */
-class PEGASUS_COMMON_LINKAGE AcceptLanguages : public LanguageElementContainer
+class PEGASUS_COMMON_LINKAGE AcceptLanguages
 {
 public:
 
-    /** This member is used to represent an empty AcceptLanguages. Using this
-        member avoids construction of an empty AcceptLanguages
-        (e.g., AcceptLanguages()).
-    */
-    static const AcceptLanguages EMPTY;
-
     /**
-     * Constructor
+        Constructs an empty AcceptLanguages object.
      */
     AcceptLanguages();
 
-    /** Constructor
-        @param hdr String complete value portion of AcceptLanguage header
+    /**
+        Copy constructor.
+        @param acceptLanguages The AcceptLanguages object to copy.
      */
-    AcceptLanguages(const String& hdr);
+    AcceptLanguages(const AcceptLanguages& acceptLanguages);
 
     /**
-        Constructor
-        @param container An Array of LanguageElement objects from which to
-        construct an AcceptLanguages object.
-     */
-    AcceptLanguages(const Array<LanguageElement>& container);
-
-    /**
-        Constructor
-        @param container An Array of AcceptLanguageElement objects from which
-        to construct an AcceptLanguages object.
-     */
-    AcceptLanguages(const Array<AcceptLanguageElement>& container);
-
-    AcceptLanguages(const AcceptLanguages& rhs);
-
-    /**
-        Destrctor
+        Destructor.
      */
     ~AcceptLanguages();
 
-
     /**
-        @return A String representation of this object in AcceptLanguage
-        header format according to the HTTP specification.
+        Assignment operator.
+        @param acceptLanguages The AcceptLanguages object to copy.
      */
-    String toString() const;
+    AcceptLanguages& operator=(const AcceptLanguages& acceptLanguages);
 
     /**
-        @return ostream - Returns a representation of this object in AcceptLanguage header format
-        according to the RFC
+        Returns the number of LanguagesTags in the AcceptLanguages object.
+        @return Integer size of the AcceptLanguages list.
      */
-    PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream)& operator<<(PEGASUS_STD(ostream)& stream, const AcceptLanguages& al);
+    Uint32 size() const;
 
     /**
-        Assignment
-        @param rhs AcceptLanguages
-     */
-    AcceptLanguages& operator=(const AcceptLanguages& rhs);
-
-    /**
-        Accesses an AcceptLanguageElement at a specified index.
-        @param index Integer index into the container.
-        @return The AcceptLanguageElement corresponding to the specified index.
-        @throw IndexOutOfBoundsException If the specified index is out of
+        Accesses an LanguageTag at a specified index.
+        @param index Integer index of the LanguageTag to access.
+        Valid indices range from 0 to size()-1.
+        @return The LanguageTag corresponding to the specified index.
+        @exception IndexOutOfBoundsException If the specified index is out of
         range.
      */
-    AcceptLanguageElement getLanguageElement(Uint32 index) const;
+    LanguageTag getLanguageTag(Uint32 index) const;
 
     /**
-        Fills in the array with all the language elements in the container
-        @param elements An Array of AcceptLanguageElement objects to be
-        populated.
+        Accesses a quality value at a specified index (corresponding to a
+        language tag).
+        @param index Integer index of the quality value to access.
+        Valid indices range from 0 to size()-1.
+        @return The quality value corresponding to the specified index.
+        @exception IndexOutOfBoundsException If the specified index is out of
+        range.
      */
-    void getAllLanguageElements(Array<AcceptLanguageElement> & elements) const;
-
-    Array<AcceptLanguageElement> getAllLanguageElements() const;
+    Real32 getQualityValue(Uint32 index) const;
 
     /**
-        Returns the next element in the container.  The behavior of this
-        method is undefined before itrStart() is called.
-        @return The next AcceptLanguageElement in the container or
-        AcceptLanguageElement::EMPTY if the end of the container has been
-        reached.
+        Inserts a LanguageTag and quality value into the AcceptLanguages
+        object.  The element is inserted in order of descending quality value
+        and after any other elements with the same quality value.
+        @param languageTag The LanguageTag to insert.
+        @param qualityValue The quality value to insert.
      */
-    AcceptLanguageElement itrNext();
+    void insert(
+        const LanguageTag& languageTag,
+        Real32 qualityValue);
 
     /**
-        Inserts an element into this container.  The element is inserted
-        at a position determined by the quality value associated with the
-        language_tag.
-        @param element The AcceptLanguageElement to insert
-     */
-    void insert(const AcceptLanguageElement& element);
-
-    /**
-        Removes the specified element from the container.
-        @param index Integer index of the element to remove
+        Removes the specified LanguageTag and quality value from the 
+        AcceptLanguages object.
+        @param index Integer index of the element to remove.
+        @exception IndexOutOfBoundsException If the specified index is out of
+        range.
      */
     void remove(Uint32 index);
 
     /**
-        Removes the element matching the parameter
-        @param element The AcceptLanguageElement to remove
-        @return int  -1 if element not found, otherwise returns the position
-        of element before the remove.
+        Finds the first occurrence of the specified LanguageTag in the
+        AcceptLanguages object and returns its index.
+        @param languageTag The LanguageTag to find.
+        @return Integer index of the element, if found; otherwise
+        PEG_NOT_FOUND.
      */
-    Uint32 remove(const AcceptLanguageElement& element);
+    Uint32 find(const LanguageTag& languageTag) const;
 
     /**
-        Finds the element in the container and returns its position.
-        @param element AcceptLanguageElement - element to find
-        @return int index of element if found, otherwise PEG_NOT_FOUND
+        Removes all the LanguageTags and quality values from the
+        AcceptLanguages object.
      */
-    Uint32 find(const AcceptLanguageElement& element) const;
+    void clear();
 
     /**
-        Finds the element in the container that matches the language_tag and
-        quality.
-        @param language_tag The language tag string of the element to find
-        (based on case-insensitive comparison).
-        @param quality Real32 language_tag quality value of the element to find
-        @return int index of element if found, otherwise PEG_NOT_FOUND
+        Tests AcceptLanguages objects for equality.
+        @param acceptLanguages An AcceptLanguages object to be compared.
+        @return True if the AcceptLanguages objects contain the same
+        LanguageTags and quality values in the same order, false otherwise.
      */
-    Uint32 find(const String & language_tag, Real32 quality) const;
+    Boolean operator==(const AcceptLanguages& acceptLanguages) const;
 
-    static AcceptLanguages getDefaultAcceptLanguages();
+    /**
+        Tests AcceptLanguages objects for inequality.
+        @param acceptLanguages An AcceptLanguages object to be compared.
+        @return False if the AcceptLanguages objects contain the same
+        LanguageTags and quality values in the same order, true otherwise.
+     */
+    Boolean operator!=(const AcceptLanguages& acceptLanguages) const;
 
-    void prioritize();
-
-    void buildLanguageElements(const Array<String>& values);
-
-}; // end AcceptLanguages
+private:
+    AcceptLanguagesRep* _rep;
+};
 
 PEGASUS_NAMESPACE_END
 

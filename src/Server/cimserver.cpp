@@ -112,6 +112,7 @@
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/Tracer.h>
+#include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Config/ConfigManager.h>
 #include <Pegasus/Client/CIMClient.h>
 #include <Pegasus/Server/ShutdownService.h>
@@ -1194,7 +1195,7 @@ MessageLoader::_useProcessLocale = false;
     Thread::setCurrent(dummyInitialThread);
     AcceptLanguages default_al;
     try{
-         default_al = AcceptLanguages::getDefaultAcceptLanguages();
+         default_al = LanguageParser::getDefaultAcceptLanguages();
          Thread::setLanguages(new AcceptLanguages(default_al));
     }catch(InvalidAcceptLanguageHeader& e){
           Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,

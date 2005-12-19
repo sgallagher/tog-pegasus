@@ -677,14 +677,6 @@ int main(int argc, char** argv)
                      CIMDateTime("29991224120000.000000+100"));
     delete D2;
 
-    AcceptLanguageElement al1("en-US-mn;;");
-    Array<AcceptLanguageElement> al_arr1(10,al1);
-    AcceptLanguageElement *al2 = new AcceptLanguageElement("en-US-mn;;");
-    Array<AcceptLanguageElement> al_arr2(al2,1);
-    test03(al_arr1, al_arr2, al2, AcceptLanguageElement("en-US-mn;;"),
-                                  AcceptLanguageElement("en-US"));
-    delete al2;
-
     CIMName cimname1("yourName");
     Array<CIMName> arrcimname1(10,cimname1);
     CIMName *cimname2 = new CIMName("yourName");

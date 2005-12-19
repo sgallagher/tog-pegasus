@@ -122,7 +122,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
       message->messageId, 
       message->getHttpMethod(),
       _authenticator->buildRequestAuthHeader(),
-      AcceptLanguages::EMPTY,
+      AcceptLanguages(),
 	 ((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
       params);
 

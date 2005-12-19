@@ -63,6 +63,7 @@
 #include "Signal.h"
 #include "Tracer.h"
 #include "Buffer.h"
+#include "LanguageParser.h"
 
 #ifdef PEGASUS_KERBEROS_AUTHENTICATION
 #include <Pegasus/Common/CIMKerberosSecurityAssociation.h>
@@ -397,7 +398,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 if (isFirst == true)
                     contentLanguages = httpMessage.contentLanguages;
                 else if (httpMessage.contentLanguages != contentLanguages)
-                    contentLanguages = ContentLanguages::EMPTY;
+                    contentLanguages.clear();
                 else contentLanguages = httpMessage.contentLanguages;
             }
             // check to see if the client requested chunking OR trailers. trailers
@@ -612,7 +613,7 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                 {
                     if (isLast == true)
                     {
-                        if (contentLanguages != ContentLanguages::EMPTY)
+                        if (contentLanguages.size() != 0)
                         {
                             // we must insert the content-language into the header
                             Buffer contentLanguagesString;
@@ -620,7 +621,8 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                             // this is the keyword:value(s) + header line terminator
                             contentLanguagesString << headerNameContentLanguage <<
                                 headerNameTerminator <<
-                                contentLanguages.toString().getCString() <<
+                                LanguageParser::buildContentLanguageHeader(
+                                    contentLanguages).getCString() <<
                                 headerLineTerminator;
 
                             Uint32 insertOffset = headerLength - headerLineTerminatorLength;
@@ -816,11 +818,12 @@ Boolean HTTPConnection::_handleWriteEvent(Message &message)
                     }
 
                     // Add Content-Language to the trailer if requested
-                    if (contentLanguages != ContentLanguages::EMPTY)
+                    if (contentLanguages.size() != 0)
                     {
                         trailer << _mpostPrefix
                             << headerNameContentLanguage << headerNameTerminator
-                            << contentLanguages.toString()
+                            << LanguageParser::buildContentLanguageHeader(
+                                   contentLanguages)
                             << headerLineTerminator;
                     }
 
@@ -1094,7 +1097,9 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                     String contentLanguagesString(valueStart, valueEnd-valueStart+1);
                     try
                     {
-                        contentLanguages = ContentLanguages(contentLanguagesString);
+                        contentLanguages =
+                            LanguageParser::parseContentLanguageHeader(
+                                contentLanguagesString);
                     }
                     catch(...)
                     {
@@ -1102,7 +1107,7 @@ void HTTPConnection::_getContentLengthAndContentOffset()
                             "HTTPConnection: ERROR: contentLanguages had parsing"
                                 " failure. clearing languages. error data=%s",
                             (const char *)contentLanguagesString.getCString());
-                        contentLanguages = ContentLanguages::EMPTY;
+                        contentLanguages.clear();
                     }
                 }
                 else if (System::strcasecmp(line, headerNameTransferTE) == 0)
@@ -1501,12 +1506,14 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                         contentLanguagesString,
                         true);
 
-                    contentLanguages = ContentLanguages::EMPTY;
+                    contentLanguages.clear();
                     if (found == true && contentLanguagesString.size() > 0)
                     {
                         try
                         {
-                            contentLanguages = ContentLanguages(contentLanguagesString);
+                            contentLanguages =
+                                LanguageParser::parseContentLanguageHeader(
+                                    contentLanguagesString);
                         }
                         catch(...)
                         {
@@ -1514,7 +1521,7 @@ void HTTPConnection::_handleReadEventTransferEncoding()
                                 "HTTPConnection: ERROR: contentLanguages had parsing"
                                     " failure. clearing languages. error data=%s",
                                 (const char *)contentLanguagesString.getCString());
-                            contentLanguages = ContentLanguages::EMPTY;
+                            contentLanguages.clear();
                         }
                     }
 

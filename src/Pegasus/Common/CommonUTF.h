@@ -40,8 +40,6 @@
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/IPC.h>
 
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-
 PEGASUS_NAMESPACE_BEGIN
 
 #define FIRST_HIGH_SURROGATE  (Uint32)0xD800
@@ -150,7 +148,5 @@ private:
 
 
 PEGASUS_NAMESPACE_END
-
-#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

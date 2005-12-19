@@ -31,6 +31,7 @@
 //
 // Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3697, 3698, 3699, 3700
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3701, 3702, 3703
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -43,100 +44,165 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
-
-#ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
+#include <Pegasus/Common/AcceptLanguages.h>
+#include <Pegasus/Common/ContentLanguages.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
-
-/** This class parses and validates AcceptLanguage OR ContentLanguage values
- * from the respective HTTP headers, and provides various utility functions
- * to parse and manipulate language information
+/**
+    This class parses and validates Accept-Language and Content-Language values
+    from the respective HTTP headers, and provides utility functions to parse
+    and manipulate language information
  */
-class PEGASUS_COMMON_LINKAGE LanguageParser{
-
+class PEGASUS_COMMON_LINKAGE LanguageParser
+{
 public:
 
-/**	This member is used to represent an empty LanguageParser. Using this 
-    member avoids construction of an empty LanguageParser
-    (e.g., LanguageParser()).
-*/
-static const LanguageParser EMPTY;
+    /**
+        Builds an AcceptLanguages object from an HTTP Accept-Language
+        header value.
+        @param acceptLanguageHeader A String containing an HTTP
+        Accept-Language header value from which to build the AcceptLanguages
+        object.
+        @exception InvalidAcceptLanguageHeader if a syntax error is
+        encountered.
+     */
+    static AcceptLanguages parseAcceptLanguageHeader(
+        const String& acceptLanguageHeader);
 
-/** Parses the value portion of either an AcceptLanguage HTTP header or a 
- * ContentLanguage HTTP header, extracts the individual fields and stores
- * them in an array.
- * @param values Array<String>& where the individual fields are stored
- * @param hdr String the value portion of the HTTP Accept/ContentLanguage header
- * this parameter is passed as object intentionally
- */
-void parseHdr(Array<String> &values, String hdr);
+    /**
+        Builds a ContentLanguages object from an HTTP Content-Language
+        header value.
+        @param contentLanguageHeader A String containing an HTTP
+        Content-Language header value from which to build the ContentLanguages
+        object.
+        @exception InvalidContentLanguageHeader if a syntax error is
+        encountered.
+     */
+    static ContentLanguages parseContentLanguageHeader(
+        const String& contentLanguageHeader);
 
-/** Parses an AcceptLanguage or ContentLanguage value from a header.
- * If a valid AcceptLanguage value is determined to contain a quality
- * value, then this quality once validated is returned. Otherwise -1 is returned.
- * It is up to the caller to know in what context this call is being made,
- * that is: it is the callers responsibility to know whether 
- * an AcceptLanguage or a ContentLanguage value is being parsed.
- * @param language String& where the valid language is stored
- * @param hdr String the value being parsed and validated
- * @return Real32 if a valid quality found then 1 <=> 0, otherwise 1
- * @exception throws ???
- */
-Real32 parseAcceptLanguageValue(String &language, String hdr);
+    /**
+        Validates the syntax of a language tag according to RFC 3066.
+        Parses the language tag into language, country, and variant, if
+        the language tag is formed using ISO codes (ISO 639 and ISO 3166).
+        @param languageTagString The language tag string to parse and
+        validate.
+        @param language The returned language value parsed from the language
+        tag, if applicable.
+        @param country The returned country value parsed from the language
+        tag, if applicable.
+        @param variant The returned language variant value parsed from the
+        language tag, if applicable.
+        @exception Exception if the language tag is syntactically invalid.
+     */
+    static void parseLanguageTag(
+        const String& languageTagString,
+        String& language,
+        String& country,
+        String& variant);
 
-String parseContentLanguageValue(const String& hdr);
+    /**
+        Validates the syntax of an Accept-Language quality value.
+        @param quality A Real32 quality value to validate.
+        @exception Exception if the quality value is invalid.
+     */
+    static void validateQualityValue(Real32 quality);
 
-/** 
- * Given a language ex: en-US-xx, 
- * returns the base of the language "en".
- * @param language String
- * @param separator Char16 the character that separates the various subtags
- * @return String base of the language parameter
- */
-String getLanguage(const String & language_tag);
+    /**
+        Builds an HTTP Accept-Language header value from an AcceptLanguages
+        object.
+        @param acceptLanguages The AcceptLanguages object to be encoded in an
+        HTTP Accept-Language header.
+     */
+    static String buildAcceptLanguageHeader(
+        const AcceptLanguages& acceptLanguages);
 
-String getCountry(const String & language_tag);
+    /**
+        Builds an HTTP Content-Language header value from an ContentLanguages
+        object.
+        @param contentLanguages The ContentLanguages object to be encoded in an
+        HTTP Content-Language header.
+     */
+    static String buildContentLanguageHeader(
+        const ContentLanguages& contentLanguages);
 
-String getVariant(const String & language_tag);
+    /**
+        Returns the default accept languages based on environment settings.
+        ATTN: What is the behavior?  This is only implemented if MESSAGES and
+        ICU are used.
+     */
+    static AcceptLanguages getDefaultAcceptLanguages();
 
 private:
 
-/**
- * Fills the first position in the array with the most general part of
- * the language String, each subsequent postion is the array gets more 
- * and more detailed.  For example: en-us-fooblah would be returned as
- * ["en"]["us"]["fooblah"]
- * @param subtags Array<String>& array filled in with the root and subtags
- * @param language String the language to parse
- * @param separator Char16 the character that separates the various subtags
- * @return String the root of the language tag
- */
-void parseLanguageSubtags(Array<String> &subtags, String language_tag);
+    /**
+        Parses the value portion of an HTTP Accept-Language or Content-Language
+        header into individual language elements.  Comments and whitespace are
+        removed.
+        @param headerElements An array of Strings into which the language
+        elements are stored.
+        @param languageHeaderValue A String containing the value portion of
+        an HTTP Accept-Language or Content-Language header.
+        @exception Exception if a syntax error is encountered.
+     */
+    static void _parseLanguageHeader(
+        const String& languageHeaderValue,
+        Array<String>& languageElements);
 
-/** Breaks the language into its parts(subtags), then validates each part
- * according to the RFCs.
- * @param s String language to be validated
- * @return Boolean
- */
-Boolean isValid(const String& language_tag, Boolean length_check = true);
+    /**
+        Parses an AcceptLanguage or ContentLanguage value from a header.
+        If a valid AcceptLanguage value is determined to contain a quality
+        value, then this quality is validated and returned. Otherwise -1 is
+        returned.  It is up to the caller to know in what context this call
+        is being made, that is: it is the callers responsibility to know
+        whether an AcceptLanguage or a ContentLanguage value is being parsed.
+        @param acceptLanguageHeaderElement String to be parsed into a
+        language tag and quality value.  The String must not contain comments
+        or whitespace.
+        @param languageTag String into which the parsed language tag is
+        stored.
+        @param quality Real32 into which the parsed quality value is stored.
+        @exception Exception if a syntax error is encountered.
+     */
+    static void _parseAcceptLanguageElement(
+        const String& acceptLanguageElement,
+        String& languageTag,
+        Real32& quality);
 
-/** Checks if the String has all characters in A-Z OR a-z range.
- * @param s String
- * @return Boolean
- */
-Boolean checkAlpha(const CString & _str);
+    /**
+        Fills the first position in the array with the most general part of
+        the language String, each subsequent postion is the array gets more
+        and more detailed.  For example: en-us-fooblah would be returned as
+        ["en"]["us"]["fooblah"]
+        @param subtags Array<String>& array filled in with the root and subtags
+        @param languageTag String the language to parse
+        @return String the root of the language tag
+        @exception Exception if a syntax error is encountered.
+     */
+    static void _parseLanguageSubtags(
+        Array<String>& subtags,
+        const String& languageTagString);
 
-CString replaceSeparator(const CString & _s, char new_sep = '-');
+    /**
+        Checks if a String represents a valid language tag primary subtag.
+        A valid primary subtag contains 1 to 8 alphabetic characters.
+        @param subtag The subtag String to validate.
+        @return True if the String represents a valid language tag primary
+        subtag; false otherwise.
+     */
+    static Boolean _isValidPrimarySubtagSyntax(const String& subtag);
 
-char findSeparator(const CString & _str);
-
-String convertPrivateLanguageTag(const String & language_tag);
-
-}; //end LanguageParser
+    /**
+        Checks if a String represents a valid language tag subtag.
+        A valid primary subtag contains 1 to 8 alphanumeric characters.
+        @param subtag The subtag String to validate.
+        @return True if the String represents a valid language tag subtag;
+        false otherwise.
+     */
+    static Boolean _isValidSubtagSyntax(const String& subtag);
+};
 
 PEGASUS_NAMESPACE_END
-
-#endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 #endif

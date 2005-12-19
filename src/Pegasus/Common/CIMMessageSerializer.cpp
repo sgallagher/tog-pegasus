@@ -735,14 +735,12 @@ void CIMMessageSerializer::_serializeContentLanguages(
     Buffer& out,
     const ContentLanguages& contentLanguages)
 {
-    Array<ContentLanguageElement> elements;
-    contentLanguages.getAllLanguageElements(elements);
-
     // Use a PGCONTLANGS element to encapsulate the ContentLanguages encoding
     XmlWriter::append(out, "<PGCONTLANGS>\n");
-    for (Uint32 i=0; i < elements.size(); i++)
+    for (Uint32 i=0; i < contentLanguages.size(); i++)
     {
-        XmlWriter::appendValueElement(out, elements[i].getTag());
+        XmlWriter::appendValueElement(
+            out, contentLanguages.getLanguageTag(i).toString());
     }
     XmlWriter::append(out, "</PGCONTLANGS>\n");
 }
@@ -754,15 +752,13 @@ void CIMMessageSerializer::_serializeAcceptLanguages(
     Buffer& out,
     const AcceptLanguages& acceptLanguages)
 {
-    Array<AcceptLanguageElement> elements;
-    acceptLanguages.getAllLanguageElements(elements);
-
     // Use a PGACCLANGS element to encapsulate the AcceptLanguages encoding
     XmlWriter::append(out, "<PGACCLANGS>\n");
-    for (Uint32 i=0; i < elements.size(); i++)
+    for (Uint32 i=0; i < acceptLanguages.size(); i++)
     {
-        XmlWriter::appendValueElement(out, elements[i].getTag());
-        XmlWriter::appendValueElement(out, elements[i].getQuality());
+        XmlWriter::appendValueElement(
+            out, acceptLanguages.getLanguageTag(i).toString());
+        XmlWriter::appendValueElement(out, acceptLanguages.getQualityValue(i));
     }
     XmlWriter::append(out, "</PGACCLANGS>\n");
 }

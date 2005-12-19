@@ -766,7 +766,7 @@ OperationContext ClientCIMOMHandleRep::getResponseContext()
     Thread* curThrd = Thread::getCurrent();
     if (curThrd == NULL)
     {
-        ctx.insert(ContentLanguageListContainer(ContentLanguages::EMPTY));
+        ctx.insert(ContentLanguageListContainer(ContentLanguages()));
     }
     else
     {
@@ -776,7 +776,7 @@ OperationContext ClientCIMOMHandleRep::getResponseContext()
  
         if (contentLangs == NULL)
         {
-            ctx.insert(ContentLanguageListContainer(ContentLanguages::EMPTY));
+            ctx.insert(ContentLanguageListContainer(ContentLanguages()));
         }
         else
         {

@@ -156,8 +156,8 @@ String cimStatusCodeToString(CIMStatusCode code,
     if (contentLanguages.size() > 0)
     {
         //build AcceptLanguages from contentLanguages, use in getMessage
-        parms.acceptlanguages =
-            AcceptLanguages(contentLanguages.getLanguageElement(0).getTag());
+        parms.acceptlanguages.clear();
+        parms.acceptlanguages.insert(contentLanguages.getLanguageTag(0), 1.0);
     }
 
     return MessageLoader::getMessage(parms);

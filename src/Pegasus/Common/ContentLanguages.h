@@ -31,9 +31,10 @@
 
 #ifndef Pegasus_ContentLanguages_h
 #define Pegasus_ContentLanguages_h
+
 #include <Pegasus/Common/Config.h>
-#include <Pegasus/Common/LanguageElementContainer.h>
-#include <Pegasus/Common/ContentLanguageElement.h>
+#include <Pegasus/Common/LanguageTag.h>
+
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 PEGASUS_NAMESPACE_BEGIN
@@ -42,112 +43,104 @@ class ContentLanguagesRep;
 
 //////////////////////////////////////////////////////////////
 //
-// ContentLanguages::
+// ContentLanguages
 //
 //////////////////////////////////////////////////////////////
 
 /** <I><B>Experimental Interface</B></I><BR>
+    This class represents a list of content languages (such as may appear
+    in an HTTP Content-Language header value).  It is managed as a list of
+    LanguageTag objects.
  */
-class PEGASUS_COMMON_LINKAGE ContentLanguages : public LanguageElementContainer{
-
+class PEGASUS_COMMON_LINKAGE ContentLanguages
+{
 public:
 
-	/**	This member is used to represent an empty ContentLanguages. Using this 
-        member avoids construction of an empty ContentLanguages 
-        (e.g., ContentLanguages()).
-    */
-    static const ContentLanguages EMPTY;
+    /**
+        Constructs an empty ContentLanguages object.
+     */
+    ContentLanguages();
 
-	/**
-	 * Constructor
-	 */
-	ContentLanguages();
+    /**
+        Copy constructor.
+        @param contentLanguages The ContentLanguages object to copy.
+     */
+    ContentLanguages(const ContentLanguages& contentLanguages);
 
-	/**
-	 * Constructor
-	 * @param hdr String - ContentLanguage header
-	 */
-	ContentLanguages(String hdr); 
+    /**
+        Destructor.
+     */
+    ~ContentLanguages();
 
-	/**
-	 * Constructor
-	 * @param container Array<LanguageElement> - elements to construct the object with
-	 */
-	ContentLanguages(const Array<LanguageElement> &container);
-	
-	/**
-	 * Constructor
-	 * @param container Array<ContentLanguageElement> - elements to construct the object with
-	 */
-	ContentLanguages(const Array<ContentLanguageElement> &container);
+    /**
+        Assignment operator.
+        @param contentLanguages The ContentLanguages object to copy.
+     */
+    ContentLanguages& operator=(const ContentLanguages& contentLanguages);
 
-	/**
-	 * Copy Constructor
-	 * @param rhs ContentLanguages - element to construct the object with
-	 */
-	ContentLanguages(const ContentLanguages &rhs);
-	
-	/**
-	 * Destructor
-	 */
-	~ContentLanguages();
-	
-	/**
-	 * Random access into the container
-	 * @param index int - position of element to get
-	 * @return ContentLanguageElement element at postion index
-	 * @throws IndexOutOfBounds Exception
-	 */
-	ContentLanguageElement getLanguageElement(Uint32 index) const;
-	
-	/**
-	 * Fills in the parameter array with all this objects elements
-	 * @param elements Array<ContentLanguageElement> & - filled with the contents of the ContentLanguages container 
-	 */
-	void getAllLanguageElements(Array<ContentLanguageElement> & elements) const;
+    /**
+        Returns the number of LanguageTags in the ContentLanguages object.
+        @return Integer size of the ContentLanguages list.
+     */
+    Uint32 size() const;
 
-	Array<ContentLanguageElement> getAllLanguageElements()const;
+    /**
+        Accesses a LanguageTag at a specified index.
+        @param index Integer index of the LanguageTag to access.
+        Valid indices range from 0 to size()-1.
+        @return The LanguageTag corresponding to the specified index.
+        @exception IndexOutOfBoundsException If the specified index is out of
+        range.
+     */
+    LanguageTag getLanguageTag(Uint32 index) const;
 
+    /**
+        Appends a LanguageTag to the ContentLanguages object.
+        @param languageTag The LanguageTag to append.
+     */
+    void append(const LanguageTag& languageTag);
 
-	
-	/**
-	 * Appends the element to the container
-	 * @param element ContentLanguageElement - element to append to container
-	 */
-	void append(ContentLanguageElement element);
-	
-	/**
-	 * Returns the next element in the container
-	 * Callers should call itrStart() ONCE before making calls to this function and
-	 * anytime the callers want the iterator reset to the beginning of the container.
-	 * @return ContentLanguageElement - the next element the container or ContentLanguageElement::EMPTY_REF
-	 * if the end of the container has been reached.
-	 */
-	ContentLanguageElement itrNext();
-	
-	/**
-	 * Finds the element in the container that matches the language_tag.
-	 * @param language_tag String - case insensitive match
-	 * @return int index of element if found, otherwise -1
-	 */
-	Sint32 find(String language_tag)const;
+    /**
+        Removes the specified LanguageTag from the ContentLanguages object.
+        @param index Integer index of the LanguageTag to remove.
+        @exception IndexOutOfBoundsException If the specified index is out of
+        range.
+     */
+    void remove(Uint32 index);
 
-	
-	/**
-	 * @return ostream - Returns a representation of this object in ContentLanguage header format
-	 * according to the RFC
-	 */
-	PEGASUS_COMMON_LINKAGE friend PEGASUS_STD(ostream) & operator<<(PEGASUS_STD(ostream) &stream, const ContentLanguages &cl);
+    /**
+        Finds the specified LanguageTag in the ContentLanguages object and
+        returns its index.
+        @param languageTag The LanguageTag to find.
+        @return Integer index of the LanguageTag, if found; otherwise
+        PEG_NOT_FOUND.
+     */
+    Uint32 find(const LanguageTag& languageTag) const;
 
-	/**
-	 * Assignment 
-	 * @param rhs ContentLanguages
-	 */
-	ContentLanguages& operator=(const ContentLanguages &rhs);
+    /**
+        Removes all the LanguageTags from the ContentLanguages object.
+     */
+    void clear();
 
-	void buildLanguageElements(Array<String> values);
+    /**
+        Tests ContentLanguages objects for equality.
+        @param contentLanguages A ContentLanguages object to be compared.
+        @return True if the ContentLanguages objects contain the same
+        ContentLanguagesElements in the same order, false otherwise.
+     */
+    Boolean operator==(const ContentLanguages& contentLanguages) const;
 
-}; // end ContentLanguages
+    /**
+        Tests ContentLanguages objects for inequality.
+        @param contentLanguages A ContentLanguages object to be compared.
+        @return False if the ContentLanguages objects contain the same
+        ContentLanguagesElements in the same order, true otherwise.
+     */
+    Boolean operator!=(const ContentLanguages& contentLanguages) const;
+
+private:
+    ContentLanguagesRep *_rep;
+};
 
 PEGASUS_NAMESPACE_END
 

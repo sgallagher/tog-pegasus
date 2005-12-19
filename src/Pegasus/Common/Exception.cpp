@@ -52,7 +52,7 @@ Exception::Exception(const String& message)
 {
     _rep = new ExceptionRep();
     _rep->message = message;
-    _rep->contentLanguages = ContentLanguages::EMPTY;  // l10n
+    _rep->contentLanguages.clear();
 }
 
 Exception::Exception(const Exception& exception)
@@ -431,7 +431,7 @@ CIMException::CIMException(
     tmp->code = code;
     tmp->file = "";
     tmp->line = 0;
-    tmp->contentLanguages = ContentLanguages::EMPTY;     
+    tmp->contentLanguages.clear();
     tmp->cimMessage = String::EMPTY;    
     _rep = tmp;
 }

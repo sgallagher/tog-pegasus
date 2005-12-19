@@ -35,6 +35,7 @@
 //		Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //                  (david.dillard@veritas.com)
 //              Vijay S Eli, IBM (vijayeli@in.ibm.com), for bug#3101 
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -187,16 +188,16 @@ int main (int argc, char * argv [])
         PEGASUS_TEST_ASSERT (request->authType == String::EMPTY);
         PEGASUS_TEST_ASSERT (request->userName == String::EMPTY);
         PEGASUS_TEST_ASSERT (((ContentLanguageListContainer)request->operationContext.get
-			(ContentLanguageListContainer::NAME)).getLanguages()== ContentLanguages::EMPTY);
+			(ContentLanguageListContainer::NAME)).getLanguages().size() == 0);
         PEGASUS_TEST_ASSERT (((AcceptLanguageListContainer)request->operationContext.get
-			(AcceptLanguageListContainer::NAME)).getLanguages()== AcceptLanguages::EMPTY);
+			(AcceptLanguageListContainer::NAME)).getLanguages().size() == 0);
 
         AcceptLanguageListContainer allc1(request->operationContext.get(AcceptLanguageListContainer::NAME));
-        PEGASUS_TEST_ASSERT ( allc1.getLanguages() == AcceptLanguages::EMPTY );
+        PEGASUS_TEST_ASSERT ( allc1.getLanguages().size() == 0 );
         AcceptLanguageListContainer allc2(allc1);
-        PEGASUS_TEST_ASSERT ( allc2.getLanguages() == AcceptLanguages::EMPTY );
+        PEGASUS_TEST_ASSERT ( allc2.getLanguages().size() == 0 );
         AcceptLanguageListContainer allc3 = allc2;
-        PEGASUS_TEST_ASSERT ( allc3.getLanguages() == AcceptLanguages::EMPTY );        
+        PEGASUS_TEST_ASSERT ( allc3.getLanguages().size() == 0 );
 
         CIMInstance anInstance;
         AutoPtr <CIMGetInstanceResponseMessage> response

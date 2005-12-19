@@ -72,6 +72,7 @@
 #include "CommonUTF.h"
 #include "Buffer.h"
 #include "StrLit.h"
+#include "LanguageParser.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -294,14 +295,14 @@ Buffer& operator<<(Buffer& out, const CIMName& name)
 // l10n
 Buffer& operator<<(Buffer& out, const AcceptLanguages& al)
 {
-    XmlWriter::append(out, al.toString ());
+    XmlWriter::append(out, LanguageParser::buildAcceptLanguageHeader(al));
     return out;
 }
 
 // l10n
 Buffer& operator<<(Buffer& out, const ContentLanguages& cl)
 {
-    XmlWriter::append(out, cl.toString ());
+    XmlWriter::append(out, LanguageParser::buildContentLanguageHeader(cl));
     return out;
 }
 

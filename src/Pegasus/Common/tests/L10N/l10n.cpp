@@ -28,37 +28,23 @@
 //==============================================================================
 //
 // Modified By: Vijay Eli, IBM (vijayeli@in.ibm.com) for bug#3101.
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <cstdlib>
-
 #include <iostream>
 
 #include <Pegasus/Common/PegasusAssert.h>
 
-
-
-#include <Pegasus/Common/String.h>
-
-#include <Pegasus/Common/InternalException.h>
-
-#include <Pegasus/Common/LanguageParser.h>
-
-#include <Pegasus/Common/AcceptLanguageElement.h>
-
-#include <Pegasus/Common/ContentLanguageElement.h>
-
 #include <Pegasus/Common/AcceptLanguages.h>
-
 #include <Pegasus/Common/ContentLanguages.h>
-
+#include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/MessageLoader.h>
 
+#include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
-
-#include <Pegasus/Common/FileSystem.h>
-
+#include <Pegasus/Common/InternalException.h>
 
 PEGASUS_USING_PEGASUS;
 
@@ -66,395 +52,872 @@ PEGASUS_USING_STD;
 
 
 
-void drive_LanguageParser(){
-
-
-
-    LanguageParser lp;
-
-
-
-    String tag1("en-US-mn-blah-blah");
-
-
-
-    PEGASUS_TEST_ASSERT( lp.getLanguage(tag1) == "en" );
-
-    PEGASUS_TEST_ASSERT( lp.getCountry(tag1) == "US" );
-
-    PEGASUS_TEST_ASSERT( lp.getVariant(tag1) == "mn-blah-blah" );
-
-
-
-    String tag2("en-US-mn (should not appear)");
-
-    String tag3("en-US-mn;q=.8");
-
-    String tag4("en-US-invalid;q=1.1");
-
-
-
-    PEGASUS_TEST_ASSERT( lp.parseContentLanguageValue(tag2) == "en-US-mn" );
-
-
-
-    String accept_language_tag = String::EMPTY;
-
-    Real32 q = lp.parseAcceptLanguageValue(accept_language_tag, tag3);
-
-    Real32 answer = .8;
-
-    PEGASUS_TEST_ASSERT( q == answer );
-
-    PEGASUS_TEST_ASSERT( accept_language_tag == "en-US-mn" );
-
-    try{
-
-        lp.parseAcceptLanguageValue(accept_language_tag, tag4);
-
-        PEGASUS_TEST_ASSERT( false ); //should not get here
-
-    }catch(InvalidAcceptLanguageHeader&){}
-
-
-
-    String tag5("en-US-mn,fr-wh-imps;q=0");
-
-    Array<String> values;
-
-    lp.parseHdr(values, tag5);
-
-    PEGASUS_TEST_ASSERT( values[0] == "en-US-mn" );
-
-    PEGASUS_TEST_ASSERT( values[1] == "fr-wh-imps;q=0" );
-
-}
-
-
-
-void drive_AcceptLanguageElement(){
-
-
-
-    String tag1("en-US-mn");
-
-    Real32 quality = 1.0;
-
-    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).toString() == "en-US-mn" );
-
-    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getLanguage() == "en" );
-
-    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getCountry() == "US" );
-
-    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getVariant() == "mn" );
-
-    PEGASUS_TEST_ASSERT( AcceptLanguageElement(tag1).getQuality() == quality );
-
-
-
-    AcceptLanguageElement al1("en","US","mn");
-
-    AcceptLanguageElement al2("en","US","mn",0.5);
-
-    AcceptLanguageElement al3(al1);
-
-    AcceptLanguageElement al4("en");
-
-
-
-    PEGASUS_TEST_ASSERT( al1 != al2 );
-
-    PEGASUS_TEST_ASSERT( al1 == al3 );
-
-    PEGASUS_TEST_ASSERT( al2 != al3 );
-
-    PEGASUS_TEST_ASSERT( al1 != al4 );
-
-    PEGASUS_TEST_ASSERT( al1 > al2 );  // only compares quality values
-
-        // AcceptLanguageElement - Array Tests
-        Array<AcceptLanguageElement> al_arr1(3);
-        PEGASUS_TEST_ASSERT( 8 == al_arr1.getCapacity() );
-        Array<AcceptLanguageElement> al_arr2(3,al1);
-        PEGASUS_TEST_ASSERT( 3 == al_arr2.size() && al_arr2[0].toString() == tag1);
-        al_arr1 = al_arr2;
-        PEGASUS_TEST_ASSERT( 3 == al_arr1.size() && al_arr1[0].toString() == tag1 );
-        AcceptLanguageElement *al5 = new AcceptLanguageElement("en-US");
-        Array<AcceptLanguageElement> al_arr3(al5,1);
-        PEGASUS_TEST_ASSERT( 1 == al_arr3.size() && al_arr3[0].toString() != tag1 );
-        Array<AcceptLanguageElement> al_arr4(al_arr1);
-        PEGASUS_TEST_ASSERT( 3 == al_arr4.size() && al_arr4[0].toString() == tag1 );
-        al_arr3.append(al5,1);
-        PEGASUS_TEST_ASSERT( 2 == al_arr3.size() && al_arr3[0].toString() != tag1 );
-        al_arr2.appendArray(al_arr1);
-        PEGASUS_TEST_ASSERT( 6 == al_arr2.size() && al_arr2[4].toString() == tag1 );
-        PEGASUS_TEST_ASSERT( al_arr1.getData() != al_arr3.getData() );
-        al_arr3.grow(2,al1);
-        PEGASUS_TEST_ASSERT( 4 == al_arr3.size() && al_arr3[0].toString() != tag1 );
-        al_arr3.insert(1,al1);
-        PEGASUS_TEST_ASSERT( 5 == al_arr3.size() && al_arr3[4].toString() == tag1 );
-        al_arr3.insert(1,al5,1);
-        PEGASUS_TEST_ASSERT( 6 == al_arr3.size() && al_arr3[5].toString() == tag1 );
-        al_arr3[5] = al1;
-        PEGASUS_TEST_ASSERT( al_arr3[5].toString() == tag1 );
-        al_arr3.prepend(al1);
-        PEGASUS_TEST_ASSERT( 7 == al_arr3.size() && al_arr3[6].toString() == tag1 );
-        al_arr3.prepend(al5,1);
-        PEGASUS_TEST_ASSERT( 8 == al_arr3.size() && al_arr3[7].toString() == tag1 );
-        al_arr3.remove(1);
-        PEGASUS_TEST_ASSERT( 7 == al_arr3.size() );
-        al_arr3.remove(1,2);
-        PEGASUS_TEST_ASSERT( 5 == al_arr3.size() );
-        al_arr3.swap(al_arr1);
-        PEGASUS_TEST_ASSERT( 5 == al_arr1.size() && 3 == al_arr3.size() &&
-                                     al_arr1[0].toString() != tag1 );
-        al_arr3.clear();
-        PEGASUS_TEST_ASSERT( 0 == al_arr3.size() );
-        delete al5;
-
-}
-
-
-
-void drive_ContentLanguageElement(){
-
-
-
-    String tag1("en-US-mn");
-
-    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).toString() == "en-US-mn" );
-
-    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).getLanguage() == "en" );
-
-    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).getCountry() == "US" );
-
-    PEGASUS_TEST_ASSERT( ContentLanguageElement(tag1).getVariant() == "mn" );
-
-
-
-    ContentLanguageElement cl1(tag1);
-
-    ContentLanguageElement cl2(cl1);
-
-    ContentLanguageElement cl3 = cl2;
-
-    ContentLanguageElement cl4(tag1);
-
-
-
-    PEGASUS_TEST_ASSERT( cl1 == cl2 );
-
-    PEGASUS_TEST_ASSERT( cl1 == cl3 );
-
-    PEGASUS_TEST_ASSERT( cl2 == cl3 );
-
-    PEGASUS_TEST_ASSERT( cl1 == cl4 );
-
-
-
-}
-
-
-
-void drive_AcceptLanguages(){
-
-
-
-    AcceptLanguages al("en-US-mn;q=.9,fr-FR;q=.1,en, fr;q=.2,la-SP-bal;q=.7,*");
-
-    AcceptLanguages al1,al2;
-
-    try{
-
-        int i = 0;
-
-        AcceptLanguageElement ale;
-
-        al.itrStart();
-
-        while( (ale = al.itrNext()) != AcceptLanguageElement::EMPTY_REF ){
-
-            switch(i){
-
-                case 0: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "en") ); break;
-
-                case 1: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "en-US-mn;q=0.900") ); break;
-
-                case 2: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "la-SP-bal;q=0.700") ); break;
-
-                case 3: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "fr;q=0.200") ); break;
-
-                case 4: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "fr-FR;q=0.100") ); break;
-
-                case 5: PEGASUS_TEST_ASSERT( String::equal(ale.toString(), "*") ); break;
-
-            }
-
-            i++;
-
-        }
-
-
-
-        PEGASUS_TEST_ASSERT( al.size() == 6 );
-
-
-
-        al.insert(AcceptLanguageElement("en-XX-xx"));
-
-        PEGASUS_TEST_ASSERT( al.size() == 7 );
-
-        PEGASUS_TEST_ASSERT( al.contains(AcceptLanguageElement("en-XX-xx")) );
-
-
-
-        al.remove(AcceptLanguageElement("en-XX-xx"));
-
-        PEGASUS_TEST_ASSERT( !al.contains(AcceptLanguageElement("en-XX-xx")) );
-
-        PEGASUS_TEST_ASSERT( al.size() == 6 );
-
-
-
-        al1 = al;
-
-        PEGASUS_TEST_ASSERT( al1 == al );
-
-
-
-        al1.clear();
-
-        PEGASUS_TEST_ASSERT( al1.size() == 0 );
-
-
-
-        Array<AcceptLanguageElement> al_arr;
-
-        al.getAllLanguageElements(al_arr);
-
-        al2 = AcceptLanguages(al_arr);
-
-        PEGASUS_TEST_ASSERT( al2 == al );
-
-
-
-        AcceptLanguages al3("en-US-mn;;");
-
-        PEGASUS_TEST_ASSERT(false); //should not get here
-
-    }catch(InvalidAcceptLanguageHeader&){}
-
-}
-
-
-
-void drive_ContentLanguages(){
-
-    ContentLanguages cl("en-US-mn,fr-FR,en, fr(oh you french), la-SP-bal,*");
-
-
-
-    ContentLanguages cl1,cl2;
-
-    try{
-
-        int i = 0;
-
-        ContentLanguageElement cle;
-
-        cl.itrStart();
-
-        while( (cle = cl.itrNext()) != ContentLanguageElement::EMPTY_REF ){
-
-            if( i == 3 ){
-
-                PEGASUS_TEST_ASSERT( String::equal(cle.toString(), "fr") );
-
-            }
-
-            i++;
-
-        }
-
-
-
-        PEGASUS_TEST_ASSERT( cl.size() == 6 );
-
-
-
-        cl.append(ContentLanguageElement("en-XX-xx"));
-
-        PEGASUS_TEST_ASSERT( cl.size() == 7 );
-
-        PEGASUS_TEST_ASSERT( cl.contains(ContentLanguageElement("en-XX-xx")) );
-
-
-
-        cl.remove(ContentLanguageElement("en-XX-xx"));
-
-        PEGASUS_TEST_ASSERT( !cl.contains(ContentLanguageElement("en-XX-xx")) );
-
-        PEGASUS_TEST_ASSERT( cl.size() == 6 );
-
-
-
-        cl1 = cl;
-
-        PEGASUS_TEST_ASSERT( cl1 == cl );
-
-
-
-        cl1.clear();
-
-        PEGASUS_TEST_ASSERT( cl1.size() == 0 );
-
-
-
-        Array<ContentLanguageElement> cl_arr;
-
-        cl.getAllLanguageElements(cl_arr);
-
-        cl2 = ContentLanguages(cl_arr);
-
-        PEGASUS_TEST_ASSERT( cl2 == cl );
-
-
-
-        ContentLanguages cl3("en-454545US-mn");  // should throw the below exception
-
-        PEGASUS_TEST_ASSERT(false); //should not get here
-
-    }catch(InvalidContentLanguageHeader&){}
-
-
-
-}
-
-
-
-void callMessageLoader(MessageLoaderParms mlp_arr[], int size){
-
-    String msg;
-
-    for(int i = 0; i < size; i++){
-
-         msg = MessageLoader::getMessage(mlp_arr[i]);
-
+void drive_LanguageParser()
+{
+    // Test the LanguageTag parser
+    {
+        String tag1("en-US-mn-blah-blah");
+        String language;
+        String country;
+        String variant;
+
+        LanguageParser::parseLanguageTag(tag1, language, country, variant);
+
+        PEGASUS_TEST_ASSERT(language == "en");
+        PEGASUS_TEST_ASSERT(country == "US");
+        PEGASUS_TEST_ASSERT(variant == "mn-blah-blah");
     }
 
+    // Test handling of Accept-Languages whitespace and comments
+    {
+        AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+            " 	 en-US-mn (should not appear)  ,"
+            "(and)en-US-ca   (!!!)  ;(less) q(uality) = (just) 0.5 (half)  ");
+        PEGASUS_TEST_ASSERT(al.size() == 2);
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(0).toString() == "en-US-mn");
+        PEGASUS_TEST_ASSERT(al.getQualityValue(0) == 1.0);
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(1).toString() == "en-US-ca");
+        PEGASUS_TEST_ASSERT(al.getQualityValue(1) == 0.5);
+        PEGASUS_TEST_ASSERT(LanguageParser::buildAcceptLanguageHeader(al) ==
+            "en-US-mn,en-US-ca;q=0.500");
+    }
+
+    // Test handling of Content-Languages whitespace and comments
+    {
+        ContentLanguages cl = LanguageParser::parseContentLanguageHeader(
+            " 	 en-US-mn (should not appear)  ,"
+            "(and)en-US-ca   (if you can imagine) (!!!)  ");
+        PEGASUS_TEST_ASSERT(cl.size() == 2);
+        PEGASUS_TEST_ASSERT(cl.getLanguageTag(0).toString() == "en-US-mn");
+        PEGASUS_TEST_ASSERT(cl.getLanguageTag(1).toString() == "en-US-ca");
+        PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(cl) ==
+            "en-US-mn,en-US-ca");
+    }
 }
 
 
+void drive_LanguageTag()
+{
+    try
+    {
+        // Test string value constructor and accessor methods
 
-void drive_MessageLoader(){
+        {
+            String tag1("en-US-mn");
+
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).toString() == "en-US-mn");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getLanguage() == "en");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getCountry() == "US");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getVariant() == "mn");
+        }
+
+        {
+            String tag1("en-US-123");
+
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).toString() == "en-US-123");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getLanguage() == "en");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getCountry() == "US");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getVariant() == "123");
+        }
+
+        {
+            String tag1("eng-1a-C3P0");
+
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).toString() == "eng-1a-C3P0");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getLanguage() == "eng");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getCountry() == "1a");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getVariant() == "C3P0");
+        }
+
+        {
+            String tag1("en-my-weird-dialect");
+
+            PEGASUS_TEST_ASSERT(
+                LanguageTag(tag1).toString() == "en-my-weird-dialect");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getLanguage() == "en");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getCountry() == "my");
+            PEGASUS_TEST_ASSERT(
+                LanguageTag(tag1).getVariant() == "weird-dialect");
+        }
+
+        {
+            String tag1("en-quite-a-weird-dialect");
+
+            PEGASUS_TEST_ASSERT(
+                LanguageTag(tag1).toString() == "en-quite-a-weird-dialect");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getLanguage() == "en");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getCountry() == "");
+            PEGASUS_TEST_ASSERT(
+                LanguageTag(tag1).getVariant() == "quite-a-weird-dialect");
+        }
+
+        {
+            String tag1("x-pig-latin");
+
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).toString() == "x-pig-latin");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getLanguage() == "");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getCountry() == "");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getVariant() == "");
+        }
+
+        {
+            String tag1("i-latin-for-pigs");
+
+            PEGASUS_TEST_ASSERT(
+                LanguageTag(tag1).toString() == "i-latin-for-pigs");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getLanguage() == "");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getCountry() == "");
+            PEGASUS_TEST_ASSERT(LanguageTag(tag1).getVariant() == "");
+        }
+
+        // Test copy constructor, assignment operator, and equality operator
+
+        LanguageTag lt1("en-US-ca");
+        LanguageTag lt2(lt1);
+        LanguageTag lt3 = lt2;
+        LanguageTag lt4("EN-us-Ca");
+        LanguageTag lt5("en-US-mn");
+
+        PEGASUS_TEST_ASSERT(lt1 == lt2);
+        PEGASUS_TEST_ASSERT(lt1 == lt3);
+        PEGASUS_TEST_ASSERT(lt2 == lt3);
+        PEGASUS_TEST_ASSERT(lt1 == lt4);
+        PEGASUS_TEST_ASSERT(lt1 != lt5);
+        PEGASUS_TEST_ASSERT(lt3 != lt5);
+
+        // Test invalid language tag:  Empty string
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Digit in primary subtag
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("e4-US-ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Primary subtag too short
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("e-US-ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Primary subtag too long
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("engl-US-ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Primary subtag too long
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("englishman-US-ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Single character second subtag
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("en-U-ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Second subtag too long
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("en-UnitedStates-ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Third subtag too long
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("en-US-california");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Empty subtag
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                LanguageTag lt("en--ca");
+            }
+            catch (Exception&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test uninitialized object:  getLanguage() method
+        {
+            Boolean gotException = false;
+            LanguageTag lt;
+
+            try
+            {
+                String language = lt.getLanguage();
+            }
+            catch (UninitializedObjectException&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test uninitialized object:  getCountry() method
+        {
+            Boolean gotException = false;
+            LanguageTag lt;
+
+            try
+            {
+                String country = lt.getCountry();
+            }
+            catch (UninitializedObjectException&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test uninitialized object:  getVariant() method
+        {
+            Boolean gotException = false;
+            LanguageTag lt;
+
+            try
+            {
+                String variant = lt.getVariant();
+            }
+            catch (UninitializedObjectException&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test uninitialized object:  toString() method
+        {
+            Boolean gotException = false;
+            LanguageTag lt;
+
+            try
+            {
+                String languageString = lt.toString();
+            }
+            catch (UninitializedObjectException&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test uninitialized object:  equality operator
+        {
+            Boolean gotException = false;
+            LanguageTag lt1;
+            LanguageTag lt2("en-US-ca");
+
+            try
+            {
+                Boolean test = (lt1 == lt2);
+            }
+            catch (UninitializedObjectException&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test uninitialized object:  assignment
+        {
+            LanguageTag lt1;
+            LanguageTag lt2("en-US-ca");
+
+            lt1 = lt2;
+
+            PEGASUS_TEST_ASSERT(lt1.toString() == "en-US-ca");
+        }
+
+        // Test uninitialized object:  unassignment
+        {
+            Boolean gotException = false;
+            LanguageTag lt1("en-US-ca");
+            LanguageTag lt2;
+
+            lt1 = lt2;
+
+            try
+            {
+                String languageTag = lt1.toString();
+            }
+            catch (UninitializedObjectException&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+    }
+    catch (Exception& e)
+    {
+        cout << "Unexpected exception: " << e.getMessage() << endl;
+        exit(1);
+    }
+}
 
 
+void drive_AcceptLanguages()
+{
+    try
+    {
+        AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+            "en-US-mn;q=.9,fr-FR;q=.1,en, fr;q=.2,la-SP-bal;q=.7,*;q=.01");
 
+        PEGASUS_TEST_ASSERT(al.size() == 6);
+
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(0).toString() == "en");
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(1).toString() == "en-US-mn");
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(2).toString() == "la-SP-bal");
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(3).toString() == "fr");
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(4).toString() == "fr-FR");
+        PEGASUS_TEST_ASSERT(al.getLanguageTag(5).toString() == "*");
+
+        PEGASUS_TEST_ASSERT(LanguageParser::buildAcceptLanguageHeader(al) ==
+            "en,en-US-mn;q=0.900,la-SP-bal;q=0.700,fr;q=0.200,fr-FR;q=0.100,"
+                "*;q=0.010");
+
+        // Test insert() method
+
+        al.insert(LanguageTag("en-XX-xx"), 1.0);
+        PEGASUS_TEST_ASSERT(al.size() == 7);
+        PEGASUS_TEST_ASSERT(al.find(LanguageTag("en-XX-xx")) != PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(
+            al.getQualityValue(al.find(LanguageTag("en-XX-xx"))) == 1.0);
+
+        // Test remove() method
+
+        Uint32 index = al.find(LanguageTag("en-XX-xx"));
+        al.remove(index);
+        PEGASUS_TEST_ASSERT(al.find(LanguageTag("en-XX-xx")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(al.size() == 6);
+
+        // Test assignment operator and equality operator
+
+        AcceptLanguages al1;
+
+        al1 = al;
+        PEGASUS_TEST_ASSERT(al1 == al);
+
+        // Test clear() method
+
+        al1.clear();
+        PEGASUS_TEST_ASSERT(al1.size() == 0);
+
+        // Test sorting of quality values
+        {
+            AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                "de;q=0.000,it;q=0.50,*;q=0.25,en-US-ca;q=1.00");
+
+            PEGASUS_TEST_ASSERT(al.getLanguageTag(0).toString() == "en-US-ca");
+            PEGASUS_TEST_ASSERT(al.getQualityValue(0) == 1.0);
+            PEGASUS_TEST_ASSERT(al.getLanguageTag(1).toString() == "it");
+            PEGASUS_TEST_ASSERT(al.getQualityValue(1) == 0.5);
+            PEGASUS_TEST_ASSERT(al.getLanguageTag(2).toString() == "*");
+            PEGASUS_TEST_ASSERT(al.getQualityValue(2) == 0.25);
+            PEGASUS_TEST_ASSERT(al.getLanguageTag(3).toString() == "de");
+            PEGASUS_TEST_ASSERT(al.getQualityValue(3) == 0.0);
+
+            PEGASUS_TEST_ASSERT(LanguageParser::buildAcceptLanguageHeader(al) ==
+                "en-US-ca,it;q=0.500,*;q=0.250,de;q=0.000");
+        }
+
+        // Test invalid quality value syntax:  Missing "q"
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Missing "="
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;q");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Unexpected character at "q"
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;r=.9");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Unexpected character at "="
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;q+0.1");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Extra semicolon
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;;q=0.1");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Negative quality value
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;q=-0.1");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Quality value too large
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;q=1.1");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Invalid trailing characters
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;q=0.1a");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid quality value syntax:  Quality value too long
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca;q=0.1110");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid comment syntax:  Missing closing parenthesis
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca(;q=0.1111");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test valid comment syntax
+        {
+            AcceptLanguages al1 = LanguageParser::parseAcceptLanguageHeader(
+                "en(english)-(\\(USA\\))US-\\c\\a;q(quality)=0.1(not much)");
+            AcceptLanguages al2 = LanguageParser::parseAcceptLanguageHeader(
+                "en-US-ca;q=0.1");
+            PEGASUS_TEST_ASSERT(al1 == al2);
+        }
+
+        // Test valid comment and whitespace syntax
+        {
+            AcceptLanguages al1 = LanguageParser::parseAcceptLanguageHeader(
+                "en (english)-(\\( USA \\))US-\\c \\a   ;q(quality) =0.1  "
+                    "(not much) ");
+            AcceptLanguages al2 = LanguageParser::parseAcceptLanguageHeader(
+                "en-US-ca;q=0.1");
+            PEGASUS_TEST_ASSERT(al1 == al2);
+        }
+
+        // Test invalid whitespace syntax
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca\\ ;q=0.1");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid language tag:  Trailing '-'
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    "en-US-ca-;q=0.1");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid Accept-Language value:  Empty string
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al =
+                    LanguageParser::parseAcceptLanguageHeader("");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid Accept-Language value:  Comment and whitespace only
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+                    " (comment only)");
+            }
+            catch (InvalidAcceptLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+    }
+    catch (Exception& e)
+    {
+        cout << "Unexpected exception: " << e.getMessage() << endl;
+        exit(1);
+    }
+}
+
+
+void drive_ContentLanguages()
+{
+    try
+    {
+        ContentLanguages cl = LanguageParser::parseContentLanguageHeader(
+            "en-US-mn,fr-FR,en, fr(oh you french), la-SP-bal");
+
+        for (Uint32 index = 0; index < cl.size(); index++)
+        {
+            LanguageTag lt = cl.getLanguageTag(index);
+
+            if (index == 3)
+            {
+                PEGASUS_TEST_ASSERT(String::equal(lt.toString(), "fr"));
+            }
+        }
+
+        PEGASUS_TEST_ASSERT(cl.size() == 5);
+
+        // Add LanguageTag
+
+        cl.append(LanguageTag("en-XX-xx"));
+        PEGASUS_TEST_ASSERT(cl.size() == 6);
+        PEGASUS_TEST_ASSERT(cl.find(LanguageTag("en-XX-xx")) != PEG_NOT_FOUND);
+
+        // Remove LanguageTag
+
+        Uint32 index = cl.find(LanguageTag("en-XX-xx"));
+        cl.remove(index);
+        PEGASUS_TEST_ASSERT(cl.find(LanguageTag("en-XX-xx")) == PEG_NOT_FOUND);
+        PEGASUS_TEST_ASSERT(cl.size() == 5);
+
+        // Test assignment operator and equality operator
+
+        ContentLanguages cl1;
+        cl1 = cl;
+        PEGASUS_TEST_ASSERT(cl1 == cl);
+
+        // Test clear() method
+
+        cl1.clear();
+        PEGASUS_TEST_ASSERT(cl1.size() == 0);
+
+        // Test invalid Content-Language value:  Invalid character
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                ContentLanguages cl =
+                    LanguageParser::parseContentLanguageHeader("en-4%5US-mn");
+            }
+            catch(InvalidContentLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid Content-Language value:  Empty string
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                ContentLanguages cl =
+                    LanguageParser::parseContentLanguageHeader("");
+            }
+            catch (InvalidContentLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid Content-Language value:  Comment and whitespace only
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                ContentLanguages cl =
+                    LanguageParser::parseContentLanguageHeader(
+                        " (comment only)");
+            }
+            catch (InvalidContentLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test invalid Content-Language value:  "*" language tag
+        {
+            Boolean gotException = false;
+
+            try
+            {
+                ContentLanguages cl =
+                    LanguageParser::parseContentLanguageHeader("en, *, es");
+            }
+            catch (InvalidContentLanguageHeader&)
+            {
+                gotException = true;
+            }
+
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+    }
+    catch (Exception& e)
+    {
+        cout << "Unexpected exception: " << e.getMessage() << endl;
+        exit(1);
+    }
+}
+
+
+void callMessageLoader(MessageLoaderParms mlp_arr[], int size)
+{
     String msg;
 
+    for(int i = 0; i < size; i++)
+    {
+         msg = MessageLoader::getMessage(mlp_arr[i]);
+    }
+}
+
+
+void drive_MessageLoader()
+{
+    String msg;
     int mlp_arr_size = 4;
-
-
 
     MessageLoaderParms mlp("CIMStatusCode.CIM_ERR_SUCCESS","Default CIMStatusCode, $0 $1",
 
@@ -464,7 +927,7 @@ void drive_MessageLoader(){
 
 
 
-    AcceptLanguages al("en_US");
+    AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader("en-US");
 
     mlp.acceptlanguages = al;
 
@@ -490,7 +953,7 @@ void drive_MessageLoader(){
 
     mlp.acceptlanguages.clear();
 
-    mlp.acceptlanguages.insert(AcceptLanguageElement("en-US-mn"));
+    mlp.acceptlanguages.insert(LanguageTag("en-US-mn"), 1.0);
 
 #ifdef PEGASUS_HAS_ICU
 
@@ -514,9 +977,9 @@ void drive_MessageLoader(){
 
     mlp1.acceptlanguages.clear();
 
-    mlp1.acceptlanguages.insert(AcceptLanguageElement("fr-FR"));
+    mlp1.acceptlanguages.insert(LanguageTag("fr-FR"), 1.0);
 
-    mlp1.acceptlanguages.insert(AcceptLanguageElement("bl-ow"));
+    mlp1.acceptlanguages.insert(LanguageTag("bl-ow"), 1.0);
 
 #ifdef PEGASUS_HAS_ICU
 
@@ -536,7 +999,7 @@ void drive_MessageLoader(){
 
     mlp.acceptlanguages.clear();
 
-    mlp.acceptlanguages.insert(AcceptLanguageElement("en-US"));
+    mlp.acceptlanguages.insert(LanguageTag("en-US"), 1.0);
 
     PEGASUS_TEST_ASSERT ( MessageLoader::getMessage(mlp) == "Default CIMStatusCode, rab oof is foo bar backwards 64000" );
 
@@ -546,8 +1009,7 @@ void drive_MessageLoader(){
 
     MessageLoader::_useDefaultMsg = false;
 
-    MessageLoader::_acceptlanguages.insert(
-            AcceptLanguageElement("st_at_ic"));
+    MessageLoader::_acceptlanguages.insert(LanguageTag("st-at-ic"), 1.0);
     MessageLoaderParms mlp_static("CIMStatusCode.CIM_ERR_SUCCESS","Default CIMStatusCode, $0",
 
                                                         "rab oof is foo bar backwards static");
@@ -572,7 +1034,7 @@ void drive_MessageLoader(){
 void drive_MessageLoaderSubs()
 {
     String msg;
-    AcceptLanguages al("en_US");
+    AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader("en-US");
 
     MessageLoader::_acceptlanguages.clear();
 
@@ -740,9 +1202,7 @@ int main( int argc, char *argv[] )
 
     drive_LanguageParser();
 
-    drive_AcceptLanguageElement();
-
-    drive_ContentLanguageElement();
+    drive_LanguageTag();
 
     drive_AcceptLanguages();
 
@@ -760,6 +1220,3 @@ int main( int argc, char *argv[] )
     return 0;
 
 }
-
-
-

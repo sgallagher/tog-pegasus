@@ -34,6 +34,7 @@
 //              David Dillard, VERITAS Software Corp.
 //                  (david.dillard@veritas.com)
 //		Sean Keenan (sean.keenan@hp.com)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -359,8 +360,8 @@ int main ()
                 CIM_ERR_FAILED);
             PEGASUS_TEST_ASSERT (((ContentLanguageListContainer)
                 response->operationContext.get
-                (ContentLanguageListContainer::NAME)).getLanguages () ==
-                ContentLanguages::EMPTY);
+                (ContentLanguageListContainer::NAME)).getLanguages().size() ==
+                0);
         }
         else
         {

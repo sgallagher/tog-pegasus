@@ -723,7 +723,7 @@ void CIMMessageDeserializer::_deserializeContentLanguages(
     while (XmlReader::getValueElement(parser, CIMTYPE_STRING, genericValue))
     {
         genericValue.get(genericString);
-        contentLanguages.append(ContentLanguageElement(genericString));
+        contentLanguages.append(LanguageTag(genericString));
     }
     XmlReader::expectEndTag(parser, "PGCONTLANGS");
 }
@@ -748,8 +748,7 @@ void CIMMessageDeserializer::_deserializeAcceptLanguages(
         genericValue.get(genericString);
         XmlReader::getValueElement(parser, CIMTYPE_REAL32, genericValue);
         genericValue.get(genericReal32);
-        acceptLanguages.insert(
-            AcceptLanguageElement(genericString, genericReal32));
+        acceptLanguages.insert(LanguageTag(genericString), genericReal32);
     }
     XmlReader::expectEndTag(parser, "PGACCLANGS");
 }

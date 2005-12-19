@@ -29,7 +29,7 @@
 //
 // Author: Yi Zhou (yi.zhou@hp.com)
 //
-// Modified By: 
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -436,7 +436,7 @@ void _testDefaultFormat()
 {
     ContentLanguages contentLangs;
 
-    contentLangs.append(ContentLanguageElement("en-US-mn"));
+    contentLangs.append(LanguageTag("en-US-mn"));
     String expectedIndicationText = "Indication (default format):";
 
     expectedIndicationText.append(
@@ -468,7 +468,7 @@ void _testFormat()
 {
     ContentLanguages contentLangs;
 
-    contentLangs.append(ContentLanguageElement("en-US-mn"));
+    contentLangs.append(LanguageTag("en-US-mn"));
 
     if (verbose)
     {
@@ -530,7 +530,7 @@ void _testArrayFormat()
 {
     ContentLanguages contentLangs;
 
-    contentLangs.append(ContentLanguageElement("en-US-mn"));
+    contentLangs.append(LanguageTag("en-US-mn"));
 
     if (verbose)
     {

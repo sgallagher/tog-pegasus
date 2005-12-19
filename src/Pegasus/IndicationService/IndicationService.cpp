@@ -61,6 +61,7 @@
 #include <Pegasus/Common/PegasusVersion.h>
 #include <Pegasus/Common/AcceptLanguages.h> // l10n
 #include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 // l10n
 #include <Pegasus/Common/MessageLoader.h>
@@ -674,19 +675,31 @@ void IndicationService::_initialize (void)
 
 //l10n start
         // Get the language tags that were saved with the subscription instance
-        String acceptLangs = String::EMPTY;
+        AcceptLanguages acceptLangs;
         Uint32 propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
         if (propIndex != PEG_NOT_FOUND)
         {
-             instance.getProperty(propIndex).getValue().get(acceptLangs);
+            String acceptLangsString;
+            instance.getProperty(propIndex).getValue().get(acceptLangsString);
+            if (acceptLangsString.size())
+            {
+                acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                    acceptLangsString);
+            }
         }
-        String contentLangs = String::EMPTY;
+        ContentLanguages contentLangs;
         propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
         if (propIndex != PEG_NOT_FOUND)
         {
-             instance.getProperty(propIndex).getValue().get(contentLangs);
+            String contentLangsString;
+            instance.getProperty(propIndex).getValue().get(contentLangsString);
+            if (contentLangsString.size())
+            {
+                contentLangs = LanguageParser::parseContentLanguageHeader(
+                    contentLangsString);
+            }
         }
 // l10n end
 
@@ -706,8 +719,8 @@ void IndicationService::_initialize (void)
             (indicationProviders, sourceNameSpace,
             propertyList, condition, query, queryLanguage,
             activeSubscriptions [i],
-            AcceptLanguages(acceptLangs), // l10n
-            ContentLanguages(contentLangs),  // 110n
+            acceptLangs,
+            contentLangs,
             creator);
 
         if (acceptedProviders.size () == 0)
@@ -1101,7 +1114,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
 
     CIMException cimException;
     CIMInstance instance;
-    String contentLangs = String::EMPTY;  // l10n
+    String contentLangsString;
 
     try
     {
@@ -1166,7 +1179,7 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
         if (propIndex != PEG_NOT_FOUND)
         {
              // Get the content languages to be sent in the Content-Language header
-             instance.getProperty(propIndex).getValue().get(contentLangs);
+             instance.getProperty(propIndex).getValue().get(contentLangsString);
              instance.removeProperty (propIndex);
         }
 // l10n end
@@ -1211,14 +1224,16 @@ void IndicationService::_handleGetInstanceRequest (const Message* message)
                                              exception.getMessage());
     }
 
-// l10n
-    // Note: setting Content-Language in the response to the contentLanguage
-    // in the repository.
     CIMGetInstanceResponseMessage * response = dynamic_cast
         <CIMGetInstanceResponseMessage *> (request->buildResponse ());
     response->cimException = cimException;
-    response->operationContext.set(ContentLanguageListContainer
-        (ContentLanguages(contentLangs)));
+    if (contentLangsString.size())
+    {
+        // Note: setting Content-Language in the response to the
+        // contentLanguage in the repository.
+        response->operationContext.set(ContentLanguageListContainer(
+            LanguageParser::parseContentLanguageHeader(contentLangsString)));
+    }
     response->cimInstance = instance;
     _enqueueResponse (request, response);
 
@@ -1373,14 +1388,16 @@ void IndicationService::_handleEnumerateInstancesRequest(const Message* message)
                                              exception.getMessage());
     }
 
-// l10n
-    // Note: setting Content-Language in the response to the aggregated
-    // contentLanguage from the instances in the repository.
     CIMEnumerateInstancesResponseMessage * response = dynamic_cast
         <CIMEnumerateInstancesResponseMessage *> (request->buildResponse ());
     response->cimException = cimException;
-    response->operationContext.set(ContentLanguageListContainer
-        (ContentLanguages(aggregatedLangs)));
+    if (aggregatedLangs.size())
+    {
+        // Note: setting Content-Language in the response to the aggregated
+        // contentLanguage from the instances in the repository.
+        response->operationContext.set(ContentLanguageListContainer(
+            LanguageParser::parseContentLanguageHeader(aggregatedLangs)));
+    }
     response->cimNamedInstances = returnedInstances;
     _enqueueResponse (request, response);
 
@@ -1641,14 +1658,14 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                     (AcceptLanguageListContainer::NAME)).getLanguages();
                 modifiedInstance.addProperty (CIMProperty
                     (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS,
-                    acceptLangs.toString()));
+                    LanguageParser::buildAcceptLanguageHeader(acceptLangs)));
 
                 ContentLanguages contentLangs =
                     ((ContentLanguageListContainer)request->operationContext.get
                     (ContentLanguageListContainer::NAME)).getLanguages();
                 modifiedInstance.addProperty (CIMProperty
                     (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS,
-                    contentLangs.toString()));
+                    LanguageParser::buildContentLanguageHeader(contentLangs)));
 
                 Array <CIMName> properties = propertyList.getPropertyNameArray ();
                 properties.append (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
@@ -2511,19 +2528,33 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
 // l10n start
-            String acceptLangs = String::EMPTY;
+            AcceptLanguages acceptLangs;
             Uint32 propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                 instance.getProperty(propIndex).getValue().get(acceptLangs);
+                String acceptLangsString;
+                instance.getProperty(propIndex).getValue().get(
+                    acceptLangsString);
+                if (acceptLangsString.size())
+                {
+                    acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                        acceptLangsString);
+                }
             }
-            String contentLangs = String::EMPTY;
+            ContentLanguages contentLangs;
             propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                 instance.getProperty(propIndex).getValue().get(contentLangs);
+                String contentLangsString;
+                instance.getProperty(propIndex).getValue().get(
+                    contentLangsString);
+                if (contentLangsString.size())
+                {
+                    contentLangs = LanguageParser::parseContentLanguageHeader(
+                        contentLangsString);
+                }
             }
 // l10n end
 
@@ -2550,8 +2581,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         sourceNameSpace,
                         requiredProperties, condition, query, queryLanguage,
                         newSubscriptions [i],
-                        AcceptLanguages(acceptLangs),
-                        ContentLanguages(contentLangs),
+                        acceptLangs,
+                        contentLangs,
                         creator);
                 }
                 else
@@ -2565,8 +2596,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         (indicationProviders,
                         sourceNameSpace, requiredProperties, condition,
                         query, queryLanguage, newSubscriptions [i],
-                        AcceptLanguages(acceptLangs),
-                        ContentLanguages(contentLangs),
+                        acceptLangs,
+                        contentLangs,
                         creator);
 
                     if (acceptedProviders.size () > 0)
@@ -2648,19 +2679,33 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 // l10n start
-            String acceptLangs = String::EMPTY;
+            AcceptLanguages acceptLangs;
             Uint32 propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                instance.getProperty(propIndex).getValue().get(acceptLangs);
+                String acceptLangsString;
+                instance.getProperty(propIndex).getValue().get(
+                    acceptLangsString);
+                if (acceptLangsString.size())
+                {
+                    acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                        acceptLangsString);
+                }
             }
-            String contentLangs = String::EMPTY;
+            ContentLanguages contentLangs;
             propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                instance.getProperty(propIndex).getValue().get(contentLangs);
+                String contentLangsString;
+                instance.getProperty(propIndex).getValue().get(
+                    contentLangsString);
+                if (contentLangsString.size())
+                {
+                    contentLangs = LanguageParser::parseContentLanguageHeader(
+                        contentLangsString);
+                }
             }
 // l10n end
 
@@ -2697,8 +2742,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         _sendWaitDeleteRequests (indicationProviders,
                             sourceNameSpace,
                             formerSubscriptions [i],
-                            AcceptLanguages(acceptLangs),
-                            ContentLanguages(contentLangs),
+                            acceptLangs,
+                            contentLangs,
                             creator);
 
                         //
@@ -2726,8 +2771,8 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                                 requiredProperties, condition,
                                 query, queryLanguage,
                                 formerSubscriptions [i],
-                                AcceptLanguages(acceptLangs),
-                                ContentLanguages(contentLangs),
+                                acceptLangs,
+                                contentLangs,
                                 creator);
                         }
                         else
@@ -3070,21 +3115,33 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue
                 ().toString ();
 
-            String acceptLangs = String::EMPTY;
+            AcceptLanguages acceptLangs;
             Uint32 propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                instance.getProperty (propIndex).getValue ().get
-                    (acceptLangs);
+                String acceptLangsString;
+                instance.getProperty(propIndex).getValue().get(
+                    acceptLangsString);
+                if (acceptLangsString.size())
+                {
+                    acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                        acceptLangsString);
+                }
             }
-            String contentLangs = String::EMPTY;
+            ContentLanguages contentLangs;
             propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                instance.getProperty (propIndex).getValue ().get
-                    (contentLangs);
+                String contentLangsString;
+                instance.getProperty(propIndex).getValue().get(
+                    contentLangsString);
+                if (contentLangsString.size())
+                {
+                    contentLangs = LanguageParser::parseContentLanguageHeader(
+                        contentLangsString);
+                }
             }
 
             //
@@ -3097,8 +3154,8 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 (currentIndicationProviders,
                 sourceNameSpace, requiredProperties, condition,
                 query, queryLanguage, instance,
-                AcceptLanguages (acceptLangs),
-                ContentLanguages (contentLangs),
+                acceptLangs,
+                contentLangs,
                 creator);
 
             if (acceptedProviders.size () > 0)
@@ -5419,27 +5476,41 @@ void IndicationService::_deleteReferencingSubscriptions (
         _getCreator (instance, creator);
 
 // l10n start
-        String acceptLangs = String::EMPTY;
+        AcceptLanguages acceptLangs;
         Uint32 propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
         if (propIndex != PEG_NOT_FOUND)
         {
-            instance.getProperty (propIndex).getValue ().get (acceptLangs);
+            String acceptLangsString;
+            instance.getProperty(propIndex).getValue().get(
+                acceptLangsString);
+            if (acceptLangsString.size())
+            {
+                acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                    acceptLangsString);
+            }
         }
-        String contentLangs = String::EMPTY;
+        ContentLanguages contentLangs;
         propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
         if (propIndex != PEG_NOT_FOUND)
         {
-            instance.getProperty (propIndex).getValue ().get (contentLangs);
+            String contentLangsString;
+            instance.getProperty(propIndex).getValue().get(
+                contentLangsString);
+            if (contentLangsString.size())
+            {
+                contentLangs = LanguageParser::parseContentLanguageHeader(
+                    contentLangsString);
+            }
         }
 // l10n end
 
 // l10n
         _sendAsyncDeleteRequests (indicationProviders, sourceNamespaceName,
             deletedSubscriptions [i],
-            AcceptLanguages (acceptLangs),
-            ContentLanguages (contentLangs),
+            acceptLangs,
+            contentLangs,
             0,  // no request
             indicationSubclasses,
             creator);
@@ -5536,29 +5607,41 @@ void IndicationService::_deleteExpiredSubscription (
             // Get the language tags that were saved with the subscription
             // instance
             //
-            String acceptLangs = String::EMPTY;
+            AcceptLanguages acceptLangs;
             Uint32 propIndex = subscriptionInstance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                 subscriptionInstance.getProperty (propIndex).getValue ().get
-                     (acceptLangs);
+                String acceptLangsString;
+                subscriptionInstance.getProperty(propIndex).getValue().get(
+                    acceptLangsString);
+                if (acceptLangsString.size())
+                {
+                    acceptLangs = LanguageParser::parseAcceptLanguageHeader(
+                        acceptLangsString);
+                }
             }
-            String contentLangs = String::EMPTY;
+            ContentLanguages contentLangs;
             propIndex = subscriptionInstance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
             {
-                 subscriptionInstance.getProperty (propIndex).getValue ().get
-                     (contentLangs);
+                String contentLangsString;
+                subscriptionInstance.getProperty(propIndex).getValue().get(
+                    contentLangsString);
+                if (contentLangsString.size())
+                {
+                    contentLangs = LanguageParser::parseContentLanguageHeader(
+                        contentLangsString);
+                }
             }
 
 // l10n
             subscriptionInstance.setPath (subscription);
             _sendAsyncDeleteRequests (indicationProviders,
                 sourceNamespaceName, subscriptionInstance,
-                AcceptLanguages(acceptLangs),
-                ContentLanguages(contentLangs),
+                acceptLangs,
+                contentLangs,
                 0, // no request
                 indicationSubclasses,
                 creator);

@@ -106,7 +106,7 @@ CmpiStatus CWS_PlainFile::enumInstanceNames(const CmpiContext& ctx,
       makePath(LOCALCLASSNAME,nameSpace.charPtr(),&filebuf);
     rslt.returnData(objectPath);
   } 
-
+  CWS_End_Enum(enumhdl);
   rslt.returnDone();
   return CmpiStatus(CMPI_RC_OK);
 }
@@ -139,7 +139,7 @@ CmpiStatus CWS_PlainFile::enumInstances(const CmpiContext& ctx,
 		   properties);
     rslt.returnData(instance);
   } 
-
+  CWS_End_Enum(enumhdl);
   rslt.returnDone();
   return CmpiStatus(CMPI_RC_OK);
 }

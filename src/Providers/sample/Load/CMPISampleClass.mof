@@ -1,0 +1,13 @@
+
+ [Description("CMPI sample provider")
+ ]
+class CMPISampleClass
+{
+ [ key ]
+ string Identifier;
+ string data;
+ string array[];
+
+ string mount([IN] string dir , [IN] string type);
+
+};

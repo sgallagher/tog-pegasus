@@ -68,7 +68,9 @@ static CmpiStatus CWS_DirectoryContainsFileAssocHelper
  const char* role, const char* resultRole, const char** properties,
  int functype);
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 using namespace std;
+#endif
 
 /* -----------------------------------------------------------------------*/
 /*      Provider Factory - IMPORTANT for entry point generation           */

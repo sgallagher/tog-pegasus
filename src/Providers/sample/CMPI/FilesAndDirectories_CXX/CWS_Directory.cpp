@@ -36,7 +36,9 @@
 #include "CWS_Directory.h"
 #include <iostream>
 
+#ifndef PEGASUS_PLATFORM_HPUX_PARISC_ACC
 using namespace std;
+#endif
 
 static const char *  LOCALCLASSNAME="CWS_Directory_CXX";
 

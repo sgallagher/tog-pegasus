@@ -45,10 +45,15 @@ DIRS += \
 	CMPI/CWS_Util \
 	CMPI/FilesAndDirectories \
 	CMPI/FilesAndDirectories/tests \
-	CMPI/FilesAndDirectories_CXX \
-	CMPI/FilesAndDirectories_CXX/tests \
 	CMPI/ProcessIndication \
 	CMPI/ProcessIndication/tests 
+
+ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+  DIRS += \
+	CMPI/FilesAndDirectories_CXX \
+	CMPI/FilesAndDirectories_CXX/tests 
+endif
+
 endif
 
 include $(PEGASUS_ROOT)/mak/recurse.mak

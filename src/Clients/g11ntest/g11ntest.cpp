@@ -1383,8 +1383,8 @@ static void TestServerMessages( CIMClient& client,
         else
         {
            acceptLangsDE.insert(LanguageTag("de"), 0.1);
-           acceptLangsDE.insert(LanguageTag("x-a"), 0.2);
-           acceptLangsDE.insert(LanguageTag("x-b"), 0.3);
+           acceptLangsDE.insert(LanguageTag("x-aa"), 0.2);
+           acceptLangsDE.insert(LanguageTag("x-bb"), 0.3);
         }
 
         AcceptLanguages acceptLangsFR;
@@ -1396,8 +1396,8 @@ static void TestServerMessages( CIMClient& client,
         else
         {
            acceptLangsFR.insert(LanguageTag("fr"), 0.1);
-           acceptLangsFR.insert(LanguageTag("x-a"), 0.2);
-           acceptLangsFR.insert(LanguageTag("x-b"), 0.3);
+           acceptLangsFR.insert(LanguageTag("x-aa"), 0.2);
+           acceptLangsFR.insert(LanguageTag("x-bb"), 0.3);
         }
 
         AcceptLanguages acceptLangsES;
@@ -1409,8 +1409,8 @@ static void TestServerMessages( CIMClient& client,
         else
         {
            acceptLangsES.insert(LanguageTag("es"), 0.1);
-           acceptLangsES.insert(LanguageTag("x-a"), 0.2);
-           acceptLangsES.insert(LanguageTag("x-b"), 0.3);
+           acceptLangsES.insert(LanguageTag("x-aa"), 0.2);
+           acceptLangsES.insert(LanguageTag("x-bb"), 0.3);
         }
 
         // The expected results from the enumerate

@@ -177,14 +177,14 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 
 	
 		char locale_ICU[size_locale_ICU];
+		LanguageTag languageTag;
 
 		// iterate through AcceptLanguages, use the first resource bundle match
 		//cout << "LOOPING THROUGH ACCEPTLANGUAGES..." << endl;
 		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Looping through AcceptLanguages...");
 		for (Uint32 index = 0; index < acceptlanguages.size(); index++)
 		{
-			LanguageTag languageTag =
-			    acceptlanguages.getLanguageTag(index);
+			languageTag = acceptlanguages.getLanguageTag(index);
 #ifdef PEGASUS_OS_OS400
 		        CString cstr = languageTag.toString().getCString();
 			const char *atoe = cstr;

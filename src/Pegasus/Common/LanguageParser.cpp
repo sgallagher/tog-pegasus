@@ -51,6 +51,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
+static char LOCALE_ID_SEPARATOR_CHAR = '_';
 
 AcceptLanguages LanguageParser::parseAcceptLanguageHeader(
     const String& acceptLanguageHeader)
@@ -113,12 +114,21 @@ ContentLanguages LanguageParser::parseContentLanguageHeader(
 }
 
 void LanguageParser::parseLanguageTag(
-    const String& languageTagString,
+    const String& languageTagString_,
     String& language,
     String& country,
     String& variant)
 {
     PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseLanguageTag");
+
+    // Convert locale ID format to language tag format
+    String languageTagString = languageTagString_;
+    Uint32 index = 0;
+    while ((index = languageTagString.find(index, LOCALE_ID_SEPARATOR_CHAR)) !=
+        PEG_NOT_FOUND)
+    {
+        languageTagString[index] = LANGUAGE_TAG_SEPARATOR_CHAR;
+    }
 
     language.clear();
     country.clear();
@@ -278,12 +288,12 @@ AcceptLanguages LanguageParser::getDefaultAcceptLanguages()
     EtoA(strcpy(tmp_,tmp));
     try
     {
-        return AcceptLanguages(tmp_);
+        return LanguageParser::parseAcceptLanguageHeader(tmp_);
     }
 # else
     try
     {
-        return AcceptLanguages(default_loc.getName());
+        return LanguageParser::parseAcceptLanguageHeader(default_loc.getName());
     }
 # endif
     catch (const InvalidAcceptLanguageHeader& e)
@@ -294,11 +304,13 @@ AcceptLanguages LanguageParser::getDefaultAcceptLanguages()
                "format");
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             e.getMessage());
-        return AcceptLanguages("*");
+        AcceptLanguages al;
+        al.insert(LanguageTag("*"), 1);
+        return al;
     }
-#endif
-
+#else
     return AcceptLanguages();
+#endif
 }
 
 void LanguageParser::_parseLanguageHeader(

@@ -26,36 +26,21 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-include $(PEGASUS_ROOT)/mak/config.mak
 
-DIRS = \
-	InstanceProvider \
-	InstanceQueryProvider \
-	MethodProvider \
-	IndicationProvider \
-	SNMPIndicationProvider \
-	RT_Indication \
-	AssociationProvider \
-	AssociationProvider/testclient \
-	LocalizedProvider \
-	LocalizedProvider/msg
+ROOT = ../../../../../../
+include $(ROOT)/mak/config.mak
+include $(ROOT)/test/config.mak
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
-	CMPI/CWS_Util \
-	CMPI/FilesAndDirectories \
-	CMPI/FilesAndDirectories/tests \
-	CMPI/ProcessIndication \
-	CMPI/ProcessIndication/tests \
- 	CMPI/SampleClass \
- 	CMPI/SampleClass/tests 
+XMLSCRIPTS = \
+	CreateInstance_SampleClass_1 \
+	CreateInstance_SampleClass_2 \
+	DeleteInstance_SampleClass_1 \
+	EnumerateInstance_SampleClass \
+	EnumerateInstanceNames_SampleClass \
+	GetInstance_SampleClass_1 \
+	ModifyInstance_SampleClass \
+	GetInstance_SampleClass_2 \
+	DeleteInstance_SampleClass_2 
 
-ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-  DIRS += \
-	CMPI/FilesAndDirectories_CXX \
-	CMPI/FilesAndDirectories_CXX/tests 
-endif
 
-endif
-
-include $(PEGASUS_ROOT)/mak/recurse.mak
+include $(ROOT)/test/configend.mak

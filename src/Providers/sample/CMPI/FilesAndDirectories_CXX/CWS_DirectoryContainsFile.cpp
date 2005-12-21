@@ -50,7 +50,7 @@ enum FuncType{
   FUNC_ASSOC,
   FUNC_ASSOCNAME,
   FUNC_REF,
-  FUNC_REFNAME,
+  FUNC_REFNAME
 };
 
 static void DirectoryContainsFileReturnHelper

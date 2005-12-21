@@ -198,7 +198,7 @@ CmpiStatus CWS_PlainFile::createInstance(const CmpiContext& ctx,
 					 const CmpiObjectPath& cop,
 					 const CmpiInstance& inst)
 {
-  throw CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED,
+  return CmpiStatus(CMPI_RC_ERR_NOT_SUPPORTED,
 		   "CWS_PlainFile cannot create");
 }
 

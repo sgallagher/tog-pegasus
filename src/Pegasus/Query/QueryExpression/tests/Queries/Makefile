@@ -42,7 +42,11 @@ QueryExpression.query.res: QueryExpression.query
 
 tests:
 
+ifndef PEGASUS_DISABLE_CQL
 poststarttests: QueryExpression.query.res
+else
+poststarttests: 
+endif
 
 clean:
 	$(RM) QueryExpression.query.res

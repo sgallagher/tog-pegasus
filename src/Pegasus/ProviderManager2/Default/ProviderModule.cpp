@@ -37,6 +37,7 @@
 //              Josephine Eskaline Joyce (jojustin@in.ibm.com) for PEP#101
 //              Sean Keenan, Hewlett-Packard Company <sean.keenan@hp.com>
 //              Roger Kumpf, Hewlett-Packard Company <roger_kumpf@hp.com>
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4585
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +62,12 @@ ProviderModule::ProviderModule(const String& fileName)
 
 ProviderModule::~ProviderModule()
 {
+    if (_library != 0)
+    {
+        System::unloadDynamicLibrary(_library);
+        _library = 0;
+        _refCount = 0;
+    }
 }
 
 CIMProvider* ProviderModule::load(const String& providerName)

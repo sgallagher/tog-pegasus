@@ -33,6 +33,7 @@
 //              Mike Day, IBM (mdday@us.ibm.com)
 //              Adrian Schuur, IBM (schuur@de.ibm.com)
 //              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4585
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +53,7 @@
 PEGASUS_NAMESPACE_BEGIN
 
 /** The ProviderModule class represents the physical module, as defined by the
-    operating system, that contains one or more providers.
+    operating system, that contains one or more providers. Also this class in not reentrant.
  */
 class PEGASUS_DEFPM_LINKAGE ProviderModule
 {

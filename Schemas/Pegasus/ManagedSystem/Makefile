@@ -85,8 +85,8 @@ ifeq ($(EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED),true)
 	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof"
 endif
 ifeq ($(PEGASUS_ENABLE_SLP),true)	
-	@ $(ECHO) +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
-	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/$(FILE_PREFIX)_SLPProvider$(PG_SCHEMA_VER)R.mof"
+	@ $(ECHO) +++++ Registering the SLPProvider in $(MANAGEDSYSTEMNS) namespace ...
+	@ $(CIMMOFCLI) "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/PG_SLPProvider$(PG_SCHEMA_VER)R.mof"
 endif
 
 repositoryServer:
@@ -111,8 +111,8 @@ ifeq ($(EXTENDED_MANAGEDSYSTEM_NS_SUPPORTED),true)
 	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/$(FILE_PREFIX)_ManagedSystemSchema$(PG_SCHEMA_VER)R.mof"
 endif
 ifeq ($(PEGASUS_ENABLE_SLP),true) 
-	@ $(ECHO) +++++ Registering Providers for platform specific classes in $(MANAGEDSYSTEMNS) namespace ...
-	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/$(FILE_PREFIX)_SLPProvider$(PG_SCHEMA_VER)R.mof"
+	@ $(ECHO) +++++ Registering the SLPProvider in $(MANAGEDSYSTEMNS) namespace ...
+	@ cimmof "-I$(PG_MOF_PATH)" "-n$(INTEROPNS)" "$(PG_MOF_PATH)/PG_SLPProvider$(PG_SCHEMA_VER)R.mof"
 endif
 
 clean:

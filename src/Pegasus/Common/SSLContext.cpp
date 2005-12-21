@@ -35,6 +35,7 @@
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for Bug#1090
 //              David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4422
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,8 +108,8 @@ const int SSLCallbackInfo::SSL_CALLBACK_INDEX = 0;
 //
 #ifdef PEGASUS_HAS_SSL
 
-// Mutex for SSL locks.
-Mutex* SSLContextRep::_sslLocks = 0;
+// Mutex for SSL locks which will get initialized by AutoArrayPtr constructor.
+AutoArrayPtr<Mutex> SSLContextRep::_sslLocks;
 
 // Mutex for _countRep.
 Mutex SSLContextRep::_countRepMutex;
@@ -500,13 +501,13 @@ void pegasus_locking_callback( int      mode,
     {
         /*Tracer::trace(TRC_SSL, Tracer::LEVEL4,
                 "Now locking for %d", pegasus_thread_self());*/
-        SSLContextRep::_sslLocks[type].lock( pegasus_thread_self() );
+        SSLContextRep::_sslLocks.get()[type].lock( pegasus_thread_self() );
     }
     else
     {
         /*Tracer::trace(TRC_SSL, Tracer::LEVEL4,
                 "Now unlocking for %d", pegasus_thread_self());*/
-        SSLContextRep::_sslLocks[type].unlock( );
+        SSLContextRep::_sslLocks.get()[type].unlock( );
     }
 }
 
@@ -525,7 +526,7 @@ void SSLContextRep::init_ssl()
      SSL_OS400_Init();
 #endif
 
-     _sslLocks= new Mutex[CRYPTO_num_locks()];
+     _sslLocks.reset(new Mutex[CRYPTO_num_locks()]);
 
      // Set the ID callback. The ID callback returns a thread ID.
 
@@ -546,8 +547,7 @@ void SSLContextRep::free_ssl()
     CRYPTO_set_id_callback     (NULL);
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4,
              "Freed SSL callback.");
-
-    delete []_sslLocks;
+    _sslLocks.reset();
 }
 
 

@@ -31,6 +31,7 @@
 //
 // Modified By: Sushma Fernandes, Hewlett-Packard Company (sushma_fernandes@hp.com)
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4422
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -127,6 +128,12 @@ public:
 
     SSLCertificateVerifyFunction* getSSLCertificateVerifyFunction() const;
 
+private:
+
+    SSL_CTX * _makeSSLContext();
+    void _randomInit(const String& randomFile);
+    Boolean _verifyPrivateKey(SSL_CTX *ctx, const String& keyPath);
+
     /*
     Initialize the SSL locking environment. 
          
@@ -138,12 +145,6 @@ public:
     Cleanup the SSL locking environment.
     */
     static void free_ssl();
-
-private:
-
-    SSL_CTX * _makeSSLContext();
-    void _randomInit(const String& randomFile);
-    Boolean _verifyPrivateKey(SSL_CTX *ctx, const String& keyPath);
 
     String _trustStore;
     String _certPath;
@@ -161,7 +162,7 @@ private:
     /*
        Mutex containing the SSL locks.
     */
-    static Mutex* _sslLocks;
+    static AutoArrayPtr<Mutex> _sslLocks;
 
     /*
        Count for instances of this class. This is used to initialize and free

@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4421
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -70,6 +71,9 @@ private:
     //
     static UserManager* _instance;
 
+    // UserManager Mutex member
+    static Mutex _userManagerMutex;
+
     //
     // Instance of UserFileHandler
     //
@@ -83,6 +87,14 @@ private:
     /** Constructor. */
     UserManager(CIMRepository* repository);
 
+    // Default Constructor - Implementation Not Required.
+    UserManager();
+
+    // Copy COnstructor - Implementation Not Required.
+    UserManager(const UserManager&);
+
+    // Overloaded Assignment Operator - Implementation Not Required.
+    UserManager& operator=(UserManager&);
 
     /** Destructor. */
     ~UserManager();

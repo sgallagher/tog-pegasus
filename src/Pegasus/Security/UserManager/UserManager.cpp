@@ -33,6 +33,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Amit K Arora, IBM (amita@in.ibm.com) for PEP#101
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4421
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 Initialize UserManager instance
 */
 UserManager* UserManager::_instance = 0;
+Mutex UserManager::_userManagerMutex;
 
 //
 // Constructor
@@ -113,7 +115,11 @@ UserManager* UserManager::getInstance(CIMRepository* repository)
 
     if (!_instance)
     {
-        _instance = new UserManager(repository);
+        AutoMutex lock(_userManagerMutex);
+        if (!_instance)
+        {
+            _instance = new UserManager(repository);
+        }
     }
 
     PEG_METHOD_EXIT();

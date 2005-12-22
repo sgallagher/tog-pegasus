@@ -55,7 +55,7 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 	CMPI/FilesAndDirectories_CXX \
 	CMPI/FilesAndDirectories_CXX/tests \
 	CMPI/SampleClass \
-	CMPI/SampleClass/tests
+	CMPI/SampleClass/tests 
 endif
 
 endif

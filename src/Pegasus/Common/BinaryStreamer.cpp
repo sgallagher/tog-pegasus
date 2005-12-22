@@ -190,6 +190,55 @@ void _unpack(const Buffer& in, Uint32& pos, CIMObjectPath& x)
     x.set(tmp);
 }
 
+void _unpack(const Buffer& in, Uint32& pos, CIMObject& x)
+{
+    String tmp_String;
+    Packer::unpackString(in, pos, tmp_String);
+    
+    if (tmp_String.size() == 0)
+    {
+        x = CIMObject();
+    }
+    else
+    {
+        // Convert the non-NULL string to a CIMObject (containing either a
+        // CIMInstance or a CIMClass).
+                
+        // First we need to create a new "temporary" XmlParser that is
+        // just the value of the Embedded Object in String representation.
+        CString cstr = tmp_String.getCString();
+        char* tmp_buffer = (char*)(const char*)cstr;
+        XmlParser tmp_parser(tmp_buffer);
+
+        // The next bit of logic constructs a CIMObject from the Embedded Object String.
+        // It is similar to the method XmlReader::getValueObjectElement().
+        CIMInstance cimInstance;
+        CIMClass cimClass;
+
+        if (XmlReader::getInstanceElement(tmp_parser, cimInstance))
+        {
+            x = CIMObject(cimInstance);
+        }
+        else if (XmlReader::getClassElement(tmp_parser, cimClass))
+        {
+            x = CIMObject(cimClass);
+        }
+        else
+        {
+            // l10n
+
+            // throw XmlValidationError(parser.getLine(),
+            //   "Expected INSTANCE or CLASS element");
+
+            MessageLoaderParms mlParms("Common.XmlReader.EXPECTED_INSTANCE_OR_CLASS_ELEMENT",
+                       "Expected INSTANCE or CLASS element"); // change "element" to "embedded object"
+
+            throw XmlValidationError(0, mlParms);
+
+        }
+    }
+}
+
 template<class T>
 struct UnpackArray
 {
@@ -413,7 +462,14 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
             }
 
             case CIMTYPE_OBJECT:
+            {
+                const Array<CIMObject>& a = 
+                    CIMValueType<CIMObject>::aref(rep);
+ 
+                for (Uint32 i = 0; i < n; i++) 
+                    Packer::packString(out, a[i].toString());
                 break;
+            }
         }
     }
     else
@@ -462,6 +518,8 @@ void BinaryStreamer::_packValue(Buffer& out, const CIMValue& x)
                 break;
 
             case CIMTYPE_OBJECT:
+                Packer::packString(
+                    out, CIMValueType<CIMObject>::ref(rep).toString());
                 break;
         }
     }
@@ -559,6 +617,7 @@ void BinaryStreamer::_unpackValue(
                 break;
 
             case CIMTYPE_OBJECT:
+                UnpackArray<CIMObject>::func(in, pos, arraySize, cimValue);
                 break;
         }
 
@@ -631,6 +690,7 @@ void BinaryStreamer::_unpackValue(
                 break;
 
             case CIMTYPE_OBJECT:
+                UnpackScalar<CIMObject>::func(in, pos, cimValue);
                 break;
         }
 

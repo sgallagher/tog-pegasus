@@ -707,6 +707,27 @@ jobjectArray JMPIjvm::NewPlatformStringArray(JNIEnv *env, char **strv, int strc)
 
 
 
+CIMPropertyList getList(JNIEnv *jEnv, jobjectArray l) {
+   CIMPropertyList pl;
+
+   if (l) {
+      Array<CIMName> n;
+
+      for (jsize i=0,s=jEnv->GetArrayLength(l); i<s; i++) {
+         jstring     jObj = (jstring)jEnv->GetObjectArrayElement(l,i);
+         const char *pn   = jEnv->GetStringUTFChars(jObj,NULL);
+
+         n.append(pn);
+
+         jEnv->ReleaseStringUTFChars(jObj,pn);
+      }
+
+      pl.set(n);
+   }
+
+   return pl;
+}
+
 
 
 extern "C" {
@@ -776,27 +797,6 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMInstanceException__1newSOOO
 // -		CIMOMHandle
 // ---
 // -------------------------------------
-
-CIMPropertyList getList(JNIEnv *jEnv, jobjectArray l) {
-   CIMPropertyList pl;
-
-   if (l) {
-      Array<CIMName> n;
-
-      for (jsize i=0,s=jEnv->GetArrayLength(l); i<s; i++) {
-         jstring     jObj = (jstring)jEnv->GetObjectArrayElement(l,i);
-         const char *pn   = jEnv->GetStringUTFChars(jObj,NULL);
-
-         n.append(pn);
-
-         jEnv->ReleaseStringUTFChars(jObj,pn);
-      }
-
-      pl.set(n);
-   }
-
-   return pl;
-}
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1getClass
   (JNIEnv *jEnv, jobject jThs, jint jCh, jint jCop, jboolean lo,
@@ -877,7 +877,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1enumerateClassNames
    OperationContext  ctx;
 
    try {
-      Array<CIMName>        enm   = ch->enumerateClassNames(ctx,cop->getNameSpace(),cop->getClassName(),deep);
+      Array<CIMName>        enm   = ch->enumerateClassNames(ctx,cop->getNameSpace(),cop->getClassName(),(Boolean)deep);
       Array<CIMObjectPath> *enmop = new Array<CIMObjectPath>();
 
       for (int i=0,m=enm.size(); i<m; i++) {
@@ -903,10 +903,10 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1enumerateClasses
       Array<CIMClass> en=ch->enumerateClasses(ctx,
                                               cop->getNameSpace(),
                                               cop->getClassName(),
-                                              deep,
+                                              (Boolean)deep,
                                               (Boolean)lo,
-                                              iq,
-                                              ic);
+                                              (Boolean)iq,
+                                              (Boolean)ic);
 
       return DEBUG_ConvertCToJava (Array<CIMClass>*, jint, new Array<CIMClass>(en));
    }
@@ -1030,10 +1030,10 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMOMHandle__1enumerateInstances
       Array<CIMInstance> en=ch->enumerateInstances(ctx,
                                                    cop->getNameSpace(),
                                                    cop->getClassName(),
-                                                   deep,
-                                                   lo,
-                                                   iq,
-                                                   ic,
+                                                   (Boolean)deep,
+                                                   (Boolean)lo,
+                                                   (Boolean)iq,
+                                                   (Boolean)ic,
                                                    pl);
       return DEBUG_ConvertCToJava (Array<CIMInstance>*, jint, new Array<CIMInstance>(en));
    }
@@ -3268,7 +3268,6 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1stringArray
       (JNIEnv *jEnv, jobject jThs, jobjectArray jstringA)
 {
    CIMValue     *cv   = NULL;
-   jboolean      b;
    jsize         len  = jEnv->GetArrayLength(jstringA);
    Array<String> strA;
 

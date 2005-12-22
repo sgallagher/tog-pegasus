@@ -79,6 +79,7 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
+#ifdef PEGASUS_INTERNALONLY
 // Suppress this warning: "identifier was truncated to '255' characters in the
 // debug information":
 #pragma warning( disable : 4786 )
@@ -97,6 +98,10 @@
 
 // Suppress this warning : "'this' : used in base member initializer list"
 #pragma warning ( disable : 4355 )
+
+// Suppress this warning: 'type' : forcing value to bool 'true' or 'false' (performance warning)
+#pragma warning( disable : 4800 ) 
+#endif
 
 //
 // Prior to Microsoft Visual Studio 7.0, there were no stream inserters for

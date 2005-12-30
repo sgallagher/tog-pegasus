@@ -1,31 +1,31 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -44,24 +44,24 @@ PEGASUS_NAMESPACE_BEGIN
     representation type.
 
     <pre>
-        CIM Type    CIMType Symbol       C++ Type
-        ----------------------------------------------
-        boolean     CIMTYPE_BOOLEAN      Boolean
-        uint8       CIMTYPE_UINT8        Uint8
-        sint8       CIMTYPE_SINT8        Sint8
-        uint16      CIMTYPE_UINT16       Uint16
-        sint16      CIMTYPE_SINT16       Sint16
-        uint32      CIMTYPE_UINT32       Uint32
-        sint32      CIMTYPE_SINT32       Sint32
-        uint64      CIMTYPE_UINT64       Sint64
-        sint64      CIMTYPE_SINT64       Sint64
-        real32      CIMTYPE_REAL32       Real32
-        real64      CIMTYPE_REAL64       Real64
-        char16      CIMTYPE_CHAR16       Char16
-        string      CIMTYPE_STRING       String
-        datetime    CIMTYPE_DATETIME     CIMDateTime
-        reference   CIMTYPE_REFERENCE    CIMObjectPath
-        object      CIMTYPE_OBJECT       CIMObject (not a basic CIM type)
+	    CIM CIMType	Constant	        C++ CIMType
+	    -------------------------------------------------------
+	    boolean	CIMTYPE_BOOLEAN		Boolean
+	    uint8	CIMTYPE_UINT8		Uint8
+	    sint8	CIMTYPE_SINT8		Sint8
+	    uint16	CIMTYPE_UINT16		Uint16
+	    sint16	CIMTYPE_SINT16		Sint16
+	    uint32	CIMTYPE_UINT32		Uint32
+	    sint32	CIMTYPE_SINT32		Sint32
+	    uint64	CIMTYPE_UINT64		Sint64
+	    sint64	CIMTYPE_SINT64		Sint64
+	    real32	CIMTYPE_REAL32		Real32
+	    real64	CIMTYPE_REAL64		Real64
+	    char16	CIMTYPE_CHAR16		Char16
+	    string	CIMTYPE_STRING		String
+	    datetime	CIMTYPE_DATETIME	CIMDateTime
+	    reference	CIMTYPE_REFERENCE	CIMObjectPath
+        object      CIMTYPE_OBJECT      CIMObject  (not a "real" CIM type -- see PEP 194)
     </pre>
 */
 
@@ -82,19 +82,20 @@ enum CIMType
     CIMTYPE_STRING,
     CIMTYPE_DATETIME,
     CIMTYPE_REFERENCE,
-    CIMTYPE_OBJECT,
-    CIMTYPE_INSTANCE
+    CIMTYPE_OBJECT
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    , CIMTYPE_INSTANCE
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 };
 
-/**
-    Gets a string representation of a CIMType.
+/** 
+    Returns a string representation of the given type.
 
-    Note: the current implementation returns a string matching the first
-    column in the table above, but that is subject to change in later
+    Note: the current implementation returns a string matching the first 
+    column in the table above, but that is subject to change in later 
     revisions.
-    @param type The CIMType to convert to string form.
-    @return The string form of the specified CIMType.
-*/
+    @param type REVIEWERS: Insert description here.
+ */
 PEGASUS_COMMON_LINKAGE const char * cimTypeToString (
     const CIMType type);
 

@@ -1,31 +1,31 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -46,1064 +46,472 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMValueRep;
 class CIMObject;
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 class CIMInstance;
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 /**
-    The CIMValue class represents a value of any of the CIM data types.
-    This class encapsulates a union which holds value of any CIMType.
-    A type field indicates the type of the value.
-
-    WARNING: The returned value of CIMValue get(returnValue) is never nodified
-    when a CIMValue is null (i.e. isNull() == true). An isNull() test should
-    be executed before executing any CIMValue get(...) if there is any
-    question of a possible null value and you are not sure of the value in
-    the returned variable.
-
+    The CIMValue class represents a value of any of the CIM data types
+    (see \Ref{CIMType} for a list of valid CIM data types). This class
+    encapsulates a union which holds the current value. The class also
+    has a type field indicating the type of that value.
 */
 class PEGASUS_COMMON_LINKAGE CIMValue
 {
 public:
-    /**
-        Constructs a null CIMValue with type Boolean and isArray=false.
+    /** Constructor - Creates an NULL CIMValue object set to null and 
+        with type CIMType:none and !arraytype.
     */
     CIMValue();
 
-    /**
-        Constructs a null CIMValue object with the specified type and
-        array indicator.
-        @param type The CIMType of the value
-        @param isArray A Boolean indicating whether the value is of array type
-        @param arraySize An integer specifying the size of the array, if the
-            CIMValue is for an array of a fixed size.  This value is ignored
-            if the isArray argument is false.
+    /** Constructor - Creates a NULL CIMValue object with the type and
+        array indicator set as specified.
+        @exception TypeMismatchException If the given type is not valid for a
+        CIMValue object.
     */
     CIMValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Boolean value to assign
-    */
+    /// Constructor.
     CIMValue(Boolean x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint8 value to assign
-    */
+    /// Constructor.
     CIMValue(Uint8 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint8 value to assign
-    */
+    /// Constructor.
     CIMValue(Sint8 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint16 value to assign
-    */
+    /// Constructor.
     CIMValue(Uint16 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint16 value to assign
-    */
+    /// Constructor.
     CIMValue(Sint16 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint32 value to assign
-    */
+    /// Constructor.
     CIMValue(Uint32 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint32 value to assign
-    */
+    /// Constructor.
     CIMValue(Sint32 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint64 value to assign
-    */
+    /// Constructor.
     CIMValue(Uint64 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint64 value to assign
-    */
+    /// Constructor.
     CIMValue(Sint64 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Real32 value to assign
-    */
+    /// Constructor.
     CIMValue(Real32 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Real64 value to assign
-    */
+    /// Constructor.
     CIMValue(Real64 x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Char16 value to assign
-    */
+    /// Constructor.
     CIMValue(const Char16& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The String value to assign
-    */
+    /// Constructor.
     CIMValue(const String& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The CIMDateTime value to assign
-    */
+    /// Constructor.
     CIMValue(const CIMDateTime& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The CIMObjectPath value to assign
-    */
+    /// Constructor.
     CIMValue(const CIMObjectPath& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        Note: The CIMObject argument is cloned to prevent subsequent
-        modification through the shared representation model.
-        @param x The CIMObject value to assign
-        @exception UninitializedObjectException If the CIMObject is
-            uninitialized.
+    /** Constructor.
+        Note: Constructing a CIMValue with an uninitialized CIMObject is not 
+        defined and results in a thrown UninitializedObjectException.
+        Note: The input CIMObject will be cloned before putting it into the
+        value of the constructed CIMValue. This is because CIMObjects use a
+        shared representation model, but we don't want CIMObjects inside a 
+        CIMValue to be altered by other external changes.
     */
     CIMValue(const CIMObject& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        Note: The CIMInstance argument is cloned to prevent subsequent
-        modification through the shared representation model.
-        @param x The CIMInstance value to assign
-        @exception UninitializedObjectException If the CIMInstance is
-            uninitialized.
-    */
+    /// Constructor.
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     CIMValue(const CIMInstance& x);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Boolean Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Boolean>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint8 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Uint8>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint8 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Sint8>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint16 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Uint16>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint16 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Sint16>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint32 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Uint32>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint32 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Sint32>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Uint64 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Uint64>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Sint64 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Sint64>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Real32 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Real32>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Real64 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Real64>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The Char16 Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<Char16>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The String Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<String>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The CIMDateTime Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<CIMDateTime>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        @param x The CIMObjectPath Array value to assign
-    */
+    /// Constructor.
     CIMValue(const Array<CIMObjectPath>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        Note: The CIMObjects in the Array argument are cloned to prevent
-        subsequent modification through the shared representation model.
-        @param x The CIMObject Array value to assign
-        @exception UninitializedObjectException If any of the CIMObjects in the
-            Array are uninitialized.
+    /** Constructor.
+        Note: Constructing a CIMValue with an uninitialized CIMObject anywhere
+        in the input array is not defined and results in a thrown 
+        UninitializedObjectException.
+        Note: Each CIMObject in the input Array will be cloned before putting 
+        the Array into the value of the constructed CIMValue. This is because
+        CIMObjects use a shared representation model, but we don't want 
+        CIMObjects inside a CIMValue to be altered by other external changes.
     */
     CIMValue(const Array<CIMObject>& x);
 
-    /**
-        Constructs a CIMValue with the specified value and inferred type.
-        Note: The CIMInstances in the Array argument are cloned to prevent
-        subsequent modification through the shared representation model.
-        @param x The CIMInstance Array value to assign
-        @exception UninitializedObjectException If any of the CIMInstances in
-            the Array are uninitialized.
-    */
+    /// Constructor.
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT    
     CIMValue(const Array<CIMInstance>& x);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-    /**
-        Constructs a CIMValue by copying another CIMValue object.
-        Note: If the specified CIMValue contains CIMObject or CIMInstance
-        objects, they are cloned to prevent subsequent modification through
-        the shared representation model.
-        @param x The CIMValue object to copy
+    /** Constructor.
+        Note: If the input type is CIMObject, it/they will be cloned before
+        putting it into the value of the constructed CIMValue. This is because
+        CIMObjects use a shared representation model, but we don't want 
+        CIMObjects inside a CIMValue to be altered by other external changes.
     */
     CIMValue(const CIMValue& x);
 
-    /**
-        Destructs a CIMValue object.
-    */
+    /// Destructor.
     ~CIMValue();
 
-    /**
-        Assigns the value from a specified CIMValue object.
-        Note: If the specified CIMValue contains CIMObject or CIMInstance
-        objects, they are cloned to prevent subsequent modification through
-        the shared representation model.
-        @param x The CIMValue object to copy
-        @return A reference to this CIMValue object with the new assignment
+    /** Operator =
+        Note: If the right hand side type is CIMObject, it/they will be cloned
+        before putting it into the value of the target CIMValue. This is because
+        CIMObjects use a shared representation model, but we don't want 
+        CIMObjects inside a CIMValue to be altered by other external changes.
     */
     CIMValue& operator=(const CIMValue& x);
 
-    /**
-        Assigns the value from a specified CIMValue object.
-        Note: If the specified CIMValue contains CIMObject or CIMInstance
-        objects, they are cloned to prevent subsequent modification through
-        the shared representation model.
-        @param x The CIMValue object to copy
+    /** Assigns one CIMValue object to another CIMValue object.
+        @param x - CIMValue object to be used for assignment.
+        Note: If the input type is CIMObject, it/they will be cloned before 
+        putting it into the value of the target CIMValue. This is because 
+        CIMObjects use a shared representation model, but we don't want  
+        CIMObjects inside a CIMValue to be altered by other external changes.
     */
     void assign(const CIMValue& x);
 
-    /**
-        Resets to a null value with type Boolean and isArray=false.
+    /** Clears the attributes and value of the CIMValue object.
     */
     void clear();
 
-    /**
-        Compares the type and isArray attributes with a specified CIMValue.
-        @param x The CIMValue object with which to compare
-        @return A Boolean indicating whether the CIMValue objects have the same
-            type and isArray attribute value.
+    /** Compares the types of two CIMValues. This
+        compares the type field and the array indicators.
+        @return true if both are of the same type and both are either arrays
+        or not, false otherwise.
+        <pre>
+            CIMValue a(Boolean(true);
+            CIMValue b = a;
+            if b.typeCompatible(a)
+                ...
+        </pre>
     */
     Boolean typeCompatible(const CIMValue& x) const;
 
-    /**
-        Indicates whether the value is an array.
-        @return A Boolean indicating whether the value is an array.
+    /** Determines if the value is an array.
+        @return true if the value is an array, false otherwise.
     */
     Boolean isArray() const;
 
-    /**
-        Indicates whether the value is null.  A null CIMValue has a type, but
-        no value can be retrieved from it.
-        @return A Boolean indicating whether the value is null.
+    /** Determines whether the CIMvalue object is Null. 
+        Null is the specific condition where no value has
+        yet been set. If a CIMValue object is Null, any get on that 
+        object will create an exception.
+        @return true if the CIMValue object is Null, false otherwise.
     */
     Boolean isNull() const;
 
-    /**
-        Gets the fixed array size of a CIMValue.  This value is undefined for
-        non-array values.  A value of 0 is given for variable size arrays.
-        Result is undetermined if CIMValue is null.
-        @return An integer indicating the array size.
+    /** Gets the size of an Array CIMValue.
+        @return The number of entries in the array.
     */
     Uint32 getArraySize() const;
 
-    /**
-        Gets the value type.
-        @return A CIMType indicating the type of the value.
+    /** Gets the CIMType attribute for the CIMValue.
+        @return the CIMType value.
     */
     CIMType getType() const;
 
-    /**
-        Sets the value to null with the specified type and array indicator.
-        @param type The CIMType of the value
-        @param isArray A Boolean indicating whether the value is of array type
-        @param arraySize An integer specifying the size of the array, if the
-            CIMValue is for an array of a fixed size.  This value is ignored
-            if the isArray argument is false.
+    /** Sets the CIMValue a NULL, but with valid CIMType and array 
+        characteristics.
+        @param type - CIMType for this CIMValue.
+        @param isArray - Boolean indicating whether this is an array CIMValue.
+        @param arraySize - Optional parameter indicating the array size.
+        <pre>
+            CIMValue value;             
+            value.setNullValue(CIMType::BOOLEAN, false); 
+        </pre>
     */
     void setNullValue(CIMType type, Boolean isArray, Uint32 arraySize = 0);
 
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Boolean value to assign
-    */
+    /** Sets the type, Array attribute and puts the value provided
+        into the value of the target CIMValue. 
+        <pre>
+            CIMValue x;
+            x.set(Uint16(9));
+        </pre>
+        @exception UninitializedObjectException If the given type is CIMObject, 
+        and the input CIMObject parameter is uninitialized or at least one entry 
+        in the Array of CIMObjects is uninitialized.
+        Note: If the input type is CIMObject, it/they will be cloned before
+        putting it into the value of the target CIMValue. This is because 
+        CIMObjects use a shared representation model, but we don't want
+        CIMObjects inside a CIMValue to be altered by other external changes.
+    */    
     void set(Boolean x);
 
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint8 value to assign
-    */
+    /// 
     void set(Uint8 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint8 value to assign
-    */
+    ///
     void set(Sint8 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint16 value to assign
-    */
+    ///
     void set(Uint16 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint16 value to assign
-    */
+    ///
     void set(Sint16 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint32 value to assign
-    */
+    ///
     void set(Uint32 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint32 value to assign
-    */
+    ///
     void set(Sint32 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint64 value to assign
-    */
+    ///
     void set(Uint64 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint64 value to assign
-    */
+    ///
     void set(Sint64 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Real32 value to assign
-    */
+    ///
     void set(Real32 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Real64 value to assign
-    */
+    ///
     void set(Real64 x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Char16 value to assign
-    */
+    ///
     void set(const Char16& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The String value to assign
-    */
+    ///
     void set(const String& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The CIMDateTime value to assign
-    */
+    ///
     void set(const CIMDateTime& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The CIMObjectPath value to assign
-    */
+    ///
     void set(const CIMObjectPath& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        Note: The CIMObject argument is cloned to prevent subsequent
-        modification through the shared representation model.
-        @param x The CIMObject value to assign
-        @exception UninitializedObjectException If the CIMObject is
-            uninitialized.
-    */
+    ///
     void set(const CIMObject& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        Note: The CIMInstance argument is cloned to prevent subsequent
-        modification through the shared representation model.
-        @param x The CIMInstance value to assign
-        @exception UninitializedObjectException If the CIMInstance is
-            uninitialized.
-    */
+    ///
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void set(const CIMInstance& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Boolean Array value to assign
-    */
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    ///
     void set(const Array<Boolean>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint8 Array value to assign
-    */
+    ///
     void set(const Array<Uint8>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint8 Array value to assign
-    */
+    ///
     void set(const Array<Sint8>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint16 Array value to assign
-    */
+    ///
     void set(const Array<Uint16>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint16 Array value to assign
-    */
+    ///
     void set(const Array<Sint16>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint32 Array value to assign
-    */
+    ///
     void set(const Array<Uint32>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint32 Array value to assign
-    */
+    ///
     void set(const Array<Sint32>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Uint64 Array value to assign
-    */
+    ///
     void set(const Array<Uint64>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Sint64 Array value to assign
-    */
+    ///
     void set(const Array<Sint64>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Real32 Array value to assign
-    */
+    ///
     void set(const Array<Real32>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Real64 Array value to assign
-    */
+    ///
     void set(const Array<Real64>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The Char16 Array value to assign
-    */
+    ///
     void set(const Array<Char16>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The String Array value to assign
-    */
+    ///
     void set(const Array<String>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The CIMDateTime Array value to assign
-    */
+    ///
     void set(const Array<CIMDateTime>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        @param x The CIMObjectPath Array value to assign
-    */
+    ///
     void set(const Array<CIMObjectPath>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        Note: The CIMObjects in the Array argument are cloned to prevent
-        subsequent modification through the shared representation model.
-        @param x The CIMObject Array value to assign
-        @exception UninitializedObjectException If any of the CIMObjects in the
-            Array are uninitialized.
-    */
+    ///
     void set(const Array<CIMObject>& x);
-
-    /**
-        Sets the CIMValue to the specified value and inferred type.
-        Note: The CIMInstances in the Array argument are cloned to prevent
-        subsequent modification through the shared representation model.
-        @param x The CIMInstance Array value to assign
-        @exception UninitializedObjectException If any of the CIMInstances in
-            the Array are uninitialized.
-    */
+    ///
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void set(const Array<CIMInstance>& x);
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        <pre>
-            // get with complete checking on type and nullness
-            Boolean v;
-            CIMValue value = property.getValue();
-            if ((value.getType() == CIMTYPE_BOOLEAN) && (!value.isNull()))
-                value.get(v);
-            or
-            // Set the value from property into v if the value is
-            // of Boolean type and !isNull(). If type incorrect, generates
-            // an exception.  If CIMValue is null, leaves v false. Else
-            // sets Boolean value from property into v.
-            Boolean v = false;
-            property.getValue().get(v);
-        </pre>
-        @param x Output Boolean into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Boolean& x) const;
+    /** Gets the value of a CIMValue.
+        Note: Before using get, the caller should use getType () and isNull ()
+        to ensure that the value is not null, and is of the correct type.
+     
+        The behavior of get is undefined when the value is null.
 
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-
-        @param x Output Uint8 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Uint8& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint8 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Sint8& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint16 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Uint16& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint16 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Sint16& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
+        @param Variable in which to return the value.
+        @exception TypeMismatchException If the CIMValue type is not compatible
+                   with the type of the output parameter.
         <pre>
             Uint32 v;
-            CIMValue value = property.getValue();
-            if ((value.getType() == CIMTYPE_SINT32) && (!value.isNull()))
-                value.get(v);
+            CIMValue value(CIMValue::UINT32, UINT32(99));
+            value.get(v);
         </pre>
-        @param x Output Uint32 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
+
+        <pre>
+            Uint32 v;
+            CIMValue value = property.getValue ();
+            if ((value.getType () == CIMTYPE_UINT32) && (!value.isNull ()))
+                value.get (v);
+        </pre>
     */
+    void get(Boolean& x) const;
+    ///
+    void get(Uint8& x) const;
+    ///
+    void get(Sint8& x) const;
+    ///
+    void get(Uint16& x) const;
+    ///
+    void get(Sint16& x) const;
+    ///
     void get(Uint32& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint32 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Sint32& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint64 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Uint64& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint64 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Sint64& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real32 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Real32& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real64 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Real64& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Char16 into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Char16& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output String into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(String& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMDateTime into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(CIMDateTime& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).).
-        @param x Output CIMObjectPath into which the value is stored if
-            CIMValue state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(CIMObjectPath& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMObject into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(CIMObject& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMInstance into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
     void get(CIMInstance& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Boolean Array into which the value is stored if
-            CIMValue state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    ///
     void get(Array<Boolean>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint8 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Uint8>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint8 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Sint8>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).).
-        @param x Output Uint16 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Uint16>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint16 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Sint16>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint32 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Uint32>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint32 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Sint32>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Uint64 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Uint64>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Sint64 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Sint64>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real32 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Real32>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Real64 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Real64>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output Char16 Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<Char16>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output String Array into which the value is stored if CIMValue
-            state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
+    ///
     void get(Array<String>& x) const;
+    ///
+    void get(Array<CIMDateTime>& x) const; 
+    ///
+    void get(Array<CIMObjectPath>& x) const; 
+    ///
+    void get(Array<CIMObject>& x) const; 
+    ///
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+    void get(Array<CIMInstance>& x) const; 
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMDateTime Array into which the value is stored if
-            CIMValue state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Array<CIMDateTime>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMObjectPath Array into which the value is stored if
-            CIMValue state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Array<CIMObjectPath>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMObject Array into which the value is stored if
-            CIMValue state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Array<CIMObject>& x) const;
-
-    /**
-        Gets the value of the CIMValue.  The caller should first verify that
-        the value is not null and may verify type to avoid the possibility of
-        the TypeMismatchException.  The output parameter x is NOT
-        updated if the value is null (isNull() == true).
-        @param x Output CIMInstance Array into which the value is stored if
-            CIMValue state is not null.
-        @exception TypeMismatchException If the value type does not match the
-            output parameter.
-    */
-    void get(Array<CIMInstance>& x) const;
-
-    /**
-        Compares with another CIMValue object for equality.
-        @param x The CIMValue with which to compare
-        @return A Boolean indicating whether they are identical in type,
-            array attributes, and value.
+    /** Compares with another CIMValue object for equality.
+        @param x - CIMValue to compare with.
+        @return true if they are identical in type, attribute and value,
+        false otherwise.
     */
     Boolean equal(const CIMValue& x) const;
 
-    /**
-        Converts a CIMValue to a String.  This method should only be
-        used for diagnostic output purposes.  To get an actual String value,
-        use get(String &).
-        @return A String representation of the value.
+    /** Converts the CIMvalue to a string.  Should only be
+        used for output purposes.  To get an actual String value, use
+        get(String &).
+        @return  String output for CIMValue.
+        <PRE>
+            String test;
+            CIMValue value(Boolean(true));
+            test = value.toString();  // puts "TRUE" into test
+        </PRE>
     */
     String toString() const;
 
 #ifdef PEGASUS_USE_DEPRECATED_INTERFACES
     /**
         <I><B>Deprecated Interface</B></I><BR>
-        Constructs a CIMValue with the specified value and type Sint8.
-        (Note: This constructor exists solely to support binary compatibility
-        with a previous definition of the Sint8 type.)
-        @param x The Sint8 value to assign
+        Constructor.  (Note: This constructor exists solely to support binary
+        compatibility with a previous definition of the Sint8 type.)
     */
     CIMValue(char x);
 
     /**
         <I><B>Deprecated Interface</B></I><BR>
-        Constructs a CIMValue with the specified value and type Sint8 Array.
-        (Note: This constructor exists solely to support binary compatibility
-        with a previous definition of the Sint8 type.)
-        @param x The Sint8 Array value to assign
+        Constructor.  (Note: This constructor exists solely to support binary
+        compatibility with a previous definition of the Sint8 type.)
     */
     CIMValue(const Array<char>& x);
 
     /**
         <I><B>Deprecated Interface</B></I><BR>
-        Sets the CIMValue to the specified value and type Sint8.
-        (Note: This method exists solely to support binary compatibility with
-        a previous definition of the Sint8 type.)
-        @param x The value to assign
+        Sets an Sint8 value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
     */
     void set(char x);
 
     /**
         <I><B>Deprecated Interface</B></I><BR>
-        Sets the CIMValue to the specified value and type Sint8 Array.
-        (Note: This method exists solely to support binary compatibility with
-        a previous definition of the Sint8 type.)
-        @param x The Array value to assign
+        Sets an Sint8 array value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
     */
     void set(const Array<char>& x);
 
     /**
         <I><B>Deprecated Interface</B></I><BR>
-        Gets the Sint8 value of the CIMValue.  The caller should first verify
-        that the value is of the expected type and is not null.  The output
-        parameter x is not updated if the value is null (isNull() == true).
-        (Note: This method exists solely to support binary compatibility with
-        a previous definition of the Sint8 type.)
-        @param x Output variable into which the value is stored.
+        Gets an Sint8 value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
     */
     void get(char& x) const;
 
     /**
         <I><B>Deprecated Interface</B></I><BR>
-        Gets the Sint8 Array value of the CIMValue.  The caller should first
-        verify that the value is of the expected type and is not null.  The
-        output parameter x is not updated if the value is null
-        (isNull() == true).
-        (Note: This method exists solely to support binary compatibility with
-        a previous definition of the Sint8 type.)
-        @param x Output Array variable into which the value is stored.
+        Gets an Sint8 array value.  (Note: This method exists solely to support
+        binary compatibility with a previous definition of the Sint8 type.)
     */
     void get(Array<char>& x) const;
 #endif
@@ -1121,25 +529,21 @@ private:
     friend class CIMQualifierDeclRep;
     friend class BinaryStreamer;
     friend class XmlWriter;
-    friend class SCMOClass;
-    friend class SCMOInstance;
 };
 
-/**
-    Compares two CIMValue objects for equality.
-    @param x First CIMValue to compare
-    @param y Second CIMValue to compare
-    @return A Boolean indicating whether they are identical in type, array
-        attributes, and value.
+/** operator == compares two CIMValue objects for equality.
+    @param x - First CIMValue to compare
+    @param y - Second CIMValue to compare
+    @return true if they are identical in type, attribute and value,
+    false otherwise.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator==(const CIMValue& x, const CIMValue& y);
 
-/**
-    Compares two CIMValue objects for inequality.
-    @param x First CIMValue to compare
-    @param y Second CIMValue to compare
-    @return A Boolean indicating whether they are NOT identical in type, array
-        attributes, and value.
+/** operator != compares two CIMValue objects for inequality.
+    @param x - First CIMValue to compare
+    @param y - Second CIMValue to compare
+    @return true if they are NOT identical in type, attribute or value,
+    false otherwise.
 */
 PEGASUS_COMMON_LINKAGE Boolean operator!=(const CIMValue& x, const CIMValue& y);
 

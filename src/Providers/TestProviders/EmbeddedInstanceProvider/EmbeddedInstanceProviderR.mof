@@ -1,0 +1,53 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "Sample Pegasus Provider for testing Embedded Instances";
+    Caption = "Sample Pegasus Provider for testing Embedded Instances";
+    Name = "EmbeddedInstanceProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.5.0";
+    Location = "EmbeddedInstanceProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "EmbeddedInstanceProviderModule";
+    Name = "EmbeddedInstanceProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "EmbeddedInstanceProviderModule";
+    ProviderName = "EmbeddedInstanceProvider";
+    CapabilityID = "1";
+    ClassName = "PG_EmbeddedError";
+    Namespaces = { "test/EmbeddedInstance/Dynamic" };
+    ProviderType = { 2, 5 };  // Instance, Indication & Method
+    SupportedProperties = NULL;
+    SupportedMethods = {"PropagateError"};
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "EmbeddedInstanceProviderModule";
+    ProviderName = "EmbeddedInstanceProvider";
+    CapabilityID = "2";
+    ClassName = "PG_InstMethodIndication";
+    Namespaces = { "test/EmbeddedInstance/Dynamic" };
+    ProviderType = { 2, 4 };  // Instance, Indication
+    SupportedProperties = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "EmbeddedInstanceProviderModule";
+    ProviderName = "EmbeddedInstanceProvider";
+    CapabilityID = "3";
+    ClassName = "PG_EmbeddedClass";
+    Namespaces = { "test/EmbeddedInstance/Dynamic" };
+    ProviderType = { 2 };  // Instance, Indication & Method
+    SupportedProperties = NULL;
+};

@@ -1,31 +1,31 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//////////////////////////////////////////////////////////////////////////
+//==============================================================================
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -55,26 +55,24 @@ void SimpleDisplayConsumer::terminate()
 }
 
 //
-// Writes all the properties of any indications it receives to
-// file indicationLog. The indicationLog file is located in a
+// Writes all the properties of any indications it receives to 
+// file indicationLog. The indicationLog file is located in a 
 // directory specified by the environment variable
-// PEGASUS_DISPLAYCONSUMER_DIR (defaults to PEGASUS_HOME).
+// PEGASUS_DISPLAYCONSUMER_DIR (defaults to PEGASUS_HOME). 
 //
-// If the PEGASUS_DISPLAYCONSUMER_DIR is set to "console", the
-// output will be written to stdout.
+// If the PEGASUS_DISPLAYCONSUMER_DIR is set to "console", the 
+// output will be written to stdout. 
 //
 // If the PEGASUS_DISPLAYCONSUMER_DIR is set to "nooutput", then
 // no output will be produced.
 //
 void SimpleDisplayConsumer::consumeIndication(
-    const OperationContext& context,
-    const String& url,
-    const CIMInstance& indicationInstance)
+                                             const OperationContext & context,
+                                             const String& url,
+                                             const CIMInstance& indicationInstance)
 {
-    AutoMutex autoMut(_displayFile);
 
     String indicationFile = INDICATION_DIR;
-    FILE* indicationLogHandle = 0;
 
     Boolean printOnConsole;
 
@@ -91,11 +89,8 @@ void SimpleDisplayConsumer::consumeIndication(
         printOnConsole = false;
     }
 
-    if (!printOnConsole)
-    {
-        indicationFile.append("/indicationLog");
-        indicationLogHandle = fopen(indicationFile.getCString(), "a+");
-    }
+    indicationFile.append("/indicationLog");
+    FILE *_indicationLogHandle = fopen(indicationFile.getCString(), "a+");
 
     if (printOnConsole)
     {
@@ -104,19 +99,14 @@ void SimpleDisplayConsumer::consumeIndication(
     }
     else
     {
-        if (indicationLogHandle == NULL)
+        if (_indicationLogHandle == NULL)
         {
-            fprintf(
-                stderr,
-                "Failed to open file %s \n",
-                (const char *) indicationFile.getCString());
+            fprintf (stderr, "Failed to open file %s \n", (const char *) indicationFile.getCString());
             return;
         }
         else
         {
-            fprintf(
-                indicationLogHandle,
-                "++++++++++++++ Received Indication +++++++++++++++++\n");
+            fprintf(_indicationLogHandle, "++++++++++++++ Received Indication +++++++++++++++++\n");
         }
     }
 
@@ -135,11 +125,9 @@ void SimpleDisplayConsumer::consumeIndication(
         {
             cout << _propertyName;
         }
-        else if (indicationLogHandle != NULL)
+        else if (_indicationLogHandle != NULL)
         {
-            fprintf(
-                indicationLogHandle,
-                "%s", (const char*)_propertyName.getCString());
+            fprintf(_indicationLogHandle, "%s", (const char *)_propertyName.getCString());
         }
 
         if (!valueIsNull)
@@ -155,9 +143,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%u\n", propertyValueUint8);
+                        fprintf(_indicationLogHandle, "%u\n", propertyValueUint8);
                     }
                     break;
 
@@ -170,9 +156,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%u\n", propertyValueUint16);
+                        fprintf(_indicationLogHandle, "%u\n", propertyValueUint16);
                     }
                     break;
 
@@ -185,9 +169,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%u\n", propertyValueUint32);
+                        fprintf(_indicationLogHandle, "%u\n", propertyValueUint32);
                     }
                     break;
 
@@ -201,7 +183,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     else
                     {
                         fprintf(
-                            indicationLogHandle,
+                            _indicationLogHandle,
                             "%" PEGASUS_64BIT_CONVERSION_WIDTH "u\n",
                             propertyValueUint64);
                     }
@@ -216,9 +198,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%d\n", propertyValueSint8);
+                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint8);
                     }
                     break;
 
@@ -231,9 +211,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%d\n", propertyValueSint16);
+                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint16);
                     }
                     break;
 
@@ -246,9 +224,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%d\n", propertyValueSint32);
+                        fprintf(_indicationLogHandle, "%d\n", propertyValueSint32);
                     }
                     break;
 
@@ -262,7 +238,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     else
                     {
                         fprintf(
-                            indicationLogHandle,
+                            _indicationLogHandle,
                             "%" PEGASUS_64BIT_CONVERSION_WIDTH "d\n",
                             propertyValueSint64);
                     }
@@ -277,9 +253,7 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%f\n", propertyValueReal32);
+                        fprintf(_indicationLogHandle, "%f\n", propertyValueReal32);
                     }
                     break;
 
@@ -292,13 +266,11 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%f\n", propertyValueReal64);
+                        fprintf(_indicationLogHandle, "%f\n", propertyValueReal64);
                     }
                     break;
 
-                case CIMTYPE_BOOLEAN:
+                case CIMTYPE_BOOLEAN :
                     Boolean booleanValue;
                     propertyValue.get(booleanValue);
                     if (printOnConsole)
@@ -307,103 +279,88 @@ void SimpleDisplayConsumer::consumeIndication(
                     }
                     else
                     {
-                        fprintf(indicationLogHandle, "%d\n", booleanValue);
+                        fprintf(_indicationLogHandle, "%d\n", booleanValue);
                     }
                     break;
 
                 case CIMTYPE_CHAR16:
-                case CIMTYPE_STRING:
+                case CIMTYPE_STRING :
                     if (printOnConsole)
                     {
                         cout << propertyValue.toString() << endl;
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%s\n",
-                            (const char*)propertyValue.toString().getCString());
+                        fprintf(_indicationLogHandle, "%s\n", (const char *) propertyValue.toString().getCString());
                     }
                     break;
 
-                case CIMTYPE_DATETIME:
-                {
-                    CIMDateTime propertyValueDateTime;
-                    propertyValue.get(propertyValueDateTime);
-                    if (printOnConsole)
+                case CIMTYPE_DATETIME :
                     {
-                        cout << propertyValueDateTime.toString () << endl;
+                        CIMDateTime propertyValueDateTime;
+                        propertyValue.get(propertyValueDateTime);
+                        if (printOnConsole)
+                        {
+                            cout << propertyValueDateTime.toString () << endl;
+                        }
+                        else
+                        {
+                            fprintf(_indicationLogHandle, "%s\n", (const char *) propertyValueDateTime.toString().getCString());
+                        }
+                        break;
                     }
-                    else
-                    {
-                        fprintf(
-                            indicationLogHandle,
-                            "%s\n",
-                            (const char*)propertyValueDateTime.toString().
-                                getCString());
-                    }
-                    break;
-                }
 
-                case CIMTYPE_OBJECT:
-                {
-                    CIMObject propertyValueObject;
-                    propertyValue.get(propertyValueObject);
-                    if (printOnConsole)
+                case CIMTYPE_OBJECT :
                     {
-                        cout << propertyValueObject.toString () << endl;
+                        CIMObject propertyValueObject;
+                        propertyValue.get(propertyValueObject);
+                        if (printOnConsole)
+                        {
+                            cout << propertyValueObject.toString () << endl;
+                        }
+                        else
+                        {
+                            fprintf(_indicationLogHandle, "%s\n", (const char *) propertyValueObject.toString().getCString());
+                        }
+                        break;
                     }
-                    else
-                    {
-                        fprintf(
-                            indicationLogHandle,
-                            "%s\n",
-                            (const char*)propertyValueObject.toString().
-                                getCString());
-                    }
-                    break;
-                }
-                case CIMTYPE_INSTANCE:
-                {
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+                case CIMTYPE_INSTANCE :
+                  {
                     CIMInstance propertyValueInstance;
                     propertyValue.get(propertyValueInstance);
                     CIMObject printableObject(propertyValueInstance);
                     if (printOnConsole)
                     {
-                        cout << printableObject.toString () << endl;
+                      cout << printableObject.toString () << endl;
                     }
                     else
                     {
-                        fprintf(
-                            indicationLogHandle,
-                            "%s\n",
-                            (const char*)printableObject.toString().
-                                getCString());
+                      fprintf(_indicationLogHandle, "%s\n", (const char *) printableObject.toString().getCString());
                     }
                     break;
-                }
-                case CIMTYPE_REFERENCE:
-                {
-                    //
-                    //  ATTN: reference properties are not allowed in
-                    //        indications; print to log or console
-                    //
-                    CIMObjectPath propertyValueReference;
-                    propertyValue.get(propertyValueReference);
-                    if (printOnConsole)
-                    {
-                        cout << propertyValueReference.toString() << endl;
-                    }
-                    else
-                    {
-                        fprintf(
-                            indicationLogHandle,
-                            "%s\n",
-                            (const char*)propertyValueReference.toString().
-                                getCString());
-                    }
-                    break;
-                }
+                  }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+                 case CIMTYPE_REFERENCE:
+                     {
+                         //
+                         //  ATTN: reference properties are not allowed in
+                         //        indications; print to log or console
+                         //
+                         CIMObjectPath propertyValueReference;
+                         propertyValue.get(propertyValueReference);
+                         if (printOnConsole)
+                         {
+                             cout << propertyValueReference.toString() << endl;
+                         }
+                         else
+                         {
+                             fprintf(_indicationLogHandle, "%s\n", (const char *)
+                                     propertyValueReference.toString().getCString());
+                         }
+                         break;
+                     }
+
             }
         }
     }
@@ -414,10 +371,8 @@ void SimpleDisplayConsumer::consumeIndication(
     }
     else
     {
-        fprintf(
-            indicationLogHandle,
-            "++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
-        fclose(indicationLogHandle);
+        fprintf(_indicationLogHandle, "++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n");
+        fclose(_indicationLogHandle);
     }
 }
 

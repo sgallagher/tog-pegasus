@@ -1,45 +1,58 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By:
+//         Ramnath Ravindran(Ramnath.Ravindran@compaq.com)
+//         Amit K Arora, IBM (amita@in.ibm.com)
+//         Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
+//         David Dillard, VERITAS Software Corp.
+//             (david.dillard@veritas.com)
+//         Sean Keenan, Hewlett-Packard Company (sean.keenan@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+//#include <cstdio>
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/System.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Executor/Match.h>
 #include "FileSystem.h"
 #include "Dir.h"
-#ifndef PEGASUS_OS_TYPE_WINDOWS
-#include <pwd.h>
+
+#if defined(PEGASUS_OS_TYPE_WINDOWS)
+#define DIR_SEP "\\"
+#else
+#define DIR_SEP "/"
 #endif
-#include <Pegasus/Common/Tracer.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -74,21 +87,14 @@ Boolean FileSystem::getCurrentDirectory(String& path)
 
 Boolean FileSystem::existsNoCase(const String& path, String& realPath)
 {
-#if !defined(PEGASUS_OS_VMS) && \
-    !defined(PEGASUS_OS_TYPE_WINDOWS) && \
-    !defined(PEGASUS_OS_DARWIN)
-
-    // If a file exists that has the same case as the path parmater,
-    // then we can bypass the expensive directory scanning below.
-
-    if (FileSystem::exists(path))
-    {
-        realPath = path;
-        return true;
-    }
-
-#endif
-
+#ifdef PEGASUS_OS_OS400
+    // The OS/400 file system is case insensitive, so just call exists( ).
+    // This is faster, but the main reason to do this is to
+    // avoid multi-threading problems with the IFS directory APIs
+    // (even though they claim to be threadsafe).
+    realPath = path;
+    return exists(path);
+#else
     realPath.clear();
     CString cpath = _clonePath(path);
     const char* p = cpath;
@@ -130,6 +136,7 @@ Boolean FileSystem::existsNoCase(const String& path, String& realPath)
     }
 
     return false;
+#endif
 }
 
 Boolean FileSystem::canRead(const String& path)
@@ -251,7 +258,7 @@ Boolean FileSystem::openNoCase(PEGASUS_STD(ifstream)& is, const String& path)
 }
 
 Boolean FileSystem::openNoCase(
-    PEGASUS_STD(fstream)& fs,
+    PEGASUS_STD(fstream)& fs, 
     const String& path,
     int mode)
 {
@@ -262,7 +269,11 @@ Boolean FileSystem::openNoCase(
 #if defined(__GNUC__) && GCC_VERSION >= 30200
     fs.open(_clonePath(realPath), PEGASUS_STD(ios_base::openmode)(mode));
 #else
+#if defined(PEGASUS_OS_OS400)
+    fs.open(_clonePath(realPath), mode, PEGASUS_STD(_CCSID_T(1208)) );
+#else
     fs.open(_clonePath(realPath), mode);
+#endif
 #endif
     return !!fs;
 }
@@ -299,16 +310,16 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
     // for files-in-directory, delete or recall removedir
 
     for (Uint32 i = 0, n = fileList.size(); i < n; i++)
-    {
+    {   
         String newPath = path;   // extend path to subdir
-        newPath.append("/");
+        newPath.append(DIR_SEP);
         newPath.append(fileList[i]);
-
+        
         if (FileSystem::isDirectory(newPath))
         {
             // Recall ourselves with extended path
             if (!FileSystem::removeDirectoryHier(newPath))
-                return false;
+                return false; 
         }
 
         else
@@ -318,7 +329,7 @@ Boolean FileSystem::removeDirectoryHier(const String& path)
         }
     }
 
-    return removeDirectory(path);
+    return removeDirectory(path);       
 }
 
 //
@@ -339,7 +350,7 @@ Boolean FileSystem::getDirectoryContents(
     paths.clear();
 
     try
-    {
+    { 
         for (Dir dir(path); dir.more(); dir.next())
         {
             String name = dir.getName();
@@ -353,7 +364,7 @@ Boolean FileSystem::getDirectoryContents(
     }
 
     // Catch the Dir exception
-    catch (CannotOpenDirectory&)
+    catch(CannotOpenDirectory&)
     {
         return false;
     }
@@ -382,71 +393,67 @@ void FileSystem::translateSlashes(String& path)
 }
 
 // Return the just the base name from the path.
-String FileSystem::extractFileName(const String& path)
+String  FileSystem::extractFileName(const String& path)
 {
-    AutoArrayPtr<char> p_path(new char[path.size() + 1]);
-    String basename = System::extract_file_name(
-        (const char*)path.getCString(), p_path.get());
-
-    return basename;
+  AutoArrayPtr<char> p_path(new char[path.size() + 1]);
+  String basename = System::extract_file_name((const char *)path.getCString(), p_path.get());
+  
+  return basename;
 }
 
 // Return just the path to the file or directory into path
 String FileSystem::extractFilePath(const String& path)
 {
-    AutoArrayPtr<char> p_path(new char[path.size() + 1]);
-    String newpath = System::extract_file_path(
-        (const char*)path.getCString(), p_path.get());
-
-    return newpath;
+  AutoArrayPtr<char> p_path(new char[path.size() + 1]);
+  String newpath = System::extract_file_path((const char *)path.getCString(), p_path.get());
+  
+  return newpath;
 }
 
 // Changes file permissions on the given file.
 Boolean FileSystem::changeFilePermissions(const String& path, mode_t mode)
 {
+#if defined(PEGASUS_OS_OS400)
+    // ATTN: If getCString() is modified to return UTF8, then handle the 
+    //       EBCDIC coversion in SystemUnix.cpp
     CString tempPath = path.getCString();
+#else
+    CString tempPath = path.getCString();
+#endif
 
     return System::changeFilePermissions(tempPath, mode);
 }
 
-String FileSystem::getAbsoluteFileName(
-    const String& paths,
-    const String& filename)
-{
-    Uint32 pos = 0;
-    Uint32 token = 0;
-    String path;
-    String root;
-    String tempPath = paths;
+String FileSystem::getAbsoluteFileName(const String &paths, const String &filename) {
 
-    do
-    {
-        if ((pos = tempPath.find(FileSystem::getPathDelimiter())) ==
-            PEG_NOT_FOUND)
-        {
-            pos = tempPath.size();
-            token = 0;
+  Uint32 pos =0;
+  Uint32 token=0;
+  String path = String::EMPTY;
+  String root = String::EMPTY;
+  String tempPath = paths;
+
+
+  do {
+    if (( pos = tempPath.find(FileSystem::getPathDelimiter())) == PEG_NOT_FOUND) {
+                pos = tempPath.size();
+                token = 0;
         }
-        else
-        {
-            token = 1;
+        else {
+                token = 1;
         }
         path = tempPath.subString(0, pos);
         tempPath.remove(0,pos+token);
-        if (FileSystem::exists(path + "/" + filename) == true)
-        {
-            root = path + "/" + filename;
-            break;
-        }
-        else
-        {
-            //  cout << "File does not exist.\n";
-        }
-    } while (tempPath.size() > 0);
+        if (FileSystem::exists( path + DIR_SEP + filename) == true) {
+          root = path + DIR_SEP + filename;
+          break;
+        } else
+          {
+          //  cout << "File does not exist.\n";
+          }
+  } while (tempPath.size() > 0);
 
-    return root;
+  return root;
 }
-
 
 String FileSystem::buildLibraryFileName(const String &libraryName)
 {
@@ -458,178 +465,48 @@ String FileSystem::buildLibraryFileName(const String &libraryName)
     //
 #if defined(PEGASUS_OS_TYPE_WINDOWS)
     fileName = libraryName + String(".dll");
+#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC)
+    fileName = String("lib") + libraryName + String(".sl");
+#elif defined(PEGASUS_OS_OS400)
+    fileName = libraryName;
+#elif defined(PEGASUS_OS_DARWIN)
+    fileName = String("lib") + libraryName + String(".dylib");
+#elif defined(PEGASUS_OS_VMS)
+    fileName = String("lib") + libraryName;
 #else
-    fileName = String("lib") + libraryName + getDynamicLibraryExtension();
+    fileName = String("lib") + libraryName + String(".so");
 #endif
+
     return fileName;
 }
 
-String FileSystem::getDynamicLibraryExtension()
-{
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-    return String(".dll");
-#elif defined(PEGASUS_PLATFORM_HPUX_PARISC_ACC) || \
-    defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
-    return String(".sl");
-#elif defined(PEGASUS_OS_DARWIN)
-    return String(".dylib");
-#elif defined(PEGASUS_OS_VMS)
-    return String(".exe");
-#elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES64_IBM)
-    return String("64.so");
-#else
-    return String(".so");
-#endif
-}
 
-Boolean GetLine(PEGASUS_STD(istream)& is, Buffer& line)
+Boolean GetLine(PEGASUS_STD(istream)& is, String& line)
 {
-    const Uint32 buffersize = 1024;
-    Uint32 gcount = 0;
-
     line.clear();
 
-    // Read the input line in chunks.  A non-full buffer indicates the end of
-    // the line has been reached.
-    do
+    Boolean gotChar = false;
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+    char input[1000];
+    is.getline(input,1000);
+    line.assign(input);
+
+    gotChar = !(is.rdstate() & PEGASUS_STD(istream)::failbit);
+#else
+    char c;
+
+    while (is.get(c))
     {
-        char input[buffersize];
+        gotChar = true;
 
-        // This reads up to buffersize-1 char, but stops before consuming
-        // a newline character ('\n').
-        is.get(input, buffersize);
-
-        gcount = (Uint32)is.gcount();
-        line.append(input, gcount);
-
-        if (is.rdstate() & PEGASUS_STD(istream)::failbit)
-        {
-            // It is okay if we encounter the newline character without reading
-            // data.
-            is.clear();
+        if (c == '\n')
             break;
-        }
-    } while (gcount == buffersize-1);
 
-    if (!is.eof())
-    {
-        // we need to consume the '\n', because get() doesn't
-        char c = 0;
-        is.get(c);
+        line.append(c);
     }
-
-    return !!is;
-}
-
-//
-// changes the file owner to one specified
-//
-Boolean FileSystem::changeFileOwner(
-    const String& fileName,
-    const String& userName)
-{
-#if defined(PEGASUS_OS_TYPE_WINDOWS)
-
-    return true;
-
-#else
-
-    PEG_METHOD_ENTER(TRC_AUTHENTICATION, "FileSystem::changeFileOwner()");
-
-    struct passwd* userPasswd;
-#if defined(PEGASUS_OS_SOLARIS) || \
-    defined(PEGASUS_OS_HPUX) || \
-    defined(PEGASUS_OS_LINUX) || \
-    defined (PEGASUS_OS_VMS) || \
-    defined (PEGASUS_OS_AIX)
-
-    const unsigned int PWD_BUFF_SIZE = 1024;
-    struct passwd pwd;
-    char pwdBuffer[PWD_BUFF_SIZE];
-
-    if (getpwnam_r(userName.getCString(), &pwd, pwdBuffer, PWD_BUFF_SIZE,
-                  &userPasswd) != 0)
-    {
-        userPasswd = (struct passwd*)NULL;
-    }
-
-#else
-
-    userPasswd = getpwnam(userName.getCString());
 #endif
 
-    if (userPasswd  == NULL)
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    Sint32 ret = chown(
-        fileName.getCString(), userPasswd->pw_uid, userPasswd->pw_gid);
-
-    if (ret == -1)
-    {
-        PEG_METHOD_EXIT();
-        return false;
-    }
-
-    PEG_METHOD_EXIT();
-
-    return true;
-#endif
-}
-
-#if defined(PEGASUS_OS_HPUX)
-void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)& fs)
-{
-  #if defined (PEGASUS_PLATFORM_HPUX_IA64_GNU) || \
-    defined (PEGASUS_PLATFORM_HPUX_PARISC_GNU)
-    // Writes the data from the iostream buffers to the OS buffers
-    fs.flush();
-    // Writes the data from the OS buffers to the disk
-    fs.rdbuf()->pubsync();
-    #else
-    // Writes the data from the iostream buffers to the OS buffers
-    fs.flush();
-    // Writes the data from the OS buffers to the disk
-    fsync(fs.rdbuf()->fd());
-    #endif
-}
-#else
-void FileSystem::syncWithDirectoryUpdates(PEGASUS_STD(fstream)&)
-{
-    //Not HP-UX, do nothing (compiler will remove this fct on optimization)
-}
-#endif
-
-Boolean FileSystem::glob(
-    const String& path,
-    const String& pattern_,
-    Array<String>& filenames)
-{
-    filenames.clear();
-
-    try
-    {
-        CString pattern(pattern_.getCString());
-
-        for (Dir dir(path); dir.more(); dir.next())
-        {
-            const char* name = dir.getName();
-
-            if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
-                continue;
-
-            if (Match(pattern, name) == 0)
-                filenames.append(name);
-        }
-    }
-    catch (CannotOpenDirectory&)
-    {
-        return false;
-    }
-
-    return true;
+    return gotChar;
 }
 
 PEGASUS_NAMESPACE_END

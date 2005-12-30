@@ -1,31 +1,41 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+//==============================================================================
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Author: Mike Brasher (mbrasher@bmc.com)
 //
-//////////////////////////////////////////////////////////////////////////
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//              Karl Schopmeyer, (k.schopmeyer@opengroup.org)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                (carolann_graves@hp.com)
+//              Amit K Arora, IBM (amita@in.ibm.com)
+//              Adriann Schuur (schuur@de.ibm.com) PEP 164
+//              Mike Brasher, Inova Europe (mike-brasher@austin.rr.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -38,13 +48,13 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class PEGASUS_COMMON_LINKAGE CIMValueRep
+class CIMValueRep
 {
 public:
 
     CIMValueRep();
 
-    CIMValueRep(int*);
+    CIMValueRep(int*); 
 
     ~CIMValueRep();
 
@@ -65,16 +75,16 @@ public:
 
 inline CIMValueRep::CIMValueRep() : refs(1)
 {
-}
+} 
 
 inline CIMValueRep::CIMValueRep(int*) :
-    refs(2), type(CIMTYPE_BOOLEAN), isArray(false), isNull(true)
+    refs(2), type(CIMTYPE_BOOLEAN), isArray(false), isNull(true) 
 {
     // This constructor is only used by the _emptyRep object.
     memset(&u, 0, sizeof(Union));
 }
 
-inline CIMValueRep::~CIMValueRep()
+inline CIMValueRep::~CIMValueRep() 
 {
     release();
 }
@@ -89,10 +99,10 @@ inline void CIMValueRep::ref(const CIMValueRep* rep)
 
 inline void CIMValueRep::unref(const CIMValueRep* rep)
 {
-    if (rep != &CIMValueRep::_emptyRep &&
-        ((CIMValueRep*)rep)->refs.decAndTestIfZero())
+    if (rep != &CIMValueRep::_emptyRep && 
+	((CIMValueRep*)rep)->refs.decAndTestIfZero())
     {
-        delete (CIMValueRep*)rep;
+	delete (CIMValueRep*)rep;
     }
 }
 
@@ -119,7 +129,9 @@ inline CIMType TypeOf(String*) { return CIMTYPE_STRING; }
 inline CIMType TypeOf(CIMDateTime*) { return CIMTYPE_DATETIME; }
 inline CIMType TypeOf(CIMObjectPath*) { return CIMTYPE_REFERENCE; }
 inline CIMType TypeOf(CIMObject*) { return CIMTYPE_OBJECT; }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 inline CIMType TypeOf(CIMInstance*) { return CIMTYPE_INSTANCE; }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 inline bool IsRaw(Boolean*) { return true; }
 inline bool IsRaw(Uint8*) { return true; }
@@ -137,7 +149,9 @@ inline bool IsRaw(String*) { return false; }
 inline bool IsRaw(CIMDateTime*) { return false; }
 inline bool IsRaw(CIMObjectPath*) { return false; }
 inline bool IsRaw(CIMObject*) { return false; }
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 inline bool IsRaw(CIMInstance*) { return false; }
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 template<class T>
 struct CIMValueType
@@ -146,99 +160,99 @@ public:
 
     static T* ptr(const CIMValueRep* rep)
     {
-        return (T*)(&rep->u);
+	return (T*)(&rep->u);
     }
 
     static T& ref(const CIMValueRep* rep)
     {
-        return *((T*)((void*)&rep->u));
+	return *((T*)((void*)&rep->u));
     }
 
     static Array<T>* aptr(const CIMValueRep* rep)
     {
-        return (Array<T>*)(&rep->u);
+	return (Array<T>*)(&rep->u);
     }
 
     static Array<T>& aref(const CIMValueRep* rep)
     {
-        return *((Array<T>*)((void*)&rep->u));
+	return *((Array<T>*)((void*)&rep->u));
     }
 
     static void defaultConstruct(CIMValueRep* rep)
     {
-        if (IsRaw((T*)0))
-            rep->u._uint64Value = (Uint64)0;
-        else
-            new((T*)((void*)&rep->u)) T();
+	if (IsRaw((T*)0))
+	    rep->u._uint64Value = (Uint64)0;
+	else
+	    new((T*)((void*)&rep->u)) T();
     }
 
     static void copyConstruct(CIMValueRep* rep, const T& x)
     {
-        new((T*)((void*)&rep->u)) T(x);
+	new((T*)((void*)&rep->u)) T(x);
     }
 
     static void copyConstructArray(CIMValueRep* rep, const Array<T>& x)
     {
-        new((Array<T>*)((void*)&rep->u)) Array<T>(x);
+	new((Array<T>*)((void*)&rep->u)) Array<T>(x);
     }
 
     static void constructArrayWithSize(CIMValueRep* rep, Uint32 arraySize)
     {
-        new((Array<T>*)((void*)&rep->u)) Array<T>(arraySize);
+	new((Array<T>*)((void*)&rep->u)) Array<T>(arraySize);
     }
 
     static void destruct(CIMValueRep* rep)
     {
-        ((T*)((void*)&rep->u))->~T();
+	((T*)((void*)&rep->u))->~T();
     }
 
     static void destructArray(CIMValueRep* rep)
     {
-        ((Array<T>*)((void*)&rep->u))->~Array<T>();
+	((Array<T>*)((void*)&rep->u))->~Array<T>();
     }
 
     static void setNull(
-        CIMValueRep* rep, CIMType type_, bool isArray_, Uint32 arraySize_)
+	CIMValueRep* rep, CIMType type_, bool isArray_, Uint32 arraySize_)
     {
-        rep->type = type_;
-        rep->isArray = isArray_;
-        rep->isNull = true;
+	rep->type = type_;
+	rep->isArray = isArray_;
+	rep->isNull = true;
 
-        if (isArray_)
-            constructArrayWithSize(rep, arraySize_);
-        else
-            defaultConstruct(rep);
+	if (isArray_)
+	    constructArrayWithSize(rep, arraySize_);
+	else
+	    defaultConstruct(rep);
     }
 
     static void set(CIMValueRep* rep, const T& x)
     {
-        rep->type = TypeOf((T*)0);
-        rep->isArray = false;
-        rep->isNull = false;
-        copyConstruct(rep, x);
+	rep->type = TypeOf((T*)0);
+	rep->isArray = false;
+	rep->isNull = false;
+	copyConstruct(rep, x);
     }
 
     static void setArray(CIMValueRep* rep, const Array<T>& x)
     {
-        rep->type = TypeOf((T*)0);
-        rep->isArray = true;
-        rep->isNull = false;
-        copyConstructArray(rep, x);
+	rep->type = TypeOf((T*)0);
+	rep->isArray = true;
+	rep->isNull = false;
+	copyConstructArray(rep, x);
     }
 
     static Uint32 arraySize(CIMValueRep* rep)
     {
-        return aref(rep).size();
+	return aref(rep).size();
     }
 
     static bool equal(const CIMValueRep* r1, const CIMValueRep* r2)
     {
-        return ref(r1) == ref(r2);
+	return ref(r1) == ref(r2);
     }
 
     static bool equalArray(const CIMValueRep* r1, const CIMValueRep* r2)
     {
-        return aref(r1) == aref(r2);
+	return aref(r1) == aref(r2);
     }
 };
 

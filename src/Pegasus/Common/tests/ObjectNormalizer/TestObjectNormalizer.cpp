@@ -1,45 +1,49 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/ObjectNormalizer.h>
-#include <Pegasus/Common/XmlWriter.h>
-
-#include <Pegasus/General/Stopwatch.h>
-
 #include "LocalRepository.h"
+
+#include <Pegasus/Common/ObjectNormalizer.h>
+
+#include <Pegasus/Common/Stopwatch.h>
+#include <Pegasus/Common/XmlWriter.h>
 
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
-static Boolean verbose;
+static char * verbose = 0;
 
 static LocalRepository * repository = 0;
 static Stopwatch _stopwatch;
@@ -57,13 +61,10 @@ void Test001a(void)
 
     CIMClass cimClass;
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         false,
-        false,
-        CIMNamespaceName(String("root")),
-        nullContext);
+        false, CIMNamespaceName(String("root")));
 
     normalizer.processClassObjectPath(CIMObjectPath());
 
@@ -144,13 +145,11 @@ void Test002a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
@@ -158,8 +157,7 @@ void Test002a(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath =
-             normalizer.processClassObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
@@ -193,30 +191,25 @@ void Test002b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
-    // use different case to test that too
-    cimObjectPath.setClassName("ClassBAD");
+    cimObjectPath.setClassName("ClassBAD");  // use different case to test that too
 
     try
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath =
-             normalizer.processClassObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to detect class object path with"
-                        " incorrect class name.");
+        throw Exception("Failed to detect class object path with incorrect class name.");
     }
     catch(CIMException & e)
     {
@@ -246,13 +239,11 @@ void Test002c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
@@ -264,13 +255,11 @@ void Test002c(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath =
-             normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to detect instance object path with"
-                        " incorrect class name.");
+        throw Exception("Failed to detect instance object path with incorrect class name.");
     }
     catch(CIMException & e)
     {
@@ -300,13 +289,11 @@ void Test002d(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
@@ -318,13 +305,11 @@ void Test002d(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath =
-             normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to detect instance object path with no key"
-                        " properties and no keys.");
+        throw Exception("Failed to detect instance object path with no key properties and no keys.");
     }
     catch(CIMException & e)
     {
@@ -358,13 +343,11 @@ void Test003a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
@@ -372,8 +355,7 @@ void Test003a(void)
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath =
-         normalizer.processClassObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -403,33 +385,27 @@ void Test003b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
-    // use lowercase. normalization should fix case
-    cimObjectPath.setClassName("classc");
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // fake keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("FakeProperty1",
-                               CIMValue(String("junk"))));
-    keys.append(CIMKeyBinding("FakeProperty2",
-                               CIMValue(String("more junk"))));
+    keys.append(CIMKeyBinding("FakeProperty1", CIMValue(String("junk"))));
+    keys.append(CIMKeyBinding("FakeProperty2", CIMValue(String("more junk"))));
 
     cimObjectPath.setKeyBindings(keys);
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath =
-         normalizer.processClassObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath = normalizer.processClassObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -456,35 +432,28 @@ void Test003c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
-    // use lowercase. normalization should fix case
-    cimObjectPath.setClassName("classc");
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // simple keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding(
-        "property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding(
-        "property2", CIMValue(String("Test Instance #003c"))));
-    keys.append(CIMKeyBinding(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003c"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath =
-         normalizer.processInstanceObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -511,28 +480,22 @@ void Test003d(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
-    // use lowercase. normalization should fix case
-    cimObjectPath.setClassName("classc");
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding("property1",
-                               CIMValue(Uint32(1))));
-    //keys.append(CIMKeyBinding("property2",
-    //  CIMValue(String("Test Instance #003d"))));
-    keys.append(CIMKeyBinding("property3",
-                               CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    //keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003d"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -540,8 +503,7 @@ void Test003d(void)
     {
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath =
-            normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
@@ -575,28 +537,22 @@ void Test003e(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMObjectPath cimObjectPath;
 
-    // use lowercase. normalization should fix case
-    cimObjectPath.setClassName("classc");
+    cimObjectPath.setClassName("classc");  // use lowercase. normalization should fix case
 
     // simple keys
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding(
-        "property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding(
-        "property2", CIMValue(String("Test Instance #003e"))));
-    keys.append(CIMKeyBinding(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #003e"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     // fake keys
     keys.append(CIMKeyBinding("FakeProperty1", CIMValue(String("junk"))));
@@ -606,8 +562,7 @@ void Test003e(void)
 
     _stopwatch.start();
 
-    CIMObjectPath normalizedObjectPath =
-        normalizer.processInstanceObjectPath(cimObjectPath);
+    CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
     _stopwatch.stop();
 
@@ -638,13 +593,11 @@ void Test004a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMInstance cimInstance(cimClass.getClassName());
 
@@ -656,13 +609,11 @@ void Test004a(void)
     {
         _stopwatch.start();
 
-        CIMInstance normalizedInstance =
-            normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
-        throw Exception("Failed to dected instance with no properties"
-                        " and no object path.");
+        throw Exception("Failed to dected instance with no properties and no object path.");
     }
     catch(CIMException & e)
     {
@@ -692,27 +643,21 @@ void Test004b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMInstance cimInstance(cimClass.getClassName());
 
     // only populate keys, let the normalizer do the rest
-    cimInstance.addProperty(CIMProperty(
-        "property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty(
-        "property2", CIMValue(String("Test Instance #004b"))));
-    cimInstance.addProperty(CIMProperty(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #004b"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
     // incorrect property type
-    cimInstance.addProperty(CIMProperty(
-        "property4", CIMValue(Uint32(0))));   // should be String
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(Uint32(0))));   // should be String
 
     // no object path specified
 
@@ -720,8 +665,7 @@ void Test004b(void)
     {
         _stopwatch.start();
 
-        CIMInstance normalizedInstance =
-             normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -759,25 +703,19 @@ void Test005a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMInstance cimInstance(cimClass.getClassName());
 
     // only populate keys, let the normalizer do the rest
-    cimInstance.addProperty(CIMProperty(
-        "property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty(
-        "property2", CIMValue(String("Test Instance #005a"))));
-    cimInstance.addProperty(CIMProperty(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty(
-        "property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005a"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -786,13 +724,9 @@ void Test005a(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding(
-        "property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding(
-        "property2", CIMValue(String("Test Instance #005b"))));
-    // slightly differnt value than property. who wins?
-    keys.append(CIMKeyBinding(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -832,25 +766,19 @@ void Test005b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMInstance cimInstance(cimClass.getClassName());
 
     // all properties
-    cimInstance.addProperty(CIMProperty(
-        "property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty(
-        "property2", CIMValue(String("Test Instance #005b"))));
-    cimInstance.addProperty(CIMProperty(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty(
-        "property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005b"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -859,13 +787,9 @@ void Test005b(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding(
-        "property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding(
-        "property2", CIMValue(String("Test Instance #005b"))));
-    // slightly differnt value than property. who wins?
-    keys.append(CIMKeyBinding(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -873,8 +797,7 @@ void Test005b(void)
 
     _stopwatch.start();
 
-    CIMInstance normalizedInstance =
-        normalizer.processInstance(cimInstance);
+    CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
     _stopwatch.stop();
 
@@ -906,34 +829,24 @@ void Test005c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMInstance cimInstance(cimClass.getClassName());
 
-    cimInstance.addQualifier(
-        CIMQualifier("Description",
-             String("This object qualifier value comes from the instance")));
+    cimInstance.addQualifier(CIMQualifier("Description", String("This object qualifier value comes from the instance")));
 
     // all properties
-    cimInstance.addProperty(CIMProperty(
-        "property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty(
-        "property2", CIMValue(String("Test Instance #005c"))));
-    cimInstance.addProperty(CIMProperty(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005c"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
-    CIMProperty property4("property4",
-                          CIMValue(String("Pegasus TestObjectNormalizer")));
+    CIMProperty property4("property4", CIMValue(String("Pegasus TestObjectNormalizer")));
 
-    property4.addQualifier(CIMQualifier(
-        "Description",
-        String("This property qualifier value comes from the instance")));
+    property4.addQualifier(CIMQualifier("Description", String("This property qualifier value comes from the instance")));
 
     cimInstance.addProperty(property4);
 
@@ -944,13 +857,9 @@ void Test005c(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding(
-        "property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding(
-        "property2", CIMValue(String("Test Instance #005b"))));
-    // slightly differnt value than property. who wins?
-    keys.append(CIMKeyBinding(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -958,8 +867,7 @@ void Test005c(void)
 
     _stopwatch.start();
 
-    CIMInstance normalizedInstance =
-        normalizer.processInstance(cimInstance);
+    CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
     _stopwatch.stop();
 
@@ -991,25 +899,19 @@ void Test005d(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     CIMInstance cimInstance(cimClass.getClassName());
 
     // all properties
-    cimInstance.addProperty(CIMProperty(
-        "property1", CIMValue(Uint32(1))));
-    cimInstance.addProperty(CIMProperty(
-        "property2", CIMValue(String("Test Instance #005c"))));
-    cimInstance.addProperty(CIMProperty(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
-    cimInstance.addProperty(CIMProperty(
-        "property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
+    cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(1))));
+    cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #005c"))));
+    cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
     // complete object path
     CIMObjectPath cimObjectPath;
@@ -1018,13 +920,9 @@ void Test005d(void)
 
     Array<CIMKeyBinding> keys;
 
-    keys.append(CIMKeyBinding(
-        "property1", CIMValue(Uint32(1))));
-    keys.append(CIMKeyBinding(
-        "property2", CIMValue(String("Test Instance #005b"))));
-    // slightly differnt value than property. who wins?
-    keys.append(CIMKeyBinding(
-        "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+    keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+    keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+    keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
     cimObjectPath.setKeyBindings(keys);
 
@@ -1032,21 +930,18 @@ void Test005d(void)
 
     _stopwatch.start();
 
-    CIMInstance normalizedInstance =
-        normalizer.processInstance(cimInstance);
+    CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
     _stopwatch.stop();
 
     if(verbose)
     {
-        cout << normalizedInstance.getPath().toString()
-            << endl;
+        cout << normalizedInstance.getPath().toString() << endl;
 
         XmlWriter::printInstanceElement(normalizedInstance);
     }
 
-    PRINT("*** " << _stopwatch.getElapsed()
-          << " milliseconds.");
+    PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
 //
@@ -1069,13 +964,11 @@ void Test100a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     for(Uint32 i = 0, n = 100; i < n; i++)
     {
@@ -1086,19 +979,15 @@ void Test100a(void)
         // simple keys
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding(
-            "property1", CIMValue(Uint32(1))));
-        keys.append(CIMKeyBinding(
-            "property2", CIMValue(String("Test Instance #005b"))));
-        keys.append(CIMKeyBinding(
-            "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(1))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #005b"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
 
         cimObjectPath.setKeyBindings(keys);
 
         _stopwatch.start();
 
-        CIMObjectPath normalizedObjectPath =
-            normalizer.processInstanceObjectPath(cimObjectPath);
+        CIMObjectPath normalizedObjectPath = normalizer.processInstanceObjectPath(cimObjectPath);
 
         _stopwatch.stop();
 
@@ -1126,30 +1015,21 @@ void Test101a(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     for(Uint32 i = 0, n = 1000; i < n; i++)
     {
         CIMInstance cimInstance(cimClass.getClassName());
 
         // all properties
-        cimInstance.addProperty(
-            CIMProperty("property1", CIMValue(Uint32(i))));
-        cimInstance.addProperty(
-            CIMProperty("property2",
-                        CIMValue(String("Test Instance #101a"))));
-        cimInstance.addProperty(
-            CIMProperty("property3",
-                        CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(
-            CIMProperty("property4",
-                        CIMValue(String("Pegasus TestObjectNormalizer"))));
+        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
+        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101a"))));
+        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // complete object path
         CIMObjectPath cimObjectPath;
@@ -1158,13 +1038,9 @@ void Test101a(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding(
-            "property1", CIMValue(Uint32(i))));
-        keys.append(CIMKeyBinding(
-            "property2", CIMValue(String("Test Instance #101a"))));
-        // slightly differnt value than property. who wins?
-        keys.append(CIMKeyBinding(
-            "property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101a"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1172,8 +1048,7 @@ void Test101a(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance =
-            normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -1206,31 +1081,21 @@ void Test101b(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     for(Uint32 i = 0, n = 1000; i < n; i++)
     {
         CIMInstance cimInstance(cimClass.getClassName());
 
         // only populate keys, let the normalizer do the rest
-        cimInstance.addProperty(
-            CIMProperty("property1",
-                        CIMValue(Uint32(i))));
-        cimInstance.addProperty(
-            CIMProperty("property2",
-                        CIMValue(String("Test Instance #101b"))));
-        cimInstance.addProperty(
-            CIMProperty("property3",
-                        CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(
-            CIMProperty("property4",
-                        CIMValue(String("Pegasus TestObjectNormalizer"))));
+        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
+        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101b"))));
+        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // complete object path
         CIMObjectPath cimObjectPath;
@@ -1239,13 +1104,9 @@ void Test101b(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("property1",
-                  CIMValue(Uint32(i))));
-        keys.append(CIMKeyBinding("property2",
-                  CIMValue(String("Test Instance #101b"))));
-        // slightly differnt value than property. who wins?
-        keys.append(CIMKeyBinding("property3",
-                  CIMValue(CIMDateTime::getCurrentDateTime())));
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101b"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1253,8 +1114,7 @@ void Test101b(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance =
-            normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -1287,27 +1147,21 @@ void Test101c(void)
             includeClassOrigin,
             CIMPropertyList());
 
-    SharedPtr<NormalizerContext> nullContext(0);
     ObjectNormalizer normalizer(
         cimClass,
         includeQualifiers,
         includeClassOrigin,
-        CIMNamespaceName("test_namespace"),
-        nullContext);
+        CIMNamespaceName("test_namespace"));
 
     for(Uint32 i = 0, n = 1000; i < n; i++)
     {
         CIMInstance cimInstance(cimClass.getClassName());
 
         // only populate keys, let the normalizer do the rest
-        cimInstance.addProperty(CIMProperty("property1",
-                        CIMValue(Uint32(i))));
-        cimInstance.addProperty(CIMProperty("property2",
-                        CIMValue(String("Test Instance #101b"))));
-        cimInstance.addProperty(CIMProperty("property3",
-                        CIMValue(CIMDateTime::getCurrentDateTime())));
-        cimInstance.addProperty(CIMProperty("property4",
-                        CIMValue(String("Pegasus TestObjectNormalizer"))));
+        cimInstance.addProperty(CIMProperty("property1", CIMValue(Uint32(i))));
+        cimInstance.addProperty(CIMProperty("property2", CIMValue(String("Test Instance #101b"))));
+        cimInstance.addProperty(CIMProperty("property3", CIMValue(CIMDateTime::getCurrentDateTime())));
+        cimInstance.addProperty(CIMProperty("property4", CIMValue(String("Pegasus TestObjectNormalizer"))));
 
         // complete object path
         CIMObjectPath cimObjectPath;
@@ -1316,13 +1170,9 @@ void Test101c(void)
 
         Array<CIMKeyBinding> keys;
 
-        keys.append(CIMKeyBinding("property1",
-                                  CIMValue(Uint32(i))));
-        keys.append(CIMKeyBinding("property2",
-                                  CIMValue(String("Test Instance #101c"))));
-        // slightly differnt value than property. who wins?
-        keys.append(CIMKeyBinding("property3",
-                                  CIMValue(CIMDateTime::getCurrentDateTime())));
+        keys.append(CIMKeyBinding("property1", CIMValue(Uint32(i))));
+        keys.append(CIMKeyBinding("property2", CIMValue(String("Test Instance #101c"))));
+        keys.append(CIMKeyBinding("property3", CIMValue(CIMDateTime::getCurrentDateTime()))); // slightly differnt value than property. who wins?
 
         cimObjectPath.setKeyBindings(keys);
 
@@ -1330,8 +1180,7 @@ void Test101c(void)
 
         _stopwatch.start();
 
-        CIMInstance normalizedInstance =
-            normalizer.processInstance(cimInstance);
+        CIMInstance normalizedInstance = normalizer.processInstance(cimInstance);
 
         _stopwatch.stop();
 
@@ -1346,11 +1195,10 @@ void Test101c(void)
     PRINT("*** " << _stopwatch.getElapsed() << " milliseconds.");
 }
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
-    verbose = getenv("PEGASUS_TEST_VERBOSE") ? true : false;
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
 
-    ObjectNormalizer::setEnableNormalization(true);
     repository = new LocalRepository();
 
     if(verbose)
@@ -1407,8 +1255,7 @@ int main(int, char** argv)
     }
     catch(CIMException & e)
     {
-        cout << "CIMException: " << e.getCode() << " " << e.getMessage()
-            << endl;
+        cout << "CIMException: " << e.getCode() << " " << e.getMessage() << endl;
 
         return(1);
     }

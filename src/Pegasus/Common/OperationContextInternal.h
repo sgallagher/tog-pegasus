@@ -1,31 +1,35 @@
-//%LICENSE////////////////////////////////////////////////////////////////
+//%2005////////////////////////////////////////////////////////////////////////
 //
-// Licensed to The Open Group (TOG) under one or more contributor license
-// agreements.  Refer to the OpenPegasusNOTICE.txt file distributed with
-// this work for additional information regarding copyright ownership.
-// Each contributor licenses this file to you under the OpenPegasus Open
-// Source License; you may not use this file except in compliance with the
-// License.
+// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation, The Open Group.
+// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; VERITAS Software Corporation; The Open Group.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the "Software"),
-// to deal in the Software without restriction, including without limitation
-// the rights to use, copy, modify, merge, publish, distribute, sublicense,
-// and/or sell copies of the Software, and to permit persons to whom the
-// Software is furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
+// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//==============================================================================
 //
-//////////////////////////////////////////////////////////////////////////
+// Author: Chip Vincent (cvincent@us.ibm.com)
+//
+// Modified By: Mike Day (mdday@us.ibm.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +41,8 @@
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Common/CIMClass.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/ObjectNormalizer.h>
+
+#include <Pegasus/Repository/CIMRepository.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -50,20 +54,17 @@ class PEGASUS_COMMON_LINKAGE LocaleContainer
 public:
     static const String NAME;
 
-    LocaleContainer(const OperationContext::Container& container);
-    LocaleContainer(const String& languageId);
-    virtual ~LocaleContainer();
+    LocaleContainer(const OperationContext::Container & container);
+    LocaleContainer(const String & languageId);
+    virtual ~LocaleContainer(void);
 
-    // NOTE: The compiler default implementation of the copy constructor
-    // is used for this class.
+    LocaleContainer & operator=(const LocaleContainer & container);
 
-    LocaleContainer& operator=(const LocaleContainer& container);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    virtual String getName() const;
-    virtual OperationContext::Container* clone() const;
-    virtual void destroy();
-
-    String getLanguageId() const;
+    String getLanguageId(void) const;
 
 protected:
     String _languageId;
@@ -76,36 +77,27 @@ class PEGASUS_COMMON_LINKAGE ProviderIdContainer
 public:
     static const String NAME;
 
-    ProviderIdContainer(const OperationContext::Container& container);
-    ProviderIdContainer(
-        const CIMInstance& module,
-        const CIMInstance& provider,
-        Boolean isRemoteNameSpace = false,
-        const String& remoteInfo = String::EMPTY);
-    virtual ~ProviderIdContainer();
+    ProviderIdContainer(const OperationContext::Container & container);
+    ProviderIdContainer(const CIMInstance & module, const CIMInstance & provider,
+        Boolean isRemoteNameSpace = false, const String & remoteInfo = String::EMPTY);
+    virtual ~ProviderIdContainer(void);
 
-    // NOTE: The compiler default implementation of the copy constructor
-    // is used for this class.
+    ProviderIdContainer & operator=(const ProviderIdContainer & container);
 
-    ProviderIdContainer& operator=(const ProviderIdContainer& container);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    virtual String getName() const;
-    virtual OperationContext::Container* clone() const;
-    virtual void destroy();
-
-    CIMInstance getModule() const;
-    CIMInstance getProvider() const;
-    Boolean isRemoteNameSpace() const;
-    String getRemoteInfo() const;
-    String getProvMgrPath() const;
-    void setProvMgrPath(const String &path);
+    CIMInstance getModule(void) const;
+    CIMInstance getProvider(void) const;
+    Boolean isRemoteNameSpace(void) const;
+    String getRemoteInfo(void) const;
 
 protected:
     CIMInstance _module;
     CIMInstance _provider;
     Boolean _isRemoteNameSpace;
     String _remoteInfo;
-    String _provMgrPath;
 
 };
 
@@ -115,83 +107,48 @@ class PEGASUS_COMMON_LINKAGE CachedClassDefinitionContainer
 public:
     static const String NAME;
 
-    CachedClassDefinitionContainer(
-        const OperationContext::Container& container);
-    CachedClassDefinitionContainer(const CIMConstClass& cimClass);
-    virtual ~CachedClassDefinitionContainer();
+    CachedClassDefinitionContainer(const OperationContext::Container & container);
+    CachedClassDefinitionContainer(const CIMClass & cimClass);
+    virtual ~CachedClassDefinitionContainer(void);
 
-    // NOTE: The compiler default implementation of the copy constructor
-    // is used for this class.
+    CachedClassDefinitionContainer & operator=(const CachedClassDefinitionContainer & container);
 
-    CachedClassDefinitionContainer& operator=(
-        const CachedClassDefinitionContainer& container);
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    virtual String getName() const;
-    virtual OperationContext::Container* clone() const;
-    virtual void destroy();
-
-    CIMConstClass getClass() const;
+    CIMClass getClass(void) const;
 
 protected:
-    CIMConstClass _cimClass;
+    CIMClass _cimClass;
 
 };
-
-class PEGASUS_COMMON_LINKAGE NormalizerContextContainer
+#ifdef PEGASUS_EMBEDDED_INSTANCE_SUPPORT
+#ifdef PEGASUS_ENABLE_OBJECT_NORMALIZATION
+class PEGASUS_COMMON_LINKAGE RepositoryContainer
     : virtual public OperationContext::Container
 {
 public:
     static const String NAME;
 
-    NormalizerContextContainer(const OperationContext::Container& container);
-    NormalizerContextContainer(AutoPtr<NormalizerContext>& context);
-    NormalizerContextContainer(const NormalizerContextContainer& container);
-    virtual ~NormalizerContextContainer();
+    RepositoryContainer(const OperationContext::Container & container);
+    RepositoryContainer(CIMRepository * repository);
+    virtual ~RepositoryContainer(void);
 
-    NormalizerContextContainer& operator=(
-        const NormalizerContextContainer& container);
+    RepositoryContainer & operator=(const RepositoryContainer & container);
 
-    virtual String getName() const;
-    virtual OperationContext::Container* clone() const;
-    virtual void destroy();
+    virtual String getName(void) const;
+    virtual OperationContext::Container * clone(void) const;
+    virtual void destroy(void);
 
-    NormalizerContext* getContext() const;
+    CIMRepository * getRepository(void) const;
 
 protected:
-    AutoPtr<NormalizerContext> normalizerContext;
+    CIMRepository * _repository;
 
-private:
-    NormalizerContextContainer();
 };
-
-class PEGASUS_COMMON_LINKAGE UserRoleContainer
-    : virtual public OperationContext::Container
-{
-public:
-    static const String NAME;
-
-    UserRoleContainer(const OperationContext::Container& container);
-    UserRoleContainer(const String& userRole);
-    
-    virtual ~UserRoleContainer();
-
-    UserRoleContainer& operator=(
-        const UserRoleContainer& container);
-
-    virtual String getName() const;
-    virtual OperationContext::Container* clone() const;
-    virtual void destroy();
-
-    String getUserRole() const;
-
-protected:
-    String _userRole;
-
-private:
-    UserRoleContainer();
-};
-
-
+#endif // PEGASUS_ENABLE_OBJECT_NORMALIZATION
+#endif // PEGASUS_EMBEDDED_INSTANCE_SUPPORT
 
 PEGASUS_NAMESPACE_END
 

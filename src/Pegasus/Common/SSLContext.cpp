@@ -224,6 +224,7 @@ int SSLCallback::verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE
     if (sslCRLStore == NULL)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: CRL store is NULL");
+        PEG_METHOD_EXIT();
         return 0;
     }
 
@@ -257,6 +258,7 @@ int SSLCallback::verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE
     if (X509_STORE_get_by_subject(&crlStoreCtx, X509_LU_CRL, issuerName, &obj) <= 0)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "---> SSL: No CRL by that issuer");
+        PEG_METHOD_EXIT();
         return 0;
     }
     X509_STORE_CTX_cleanup(&crlStoreCtx);
@@ -266,6 +268,7 @@ int SSLCallback::verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE
     if (crl == NULL)
     {
         PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL is null");
+        PEG_METHOD_EXIT();
         return 0;
     } else
     {
@@ -289,6 +292,7 @@ int SSLCallback::verificationCRLCallback(int ok, X509_STORE_CTX *ctx, X509_STORE
         {
             PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL2, "---> SSL: Certificate is revoked");
             X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_REVOKED);
+            PEG_METHOD_EXIT();
             return 1;
         }
     }
@@ -325,28 +329,6 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     ssl = (SSL*) X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
     SSLCallbackInfo* exData = (SSLCallbackInfo*) SSL_get_ex_data(ssl, SSLCallbackInfo::SSL_CALLBACK_INDEX);
 
-    //
-    // If the SSLContext does not have an additional callback
-    // simply return the preverification error (or check the CRL)
-    // We do not need to go through the additional steps.
-    //
-    if (exData->_rep->verifyCertificateCallback == NULL)
-    {
-        Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                      "--->SSL: No verification callback specified");
-
-        if (exData->_rep->crlStore != NULL)
-        {
-            revoked = verificationCRLCallback(preVerifyOk,ctx,exData->_rep->crlStore);
-            Tracer::trace(TRC_SSL, Tracer::LEVEL4, "---> SSL: CRL callback returned %d", revoked);
-
-            if (revoked) //with the SSL callbacks '0' indicates failure
-            {
-                PEG_METHOD_EXIT();
-                return 0;
-            }
-        }
-    }
 
     //
     // Check to see if a CRL path is defined

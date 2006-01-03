@@ -57,7 +57,7 @@ class SSLCallbackInfoRep
 {
 public:
     SSLCertificateVerifyFunction* verifyCertificateCallback;
-    SSLCertificateInfo* peerCertificate;
+    Array<SSLCertificateInfo*> peerCertificate;
     X509_STORE* crlStore;
 };
 

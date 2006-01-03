@@ -253,7 +253,7 @@ HTTPConnection::HTTPConnection(
         {
             _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
             _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
-            _authInfo->setClientCertificate(_socket->getPeerCertificate());
+            _authInfo->setClientCertificateChain(_socket->getPeerCertificateChain());
         }
     }
 
@@ -1683,7 +1683,7 @@ void HTTPConnection::_handleReadEvent()
             {
                 _authInfo->setAuthStatus(AuthenticationInfoRep::AUTHENTICATED);
                 _authInfo->setAuthType(AuthenticationInfoRep::AUTH_TYPE_SSL);
-                _authInfo->setClientCertificate(_socket->getPeerCertificate());
+                _authInfo->setClientCertificateChain(_socket->getPeerCertificateChain());
             }
 
             // Go back to the select() and wait for data on the connection

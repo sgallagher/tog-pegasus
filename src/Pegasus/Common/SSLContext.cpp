@@ -415,18 +415,20 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     //
     // Create the certificate object
     //
-    if (exData->_rep->peerCertificate != NULL)
-    {
-        //Delete an existing certificate object from a previous call.
-        //SSL validates the certificate chain starting with the root CA and working down to the peer certificate.
-        //With this strategy, we end up with the peer certificate as the last certificate stored in the SSLCallbackInfo
-        //so we can retrieve the correct certificate info and username.
-        delete exData->_rep->peerCertificate;
-        exData->_rep->peerCertificate = NULL;
-    }
+  
+    //insert at the beginning of the array so that the peer certificate is first and the root CA is last
+    exData->_rep->peerCertificate.insert(0, new SSLCertificateInfo(subjectName, issuerName, version, serialNumber,
+        notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk));
 
-    exData->_rep->peerCertificate = new SSLCertificateInfo(subjectName, issuerName, version, serialNumber,
-        notBefore, notAfter, depth, errorCode, errorStr, preVerifyOk);
+    PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "Created SSLCertificateInfo");
+
+    // NOT_YET_VALID checks do not work correctly on subsequent tries -- Bugzilla#4283
+    // call this prior to calling the user-specified callback in case they want to override it
+    if (errorCode == X509_V_OK && (CIMDateTime::getDifference(CIMDateTime::getCurrentDateTime(), notBefore) > 0))
+    {
+        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "Certificate was not yet valid.");
+        X509_STORE_CTX_set_error(ctx, X509_V_ERR_CERT_NOT_YET_VALID);   
+    }
 
     //
     // Call the user-specified application callback if it is specified.  If it is null, return OpenSSL's verification code.
@@ -440,7 +442,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
 
     } else
     {
-        if (exData->_rep->verifyCertificateCallback(*exData->_rep->peerCertificate))
+        if (exData->_rep->verifyCertificateCallback(*exData->_rep->peerCertificate[0]))
         {
 		    Tracer::trace(TRC_SSL, Tracer::LEVEL4,
                 "--> SSL: _rep->verifyCertificateCallback() returned X509_V_OK");
@@ -451,7 +453,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
         else // verification failed, handshake will be immediately terminated
         {
             Tracer::trace(TRC_SSL, Tracer::LEVEL4,
-                "--> SSL: _rep->verifyCertificateCallback() returned error %d", exData->_rep->peerCertificate->getErrorCode());
+                "--> SSL: _rep->verifyCertificateCallback() returned error %d", exData->_rep->peerCertificate[0]->getErrorCode());
 
             PEG_METHOD_EXIT();
             return 0;
@@ -1543,7 +1545,6 @@ SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert)
     _rep = new SSLCallbackInfoRep();
     _rep->verifyCertificateCallback = verifyCert;
     _rep->crlStore = NULL;
-    _rep->peerCertificate = NULL;
 }
 
 SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert, X509_STORE* crlStore)
@@ -1551,16 +1552,17 @@ SSLCallbackInfo::SSLCallbackInfo(SSLCertificateVerifyFunction* verifyCert, X509_
     _rep = new SSLCallbackInfoRep();
     _rep->verifyCertificateCallback = verifyCert;
     _rep->crlStore = crlStore;
-    _rep->peerCertificate = NULL;
 }
 
 SSLCallbackInfo::~SSLCallbackInfo()
 {
-    if (_rep->peerCertificate)
+    PEG_METHOD_ENTER(TRC_SSL, "SSLCallbackInfo::~SSLCallbackInfo");
+    for (Uint32 i = 0; i < _rep->peerCertificate.size(); i++)
     {
-        delete _rep->peerCertificate;
+        delete _rep->peerCertificate[i];
     }
     delete _rep;
+    PEG_METHOD_EXIT();
 }
 
 PEGASUS_NAMESPACE_END

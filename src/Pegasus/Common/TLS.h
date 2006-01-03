@@ -110,7 +110,7 @@ public:
 
     Boolean isCertificateVerified();
 
-    SSLCertificateInfo* getPeerCertificate();
+    Array<SSLCertificateInfo*> getPeerCertificateChain();
 
 private:
 
@@ -177,7 +177,7 @@ public:
 
     Boolean isPeerVerificationEnabled();
 
-    SSLCertificateInfo* getPeerCertificate();
+    Array<SSLCertificateInfo*> getPeerCertificateChain();
 
     Boolean isCertificateVerified();
 

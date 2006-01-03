@@ -38,6 +38,7 @@
 #define Pegasus_AuthenticationInfoRep_h
 
 #include <Pegasus/Common/Config.h>
+#include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Sharable.h>
 #include <Pegasus/Common/Linkage.h>
@@ -141,13 +142,13 @@ public:
     void setExportConnection(Boolean exportConnection);
 
 	//PEP187
-    SSLCertificateInfo* getClientCertificate()
+    Array<SSLCertificateInfo*> getClientCertificateChain()
 	{
         return _clientCertificate;
 	}
 
 	//PEP187
-	void setClientCertificate(SSLCertificateInfo* clientCertificate);
+	void setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate);
 
 private:
 
@@ -170,7 +171,7 @@ private:
 #endif
 
     Boolean _exportConnection;
-	SSLCertificateInfo* _clientCertificate;
+	Array<SSLCertificateInfo*> _clientCertificate;
 };
 
 PEGASUS_NAMESPACE_END

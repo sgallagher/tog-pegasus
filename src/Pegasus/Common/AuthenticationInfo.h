@@ -316,17 +316,17 @@ public:
     }
 
 	//PEP187
-    SSLCertificateInfo* getClientCertificate()
+    Array<SSLCertificateInfo*> getClientCertificateChain()
 	{
 	    _checkRep();
-        return _rep->getClientCertificate();
+        return _rep->getClientCertificateChain();
 	}
 
 	//PEP187
-	void setClientCertificate(SSLCertificateInfo* clientCertificate)
+	void setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
 	{
         _checkRep();
-        _rep->setClientCertificate(clientCertificate);
+        _rep->setClientCertificateChain(clientCertificate);
 	}
 
 private:

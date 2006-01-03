@@ -168,10 +168,10 @@ void   AuthenticationInfoRep::setExportConnection(Boolean exportConnection)
 }
 
 //PEP187
-void AuthenticationInfoRep::setClientCertificate(SSLCertificateInfo* clientCertificate)
+void AuthenticationInfoRep::setClientCertificateChain(Array<SSLCertificateInfo*> clientCertificate)
 {
     PEG_METHOD_ENTER(TRC_AUTHENTICATION,
-        "AuthenticationInfoRep::setClientCertificate");
+        "AuthenticationInfoRep::setClientCertificateChain");
 
     _clientCertificate = clientCertificate;
 

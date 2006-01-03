@@ -415,7 +415,7 @@ Boolean SSLSocket::isPeerVerificationEnabled()
     return (_SSLContext->isPeerVerificationEnabled());
 }
 
-SSLCertificateInfo* SSLSocket::getPeerCertificate()
+Array<SSLCertificateInfo*> SSLSocket::getPeerCertificateChain()
 {
     if (_SSLCallbackInfo.get())
     {
@@ -553,11 +553,11 @@ Boolean MP_Socket::isPeerVerificationEnabled()
     return false;
 }
 
-SSLCertificateInfo* MP_Socket::getPeerCertificate()
+Array<SSLCertificateInfo*> MP_Socket::getPeerCertificateChain()
 {
     if (_isSecure)
     {
-        return (_sslsock->getPeerCertificate());
+        return (_sslsock->getPeerCertificateChain());
     }
     return NULL;
 }
@@ -633,7 +633,7 @@ Sint32 MP_Socket::connect() { return 0; }
 
 Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 
-SSLCertificateInfo* MP_Socket::getPeerCertificate() { return NULL; }
+Array<SSLCertificateInfo*> MP_Socket::getPeerCertificateChain() { return NULL; }
 
 Boolean MP_Socket::isCertificateVerified() { return false; }
 

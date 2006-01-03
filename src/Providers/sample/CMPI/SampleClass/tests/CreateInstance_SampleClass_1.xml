@@ -13,11 +13,7 @@
 			<VALUE>Fortune Nr 12312321</VALUE>
 		</PROPERTY>
 	  	<PROPERTY NAME="Data" TYPE="string">
-			<VALUE>WARNING:
-        Reading this fortune can affect the dimensionality of your
-mind, change the curvature of your spine, cause the growth of hair on
-your palms, and make a difference in the outcome of your favorite war.
-</VALUE>
+			<VALUE>WARNING: Reading this fortune can affect the dimensionality of your mind, change the curvature of your spine, cause the growth of hair on your palms, and make a difference in the outcome of your favorite war.</VALUE>
 		</PROPERTY>
 	  </INSTANCE>
         </IPARAMVALUE>

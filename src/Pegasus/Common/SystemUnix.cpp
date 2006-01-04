@@ -45,6 +45,11 @@
 
 #ifdef PEGASUS_OS_HPUX
 # include <dl.h>
+
+#if defined(PEGASUS_HPUX_USE_DLOPEN) 
+# include <dlfcn.h>
+#endif
+
 #elif defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM)
 # include <dll.h>
 #elif defined(PEGASUS_PLATFORM_OS400_ISERIES_IBM)
@@ -428,7 +433,7 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
     Tracer::trace(TRC_OS_ABSTRACTION, Tracer::LEVEL2,
                   "Attempting to load library %s", fileName);
 
-#if defined(PEGASUS_OS_HPUX)
+#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
     void* handle;
     if (bindVerbose)
     {
@@ -470,15 +475,14 @@ DynamicLibraryHandle System::loadDynamicLibrary(const char* fileName)
 
 void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 {
-    // ATTN: Should this method indicate success/failure?
-#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)
-    dlclose(libraryHandle);
-#endif
 
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
     // Note: shl_unload will unload the library even if it has been loaded
     // multiple times.  No reference count is kept.
     int ignored = shl_unload(reinterpret_cast<shl_t>(libraryHandle));
+   // ATTN: Should this method indicate success/failure?
+#elif defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_DARWIN)
+    dlclose(libraryHandle);
 #endif
 
 #ifdef PEGASUS_OS_OS400
@@ -497,7 +501,7 @@ void System::unloadDynamicLibrary(DynamicLibraryHandle libraryHandle)
 String System::dynamicLoadError() {
     // ATTN: Is this safe in a multi-threaded process?  Should this string
     // be returned from loadDynamicLibrary?
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
     // If shl_load() returns NULL, errno is set to indicate the error
     return strerror(errno);
 #elif defined(PEGASUS_OS_ZOS)
@@ -515,7 +519,7 @@ DynamicSymbolHandle System::loadDynamicSymbol(
     DynamicLibraryHandle libraryHandle,
     const char* symbolName)
 {
-#ifdef PEGASUS_OS_HPUX
+#if defined(PEGASUS_OS_HPUX) && !defined(PEGASUS_HPUX_USE_DLOPEN)
     char* p = (char*)symbolName;
     void* proc = 0;
 

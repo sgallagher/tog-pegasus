@@ -46,3 +46,14 @@ FLAGS += +Z +DD64 -AA -mt
 ifdef PEGASUS_PAM_AUTHENTICATION
   SYS_LIBS += -L$(PAMLIB_HOME) -lpam
 endif
+
+##
+## PEGASUS_HPUX_USE_DLOPEN is used for HPUX platforms. When defined it
+## enables the use of dl routines (dlopen/dlclose/dlsym) instead of use 
+## the shl routines (shl_load/shl_unload/shl_findsym). For other UNIX
+## platforms PEGASUS_HPUX_USE_DLOPEN doesn't have effect.
+##
+
+DEFINES += -DPEGASUS_HPUX_USE_DLOPEN
+
+

@@ -35,7 +35,7 @@
 
 #include "DynamicLibrary.h"
 
-#if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
+#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
 #include <dlfcn.h>
 #elif defined(PEGASUS_OS_OS400)
 #include <fcntl.h>
@@ -55,7 +55,7 @@ Boolean DynamicLibrary::load(void)
 
     CString cstr = _fileName.getCString();
 
-    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN) 
+    #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN) 
     _handle = dlopen(cstr, RTLD_NOW);
     #elif defined(PEGASUS_OS_ZOS)
 	#if defined(PEGASUS_ZOS_SECURITY)
@@ -80,7 +80,7 @@ Boolean DynamicLibrary::unload(void)
     // ensure the module is loaded
     PEGASUS_ASSERT(isLoaded() == true);
 
-    #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
+    #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
     dlclose(_handle);
     #elif defined(PEGASUS_OS_ZOS)
     dllfree(_handle);
@@ -106,7 +106,7 @@ DynamicLibrary::LIBRARY_SYMBOL DynamicLibrary::getSymbol(const String & symbolNa
     {
         CString cstr = symbolName.getCString();
 
-        #if defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
+        #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_SOLARIS) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_TRU64) || defined(PEGASUS_OS_DARWIN)
         func = (LIBRARY_SYMBOL)::dlsym(_handle, (const char *)cstr);
         #elif defined(PEGASUS_OS_ZOS)
         func = (LIBRARY_SYMBOL) dllqueryfn(_handle, (const char *)cstr);

@@ -58,6 +58,7 @@
 # include <fcntl.h>
 # include <netdb.h>
 # include <netinet/in.h>
+# include <netinet/tcp.h>
 # include <arpa/inet.h>
 # include <sys/socket.h>
 # ifndef PEGASUS_DISABLE_LOCAL_DOMAIN_SOCKET
@@ -76,6 +77,7 @@
 #ifdef PEGASUS_PLATFORM_OS400_ISERIES_IBM
 #include "OS400ConvertChar.h"
 #endif
+
 
 PEGASUS_USING_STD;
 
@@ -122,6 +124,26 @@ public:
     PEGASUS_SOCKET socket;
     Array<HTTPConnection*> connections;
 };
+
+//------------------------------------------------------------------------------
+//
+// _setTCPNoDelay()
+//
+//------------------------------------------------------------------------------
+
+inline void _setTCPNoDelay(PEGASUS_SOCKET socket)
+{
+    // This function disables "Nagle's Algorithm" also known as "the TCP delay
+    // algorithm", which causes read operations to obtain whatever data is
+    // already in the input queue and then wait a little longer to see if 
+    // more data arrives. This algorithm optimizes the case in which data is 
+    // sent in only one direction but severely impairs performance of round 
+    // trip servers. Disabling TCP delay is a standard technique for round 
+    // trip servers.
+
+   int opt = 1;
+   setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (char*)&opt, sizeof(opt));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -341,6 +363,8 @@ void HTTPAcceptor::_bind()
    else
    {
        _rep->socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+       _setTCPNoDelay(_rep->socket);
    }
 
    if (_rep->socket < 0)

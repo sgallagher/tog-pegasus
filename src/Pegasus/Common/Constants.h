@@ -340,6 +340,7 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 // File system layout
 //
 
+#define CIMSERVER_LOCK_FILE               "cimserver_start.lock"
 #define PEGASUS_SSLCLIENT_CERTIFICATEFILE "client.pem"
 #define PEGASUS_SSLCLIENT_RANDOMFILE      "ssl.rnd"
 #define PEGASUS_SSLSERVER_RANDOMFILE      "cimserver.rnd"
@@ -354,6 +355,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 # include <Pegasus/Common/ProductDirectoryStructure.h>
 #else
 # if defined(PEGASUS_OS_HPUX)
+#  undef CIMSERVER_LOCK_FILE
+#  define CIMSERVER_LOCK_FILE               "/var/opt/wbem/cimserver_start.lock"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/hp/sslshare/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -371,6 +374,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/wbem/sbin/cimprovagt"
 # elif defined(PEGASUS_OS_AIX)
+#  undef CIMSERVER_LOCK_FILE
+#  define CIMSERVER_LOCK_FILE               "/opt/freeware/cimom/pegasus/etc/cimserver_start.lock"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/opt/freeware/cimom/pegasus/etc/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -382,6 +387,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_PAM_STANDALONE_PROC_NAME
 #  define PEGASUS_PAM_STANDALONE_PROC_NAME  "/opt/freeware/cimom/pegasus/bin/cimservera"
 # elif defined(PEGASUS_OS_LINUX) && !defined(PEGASUS_OS_LSB)
+#  undef CIMSERVER_LOCK_FILE
+#  define CIMSERVER_LOCK_FILE               "/var/opt/tog-pegasus/cimserver_start.lock"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/etc/opt/tog-pegasus/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE
@@ -415,6 +422,8 @@ static const CIMNamespaceName PEGASUS_NAMESPACENAME_CIMQUERYCAPABILITIES  =
 #  undef PEGASUS_PROVIDER_AGENT_PROC_NAME
 #  define PEGASUS_PROVIDER_AGENT_PROC_NAME  "/opt/lsb-pegasus/sbin/cimprovagt"
 # elif defined(PEGASUS_OS_VMS)
+#  undef CIMSERVER_LOCK_FILE
+#  define CIMSERVER_LOCK_FILE               "/wbem_var/opt/wbem/cimserver_start.lock"
 #  undef PEGASUS_SSLCLIENT_CERTIFICATEFILE
 #  define PEGASUS_SSLCLIENT_CERTIFICATEFILE "/wbem_var/opt/wbem/client.pem"
 #  undef PEGASUS_SSLCLIENT_RANDOMFILE

@@ -124,6 +124,13 @@
 #  include "OS400ConvertChar.h"
 #endif
 
+#if defined(PEGASUS_OS_OS400)
+#  include <unistd.cleinc>
+#elif defined(PEGASUS_OS_TYPE_UNIX)
+#  include <unistd.h>
+#endif
+
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -1226,6 +1233,25 @@ MessageLoader::_useProcessLocale = false;
     umask(S_IRWXG|S_IRWXO);
 #endif
 
+
+#if defined(PEGASUS_OS_TYPE_UNIX)
+  //    
+  // CRITICAL SECTION BEGIN
+  //
+  // This is the beginning of the critical section regarding the
+  // access to pidfile (file to indicate that the cimserver has started).
+  // Sometimes, when 2 or more cimserver processes are started at the same 
+  // time, they can't detect the concurrent process execution because the 
+  // logic fails when pidfile is accessed concurrently.
+
+  FILE *startupLockFile;
+
+  if (startupLockFile = fopen(ConfigManager::getHomedPath(CIMSERVER_LOCK_FILE).getCString(), "w"))
+  {
+      lockf(fileno(startupLockFile), F_LOCK, 0);
+  }
+#endif
+
 #if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU) \
 || defined(PEGASUS_PLATFORM_ZOS_ZSERIES_IBM) || defined(PEGASUS_OS_AIX) \
 || defined(PEGASUS_OS_SOLARIS) || defined (PEGASUS_OS_VMS)
@@ -1388,6 +1414,23 @@ MessageLoader::_useProcessLocale = false;
 #if defined(PEGASUS_DEBUG)
     cout << "Started. " << endl;
 #endif
+
+#if defined(PEGASUS_OS_TYPE_UNIX)    
+    //
+    // CRITICAL SECTION END
+    // 
+    // Here is the unlock of file 'lock_file'. It closes the
+    // the critical section that guarantees the non concurrent access to
+    // pid file (file to indicate that the cimserver has started).
+    //
+
+    if (startupLockFile)
+    {
+       lockf(fileno(startupLockFile), F_ULOCK, 0);
+       fclose(startupLockFile);
+    }
+#endif
+
 
         // Put server started message to the logger
         Logger::put_l(Logger::STANDARD_LOG, System::CIMSERVER,

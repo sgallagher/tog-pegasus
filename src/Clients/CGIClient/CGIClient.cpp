@@ -35,6 +35,7 @@
 //               Alagaraja Ramasubramanian (alags_raj@in.ibm.com)
 //               David Dillard, VERITAS Software Corp.
 //                   (david.dillard@veritas.com)
+//               Aruran, IBM (ashanmug@in.ibm.com) for Bug#4295
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -125,8 +126,8 @@ void HostInfo::setHostName( const char* str)
 const char* HostInfo::getAddress()
 {
     const char* tmp = getenv("QUERY_STRING");
-    char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
-    CGIQueryString qs(queryString);
+    AutoPtr<char> queryString (strcpy(new char[strlen(tmp) + 1], tmp));
+    CGIQueryString qs(queryString.get());
 
     if ((tmp = qs.findValue("hostaddress")))
     return tmp;
@@ -137,8 +138,8 @@ const char* HostInfo::getAddress()
 void getHostAndPort (String & host, Uint32 & portNumber)
 {
     const char* tmp = getenv ("QUERY_STRING");
-    char* queryString = strcpy (new char [strlen (tmp) + 1], tmp);
-    CGIQueryString qs (queryString);
+    AutoPtr<char> queryString (strcpy(new char[strlen(tmp) + 1], tmp));
+    CGIQueryString qs (queryString.get());
 
     String tmpStr= qs.findValue ("hostaddress");
 
@@ -3332,78 +3333,75 @@ int main(int argc, char** argv)
 
     try
     {
-        char* queryString = strcpy(new char[strlen(tmp) + 1], tmp);
+        AutoPtr<char> queryString (strcpy(new char[strlen(tmp) + 1], tmp));
 
+        Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::INFORMATION,
+                     "Query String $0", queryString.get());
 
+        CGIQueryString qs(queryString.get());
 
+        const char* operation = qs.findValue("Operation");
 
-    Logger::put( Logger::TRACE_LOG,  "CGIClient", Logger::INFORMATION,
-        "Query String $0", queryString);
-
-    CGIQueryString qs(queryString);
-
-    const char* operation = qs.findValue("Operation");
-
-    if (!operation)
-        ErrorExit("Missing Operation field");
-    if (strcmp(operation, "GetClass") == 0)
-        GetClass(qs);
-    else if (strcmp(operation, "EnumerateClassNames") == 0)
-        EnumerateClassNames(qs);
-    else if (strcmp(operation, "DeleteClass") == 0)
-        DeleteClass(qs);
-    else if (strcmp(operation, "GetPropertyDeclaration") == 0)
-        GetPropertyDeclaration(qs);
-    else if (strcmp(operation, "EnumerateQualifiers") == 0)
-        EnumerateQualifiers(qs);
-    //else if (strcmp(operation, "SetQualifier") == 0)
-    //    SetQualifier(qs);
-    else if (strcmp(operation, "DeleteQualifier") == 0)
-        DeleteQualifier(qs);
-    else if (strcmp(operation, "GetQualifier") == 0)
-        GetQualifier(qs);
-    else if (strcmp(operation, "GetInstance") == 0)
-        GetInstance(qs);
-    else if (strcmp(operation, "DeleteInstance") == 0)
-        DeleteInstance(qs);
-    else if (strcmp(operation, "EnumerateInstanceNames") == 0)
-        EnumerateInstanceNames(qs);
-    else if (strcmp(operation, "EnumerateInstances") == 0)
-        EnumerateInstances(qs);
-    else if (strcmp(operation, "DefineHostParameters") == 0)
-        DefineHostParameters(qs);
-    else if (strcmp(operation, "GetProperty") == 0)
-        GetProperty(qs);
-    else if (strcmp(operation, "SetProperty") == 0)
-        SetProperty(qs);
-    else if (strcmp(operation, "CreateNameSpace") == 0)
-        CreateNameSpace(qs);
-    else if (strcmp(operation, "DeleteNameSpace") == 0)
-        DeleteNameSpace(qs);
-    else if (strcmp(operation, "EnumerateNameSpaces") == 0)
-        EnumerateNameSpaces(qs);
-    else if (strcmp(operation, "ReferenceNames") == 0)
-        ReferenceNames(qs);
-    else if (strcmp(operation, "AssociatorNames") == 0)
-        AssociatorNames(qs);
-    else if (strcmp(operation, "ClassInheritance") == 0)
-        ClassInheritance(qs);
-    else if (strcmp(operation, "ClassTree") == 0)
-        ClassTree(qs);
-    else if (strcmp(operation, "AllInstances") == 0)
-        AllInstances(qs);
-    else if (strcmp(operation, "InvokeMethod") == 0)
-        InvokeMethod(qs);
-    else
-    {
-        String message = "CGIClient - Unknown operation: ";
-        message.append(operation);
-        ErrorExit(message);
-    }
+        if (!operation)
+            ErrorExit("Missing Operation field");
+        if (strcmp(operation, "GetClass") == 0)
+            GetClass(qs);
+        else if (strcmp(operation, "EnumerateClassNames") == 0)
+            EnumerateClassNames(qs);
+        else if (strcmp(operation, "DeleteClass") == 0)
+            DeleteClass(qs);
+        else if (strcmp(operation, "GetPropertyDeclaration") == 0)
+            GetPropertyDeclaration(qs);
+        else if (strcmp(operation, "EnumerateQualifiers") == 0)
+            EnumerateQualifiers(qs);
+        //else if (strcmp(operation, "SetQualifier") == 0)
+        //    SetQualifier(qs);
+        else if (strcmp(operation, "DeleteQualifier") == 0)
+            DeleteQualifier(qs);
+        else if (strcmp(operation, "GetQualifier") == 0)
+            GetQualifier(qs);
+        else if (strcmp(operation, "GetInstance") == 0)
+            GetInstance(qs);
+        else if (strcmp(operation, "DeleteInstance") == 0)
+            DeleteInstance(qs);
+        else if (strcmp(operation, "EnumerateInstanceNames") == 0)
+            EnumerateInstanceNames(qs);
+        else if (strcmp(operation, "EnumerateInstances") == 0)
+            EnumerateInstances(qs);
+        else if (strcmp(operation, "DefineHostParameters") == 0)
+            DefineHostParameters(qs);
+        else if (strcmp(operation, "GetProperty") == 0)
+            GetProperty(qs);
+        else if (strcmp(operation, "SetProperty") == 0)
+            SetProperty(qs);
+        else if (strcmp(operation, "CreateNameSpace") == 0)
+            CreateNameSpace(qs);
+        else if (strcmp(operation, "DeleteNameSpace") == 0)
+            DeleteNameSpace(qs);
+        else if (strcmp(operation, "EnumerateNameSpaces") == 0)
+            EnumerateNameSpaces(qs);
+        else if (strcmp(operation, "ReferenceNames") == 0)
+            ReferenceNames(qs);
+        else if (strcmp(operation, "AssociatorNames") == 0)
+            AssociatorNames(qs);
+        else if (strcmp(operation, "ClassInheritance") == 0)
+            ClassInheritance(qs);
+        else if (strcmp(operation, "ClassTree") == 0)
+            ClassTree(qs);
+        else if (strcmp(operation, "AllInstances") == 0)
+            AllInstances(qs);
+        else if (strcmp(operation, "InvokeMethod") == 0)
+            InvokeMethod(qs);
+        else
+        {
+            String message = "CGIClient - Unknown operation: ";
+            message.append(operation);
+            ErrorExit(message);
+        }
     }
     catch (Exception& e)
     {
-    ErrorExit(e.getMessage());
+        ErrorExit(e.getMessage());
     }
 
     return 0;

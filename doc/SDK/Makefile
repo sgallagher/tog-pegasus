@@ -70,6 +70,7 @@ buildDefaultC++Doc:
 buildCMPIDoc:
 	@$(RMDIRHIER) $(PEGASUS_HTML_DIR)/CMPI
 	@$(MKDIRHIER) $(PEGASUS_HTML_DIR)/CMPI
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile clean   
 	@$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Provider/CMPI/docs -f Makefile doc
 	$(DOCXX) --config doc++.conf --dir $(PEGASUS_HTML_DIR)/CMPI -H -v CMPI/Interface.dxx
 

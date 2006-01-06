@@ -161,7 +161,6 @@ DOCSRCPATH1FILES = \
 
 CLIENTSRCPATH1FILES = \
    Makefile \
-   mak/config.mak \
    mak/program.mak \
    mak/recurse.mak \
    mak/library.mak \

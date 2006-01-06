@@ -117,11 +117,8 @@ INCLUDE_FILES = \
    Pegasus/Common/AcceptLanguages.h \
    Pegasus/Common/MessageLoader.h \
    Pegasus/Common/ContentLanguages.h \
-   Pegasus/Common/LanguageElementContainer.h \
-   Pegasus/Common/AcceptLanguageElement.h \
-   Pegasus/Common/Formatter.h \
-   Pegasus/Common/ContentLanguageElement.h \
-   Pegasus/Common/LanguageElement.h  
+   Pegasus/Common/LanguageTag.h \
+   Pegasus/Common/Formatter.h
 
 INCLUDE_FILES += \
    Pegasus/Client/ClientOpPerformanceDataHandler.h \

@@ -71,6 +71,12 @@ public:
     static Uint8 isAlphaUnder(Uint8 c) { return _isAlphaUnder[c]; }
     static Uint8 isAlNumUnder(Uint8 c) { return _isAlNumUnder[c]; }
     static Uint8 isSpace(Uint8 c) { return _isSpace[c]; }
+    /**
+        According to the XML specification, the space (0x20), carriage
+        return (0x09), line feed (0x0D), and tab (0x0A) characters are
+        considered white space.
+     */
+    static Uint8 isXmlWhiteSpace(Uint8 c) { return _isXmlWhiteSpace[c]; }
     static Uint8 toUpper(Uint8 c) { return _toUpper[c]; }
     static Uint8 toLower(Uint8 c) { return _toLower[c]; }
     static Uint8 isNotSpaceNorTerm(Uint8 c) { return _isNotSpaceNorTerm[c]; }
@@ -81,6 +87,7 @@ private:
     static const Uint8 _toUpper[256];
     static const Uint8 _toLower[256];
     static const Uint8 _isSpace[256];
+    static const Uint8 _isXmlWhiteSpace[256];
     static const Uint8 _isNotSpaceNorTerm[256];
 };
 

@@ -112,8 +112,9 @@ ifeq ($(OS),HPUX)
     Pr__r__r__ = 444
     Pr________ = 400
     Pr_xr_xr_x = 555
+    Prw_______ = 600
     Prw_r__r__ = 644
-    Prw_______ = 640
+    Prw_r_____ = 640
     CHMODDIRHIER = chmod -R
 
     INSTALL_USR = bin
@@ -200,8 +201,9 @@ ifeq ($(OS),linux)
     Pr________ = 400
     Pr_xr_xr_x = 555
     Pr_x______ = 500
+    Prw_______ = 600
     Prw_r__r__ = 644
-    Prw_______ = 640
+    Prw_r_____ = 640
     CHMODDIRHIER = chmod -R
 
     INSTALL_USR = root

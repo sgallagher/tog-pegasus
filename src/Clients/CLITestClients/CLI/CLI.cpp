@@ -720,15 +720,15 @@ int main(int argc, char** argv)
                     totalTime += opts.saveElapsedTime;
                     maxTime = LOCAL_MAX(maxTime, opts.saveElapsedTime);
                     minTime = LOCAL_MIN(minTime, opts.saveElapsedTime);
-                    rtTotalTime += (returnedPerformanceData.roundTripTime/1000);
-                    maxRtTime = LOCAL_MAX(maxRtTime, returnedPerformanceData.roundTripTime/1000);
-                    minRtTime = LOCAL_MIN(minRtTime, returnedPerformanceData.roundTripTime/1000);
+                    rtTotalTime += (returnedPerformanceData.roundTripTime);
+                    maxRtTime = LOCAL_MAX(maxRtTime, returnedPerformanceData.roundTripTime);
+                    minRtTime = LOCAL_MIN(minRtTime, returnedPerformanceData.roundTripTime);
 
                     if (returnedPerformanceData.serverTimeKnown)
                     {
-                        serverTotalTime += (returnedPerformanceData.serverTime/1000);
-                        maxServerTime = LOCAL_MAX(maxServerTime, returnedPerformanceData.serverTime/1000);
-                        minServerTime = LOCAL_MIN(minServerTime, returnedPerformanceData.serverTime/1000);
+                        serverTotalTime += (returnedPerformanceData.serverTime);
+                        maxServerTime = LOCAL_MAX(maxServerTime, returnedPerformanceData.serverTime);
+                        minServerTime = LOCAL_MIN(minServerTime, returnedPerformanceData.serverTime);
                     }
                 }
             }
@@ -737,24 +737,24 @@ int main(int argc, char** argv)
         if (opts.time)
         {
             if (repeatCount == 0)
-                cout << CommandTable[cmdIndex].CommandName <<  " Time= " 
-                << opts.saveElapsedTime << " Sec. "
-                << " SvrTime= " << returnedPerformanceData.serverTime/1000 << " ms. "
-                << " RtTime= " << returnedPerformanceData.roundTripTime/1000 << " ms. "
+                cout << CommandTable[cmdIndex].CommandName <<  " " << opts.inputObjectName << " Time= " 
+                << opts.saveElapsedTime << " Sec "
+                << " SvrTime= " << returnedPerformanceData.serverTime << " us "
+                << " RtTime= " << returnedPerformanceData.roundTripTime << " us "
                 << "Req size= " << returnedPerformanceData.requestSize
-                << " b. Resp size= " << returnedPerformanceData.responseSize << " b"
+                << " b Resp size= " << returnedPerformanceData.responseSize << " b"
                 << endl;
             else
             {
-                cout << CommandTable[cmdIndex].CommandName << " Total Op Time " << totalTime << " for "
-                    << repeatCount << " ops. Avg.= " << totalTime/repeatCount
-                    << " sec. min= " << minTime << " sec. max= " << maxTime 
-                    << " sec. SvrTime avg= " << serverTotalTime/repeatCount
-                    << " ms. SvrTime min= " << minServerTime 
-                    << " ms. SvrTime max= " << maxServerTime << " ms"
+                cout << CommandTable[cmdIndex].CommandName << " " << opts.inputObjectName << " Total Time " << totalTime << " for "
+                    << repeatCount << " ops. Avg= " << (totalTime * 1000000)/repeatCount
+                    << " us min= " << minTime * 1000000 << " us max= " << (maxTime * 1000000) 
+                    << " us SvrTime avg= " << serverTotalTime/repeatCount
+                    << " us SvrTime min= " << minServerTime 
+                    << " us SvrTime max= " << maxServerTime << " us"
                     << " RtTime avg= " << rtTotalTime/repeatCount
-                    << " ms. RtTime min= " << minRtTime 
-                    << " ms. RtTime max= " << maxRtTime << " ms"
+                    << " us RtTime min= " << minRtTime 
+                    << " us RtTime max= " << maxRtTime << " us"
                     << endl;
             }
         }
@@ -795,7 +795,7 @@ int main(int argc, char** argv)
                 << " min= " << minTime << " max= " << maxTime << endl;
         }
 
-        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << " seconds. Terminated at " << System::getCurrentASCIITime() << endl;
+        cout << "Total Elapsed Time= " << totalElapsedExecutionTime.getElapsed() << " Sec. Terminated at " << System::getCurrentASCIITime() << endl;
     }
     if (opts.delay != 0)
     {

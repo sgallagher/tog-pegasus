@@ -1,0 +1,56 @@
+prog=cimserver
+
+test -x $CIMSERVER_BIN || exit 5
+
+. /lib/lsb/init-functions
+RETVAL=0
+
+case "$1" in
+     start)
+	echo -n $"Starting up CIM server: "
+	$CIMSERVER_BIN
+	RETVAL=$?
+	[ "$RETVAL" -eq 0 ] && log_success_msg $"$prog start" || log_failure_msg $"$prog start"
+	echo
+	;;
+
+     stop)
+	echo -n $"Shutting down CIM server: "
+	killproc cimserver
+	RETVAL=$?
+	[ "$RETVAL" -eq 0 ] && log_success_msg $"$prog stop" || log_failure_msg $"$prog stop"
+	echo
+	;;
+     status)
+	pid=`pidofproc $CIMSERVER_BIN`
+	RETVAL=$?
+	if [ "$RETVAL" -eq 0 ]; then
+		echo "CIM server is running"
+	else
+		echo "CIM server is not running"
+	fi
+	;;
+     condrestart)
+	pid=`pidofproc $CIMSERVER_BIN`
+	RETVAL=$?
+	if [ "$RETVAL" -eq 0 ]; then
+	    $0 stop && $0 start;
+	    RETVAL=$?;
+	fi;
+        ;;
+     try-restart)
+	$0 stop && $0 start
+	;;
+     restart|force-reload)
+	$0 stop
+	$0 start
+	;;
+     reload)
+	;;
+     *)
+	echo "Usage: $0 {start|stop|status|restart|reload|force-reload|try-restart}"
+	exit 1
+esac
+
+exit $RETVAL
+

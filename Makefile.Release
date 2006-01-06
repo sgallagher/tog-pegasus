@@ -674,7 +674,9 @@ ifdef PEGASUS_PAM_AUTHENTICATION
 	$(COPY) $(ROOT)/rpm/access.conf $(PEGASUS_STAGING_DIR)$(PEGASUS_CONFIG_DIR)/access.conf
 endif
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)/etc/init.d
-	$(COPY) $(ROOT)/rpm/tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	$(COPY) $(ROOT)/rpm/preamble-tog-pegasus.rc $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	@$(ECHO-E) "CIMSERVER_BIN=$(PEGASUS_SBIN_DIR)/cimserver" >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
+	$(CAT) $(ROOT)/rpm/commands-tog-pegasus.rc >> $(PEGASUS_STAGING_DIR)/etc/init.d/tog-pegasus
 endif
 
 setpermissions_PegasusSystemFiles: FORCE

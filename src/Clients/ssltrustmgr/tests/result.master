@@ -131,3 +131,52 @@ Try to connect with the 3rd certificate issued by the CA, this should get 401'ed
 TestCertClient::Connecting to 127.0.0.1:5989
 Exception: HTTP Error (401 Unauthorized).
 
+Add the self-signed root certificate to the truststore
+Certificate added successfully.
+
+Try to connect, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the intermediate certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the leaf certificate issued by the CA, this should fail
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Add the intermediate CA signed certificate to the truststore
+Certificate added successfully.
+
+Try to connect with root CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the intermediate certificate, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Try to connect with the leaf certificate issued by the CA, this should succeed
+TestCertClient::Connecting to 127.0.0.1:5989
+Result: CIM_ComputerSystem
++++++ TestCertClient Terminated Normally
+
+Remove the CA certificate from the truststore, this should succeed
+Certificate removed successfully.
+
+Try to connect with the intermediate certificate issued by the CA, this should get 401'ed
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Try to connect with the leaf certificate issued by the CA, this should get 401'ed
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized).
+
+Remove the intermediate CA certificate from the truststore, this should succeed
+Certificate removed successfully.
+

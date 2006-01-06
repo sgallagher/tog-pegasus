@@ -61,6 +61,14 @@ clean:
 	@$(RM) $(PEGASUS_HOME)/testca1.srl
 	@$(RM) $(PEGASUS_HOME)/testca1.crl
 	@$(RM) $(PEGASUS_HOME)/testca2.crl
+	@$(RM) $(PEGASUS_HOME)/testchca.cert
+	@$(RM) $(PEGASUS_HOME)/testchca.key
+	@$(RM) $(PEGASUS_HOME)/testchca.srl
+	@$(RM) $(PEGASUS_HOME)/testinter.cert
+	@$(RM) $(PEGASUS_HOME)/testinter.key
+	@$(RM) $(PEGASUS_HOME)/testinter.srl
+	@$(RM) $(PEGASUS_HOME)/testleaf.cert
+	@$(RM) $(PEGASUS_HOME)/testleaf.key
 	@$(RM) index.txt
 	@$(RM) index.txt.attr
 	@$(RM) index.txt.old
@@ -73,7 +81,7 @@ clean:
 #
 test_setup: $(PEGASUS_HOME)/ssltest_setup 
 
-$(PEGASUS_HOME)/ssltest_setup: $(OPENSSL_CNF) testca1.txt testdn1.txt testdn2.txt testdn3.txt testdn4.txt testexpired1.cert testexpired1.key testnotyetvalid1.cert testnotyetvalid1.key
+$(PEGASUS_HOME)/ssltest_setup: $(OPENSSL_CNF) testca1.txt testdn1.txt testdn2.txt testdn3.txt testdn4.txt testexpired1.cert testexpired1.key testnotyetvalid1.cert testnotyetvalid1.key testchca.cert testchca.key testinter.cert testinter.key testleaf.cert testleaf.key
 	@$(MAKE) -i -s clean
 	@$(TOUCH) $(PEGASUS_HOME)/ssltest_setup
 ifdef PEGASUS_HAS_SSL
@@ -87,6 +95,21 @@ ifdef PEGASUS_HAS_SSL
 	@#   
 	@$(COPY) testnotyetvalid1.cert $(PEGASUS_HOME)/testnotyetvalid1.cert
 	@$(COPY) testnotyetvalid1.key $(PEGASUS_HOME)/testnotyetvalid1.key
+	@#
+	@# Copy the test chain root certificate to the staging area
+	@#
+	@$(COPY) testchca.cert $(PEGASUS_HOME)/testchca.cert
+	@$(COPY) testchca.key $(PEGASUS_HOME)/testchca.key
+	@#
+	@# Copy the test chain intermediate certificate to the staging area
+	@#   
+	@$(COPY) testinter.cert $(PEGASUS_HOME)/testinter.cert
+	@$(COPY) testinter.key $(PEGASUS_HOME)/testinter.key
+	@#
+	@# Copy the leaf certificate to the staging area
+	@#   
+	@$(COPY) testleaf.cert $(PEGASUS_HOME)/testleaf.cert
+	@$(COPY) testleaf.key $(PEGASUS_HOME)/testleaf.key
 	@#
 	@# Create a self-signed certificate
 	@#
@@ -285,6 +308,55 @@ endif
 	@$(ECHO) "Try to connect with the 3rd certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)	
+
+	@$(ECHO) "Add the self-signed root certificate to the truststore" >> $(RESULTFILE)
+	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testchca.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testchca.cert $(PEGASUS_HOME)/testchca.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with the intermediate certificate, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testinter.cert $(PEGASUS_HOME)/testinter.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with the leaf certificate issued by the CA, this should fail" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testleaf.cert $(PEGASUS_HOME)/testleaf.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Add the intermediate CA signed certificate to the truststore" >> $(RESULTFILE)
+	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testinter.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with root CA, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testchca.cert $(PEGASUS_HOME)/testchca.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with the intermediate certificate, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testinter.cert $(PEGASUS_HOME)/testinter.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with the leaf certificate issued by the CA, this should succeed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testleaf.cert $(PEGASUS_HOME)/testleaf.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Remove the CA certificate from the truststore, this should succeed" >> $(RESULTFILE)
+	@ssltrustmgr -r -i /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChainCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with the intermediate certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testinter.cert $(PEGASUS_HOME)/testinter.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect with the leaf certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testleaf.cert $(PEGASUS_HOME)/testleaf.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Remove the intermediate CA certificate from the truststore, this should succeed" >> $(RESULTFILE)
+	@ssltrustmgr -r -i /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChainCA -n 2 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
 ifndef PEGASUS_PAM_AUTHENTICATION
     ifneq ($(OS), zos)
 	cimuser -r -u $(CURRENT_USER)

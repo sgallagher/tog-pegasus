@@ -22,7 +22,7 @@
 // LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
 // PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
 // HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN _HTTP_HEADER_CONNECTION
+// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
@@ -448,7 +448,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
                 Tracer::trace(TRC_HTTP, Tracer::LEVEL4, "Client certificate chain length: %d.", clientCertificateChain.size());
 
-                for (Uint32 i = 0; i < clientCertificateChain.size(); i++)
+                Uint32 loopCount = clientCertificateChain.size() - 1;
+                for (Uint32 i = 0; i <= loopCount ; i++)
                 {
                     clientCertificate = clientCertificateChain[i];
                     if (clientCertificate == NULL)
@@ -503,13 +504,26 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         					
         				if (pos != PEG_NOT_FOUND && !(value = cimInstance.getProperty(pos).getValue()).isNull())
         				{
-        					value.get(userName);
-                            isValidUser = _validateUser(userName, queueId);
+                                            value.get(userName);
+
+                                            //
+                                            // If a username is not specified, continue up the chain to look for a username.
+                                            //
+                                            if (userName == String::EMPTY && i < loopCount )
+                                            {
+                                                Tracer::trace(TRC_HTTP, Tracer::LEVEL4,
+                                                    "The certificate at level %u has no associated username, moving up the chain", i);
+                                                continue;
+                                            }
+
+                                            PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, "User name for certificate is " + userName);
+                                            isValidUser = _validateUser(userName, queueId);
+
         				} 
-                        else
+                                        else
         				{
         				    Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::TRACE,
-        								"HTTPAuthenticatorDelegator - Bailing, no username is registered to this certificate.");
+        					"HTTPAuthenticatorDelegator - Bailing, no username is registered to this certificate.");
         				}
 
                         if (isValidUser)
@@ -524,7 +538,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
                         } else
                         {
                             MessageLoaderParms msgParms("Pegasus.Server.HTTPAuthenticatorDelegator.BAD_CERTIFICATE_USERNAME",
-                                                        "No username is registered to this certificate.");
+                                               "The username associated to this certificate is not a valid system user");
                                                 String msg(MessageLoader::getMessage(msgParms));
                                                 PEG_TRACE_STRING(TRC_HTTP, Tracer::LEVEL3, msg);
                                                 _sendHttpError(

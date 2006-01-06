@@ -524,7 +524,7 @@ en:table {
         *    and ends with a newline character (\n).
 	*/
 	Clients.ssltrustmgr.SSLTrustMgr.MENU.STANDARD:string {
-	"Usage: ssltrustmgr -a [ -t truststore ] -c certuser -f certfile\n"
+	"Usage: ssltrustmgr -a [ -t truststore ] [ -c certuser ] -f certfile\n"
         "ssltrustmgr -a -T trustpath -f certfile\n"
         "ssltrustmgr -a -R -f crlfile\n"
         "ssltrustmgr -r [ -t truststore | -T trustpath ] -i issuername -n serialnumber\n"
@@ -589,6 +589,7 @@ en:table {
 
         Clients.ssltrustmgr.SSLTrustMgr.LIST_CRL_FAILURE:string {"PGC00917: Failed to list certificate revocation list."}
 
+        Clients.ssltrustmgr.SSLTrustMgr.CERT_WITHOUT_ASSOCIATED_USER:string {"PGC00918: NOTE: No user name will be associated with the certificate in the truststore."}
 
         // ==========================================================
         // Messages for repupgrade

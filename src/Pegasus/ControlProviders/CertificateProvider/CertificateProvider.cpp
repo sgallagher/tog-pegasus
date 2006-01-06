@@ -31,6 +31,8 @@
 //
 // Modified By:
 //         Nag Boranna, Hewlett-Packard Company (nagaraja_boranna@hp.com)
+//         Sushma Fernandes, Hewlett-Packard Company 
+//             (sushma_fernandes@hp.com)
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -851,7 +853,16 @@ void CertificateProvider::deleteInstance(
         cimProperty.getValue().get(truststoreType);
 
         PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Issuer name " + issuerName);
-        PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "User name " + userName);
+        
+        if (userName == String::EMPTY)
+        {
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "The certificate does not have"
+               "a username associated with it");
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "User name " + userName);
+        }
         PEG_TRACE_STRING(TRC_CONTROLPROVIDER, Tracer::LEVEL4, "Truststore type: " +
                                                       cimProperty.getValue().toString());
         
@@ -894,10 +905,20 @@ void CertificateProvider::deleteInstance(
                     throw CIMException(CIM_ERR_FAILED, parms);
                 }
 
-                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                if (userName == String::EMPTY)
+                {
+                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
+                           "The certificate without an associated user name from issuer $0 "
+                            "has been deleted from the truststore.",
+                            issuerName);
+                }
+                else
+                {
+                    Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE,
                             "The certificate registered to $0 from issuer $1 has been deleted from the truststore.",
                             userName,
                             issuerName);
+                }
 
             } else
             {
@@ -1160,7 +1181,14 @@ void CertificateProvider::invokeMethod(
     
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"Certificate parameters:\n");
             PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tcertificateContents:" + certificateContents);
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tuserName:" + userName);
+            if (userName == String::EMPTY)
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tDoes not have an associated username");
+            }
+            else
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"\tuserName:" + userName);
+            }
             
             //check for a valid truststore
             if (truststoreType != SERVER_TRUSTSTORE && truststoreType != EXPORT_TRUSTSTORE)
@@ -1168,10 +1196,16 @@ void CertificateProvider::invokeMethod(
                 throw CIMException(CIM_ERR_INVALID_PARAMETER, "The truststore specified by truststoreType is invalid.");
             }
 
-            //check for a valid username
-            if (!System::isSystemUser(userName.getCString()))
+            //check for a valid username if one is specified
+            if (userName == String::EMPTY)
+            { 
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                    "The certificate does not have an associated user name");
+            }
+            else if ( !System::isSystemUser(userName.getCString()))
             {
-                throw CIMException(CIM_ERR_INVALID_PARAMETER, "The user specified by userName is not a valid system user.");
+                throw CIMException(CIM_ERR_INVALID_PARAMETER, 
+                 "The user specified by userName is not a valid system user.");
             }
     
             //read in the certificate contents
@@ -1270,7 +1304,18 @@ void CertificateProvider::invokeMethod(
 
             //attempt to add cert to truststore
             String certificateFileName = _getNewCertificateFileName(storePath, X509_subject_name_hash(xCert));
-            PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,"Certificate " + certificateFileName + " registered to " + userName + "\n");
+            if (userName != String::EMPTY)
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                   "Certificate " + certificateFileName + 
+                    " registered to " + userName + "\n");
+            }
+            else
+            {
+                PEG_TRACE_STRING(TRC_CONTROLPROVIDER,Tracer::LEVEL4,
+                   "Certificate " + certificateFileName + 
+                    " does not have a user name associated with it");
+            }
     
             // build instance
             CIMInstance cimInstance(PEGASUS_CLASSNAME_CERTIFICATE);
@@ -1324,11 +1369,21 @@ void CertificateProvider::invokeMethod(
             int i = PEM_write_bio_X509(outFile, xCert);
             BIO_free_all(outFile);
             
-            Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
+            if (userName == String::EMPTY)
+            {
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
+                        "The certificate without an associated user name from issuer $0 has been added to the $1 truststore.", 
+                        issuerName,
+                        storeId);
+            }
+            else
+            {
+                Logger::put(Logger::STANDARD_LOG, System::CIMSERVER, Logger::TRACE, 
                         "The certificate registered to $0 from issuer $1 has been added to the $2 truststore.", 
                         userName,
                         issuerName,
                         storeId);
+            }
 
             CIMValue returnValue(Boolean(true));
     

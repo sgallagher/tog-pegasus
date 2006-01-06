@@ -33,6 +33,8 @@
 //                  (david.dillard@veritas.com)
 //              Vijay Eli, (vijayeli@in.ibm.com) fix for #2572
 //              Aruran, IBM (ashanmug@in.ibm.com) for Bug#4144
+//              Sushma Fernandes, Hewlett-Packard Company
+//                  (sushma_fernandes@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -500,6 +502,13 @@ static const char LIST_CRL_FAILURE [] =
 
 static const char LIST_CRL_FAILURE_KEY [] =
                 "Clients.ssltrustmgr.SSLTrustMgr.LIST_CRL_FAILURE";
+
+static const char CERT_WITHOUT_ASSOCIATED_USER_KEY [] =
+    "Clients.ssltrustmgr.SSLTrustMgr.CERT_WITHOUT_ASSOCIATED_USER";
+
+static const char CERT_WITHOUT_ASSOCIATED_USER [] =
+    "NOTE: No user name will be associated with the certificate" 
+    " in the truststore.";
 
 /**
     The constant representing the trust manager provider class name
@@ -1163,6 +1172,17 @@ void SSLTrustMgr::_addCertificate (
         CIMObjectPath reference(
             _hostName, PEGASUS_NAMESPACENAME_CERTIFICATE,
             PEGASUS_CLASSNAME_CERTIFICATE, kbArray);
+
+        //
+        // If an associated username has not been specified, display an 
+        // informational message.
+        //
+        if ( !_certUserSet )
+        {
+              outPrintWriter << localizeMessage(MSG_PATH, 
+                                CERT_WITHOUT_ASSOCIATED_USER_KEY,
+                                CERT_WITHOUT_ASSOCIATED_USER) << endl;
+        }
 
         //
         // Call the invokeMethod with the input parameters
@@ -2175,24 +2195,6 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
             MissingOptionException e (_OPTION_CERTFILE);
             throw e;
         }
-        else
-        {
-            //
-            // If -f option is set, -t, -T and -R options are not set then
-            // -t cim_trust is assumed default and -c option is expected
-            //
-            if ( !_trustStoreSet && !_trustPathSet && !_crlSet )
-            {
-                if ( !_certUserSet )
-                {
-                    //
-                    // A required option is missing
-                    //
-                    MissingOptionException e (_OPTION_CERTUSER);
-                    throw e;
-                }
-            }
-        }
 
         option = 0;
 
@@ -2229,14 +2231,6 @@ void SSLTrustMgr::setCommand (Uint32 argc, char* argv [])
             // With -t option, -c is a required option and the options
             // -T and -R are invalid.
             //
-            if ( !_certUserSet )
-            {
-                //
-                // A required option is missing
-                //
-                MissingOptionException e (_OPTION_CERTUSER);
-                throw e;
-            }
 
             if ( _trustPathSet )
             {
@@ -2859,7 +2853,7 @@ int main (int argc, char* argv [])
 {
     //l10n set message loading to process locale
     MessageLoader::_useProcessLocale = true;
-    
+
     SSLTrustMgr    command = SSLTrustMgr();
     int            retCode;
 

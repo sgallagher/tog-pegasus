@@ -357,6 +357,18 @@ endif
 	@ssltrustmgr -r -i /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChainCA -n 2 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
+	@$(ECHO) "Add the root CA certificate to the truststore without an associated username" >> $(RESULTFILE)
+	@ssltrustmgr -a -f $(PEGASUS_HOME)/testchca.cert >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Try to connect, this should fail (401) since the root CA does not have an associated user name" >> $(RESULTFILE)
+	@TestCertClient $(PEGASUS_HOME)/testinter.cert $(PEGASUS_HOME)/testinter.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
+	@$(ECHO) "Remove the CA certificate from the truststore, this should succeed" >> $(RESULTFILE)
+	@ssltrustmgr -r -i /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChainCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
+	@$(ECHO) >> $(RESULTFILE)
+
 ifndef PEGASUS_PAM_AUTHENTICATION
     ifneq ($(OS), zos)
 	cimuser -r -u $(CURRENT_USER)

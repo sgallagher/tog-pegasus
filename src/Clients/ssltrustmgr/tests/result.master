@@ -180,3 +180,14 @@ Exception: HTTP Error (401 Unauthorized).
 Remove the intermediate CA certificate from the truststore, this should succeed
 Certificate removed successfully.
 
+Add the root CA certificate to the truststore without an associated username
+NOTE: No user name will be associated with the certificate in the truststore.
+Certificate added successfully.
+
+Try to connect, this should fail (401) since the root CA does not have an associated user name
+TestCertClient::Connecting to 127.0.0.1:5989
+Exception: HTTP Error (401 Unauthorized): Detail = "The username registered to this certificate is not a valid user.".
+
+Remove the CA certificate from the truststore, this should succeed
+Certificate removed successfully.
+

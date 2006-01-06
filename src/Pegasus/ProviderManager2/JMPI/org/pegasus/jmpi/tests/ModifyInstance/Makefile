@@ -29,8 +29,7 @@
 
 ROOT = ../../../../../../../../..
 include $(ROOT)/mak/config.mak
-#include $(ROOT)/test/config.mak
-include ../config.mak
+include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = ModifyInstance54000 ModifyInstance54003 ModifyInstance54004 ModifyInstance54005 ModifyInstance54006 
 

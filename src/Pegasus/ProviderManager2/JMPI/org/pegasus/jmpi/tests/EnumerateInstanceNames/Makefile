@@ -26,11 +26,10 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-ROOT = ../../../../../../../../..
 
+ROOT = ../../../../../../../../..
 include $(ROOT)/mak/config.mak
-#include $(ROOT)/test/config.mak
-include ../config.mak
+include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = EnumerateInstanceNames50000 EnumerateInstanceNames50002
 

@@ -29,8 +29,7 @@
 
 ROOT = ../../../../../../../../..
 include $(ROOT)/mak/config.mak
-#include $(ROOT)/test/config.mak
-include ../config.mak
+include $(ROOT)/test/config.mak
 
 XMLSCRIPTS = EnumerateInstances51003
 

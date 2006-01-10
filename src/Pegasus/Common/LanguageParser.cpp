@@ -51,7 +51,6 @@
 PEGASUS_NAMESPACE_BEGIN
 
 static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
-static char LOCALE_ID_SEPARATOR_CHAR = '_';
 
 AcceptLanguageList LanguageParser::parseAcceptLanguageHeader(
     const String& acceptLanguageHeader)
@@ -114,21 +113,12 @@ ContentLanguageList LanguageParser::parseContentLanguageHeader(
 }
 
 void LanguageParser::parseLanguageTag(
-    const String& languageTagString_,
+    const String& languageTagString,
     String& language,
     String& country,
     String& variant)
 {
     PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseLanguageTag");
-
-    // Convert locale ID format to language tag format
-    String languageTagString = languageTagString_;
-    Uint32 index = 0;
-    while ((index = languageTagString.find(index, LOCALE_ID_SEPARATOR_CHAR)) !=
-        PEG_NOT_FOUND)
-    {
-        languageTagString[index] = LANGUAGE_TAG_SEPARATOR_CHAR;
-    }
 
     language.clear();
     country.clear();

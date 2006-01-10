@@ -947,7 +947,8 @@ void drive_MessageLoader()
 
     // test for return content languages
 
-    PEGASUS_TEST_ASSERT ( mlp.contentlanguages.toString() == "en-US" );
+    PEGASUS_TEST_ASSERT ( LanguageParser::buildContentLanguageHeader(
+        mlp.contentlanguages) == "en-US" );
 
 #else
 

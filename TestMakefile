@@ -873,7 +873,7 @@ endif
 	@ $(ECHO) "+++++ TestMakefile standardtests complete"
 
 TestNoSecurity:
-	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile servertests
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
 

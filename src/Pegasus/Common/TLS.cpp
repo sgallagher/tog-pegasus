@@ -91,39 +91,49 @@ SSLSocket::SSLSocket(
         throw SSLException(parms);
     }
 
-    //
-    // set the verification callback data
-    //
-
-    //we are only storing one set of data, so we can just use index 0, this is defined in SSLContext.h
-    //int index = SSL_get_ex_new_index(0, (void*)"pegasus", NULL, NULL, NULL);
-
-    //
-    // Create a new callback info for each new connection
-    //
-    _SSLCallbackInfo.reset(new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction(),
-										   _SSLContext->getCRLStore()));
-
-    if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo.get()))
+    // This try/catch block is necessary so that we can free the SSL Connection
+    // Area if any exceptions are thrown.
+    try
     {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
-    }
-    else
-    {
-        PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Error setting callback info");
-    }
+        //
+        // set the verification callback data
+        //
 
-    //
-    // and connect the active socket with the ssl operation
-    //
-    if (!(SSL_set_fd(_SSLConnection, _socket) ))
-    {
-        PEG_METHOD_EXIT();
-        //l10n
-        //throw( SSLException("Could not link socket to SSL Connection"));
-        MessageLoaderParms parms("Common.TLS.COULD_NOT_LINK_SOCKET",
+        //we are only storing one set of data, so we can just use index 0, this is defined in SSLContext.h
+        //int index = SSL_get_ex_new_index(0, (void*)"pegasus", NULL, NULL, NULL);
+
+        //
+        // Create a new callback info for each new connection
+        //
+        _SSLCallbackInfo.reset(new SSLCallbackInfo(_SSLContext->getSSLCertificateVerifyFunction(),
+                                                   _SSLContext->getCRLStore()));
+
+        if (SSL_set_ex_data(_SSLConnection, SSLCallbackInfo::SSL_CALLBACK_INDEX, _SSLCallbackInfo.get()))
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "--->SSL: Set callback info");
+        }
+        else
+        {
+            PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL3, "--->SSL: Error setting callback info");
+        }
+
+        //
+        // and connect the active socket with the ssl operation
+        //
+        if (!(SSL_set_fd(_SSLConnection, _socket) ))
+        {
+            PEG_METHOD_EXIT();
+            //l10n
+            //throw( SSLException("Could not link socket to SSL Connection"));
+            MessageLoaderParms parms("Common.TLS.COULD_NOT_LINK_SOCKET",
             					 "Could not link socket to SSL Connection");
-        throw SSLException(parms);
+            throw SSLException(parms);
+        }
+    }
+    catch(...)
+    {
+        SSL_free(_SSLConnection);
+        throw;
     }
 
     PEG_TRACE_STRING(TRC_SSL, Tracer::LEVEL4, "---> SSL: Created SSL socket");

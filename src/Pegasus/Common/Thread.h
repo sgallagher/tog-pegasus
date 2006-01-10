@@ -47,7 +47,7 @@
 #include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/DQueue.h>
-#include <Pegasus/Common/AcceptLanguages.h>  // l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
 
@@ -422,24 +422,24 @@ class PEGASUS_COMMON_LINKAGE Thread
       static void setCurrent(Thread * thrd); // l10n
 
       //
-      //  Gets the AcceptLanguages object associated with the caller's
+      //  Gets the AcceptLanguageList object associated with the caller's
       //  Thread.
       //  Note: this may return NULL if no Thread object, or no
-      //  AcceptLanguages object, is associated with the caller's thread.
+      //  AcceptLanguageList object, is associated with the caller's thread.
       //
-      static AcceptLanguages * getLanguages(); //l10n
+      static AcceptLanguageList * getLanguages(); //l10n
 
       //
-      //  Sets the AcceptLanguages object associated with the caller's
+      //  Sets the AcceptLanguageList object associated with the caller's
       //  Thread.
       //  Note: a Thread object must have been previously associated with
       //  the caller's thread.
-      //  Note: the AcceptLanguages object must be placed on the heap.
+      //  Note: the AcceptLanguageList object must be placed on the heap.
       //
-      static void setLanguages(AcceptLanguages *langs); //l10n
+      static void setLanguages(AcceptLanguageList *langs); //l10n
 
       //
-      //  Removes the AcceptLanguages object associated with the caller's
+      //  Removes the AcceptLanguageList object associated with the caller's
       //  Thread.
       //
       static void clearLanguages(); //l10n

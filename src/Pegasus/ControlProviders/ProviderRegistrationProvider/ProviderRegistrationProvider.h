@@ -40,7 +40,7 @@
 #include <Pegasus/Provider/CIMMethodProvider.h>
 #include <Pegasus/Common/ModuleController.h>
 
-#include <Pegasus/Common/AcceptLanguages.h> // l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
 
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 
@@ -157,12 +157,12 @@ protected:
     void _sendTerminationMessageToSubscription(
 	const CIMObjectPath & ref, const String & moduleName,
 	const Boolean disableProviderOnly,
-        const AcceptLanguages & al);           // l10n
+        const AcceptLanguageList & al);
 
     Sint16 _disableModule(const CIMObjectPath & moduleRef, 
 			  const String & moduleName,
 			  Boolean disableProviderOnly,
-                      const AcceptLanguages & al);           // l10n
+                      const AcceptLanguageList & al);
 
     //
     // If the provider is an indication provider, return true
@@ -173,13 +173,13 @@ protected:
 
     Sint16 _enableModule(const CIMObjectPath & moduleRef, 
 			 const String & moduleName,
-                         const AcceptLanguages & al); 
+                         const AcceptLanguageList & al); 
 
     void _sendEnableMessageToSubscription(
 	const CIMInstance & mInstance,
 	const CIMInstance & pInstance,
 	const Array<CIMInstance> & capInstances,
-	const AcceptLanguages & al);
+	const AcceptLanguageList & al);
 
      //
     // get all the indication capability instances which belongs

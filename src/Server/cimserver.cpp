@@ -1193,17 +1193,17 @@ MessageLoader::_useProcessLocale = false;
 // l10n
     // Now we are after the fork...
     // Create a dummy Thread object that can be used to store the
-    // AcceptLanguages object for CIM requests that are serviced
+    // AcceptLanguageList object for CIM requests that are serviced
     // by this thread (initial thread of server).  Need to do this
     // because this thread is not in a ThreadPool, but is used
     // to service CIM requests.
     // The run function for the dummy Thread should never be called,
     dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
     Thread::setCurrent(dummyInitialThread);
-    AcceptLanguages default_al;
+    AcceptLanguageList default_al;
     try{
          default_al = LanguageParser::getDefaultAcceptLanguages();
-         Thread::setLanguages(new AcceptLanguages(default_al));
+         Thread::setLanguages(new AcceptLanguageList(default_al));
     }catch(InvalidAcceptLanguageHeader& e){
           Logger::put_l(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
                   "src.Server.cimserver.FAILED_TO_SET_PROCESS_LOCALE",

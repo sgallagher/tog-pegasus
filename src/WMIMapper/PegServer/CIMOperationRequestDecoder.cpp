@@ -204,7 +204,7 @@ void CIMOperationRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    // Set the Accept-Language into the thread for this service.
    // This will allow all code in this thread to get
    // the languages for the messages returned to the client.
-   Thread::setLanguages(new AcceptLanguages(httpMessage->acceptLanguages));
+   Thread::setLanguages(new AcceptLanguageList(httpMessage->acceptLanguages));
 
    
    // Save queueId:
@@ -480,8 +480,8 @@ void CIMOperationRequestDecoder::handleMethodCall(
    String authType,
    String userName,
    String password,
-   const AcceptLanguages& httpAcceptLanguages,  // l10n
-   const ContentLanguages& httpContentLanguages)
+   const AcceptLanguageList& httpAcceptLanguages,  // l10n
+   const ContentLanguageList& httpContentLanguages)
 {
    PEG_METHOD_ENTER(TRC_DISPATCHER,
       "CIMOperationRequestDecoder::handleMethodCall()");

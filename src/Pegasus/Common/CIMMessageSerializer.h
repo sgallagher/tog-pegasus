@@ -60,7 +60,7 @@ PEGASUS_NAMESPACE_BEGIN
 
     Note:  Changes or additions to the CIMMessage definitions must be
     reflected in these serialization classes.  Likewise, changes to the
-    structure of member data (such as the AcceptLanguages class) and
+    structure of member data (such as the AcceptLanguageList class) and
     addition of new OperationContext containers will affect message
     serialization.
  */
@@ -97,13 +97,13 @@ private:
         Buffer& out,
         const OperationContext& operationContext);
 
-    static void _serializeContentLanguages(
+    static void _serializeContentLanguageList(
         Buffer& out,
-        const ContentLanguages& contentLanguages);
+        const ContentLanguageList& contentLanguages);
 
-    static void _serializeAcceptLanguages(
+    static void _serializeAcceptLanguageList(
         Buffer& out,
-        const AcceptLanguages& acceptLanguages);
+        const AcceptLanguageList& acceptLanguages);
 
     static void _serializeCIMException(
         Buffer& out,

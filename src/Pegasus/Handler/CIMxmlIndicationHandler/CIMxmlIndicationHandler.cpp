@@ -97,7 +97,7 @@ public:
     CIMInstance& indicationInstance, 
     CIMInstance& indicationHandlerInstance, 
     CIMInstance& indicationSubscriptionInstance,
-    ContentLanguages& contentLanguages)
+    ContentLanguageList& contentLanguages)
     {
         PEG_METHOD_ENTER (TRC_IND_HANDLER, 
             "CIMxmlIndicationHandler::handleIndication()");

@@ -875,7 +875,7 @@ void ProviderRegistrationProvider::deleteInstance(
 
 // l10n
     // Get the client's list of preferred languages for the response
-    AcceptLanguages al;
+    AcceptLanguageList al;
     try 
     {
         AcceptLanguageListContainer al_container = 
@@ -884,7 +884,7 @@ void ProviderRegistrationProvider::deleteInstance(
     }
     catch (...)
     {
-        ;   // Leave AcceptLanguages empty
+        ;   // Leave AcceptLanguageList empty
     }
 
     CIMName className = instanceReference.getClassName();
@@ -1094,7 +1094,7 @@ void ProviderRegistrationProvider::invokeMethod(
 
 // l10n
     // Get the client's list of preferred languages for the response
-    AcceptLanguages al;
+    AcceptLanguageList al;
     try 
     {
         AcceptLanguageListContainer al_container = 
@@ -1103,7 +1103,7 @@ void ProviderRegistrationProvider::invokeMethod(
     }
     catch (...)
     {
-        ;   // Leave AcceptLanguages empty
+        ;   // Leave AcceptLanguageList empty
     }
 
     String moduleName;
@@ -1262,7 +1262,7 @@ Array<Uint16> ProviderRegistrationProvider::_sendEnableMessageToProviderManager(
 void ProviderRegistrationProvider::_sendTerminationMessageToSubscription(
     const CIMObjectPath & ref, const String & moduleName,
     const Boolean disableProviderOnly,
-    const AcceptLanguages & al)
+    const AcceptLanguageList & al)
 {
     CIMInstance instance;
     String _moduleName;
@@ -1381,7 +1381,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
     const CIMObjectPath & objectReference, 
     const String & moduleName,
     Boolean disableProviderOnly,
-    const AcceptLanguages & al)         // l10n
+    const AcceptLanguageList & al)
 {
     	//
     	// get module status
@@ -1565,7 +1565,7 @@ Sint16 ProviderRegistrationProvider::_disableModule(
 Sint16 ProviderRegistrationProvider::_enableModule(
     const CIMObjectPath & moduleRef, 
     const String & moduleName,
-    const AcceptLanguages & al)
+    const AcceptLanguageList & al)
 {
     	//
     	// get module status
@@ -1717,7 +1717,7 @@ void ProviderRegistrationProvider::_sendEnableMessageToSubscription(
     const CIMInstance & mInstance,
     const CIMInstance & pInstance,
     const Array<CIMInstance> & capInstances,
-    const AcceptLanguages & al)
+    const AcceptLanguageList & al)
 {
     //
     // get indication server queueId

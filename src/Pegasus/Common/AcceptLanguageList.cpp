@@ -34,7 +34,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/AcceptLanguages.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/InternalException.h>
 #include <Pegasus/Common/AutoPtr.h>
@@ -44,11 +44,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////
 //
-// AcceptLanguagesRep
+// AcceptLanguageListRep
 //
 //////////////////////////////////////////////////////////////
 
-class AcceptLanguagesRep
+class AcceptLanguageListRep
 {
 public:
     Array<LanguageTag> languageTags;
@@ -57,19 +57,20 @@ public:
 
 //////////////////////////////////////////////////////////////
 //
-// AcceptLanguages
+// AcceptLanguageList
 //
 //////////////////////////////////////////////////////////////
 
-AcceptLanguages::AcceptLanguages()
+AcceptLanguageList::AcceptLanguageList()
 {
-    _rep = new AcceptLanguagesRep();
+    _rep = new AcceptLanguageListRep();
 }
 
-AcceptLanguages::AcceptLanguages(const AcceptLanguages& acceptLanguages)
+AcceptLanguageList::AcceptLanguageList(
+    const AcceptLanguageList& acceptLanguages)
 {
-    _rep = new AcceptLanguagesRep();
-    AutoPtr<AcceptLanguagesRep> rep(_rep);
+    _rep = new AcceptLanguageListRep();
+    AutoPtr<AcceptLanguageListRep> rep(_rep);
 
     _rep->languageTags = acceptLanguages._rep->languageTags;
     _rep->qualityValues = acceptLanguages._rep->qualityValues;
@@ -77,13 +78,13 @@ AcceptLanguages::AcceptLanguages(const AcceptLanguages& acceptLanguages)
     rep.release();
 }
 
-AcceptLanguages::~AcceptLanguages()
+AcceptLanguageList::~AcceptLanguageList()
 {
     delete _rep;
 }
 
-AcceptLanguages& AcceptLanguages::operator=(
-    const AcceptLanguages& acceptLanguages)
+AcceptLanguageList& AcceptLanguageList::operator=(
+    const AcceptLanguageList& acceptLanguages)
 {
     if (&acceptLanguages != this)
     {
@@ -93,22 +94,22 @@ AcceptLanguages& AcceptLanguages::operator=(
     return *this;
 }
 
-Uint32 AcceptLanguages::size() const
+Uint32 AcceptLanguageList::size() const
 {
     return _rep->languageTags.size();
 }
 
-LanguageTag AcceptLanguages::getLanguageTag(Uint32 index) const
+LanguageTag AcceptLanguageList::getLanguageTag(Uint32 index) const
 {
     return _rep->languageTags[index];
 }
 
-Real32 AcceptLanguages::getQualityValue(Uint32 index) const
+Real32 AcceptLanguageList::getQualityValue(Uint32 index) const
 {
     return _rep->qualityValues[index];
 }
 
-void AcceptLanguages::insert(
+void AcceptLanguageList::insert(
     const LanguageTag& languageTag,
     Real32 qualityValue)
 {
@@ -132,13 +133,13 @@ void AcceptLanguages::insert(
     _rep->qualityValues.insert(index, qualityValue);
 }
 
-void AcceptLanguages::remove(Uint32 index)
+void AcceptLanguageList::remove(Uint32 index)
 {
     _rep->languageTags.remove(index);
     _rep->qualityValues.remove(index);
 }
 
-Uint32 AcceptLanguages::find(const LanguageTag& languageTag) const
+Uint32 AcceptLanguageList::find(const LanguageTag& languageTag) const
 {
     for (Uint32 i = 0; i < _rep->languageTags.size(); i++)
     {
@@ -150,14 +151,14 @@ Uint32 AcceptLanguages::find(const LanguageTag& languageTag) const
     return PEG_NOT_FOUND;
 }
 
-void AcceptLanguages::clear()
+void AcceptLanguageList::clear()
 {
     _rep->languageTags.clear();
     _rep->qualityValues.clear();
 }
 
-Boolean AcceptLanguages::operator==(
-    const AcceptLanguages& acceptLanguages) const
+Boolean AcceptLanguageList::operator==(
+    const AcceptLanguageList& acceptLanguages) const
 {
     if (_rep->languageTags.size() != acceptLanguages._rep->languageTags.size())
     {
@@ -175,8 +176,8 @@ Boolean AcceptLanguages::operator==(
     return true;
 }
 
-Boolean AcceptLanguages::operator!=(
-    const AcceptLanguages& acceptLanguages) const
+Boolean AcceptLanguageList::operator!=(
+    const AcceptLanguageList& acceptLanguages) const
 {
     return !(*this == acceptLanguages);
 }

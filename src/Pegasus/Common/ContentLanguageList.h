@@ -29,8 +29,8 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#ifndef Pegasus_AcceptLanguages_h
-#define Pegasus_AcceptLanguages_h
+#ifndef Pegasus_ContentLanguageList_h
+#define Pegasus_ContentLanguageList_h
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/LanguageTag.h>
@@ -39,53 +39,53 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-class AcceptLanguagesRep;
+class ContentLanguageListRep;
 
 //////////////////////////////////////////////////////////////
 //
-// AcceptLanguages
+// ContentLanguageList
 //
 //////////////////////////////////////////////////////////////
 
 /** <I><B>Experimental Interface</B></I><BR>
-    This class represents an list of languages that a reader can understand
-    (as may be specified in an HTTP Accept-Language header value).  It is
-    managed as a prioritized list of LanguageTag objects and quality values.
+    This class represents a list of content languages (such as may appear
+    in an HTTP Content-Language header value).  It is managed as a list of
+    LanguageTag objects.
  */
-class PEGASUS_COMMON_LINKAGE AcceptLanguages
+class PEGASUS_COMMON_LINKAGE ContentLanguageList
 {
 public:
 
     /**
-        Constructs an empty AcceptLanguages object.
+        Constructs an empty ContentLanguageList object.
      */
-    AcceptLanguages();
+    ContentLanguageList();
 
     /**
         Copy constructor.
-        @param acceptLanguages The AcceptLanguages object to copy.
+        @param contentLanguages The ContentLanguageList object to copy.
      */
-    AcceptLanguages(const AcceptLanguages& acceptLanguages);
+    ContentLanguageList(const ContentLanguageList& contentLanguages);
 
     /**
         Destructor.
      */
-    ~AcceptLanguages();
+    ~ContentLanguageList();
 
     /**
         Assignment operator.
-        @param acceptLanguages The AcceptLanguages object to copy.
+        @param contentLanguages The ContentLanguageList object to copy.
      */
-    AcceptLanguages& operator=(const AcceptLanguages& acceptLanguages);
+    ContentLanguageList& operator=(const ContentLanguageList& contentLanguages);
 
     /**
-        Returns the number of LanguagesTags in the AcceptLanguages object.
-        @return Integer size of the AcceptLanguages list.
+        Returns the number of LanguageTags in the ContentLanguageList object.
+        @return Integer size of the ContentLanguageList list.
      */
     Uint32 size() const;
 
     /**
-        Accesses an LanguageTag at a specified index.
+        Accesses a LanguageTag at a specified index.
         @param index Integer index of the LanguageTag to access.
         Valid indices range from 0 to size()-1.
         @return The LanguageTag corresponding to the specified index.
@@ -95,69 +95,51 @@ public:
     LanguageTag getLanguageTag(Uint32 index) const;
 
     /**
-        Accesses a quality value at a specified index (corresponding to a
-        language tag).
-        @param index Integer index of the quality value to access.
-        Valid indices range from 0 to size()-1.
-        @return The quality value corresponding to the specified index.
-        @exception IndexOutOfBoundsException If the specified index is out of
-        range.
+        Appends a LanguageTag to the ContentLanguageList object.
+        @param languageTag The LanguageTag to append.
      */
-    Real32 getQualityValue(Uint32 index) const;
+    void append(const LanguageTag& languageTag);
 
     /**
-        Inserts a LanguageTag and quality value into the AcceptLanguages
-        object.  The element is inserted in order of descending quality value
-        and after any other elements with the same quality value.
-        @param languageTag The LanguageTag to insert.
-        @param qualityValue The quality value to insert.
-     */
-    void insert(
-        const LanguageTag& languageTag,
-        Real32 qualityValue);
-
-    /**
-        Removes the specified LanguageTag and quality value from the 
-        AcceptLanguages object.
-        @param index Integer index of the element to remove.
+        Removes the specified LanguageTag from the ContentLanguageList object.
+        @param index Integer index of the LanguageTag to remove.
         @exception IndexOutOfBoundsException If the specified index is out of
         range.
      */
     void remove(Uint32 index);
 
     /**
-        Finds the first occurrence of the specified LanguageTag in the
-        AcceptLanguages object and returns its index.
+        Finds the specified LanguageTag in the ContentLanguageList object and
+        returns its index.
         @param languageTag The LanguageTag to find.
-        @return Integer index of the element, if found; otherwise
+        @return Integer index of the LanguageTag, if found; otherwise
         PEG_NOT_FOUND.
      */
     Uint32 find(const LanguageTag& languageTag) const;
 
     /**
-        Removes all the LanguageTags and quality values from the
-        AcceptLanguages object.
+        Removes all the LanguageTags from the ContentLanguageList object.
      */
     void clear();
 
     /**
-        Tests AcceptLanguages objects for equality.
-        @param acceptLanguages An AcceptLanguages object to be compared.
-        @return True if the AcceptLanguages objects contain the same
-        LanguageTags and quality values in the same order, false otherwise.
+        Tests ContentLanguageList objects for equality.
+        @param contentLanguages A ContentLanguageList object to be compared.
+        @return True if the ContentLanguageList objects contain the same
+        LanguageTags in the same order, false otherwise.
      */
-    Boolean operator==(const AcceptLanguages& acceptLanguages) const;
+    Boolean operator==(const ContentLanguageList& contentLanguages) const;
 
     /**
-        Tests AcceptLanguages objects for inequality.
-        @param acceptLanguages An AcceptLanguages object to be compared.
-        @return False if the AcceptLanguages objects contain the same
-        LanguageTags and quality values in the same order, true otherwise.
+        Tests ContentLanguageList objects for inequality.
+        @param contentLanguages A ContentLanguageList object to be compared.
+        @return False if the ContentLanguageList objects contain the same
+        LanguageTags in the same order, true otherwise.
      */
-    Boolean operator!=(const AcceptLanguages& acceptLanguages) const;
+    Boolean operator!=(const ContentLanguageList& contentLanguages) const;
 
 private:
-    AcceptLanguagesRep* _rep;
+    ContentLanguageListRep *_rep;
 };
 
 PEGASUS_NAMESPACE_END

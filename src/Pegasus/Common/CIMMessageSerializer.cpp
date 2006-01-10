@@ -650,7 +650,7 @@ void CIMMessageSerializer::_serializeOperationContext(
             operationContext.get(AcceptLanguageListContainer::NAME);
 
         XmlWriter::append(out, "<PGOCALL>\n");
-        _serializeAcceptLanguages(out, container.getLanguages());
+        _serializeAcceptLanguageList(out, container.getLanguages());
         XmlWriter::append(out, "</PGOCALL>\n");
     }
     catch (...)
@@ -663,7 +663,7 @@ void CIMMessageSerializer::_serializeOperationContext(
             operationContext.get(SubscriptionLanguageListContainer::NAME);
 
         XmlWriter::append(out, "<PGOCSLL>\n");
-        _serializeAcceptLanguages(out, container.getLanguages());
+        _serializeAcceptLanguageList(out, container.getLanguages());
         XmlWriter::append(out, "</PGOCSLL>\n");
     }
     catch (...)
@@ -676,7 +676,7 @@ void CIMMessageSerializer::_serializeOperationContext(
             operationContext.get(ContentLanguageListContainer::NAME);
 
         XmlWriter::append(out, "<PGOCCLL>\n");
-        _serializeContentLanguages(out, container.getLanguages());
+        _serializeContentLanguageList(out, container.getLanguages());
         XmlWriter::append(out, "</PGOCCLL>\n");
     }
     catch (...)
@@ -729,13 +729,14 @@ void CIMMessageSerializer::_serializeOperationContext(
 }
 
 //
-// _serializeContentLanguages
+// _serializeContentLanguageList
 //
-void CIMMessageSerializer::_serializeContentLanguages(
+void CIMMessageSerializer::_serializeContentLanguageList(
     Buffer& out,
-    const ContentLanguages& contentLanguages)
+    const ContentLanguageList& contentLanguages)
 {
-    // Use a PGCONTLANGS element to encapsulate the ContentLanguages encoding
+    // Use a PGCONTLANGS element to encapsulate the ContentLanguageList
+    // encoding
     XmlWriter::append(out, "<PGCONTLANGS>\n");
     for (Uint32 i=0; i < contentLanguages.size(); i++)
     {
@@ -746,13 +747,13 @@ void CIMMessageSerializer::_serializeContentLanguages(
 }
 
 //
-// _serializeAcceptLanguages
+// _serializeAcceptLanguageList
 //
-void CIMMessageSerializer::_serializeAcceptLanguages(
+void CIMMessageSerializer::_serializeAcceptLanguageList(
     Buffer& out,
-    const AcceptLanguages& acceptLanguages)
+    const AcceptLanguageList& acceptLanguages)
 {
-    // Use a PGACCLANGS element to encapsulate the AcceptLanguages encoding
+    // Use a PGACCLANGS element to encapsulate the AcceptLanguageList encoding
     XmlWriter::append(out, "<PGACCLANGS>\n");
     for (Uint32 i=0; i < acceptLanguages.size(); i++)
     {
@@ -781,7 +782,7 @@ void CIMMessageSerializer::_serializeCIMException(
     XmlWriter::appendValueElement(out, e.getCIMMessage());
     XmlWriter::appendValueElement(out, e.getFile());
     XmlWriter::appendValueElement(out, e.getLine());
-    _serializeContentLanguages(out, e.getContentLanguages());
+    _serializeContentLanguageList(out, e.getContentLanguages());
 
     XmlWriter::append(out, "</PGCIMEXC>\n");
 }

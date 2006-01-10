@@ -82,13 +82,13 @@ private:
         XmlParser& parser,
         OperationContext& operationContext);
 
-    static void _deserializeContentLanguages(
+    static void _deserializeContentLanguageList(
         XmlParser& parser,
-        ContentLanguages& contentLanguages);
+        ContentLanguageList& contentLanguages);
 
-    static void _deserializeAcceptLanguages(
+    static void _deserializeAcceptLanguageList(
         XmlParser& parser,
-        AcceptLanguages& acceptLanguages);
+        AcceptLanguageList& acceptLanguages);
 
     static void _deserializeCIMException(
         XmlParser& parser,

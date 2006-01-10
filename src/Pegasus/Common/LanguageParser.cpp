@@ -53,12 +53,12 @@ PEGASUS_NAMESPACE_BEGIN
 static char LANGUAGE_TAG_SEPARATOR_CHAR = '-';
 static char LOCALE_ID_SEPARATOR_CHAR = '_';
 
-AcceptLanguages LanguageParser::parseAcceptLanguageHeader(
+AcceptLanguageList LanguageParser::parseAcceptLanguageHeader(
     const String& acceptLanguageHeader)
 {
     PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseAcceptLanguageHeader");
 
-    AcceptLanguages acceptLanguages;
+    AcceptLanguageList acceptLanguages;
 
     try
     {
@@ -85,12 +85,12 @@ AcceptLanguages LanguageParser::parseAcceptLanguageHeader(
     return acceptLanguages;
 }
 
-ContentLanguages LanguageParser::parseContentLanguageHeader(
+ContentLanguageList LanguageParser::parseContentLanguageHeader(
     const String& contentLanguageHeader)
 {
     PEG_METHOD_ENTER(TRC_L10N, "LanguageParser::parseContentLanguageHeader");
 
-    ContentLanguages contentLanguages;
+    ContentLanguageList contentLanguages;
 
     try
     {
@@ -231,7 +231,7 @@ void LanguageParser::validateQualityValue(Real32 quality)
 }
 
 String LanguageParser::buildAcceptLanguageHeader(
-    const AcceptLanguages& acceptLanguages)
+    const AcceptLanguageList& acceptLanguages)
 {
     String alString;
     Uint32 numAcceptLanguages = acceptLanguages.size();
@@ -259,7 +259,7 @@ String LanguageParser::buildAcceptLanguageHeader(
 }
 
 String LanguageParser::buildContentLanguageHeader(
-    const ContentLanguages& contentLanguages)
+    const ContentLanguageList& contentLanguages)
 {
     String clString;
     Uint32 numContentLanguages = contentLanguages.size();
@@ -277,7 +277,7 @@ String LanguageParser::buildContentLanguageHeader(
     return clString;
 }
 
-AcceptLanguages LanguageParser::getDefaultAcceptLanguages()
+AcceptLanguageList LanguageParser::getDefaultAcceptLanguages()
 {
 #if defined(PEGASUS_HAS_MESSAGES) && defined(PEGASUS_HAS_ICU)
     Locale default_loc = Locale::getDefault();
@@ -304,12 +304,12 @@ AcceptLanguages LanguageParser::getDefaultAcceptLanguages()
                "format");
         Logger::put(Logger::ERROR_LOG, System::CIMSERVER, Logger::SEVERE,
             e.getMessage());
-        AcceptLanguages al;
+        AcceptLanguageList al;
         al.insert(LanguageTag("*"), 1);
         return al;
     }
 #else
-    return AcceptLanguages();
+    return AcceptLanguageList();
 #endif
 }
 

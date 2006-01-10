@@ -40,7 +40,7 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/ContentLanguages.h>	//l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -48,10 +48,8 @@ class ExceptionRep
 {
 public:
     String message;
-// l10n
     String cimMessage;  // Contains the message for the CIM error code
-// l10n
-    ContentLanguages contentLanguages;  
+    ContentLanguageList contentLanguages;  
 
     // Allow subclass objects to be destructed properly
     virtual ~ExceptionRep() {}

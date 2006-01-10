@@ -181,7 +181,7 @@ void CIMOperationRequestAuthorizer::handleEnqueue(Message *request)
    // in the correct language.
    if (req->thread_changed())
    {
-       AutoPtr<AcceptLanguages> langs(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
+       AutoPtr<AcceptLanguageList> langs(new AcceptLanguageList(((AcceptLanguageListContainer)req->operationContext.get
 	   (AcceptLanguageListContainer:: NAME)).getLanguages()));	
        Thread::setLanguages(langs.release());   		
    }

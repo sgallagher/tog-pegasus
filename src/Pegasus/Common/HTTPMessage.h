@@ -49,8 +49,8 @@
 #include <Pegasus/Common/ArrayInternal.h>
 #include <Pegasus/Common/AuthenticationInfo.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/AcceptLanguages.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -74,8 +74,8 @@ class PEGASUS_COMMON_LINKAGE HTTPMessage : public Message
       Buffer message;
       Uint32 queueId;
       AuthenticationInfo* authInfo;
-      AcceptLanguages acceptLanguages;
-      ContentLanguages contentLanguages;
+      AcceptLanguageList acceptLanguages;
+      ContentLanguageList contentLanguages;
       Boolean acceptLanguagesDecoded;
       Boolean contentLanguagesDecoded;
 			CIMException cimException;

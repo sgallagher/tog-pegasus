@@ -46,7 +46,7 @@
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/Logger.h>
 #include <Pegasus/Common/Tracer.h>
-#include <Pegasus/Common/ContentLanguages.h>  // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 #include "CIMExportResponseEncoder.h"
 
 PEGASUS_USING_STD;
@@ -176,7 +176,7 @@ void CIMExportResponseEncoder::encodeExportIndicationResponse(
    Buffer message = XmlWriter::formatSimpleEMethodRspMessage(
       CIMName ("ExportIndication"), response->messageId, 
       response->getHttpMethod(),
-      ContentLanguages(),
+      ContentLanguageList(),
       body);
 
    sendResponse(response->queueIds.top(), message,closeConnect);

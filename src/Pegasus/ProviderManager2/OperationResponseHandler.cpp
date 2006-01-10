@@ -112,7 +112,7 @@ void OperationResponseHandler::setStatus(
 
 void OperationResponseHandler::setStatus(
     const Uint32 code,
-    const ContentLanguages & langs,
+    const ContentLanguageList & langs,
     const String & message)
 {
     _response->cimException =
@@ -994,7 +994,7 @@ void EnableIndicationsResponseHandler::deliver(const OperationContext & context,
     }
 
     // l10n
-    ContentLanguages contentLangs;
+    ContentLanguageList contentLangs;
 
     try
     {

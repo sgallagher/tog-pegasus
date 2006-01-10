@@ -36,7 +36,7 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/IndicationFormatter.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/CIMValue.h>
 #include <Pegasus/Common/InternalException.h>
 
@@ -434,7 +434,7 @@ void _validateTextFormat()
 // Tests a default indication text message
 void _testDefaultFormat()
 {
-    ContentLanguages contentLangs;
+    ContentLanguageList contentLangs;
 
     contentLangs.append(LanguageTag("en-US-mn"));
     String expectedIndicationText = "Indication (default format):";
@@ -466,7 +466,7 @@ void _testDefaultFormat()
 // Tests a formatted indication text message.
 void _testFormat()
 {
-    ContentLanguages contentLangs;
+    ContentLanguageList contentLangs;
 
     contentLangs.append(LanguageTag("en-US-mn"));
 
@@ -509,7 +509,7 @@ void _checkIndicationText(
     const Array<String> & textFormatParams, 
     const String expectedIndicationText, 
     const CIMType type,
-    const ContentLanguages contentLangs)
+    const ContentLanguageList contentLangs)
 {
     CIMInstance subscriptionInstance = 
 	_createSubscriptionInstance(textFormat, textFormatParams);
@@ -528,7 +528,7 @@ void _checkIndicationText(
 // properties is an array property.
 void _testArrayFormat()
 {
-    ContentLanguages contentLangs;
+    ContentLanguageList contentLangs;
 
     contentLangs.append(LanguageTag("en-US-mn"));
 

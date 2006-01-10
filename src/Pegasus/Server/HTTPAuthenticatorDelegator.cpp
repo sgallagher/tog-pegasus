@@ -639,8 +639,8 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
 
 
 // l10n start
-   AcceptLanguages acceptLanguages;
-   ContentLanguages contentLanguages;
+   AcceptLanguageList acceptLanguages;
+   ContentLanguageList contentLanguages;
    try
    {
                 // Get and validate the Accept-Language header, if set
@@ -684,7 +684,7 @@ void HTTPAuthenticatorDelegator::handleHTTPMessage(
         PEG_METHOD_EXIT();
         return;
    }
-   Thread::setLanguages(new AcceptLanguages(acceptLanguages));
+   Thread::setLanguages(new AcceptLanguageList(acceptLanguages));
    httpMessage->acceptLanguages = acceptLanguages;
    httpMessage->contentLanguages = contentLanguages;
 // l10n end   

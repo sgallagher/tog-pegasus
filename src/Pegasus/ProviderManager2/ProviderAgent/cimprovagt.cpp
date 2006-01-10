@@ -94,18 +94,18 @@ int main(int argc, char* argv[])
         MessageLoader::_useProcessLocale = false;
 
         // Create a dummy Thread object that can be used to store the
-        // AcceptLanguages object for CIM requests that are serviced
+        // AcceptLanguageList object for CIM requests that are serviced
         // by this thread (initial thread of cimprovagt).  Need to do this
         // because this thread is not in a ThreadPool, but is used
         // to service CIM requests.
         // The run function for the dummy Thread should never be called,
         Thread *dummyInitialThread = new Thread(dummyThreadFunc, NULL, false);
         Thread::setCurrent(dummyInitialThread); 
-        AcceptLanguages default_al;
+        AcceptLanguageList default_al;
         try
         {
             default_al = LanguageParser::getDefaultAcceptLanguages();   
-            Thread::setLanguages(new AcceptLanguages(default_al));
+            Thread::setLanguages(new AcceptLanguageList(default_al));
         }
         catch (InvalidAcceptLanguageHeader& e)
         {

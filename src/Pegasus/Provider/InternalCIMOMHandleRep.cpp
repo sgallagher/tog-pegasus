@@ -202,7 +202,7 @@ static void _deleteContentLanguage(void* data)
 {
    if(data != 0)
    {
-       ContentLanguages* cl = static_cast<ContentLanguages*>(data);
+       ContentLanguageList* cl = static_cast<ContentLanguageList*>(data);
 
        delete cl;
    }
@@ -250,8 +250,8 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     catch(Exception &)
     {
         // If the container is not found then try to use the
-        // AcceptLanguages from the current thread
-        AcceptLanguages* pal = Thread::getLanguages();
+        // AcceptLanguageList from the current thread
+        AcceptLanguageList* pal = Thread::getLanguages();
 
         if(pal != 0)
         {
@@ -267,7 +267,7 @@ static OperationContext _filterOperationContext(const OperationContext& context)
     }
     catch(Exception &)
     {
-        temp.insert(ContentLanguageListContainer(ContentLanguages()));
+        temp.insert(ContentLanguageListContainer(ContentLanguageList()));
     }
 
     return(temp);
@@ -394,8 +394,8 @@ CIMResponseMessage* InternalCIMOMHandleRep::do_request(CIMRequestMessage* reques
                 currentThread->put_tsd(
                     "cimomHandleContentLanguages",
                     _deleteContentLanguage,
-                    sizeof(ContentLanguages*),
-                    new ContentLanguages(container.getLanguages()));
+                    sizeof(ContentLanguageList*),
+                    new ContentLanguageList(container.getLanguages()));
             }
         }
     }
@@ -2163,17 +2163,17 @@ OperationContext InternalCIMOMHandleRep::getResponseContext()
     Thread* curThrd = Thread::getCurrent();
     if (curThrd == NULL)
     {
-        ctx.insert(ContentLanguageListContainer(ContentLanguages()));
+        ctx.insert(ContentLanguageListContainer(ContentLanguageList()));
     }
     else
     {
-        ContentLanguages* contentLangs = (ContentLanguages*)
+        ContentLanguageList* contentLangs = (ContentLanguageList*)
             curThrd->reference_tsd("cimomHandleContentLanguages");
         curThrd->dereference_tsd();
 
         if (contentLangs == NULL)
         {
-            ctx.insert(ContentLanguageListContainer(ContentLanguages()));
+            ctx.insert(ContentLanguageListContainer(ContentLanguageList()));
         }
         else
         {

@@ -72,7 +72,7 @@ void snmpIndicationHandler::handleIndication(
     CIMInstance& indication,
     CIMInstance& handler, 
     CIMInstance& subscription,
-    ContentLanguages & contentLanguages)
+    ContentLanguageList & contentLanguages)
 {
     Array<String> propOIDs;
     Array<String> propTYPEs;

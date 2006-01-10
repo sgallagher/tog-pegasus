@@ -713,7 +713,7 @@ Uint32 TimeoutContainer::getTimeOut(void) const
 class AcceptLanguageListContainerRep
 {
 public:
-    AcceptLanguages languages;
+    AcceptLanguageList languages;
 };
 
 const String AcceptLanguageListContainer::NAME =
@@ -745,7 +745,7 @@ AcceptLanguageListContainer::AcceptLanguageListContainer
 }
 
 AcceptLanguageListContainer::AcceptLanguageListContainer
-    (const AcceptLanguages & languages)
+    (const AcceptLanguageList & languages)
 {
     _rep = new AcceptLanguageListContainerRep();
     _rep->languages = languages;
@@ -784,7 +784,7 @@ void AcceptLanguageListContainer::destroy(void)
     delete this;
 }
 
-AcceptLanguages AcceptLanguageListContainer::getLanguages(void) const
+AcceptLanguageList AcceptLanguageListContainer::getLanguages(void) const
 {
     return(_rep->languages);
 }
@@ -801,7 +801,7 @@ AcceptLanguageListContainer::AcceptLanguageListContainer()
 class SubscriptionLanguageListContainerRep
 {
 public:
-    AcceptLanguages languages;
+    AcceptLanguageList languages;
 };
 
 const String SubscriptionLanguageListContainer::NAME =
@@ -833,7 +833,7 @@ SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
 }
 
 SubscriptionLanguageListContainer::SubscriptionLanguageListContainer
-    (const AcceptLanguages & languages)
+    (const AcceptLanguageList & languages)
 {
     _rep = new SubscriptionLanguageListContainerRep();
     _rep->languages = languages;
@@ -872,7 +872,7 @@ void SubscriptionLanguageListContainer::destroy(void)
     delete this;
 }
 
-AcceptLanguages SubscriptionLanguageListContainer::getLanguages(void) const
+AcceptLanguageList SubscriptionLanguageListContainer::getLanguages(void) const
 {
     return(_rep->languages);
 }
@@ -889,7 +889,7 @@ SubscriptionLanguageListContainer::SubscriptionLanguageListContainer()
 class ContentLanguageListContainerRep
 {
 public:
-    ContentLanguages languages;
+    ContentLanguageList languages;
 };
 
 const String ContentLanguageListContainer::NAME =
@@ -921,7 +921,7 @@ ContentLanguageListContainer::ContentLanguageListContainer
 }
 
 ContentLanguageListContainer::ContentLanguageListContainer
-    (const ContentLanguages & languages)
+    (const ContentLanguageList & languages)
 {
     _rep = new ContentLanguageListContainerRep();
     _rep->languages = languages;
@@ -960,7 +960,7 @@ void ContentLanguageListContainer::destroy(void)
     delete this;
 }
 
-ContentLanguages ContentLanguageListContainer::getLanguages(void) const
+ContentLanguageList ContentLanguageListContainer::getLanguages(void) const
 {
     return(_rep->languages);
 }

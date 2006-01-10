@@ -87,7 +87,7 @@ void SimpleResponseHandler::clear(void)
 {
 }
 
-ContentLanguages SimpleResponseHandler::getLanguages(void)
+ContentLanguageList SimpleResponseHandler::getLanguages(void)
 {
 	Logger::put(
         Logger::STANDARD_LOG,
@@ -95,12 +95,12 @@ ContentLanguages SimpleResponseHandler::getLanguages(void)
         Logger::TRACE,
         "SimpleResponseHandler: getLanguages()");
 
-	ContentLanguages langs;
+	ContentLanguageList langs;
 
     try
 	{
-		// Try to get the ContentLanguages out of the OperationContext
-		// in the base ResponseHandler.
+		// Try to get the ContentLanguageList out of the
+                // OperationContext in the base ResponseHandler.
 		OperationContext context = getContext();
 
         ContentLanguageListContainer cntr = context.get(
@@ -111,7 +111,7 @@ ContentLanguages SimpleResponseHandler::getLanguages(void)
 	catch (const Exception &)
 	{
 		// The content language container must not exist.
-		// Return the empty ContentLanguages.
+		// Return the empty ContentLanguageList.
 	}
 
 	return(langs);

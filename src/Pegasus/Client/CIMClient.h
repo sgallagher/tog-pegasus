@@ -47,8 +47,8 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
-#include <Pegasus/Common/AcceptLanguages.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h>
 
 
@@ -204,45 +204,45 @@ public:
         Configures the accept languages to be specified on subsequent
         requests from this client.  Accept languages are the preferred
         languages for response data.
-        @param langs An AcceptLanguages object specifying the languages
+        @param langs An AcceptLanguageList object specifying the languages
         preferred by this client.
     */
-    void setRequestAcceptLanguages(const AcceptLanguages& langs);
+    void setRequestAcceptLanguages(const AcceptLanguageList& langs);
 
     /** <I><B>Experimental Interface</B></I><BR>
         Gets the accept languages currently configured for this client.
         Accept languages are the preferred languages for response data.
-        @return An AcceptLanguages object specifying the preferred languages
+        @return An AcceptLanguageList object specifying the preferred languages
         configured for this client.
     */
-    AcceptLanguages getRequestAcceptLanguages() const;
+    AcceptLanguageList getRequestAcceptLanguages() const;
 
     /** <I><B>Experimental Interface</B></I><BR>
         Configures the content languages to be specified on subsequent
         requests from this client.  The content languages indicate the
         languages associated with request data sent from this client.
-        @param langs A ContentLanguages object specifying the languages
+        @param langs A ContentLanguageList object specifying the languages
         associated with this client's request data.
     */
-    void setRequestContentLanguages(const ContentLanguages& langs);
+    void setRequestContentLanguages(const ContentLanguageList& langs);
 
     /** <I><B>Experimental Interface</B></I><BR>
         Gets the content languages currently configured for this client.
         The content languages indicate the languages associated with request
         data sent from this client.
-        @return A ContentLanguages object specifying the languages used in
+        @return A ContentLanguageList object specifying the languages used in
         request data from this client.
     */
-    ContentLanguages getRequestContentLanguages() const;
+    ContentLanguageList getRequestContentLanguages() const;
 
     /** <I><B>Experimental Interface</B></I><BR>
         Gets the content languages of the last response received by this
         client.  The content languages indicate the languages associated
         with the data included in the response.
-        @return A ContentLanguages object specifying the languages used in
+        @return A ContentLanguageList object specifying the languages used in
         the last response received by this client.
     */
-    ContentLanguages getResponseContentLanguages() const;
+    ContentLanguageList getResponseContentLanguages() const;
 
     /** <I><B>Experimental Interface</B></I><BR>
        REVIEWERS: Complete this

@@ -291,7 +291,7 @@ ProviderManagerService::handleCimOperation(void* arg)
 
             if (msg != 0)
             {
-                AcceptLanguages* langs = new AcceptLanguages(
+                AcceptLanguageList* langs = new AcceptLanguageList(
                     ((AcceptLanguageListContainer)msg->operationContext.get(
                         AcceptLanguageListContainer::NAME)).getLanguages());
                 Thread::setLanguages(langs);
@@ -855,7 +855,7 @@ void ProviderManagerService::indicationCallback(
 		AcceptLanguageListContainer cntr = request->operationContext.get(AcceptLanguageListContainer::NAME);
 	}catch(const Exception &)
 	{
-		request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguages()));
+		request->operationContext.insert(AcceptLanguageListContainer(AcceptLanguageList()));
 	}    
 	
 	if (_indicationServiceQueueId == PEG_NOT_FOUND)

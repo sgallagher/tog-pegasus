@@ -38,7 +38,7 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/CIMObject.h>
-#include <Pegasus/Common/ContentLanguages.h>  
+#include <Pegasus/Common/ContentLanguageList.h>  
 #include <Pegasus/Repository/CIMRepository.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Handler/Linkage.h>
@@ -65,7 +65,7 @@ public:
         CIMInstance& indicationInstance,
         CIMInstance& indicationHandlerInstance,
 	CIMInstance& indicationSubscriptionInstance,
-	ContentLanguages& contentLanguages) = 0;
+	ContentLanguageList& contentLanguages) = 0;
     
     // These are the method to initialize and terminate handler. Actual need and
     // implementation way these methods are yet to be finalized.

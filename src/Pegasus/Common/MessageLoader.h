@@ -38,8 +38,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Formatter.h>
-#include <Pegasus/Common/AcceptLanguages.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 
 //ICU specific 
 #ifdef PEGASUS_HAS_ICU
@@ -82,22 +82,22 @@ public:
 	String msg_src_path;
 	
 	/*
-	 * AcceptLanguages acceptlanguages: This contains the languages that are acceptable by the caller
+	 * AcceptLanguageList acceptlanguages: This contains the languages that are acceptable by the caller
 	 * of MessageLoader::getMessage(). That is, MessageLoader will do its best to return a message in 
 	 * a language that was specified in this container.  This container is naturally ordered using the quality 
 	 * values attached to the languages and MessageLoader iterates through this container in its natural 
 	 * ordering.  This container is used by MessageLoader to load messages if it is not empty.
 	 */
-	AcceptLanguages acceptlanguages;
+	AcceptLanguageList acceptlanguages;
 	
 	/*
-	 * ContentLanguages contentlanguages: This is set by MessageLoader::getMessage() after a message has
+	 * ContentLanguageList contentlanguages: This is set by MessageLoader::getMessage() after a message has
 	 * been loaded from either a message resource or the default message.  After the call to MessageLoader::getMessage()
 	 * the caller can check the MessageLoaderParms.contentlanguages object to see what MessageLoader set it to.
 	 * In all cases where a message is returned from MessageLoader::getMessage(), this field will be set to match the
 	 * language that the message was found in.
 	 */
-	ContentLanguages contentlanguages;
+	ContentLanguageList contentlanguages;
 	
 	/*
 	 * Boolean useProcessLocale: Default is false, if true, MessageLoader uses the system default language
@@ -106,7 +106,7 @@ public:
 	Boolean useProcessLocale;
 	
 	/*
-	 * Boolean useThreadLocale: Default is true, this tells MessageLoader to use the AcceptLanguages container
+	 * Boolean useThreadLocale: Default is true, this tells MessageLoader to use the AcceptLanguageList container
 	 * from the current Pegasus thread.
 	 */
 	Boolean useThreadLocale;
@@ -240,7 +240,7 @@ public:
 	
 	static Boolean _useDefaultMsg;
  	
-	static AcceptLanguages _acceptlanguages;
+	static AcceptLanguageList _acceptlanguages;
 	
 private:
 

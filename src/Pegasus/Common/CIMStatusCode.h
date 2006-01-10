@@ -34,8 +34,8 @@
 
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/ContentLanguages.h> //l10n
-#include <Pegasus/Common/MessageLoader.h>  // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/MessageLoader.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -120,16 +120,17 @@ enum CIMStatusCode
 PEGASUS_COMMON_LINKAGE const char* cimStatusCodeToString(CIMStatusCode code);
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
-// l10n
 /** <I><B>Experimental Interface</B></I><BR>
  */
-PEGASUS_COMMON_LINKAGE String cimStatusCodeToString(CIMStatusCode code,
-                                              const ContentLanguages &contentLanguages);
-								
-// l10n 
+PEGASUS_COMMON_LINKAGE String cimStatusCodeToString(
+    CIMStatusCode code,
+    const ContentLanguageList &contentLanguages);
+
 /** <I><B>Experimental Interface</B></I><BR>
  */
-PEGASUS_COMMON_LINKAGE ContentLanguages cimStatusCodeToString_Thread(String & message, 	                                             CIMStatusCode code);
+PEGASUS_COMMON_LINKAGE ContentLanguageList cimStatusCodeToString_Thread(
+    String & message,
+    CIMStatusCode code);
 #endif  //    PEGASUS_USE_EXPERIMENTAL_INTERFACES			
 
 PEGASUS_NAMESPACE_END

@@ -50,10 +50,10 @@ PEGASUS_USING_STD;
 
 static const int ID_INVALID = -1;
 static const String server_resbundl_name = "pegasus/pegasusServer";
-String MessageLoader::pegasus_MSG_HOME = String();
+String MessageLoader::pegasus_MSG_HOME;
 Boolean MessageLoader::_useProcessLocale = false;
 Boolean MessageLoader::_useDefaultMsg = false;
-AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
+AcceptLanguageList MessageLoader::_acceptlanguages;
 
 	String MessageLoader::getMessage(MessageLoaderParms &parms){
 		PEG_METHOD_ENTER(TRC_L10N, "MessageLoader::getMessage");
@@ -104,7 +104,7 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		const int size_locale_ICU = 50;
 
 		// the static AcceptLangauges takes precedence over what parms.acceptlangauges has
-		AcceptLanguages acceptlanguages;
+		AcceptLanguageList acceptlanguages;
 		acceptlanguages = (_acceptlanguages.size() > 0) ? _acceptlanguages : parms.acceptlanguages;
 
 		// get the correct path to the resource bundles
@@ -163,15 +163,15 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 			}
 			PEG_METHOD_EXIT();
 			return msg;
-		} else if (acceptlanguages.size() == 0 && parms.useThreadLocale){ // get AcceptLanguages from the current Thread
-			AcceptLanguages *al = Thread::getLanguages();
+		} else if (acceptlanguages.size() == 0 && parms.useThreadLocale){ // get AcceptLanguageList from the current Thread
+			AcceptLanguageList *al = Thread::getLanguages();
 			if(al != NULL){
 				acceptlanguages = *al;
 				//cout << "THREAD_LOCALE: got acceptlanguages from thread" << endl;
-				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: got AcceptLanguages from thread.");
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: got AcceptLanguageList from thread.");
 			}else {
 				//cout << "THREAD_LOCALE: thread returned NULL for acceptlanguages" << endl;
-				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: thread returned NULL for AcceptLanguages.");
+				PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Using thread locale: thread returned NULL for AcceptLanguageList.");
 			 }
 		}
 
@@ -179,9 +179,9 @@ AcceptLanguages MessageLoader::_acceptlanguages = AcceptLanguages();
 		char locale_ICU[size_locale_ICU];
 		LanguageTag languageTag;
 
-		// iterate through AcceptLanguages, use the first resource bundle match
+		// iterate through AcceptLanguageList, use the first resource bundle match
 		//cout << "LOOPING THROUGH ACCEPTLANGUAGES..." << endl;
-		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Looping through AcceptLanguages...");
+		PEG_TRACE_STRING(TRC_L10N, Tracer::LEVEL4, "Looping through AcceptLanguageList...");
 		for (Uint32 index = 0; index < acceptlanguages.size(); index++)
 		{
 			languageTag = acceptlanguages.getLanguageTag(index);
@@ -717,8 +717,8 @@ MessageLoaderParms::MessageLoaderParms()
 	useICUfallback = false;
 #endif
 
-	acceptlanguages = AcceptLanguages();
-	contentlanguages = ContentLanguages();
+	acceptlanguages = AcceptLanguageList();
+	contentlanguages = ContentLanguageList();
 }
 
 MessageLoaderParms::MessageLoaderParms(

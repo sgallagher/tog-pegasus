@@ -60,8 +60,8 @@
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/OperationContext.h>
-#include <Pegasus/Common/AcceptLanguages.h>  // l10n
-#include <Pegasus/Common/ContentLanguages.h>  // l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/ArrayInternal.h>
 
@@ -82,8 +82,6 @@
 
 
 PEGASUS_NAMESPACE_BEGIN
-
-// l10n - added AcceptLanguages and ContentLanguages below
 
 class PEGASUS_COMMON_LINKAGE CIMMessage : public Message
 {

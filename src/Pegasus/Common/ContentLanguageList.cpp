@@ -33,7 +33,7 @@
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Common/InternalException.h>
@@ -43,11 +43,11 @@ PEGASUS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////
 //
-// ContentLanguagesRep
+// ContentLanguageListRep
 //
 //////////////////////////////////////////////////////////////
 
-class ContentLanguagesRep
+class ContentLanguageListRep
 {
 public:
     Array<LanguageTag> container;
@@ -55,32 +55,33 @@ public:
 
 //////////////////////////////////////////////////////////////
 //
-// ContentLanguages
+// ContentLanguageList
 //
 //////////////////////////////////////////////////////////////
 
-ContentLanguages::ContentLanguages()
+ContentLanguageList::ContentLanguageList()
 {
-    _rep = new ContentLanguagesRep();
+    _rep = new ContentLanguageListRep();
 }
 
-ContentLanguages::ContentLanguages(const ContentLanguages& contentLanguages)
+ContentLanguageList::ContentLanguageList(
+    const ContentLanguageList& contentLanguages)
 {
-    _rep = new ContentLanguagesRep();
-    AutoPtr<ContentLanguagesRep> rep(_rep);
+    _rep = new ContentLanguageListRep();
+    AutoPtr<ContentLanguageListRep> rep(_rep);
 
     _rep->container = contentLanguages._rep->container;
 
     rep.release();
 }
 
-ContentLanguages::~ContentLanguages()
+ContentLanguageList::~ContentLanguageList()
 {
     delete _rep;
 }
 
-ContentLanguages& ContentLanguages::operator=(
-    const ContentLanguages& contentLanguages)
+ContentLanguageList& ContentLanguageList::operator=(
+    const ContentLanguageList& contentLanguages)
 {
     if (&contentLanguages != this)
     {
@@ -89,17 +90,17 @@ ContentLanguages& ContentLanguages::operator=(
     return *this;
 }
 
-Uint32 ContentLanguages::size() const
+Uint32 ContentLanguageList::size() const
 {
     return _rep->container.size();
 }
 
-LanguageTag ContentLanguages::getLanguageTag(Uint32 index) const
+LanguageTag ContentLanguageList::getLanguageTag(Uint32 index) const
 {
     return LanguageTag(_rep->container[index]);
 }
 
-void ContentLanguages::append(const LanguageTag& languageTag)
+void ContentLanguageList::append(const LanguageTag& languageTag)
 {
     // Disallow "*" language tag
     if (languageTag.toString() == "*")
@@ -113,12 +114,12 @@ void ContentLanguages::append(const LanguageTag& languageTag)
     _rep->container.append(languageTag);
 }
 
-void ContentLanguages::remove(Uint32 index)
+void ContentLanguageList::remove(Uint32 index)
 {
     _rep->container.remove(index);
 }
 
-Uint32 ContentLanguages::find(const LanguageTag& languageTag) const
+Uint32 ContentLanguageList::find(const LanguageTag& languageTag) const
 {
     for (Uint32 i = 0; i < _rep->container.size(); i++)
     {
@@ -130,13 +131,13 @@ Uint32 ContentLanguages::find(const LanguageTag& languageTag) const
     return PEG_NOT_FOUND;
 }
 
-void ContentLanguages::clear()
+void ContentLanguageList::clear()
 {
     _rep->container.clear();
 }
 
-Boolean ContentLanguages::operator==(
-    const ContentLanguages& contentLanguages) const
+Boolean ContentLanguageList::operator==(
+    const ContentLanguageList& contentLanguages) const
 {
     if (_rep->container.size() != contentLanguages._rep->container.size())
     {
@@ -153,8 +154,8 @@ Boolean ContentLanguages::operator==(
     return true;
 }
 
-Boolean ContentLanguages::operator!=(
-    const ContentLanguages& contentLanguages) const
+Boolean ContentLanguageList::operator!=(
+    const ContentLanguageList& contentLanguages) const
 {
     return !(*this == contentLanguages);
 }

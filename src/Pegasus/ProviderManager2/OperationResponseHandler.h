@@ -85,7 +85,7 @@ public:
 
     virtual void setStatus(
         const Uint32 code,
-        const ContentLanguages & langs,
+        const ContentLanguageList & langs,
         const String & message = String::EMPTY);
 
 protected:

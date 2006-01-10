@@ -79,7 +79,7 @@ public:
     void setRequestAcceptLanguages(
         const String& host,
         const String& port,
-        const AcceptLanguages& langs
+        const AcceptLanguageList& langs
     );
 
     /** Gets the accept languages that will be used on the next request.
@@ -88,7 +88,7 @@ public:
         @param host - input parameter, string containing hostname of CIMOM
         @param port - input parameter, string containing port of CIMOM
     */
-    AcceptLanguages getRequestAcceptLanguages(
+    AcceptLanguageList getRequestAcceptLanguages(
         const String& host,
         const String& port
     ) const;
@@ -103,7 +103,7 @@ public:
     void setRequestContentLanguages(
         const String& host,
         const String& port,
-        const ContentLanguages& langs
+        const ContentLanguageList& langs
     );
 
     /** Gets the content languages that will be used on the next request.
@@ -112,7 +112,7 @@ public:
         @param host - input parameter, string containing hostname of CIMOM
         @param port - input parameter, string containing port of CIMOM
     */
-    ContentLanguages getRequestContentLanguages(
+    ContentLanguageList getRequestContentLanguages(
         const String& host,
         const String& port
     ) const;
@@ -123,7 +123,7 @@ public:
         @param host - input parameter, string containing hostname of CIMOM
         @param port - input parameter, string containing port of CIMOM
     */
-    ContentLanguages getResponseContentLanguages(
+    ContentLanguageList getResponseContentLanguages(
         const String& host,
         const String& port
     ) const;

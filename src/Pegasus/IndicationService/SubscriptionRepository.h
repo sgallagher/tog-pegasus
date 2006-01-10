@@ -44,8 +44,8 @@
 #include <Pegasus/Common/CIMName.h>
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>
-#include <Pegasus/Common/AcceptLanguages.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Repository/CIMRepository.h>
 
 
@@ -93,8 +93,8 @@ public:
         CIMInstance instance,
         const CIMNamespaceName & nameSpace,
         const String & userName,
-        const AcceptLanguages & acceptLanguages,
-        const ContentLanguages & contentLanguages,
+        const AcceptLanguageList & acceptLanguages,
+        const ContentLanguageList & contentLanguages,
         Boolean enabled);
 
     /**

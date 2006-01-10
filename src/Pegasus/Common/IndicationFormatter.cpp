@@ -584,7 +584,7 @@ void IndicationFormatter::_isValidIndex (
 String IndicationFormatter::getFormattedIndText(
     const CIMInstance & subscription,
     const CIMInstance & indication,
-    const ContentLanguages & contentLangs)
+    const ContentLanguageList & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::getFormattedIndText");
@@ -666,7 +666,7 @@ String IndicationFormatter::getFormattedIndText(
 
 String IndicationFormatter::_formatDefaultIndicationText(
     const CIMInstance & indication,
-    const ContentLanguages & contentLangs)
+    const ContentLanguageList & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::_formatDefaultIndicationText");
@@ -774,7 +774,7 @@ String IndicationFormatter::_formatIndicationText(
     const String & textFormat,
     const Array<String>& textFormatParams,
     const CIMInstance & indication,
-    const ContentLanguages & contentLangs)
+    const ContentLanguageList & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::_formatIndicationText");
@@ -908,7 +908,7 @@ String IndicationFormatter::_getIndPropertyValue(
     const String & specifiedPropertyName,
     const String & arrayIndexStr,
     const CIMInstance & indication,
-    const ContentLanguages & contentLangs)
+    const ContentLanguageList & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,
         "IndicationFormatter::_getIndPropertyValue");
@@ -1016,7 +1016,7 @@ String IndicationFormatter::_getIndPropertyValue(
 String IndicationFormatter::_getArrayValues(
     const CIMValue & propertyValue,
     const String & arrayIndexStr,
-    const ContentLanguages & contentLangs)
+    const ContentLanguageList & contentLangs)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,
 	"IndicationFormatter::_getArrayValues");
@@ -1664,7 +1664,7 @@ String IndicationFormatter::_getBooleanStr(
 #if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)
 
 Boolean IndicationFormatter::_canLocalize(
-    const ContentLanguages & contentLangs,
+    const ContentLanguageList & contentLangs,
     Locale & locale)
 {
     PEG_METHOD_ENTER (TRC_IND_FORMATTER,

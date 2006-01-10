@@ -35,8 +35,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/CIMInstance.h>
-#include <Pegasus/Common/AcceptLanguages.h>  // l10n
-#include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Linkage.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -562,7 +562,7 @@ public:
 
     /** REVIEWERS: Insert description here. What parameters need descriptions?
     */
-    AcceptLanguageListContainer(const AcceptLanguages & languages);
+    AcceptLanguageListContainer(const AcceptLanguageList & languages);
     
     /** REVIEWERS: Insert description here. What parameters need descriptions?
     */
@@ -587,7 +587,7 @@ public:
 
     /** REVIEWERS: Insert description here. What parameters need descriptions?
     */
-    AcceptLanguages getLanguages(void) const;
+    AcceptLanguageList getLanguages(void) const;
 
 protected:
    AcceptLanguageListContainerRep* _rep;
@@ -624,7 +624,7 @@ public:
 
     /** REVIEWERS: Insert description here. What parameters need descriptions?
     */
-    SubscriptionLanguageListContainer(const AcceptLanguages & languages);
+    SubscriptionLanguageListContainer(const AcceptLanguageList & languages);
 
     /** REVIEWERS: Insert description here. What parameters need descriptions?
     */
@@ -650,7 +650,7 @@ public:
 
     /** REVIEWERS: Insert description here. What parameters need descriptions?
     */
-    AcceptLanguages getLanguages(void) const;
+    AcceptLanguageList getLanguages(void) const;
 
 protected:
     /** REVIEWERS: Insert description here. What parameters need descriptions?
@@ -689,9 +689,9 @@ public:
         (const ContentLanguageListContainer & container);
 
     /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param languages Specifies the name of the ContentLanguages container.
+    @param languages Specifies the name of the ContentLanguageList container.
     */
-    ContentLanguageListContainer(const ContentLanguages & languages);
+    ContentLanguageListContainer(const ContentLanguageList & languages);
 
     /** REVIEWERS: Insert description here. 
     */
@@ -717,7 +717,7 @@ public:
 
     /** REVIEWERS: Insert description here. 
     */
-    ContentLanguages getLanguages(void) const;
+    ContentLanguageList getLanguages(void) const;
 
 protected:
     /** REVIEWERS: Insert description here. 

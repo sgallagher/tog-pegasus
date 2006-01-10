@@ -261,7 +261,7 @@ mkdir %PROVDR_INCL%
 REM Finally, copy the headers:
 
 pushd %PEGASUS_ROOT%\src\Pegasus\Common
-copy AcceptLanguages.h %COMMON_INCL%
+copy AcceptLanguageList.h %COMMON_INCL%
 copy Array.h %COMMON_INCL%
 copy ArrayInter.h %COMMON_INCL%
 copy Char16.h %COMMON_INCL%
@@ -285,7 +285,7 @@ copy CIMStatusCode.h %COMMON_INCL%
 copy CIMType.h %COMMON_INCL%
 copy CIMValue.h %COMMON_INCL%
 copy Config.h %COMMON_INCL%
-copy ContentLanguages.h %COMMON_INCL%
+copy ContentLanguageList.h %COMMON_INCL%
 copy Exception.h %COMMON_INCL%
 copy Formatter.h %COMMON_INCL%
 copy LanguageParser.h %COMMON_INCL%

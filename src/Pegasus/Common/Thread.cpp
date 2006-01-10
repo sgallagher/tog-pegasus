@@ -71,7 +71,7 @@ void language_delete(void * data)
 {
    if( data != NULL)
    {
-      AutoPtr<AcceptLanguages> al(static_cast<AcceptLanguages *>(data));
+      AutoPtr<AcceptLanguageList> al(static_cast<AcceptLanguageList *>(data));
    }
 }
 // l10n end
@@ -201,21 +201,21 @@ void Thread::setCurrent(Thread * thrd)
     PEG_METHOD_EXIT();
 }
 
-AcceptLanguages * Thread::getLanguages()
+AcceptLanguageList * Thread::getLanguages()
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::getLanguages");
 
     Thread * curThrd = Thread::getCurrent();
     if (curThrd == NULL)
         return NULL;
-    AcceptLanguages * acceptLangs =
-        (AcceptLanguages *)curThrd->reference_tsd("acceptLanguages");
+    AcceptLanguageList * acceptLangs =
+        (AcceptLanguageList *)curThrd->reference_tsd("acceptLanguages");
     curThrd->dereference_tsd();
     PEG_METHOD_EXIT();
     return acceptLangs;
 }
 
-void Thread::setLanguages(AcceptLanguages *langs) //l10n
+void Thread::setLanguages(AcceptLanguageList *langs) //l10n
 {
     PEG_METHOD_ENTER(TRC_THREAD, "Thread::setLanguages");
 
@@ -225,7 +225,7 @@ void Thread::setLanguages(AcceptLanguages *langs) //l10n
         // deletes the old tsd and creates a new one
         currentThrd->put_tsd("acceptLanguages",
             language_delete,
-            sizeof(AcceptLanguages *),
+            sizeof(AcceptLanguageList *),
             langs);
     }
 

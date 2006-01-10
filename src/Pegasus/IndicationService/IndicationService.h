@@ -44,8 +44,8 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/IPC.h>
-#include <Pegasus/Common/AcceptLanguages.h> // l10n
-#include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Server/ProviderRegistrationManager/ProviderRegistrationManager.h>
 #include <Pegasus/Server/Linkage.h>
 #include <Pegasus/Query/QueryExpression/QueryExpression.h>
@@ -804,8 +804,8 @@ private:
         const String & query,
         const String & queryLanguage,
         const CIMInstance & subscription,
-        const AcceptLanguages & acceptLangs,
-        const ContentLanguages & contentLangs,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
         const CIMRequestMessage * origRequest,
         const Array <CIMName> & indicationSubclasses,
         const String & userName,
@@ -854,8 +854,8 @@ private:
         const String & query,
         const String & queryLanguage,
         const CIMInstance & subscription,
-        const AcceptLanguages & acceptLangs,
-        const ContentLanguages & contentLangs,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
         const String & userName,
         const String & authType = String::EMPTY);
 
@@ -900,8 +900,8 @@ private:
         const String & query,
         const String & queryLanguage,
         const CIMInstance & subscription,
-        const AcceptLanguages & acceptLangs,
-        const ContentLanguages & contentLangs,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
         const String & userName,
         const String & authType = String::EMPTY);
 
@@ -939,8 +939,8 @@ private:
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMInstance & subscription,
-        const AcceptLanguages & acceptLangs,
-        const ContentLanguages & contentLangs,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
         const CIMRequestMessage * origRequest,
         const Array <CIMName> & indicationSubclasses,
         const String & userName,
@@ -972,8 +972,8 @@ private:
         const Array <ProviderClassList> & indicationProviders,
         const CIMNamespaceName & nameSpace,
         const CIMInstance & subscription,
-        const AcceptLanguages & acceptLangs,
-        const ContentLanguages & contentLangs,
+        const AcceptLanguageList & acceptLangs,
+        const ContentLanguageList & contentLangs,
         const String & userName,
         const String & authType = String::EMPTY);
 

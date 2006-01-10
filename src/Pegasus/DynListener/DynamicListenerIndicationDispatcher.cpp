@@ -44,7 +44,6 @@
 
 #include <Pegasus/Listener/List.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
-#include <Pegasus/Common/ContentLanguages.h>
 
 PEGASUS_NAMESPACE_BEGIN
 PEGASUS_USING_STD;

@@ -585,7 +585,7 @@ public:
 
 // l10n
 	TraceableCIMException(
-	const ContentLanguages& langs,
+	const ContentLanguageList& langs,
     CIMStatusCode code,
     const String& message,
     const String& file,
@@ -602,7 +602,7 @@ public:
 
     String getFile() const;
     Uint32 getLine() const;
-    const ContentLanguages& getContentLanguages() const;
+    const ContentLanguageList& getContentLanguages() const;
 };
 
 #define PEGASUS_CIM_EXCEPTION(CODE, EXTRA_MESSAGE) \

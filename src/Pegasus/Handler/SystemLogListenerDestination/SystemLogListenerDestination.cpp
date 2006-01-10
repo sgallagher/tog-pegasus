@@ -62,7 +62,7 @@ void SystemLogListenerDestination::handleIndication(
     CIMInstance& indication, 
     CIMInstance& handler, 
     CIMInstance& subscription, 
-    ContentLanguages & contentLanguages)
+    ContentLanguageList & contentLanguages)
 {
     PEG_METHOD_ENTER (TRC_IND_HANDLER, 
         "SystemLogListenerDestination::handleIndication");

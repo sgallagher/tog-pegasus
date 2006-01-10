@@ -59,8 +59,8 @@
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/PegasusVersion.h>
-#include <Pegasus/Common/AcceptLanguages.h> // l10n
-#include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 // l10n
@@ -232,7 +232,7 @@ void IndicationService::handleEnqueue(Message* message)
     {
         if (msg->thread_changed())
         {
-            AcceptLanguages *langs =  new AcceptLanguages
+            AcceptLanguageList *langs =  new AcceptLanguageList
                 (((AcceptLanguageListContainer)msg->operationContext.get
                 (AcceptLanguageListContainer::NAME)).getLanguages());
             Thread::setLanguages(langs);
@@ -675,7 +675,7 @@ void IndicationService::_initialize (void)
 
 //l10n start
         // Get the language tags that were saved with the subscription instance
-        AcceptLanguages acceptLangs;
+        AcceptLanguageList acceptLangs;
         Uint32 propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
         if (propIndex != PEG_NOT_FOUND)
@@ -688,7 +688,7 @@ void IndicationService::_initialize (void)
                     acceptLangsString);
             }
         }
-        ContentLanguages contentLangs;
+        ContentLanguageList contentLangs;
         propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
         if (propIndex != PEG_NOT_FOUND)
@@ -969,10 +969,10 @@ void IndicationService::_handleCreateInstanceRequest (const Message * message)
             (IdentityContainer :: NAME)).getUserName();
         _checkNonprivilegedAuthorization(userName);
 
-        AcceptLanguages acceptLangs =
+        AcceptLanguageList acceptLangs =
             ((AcceptLanguageListContainer)request->operationContext.get
             (AcceptLanguageListContainer::NAME)).getLanguages();
-        ContentLanguages contentLangs =
+        ContentLanguageList contentLangs =
             ((ContentLanguageListContainer)request->operationContext.get
             (ContentLanguageListContainer::NAME)).getLanguages();
 
@@ -1653,14 +1653,14 @@ void IndicationService::_handleModifyInstanceRequest (const Message* message)
                 // Add the language properties to the modified instance.
                 // Note:  These came from the Accept-Language and Content-Language
                 // headers in the HTTP messages, and may be empty.
-                AcceptLanguages acceptLangs =
+                AcceptLanguageList acceptLangs =
                     ((AcceptLanguageListContainer)request->operationContext.get
                     (AcceptLanguageListContainer::NAME)).getLanguages();
                 modifiedInstance.addProperty (CIMProperty
                     (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS,
                     LanguageParser::buildAcceptLanguageHeader(acceptLangs)));
 
-                ContentLanguages contentLangs =
+                ContentLanguageList contentLangs =
                     ((ContentLanguageListContainer)request->operationContext.get
                     (ContentLanguageListContainer::NAME)).getLanguages();
                 modifiedInstance.addProperty (CIMProperty
@@ -2528,7 +2528,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 
 // l10n start
-            AcceptLanguages acceptLangs;
+            AcceptLanguageList acceptLangs;
             Uint32 propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -2542,7 +2542,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         acceptLangsString);
                 }
             }
-            ContentLanguages contentLangs;
+            ContentLanguageList contentLangs;
             propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -2679,7 +2679,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
             String creator = instance.getProperty (instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue ().toString ();
 // l10n start
-            AcceptLanguages acceptLangs;
+            AcceptLanguageList acceptLangs;
             Uint32 propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -2693,7 +2693,7 @@ void IndicationService::_handleNotifyProviderRegistrationRequest
                         acceptLangsString);
                 }
             }
-            ContentLanguages contentLangs;
+            ContentLanguageList contentLangs;
             propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -3115,7 +3115,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
                 (PEGASUS_PROPERTYNAME_INDSUB_CREATOR)).getValue
                 ().toString ();
 
-            AcceptLanguages acceptLangs;
+            AcceptLanguageList acceptLangs;
             Uint32 propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -3129,7 +3129,7 @@ void IndicationService::_handleNotifyProviderEnableRequest
                         acceptLangsString);
                 }
             }
-            ContentLanguages contentLangs;
+            ContentLanguageList contentLangs;
             propIndex = instance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -5476,7 +5476,7 @@ void IndicationService::_deleteReferencingSubscriptions (
         _getCreator (instance, creator);
 
 // l10n start
-        AcceptLanguages acceptLangs;
+        AcceptLanguageList acceptLangs;
         Uint32 propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
         if (propIndex != PEG_NOT_FOUND)
@@ -5490,7 +5490,7 @@ void IndicationService::_deleteReferencingSubscriptions (
                     acceptLangsString);
             }
         }
-        ContentLanguages contentLangs;
+        ContentLanguageList contentLangs;
         propIndex = instance.findProperty
             (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
         if (propIndex != PEG_NOT_FOUND)
@@ -5607,7 +5607,7 @@ void IndicationService::_deleteExpiredSubscription (
             // Get the language tags that were saved with the subscription
             // instance
             //
-            AcceptLanguages acceptLangs;
+            AcceptLanguageList acceptLangs;
             Uint32 propIndex = subscriptionInstance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -5621,7 +5621,7 @@ void IndicationService::_deleteExpiredSubscription (
                         acceptLangsString);
                 }
             }
-            ContentLanguages contentLangs;
+            ContentLanguageList contentLangs;
             propIndex = subscriptionInstance.findProperty
                 (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS);
             if (propIndex != PEG_NOT_FOUND)
@@ -5969,8 +5969,8 @@ void IndicationService::_sendAsyncCreateRequests
      const String & query,
      const String & queryLanguage,
      const CIMInstance & subscription,
-     const AcceptLanguages & acceptLangs,
-     const ContentLanguages & contentLangs,
+     const AcceptLanguageList & acceptLangs,
+     const ContentLanguageList & contentLangs,
      const CIMRequestMessage * origRequest,
      const Array <CIMName> & indicationSubclasses,
      const String & userName,
@@ -6129,8 +6129,8 @@ Array <ProviderClassList> IndicationService::_sendWaitCreateRequests
      const String & query,
      const String & queryLanguage,
      const CIMInstance & subscription,
-     const AcceptLanguages & acceptLangs,
-     const ContentLanguages & contentLangs,
+     const AcceptLanguageList & acceptLangs,
+     const ContentLanguageList & contentLangs,
      const String & userName,
      const String & authType)
 {
@@ -6248,8 +6248,8 @@ void IndicationService::_sendWaitModifyRequests
      const String & query,
      const String & queryLanguage,
      const CIMInstance & subscription,
-     const AcceptLanguages & acceptLangs,
-     const ContentLanguages & contentLangs,
+     const AcceptLanguageList & acceptLangs,
+     const ContentLanguageList & contentLangs,
      const String & userName,
      const String & authType)
 {
@@ -6353,8 +6353,8 @@ void IndicationService::_sendAsyncDeleteRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
      const CIMInstance & subscription,
-     const AcceptLanguages & acceptLangs,
-     const ContentLanguages & contentLangs,
+     const AcceptLanguageList & acceptLangs,
+     const ContentLanguageList & contentLangs,
      const CIMRequestMessage * origRequest,
      const Array <CIMName> & indicationSubclasses,
      const String & userName,
@@ -6489,8 +6489,8 @@ void IndicationService::_sendWaitDeleteRequests
     (const Array <ProviderClassList> & indicationProviders,
      const CIMNamespaceName & nameSpace,
      const CIMInstance & subscription,
-     const AcceptLanguages & acceptLangs,
-     const ContentLanguages & contentLangs,
+     const AcceptLanguageList & acceptLangs,
+     const ContentLanguageList & contentLangs,
      const String & userName,
      const String & authType)
 {

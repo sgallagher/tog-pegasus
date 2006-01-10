@@ -117,7 +117,7 @@ public:
     processing before <tt>complete</tt> is called.</p>
     <p>Currently supported OperationContext containers:
     <li>
-    ContentLanguageListContainer: used to set the ContentLanguages of the
+    ContentLanguageListContainer: used to set the ContentLanguageList of the
     results.
     </li>
     </p>

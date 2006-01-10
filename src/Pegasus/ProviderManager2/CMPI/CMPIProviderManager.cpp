@@ -405,7 +405,7 @@ Message * CMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
 
         eCtx.ft->addEntry(
             &eCtx,
@@ -528,7 +528,7 @@ Message * CMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -642,7 +642,7 @@ Message * CMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -759,7 +759,7 @@ Message * CMPIProviderManager::handleCreateInstanceRequest(const Message * messa
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -878,7 +878,7 @@ Message * CMPIProviderManager::handleModifyInstanceRequest(const Message * messa
 
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -993,7 +993,7 @@ Message * CMPIProviderManager::handleDeleteInstanceRequest(const Message * messa
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -1119,7 +1119,7 @@ Message * CMPIProviderManager::handleExecQueryRequest(const Message * message)
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -1253,7 +1253,7 @@ Message * CMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -1382,7 +1382,7 @@ Message * CMPIProviderManager::handleAssociatorNamesRequest(const Message * mess
 
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -1512,7 +1512,7 @@ Message * CMPIProviderManager::handleReferencesRequest(const Message * message)
 
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -1638,7 +1638,7 @@ Message * CMPIProviderManager::handleReferenceNamesRequest(const Message * messa
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -1763,7 +1763,7 @@ Message * CMPIProviderManager::handleInvokeMethodRequest(const Message * message
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -1950,7 +1950,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
  
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",
@@ -2124,7 +2124,7 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         const AcceptLanguageListContainer accept_language=            
            request->operationContext.get(AcceptLanguageListContainer::NAME);     
-        const AcceptLanguages acceptLangs = accept_language.getLanguages();
+        const AcceptLanguageList acceptLangs = accept_language.getLanguages();
         eCtx.ft->addEntry(
             &eCtx,
             "AcceptLanguage",

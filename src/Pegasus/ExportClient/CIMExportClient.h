@@ -52,7 +52,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/CIMObject.h>
 #include <Pegasus/Common/Exception.h>
-#include <Pegasus/Common/ContentLanguages.h>  //l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/SSLContext.h>
 #include <Pegasus/Common/AutoPtr.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
@@ -159,7 +159,7 @@ class PEGASUS_EXPORT_CLIENT_LINKAGE CIMExportClient : public MessageQueue
       virtual void exportIndication(
          const String& url,
          const CIMInstance& instance,
-         const ContentLanguages& contentLanguages = ContentLanguages());
+         const ContentLanguageList& contentLanguages = ContentLanguageList());
 
    private:
 

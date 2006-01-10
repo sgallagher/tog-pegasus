@@ -416,27 +416,27 @@ Boolean CIMClientRep::isConnected() const throw()
 
 
 // l10n start
-AcceptLanguages CIMClientRep::getRequestAcceptLanguages() const
+AcceptLanguageList CIMClientRep::getRequestAcceptLanguages() const
 {
     return requestAcceptLanguages;
 }
 
-ContentLanguages CIMClientRep::getRequestContentLanguages() const
+ContentLanguageList CIMClientRep::getRequestContentLanguages() const
 {
     return requestContentLanguages;
 }
 
-ContentLanguages CIMClientRep::getResponseContentLanguages() const
+ContentLanguageList CIMClientRep::getResponseContentLanguages() const
 {
     return responseContentLanguages;
 }
 
-void CIMClientRep::setRequestAcceptLanguages(const AcceptLanguages& langs)
+void CIMClientRep::setRequestAcceptLanguages(const AcceptLanguageList& langs)
 {
     requestAcceptLanguages = langs;
 }
 
-void CIMClientRep::setRequestContentLanguages(const ContentLanguages& langs)
+void CIMClientRep::setRequestContentLanguages(const ContentLanguageList& langs)
 {
     requestContentLanguages = langs;
 }

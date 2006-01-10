@@ -137,7 +137,7 @@ const char* cimStatusCodeToString(CIMStatusCode code)
 
 
 String cimStatusCodeToString(CIMStatusCode code,
-			     const ContentLanguages& contentLanguages)
+			     const ContentLanguageList& contentLanguages)
 {
     MessageLoaderParms parms;
 
@@ -155,7 +155,7 @@ String cimStatusCodeToString(CIMStatusCode code,
 
     if (contentLanguages.size() > 0)
     {
-        //build AcceptLanguages from contentLanguages, use in getMessage
+        //build AcceptLanguageList from contentLanguages, use in getMessage
         parms.acceptlanguages.clear();
         parms.acceptlanguages.insert(contentLanguages.getLanguageTag(0), 1.0);
     }
@@ -164,7 +164,9 @@ String cimStatusCodeToString(CIMStatusCode code,
 }
 
 // l10n 
-ContentLanguages cimStatusCodeToString_Thread(String & message, CIMStatusCode code)
+ContentLanguageList cimStatusCodeToString_Thread(
+    String & message,
+    CIMStatusCode code)
 {
     MessageLoaderParms parms;
 

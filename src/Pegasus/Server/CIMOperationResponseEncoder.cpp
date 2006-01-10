@@ -142,7 +142,7 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	// Note: the language is ALWAYS passed empty to the xml formatters because
 	// it is HTTPConnection that needs to make the decision of whether to add
 	// the languages to the HTTP message.
-	ContentLanguages contentLanguage;
+	ContentLanguageList contentLanguage;
 
 	CIMName cimName(name);
 	Uint32 messageIndex = response->getIndex();
@@ -158,7 +158,7 @@ CIMOperationResponseEncoder::sendResponse(CIMResponseMessage* response,
 	Buffer (*formatResponse)(const CIMName& iMethodName,
 																 const String& messageId,
 																 HttpMethod httpMethod,
-																 const ContentLanguages &httpContentLanguages, 
+																 const ContentLanguageList &httpContentLanguages, 
 																 const Buffer& body,
 																 Uint64 serverResponseTime,
 																 Boolean isFirst,

@@ -293,14 +293,14 @@ Buffer& operator<<(Buffer& out, const CIMName& name)
 
 
 // l10n
-Buffer& operator<<(Buffer& out, const AcceptLanguages& al)
+Buffer& operator<<(Buffer& out, const AcceptLanguageList& al)
 {
     XmlWriter::append(out, LanguageParser::buildAcceptLanguageHeader(al));
     return out;
 }
 
 // l10n
-Buffer& operator<<(Buffer& out, const ContentLanguages& cl)
+Buffer& operator<<(Buffer& out, const ContentLanguageList& cl)
 {
     XmlWriter::append(out, LanguageParser::buildContentLanguageHeader(cl));
     return out;
@@ -1920,8 +1920,8 @@ void XmlWriter::appendMethodCallHeader(
     const String& cimObject,
     const String& authenticationHeader,
     HttpMethod httpMethod,
-    const AcceptLanguages & acceptLanguages,
-    const ContentLanguages & contentLanguages,
+    const AcceptLanguageList& acceptLanguages,
+    const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -1996,7 +1996,7 @@ void XmlWriter::appendMethodCallHeader(
 void XmlWriter::appendMethodResponseHeader(
      Buffer& out,
      HttpMethod httpMethod,
-     const ContentLanguages & contentLanguages,
+     const ContentLanguageList& contentLanguages,
      Uint32 contentLength,
      Uint64 serverResponseTime)
 {
@@ -2709,8 +2709,8 @@ Buffer XmlWriter::formatSimpleMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages)
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages)
 {
     Buffer out;
     Buffer tmp;
@@ -2750,7 +2750,7 @@ Buffer XmlWriter::formatSimpleMethodRspMessage(
     const CIMName& methodName,
     const String& messageId,
     HttpMethod httpMethod,
-    const ContentLanguages & httpContentLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body,
 		Uint64 serverResponseTime,
 		Boolean isFirst,
@@ -2832,8 +2832,8 @@ Buffer XmlWriter::formatSimpleIMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages,
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body)
 {
     Buffer out;
@@ -2873,7 +2873,7 @@ Buffer XmlWriter::formatSimpleIMethodRspMessage(
     const CIMName& iMethodName,
     const String& messageId,
     HttpMethod httpMethod,
-    const ContentLanguages & httpContentLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body,
     Uint64 serverResponseTime,
     Boolean isFirst,
@@ -2972,8 +2972,8 @@ void XmlWriter::appendEMethodRequestHeader(
     const CIMName& cimMethod,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& acceptLanguages,
-    const ContentLanguages& contentLanguages,
+    const AcceptLanguageList& acceptLanguages,
+    const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -3043,7 +3043,7 @@ void XmlWriter::appendEMethodRequestHeader(
 void XmlWriter::appendEMethodResponseHeader(
     Buffer& out,
     HttpMethod httpMethod,
-    const ContentLanguages& contentLanguages,
+    const ContentLanguageList& contentLanguages,
     Uint32 contentLength)
 {
     char nn[] = { '0' + (rand() % 10), '0' + (rand() % 10), '\0' };
@@ -3211,8 +3211,8 @@ Buffer XmlWriter::formatSimpleEMethodReqMessage(
     const String& messageId,
     HttpMethod httpMethod,
     const String& authenticationHeader,
-    const AcceptLanguages& httpAcceptLanguages,
-    const ContentLanguages& httpContentLanguages,
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body)
 {
     Buffer out;
@@ -3251,7 +3251,7 @@ Buffer XmlWriter::formatSimpleEMethodRspMessage(
     const CIMName& eMethodName,
     const String& messageId,
     HttpMethod httpMethod,
-    const ContentLanguages& httpContentLanguages,
+    const ContentLanguageList& httpContentLanguages,
     const Buffer& body)
 {
     Buffer out;

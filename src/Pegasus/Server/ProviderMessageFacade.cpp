@@ -84,7 +84,7 @@ Message * ProviderMessageFacade::handleRequestMessage(Message * message) throw()
 
    if(msg != NULL)
    {
-   	AcceptLanguages *langs = new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get
+   	AcceptLanguageList *langs = new AcceptLanguageList(((AcceptLanguageListContainer)msg->operationContext.get
 		   (AcceptLanguageListContainer:: NAME)).getLanguages());
 	Thread::setLanguages(langs);
    }
@@ -194,7 +194,7 @@ Message * ProviderMessageFacade::_handleGetInstanceRequest(Message * message)
 
     CIMException cimException;
     CIMInstance cimInstance;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     try
     {
@@ -291,7 +291,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstancesRequest(Message * mess
 
     CIMException cimException;
     Array<CIMInstance> cimInstances;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     try
     {
@@ -373,7 +373,7 @@ Message * ProviderMessageFacade::_handleEnumerateInstanceNamesRequest(Message * 
 
     CIMException cimException;
     Array<CIMObjectPath> cimReferences;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     try
     {
@@ -447,7 +447,7 @@ Message * ProviderMessageFacade::_handleCreateInstanceRequest(Message * message)
     CIMException cimException;
     CIMInstance cimInstance;
     CIMObjectPath instanceName;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     try
     {
@@ -715,7 +715,7 @@ Message * ProviderMessageFacade::_handleAssociatorsRequest(Message * message)
 
     CIMException cimException;
     Array<CIMObject> cimObjects;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     // l10n
     try
@@ -800,7 +800,7 @@ Message * ProviderMessageFacade::_handleAssociatorNamesRequest(Message * message
 
     CIMException cimException;
     Array<CIMObjectPath> cimReferences;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     try
     {
@@ -878,7 +878,7 @@ Message * ProviderMessageFacade::_handleReferencesRequest(Message * message)
 
     CIMException cimException;
     Array<CIMObject> cimObjects;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     // l10n
 
@@ -961,7 +961,7 @@ Message * ProviderMessageFacade::_handleReferenceNamesRequest(Message * message)
 
     CIMException cimException;
     Array<CIMObjectPath> cimReferences;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     try
     {
@@ -1038,7 +1038,7 @@ Message * ProviderMessageFacade::_handleGetPropertyRequest(Message * message)
 
     CIMValue cimValue;
     CIMException cimException;
-    ContentLanguages contentLangs;
+    ContentLanguageList contentLangs;
 
     try
     {
@@ -1194,7 +1194,7 @@ Message * ProviderMessageFacade::_handleInvokeMethodRequest(Message * message)
     CIMValue returnValue;
     Array<CIMParamValue> outParameters;
     CIMInstance cimInstance;
-    ContentLanguages contentLangs;  // l10n
+    ContentLanguageList contentLangs;
 
     try
     {

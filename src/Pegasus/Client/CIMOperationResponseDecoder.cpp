@@ -480,7 +480,7 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 
 void CIMOperationResponseDecoder::_handleMethodResponse(
     char* content,
-    const ContentLanguages& contentLanguages,
+    const ContentLanguageList& contentLanguages,
     Boolean cimReconnect) //l10n
 {
     Message* response = 0;

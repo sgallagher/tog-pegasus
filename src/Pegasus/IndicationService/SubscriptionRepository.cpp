@@ -60,8 +60,8 @@ CIMObjectPath SubscriptionRepository::createInstance (
     CIMInstance instance,
     const CIMNamespaceName & nameSpace,
     const String & userName,
-    const AcceptLanguages & acceptLanguages,
-    const ContentLanguages & contentLanguages,
+    const AcceptLanguageList & acceptLanguages,
+    const ContentLanguageList & contentLanguages,
     Boolean enabled)
 {
     PEG_METHOD_ENTER (TRC_INDICATION_SERVICE,
@@ -92,7 +92,7 @@ CIMObjectPath SubscriptionRepository::createInstance (
     // Add the language properties to the Instance
     // Note:  These came from the Accept-Language and Content-Language
     // headers in the HTTP message, and may be empty
-    AcceptLanguages acceptLangs = acceptLanguages;
+    AcceptLanguageList acceptLangs = acceptLanguages;
     if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_ACCEPTLANGS) ==
         PEG_NOT_FOUND)
     {
@@ -109,7 +109,7 @@ CIMObjectPath SubscriptionRepository::createInstance (
             LanguageParser::buildAcceptLanguageHeader(acceptLangs)));
     }
 
-    ContentLanguages contentLangs = contentLanguages;
+    ContentLanguageList contentLangs = contentLanguages;
     if (instance.findProperty (PEGASUS_PROPERTYNAME_INDSUB_CONTENTLANGS) ==
         PEG_NOT_FOUND)
     {

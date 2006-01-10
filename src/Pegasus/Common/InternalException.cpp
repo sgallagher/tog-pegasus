@@ -40,7 +40,7 @@
 #include <cstdio>
 #include "InternalException.h"
 #include <Pegasus/Common/CIMExceptionRep.h>
-#include <Pegasus/Common/ContentLanguages.h>  // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 #include "Tracer.h"
 
 PEGASUS_NAMESPACE_BEGIN
@@ -227,7 +227,7 @@ static String _makeCIMExceptionDescription(
 static String _makeCIMExceptionDescription(
     CIMStatusCode code,
     const String& message,
-    ContentLanguages &contentLanguages)
+    ContentLanguageList& contentLanguages)
 {
     String tmp;
     tmp = cimStatusCodeToString(code, contentLanguages);
@@ -319,7 +319,7 @@ TraceableCIMException::TraceableCIMException(
 
 // l10n
 TraceableCIMException::TraceableCIMException(
-	const ContentLanguages& langs,
+	const ContentLanguageList& langs,
     CIMStatusCode code,
     const String& message,
     const String& file,
@@ -420,7 +420,7 @@ Uint32 TraceableCIMException::getLine() const
     return rep->line;
 }
 
-const ContentLanguages& TraceableCIMException::getContentLanguages() const
+const ContentLanguageList& TraceableCIMException::getContentLanguages() const
 {
     CIMExceptionRep* rep;
     rep = reinterpret_cast<CIMExceptionRep*>(_rep);

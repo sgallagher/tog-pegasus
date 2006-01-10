@@ -37,8 +37,8 @@
 
 #include <Pegasus/Common/PegasusAssert.h>
 
-#include <Pegasus/Common/AcceptLanguages.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/LanguageParser.h>
 #include <Pegasus/Common/MessageLoader.h>
 
@@ -70,7 +70,7 @@ void drive_LanguageParser()
 
     // Test handling of Accept-Languages whitespace and comments
     {
-        AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+        AcceptLanguageList al = LanguageParser::parseAcceptLanguageHeader(
             " 	 en-US-mn (should not appear)  ,"
             "(and)en-US-ca   (!!!)  ;(less) q(uality) = (just) 0.5 (half)  ");
         PEGASUS_TEST_ASSERT(al.size() == 2);
@@ -84,7 +84,7 @@ void drive_LanguageParser()
 
     // Test handling of Content-Languages whitespace and comments
     {
-        ContentLanguages cl = LanguageParser::parseContentLanguageHeader(
+        ContentLanguageList cl = LanguageParser::parseContentLanguageHeader(
             " 	 en-US-mn (should not appear)  ,"
             "(and)en-US-ca   (if you can imagine) (!!!)  ");
         PEGASUS_TEST_ASSERT(cl.size() == 2);
@@ -453,11 +453,11 @@ void drive_LanguageTag()
 }
 
 
-void drive_AcceptLanguages()
+void drive_AcceptLanguageList()
 {
     try
     {
-        AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+        AcceptLanguageList al = LanguageParser::parseAcceptLanguageHeader(
             "en-US-mn;q=.9,fr-FR;q=.1,en, fr;q=.2,la-SP-bal;q=.7,*;q=.01");
 
         PEGASUS_TEST_ASSERT(al.size() == 6);
@@ -490,7 +490,7 @@ void drive_AcceptLanguages()
 
         // Test assignment operator and equality operator
 
-        AcceptLanguages al1;
+        AcceptLanguageList al1;
 
         al1 = al;
         PEGASUS_TEST_ASSERT(al1 == al);
@@ -502,7 +502,7 @@ void drive_AcceptLanguages()
 
         // Test sorting of quality values
         {
-            AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
+            AcceptLanguageList al = LanguageParser::parseAcceptLanguageHeader(
                 "de;q=0.000,it;q=0.50,*;q=0.25,en-US-ca;q=1.00");
 
             PEGASUS_TEST_ASSERT(al.getLanguageTag(0).toString() == "en-US-ca");
@@ -524,8 +524,8 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader("en-US-ca;");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -541,8 +541,8 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;q");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader("en-US-ca;q");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -558,8 +558,8 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;r=.9");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader("en-US-ca;r=.9");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -575,8 +575,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;q+0.1");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca;q+0.1");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -592,8 +593,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;;q=0.1");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca;;q=0.1");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -609,8 +611,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;q=-0.1");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca;q=-0.1");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -626,8 +629,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;q=1.1");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca;q=1.1");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -643,8 +647,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;q=0.1a");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca;q=0.1a");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -660,8 +665,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca;q=0.1110");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca;q=0.1110");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -677,8 +683,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca(;q=0.1111");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca(;q=0.1111");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -690,19 +697,19 @@ void drive_AcceptLanguages()
 
         // Test valid comment syntax
         {
-            AcceptLanguages al1 = LanguageParser::parseAcceptLanguageHeader(
+            AcceptLanguageList al1 = LanguageParser::parseAcceptLanguageHeader(
                 "en(english)-(\\(USA\\))US-\\c\\a;q(quality)=0.1(not much)");
-            AcceptLanguages al2 = LanguageParser::parseAcceptLanguageHeader(
+            AcceptLanguageList al2 = LanguageParser::parseAcceptLanguageHeader(
                 "en-US-ca;q=0.1");
             PEGASUS_TEST_ASSERT(al1 == al2);
         }
 
         // Test valid comment and whitespace syntax
         {
-            AcceptLanguages al1 = LanguageParser::parseAcceptLanguageHeader(
+            AcceptLanguageList al1 = LanguageParser::parseAcceptLanguageHeader(
                 "en (english)-(\\( USA \\))US-\\c \\a   ;q(quality) =0.1  "
                     "(not much) ");
-            AcceptLanguages al2 = LanguageParser::parseAcceptLanguageHeader(
+            AcceptLanguageList al2 = LanguageParser::parseAcceptLanguageHeader(
                 "en-US-ca;q=0.1");
             PEGASUS_TEST_ASSERT(al1 == al2);
         }
@@ -713,8 +720,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca\\ ;q=0.1");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca\\ ;q=0.1");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -730,8 +738,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    "en-US-ca-;q=0.1");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        "en-US-ca-;q=0.1");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -747,7 +756,7 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al =
+                AcceptLanguageList al =
                     LanguageParser::parseAcceptLanguageHeader("");
             }
             catch (InvalidAcceptLanguageHeader&)
@@ -764,8 +773,9 @@ void drive_AcceptLanguages()
 
             try
             {
-                AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader(
-                    " (comment only)");
+                AcceptLanguageList al =
+                    LanguageParser::parseAcceptLanguageHeader(
+                        " (comment only)");
             }
             catch (InvalidAcceptLanguageHeader&)
             {
@@ -783,11 +793,11 @@ void drive_AcceptLanguages()
 }
 
 
-void drive_ContentLanguages()
+void drive_ContentLanguageList()
 {
     try
     {
-        ContentLanguages cl = LanguageParser::parseContentLanguageHeader(
+        ContentLanguageList cl = LanguageParser::parseContentLanguageHeader(
             "en-US-mn,fr-FR,en, fr(oh you french), la-SP-bal");
 
         for (Uint32 index = 0; index < cl.size(); index++)
@@ -817,7 +827,7 @@ void drive_ContentLanguages()
 
         // Test assignment operator and equality operator
 
-        ContentLanguages cl1;
+        ContentLanguageList cl1;
         cl1 = cl;
         PEGASUS_TEST_ASSERT(cl1 == cl);
 
@@ -832,7 +842,7 @@ void drive_ContentLanguages()
 
             try
             {
-                ContentLanguages cl =
+                ContentLanguageList cl =
                     LanguageParser::parseContentLanguageHeader("en-4%5US-mn");
             }
             catch(InvalidContentLanguageHeader&)
@@ -849,7 +859,7 @@ void drive_ContentLanguages()
 
             try
             {
-                ContentLanguages cl =
+                ContentLanguageList cl =
                     LanguageParser::parseContentLanguageHeader("");
             }
             catch (InvalidContentLanguageHeader&)
@@ -866,7 +876,7 @@ void drive_ContentLanguages()
 
             try
             {
-                ContentLanguages cl =
+                ContentLanguageList cl =
                     LanguageParser::parseContentLanguageHeader(
                         " (comment only)");
             }
@@ -884,7 +894,7 @@ void drive_ContentLanguages()
 
             try
             {
-                ContentLanguages cl =
+                ContentLanguageList cl =
                     LanguageParser::parseContentLanguageHeader("en, *, es");
             }
             catch (InvalidContentLanguageHeader&)
@@ -927,7 +937,7 @@ void drive_MessageLoader()
 
 
 
-    AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader("en-US");
+    AcceptLanguageList al = LanguageParser::parseAcceptLanguageHeader("en-US");
 
     mlp.acceptlanguages = al;
 
@@ -937,8 +947,7 @@ void drive_MessageLoader()
 
     // test for return content languages
 
-    PEGASUS_TEST_ASSERT(LanguageParser::buildContentLanguageHeader(
-        mlp.contentlanguages) == "en-US");
+    PEGASUS_TEST_ASSERT ( mlp.contentlanguages.toString() == "en-US" );
 
 #else
 
@@ -1006,7 +1015,7 @@ void drive_MessageLoader()
 
 
 
-    // set static AcceptLanguages in message loader
+    // set static AcceptLanguageList in message loader
 
     MessageLoader::_useDefaultMsg = false;
 
@@ -1035,7 +1044,7 @@ void drive_MessageLoader()
 void drive_MessageLoaderSubs()
 {
     String msg;
-    AcceptLanguages al = LanguageParser::parseAcceptLanguageHeader("en-US");
+    AcceptLanguageList al = LanguageParser::parseAcceptLanguageHeader("en-US");
 
     MessageLoader::_acceptlanguages.clear();
 
@@ -1205,9 +1214,9 @@ int main( int argc, char *argv[] )
 
     drive_LanguageTag();
 
-    drive_AcceptLanguages();
+    drive_AcceptLanguageList();
 
-    drive_ContentLanguages();
+    drive_ContentLanguageList();
 
     drive_MessageLoader();
 

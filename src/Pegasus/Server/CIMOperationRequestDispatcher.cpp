@@ -57,7 +57,7 @@
 
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlReader.h> // stringToValue(), stringArrayToValue()
-#include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/StatisticalData.h>
 #include <Pegasus/Common/Tracer.h>
 #include <Pegasus/Common/Formatter.h>
@@ -2145,7 +2145,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    {
         if (req->thread_changed())
         {
-            Thread::setLanguages(new AcceptLanguages(((AcceptLanguageListContainer)req->operationContext.get
+            Thread::setLanguages(new AcceptLanguageList(((AcceptLanguageListContainer)req->operationContext.get
                 (AcceptLanguageListContainer::NAME)).getLanguages()));
         }
    }

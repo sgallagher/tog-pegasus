@@ -48,7 +48,7 @@ static void deleteContentLanguage(void* data)
 {
    if (data != NULL)
    {
-      ContentLanguages* cl = static_cast<ContentLanguages*>(data);
+      ContentLanguageList* cl = static_cast<ContentLanguageList*>(data);
       delete cl;
    }
 }
@@ -178,8 +178,8 @@ public:
         catch (Exception &)
         {
             // No AcceptLanguageListContainer in OperationContext; try
-            // getting the AcceptLanguages from the current thread
-            AcceptLanguages* al = Thread::getLanguages();
+            // getting the AcceptLanguageList from the current thread
+            AcceptLanguageList* al = Thread::getLanguages();
             if (al != NULL)
             {
                 _client->setRequestAcceptLanguages(*al);
@@ -222,8 +222,8 @@ public:
                      // deletes the old tsd and creates a new one
                      curThrd->put_tsd("cimomHandleContentLanguages",
                          deleteContentLanguage,
-                         sizeof(ContentLanguages*),
-                         new ContentLanguages(
+                         sizeof(ContentLanguageList*),
+                         new ContentLanguageList(
                              _client->getResponseContentLanguages()));
                  }
             }
@@ -255,8 +255,8 @@ private:
 
     CIMClient* _client;
     Uint32 _origTimeout;
-    AcceptLanguages _origAcceptLanguages;
-    ContentLanguages _origContentLanguages;
+    AcceptLanguageList _origAcceptLanguages;
+    ContentLanguageList _origContentLanguages;
 };
 
 
@@ -766,17 +766,17 @@ OperationContext ClientCIMOMHandleRep::getResponseContext()
     Thread* curThrd = Thread::getCurrent();
     if (curThrd == NULL)
     {
-        ctx.insert(ContentLanguageListContainer(ContentLanguages()));
+        ctx.insert(ContentLanguageListContainer(ContentLanguageList()));
     }
     else
     {
-        ContentLanguages* contentLangs = (ContentLanguages*)
+        ContentLanguageList* contentLangs = (ContentLanguageList*)
             curThrd->reference_tsd("cimomHandleContentLanguages");
         curThrd->dereference_tsd();
  
         if (contentLangs == NULL)
         {
-            ctx.insert(ContentLanguageListContainer(ContentLanguages()));
+            ctx.insert(ContentLanguageListContainer(ContentLanguageList()));
         }
         else
         {

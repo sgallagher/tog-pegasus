@@ -93,23 +93,23 @@ public:
 	}
 
 	// l10n start
-	AcceptLanguages getRequestAcceptLanguages() const 
+	AcceptLanguageList getRequestAcceptLanguages() const 
 	{ 
-		return AcceptLanguages();
+		return AcceptLanguageList();
 	};
 	
-	ContentLanguages getRequestContentLanguages() const 
+	ContentLanguageList getRequestContentLanguages() const 
 	{ 
-		return ContentLanguages(); 
+		return ContentLanguageList(); 
 	};
 	
-	ContentLanguages getResponseContentLanguages() const 
+	ContentLanguageList getResponseContentLanguages() const 
 	{ 
-		return ContentLanguages(); 
+		return ContentLanguageList(); 
 	};
 
-	void setRequestAcceptLanguages(const AcceptLanguages& langs) { };
-	void setRequestContentLanguages(const ContentLanguages& langs) { };
+	void setRequestAcceptLanguages(const AcceptLanguageList& langs) { };
+	void setRequestContentLanguages(const ContentLanguageList& langs) { };
 	void setRequestDefaultLanguages() { };
 	// l10n end	
 	

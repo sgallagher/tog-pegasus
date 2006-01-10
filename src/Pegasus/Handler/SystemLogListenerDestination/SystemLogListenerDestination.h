@@ -63,7 +63,7 @@ public:
 	CIMInstance& indication, 
 	CIMInstance& handler, 
 	CIMInstance& subscription, 
-	ContentLanguages& contentLanguages);
+	ContentLanguageList& contentLanguages);
 
 private:
 

@@ -66,8 +66,8 @@
 #include <Pegasus/Common/CIMParamValue.h>
 #include <Pegasus/Common/Message.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/ContentLanguages.h>  // l10n
-#include <Pegasus/Common/AcceptLanguages.h>   // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 #include <Pegasus/Common/StrLit.h>
 
@@ -262,15 +262,15 @@ public:
         const String& cimObject,
         const String& authenticationHeader,
         HttpMethod httpMethod,
-        const AcceptLanguages & acceptLanguages,
-        const ContentLanguages & contentLanguages,
+        const AcceptLanguageList& acceptLanguages,
+        const ContentLanguageList& contentLanguages,
         Uint32 contentLength);
 
     // added to accommodate sending WBEMServerResponseTime PEP #128
     static void appendMethodResponseHeader(
         Buffer& out,
         HttpMethod httpMethod,
-        const ContentLanguages & contentLanguages,
+        const ContentLanguageList& contentLanguages,
         Uint32 contentLength,
         Uint64 serverResponseTime = 0);
 
@@ -371,15 +371,15 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const String& authenticationHeader,
-        const AcceptLanguages& httpAcceptLanguages,
-        const ContentLanguages& httpContentLanguages);
+        const AcceptLanguageList& httpAcceptLanguages,
+        const ContentLanguageList& httpContentLanguages);
 
     //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
     static Buffer formatSimpleMethodRspMessage(
         const CIMName& methodName,
         const String& messageId,
         HttpMethod httpMethod,
-        const ContentLanguages & httpContentLanguages,
+        const ContentLanguageList& httpContentLanguages,
         const Buffer& body,
         Uint64 serverResponseTime,
         Boolean isFirst = true,
@@ -398,8 +398,8 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const String& authenticationHeader,
-        const AcceptLanguages& httpAcceptLanguages,
-        const ContentLanguages& httpContentLanguages,
+        const AcceptLanguageList& httpAcceptLanguages,
+        const ContentLanguageList& httpContentLanguages,
         const Buffer& body);
 
     //PEP 128 - sending serverResponseTime (WBEMServerResponseTime) in respons header
@@ -407,7 +407,7 @@ public:
         const CIMName& iMethodName,
         const String& messageId,
         HttpMethod httpMethod,
-        const ContentLanguages & httpContentLanguages,
+        const ContentLanguageList& httpContentLanguages,
         const Buffer& body,
         Uint64 serverResponseTime,
         Boolean isFirst = true,
@@ -431,14 +431,14 @@ public:
         const CIMName& cimMethod,
         HttpMethod httpMethod,
         const String& authenticationHeader,
-        const AcceptLanguages& acceptLanguages,
-        const ContentLanguages& contentLanguages,
+        const AcceptLanguageList& acceptLanguages,
+        const ContentLanguageList& contentLanguages,
         Uint32 contentLength);
 
     static void appendEMethodResponseHeader(
         Buffer& out,
         HttpMethod httpMethod,
-        const ContentLanguages& contentLanguages,
+        const ContentLanguageList& contentLanguages,
         Uint32 contentLength);
 
     static Buffer formatSimpleEMethodReqMessage(
@@ -448,15 +448,15 @@ public:
         const String& messageId,
         HttpMethod httpMethod,
         const String& authenticationHeader,
-        const AcceptLanguages& httpAcceptLanguages,
-        const ContentLanguages& httpContentLanguages,
+        const AcceptLanguageList& httpAcceptLanguages,
+        const ContentLanguageList& httpContentLanguages,
         const Buffer& body);
 
     static Buffer formatSimpleEMethodRspMessage(
         const CIMName& eMethodName,
         const String& messageId,
         HttpMethod httpMethod,
-        const ContentLanguages& httpContentLanguages,
+        const ContentLanguageList& httpContentLanguages,
         const Buffer& body);
 
     static Buffer formatSimpleEMethodErrorRspMessage(

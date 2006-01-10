@@ -35,9 +35,9 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/CIMStatusCode.h>
-#include <Pegasus/Common/MessageLoader.h>  // l10n
+#include <Pegasus/Common/MessageLoader.h>
 #include <Pegasus/Common/Linkage.h>
-#include <Pegasus/Common/ContentLanguages.h>  // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 class ExceptionRep;
@@ -78,12 +78,12 @@ public:
     // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
     /** <I><B>Experimental Interface</B></I><BR>
     */
-    const ContentLanguages& getContentLanguages() const;
+    const ContentLanguageList& getContentLanguages() const;
     
     // Note: Rlse 2.3 - not virtual to preserve binary compatibility.
     /** <I><B>Experimental Interface</B></I><BR>
     */
-    void setContentLanguages(const ContentLanguages& langs); 
+    void setContentLanguages(const ContentLanguageList& langs); 
 #endif   
 
 protected:

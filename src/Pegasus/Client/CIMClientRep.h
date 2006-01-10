@@ -105,11 +105,11 @@ public:
     }
 
     // l10n start
-    AcceptLanguages getRequestAcceptLanguages() const;
-    ContentLanguages getRequestContentLanguages() const;
-    ContentLanguages getResponseContentLanguages() const;
-    void setRequestAcceptLanguages(const AcceptLanguages& langs);
-    void setRequestContentLanguages(const ContentLanguages& langs);
+    AcceptLanguageList getRequestAcceptLanguages() const;
+    ContentLanguageList getRequestContentLanguages() const;
+    ContentLanguageList getResponseContentLanguages() const;
+    void setRequestAcceptLanguages(const AcceptLanguageList& langs);
+    void setRequestContentLanguages(const ContentLanguageList& langs);
     void setRequestDefaultLanguages();
     // l10n end
 
@@ -331,9 +331,9 @@ private:
     AutoPtr<SSLContext> _connectSSLContext;
 
     // l10n
-    AcceptLanguages requestAcceptLanguages;
-    ContentLanguages requestContentLanguages;
-    ContentLanguages responseContentLanguages;
+    AcceptLanguageList requestAcceptLanguages;
+    ContentLanguageList requestContentLanguages;
+    ContentLanguageList responseContentLanguages;
 
     // mszer : Additions Stage1 PEP#139
     void compareObjectPathtoCurrentConnection(const CIMObjectPath& obj);

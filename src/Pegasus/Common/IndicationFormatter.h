@@ -75,7 +75,7 @@ public:
     static String getFormattedIndText(
         const CIMInstance & subscription,
         const CIMInstance & indication,
-	const ContentLanguages & contentLangs);
+	const ContentLanguageList & contentLangs);
 
 
     /**
@@ -140,7 +140,7 @@ private:
         const String & propertyName,
 	const String & arrayIndexStr,
         const CIMInstance & indication,
-	const ContentLanguages & contentLangs);
+	const ContentLanguageList & contentLangs);
 
     /**
 	Retrieves the array values referenced by the specified
@@ -155,7 +155,7 @@ private:
     static String _getArrayValues(
 	const CIMValue & propertyValue,
         const String & indexStr,
-	const ContentLanguages & contentLangs);
+	const ContentLanguageList & contentLangs);
 
     /**
         Validates the index string 
@@ -226,7 +226,7 @@ private:
     */
     static String _formatDefaultIndicationText(
         const CIMInstance & indication,
-	const ContentLanguages & contentLangs);
+	const ContentLanguageList & contentLangs);
 
     /**
         Constructs a human readable indication text message from the
@@ -248,13 +248,13 @@ private:
 	const String & textFormat,
 	const Array<String>& textFormatParams,
 	const CIMInstance & indication,
-        const ContentLanguages & contentLangs);
+        const ContentLanguageList & contentLangs);
 
 #if defined(PEGASUS_HAS_ICU) && defined(PEGASUS_INDFORMATTER_USE_ICU)  
     /**
         Determines if a property value can be localized. 
         A property value can only be localized if the subscription
-	ContentLanguages includes no more than one language tag.
+	ContentLanguageList includes no more than one language tag.
 
         @param   contentLangs    the Content-Languages in the
 	                         subscription instance
@@ -265,7 +265,7 @@ private:
 		 False, Otherwise
      */
     static Boolean _canLocalize(
-	const ContentLanguages & contentLangs,
+	const ContentLanguageList & contentLangs,
 	Locale & locale);
 
     /**

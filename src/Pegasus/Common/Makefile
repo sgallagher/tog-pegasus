@@ -61,8 +61,8 @@ SOURCES1 = \
     Buffer.cpp \
     CharSet.cpp \
     LanguageParser.cpp \
-    AcceptLanguages.cpp \
-    ContentLanguages.cpp \
+    AcceptLanguageList.cpp \
+    ContentLanguageList.cpp \
     LanguageTag.cpp \
     MessageLoader.cpp \
     Char16Inline.cpp \

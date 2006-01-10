@@ -45,7 +45,7 @@
 
 #include <Pegasus/Listener/List.h>
 #include <Pegasus/Consumer/CIMIndicationConsumer.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -58,26 +58,26 @@ public:
 	CIMListenerIndicationDispatchEvent(CIMIndicationConsumer* consumer,
                                            String url,
                                            CIMInstance instance,
-                                           ContentLanguages contentLangs);
+                                           ContentLanguageList contentLangs);
 	~CIMListenerIndicationDispatchEvent();
 
 	CIMIndicationConsumer* getConsumer() const;
 
 	String getURL() const;
 	CIMInstance getIndicationInstance() const;
-        ContentLanguages getContentLanguages() const; 
+        ContentLanguageList getContentLanguages() const; 
 
 private:
 	CIMIndicationConsumer*	_consumer;
 	String									_url;
 	CIMInstance							_instance;
-        ContentLanguages                    _contentLangs;
+        ContentLanguageList                    _contentLangs;
 };
 
 CIMListenerIndicationDispatchEvent::CIMListenerIndicationDispatchEvent(CIMIndicationConsumer* consumer,
                                                                        String url,
                                                                        CIMInstance instance,
-                                                                       ContentLanguages contentLangs)
+                                                                       ContentLanguageList contentLangs)
 :_consumer(consumer),_url(url),_instance(instance), _contentLangs(contentLangs)
 {
 }
@@ -96,7 +96,7 @@ CIMInstance CIMListenerIndicationDispatchEvent::getIndicationInstance() const
 {
 	return _instance;
 }
-ContentLanguages CIMListenerIndicationDispatchEvent::getContentLanguages() const
+ContentLanguageList CIMListenerIndicationDispatchEvent::getContentLanguages() const
 {
 	return _contentLangs;
 }
@@ -119,7 +119,7 @@ public:
 	static PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL deliver_routine(void *param);
 
 private:
-	void	deliverIndication(String url, CIMInstance instance, ContentLanguages contentLangs);
+	void	deliverIndication(String url, CIMInstance instance, ContentLanguageList contentLangs);
 
 	ThreadPool* _thread_pool;
 	PtrList*		_consumers;
@@ -158,7 +158,7 @@ CIMExportIndicationResponseMessage* CIMListenerIndicationDispatcherRep::handleIn
 
 	CIMInstance instance = request->indicationInstance;
 	String			url = request->destinationPath;
-    ContentLanguages contentLangs =((ContentLanguageListContainer)request->operationContext.
+    ContentLanguageList contentLangs =((ContentLanguageListContainer)request->operationContext.
 			                                    get(ContentLanguageListContainer::NAME)).getLanguages();
 
 	deliverIndication(url,instance,contentLangs);
@@ -180,7 +180,7 @@ CIMExportIndicationResponseMessage* CIMListenerIndicationDispatcherRep::handleIn
 
 void CIMListenerIndicationDispatcherRep::deliverIndication(String url,
                                                            CIMInstance instance,
-                                                           ContentLanguages contentLangs)
+                                                           ContentLanguageList contentLangs)
 {
 	// go thru all consumers and broadcast the result; should be run in seperate thread
 	Iterator* it = _consumers->iterator();

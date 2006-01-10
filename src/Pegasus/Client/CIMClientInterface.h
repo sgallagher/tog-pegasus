@@ -51,7 +51,7 @@
 #include <Pegasus/Common/Exception.h>
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/Constants.h>
-#include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Client/ClientOpPerformanceDataHandler.h> //PEP# 128
 
 PEGASUS_NAMESPACE_BEGIN
@@ -81,11 +81,11 @@ public:
     virtual void setTimeout(Uint32 timeoutMilliseconds) = 0;
 
 // l10n start
-    virtual AcceptLanguages getRequestAcceptLanguages() const = 0;
-    virtual ContentLanguages getRequestContentLanguages() const = 0;
-    virtual ContentLanguages getResponseContentLanguages() const = 0;
-    virtual void setRequestAcceptLanguages(const AcceptLanguages& langs) = 0;
-    virtual void setRequestContentLanguages(const ContentLanguages& langs) = 0;
+    virtual AcceptLanguageList getRequestAcceptLanguages() const = 0;
+    virtual ContentLanguageList getRequestContentLanguages() const = 0;
+    virtual ContentLanguageList getResponseContentLanguages() const = 0;
+    virtual void setRequestAcceptLanguages(const AcceptLanguageList& langs) = 0;
+    virtual void setRequestContentLanguages(const ContentLanguageList& langs) = 0;
     virtual void setRequestDefaultLanguages() = 0;
 // l10n end
 

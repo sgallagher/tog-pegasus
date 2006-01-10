@@ -56,7 +56,7 @@
 #include <Pegasus/Common/HTTPAcceptor.h>
 #include <Pegasus/Common/Linkage.h>
 #include <Pegasus/Common/AutoPtr.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/Buffer.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -144,7 +144,7 @@ public:
     CIMException cimException;
 
     // list of content languages
-    ContentLanguages contentLanguages;
+    ContentLanguageList contentLanguages;
 
 private:
 

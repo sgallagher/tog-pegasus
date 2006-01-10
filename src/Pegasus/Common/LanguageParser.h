@@ -44,8 +44,8 @@
 #include <Pegasus/Common/Config.h>
 #include <Pegasus/Common/String.h>
 #include <Pegasus/Common/Array.h>
-#include <Pegasus/Common/AcceptLanguages.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -59,27 +59,27 @@ class PEGASUS_COMMON_LINKAGE LanguageParser
 public:
 
     /**
-        Builds an AcceptLanguages object from an HTTP Accept-Language
+        Builds an AcceptLanguageList object from an HTTP Accept-Language
         header value.
         @param acceptLanguageHeader A String containing an HTTP
-        Accept-Language header value from which to build the AcceptLanguages
+        Accept-Language header value from which to build the AcceptLanguageList
         object.
         @exception InvalidAcceptLanguageHeader if a syntax error is
         encountered.
      */
-    static AcceptLanguages parseAcceptLanguageHeader(
+    static AcceptLanguageList parseAcceptLanguageHeader(
         const String& acceptLanguageHeader);
 
     /**
-        Builds a ContentLanguages object from an HTTP Content-Language
+        Builds a ContentLanguageList object from an HTTP Content-Language
         header value.
         @param contentLanguageHeader A String containing an HTTP
-        Content-Language header value from which to build the ContentLanguages
-        object.
+        Content-Language header value from which to build the
+        ContentLanguageList object.
         @exception InvalidContentLanguageHeader if a syntax error is
         encountered.
      */
-    static ContentLanguages parseContentLanguageHeader(
+    static ContentLanguageList parseContentLanguageHeader(
         const String& contentLanguageHeader);
 
     /**
@@ -110,29 +110,29 @@ public:
     static void validateQualityValue(Real32 quality);
 
     /**
-        Builds an HTTP Accept-Language header value from an AcceptLanguages
+        Builds an HTTP Accept-Language header value from an AcceptLanguageList
         object.
-        @param acceptLanguages The AcceptLanguages object to be encoded in an
-        HTTP Accept-Language header.
+        @param acceptLanguages The AcceptLanguageList object to be encoded in
+        an HTTP Accept-Language header.
      */
     static String buildAcceptLanguageHeader(
-        const AcceptLanguages& acceptLanguages);
+        const AcceptLanguageList& acceptLanguages);
 
     /**
-        Builds an HTTP Content-Language header value from an ContentLanguages
+        Builds an HTTP Content-Language header value from a ContentLanguageList
         object.
-        @param contentLanguages The ContentLanguages object to be encoded in an
-        HTTP Content-Language header.
+        @param contentLanguages The ContentLanguageList object to be encoded
+        in an HTTP Content-Language header.
      */
     static String buildContentLanguageHeader(
-        const ContentLanguages& contentLanguages);
+        const ContentLanguageList& contentLanguages);
 
     /**
         Returns the default accept languages based on environment settings.
         ATTN: What is the behavior?  This is only implemented if MESSAGES and
         ICU are used.
      */
-    static AcceptLanguages getDefaultAcceptLanguages();
+    static AcceptLanguageList getDefaultAcceptLanguages();
 
 private:
 

@@ -518,8 +518,10 @@ CIMResponseMessage* CIMNotifyConfigChangeRequestMessage::buildResponse()
 CIMMessage::CIMMessage(Uint32 type, const String& messageId_)
     : Message(type), messageId(messageId_)
 {
-    operationContext.insert(AcceptLanguageListContainer(AcceptLanguages())); 
-    operationContext.insert(ContentLanguageListContainer(ContentLanguages())); 
+    operationContext.insert(
+        AcceptLanguageListContainer(AcceptLanguageList())); 
+    operationContext.insert(
+        ContentLanguageListContainer(ContentLanguageList())); 
 }
 
 CIMRequestMessage::CIMRequestMessage(

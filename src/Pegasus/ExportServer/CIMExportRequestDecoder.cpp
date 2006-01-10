@@ -388,8 +388,8 @@ void CIMExportRequestDecoder::handleHTTPMessage(HTTPMessage* httpMessage)
    }
 
 // l10n start
-   AcceptLanguages acceptLanguages;
-   ContentLanguages contentLanguages;
+   AcceptLanguageList acceptLanguages;
+   ContentLanguageList contentLanguages;
    try 
    { 
 	if(httpMessage->acceptLanguagesDecoded){
@@ -518,15 +518,15 @@ void CIMExportRequestDecoder::handleMethodRequest(
     const String& cimProtocolVersionInHeader,
     const String& cimExportMethodInHeader,
     const String& userName,
-    const AcceptLanguages& httpAcceptLanguages, // l10n
-    const ContentLanguages& httpContentLanguages,
+    const AcceptLanguageList& httpAcceptLanguages,
+    const ContentLanguageList& httpContentLanguages,
     Boolean closeConnect)	 
 {
 // l10n
 	// Set the Accept-Language into the thread for this service.
 	// This will allow all code in this thread to get
 	// the languages for the messages returned to the client.
-	Thread::setLanguages(new AcceptLanguages(httpAcceptLanguages));	
+	Thread::setLanguages(new AcceptLanguageList(httpAcceptLanguages));	
 
    //
    // If CIM Listener is shutting down, return error response
@@ -893,7 +893,7 @@ void CIMExportRequestDecoder::handleMethodRequest(
 	{
 		cimmsg->operationContext.insert(IdentityContainer(userName));
 		cimmsg->operationContext.set(ContentLanguageListContainer(httpContentLanguages));
-		cimmsg->operationContext.set(AcceptLanguageListContainer(AcceptLanguages()));
+		cimmsg->operationContext.set(AcceptLanguageListContainer(AcceptLanguageList()));
 	}
 	else
 	{

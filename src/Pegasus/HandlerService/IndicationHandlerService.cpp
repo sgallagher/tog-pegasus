@@ -124,7 +124,7 @@ void IndicationHandlerService::handleEnqueue(Message* message)
     {
         if (msg->thread_changed())
         {
-            AutoPtr<AcceptLanguages> langs(new AcceptLanguages(((AcceptLanguageListContainer)msg->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages()));
+            AutoPtr<AcceptLanguageList> langs(new AcceptLanguageList(((AcceptLanguageListContainer)msg->operationContext.get(AcceptLanguageListContainer::NAME)).getLanguages()));
             Thread::setLanguages(langs.get());
             langs.release();
         }
@@ -392,7 +392,7 @@ void IndicationHandlerService::_loadHandler(
 
         if (handlerLib)
         {
-	    ContentLanguages langs = 
+	    ContentLanguageList langs = 
                 ((ContentLanguageListContainer)request->operationContext.
                 get(ContentLanguageListContainer::NAME)).getLanguages();
 

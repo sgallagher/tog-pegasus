@@ -45,7 +45,7 @@
 #include <Pegasus/Common/MessageQueue.h>
 #include <Pegasus/Common/HTTPMessage.h>
 #include <Pegasus/Common/CIMMessage.h>
-#include <Pegasus/Common/ContentLanguages.h> // l10n
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
@@ -106,7 +106,7 @@ private:
 
     void _handleMethodResponse(
         char* content,
-        const ContentLanguages& contentLanguages,
+        const ContentLanguageList& contentLanguages,
         Boolean reconnect);
 
     CIMCreateClassResponseMessage* _decodeCreateClassResponse(

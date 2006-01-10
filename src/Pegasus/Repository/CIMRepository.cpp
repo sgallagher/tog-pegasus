@@ -1297,7 +1297,7 @@ void CIMRepository::_createAssocClassEntries(
 void CIMRepository::createClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& newClass,
-    const ContentLanguages& contentLangs)
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createClass");
 
@@ -1533,7 +1533,7 @@ void CIMRepository::_createAssocInstEntries(
 CIMObjectPath CIMRepository::createInstance(
     const CIMNamespaceName& nameSpace,
     const CIMInstance& newInstance,
-    const ContentLanguages& contentLangs)
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::createInstance");
 
@@ -1755,7 +1755,7 @@ CIMObjectPath CIMRepository::_createInstance(
 void CIMRepository::modifyClass(
     const CIMNamespaceName& nameSpace,
     const CIMClass& modifiedClass,
-    const ContentLanguages& contentLangs)
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyClass");
 
@@ -1863,7 +1863,7 @@ void CIMRepository::modifyInstance(
     const CIMInstance& modifiedInstance,
     Boolean includeQualifiers,
     const CIMPropertyList& propertyList,
-    const ContentLanguages& contentLangs)
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::modifyInstance");
 
@@ -3152,7 +3152,7 @@ void CIMRepository::setProperty(
     const CIMObjectPath& instanceName,
     const CIMName& propertyName,
     const CIMValue& newValue,
-    const ContentLanguages& contentLangs)
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setProperty");
 
@@ -3244,7 +3244,7 @@ CIMQualifierDecl CIMRepository::_getQualifier(
 void CIMRepository::setQualifier(
     const CIMNamespaceName& nameSpace,
     const CIMQualifierDecl& qualifierDecl,
-    const ContentLanguages& contentLangs)
+    const ContentLanguageList& contentLangs)
 {
     PEG_METHOD_ENTER(TRC_REPOSITORY, "CIMRepository::setQualifier");
 

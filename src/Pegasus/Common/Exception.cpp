@@ -88,13 +88,13 @@ const String& Exception::getMessage() const
 }
 
 // l10n
-const ContentLanguages& Exception::getContentLanguages() const
+const ContentLanguageList& Exception::getContentLanguages() const
 {
 	return _rep->contentLanguages;
 } 
 
 // l10n
-void Exception::setContentLanguages(const ContentLanguages& langs)
+void Exception::setContentLanguages(const ContentLanguageList& langs)
 {
 	_rep->contentLanguages = langs;
 } 

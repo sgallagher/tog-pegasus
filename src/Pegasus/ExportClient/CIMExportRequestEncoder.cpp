@@ -47,8 +47,8 @@
 #include <Pegasus/Common/Constants.h>
 #include <Pegasus/Common/XmlWriter.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/AcceptLanguages.h>  // l10n
-#include <Pegasus/Common/ContentLanguages.h>  // l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include "CIMExportRequestEncoder.h"
 
 PEGASUS_USING_STD;
@@ -122,7 +122,7 @@ void CIMExportRequestEncoder::_encodeExportIndicationRequest(
       message->messageId, 
       message->getHttpMethod(),
       _authenticator->buildRequestAuthHeader(),
-      AcceptLanguages(),
+      AcceptLanguageList(),
 	 ((ContentLanguageListContainer)message->operationContext.get(ContentLanguageListContainer::NAME)).getLanguages(),
       params);
 

@@ -634,18 +634,18 @@ void CIMMessageDeserializer::_deserializeOperationContext(
 
     if (XmlReader::testStartTag(parser, entry, "PGOCALL"))
     {
-        AcceptLanguages acceptLanguages;
+        AcceptLanguageList acceptLanguages;
 
-        _deserializeAcceptLanguages(parser, acceptLanguages);
+        _deserializeAcceptLanguageList(parser, acceptLanguages);
         operationContext.insert(AcceptLanguageListContainer(acceptLanguages));
         XmlReader::expectEndTag(parser, "PGOCALL");
     }
 
     if (XmlReader::testStartTag(parser, entry, "PGOCSLL"))
     {
-        AcceptLanguages acceptLanguages;
+        AcceptLanguageList acceptLanguages;
 
-        _deserializeAcceptLanguages(parser, acceptLanguages);
+        _deserializeAcceptLanguageList(parser, acceptLanguages);
         operationContext.insert(
             SubscriptionLanguageListContainer(acceptLanguages));
         XmlReader::expectEndTag(parser, "PGOCSLL");
@@ -653,9 +653,9 @@ void CIMMessageDeserializer::_deserializeOperationContext(
 
     if (XmlReader::testStartTag(parser, entry, "PGOCCLL"))
     {
-        ContentLanguages contentLanguages;
+        ContentLanguageList contentLanguages;
 
-        _deserializeContentLanguages(parser, contentLanguages);
+        _deserializeContentLanguageList(parser, contentLanguages);
         operationContext.insert(
             ContentLanguageListContainer(contentLanguages));
         XmlReader::expectEndTag(parser, "PGOCCLL");
@@ -707,11 +707,11 @@ void CIMMessageDeserializer::_deserializeOperationContext(
 }
 
 //
-// _deserializeContentLanguages
+// _deserializeContentLanguageList
 //
-void CIMMessageDeserializer::_deserializeContentLanguages(
+void CIMMessageDeserializer::_deserializeContentLanguageList(
     XmlParser& parser,
-    ContentLanguages& contentLanguages)
+    ContentLanguageList& contentLanguages)
 {
     // ATTN: Incoming contentLanguages is presumed to be empty
 
@@ -729,11 +729,11 @@ void CIMMessageDeserializer::_deserializeContentLanguages(
 }
 
 //
-// _deserializeAcceptLanguages
+// _deserializeAcceptLanguageList
 //
-void CIMMessageDeserializer::_deserializeAcceptLanguages(
+void CIMMessageDeserializer::_deserializeAcceptLanguageList(
     XmlParser& parser,
-    AcceptLanguages& acceptLanguages)
+    AcceptLanguageList& acceptLanguages)
 {
     // ATTN: Incoming acceptLanguages is presumed to be empty
 
@@ -767,7 +767,7 @@ void CIMMessageDeserializer::_deserializeCIMException(
     String cimMessage;
     String file;
     Uint32 line;
-    ContentLanguages contentLanguages;
+    ContentLanguageList contentLanguages;
 
     XmlReader::expectStartTag(parser, entry, "PGCIMEXC");
 
@@ -781,7 +781,7 @@ void CIMMessageDeserializer::_deserializeCIMException(
     genericValue.get(file);
     XmlReader::getValueElement(parser, CIMTYPE_UINT32, genericValue);
     genericValue.get(line);
-    _deserializeContentLanguages(parser, contentLanguages);
+    _deserializeContentLanguageList(parser, contentLanguages);
 
     XmlReader::expectEndTag(parser, "PGCIMEXC");
 

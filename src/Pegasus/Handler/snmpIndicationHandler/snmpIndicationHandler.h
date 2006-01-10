@@ -68,7 +68,7 @@ public:
 	CIMInstance& indication, 
 	CIMInstance& handler, 
 	CIMInstance& subscription,
-	ContentLanguages& contentLanguages);  // l10n
+	ContentLanguageList& contentLanguages);
 };
 
 PEGASUS_NAMESPACE_END

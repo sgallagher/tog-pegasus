@@ -278,7 +278,7 @@ void CIMExportClient::disconnect()
 void CIMExportClient::exportIndication(
    const String& url,
    const CIMInstance& instanceName,
-   const ContentLanguages& contentLanguages)
+   const ContentLanguageList& contentLanguages)
 {
     PEG_METHOD_ENTER (TRC_EXPORT_CLIENT, "CIMExportClient::exportIndication()");
 

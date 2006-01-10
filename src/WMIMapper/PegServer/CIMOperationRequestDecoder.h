@@ -49,8 +49,8 @@
 #include <Pegasus/Common/MessageQueueService.h>
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Common/HTTPMessage.h>
-#include <Pegasus/Common/AcceptLanguages.h>  //l10n
-#include <Pegasus/Common/ContentLanguages.h>  //l10n
+#include <Pegasus/Common/AcceptLanguageList.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 #include <Pegasus/Common/AutoPtr.h>
 
 PEGASUS_NAMESPACE_BEGIN
@@ -112,8 +112,8 @@ class CIMOperationRequestDecoder : public MessageQueueService
 	 String authType,
 	 String userName,
 	 String password,
-	 const AcceptLanguages& httpAcceptLanguages,
-	 const ContentLanguages& httpContentLanguages);
+	 const AcceptLanguageList& httpAcceptLanguages,
+	 const ContentLanguageList& httpContentLanguages);
 
       CIMCreateClassRequestMessage* decodeCreateClassRequest(
 	 Uint32 queueId,

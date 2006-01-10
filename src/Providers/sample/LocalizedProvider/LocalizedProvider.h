@@ -46,7 +46,7 @@
 #include <Pegasus/Provider/CIMIndicationConsumerProvider.h>
 
 #include <Pegasus/Common/MessageLoader.h>
-#include <Pegasus/Common/ContentLanguages.h>
+#include <Pegasus/Common/ContentLanguageList.h>
 
 class LocalizedProvider :
       public PEGASUS_NAMESPACE(CIMInstanceProvider),
@@ -197,7 +197,7 @@ public:
 private:
     PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMObjectPath)> _instanceNames;
     PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(CIMInstance)> _instances;
-    PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(ContentLanguages)> _instanceLangs;
+    PEGASUS_NAMESPACE(Array)<PEGASUS_NAMESPACE(ContentLanguageList)> _instanceLangs;
 	
     PEGASUS_NAMESPACE(MessageLoaderParms) msgParms;
     PEGASUS_NAMESPACE(MessageLoaderParms) notSupportedErrorParms;	
@@ -209,27 +209,27 @@ private:
     void _checkRoundTripString(const PEGASUS_NAMESPACE(OperationContext) & context,
 				   const PEGASUS_NAMESPACE(CIMInstance)& instanceObject);	
 
-    PEGASUS_NAMESPACE(AcceptLanguages) getRequestAcceptLanguages(const PEGASUS_NAMESPACE(OperationContext) &context);
+    PEGASUS_NAMESPACE(AcceptLanguageList) getRequestAcceptLanguages(const PEGASUS_NAMESPACE(OperationContext) &context);
 
-    PEGASUS_NAMESPACE(ContentLanguages) getRequestContentLanguages(const PEGASUS_NAMESPACE(OperationContext) &context);
+    PEGASUS_NAMESPACE(ContentLanguageList) getRequestContentLanguages(const PEGASUS_NAMESPACE(OperationContext) &context);
 
     PEGASUS_NAMESPACE(CIMObjectPath) buildRefFromInstance(const PEGASUS_NAMESPACE(CIMInstance)&instanceObject);
     	
-    PEGASUS_NAMESPACE(ContentLanguages) _loadLocalizedProps(PEGASUS_NAMESPACE(AcceptLanguages) &acceptLangs,
-					 PEGASUS_NAMESPACE(ContentLanguages) & contentLangs,
+    PEGASUS_NAMESPACE(ContentLanguageList) _loadLocalizedProps(PEGASUS_NAMESPACE(AcceptLanguageList) &acceptLangs,
+					 PEGASUS_NAMESPACE(ContentLanguageList) & contentLangs,
 					 PEGASUS_NAMESPACE(CIMInstance) & instance);		
 	
-    PEGASUS_NAMESPACE(ContentLanguages) _addResourceBundleProp(PEGASUS_NAMESPACE(AcceptLanguages) &acceptLangs,
+    PEGASUS_NAMESPACE(ContentLanguageList) _addResourceBundleProp(PEGASUS_NAMESPACE(AcceptLanguageList) &acceptLangs,
 					    PEGASUS_NAMESPACE(CIMInstance) & instance);
 	
-    PEGASUS_NAMESPACE(ContentLanguages) _addResourceBundleProp(PEGASUS_NAMESPACE(CIMInstance) &instance);	
+    PEGASUS_NAMESPACE(ContentLanguageList) _addResourceBundleProp(PEGASUS_NAMESPACE(CIMInstance) &instance);	
 	
     void _replaceRBProperty(PEGASUS_NAMESPACE(CIMInstance) & instance,
                            PEGASUS_NAMESPACE(String) newProp);											
-    PEGASUS_NAMESPACE(ContentLanguages) _addContentLanguagesProp(PEGASUS_NAMESPACE(CIMInstance) & instance);
+    PEGASUS_NAMESPACE(ContentLanguageList) _addContentLanguagesProp(PEGASUS_NAMESPACE(CIMInstance) & instance);
 
     void _setHandlerLanguages(PEGASUS_NAMESPACE(ResponseHandler) & handler, 
-                              PEGASUS_NAMESPACE(ContentLanguages) & langs);
+                              PEGASUS_NAMESPACE(ContentLanguageList) & langs);
 
     void _testCIMOMHandle();
 

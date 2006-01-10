@@ -52,9 +52,9 @@ class PEGASUS_QUERYCOMMON_LINKAGE QueryException : public Exception
       static const char KEY[];
 		QueryException(const String& msg):
 			Exception(MessageLoaderParms(KEY,MSG,msg)){}
-		QueryException(const ContentLanguages& langs, const String& msg):
+		QueryException(const ContentLanguageList& langs, const String& msg):
 			Exception(msg) { setContentLanguages(langs); }
-		QueryException(const ContentLanguages& langs, const MessageLoaderParms& parms):
+		QueryException(const ContentLanguageList& langs, const MessageLoaderParms& parms):
         Exception(parms) { setContentLanguages(langs); }
 		QueryException(MessageLoaderParms parms):
 			Exception(parms){}

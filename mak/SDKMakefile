@@ -114,9 +114,9 @@ INCLUDE_FILES = \
    Pegasus/Provider/CIMProvider.h \
    Pegasus/Provider/Linkage.h \
    Pegasus/Provider/ProviderException.h \
-   Pegasus/Common/AcceptLanguages.h \
+   Pegasus/Common/AcceptLanguageList.h \
    Pegasus/Common/MessageLoader.h \
-   Pegasus/Common/ContentLanguages.h \
+   Pegasus/Common/ContentLanguageList.h \
    Pegasus/Common/LanguageTag.h \
    Pegasus/Common/Formatter.h
 

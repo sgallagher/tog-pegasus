@@ -77,7 +77,7 @@ public:
     // clear any objects in this handler
     virtual void clear(void);
 
-    ContentLanguages getLanguages(void);
+    ContentLanguageList getLanguages(void);
 
 protected:
     virtual void send(Boolean isComplete);

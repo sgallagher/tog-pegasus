@@ -85,7 +85,7 @@ CIMManagedClient::~CIMManagedClient()
 void CIMManagedClient::setRequestAcceptLanguages(
     const String& host,
     const String& port,
-    const AcceptLanguages& langs
+    const AcceptLanguageList& langs
 )
 {
     CIMClientRep * _rep;
@@ -93,7 +93,7 @@ void CIMManagedClient::setRequestAcceptLanguages(
     _rep->setRequestAcceptLanguages(langs);
 }
 
-AcceptLanguages CIMManagedClient::getRequestAcceptLanguages(
+AcceptLanguageList CIMManagedClient::getRequestAcceptLanguages(
     const String& host,
     const String& port
 ) const
@@ -106,7 +106,7 @@ AcceptLanguages CIMManagedClient::getRequestAcceptLanguages(
 void CIMManagedClient::setRequestContentLanguages(
     const String& host,
     const String& port,
-    const ContentLanguages& langs
+    const ContentLanguageList& langs
 )
 {
     CIMClientRep * _rep;
@@ -114,14 +114,14 @@ void CIMManagedClient::setRequestContentLanguages(
     _rep->setRequestContentLanguages(langs);
 }
 
-ContentLanguages CIMManagedClient::getRequestContentLanguages(const String& host, const String& port) const
+ContentLanguageList CIMManagedClient::getRequestContentLanguages(const String& host, const String& port) const
 {
     CIMClientRep * _rep;
     _rep = getTargetCIMOM(host, port, CIMNamespaceName());
     return _rep->getRequestContentLanguages();
 }
 
-ContentLanguages CIMManagedClient::getResponseContentLanguages(const String& host, const String& port) const
+ContentLanguageList CIMManagedClient::getResponseContentLanguages(const String& host, const String& port) const
 {
     CIMClientRep * _rep;
     _rep = getTargetCIMOM(host, port, CIMNamespaceName());

@@ -282,7 +282,7 @@ extern "C" {
    }
 
    PEGASUS_STATIC CMPIStatus resultReturnDataDone(const CMPIResult* eRes) {
-      ValueResponseHandler* res=(ValueResponseHandler*)eRes->hdl;
+      ResponseHandler* res=(ResponseHandler*)eRes->hdl;
 	  if (!res)
 		CMReturn(CMPI_RC_ERR_INVALID_PARAMETER);
 	 try {

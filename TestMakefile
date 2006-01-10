@@ -816,20 +816,58 @@ AllTraceOff: traceoff
 
 list: tracesettings
 
-
-# More options...
+#########################################################################
+# standardtests
+#
+# More testing options...
+#
+# The standard test seem to contain additional test that may not be able 
+# to run on all platforms so they have been grouped here for now rather than
+# being included in the serversuite rule.
+#
+# The test are:
+#      TestCimmof
+#      TestNoSecurity
+#      TestLocalSecurity
+#      TestRemoteSecurity
+#      TestAuthorization
+#
+# NOTE: The TestsNoSecurity test is comprised of DisableSecurity and
+#       TestNoSecurity.
+#
+# NOTE: The TestNoSecurity step runs the servertests which builds the
+#       the repository that is then left in place for the remaining tests.
+#       The cimof test must be before the TestNosecurity step as it removes
+#       the repository builds a new one with cimmofl and another one with
+#       cimmof and then compares them. 
+#
+# NOTE: The Authentication test is comprised of EnableAuthentication, 
+#       TestLocalSecurity and TestRemoteSecurity. 
+#
+# NOTE: The Authorization test is comprised of EnableAuthorization and
+#       TestAuthorization. 
+#
+# NOTE: The EnableAuthentication and EnableAuthorization steps require 
+#       root access. Pegasus doesn't currently have the infrastructure
+#       in place to run the server as root and run the test as non-root.
+#       Rather than run everything, server, tests, providers, clients etc.
+#       as root many testers prefer to run the tests as non-root. Setting
+#       PEGASUS_DISABLE_PRIVILEGED_TESTS in the environment helps to 
+#       facilitate that.
+#
 
 standardtests: FORCE
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i DisableSecurity
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestCimmof
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestNoSecurity
+ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthentication
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestLocalSecurity
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestRemoteSecurity
-ifndef PEGASUS_DISABLE_PRIVILEGED_TESTS
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthorization
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestAuthorization
 else
+	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping EnableAuthentication, TestLocalSecurity, and TestRemoteSecurity "
 	@ $(ECHO) "+++++ PEGASUS_DISABLE_PRIVILEGED_TESTS defined: Skipping EnableAuthorization and TestAuthorization "	
 endif
 	@ $(ECHO) "+++++ TestMakefile standardtests complete"

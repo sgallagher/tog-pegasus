@@ -438,6 +438,8 @@ INTERNAL_MOF_FILES = \
    PG_Authorization20.mof \
    PG_ConfigSetting20.mof \
    PG_InternalSchema20.mof \
+   PG_SSLCertificate20.mof \
+   PG_SSLCertificateRevocationList20.mof \
    PG_ShutdownService20.mof \
    PG_User20.mof
 

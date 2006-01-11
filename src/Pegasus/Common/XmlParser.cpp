@@ -108,7 +108,6 @@ PEGASUS_NAMESPACE_BEGIN
 # include "ArrayImpl.h"
 #undef PEGASUS_ARRAY_T
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Static helper functions
@@ -162,63 +161,6 @@ static inline int _isspace(char c)
 }
 
 static Uint32 _REFERENCES_SIZE = (sizeof(_references) / sizeof(_references[0]));
-
-// Remove all redundant spaces from the given string:
-
-static void _normalize(char* text)
-{
-    char* p = text;
-    char* end = p + strlen(text);
-
-    // Remove leading spaces:
-
-    while (_isspace(*p))
-                p++;
-
-    if (p != text)
-        memmove(text, p, end - p + 1);
-
-    p = text;
-
-    // Look for sequences of more than one space and remove all but one.
-
-    for (;;)
-    {
-        // Advance to the next space:
-
-        while (*p && !_isspace(*p))
-            p++;
-
-        if (!*p)
-            break;
-
-        // Advance to the next non-space:
-
-        char* q = p++;
-
-        while (_isspace(*p))
-            p++;
-
-        // Discard trailing spaces (if we are at the end):
-
-        if (!*p)
-        {
-            *q = '\0';
-            break;
-        }
-
-        // Remove the redundant spaces:
-
-        const size_t n = p - q;
-
-        if (n > 1)
-        {
-            *q++ = ' ';
-            memmove(q, p, end - p + 1);
-            p = q;
-        }
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -411,6 +353,160 @@ inline void _skipWhitespace(Uint32& line, char*& p)
     }
 }
 
+static int _getEntityRef(char*& p)
+{
+    if ((p[0] == 'g') && (p[1] == 't') && (p[2] == ';'))
+    {
+        p += 3;
+        return '>';
+    }
+
+    if ((p[0] == 'l') && (p[1] == 't') && (p[2] == ';'))
+    {
+        p += 3;
+        return '<';
+    }
+
+    if ((p[0] == 'a') && (p[1] == 'p') && (p[2] == 'o') && (p[3] == 's') &&
+        (p[4] == ';'))
+    {
+        p += 5;
+        return '\'';
+    }
+
+    if ((p[0] == 'q') && (p[1] == 'u') && (p[2] == 'o') && (p[3] == 't') &&
+        (p[4] == ';'))
+    {
+        p += 5;
+        return '"';
+    }
+
+    if ((p[0] == 'a') && (p[1] == 'm') && (p[2] == 'p') && (p[3] == ';'))
+    {
+        p += 4;
+        return '&';
+    }
+
+    return -1;
+}
+
+static inline int _getCharRef(char*& p, bool hex)
+{
+    char* end;
+    unsigned long ch;
+
+    if (hex)
+    {
+        ch = strtoul(p, &end, 16);
+    }
+    else
+    {
+        ch = strtoul(p, &end, 10);
+    }
+
+    if ((end == p) || (*end != ';') || (ch > 255))
+    {
+        return -1;
+    }
+
+    if ((hex && (end - p > 4)) || (!hex && (end - p > 5)))
+    {
+        return -1;
+    }
+
+    p = end + 1;
+
+    return ch;
+}
+
+static void _normalize(Uint32& line, char*& p, char end_char, char*& start)
+{
+    // Skip over leading whitespace:
+
+    _skipWhitespace(line, p);
+    start = p;
+
+    // Process one character at a time:
+
+    char* q = p;
+
+    while (*p && (*p != end_char))
+    {
+        if (_isspace(*p))
+        {
+            // Compress sequences of whitespace characters to a single space
+            // character. Update line number when newlines encountered.
+
+            if (*p++ == '\n')
+            {
+                line++;
+            }
+
+            *q++ = ' ';
+
+            _skipWhitespace(line, p);
+        }
+        else if (*p == '&')
+        {
+            // Process entity characters and entity references:
+
+            p++;
+            int ch;
+
+            if (*p == '#')
+            {
+                *p++;
+
+                if (*p == 'x')
+                {
+                    p++;
+                    ch = _getCharRef(p, true);
+                }
+                else
+                {
+                    ch = _getCharRef(p, false);
+                }
+            }
+            else
+            {
+                ch = _getEntityRef(p);
+            }
+
+            if (ch == -1)
+            {
+                throw XmlException(XmlException::MALFORMED_REFERENCE, line);
+            }
+
+            *q++ = ch;
+        }
+        else
+        {
+            *q++ = *p++;
+        }
+    }
+
+    // We encountered a the end_char or a zero-terminator. 
+
+    *q = *p;
+
+    // Remove single trailing whitespace (consecutive whitespaces already
+    // compressed above).  Since p >= q, we can tell if we need to strip a
+    // trailing space from q by looking at the end of p.  We must not look at
+    // the last character of p, though, if p is an empty string.
+
+    if ((p != start) && _isspace(p[-1]))
+    {
+        q--;
+    }
+
+    // If q got behind p, it is safe and necessary to null-terminate q
+
+    if (q != p)
+    {
+        *q = '\0';
+    }
+}
+
 Boolean XmlParser::next(XmlEntry& entry)
 {
     if (!_putBackStack.isEmpty())
@@ -481,17 +577,23 @@ Boolean XmlParser::next(XmlEntry& entry)
     }
     else
     {
+        // Normalize the content:
+
+        char* start;
+        _normalize(_line, _current, '<', start);
+
+        // Get the content:
+
         entry.type = XmlEntry::CONTENT;
-        entry.text = _current;
-        _getContent(_current);
+        entry.text = start;
+
+        // Overwrite '<' with a null character (temporarily).
+
         _restoreChar = *_current;
         *_current = '\0';
 
         if (nullTerminator)
             *nullTerminator = '\0';
-
-        _substituteReferences((char*)entry.text);
-        _normalize((char*)entry.text);
 
         return true;
     }
@@ -607,24 +709,6 @@ void XmlParser::_getAttributeNameAndEqual(char*& p)
     *term = '\0';
 }
 
-void XmlParser::_getAttributeValue(char*& p)
-{
-    // ATTN-B: handle values contained in semiquotes:
-
-    if (*p != '"' && *p != '\'')
-        throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
-
-    char startChar = *p++;
-
-    while (*p && *p != startChar)
-        p++;
-
-    if (*p != startChar)
-        throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
-
-    *p++ = '\0';
-}
-
 void XmlParser::_getComment(char*& p)
 {
     // Now p points to first non-whitespace character beyond "<--" sequence:
@@ -689,164 +773,6 @@ void XmlParser::_getDocType(char*& p)
     p++;
 }
 
-void XmlParser::_getContent(char*& p)
-{
-    while (*p && *p != '<')
-    {
-        if (*p == '\n')
-            _line++;
-
-        p++;
-    }
-}
-
-void XmlParser::_substituteReferences(char* text)
-{
-    size_t rem = strlen(text);
-
-    for (char* p = text; *p; p++, rem--)
-    {
-        if (*p == '&')
-        {
-            // Process character or entity reference
-
-            Uint16 referenceChar = 0;
-            Uint32 referenceLength = 0;
-            XmlException::Code code = XmlException::MALFORMED_REFERENCE;
-
-            if (*(p+1) == '#')
-            {
-                // Found a character (numeric) reference
-                // Determine whether it is decimal or hex
-                if (*(p+2) == 'x')
-                {
-                    // Decode a hexadecimal character reference
-                    char* q = p+3;
-
-                    // At most four digits are allowed, plus trailing ';'
-                    Uint32 numDigits;
-                    for (numDigits = 0; numDigits < 5; numDigits++, q++)
-                    {
-                        if (isdigit(*q))
-                        {
-                            referenceChar = (referenceChar << 4);
-                            referenceChar += (*q - '0');
-                        }
-                        else if ((*q >= 'A') && (*q <= 'F'))
-                        {
-                            referenceChar = (referenceChar << 4);
-                            referenceChar += (*q - 'A' + 10);
-                        }
-                        else if ((*q >= 'a') && (*q <= 'f'))
-                        {
-                            referenceChar = (referenceChar << 4);
-                            referenceChar += (*q - 'a' + 10);
-                        }
-                        else if (*q == ';')
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            throw XmlException(code, _line);
-                        }
-                    }
-
-                    // Hex number must be 1 - 4 digits
-                    if ((numDigits == 0) || (numDigits > 4))
-                    {
-                        throw XmlException(code, _line);
-                    }
-
-                    // ATTN: Currently do not support 16-bit characters
-                    if (referenceChar > 0xff)
-                    {
-                        // ATTN: Is there a good way to say "unsupported"?
-                        throw XmlException(code, _line);
-                    }
-
-                    referenceLength = numDigits + 4;
-                }
-                else
-                {
-                    // Decode a decimal character reference
-                    Uint32 newChar = 0;
-                    char* q = p+2;
-
-                    // At most five digits are allowed, plus trailing ';'
-                    Uint32 numDigits;
-                    for (numDigits = 0; numDigits < 6; numDigits++, q++)
-                    {
-                        if (isdigit(*q))
-                        {
-                            newChar = (newChar * 10);
-                            newChar += (*q - '0');
-                        }
-                        else if (*q == ';')
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            throw XmlException(code, _line);
-                        }
-                    }
-
-                    // Decimal number must be 1 - 5 digits and fit in 16 bits
-                    if ((numDigits == 0) || (numDigits > 5) ||
-                        (newChar > 0xffff))
-                    {
-                        throw XmlException(code, _line);
-                    }
-
-                    // ATTN: Currently do not support 16-bit characters
-                    if (newChar > 0xff)
-                    {
-                        // ATTN: Is there a good way to say "unsupported"?
-                        throw XmlException(code, _line);
-                    }
-
-                    referenceChar = Uint16(newChar);
-                    referenceLength = numDigits + 3;
-                }
-            }
-            else
-            {
-                // Check for entity reference
-                // ATTN: Inefficient if many entity references are supported
-                Uint32 i;
-                for (i = 0; i < _REFERENCES_SIZE; i++)
-                {
-                    Uint32 length = _references[i].length;
-                    const char* match = _references[i].match;
-
-                    if (strncmp(p, _references[i].match, length) == 0)
-                    {
-                        referenceChar = _references[i].replacement;
-                        referenceLength = length;
-                        break;
-                    }
-                }
-
-                if (i == _REFERENCES_SIZE)
-                {
-                    // Didn't recognize the entity reference
-                    // ATTN: Is there a good way to say "unsupported"?
-                    throw XmlException(code, _line);
-                }
-            }
-
-            // Replace the reference with the correct character
-            *p = (char)referenceChar;
-            char* q = p + referenceLength;
-            rem = rem - referenceLength + 1;
-            memmove(p + 1, q, rem);
-        }
-    }
-}
-
-static const char _EMPTY_STRING[] = "";
-
 void XmlParser::_getElement(char*& p, XmlEntry& entry)
 {
     entry.attributeCount = 0;
@@ -890,7 +816,7 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
         else if (memcmp(p, "DOCTYPE", 7) == 0)
         {
             entry.type = XmlEntry::DOCTYPE;
-            entry.text = _EMPTY_STRING;
+            entry.text = "";
             _getDocType(p);
             return;
         }
@@ -955,11 +881,28 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
         attr.name = p;
         _getAttributeNameAndEqual(p);
 
-        if (*p != '"' && *p != '\'')
-            throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
+        // Get the attribute value (e.g., "some value")
+        {
+            if ((*p != '"') && (*p != '\''))
+            {
+                throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
+            }
 
-        attr.value = p + 1;
-        _getAttributeValue(p);
+            char quote = *p++;
+
+            char* start;
+            _normalize(_line, p, quote, start);
+            attr.value = start;
+
+            if (*p != quote)
+            {
+                throw XmlException(XmlException::BAD_ATTRIBUTE_VALUE, _line);
+            }
+
+            // Overwrite the closing quote with a null-terminator:
+
+            *p++ = '\0';
+        }
 
         if (entry.type == XmlEntry::XML_DECLARATION)
         {
@@ -983,7 +926,6 @@ void XmlParser::_getElement(char*& p, XmlEntry& entry)
         if (entry.attributeCount == XmlEntry::MAX_ATTRIBUTES)
             throw XmlException(XmlException::TOO_MANY_ATTRIBUTES, _line);
 
-        _substituteReferences((char*)attr.value);
         entry.attributes[entry.attributeCount++] = attr;
     }
 }

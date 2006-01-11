@@ -12,7 +12,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The InstalledProductImage association identifies the InstalledProduct instance representing the collection of installed features and elements for a particular product&apos;s installed instance.
+ The InstalledProductImage association identifies the  InstalledProduct instance representing the collection of installed features and elements for a particular product&apos;s installed instance. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product">
@@ -45,7 +45,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The collection representing the set of software features and elements that are the result of one product installation.
+The collection representing the set of software features and elements that are the result of one product installation. 
 </VALUE>
 </QUALIFIER>
 </PROPERTY.REFERENCE>

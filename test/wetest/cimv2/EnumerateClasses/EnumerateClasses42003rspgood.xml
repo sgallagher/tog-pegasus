@@ -17,7 +17,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_CollectionInSystem is an association used to establish a parent-child relationship between a collection and an &apos;owning&apos; System such as an AdminDomain or ComputerSystem. A single collection should not have both a CollectionInOrganization and a CollectionInSystem association.
+CIM_CollectionInSystem is an association used to establish a parent-child relationship between a collection and an &apos;owning&apos; System such as an AdminDomain or ComputerSystem.  A single collection should not have both a CollectionInOrganization and a CollectionInSystem association.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Parent" REFERENCECLASS="CIM_System" CLASSORIGIN="CIM_CollectionInSystem">
@@ -58,7 +58,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_ProductFRU is an association between Product and FRU that provides information regarding what Product components have been or are being replaced. The association is one to many, conveying that a Product can have many FRUs, and that a particular instance of a FRU is only applied to one (instance of a) Product.
+CIM_ProductFRU is an association between Product and FRU that provides information regarding what Product components have been or are being replaced.  The association is one to many, conveying that a Product can have many FRUs, and that a particular instance of a FRU is only applied to one (instance of a) Product.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_ProductFRU">
@@ -135,7 +135,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The FromDirectorySpecification association identifies the source directory for the file action. When this association is used, the assumption is that the source directory already existed. This association cannot exist with a FromDirectoryAction association since a file action can only involve single source directory.
+ The FromDirectorySpecification association identifies the source  directory for the file action. When this association is used,  the assumption is that the source directory already existed.  This association cannot exist with a  FromDirectoryAction association since a file action  can only involve single source directory.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="SourceDirectory" REFERENCECLASS="CIM_DirectorySpecification" CLASSORIGIN="CIM_FromDirectorySpecification">
@@ -270,7 +270,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_Indication is the abstract root class for all notifications about changes in schema, objects and their data, and about events detected by providers and instrumentation. Subclasses represent specific types of notifications. To receive an Indication, a consumer (or subscriber) must create an instance of CIM_IndicationFilter describing the criteria of the notification, an instance of CIM_IndicationHandler describing the delivery of the notification, and an instance of CIM_IndicationSubscription associating the Filter and Handler.
+CIM_Indication is the abstract root class for all notifications about changes in schema, objects and their data, and about events detected by providers and instrumentation. Subclasses represent specific types of notifications. &#10;&#10;To receive an Indication, a consumer (or subscriber) must create an instance of CIM_IndicationFilter describing the criteria of the notification, an instance of CIM_IndicationHandler describing the delivery of the notification, and an instance of CIM_IndicationSubscription associating the Filter and Handler.
 </VALUE>
 </QUALIFIER>
 <PROPERTY NAME="IndicationTime" CLASSORIGIN="CIM_Indication" TYPE="datetime">
@@ -325,7 +325,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-ElementCapacity associates a PhysicalCapacity object with one or more PhysicalElements. It serves to associate a description of min/max hardware requirements or capabilities (stored as a kind of PhysicalCapacity), with the PhysicalElements being described.
+ElementCapacity associates a PhysicalCapacity object with one or more PhysicalElements.  It serves to associate a description of min/max hardware requirements or capabilities (stored as a kind of PhysicalCapacity), with the PhysicalElements being described.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Capacity" REFERENCECLASS="CIM_PhysicalCapacity" CLASSORIGIN="CIM_ElementCapacity">
@@ -371,7 +371,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The ProductSoftwareFeatures association identifies the software features for a particular product.
+ The ProductSoftwareFeatures association identifies the software   features for a particular product. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_ProductSoftwareFeatures">
@@ -419,7 +419,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The CIM_ProductParentChild association defines a parent child hierarchy among Products. For example, a Product may come bundled with other Products.
+The CIM_ProductParentChild association defines a parent child hierarchy among Products.  For example, a Product may come bundled with other Products. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Parent" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_ProductParentChild">
@@ -526,7 +526,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_CollectionInOrganization is an association used to establish a parent-child relationship between a collection and an &apos;owning&apos; OrganizationalEntity. A single collection should not have both a CollectionInOrganization and a CollectionInSystem association.
+CIM_CollectionInOrganization is an association used to establish a parent-child relationship between a collection and an &apos;owning&apos; OrganizationalEntity.  A single collection should not have both a CollectionInOrganization and a CollectionInSystem association.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Parent" REFERENCECLASS="CIM_OrganizationalEntity" CLASSORIGIN="CIM_CollectionInOrganization">
@@ -664,7 +664,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The CIM_ActionSequence association is used to define a series of operations that either transitions the software element, referenced by the CIM_SoftwareElementActions association, to its next state or removes the software element from its current environment. The Action classes participating in this association must have the same value for the Direction property since they are either part of a sequence to transition a software element into its next state or to uninstall a software element. The next-state actions and uninstall actions associated with a particular software element must be a continuos sequence. Since the ActionSequence is an association the loops on the Action class with roles for the &apos;prior&apos; action and &apos;next&apos; action in a sequence, the need for a continous sequence imples: (1)Within the set of next-state or uninstall actions, there is one and only one action that does not have an instance of the ActionSequence association referencing it in the &apos;next&apos; role. This is the first action in the sequence. (2) Within the set of next-state or uninstall actions, there is one and only one action that does not have an instance of the ActionSequence association referencing it in the &quot;prior&quot; role. This is the last action in the sequence. (3) All other actions within the set of next-state and uninstall actions must participate in two instances of the ActionSequence association, one in a prior role and one in the next role.
+ The CIM_ActionSequence association is used to define a series of  operations that either transitions the software element, referenced  by the CIM_SoftwareElementActions association, to its next state or  removes the software element from its current environment. The Action classes participating in this association must have the same value for the Direction property since they are either part of a sequence to  transition a software element into its next state or to uninstall a  software element. The next-state actions and uninstall actions  associated with a particular software element must be a continuos  sequence. Since the ActionSequence is an association the loops on  the Action class with roles for the &apos;prior&apos; action and &apos;next&apos; action in a sequence, the need for a continous sequence imples:  (1)Within the set of next-state or uninstall actions, there is one and only one action that does not have an instance of the ActionSequence  association referencing it in the &apos;next&apos; role. This is the first action in the sequence. (2) Within the set of next-state or uninstall actions, there is one and only one action that does not have an instance of the ActionSequence association referencing it in the &quot;prior&quot; role. This  is the last action in the sequence. (3) All other actions within the  set of next-state and uninstall actions must participate in two  instances of the ActionSequence association, one in a  prior role and one in the next role.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Next" REFERENCECLASS="CIM_Action" CLASSORIGIN="CIM_ActionSequence">
@@ -934,7 +934,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The InstalledSoftwareElement association allows one to to identify the Computer System a particular Software element is installed on.
+ The InstalledSoftwareElement association allows one to  to identify the Computer System a particular Software element is installed on. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Software" REFERENCECLASS="CIM_SoftwareElement" CLASSORIGIN="CIM_InstalledSoftwareElement">
@@ -964,7 +964,7 @@ References the software element that is installed.
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-References the computer system hosting a particular software element.
+References the computer system hosting a particular software element. 
 </VALUE>
 </QUALIFIER>
 </PROPERTY.REFERENCE>
@@ -1327,7 +1327,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The ToDirectoryAction association identifies the target directory for the file action. When this association is used, the assumption is that the target directory was created by a previous action. This association cannot exist with a ToDirectorySpecification association since a file action can only involve a single target directory.
+ The ToDirectoryAction association identifies the target directory for  the file action. When this association is used, the assumption  is that the target directory was created by a previous action.   This association cannot exist with a ToDirectorySpecification  association since a file action can only  involve a single target directory. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="DestinationDirectory" REFERENCECLASS="CIM_DirectoryAction" CLASSORIGIN="CIM_ToDirectoryAction">
@@ -1565,7 +1565,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The FromDirectoryAction association identifies the source directory for the file action. When this association is used, the assumption is that the source directory was created by a previous action. This association cannot exist with a FromDirectorySpecification association since a file action can only involve a single source directory.
+ The FromDirectoryAction association identifies the source directory  for the file action. When this association is used, the assumption  is that the source directory was created by a previous action.  This association cannot exist with a FromDirectorySpecification  association since a file action can only  involve a single source directory. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="SourceDirectory" REFERENCECLASS="CIM_DirectoryAction" CLASSORIGIN="CIM_FromDirectoryAction">
@@ -1639,7 +1639,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The ActsAsSpare association indicates which elements can spare or replace the other aggregated elements. The fact that a spare can operate in &quot;hot standby&quot; mode is specified on an element by element basis.
+The ActsAsSpare association indicates which elements can spare or replace the other aggregated elements.  The fact that a spare can operate in &quot;hot standby&quot; mode is specified on an element by element basis.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Group" REFERENCECLASS="CIM_SpareGroup" CLASSORIGIN="CIM_ActsAsSpare">
@@ -1687,7 +1687,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_OrgStructure is an association used to establish parent-child relationships between OrganizationalEntity instances. This is used to capture organizational relationships between object instances such as those that are imported from an LDAP-accessible directory.
+CIM_OrgStructure is an association used to establish parent-child relationships between OrganizationalEntity instances.  This is used to capture organizational relationships between object instances such as those that are imported from an LDAP-accessible directory.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Parent" REFERENCECLASS="CIM_OrganizationalEntity" CLASSORIGIN="CIM_OrgStructure">
@@ -1715,7 +1715,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The organizational child in this association, i.e., the sub-unit or other owned object instance.
+The organizational child in this association,    i.e., the sub-unit or other owned object instance.
 </VALUE>
 </QUALIFIER>
 </PROPERTY.REFERENCE>
@@ -1825,7 +1825,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-In processing or &apos;conditioning&apos; a packet at a network device, that packet is handled by a variety of ConditioningServices (such as Classifiers, Meters, Droppers, etc.). The Services may feed one another directly, or be more discretely mapped to multiple &apos;next&apos; Services (for example, queues) based on the characteristics of the packet. There is a need to indicate the sequence of Services when conditioning packets in a network device. This is accomplished via the NextService association. Both one-to-one and fan in/fan out relationships can be described. Note that this relationship is truly a Dependency association, but can not be modeled as such - since an additional key property is required. This key allows a ConditioningService to forward multiple traffic flows to the same &apos;next&apos; Service but maintain their traffic &apos;identity&apos;. This identity must be maintained to allow a later step in the conditioning process to &apos;fan out&apos; from one to many &apos;next&apos; Services. The TrafficClass key property uniquely distinguishes potentially multiple NextService instances between the same ConditioningServices.
+  In processing or &apos;conditioning&apos; a packet at a network device, that packet is handled by a variety of ConditioningServices (such as Classifiers, Meters, Droppers, etc.). The Services may feed one another directly, or be more discretely mapped to multiple &apos;next&apos; Services (for example, queues) based on the characteristics of the packet. &#10;  There is a need to indicate the sequence of Services when conditioning packets in a network device. This is accomplished via the NextService association.  Both one-to-one and fan in/fan out relationships can be described. &#10;  Note that this relationship is truly a Dependency association, but can not be modeled as such - since an additional key property is required. This key allows a ConditioningService to forward multiple traffic flows to the same &apos;next&apos; Service but maintain their traffic &apos;identity&apos;. This identity must be maintained to allow a later step in the conditioning process to &apos;fan out&apos; from one to many &apos;next&apos; Services. The TrafficClass key property uniquely distinguishes potentially multiple NextService instances between the same ConditioningServices.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="PreceedingService" REFERENCECLASS="CIM_ConditioningService" CLASSORIGIN="CIM_NextService">
@@ -1903,14 +1903,14 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The NetworkService that is running in the LogicalNetwork.
+The NetworkService that is running in the LogicalNetwork. 
 </VALUE>
 </QUALIFIER>
 </PROPERTY.REFERENCE>
 <PROPERTY NAME="ContainmentType" CLASSORIGIN="CIM_LogicalNetworkService" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-An enumeration that explicitly defines this network service as originating, terminating, or residing in this LogicalNetwork.
+An enumeration that explicitly defines this network service as originating, terminating, or residing in this LogicalNetwork. 
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ValueMap" TYPE="string">
@@ -2037,7 +2037,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_ProductSupport is an association between Product and SupportAccess that conveys how support is obtained for the Product. This is a many-to-many relationship, implying that various types of Support are available for a Product, and that the same Support object can provide assistance for multiple Products.
+CIM_ProductSupport is an association between Product and SupportAccess that conveys how support is obtained for the Product.  This is a many-to-many relationship, implying that various types of Support are available for a Product, and that the same Support object can provide assistance for multiple Products.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_ProductSupport">
@@ -2123,7 +2123,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-CIM_ServiceProcess is an association used to establish relationships between Services and Processes. It is used to indicate if a Service is running in a particular Process. It is also used to indicate, via the ExecutionType property, if the Service started and is wholly responsible for the Process, or if the Service is running in an existing Process, perhaps with other unreleated Services, which is owned or started by a different entity. This association relates a Service with a externally visible system signature.
+CIM_ServiceProcess is an association used to establish relationships between Services and Processes. It is used to indicate if a Service is running in a particular Process.  It is also used to indicate, via the ExecutionType property, if the Service started and is wholly responsible for the Process, or if the Service is running in an existing Process, perhaps with other unreleated Services, which is owned or started by a different entity. This association relates a Service with a externally visible system signature. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Service" REFERENCECLASS="CIM_Service" CLASSORIGIN="CIM_ServiceProcess">
@@ -2146,14 +2146,14 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The Process which represents or hosts the executing Service.
+The Process which represents or hosts the executing Service. 
 </VALUE>
 </QUALIFIER>
 </PROPERTY.REFERENCE>
 <PROPERTY NAME="ExecutionType" CLASSORIGIN="CIM_ServiceProcess" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-Enumeration indicating how the Service runs in the context of, or owns the Process. &quot;Unknown&quot; indicates that the ExecutionType is not known. &quot;Other&quot; indicates that the ExecutionType does not match any of the values in the ExecutionType enumeration. &quot;Executes in Existing Process&quot; indicates that the Service is hosted in a Process that already exists in the system. The lifecycle of the Service is separate from that of the Process. &quot;Exeutes as Independent Process&quot; indicates that the Service is responsible for the lifecycle of the Process. When the Service is started, the Process is created. For example, ServletEngines can run &quot;InProcess&quot; within the existing Apache processes or &quot;OutOfProcess&quot; in its own servlet engine process. In this case the Apache process would communicate with the servlet engine process based on the content of the request. The association may be many to many.
+Enumeration indicating how the Service runs in the context of, or owns the Process. &quot;Unknown&quot; indicates that the ExecutionType is not known. &quot;Other&quot; indicates that the ExecutionType does not match any of the values in the ExecutionType enumeration. &quot;Executes in Existing Process&quot; indicates that the Service is hosted in a Process that already exists in the system.  The lifecycle of the Service is separate from that of the Process. &quot;Exeutes as Independent Process&quot; indicates that the Service is responsible for the lifecycle of the Process. When the Service is started, the Process is created. For example, ServletEngines can run &quot;InProcess&quot; within the existing Apache processes or &quot;OutOfProcess&quot; in its own servlet engine process.  In this case the Apache process would communicate with the servlet engine process based on the content of the request.  The association may be many to many.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="Values" TYPE="string" TRANSLATABLE="true">
@@ -2182,7 +2182,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-ParameterValueSources represents the association between a MethodParameters instance and the ManagedElement instances which contain properties to be used to create values for the MethodParameters properties.
+ParameterValueSources represents the association between a MethodParameters instance and the ManagedElement instances which contain properties to be used to create values for the MethodParameters properties. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Parameters" REFERENCECLASS="CIM_MethodParameters" CLASSORIGIN="CIM_ParameterValueSources">
@@ -2218,7 +2218,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The CIM_DirectorySpecificationFile association identifies the directorythat contains the file being specified by referencing the CIM_DirectorySpecification class.
+ The CIM_DirectorySpecificationFile association identifies the   directorythat contains the file being specified by referencing  the CIM_DirectorySpecification class. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="DirectorySpecification" REFERENCECLASS="CIM_DirectorySpecification" CLASSORIGIN="CIM_DirectorySpecificationFile">
@@ -2251,7 +2251,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-ParametersForMethod represents the association between MethodParameters class(es) and a ManagedElement which has a method may use this MethodParameters instance during its invocation. This association is optional, as the MethodParameters instance may be passed as a parameter to a method or used to create a method signature before the method is invoked. This association is useful for finding all the valid MethodParameters instances for a particular method. This may be particularly useful for user oriented interfaces and automated or policy driven method invocations.
+ParametersForMethod represents the association between MethodParameters class(es) and a ManagedElement which has a method may use this MethodParameters instance during its invocation.  This association is optional, as the MethodParameters instance may be passed as a parameter to a method or used to create a method signature before the method is invoked.  This association is useful for finding all the valid MethodParameters instances for a particular method.  This may be particularly useful for user oriented interfaces and automated or policy driven method invocations.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Parameters" REFERENCECLASS="CIM_MethodParameters" CLASSORIGIN="CIM_ParametersForMethod">
@@ -2352,7 +2352,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-AdjacentSlots describes the layout of Slots on a HostingBoard or adapter Card. Information like the distance between the Slots and whether they are &apos;shared&apos; (if one is populated, then the other Slot can not be used), is conveyed as properties of the association.
+AdjacentSlots describes the layout of Slots on a HostingBoard or adapter Card.  Information like the distance between the Slots and whether they are &apos;shared&apos; (if one is populated, then the other Slot can not be used), is conveyed as properties of the association.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="SlotA" REFERENCECLASS="CIM_Slot" CLASSORIGIN="CIM_AdjacentSlots">
@@ -2458,7 +2458,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The ToDirectorySpecification association identifies the target directory for the file action. When this association is used, the assumption is that the target directory already existed. This association cannot exist with a ToDirectoryAction association since a file action can only involve a single target directory.
+ The ToDirectorySpecification association identifies the target  directory for the file action. When this association is used,  the assumption is that the target directory already existed.   This association cannot exist with a ToDirectoryAction association since a file action can only involve a  single target directory.
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="DestinationDirectory" REFERENCECLASS="CIM_DirectorySpecification" CLASSORIGIN="CIM_ToDirectorySpecification">
@@ -2491,7 +2491,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The InstalledProductImage association identifies the InstalledProduct instance representing the collection of installed features and elements for a particular product&apos;s installed instance.
+ The InstalledProductImage association identifies the  InstalledProduct instance representing the collection of installed features and elements for a particular product&apos;s installed instance. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Product" REFERENCECLASS="CIM_Product" CLASSORIGIN="CIM_InstalledProductImage">
@@ -2524,7 +2524,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The collection representing the set of software features and elements that are the result of one product installation.
+The collection representing the set of software features and elements that are the result of one product installation. 
 </VALUE>
 </QUALIFIER>
 </PROPERTY.REFERENCE>
@@ -2716,7 +2716,7 @@ If this property is TRUE, then this DiagnosticResult summarizes the results from
 <PROPERTY NAME="TestStartTime" CLASSORIGIN="CIM_DiagnosticResult" TYPE="datetime">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The date and time when this test started.
+The date and time  when this test started.
 </VALUE>
 </QUALIFIER>
 </PROPERTY>
@@ -2785,7 +2785,7 @@ Seconds
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-Estimated number of seconds to perform the DiagnosticTest indicated by the DiagnosticCreationClassName and DiagnosticName properties. After the test has completed, the actual elapsed time can be determined by subtracting the TestStartTime from the TestCompletionTime. A similar property is defined in the association, DiagnosticTestForMSE. The difference between the two properties is that the value stored in the association is a generic test execution time for the Element and the Test. But, the value here (in DiagnosticResult) is the estimated time that this instance with the given settings would take to run the test. A CIM Consumer can compare this value with the value in the association DiagnosticTestForMSE to get an idea what impact their settings have on test execution.
+Estimated number of seconds to perform the DiagnosticTest indicated by the DiagnosticCreationClassName and DiagnosticName properties.  After the test has completed, the actual elapsed time can be determined by subtracting the TestStartTime from the TestCompletionTime. A similar property is defined in the association, DiagnosticTestForMSE. The difference between the two properties is that the value stored in the association is a generic test execution time for the Element and the Test. But, the value here (in DiagnosticResult) is the estimated time that this instance with the given settings would take to run the test.  A CIM Consumer can compare this value with the value in the association DiagnosticTestForMSE to get an idea what impact their settings have on test execution.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ModelCorrespondence" TYPE="string">
@@ -2799,7 +2799,7 @@ CIM_DiagnosticTestForMSE.EstimatedTimeOfPerforming
 <PROPERTY.ARRAY NAME="TestResults" TYPE="string" CLASSORIGIN="CIM_DiagnosticResult">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-TestResults stores one or more textual results from the execution of the DiagnosticTest(s) referenced by the DiagnosticCreationClassName and DiagnosticName properties. One entry is considered a cell location in the array. Each entry is time stamped and contains the following information, in the following format: yyymmddhhttssoutc|DiagnosticName|Textual message Where: yyy = year, e.g. 2000 mm = month (01 - 12) dd = day (01 - 31) hh = hour (00 - 24) tt = minute (00-59) ss = second (00-59) o = &quot;+&quot; or &quot;-&quot; indicating the sign of the UTC correction field utc = offset from UTC (Universal Coordinated Time) in minutes DiagnosticName = string reference to the DiagnosticTest object which was executed Textual message = free form string that is the &apos;test result&apos;.
+TestResults stores one or more textual results from the execution of the DiagnosticTest(s) referenced by the DiagnosticCreationClassName and DiagnosticName properties. One entry is considered a cell location in the array. Each entry is time stamped and contains the following information, in the following format: &#10; yyymmddhhttssoutc|DiagnosticName|Textual message &#10;Where: &#10;  yyy = year, e.g. 2000 &#10;  mm = month (01 - 12) &#10;  dd = day (01 - 31) &#10;  hh = hour (00 - 24) &#10;  tt = minute (00-59) &#10;  ss = second (00-59) &#10;  o = &quot;+&quot; or &quot;-&quot; indicating the sign of the UTC correction field &#10;  utc = offset from UTC (Universal Coordinated Time) in minutes &#10;  DiagnosticName = string reference to the DiagnosticTest object which was executed&#10;  Textual message = free form string that is the &apos;test result&apos;.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ArrayType" TYPE="string">
@@ -2861,7 +2861,7 @@ TRUE
 <PROPERTY NAME="ReportSoftErrors" CLASSORIGIN="CIM_DiagnosticResult" TYPE="boolean">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-When this flag is true, the diagnostic test will report &apos;soft errors&apos;. In this context, a soft error is a message from the diagnostic reporting a known defect in the hardware or driver configuration, or execution environment. Examples are: &quot;Not enough memory&quot;, &quot;Driver IOCTL not implemented&quot;, &quot;Video RAM compare failed during polygon fill test (A known defect in the video chipset)&quot;, etc.
+When this flag is true, the diagnostic test will report &apos;soft errors&apos;. In this context, a soft error is a message from the diagnostic reporting a known defect in the hardware or driver configuration, or execution environment.  Examples are: &quot;Not enough memory&quot;, &quot;Driver IOCTL not implemented&quot;, &quot;Video RAM compare failed during polygon fill test (A known defect in the video chipset)&quot;, etc.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="Write" TYPE="boolean">
@@ -2924,7 +2924,7 @@ Percent
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-Requests the diagnostic software to reduce test coverage to the specified percentage. For example, a hard drive scan test could be asked to run at 50%. The most effective way to accomplish this is for the test software to scan every other track, as opposed to only scanning the first half of a drive. It is assumed that the effectiveness of the test is impacted proportional to the percentage of testing requested. Permissible values for this property range from 0 to 100. This property may not be applicable to all tests. If it can be set for a test, the value 7 (&quot;Supports PercentOfTestCoverage&quot;) should be entered into the DiagnosticTest&apos;s Characteristics array.
+Requests the diagnostic software to reduce test coverage to the specified percentage.  For example, a hard drive scan test could be asked to run at 50%. The most effective way to accomplish this is for the test software to scan every other track, as opposed to only scanning the first half of a drive. It is assumed that the effectiveness of the test is impacted proportional to the percentage of testing requested. Permissible values for this property range from 0 to 100. &#10;This property may not be applicable to all tests.  If it can be set for a test, the value 7 (&quot;Supports PercentOfTestCoverage&quot;) should be entered into the DiagnosticTest&apos;s Characteristics array.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="ModelCorrespondence" TYPE="string">
@@ -2954,7 +2954,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-This association is used to identify the actions for a software element.
+ This association is used to identify the actions for a software element. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Element" REFERENCECLASS="CIM_SoftwareElement" CLASSORIGIN="CIM_SoftwareElementActions">
@@ -3053,7 +3053,7 @@ TRUE
 </QUALIFIER>
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-Since software elements in a runnable state cannot transition into another state, the value of the Phase property is restricted to In-State for SoftwareElement objects in a runable state.
+ Since software elements in a runnable state cannot transition into  another state, the value of the Phase property is restricted to  In-State for SoftwareElement objects in a runable state. 
 </VALUE>
 </QUALIFIER>
 <PROPERTY.REFERENCE NAME="Element" REFERENCECLASS="CIM_SoftwareElement" CLASSORIGIN="CIM_SoftwareElementChecks">
@@ -3090,7 +3090,7 @@ TRUE
 <PROPERTY NAME="Phase" CLASSORIGIN="CIM_SoftwareElementChecks" TYPE="uint16">
 <QUALIFIER NAME="Description" TYPE="string" TRANSLATABLE="true">
 <VALUE>
-The Phase property indicates whether the referenced check is an in-state check or a next-state check.
+ The Phase property indicates whether the referenced check is an  in-state check or a next-state check.
 </VALUE>
 </QUALIFIER>
 <QUALIFIER NAME="Values" TYPE="string" TRANSLATABLE="true">

@@ -182,17 +182,11 @@ private:
 
     void _getAttributeNameAndEqual(char*& p);
 
-    void _getAttributeValue(char*& p);
-
     void _getComment(char*& p);
 
     void _getCData(char*& p);
 
     void _getDocType(char*& p);
-
-    void _getContent(char*& p);
-
-    void _substituteReferences(char* text);
 
     void _getElement(char*& p, XmlEntry& entry);
 

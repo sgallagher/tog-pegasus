@@ -212,7 +212,7 @@ test03 (CIMClient & client)
 
     PEGASUS_TEST_ASSERT (outParams.size () == 1);
     CIMValue paramValue = outParams[0].getValue ();
-    _checkStringValue (paramValue, "Operation:2");
+    _checkStringValue (paramValue, " Operation:2\n");
   }
   inParams.clear ();
   outParams.clear ();

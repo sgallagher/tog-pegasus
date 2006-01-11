@@ -35,6 +35,8 @@ SOURCE_DIR = Providers/CMPI/FilesAndDirectories
 
 LIBRARIES = cmpiCWS_Util
 
+EXTRA_LINK_ARGUMENTS = -L ../CWS_Util
+
 SOURCES = \
    CWS_PlainFile.c \
    CWS_FileUtils.c \

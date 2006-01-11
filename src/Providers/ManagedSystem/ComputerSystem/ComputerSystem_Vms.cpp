@@ -244,6 +244,18 @@ Boolean ComputerSystem::getStatus(CIMProperty& p)
     return true;
 }
 
+Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
+{
+  // not supported.
+  return false;
+}
+
+Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
+{
+  // not supported.
+  return false;
+}
+
 Boolean ComputerSystem::getNameFormat(CIMProperty& p)
 {
     // hardcoded

@@ -54,6 +54,8 @@
 
 #include "ComputerSystemProvider.h"
 #include "ComputerSystem.h"
+#include <Pegasus/Client/CIMClient.h>
+#include <Pegasus/Common/Constants.h>
 
 #define MODEL "Model"
 #define DMI_FILE "/var/dmi/mif/C/hpuxci.parms"
@@ -66,6 +68,10 @@
 #ifndef _CS_MACHINE_IDENT 
 #define _CS_MACHINE_IDENT 10003
 #endif
+
+#define HPUX_DEFAULT_OPERATIONAL_STATUS 2
+#define HP_UX_DEFAULT_STATUS_DESCRIPTIONS "One or more components that make up this computer system have an OperationalStatus value of OK or Completed."
+#define TIMEOUT 360000
 
 PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
@@ -81,6 +87,9 @@ static String _primaryOwnerPager;
 static String _secondaryOwnerName;
 static String _secondaryOwnerContact;
 static String _secondaryOwnerPager;
+String _status;
+Array<Uint16> _operationalStatus;
+Array<String> _statusDescriptions;
 
 ComputerSystem::ComputerSystem()
 {
@@ -130,8 +139,22 @@ Boolean ComputerSystem::getName(CIMProperty& p)
 
 Boolean ComputerSystem::getStatus(CIMProperty& p)
 {
-  // hardcoded
-  p = CIMProperty(PROPERTY_STATUS,String(STATUS));
+  // return status string for this property
+  p = CIMProperty(PROPERTY_STATUS, _status);
+  return true;
+}
+
+Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
+{
+  // return operational status array for this property
+  p = CIMProperty(PROPERTY_OPERATIONAL_STATUS, _operationalStatus);
+  return true;
+}
+
+Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
+{
+  // return status descriptions array for this property
+  p = CIMProperty(PROPERTY_STATUS_DESCRIPTIONS, _statusDescriptions);
   return true;
 }
 
@@ -330,7 +353,7 @@ void ComputerSystem::initialize(void)
   // hardcoded (i.e., are obtained from the system) but not
   // going to change dynamically (which is most, for this
   // provider)
-  
+
   // _hostName
   struct hostent *he;
   char hn[PEGASUS_MAXHOSTNAMELEN + 1];
@@ -528,4 +551,159 @@ void ComputerSystem::initialize(void)
 String ComputerSystem::getHostName(void)
 {
   return _hostName;
+}
+
+CIMInstance ComputerSystem::buildInstance(const CIMName& className)
+{
+
+    Boolean useDefaultStatus = true;
+    try
+    {
+        Array<CIMObjectPath> instanceNames;
+
+        CIMInstance returnedInstance;
+        Array <CIMName> propertyNames;
+        propertyNames.append (PROPERTY_STATUS);
+        propertyNames.append (PROPERTY_OPERATIONAL_STATUS);
+        propertyNames.append (PROPERTY_STATUS_DESCRIPTIONS);
+        CIMPropertyList propertyList;
+        propertyList.set (propertyNames);
+
+        _status.clear();
+        _operationalStatus.clear();
+        _statusDescriptions.clear();
+
+        CIMValue status;
+        CIMValue operationalStatus;
+        CIMValue statusDescriptions;
+
+        CIMClient hpcsclient;
+        hpcsclient.setTimeout(TIMEOUT);
+        hpcsclient.connectLocal();
+
+        instanceNames = hpcsclient.enumerateInstanceNames(PEGASUS_NAMESPACENAME_CIMV2,
+                                                          CIMName("HP_HealthState"));
+        if ( instanceNames.size() > 0 )
+        {
+            for (Uint32 i = 0; i < instanceNames.size(); i++)
+            {
+                if (instanceNames[i].getClassName().equal(CIMName("HP_HealthState")))
+                {
+                    returnedInstance = hpcsclient.getInstance(PEGASUS_NAMESPACENAME_CIMV2,
+                                                              instanceNames[i],
+                                                              true,
+                                                              false,
+                                                              false,
+                                                              propertyList);
+
+                    Uint32 statusIndex = returnedInstance.findProperty(PROPERTY_STATUS);
+                    Uint32 operationalStatusIndex = returnedInstance.findProperty(PROPERTY_OPERATIONAL_STATUS);
+                    Uint32 statusDescriptionsIndex = returnedInstance.findProperty(PROPERTY_STATUS_DESCRIPTIONS);
+                    if (statusIndex != PEG_NOT_FOUND &&
+                        operationalStatusIndex != PEG_NOT_FOUND &&
+                        statusDescriptionsIndex != PEG_NOT_FOUND)
+                    {
+                        status.assign(returnedInstance.getProperty(statusIndex).getValue());
+                        operationalStatus.assign(returnedInstance.getProperty(operationalStatusIndex).getValue());
+                        statusDescriptions.assign(returnedInstance.getProperty(statusDescriptionsIndex).getValue());
+                        if (!status.isNull() && !operationalStatus.isNull() && !statusDescriptions.isNull())
+                        {
+                            // Set the properties, read from HP_HealhState.
+                            status.get(_status);
+                            operationalStatus.get(_operationalStatus);
+                            statusDescriptions.get(_statusDescriptions);
+                            useDefaultStatus = false;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    catch (...)
+    {
+        // Use the default values if any exception is encountered.
+    }
+
+    if (useDefaultStatus)
+    {
+        _status.clear();
+        _operationalStatus.clear();
+        _statusDescriptions.clear();
+
+        // hardcoded.
+        _status = String(STATUS);
+        _operationalStatus.append(Uint16(HPUX_DEFAULT_OPERATIONAL_STATUS));
+        _statusDescriptions.append(String(HP_UX_DEFAULT_STATUS_DESCRIPTIONS));
+    }
+
+    CIMInstance instance(className);
+    CIMProperty p;
+
+    //-- fill in properties for CIM_ComputerSystem
+    if (getCaption(p)) instance.addProperty(p);
+
+    if (getDescription(p)) instance.addProperty(p);
+
+    if (getInstallDate(p)) instance.addProperty(p);
+
+    if (getStatus(p)) instance.addProperty(p);
+
+    if (getOperationalStatus(p)) instance.addProperty(p);
+
+    if (getStatusDescriptions(p)) instance.addProperty(p);
+
+    if (getCreationClassName(p)) instance.addProperty(p);
+
+    if (getName(p)) instance.addProperty(p);
+
+    if (getNameFormat(p)) instance.addProperty(p);
+
+    if (getPrimaryOwnerName(p)) instance.addProperty(p);
+
+    if (getPrimaryOwnerContact(p)) instance.addProperty(p);
+
+    if (getRoles(p)) instance.addProperty(p);
+
+    if (getOtherIdentifyingInfo(p)) instance.addProperty(p);
+
+    if (getIdentifyingDescriptions(p)) instance.addProperty(p);
+
+    if (getDedicated(p)) instance.addProperty(p);
+
+    if (getResetCapability(p)) instance.addProperty(p);
+
+    if (getPowerManagementCapabilities(p)) instance.addProperty(p);
+
+    // Done if we are servicing CIM_ComputerSystem
+    if (className.equal (CLASS_CIM_COMPUTER_SYSTEM))
+      return instance;
+
+    // Fill in properties for CIM_UnitaryComputerSystem
+    if (getInitialLoadInfo(p)) instance.addProperty(p);
+
+    if (getLastLoadInfo(p)) instance.addProperty(p);
+
+    if (getPowerManagementSupported(p)) instance.addProperty(p);
+
+    if (getPowerState(p)) instance.addProperty(p);
+
+    if (getWakeUpType(p)) instance.addProperty(p);
+
+    // Done if we are servicing CIM_UnitaryComputerSystem
+    if (className.equal (CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
+      return instance;
+
+    // Fill in properties for <Extended>_ComputerSystem
+    if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
+    {
+       if(getPrimaryOwnerPager(p)) instance.addProperty(p);
+       if(getSecondaryOwnerName(p)) instance.addProperty(p);
+       if(getSecondaryOwnerContact(p)) instance.addProperty(p);
+       if(getSecondaryOwnerPager(p)) instance.addProperty(p);
+       if(getSerialNumber(p)) instance.addProperty(p);
+       if(getIdentificationNumber(p)) instance.addProperty(p);
+    }
+
+    return instance;
 }

@@ -82,6 +82,16 @@ Boolean ComputerSystem::getStatus(CIMProperty& p)
   return false;
 }
 
+Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
+{
+  return false;
+}
+
+Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
+{
+  return false;
+}
+
 Boolean ComputerSystem::getNameFormat(CIMProperty& p)
 {
   return false;
@@ -220,3 +230,4 @@ String ComputerSystem::getHostName(void)
 {
   return String::EMPTY;
 }
+

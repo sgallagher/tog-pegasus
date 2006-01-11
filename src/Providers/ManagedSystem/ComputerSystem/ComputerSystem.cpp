@@ -36,13 +36,86 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 #include "ComputerSystem.h"
-
 #if defined(PEGASUS_PLATFORM_HPUX_ACC)
 # include "ComputerSystem_HPUX.cpp"
-#elif defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
-# include "ComputerSystem_Linux.cpp"
-#elif defined(PEGASUS_OS_VMS)
-# include "ComputerSystem_Vms.cpp"
 #else
-# include "ComputerSystem_Stub.cpp"
+# if defined(PEGASUS_PLATFORM_LINUX_GENERIC_GNU)
+#  include "ComputerSystem_Linux.cpp"
+# elif defined(PEGASUS_OS_VMS)
+#  include "ComputerSystem_Vms.cpp"
+# else
+#  include "ComputerSystem_Stub.cpp"
+# endif
+CIMInstance ComputerSystem::buildInstance(const CIMName& className)
+{
+    CIMInstance instance(className);
+    CIMProperty p;
+
+    //-- fill in properties for CIM_ComputerSystem
+    if (getCaption(p)) instance.addProperty(p);
+
+    if (getDescription(p)) instance.addProperty(p);
+
+    if (getInstallDate(p)) instance.addProperty(p);
+
+    if (getStatus(p)) instance.addProperty(p);
+
+    if (getOperationalStatus(p)) instance.addProperty(p);
+
+    if (getStatusDescriptions(p)) instance.addProperty(p);
+
+    if (getCreationClassName(p)) instance.addProperty(p);
+
+    if (getName(p)) instance.addProperty(p);
+
+    if (getNameFormat(p)) instance.addProperty(p);
+
+    if (getPrimaryOwnerName(p)) instance.addProperty(p);
+
+    if (getPrimaryOwnerContact(p)) instance.addProperty(p);
+
+    if (getRoles(p)) instance.addProperty(p);
+
+    if (getOtherIdentifyingInfo(p)) instance.addProperty(p);
+
+    if (getIdentifyingDescriptions(p)) instance.addProperty(p);
+
+    if (getDedicated(p)) instance.addProperty(p);
+
+    if (getResetCapability(p)) instance.addProperty(p);
+
+    if (getPowerManagementCapabilities(p)) instance.addProperty(p);
+
+    // Done if we are servicing CIM_ComputerSystem
+    if (className.equal (CLASS_CIM_COMPUTER_SYSTEM))
+      return instance;
+
+    // Fill in properties for CIM_UnitaryComputerSystem
+    if (getInitialLoadInfo(p)) instance.addProperty(p);
+
+    if (getLastLoadInfo(p)) instance.addProperty(p);
+
+    if (getPowerManagementSupported(p)) instance.addProperty(p);
+
+    if (getPowerState(p)) instance.addProperty(p);
+
+    if (getWakeUpType(p)) instance.addProperty(p);
+
+    // Done if we are servicing CIM_UnitaryComputerSystem
+    if (className.equal (CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
+      return instance;
+
+    // Fill in properties for <Extended>_ComputerSystem
+    if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
+    {
+       if(getPrimaryOwnerPager(p)) instance.addProperty(p);
+       if(getSecondaryOwnerName(p)) instance.addProperty(p);
+       if(getSecondaryOwnerContact(p)) instance.addProperty(p);
+       if(getSecondaryOwnerPager(p)) instance.addProperty(p);
+       if(getSerialNumber(p)) instance.addProperty(p);
+       if(getIdentificationNumber(p)) instance.addProperty(p);
+    }
+
+    return instance;
+}
 #endif

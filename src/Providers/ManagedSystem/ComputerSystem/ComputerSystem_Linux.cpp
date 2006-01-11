@@ -110,6 +110,18 @@ Boolean ComputerSystem::getName(CIMProperty& p)
   return true;
 }
 
+Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
+{
+  // not supported.
+  return false;
+}
+
+Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
+{
+  // not supported.
+  return false;
+}
+
 Boolean ComputerSystem::getStatus(CIMProperty& p)
 {
   // hardcoded 
@@ -323,5 +335,3 @@ String ComputerSystem::getHostName(void)
 {
   return _hostName;
 }
-
-

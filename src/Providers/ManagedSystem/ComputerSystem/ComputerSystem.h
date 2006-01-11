@@ -61,6 +61,8 @@ class ComputerSystem
       Boolean getCreationClassName(CIMProperty&);
       Boolean getName(CIMProperty&);
       Boolean getStatus(CIMProperty&);
+      Boolean getOperationalStatus(CIMProperty&);
+      Boolean getStatusDescriptions(CIMProperty&);
       Boolean getNameFormat(CIMProperty&);
       Boolean getPrimaryOwnerName(CIMProperty&);
       Boolean setPrimaryOwnerName(const String&);
@@ -92,6 +94,9 @@ class ComputerSystem
 
       void initialize(void);
       String getHostName(void);
+
+      /** Builds a filled-in instance. */
+      CIMInstance buildInstance(const CIMName& className);
 
    protected:
 

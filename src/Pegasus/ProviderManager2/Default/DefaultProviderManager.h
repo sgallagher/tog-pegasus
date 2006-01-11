@@ -51,6 +51,7 @@
 #include <Pegasus/Common/Pair.h>
 #include <Pegasus/Common/Triad.h>
 #include <Pegasus/Common/Thread.h>
+#include <Pegasus/Common/IPC.h>
 #include <Pegasus/Common/HashTable.h>
 #include <Pegasus/Common/OperationContextInternal.h>
 
@@ -116,7 +117,9 @@ protected:
     Message * handleSubscriptionInitCompleteRequest
         (const Message * message);
 
-    void _insertEntry(const Provider & provider, const EnableIndicationsResponseHandler *handler);
+    void _insertEntry(
+        const Provider & provider,
+        EnableIndicationsResponseHandler* handler);
     EnableIndicationsResponseHandler * _removeEntry(const String & key);
 
     String _generateKey(const Provider & provider);
@@ -126,6 +129,7 @@ protected:
 
 protected:
     IndicationResponseTable _responseTable;
+    Mutex _responseTableMutex;
     LocalProviderManager providerManager;
 
 private:

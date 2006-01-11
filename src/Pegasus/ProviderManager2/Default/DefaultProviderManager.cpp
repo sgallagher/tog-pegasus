@@ -2347,15 +2347,22 @@ Message * DefaultProviderManager::handleStopAllProvidersRequest(const Message * 
 
     // tell the provider manager to shutdown all the providers
     providerManager.shutdownAllProviders();
-    // And remove all of the response handlers that might have not been
-    // explicitly stopped.
-    try {  
-       for (IndicationResponseTable::Iterator i = _responseTable.start(); i !=  0; i++)  
-       {  
-          EnableIndicationsResponseHandler *handler  = i.value();  
-          delete handler;  
-       }  
-    } catch (... ) { } 
+
+    try
+    {
+        // Delete the response handlers that were not explicitly disabled.
+        AutoMutex lock(_responseTableMutex);
+
+        for (IndicationResponseTable::Iterator i = _responseTable.start();
+             i != 0; i++)  
+        {  
+            EnableIndicationsResponseHandler *handler = i.value();  
+            delete handler;  
+        }  
+
+        _responseTable.clear();
+    }
+    catch (...) { } 
 
     PEG_METHOD_EXIT();
 
@@ -2433,15 +2440,15 @@ DefaultProviderManager::handleSubscriptionInitCompleteRequest
 
 void DefaultProviderManager::_insertEntry (
     const Provider & provider,
-    const EnableIndicationsResponseHandler *handler)
+    EnableIndicationsResponseHandler* handler)
 {
     PEG_METHOD_ENTER (TRC_PROVIDERMANAGER,
         "DefaultProviderManager::_insertEntry");
 
-    String tableKey = _generateKey
-        (provider);
+    String tableKey = _generateKey(provider);
 
-    _responseTable.insert (tableKey, const_cast<EnableIndicationsResponseHandler *>(handler));
+    AutoMutex lock(_responseTableMutex);
+    _responseTable.insert(tableKey, handler);
 
     PEG_METHOD_EXIT();
 }
@@ -2453,8 +2460,9 @@ EnableIndicationsResponseHandler * DefaultProviderManager::_removeEntry(
         "DefaultProviderManager::_removeEntry");
     EnableIndicationsResponseHandler *ret = 0;
 
+    AutoMutex lock(_responseTableMutex);
     _responseTable.lookup(key, ret);
-    _responseTable.remove(key);         // why is this needed ? - we get killed when removed...
+    _responseTable.remove(key);
 
     PEG_METHOD_EXIT();
 

@@ -1246,7 +1246,8 @@ MessageLoader::_useProcessLocale = false;
 
   FILE *startupLockFile;
 
-  if (startupLockFile = fopen(ConfigManager::getHomedPath(CIMSERVER_LOCK_FILE).getCString(), "w"))
+  if ((startupLockFile = fopen(ConfigManager::getHomedPath(
+          CIMSERVER_LOCK_FILE).getCString(), "w")) != 0)
   {
       lockf(fileno(startupLockFile), F_LOCK, 0);
   }

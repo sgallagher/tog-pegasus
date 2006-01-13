@@ -59,7 +59,7 @@ const char *queries[] = {
   "SELECT * FROM TestCMPI_ExecQuery where TestCMPI_ExecQuery ISA TestCMPI_Parent",      // 6
   "SELECT * FROM TestCMPI_ExecQuery where TestCMPI_ExecQuery ISA TestCMPI_Indication",  //7 - wont'get anything back
 #endif
-  "SELECT * FROM TestCMPI_ExecQuery  WHERE (s IS NULL) OR (n16=16)",    // 8
+  "SELECT * FROM TestCMPI_ExecQuery WHERE (s IS NULL) OR (n16=16)",    // 8
 
   "select n32,s,ElementName,n64,n16,f,d from TestCMPI_ExecQuery where n32>42",  // 9
   "SELECT * FROM TestCMPI_ExecQuery where s<s", // 10

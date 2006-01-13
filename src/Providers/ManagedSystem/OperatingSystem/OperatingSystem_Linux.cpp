@@ -70,9 +70,9 @@ OperatingSystem::~OperatingSystem(void)
 {
 }
 
-//-- this table is used by getName and getVersion to load the distribution Name
-//   into osName and the Release into Version. The table documents distro specific
-//   configuration files that getName and getVersion will parse in /etc
+//-- this table is used by getName to load the distribution Name
+//   into osName. The table documents distro specific
+//   configuration files that getName will parse in /etc
 //   if the optional_string is NULL, otherwise the optional string will be used in osName.
 //
 
@@ -249,60 +249,26 @@ Boolean OperatingSystem::getStatus(String& status)
 /**
    getVersion method for Linux implementation of OS provider
 
-   Uses uname system call and extracts the release and version
-   information (separated by a space).
+   Uses uname system call and extracts the release information.
 
    Returns FALSE if uname call results in errors.
    */
 Boolean OperatingSystem::getVersion(String& osVersion)
 {
-   String s, buffer_s;
-   Uint32 buffer_index;	// regex match index
-   char info_file[MAXPATHLEN];
-   char buffer[MAXPATHLEN];
-   struct stat statBuf;
-   FILE *vf;
 
-   s.clear();
-   for (int ii = 0; LINUX_VENDOR_INFO[ii].vendor_name != NULL ; ii++)
-   {
-      memset(info_file, 0, MAXPATHLEN);
-      strcat(info_file, "/etc/");
-      strcat(info_file, LINUX_VENDOR_INFO[ii].determining_filename);
+    struct utsname  unameInfo;
+    char release[sizeof(unameInfo.release)];
 
-      // If the file exists in /etc, we know what distro we're in
-      if (!stat(info_file, &statBuf))
-      {
-	 // try to read the release number from the file
-         vf = fopen(info_file, "r");
-         if (vf)
-         {
-           if (fgets(buffer, MAXPATHLEN, vf) != NULL)
-               buffer_s.assign(buffer);
-            fclose(vf);
-         }
-         else
-	 {
-	    return false;
-         }
+    // Call uname and check for any errors.
 
-	 // parse the text to extract Distribution Name
-	 buffer_index = buffer_s.find("release ");
-	 if ( buffer_index != PEG_NOT_FOUND )
-	 {
-	    // then we have found a valid index into the config file
-	    s.assign(buffer_s.subString(buffer_index + 8));
-	 }
-	 else
-	 {
-	   // in the case of debian, this file only contains the release number/name
-	   // i.e. 3.0 or testing/unstable
-	    s.assign(buffer_s);
-	 }
-      }
-   }
-   osVersion.assign(s);
-   return true;
+    if (uname(&unameInfo) < 0)
+    {
+       return false;
+    }
+
+    sprintf(release, "%s", unameInfo.release);
+    osVersion.assign(release);
+    return true;
 
 }
 

@@ -620,15 +620,7 @@ void Monitor::stopListeningForConnections(Boolean wait)
       // Wait for the monitor to notice _stopConnections.  Otherwise the
       // caller of this function may unbind the ports while the monitor
       // is still accepting connections on them.
-      try
-	{
-	  _stopConnectionsSem.time_wait(10000);
-	}
-      catch (TimeOut &)
-	{
-	  // The monitor is probably busy processng a very long request, and is
-	  // not accepting connections.  Let the caller unbind the ports.
-	}
+      _stopConnectionsSem.wait();
     }
 
     PEG_METHOD_EXIT();

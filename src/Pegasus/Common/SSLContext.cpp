@@ -402,14 +402,7 @@ int SSLCallback::verificationCallback(int preVerifyOk, X509_STORE_CTX *ctx)
     //
     // get the issuer name on the certificate
     //
-    if (!preVerifyOk && (errorCode == X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT))
-    {
-        X509_NAME_oneline(X509_get_issuer_name(ctx->current_cert), buf, 256);
-    }
-    else
-    {
-        X509_NAME_oneline(X509_get_issuer_name(currentCert), buf, 256);
-    }
+    X509_NAME_oneline(X509_get_issuer_name(currentCert), buf, 256);
     String issuerName = String(buf);
 
     //

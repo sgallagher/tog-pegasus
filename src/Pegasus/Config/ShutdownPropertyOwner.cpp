@@ -34,6 +34,8 @@
 //               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3614
 //               Vijay Eli, IBM, (vijayeli@in.ibm.com) for Bug# 3613
 //               Aruran, IBM (ashanmug@in.ibm.com) for Bug# 3613
+//               Carol Ann Krug Graves, Hewlett-Packard Company
+//                   (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +59,7 @@ PEGASUS_NAMESPACE_BEGIN
 //
 //  The shutdownTimeout property is the timeout value in seconds that the
 //  cimom uses to wait for all the outstanding CIM operations to complete
-//  before shutting down the cimserver.  The default value is 10 seconds.
+//  before shutting down the cimserver.  The default value is 30 seconds.
 //
 //  When a new timeout property is added, make sure to add the property name
 //  and the default attributes of that property in the table below.
@@ -66,7 +68,7 @@ PEGASUS_NAMESPACE_BEGIN
 
 static struct ConfigPropertyRow properties[] =
 {
-    {"shutdownTimeout", "10", IS_DYNAMIC, 0, 0, IS_VISIBLE},
+    {"shutdownTimeout", "30", IS_DYNAMIC, 0, 0, IS_VISIBLE},
 };
 
 const Uint32 NUM_PROPERTIES = sizeof(properties) / sizeof(properties[0]);

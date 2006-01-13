@@ -18,7 +18,7 @@
 %endif
    :;
    elif [ $1 -gt 0 ]; then
-       /sbin/service tog-pegasus condrestart
+       /etc/init.d/tog-pegasus condrestart
    :;
    fi
 #

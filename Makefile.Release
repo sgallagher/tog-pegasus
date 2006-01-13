@@ -1109,7 +1109,7 @@ _append_postSectionToSpecFile: FORCE
 	@$(ECHO-E) "     %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "   /sbin/service tog-pegasus condrestart" \
+	@$(ECHO-E) "   /etc/init.d/tog-pegasus condrestart" \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   :;" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "fi" >> $(PEGASUS_RPM_SPEC_FILE_PATH)

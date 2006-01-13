@@ -315,7 +315,7 @@ if [ $1 -eq 1 ]; then
 %endif
    :;
    elif [ $1 -gt 0 ]; then
-       /sbin/service tog-pegasus condrestart
+       /etc/init.d/tog-pegasus condrestart
    :;
    fi
 #
@@ -326,7 +326,7 @@ elif [ $1 -gt 1 ]; then
      # Running Repository Upgrade utility
      %PEGASUS_SBIN_DIR/repupgrade 2>>%PEGASUS_INSTALL_LOG
    fi
-   /sbin/service tog-pegasus condrestart
+   /etc/init.d/tog-pegasus condrestart
    :;
 fi
 

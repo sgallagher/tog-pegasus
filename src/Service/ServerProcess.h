@@ -71,11 +71,19 @@ public:
 
     virtual const char* getPIDFileName() const = 0;
 
-    virtual int cimserver_run(int argc, char** argv, bool shutdownOption) = 0;
+    virtual int cimserver_run(
+        int argc,
+        char** argv,
+        Boolean shutdownOption,
+        Boolean debugOutputOption) = 0;
 
     virtual void cimserver_stop(void) = 0;
 
-    int platform_run( int argc, char** argv, bool shutdownOption);
+    int platform_run(
+        int argc,
+        char** argv,
+        Boolean shutdownOption,
+        Boolean debugOutputOption);
 
     int cimserver_fork(void);
 

@@ -142,11 +142,15 @@ void ServerProcess::notify_parent(int id)
 }
 
 // Platform specific run
-int ServerProcess::platform_run( int argc, char** argv, Boolean shutdownOption )
+int ServerProcess::platform_run(
+    int argc,
+    char** argv,
+    Boolean shutdownOption,
+    Boolean debugOutputOption)
 {
 //  newPortNumber = "";
 //  pegasusTrace = "";
-  return cimserver_run( argc, argv, shutdownOption );
+    return cimserver_run(argc, argv, shutdownOption, debugOutputOption);
 }
 
 

@@ -115,6 +115,17 @@
 #include <Pegasus/DynListener/DynamicListenerConfig.h>
 #include <Service/ServerProcess.h>
 
+#if defined(PEGASUS_OS_TYPE_UNIX)
+# if defined(PEGASUS_OS_OS400)
+#  include <unistd.cleinc>
+# else
+#  include <unistd.h>
+# endif
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+#endif
+
 PEGASUS_USING_PEGASUS;
 PEGASUS_USING_STD;
 
@@ -193,7 +204,11 @@ public:
         return LISTENER_START_FILE;
     }
 
-    int cimserver_run(int argc, char** argv, bool shutdownOption);
+    int cimserver_run(
+        int argc,
+        char** argv,
+        Boolean shutdownOption,
+        Boolean debugOutputOption);
 
     void cimserver_stop(void);
 };
@@ -230,9 +245,7 @@ static const char   LONG_HELP []  = "help";
 
 static const char   LONG_VERSION []  = "version";
 
-#if defined(PEGASUS_OS_HPUX)
-static const char OPTION_BINDVERBOSE = 'X';
-#endif
+static const char OPTION_DEBUGOUTPUT = 'X';
 
 static const String PROPERTY_TIMEOUT = "shutdownTimeout";
 
@@ -310,6 +323,7 @@ int main(int argc, char** argv)
 {
     String pegasusHome  = String::EMPTY;
     Boolean shutdownOption = false;
+    Boolean debugOutputOption = false;
 
 //l10n
 // Set Message loading to process locale
@@ -447,25 +461,27 @@ setlocale(LC_ALL, "");
                     argc -= 2;
                 }
 #endif
-#if defined(PEGASUS_OS_HPUX)
                 //
-                // Check to see if user asked for the version (-X option):
+                // Check to see if user asked for debug output (-X option):
                 //
-                if (*option == OPTION_BINDVERBOSE &&
+                else if (*option == OPTION_DEBUGOUTPUT &&
                         (strlen(option) == 1))
                 {
-            System::bindVerbose = true;
-                    //l10n
-                    //cout << "Unsupported debug option, BIND_VERBOSE, enabled."
-                         //<< endl;
-                    MessageLoaderParms parms("src.Server.cimserver.UNSUPPORTED_DEBUG_OPTION",
-                                         "Unsupported debug option, BIND_VERBOSE, enabled.");
+                    MessageLoaderParms parms(
+                        "src.Server.cimserver.UNSUPPORTED_DEBUG_OPTION",
+                        "Unsupported debug output option is enabled.");
                     cout << MessageLoader::getMessage(parms) << endl;
+
+                    debugOutputOption = true;
+
+#if defined(PEGASUS_OS_HPUX)
+                    System::bindVerbose = true;
+#endif
+
                     // remove the option from the command line
                     memmove(&argv[i], &argv[i + 1], (argc-i) * sizeof(char*));
                     argc--;
                 }
-#endif
                 //
                 // Check to see if user asked for shutdown (-s option):
                 //
@@ -508,7 +524,8 @@ setlocale(LC_ALL, "");
     // Do the plaform specific run
     //
 
-    return _cimListenerProcess->platform_run( argc, argv, shutdownOption );
+    return _cimListenerProcess->platform_run(
+        argc, argv, shutdownOption, debugOutputOption);
 }
 
 void CIMListenerProcess::cimserver_stop()
@@ -529,7 +546,11 @@ void CIMListenerProcess::cimserver_stop()
 // specific runs may need to deal with bettter (instead of exit(), etc).
 //
 
-int CIMListenerProcess::cimserver_run( int argc, char** argv, Boolean shutdownOption )
+int CIMListenerProcess::cimserver_run(
+    int argc,
+    char** argv,
+    Boolean shutdownOption,
+    Boolean debugOutputOption)
 {
     String logsDirectory = String::EMPTY;
 	String homeDir = configManager->getListenerHome();
@@ -941,6 +962,20 @@ MessageLoader::_useProcessLocale = false;
             "src.Server.cimserver.STARTED_VERSION",
             "Started $0 version $1.",
             _cimListenerProcess->getProductName(), _cimListenerProcess->getVersion());
+
+#if defined(PEGASUS_OS_TYPE_UNIX)
+        if (daemonOption && !debugOutputOption)
+        {
+            // Direct standard input, output, and error to /dev/null,
+            // since we are running as a daemon.
+            close(0);
+            open("/dev/null", O_RDONLY);
+            close(1);
+            open("/dev/null", O_RDWR);
+            close(2);
+            open("/dev/null", O_RDWR);
+        }
+#endif
 
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
 

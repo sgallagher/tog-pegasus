@@ -509,7 +509,11 @@ static BOOL WINAPI ControlHandler( DWORD dwCtrlType )
 // Platform specific run
 //
 
-int ServerProcess::platform_run( int argc, char** argv, Boolean shutdownOption )
+int ServerProcess::platform_run(
+    int argc,
+    char** argv,
+    Boolean shutdownOption,
+    Boolean debugOutputOption)
 {
     //
     // Check for my command line options
@@ -680,7 +684,7 @@ int ServerProcess::platform_run( int argc, char** argv, Boolean shutdownOption )
     {
         SetConsoleCtrlHandler( ControlHandler, TRUE );
 
-        return cimserver_run( argc, argv, shutdownOption );
+        return cimserver_run(argc, argv, shutdownOption, debugOutputOption);
     }
 
     //

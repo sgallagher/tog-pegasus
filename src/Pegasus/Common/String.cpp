@@ -320,7 +320,7 @@ void StringThrowOutOfBounds()
 
 inline void _checkNullPointer(const void* ptr)
 {
-#ifdef PEGASUS_STRING_NO_THROW
+#ifndef PEGASUS_STRING_NO_THROW
 
     if (!ptr)
         throw NullPointer();

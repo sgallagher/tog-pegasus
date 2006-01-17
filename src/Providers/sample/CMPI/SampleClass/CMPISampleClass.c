@@ -27,6 +27,8 @@
 //
 //==============================================================================
 //
+//    Modified By:
+//              John Alex, IBM (johnalex@us.ibm.com) - Bug#4616
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -41,14 +43,14 @@
 unsigned char CMPI_true = 1;
 unsigned char CMPI_false = 0;
 
-int dataNext = 0;
+static int dataNext = 0;
 typedef struct
 {
   CMPIString *key;
   CMPIString *data;
 } Data;
 
-Data store[64];
+static Data store[64];
 
 static const CMPIBroker *broker;
 

@@ -1,6 +1,6 @@
 #%PAM-1.0
 auth        required      $ISA/pam_env.so
-auth        sufficient    $ISA/pam_unix.so likeauth nullok
+auth        sufficient    $ISA/pam_unix.so nullok
 auth        required      $ISA/pam_deny.so
 
 account     required      $ISA/pam_unix.so

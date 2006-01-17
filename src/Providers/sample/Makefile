@@ -44,7 +44,9 @@ ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \
 	CMPI/CWS_Util \
 	CMPI/ProcessIndication \
-	CMPI/ProcessIndication/tests
+	CMPI/ProcessIndication/tests \
+	CMPI/SampleClass \
+	CMPI/SampleClass/tests 
 
 # The following tests are temporarily disabled on most platforms.
 # See blocker bugs for more information.
@@ -53,9 +55,7 @@ ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
 	CMPI/FilesAndDirectories \
 	CMPI/FilesAndDirectories/tests \
 	CMPI/FilesAndDirectories_CXX \
-	CMPI/FilesAndDirectories_CXX/tests \
-	CMPI/SampleClass \
-	CMPI/SampleClass/tests 
+	CMPI/FilesAndDirectories_CXX/tests
 endif
 
 endif

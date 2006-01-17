@@ -434,7 +434,7 @@ fi;
 
 %files devel
 %defattr(644,root,pegasus,755)
-/usr/include
+/usr/include/Pegasus
 /usr/share/Pegasus/samples
 /usr/share/doc/tog-pegasus-2.5/*
 /usr/share/Pegasus/html

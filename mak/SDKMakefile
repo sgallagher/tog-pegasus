@@ -384,7 +384,7 @@ _append_preunSectionToSpecFile:
 _append_filesSectionToSpecFile:
 	@$(ECHO-E) "%files devel"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%defattr($(Prw_r__r__),$(INSTALL_USR),$(INSTALL_GRP),$(Prwxr_xr_x))" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "$(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "$(PEGASUS_INCLUDE_DIR)/Pegasus" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_DOC_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "$(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)

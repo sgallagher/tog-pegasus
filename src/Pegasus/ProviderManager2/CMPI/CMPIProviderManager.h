@@ -90,7 +90,7 @@ public:
    };
 
    typedef HashTable<String,indProvRecord*,  EqualFunc<String>,HashFunc<String> > IndProvTab;
-   typedef HashTable<String,indSelectRecord*,EqualFunc<String>,HashFunc<String> > IndSelectTab;
+   typedef HashTable<CIMObjectPath,indSelectRecord*,EqualFunc<CIMObjectPath>,HashFunc<CIMObjectPath> > IndSelectTab;
    typedef HashTable<String,ProviderName,EqualFunc<String>,HashFunc<String> > ProvRegistrar;
 
    static IndProvTab provTab;

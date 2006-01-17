@@ -1874,7 +1874,7 @@ Message * CMPIProviderManager::handleCreateSubscriptionRequest(const Message * m
         indSelectRecord *srec=new indSelectRecord();
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
 
-        selxTab.insert(sPath.toString(),srec);
+        selxTab.insert(sPath,srec);
 
         // convert arguments
         OperationContext context;
@@ -2080,14 +2080,17 @@ Message * CMPIProviderManager::handleDeleteSubscriptionRequest(const Message * m
 
         indSelectRecord *srec=NULL;
         const CIMObjectPath &sPath=request->subscriptionInstance.getPath();
-        String sPathString=sPath.toString();
-        selxTab.lookup(sPathString,srec);
+
+        if (!selxTab.lookup(sPath,srec)) {
+	  // failed to get select expression from hash table
+	  throw CIMException(CIM_ERR_FAILED,"CMPI Provider Manager Failed to locate subscription filter.");
+	};
 
         CMPI_SelectExp *eSelx=srec->eSelx;
-		CIMOMHandleQueryContext *qContext=srec->qContext;
+	CIMOMHandleQueryContext *qContext=srec->qContext;
 
         CMPI_ObjectPathOnStack eRef(eSelx->classNames[0]);
-        selxTab.remove(sPathString);
+        selxTab.remove(sPath);
 
         // convert arguments
         OperationContext context;

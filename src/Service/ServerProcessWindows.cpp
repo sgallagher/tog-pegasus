@@ -132,7 +132,7 @@ void signal_shutdown()
 static unsigned __stdcall cimserver_windows_thread( void* parm )
 {
     int argc = 0;
-    int rc = _server_proc->cimserver_run( g_argc, g_argv, false );
+    int rc = _server_proc->cimserver_run( g_argc, g_argv, false, false );
     SetEvent(pegasus_service_event);
     _endthreadex( rc );
     return rc;

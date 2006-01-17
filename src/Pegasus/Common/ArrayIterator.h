@@ -124,6 +124,16 @@ public:
 	return _data[i]; 
     }
 
+    //
+    // The reset() methode set the Iterators object members to new 
+    // data pointer and size of a given Array<T>
+    //
+    void reset(Array<T>& x)
+    { 
+        _data = (T*)x.getData();
+        _size = x.size();
+    }
+
 private:
 
     ArrayIterator& operator=(const ArrayIterator<T>& x);

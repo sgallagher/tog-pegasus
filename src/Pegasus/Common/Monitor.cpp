@@ -432,6 +432,9 @@ Boolean Monitor::run(Uint32 milliseconds)
           autoEntryMutex.unlock();
           o.enqueue(message);
           autoEntryMutex.lock();
+          // After enqueue a message and the autoEntryMutex has been released and locked again,
+          // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries.
+          entries.reset(_entries);
        }
     }
 
@@ -475,7 +478,9 @@ Boolean Monitor::run(Uint32 milliseconds)
     int events = select(maxSocketCurrentPass, &fdread, NULL, NULL, &tv);
 #endif
     autoEntryMutex.lock();
-
+    // After enqueue a message and the autoEntryMutex has been released and locked again,
+    // the array of _entries can be changed. The ArrayIterator has be reset with the original _entries
+    entries.reset(_entries);
 #ifdef PEGASUS_OS_TYPE_WINDOWS
     if(events == SOCKET_ERROR)
 #else
@@ -592,6 +597,9 @@ Boolean Monitor::run(Uint32 milliseconds)
                    autoEntryMutex.unlock();
 		   q->enqueue(msg);
                    autoEntryMutex.lock();
+           // After enqueue a message and the autoEntryMutex has been released and locked again,
+           // the array of entries can be changed. The ArrayIterator has be reset with the original _entries
+           entries.reset(_entries);
 		   entries[indx]._status = _MonitorEntry::IDLE;
 
 		   return true;

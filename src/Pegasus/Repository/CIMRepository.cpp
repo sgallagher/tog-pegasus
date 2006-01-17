@@ -283,7 +283,7 @@ void _removePropagatedQualifiers(CIMClass & cimClass)
         CIMProperty p = cimClass.getProperty(i);
         // loop to search qualifiers for nonlocal parameters
         count = p.getQualifierCount();
-        for (Sint32 j = (count - 1); j > 0; j--)
+        for (Sint32 j = (count - 1); j >= 0; j--)
         {
             CIMQualifier q = p.getQualifier(j);
             if (q.getPropagated())
@@ -301,7 +301,7 @@ void _removePropagatedQualifiers(CIMClass & cimClass)
         {
             CIMParameter p = m.getParameter(j);
             count = p.getQualifierCount();
-            for (Sint32 k = (count - 1); k > 0; k--)
+            for (Sint32 k = (count - 1); k >= 0; k--)
             {
                 CIMQualifier q = p.getQualifier(k);
                 if (q.getPropagated())
@@ -313,7 +313,7 @@ void _removePropagatedQualifiers(CIMClass & cimClass)
 
         // remove nonlocal qualifiers from the method
         count = m.getQualifierCount();
-        for (Sint32 j = (count - 1); j > 0; j--)
+        for (Sint32 j = (count - 1); j >= 0; j--)
         {
             CIMQualifier q = m.getQualifier(j);
             if (q.getPropagated())
@@ -774,7 +774,7 @@ CIMClass CIMRepository::_getClass(
     {
         Uint32 count = cimClass.getMethodCount();
         // Work backwards because removal may be cheaper.
-        for (Sint32 i = (count - 1); i > 0; i--)
+        for (Sint32 i = (count - 1); i >= 0; i--)
         {
             CIMMethod m = cimClass.getMethod(i);
 

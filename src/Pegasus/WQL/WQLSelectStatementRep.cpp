@@ -84,6 +84,9 @@ static Boolean _Evaluate(
     {
 	case WQLOperand::NULL_VALUE:
 	{
+#ifdef PEGASUS_SNIA_EXTENSIONS
+            return (rhs.getType() == WQLOperand::NULL_VALUE);
+#else
 	    // This cannot happen since expressions of the form
 	    // OPERAND OPERATOR NULL are converted to unary form.
 	    // For example: "count IS NULL" is treated as a unary
@@ -92,6 +95,7 @@ static Boolean _Evaluate(
 
 	    PEGASUS_ASSERT(0);
 	    break;
+#endif
 	}
 
 	case WQLOperand::INTEGER_VALUE:

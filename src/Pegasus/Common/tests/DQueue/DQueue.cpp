@@ -35,10 +35,7 @@
 //         Alagaraja Ramasubramanian (alags_raj@in.ibm.com) for Bug#1090
 //
 //%/////////////////////////////////////////////////////////////////////////////
-#if defined(PEGASUS_REMOVE_TRACE)   
-#undef PEGASUS_REMOVE_TRACE 
-#endif 
-#include <Pegasus/suballoc/suballoc.h>
+
 #include <Pegasus/Common/DQueue.h>  
 #include <Pegasus/Common/Thread.h>
 #include <Pegasus/Common/Tracer.h> 
@@ -57,15 +54,17 @@ PEGASUS_USING_STD;
 PEGASUS_USING_PEGASUS;
 
 PEGASUS_NAMESPACE_BEGIN
+
+static char * verbose;
  
 class FAKE_MESSAGE 
 {
    public:
       FAKE_MESSAGE(void){} 
       FAKE_MESSAGE(void *key, int type) 
-	  : _type(type)
+          : _type(type)
       { 
-	 _key = (Thread *)key;
+         _key = (Thread *)key;
       }
       
       ~FAKE_MESSAGE(void)
@@ -76,14 +75,14 @@ class FAKE_MESSAGE
 
       Boolean operator==(const void *key) const
       {
-	 if(_key == (const Thread *)key)
-	    return true;
-	 return false;
+         if(_key == (const Thread *)key)
+            return true;
+         return false;
       }
 
       Boolean operator==(const FAKE_MESSAGE & msg) const
       {
-	 return ( this->operator==((const void *)msg._key));
+         return ( this->operator==((const void *)msg._key));
       } 
    private:
 
@@ -108,8 +107,6 @@ AtomicInt requests;
 Mutex msg_mutex;
 
 
-peg_suballocator::SUBALLOC_HANDLE * dq_handle;
-
 const Uint32 NUMBER_MSGS = 1000;
 const int NUMBER_CLIENTS = 2 ;
 const int NUMBER_SERVERS =  1; 
@@ -121,21 +118,8 @@ FAKE_MESSAGE *get_next_msg(void *key)
    AutoMutex autoMut(msg_mutex);
    if(requests.get() < NUMBER_MSGS)
    {
-      msg.reset(PEGASUS_NEW(FAKE_MESSAGE, dq_handle) FAKE_MESSAGE(key, 0));
+      msg.reset(new FAKE_MESSAGE(key, 0));
 
-/*****
-      check for corrupted memory 
-      char *p = (char *)msg;
-      p += sizeof(FAKE_MESSAGE);
-
-      *p = 0x00;
-      
-      if(peg_suballocator::CheckMemory(msg))
-	 abort();
-******/      
-      
-      
-      
       requests++;
    }
     
@@ -155,19 +139,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_sending_thread(void *parm)
    {
       msg = get_next_msg((void *)receiver.get());
       if(msg == 0)
-	 break;
+         break;
       try
       {
-	 my_qs->incoming->insert_last_wait(msg);
+         my_qs->incoming->insert_last_wait(msg);
       }
       catch(ListClosed & )
       {
-	 break;
+         break;
       }
       catch(IPCException & )
       {
-	 cout << endl << "IPC exception sending client msg" << endl;
-	 abort();
+         cout << endl << "IPC exception sending client msg" << endl;
+         PEGASUS_TEST_ASSERT(0);
       }
       pegasus_yield();
    }
@@ -195,33 +179,33 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL server_thread(void *parm)
 
       try
       {
-	 msg = my_qs->incoming->remove_first_wait();
+         msg = my_qs->incoming->remove_first_wait();
       }
       catch(ListClosed & )
       {
-	 break;
+         break;
       }
       catch(IPCException & )
       {
-	 cout << endl << "IPC exception retrieving client msg" << endl;
-	 abort();
+         cout << endl << "IPC exception retrieving client msg" << endl;
+         PEGASUS_TEST_ASSERT(0);
       }
       if(msg != 0)
       {
-	 try
-	 {
-	    my_qs->outgoing->insert_last_wait(msg);
-	    msg = 0;
-	 }
-	 catch(ListClosed & )
-	 {
-	    break;
-	 }
-	 catch(IPCException & )
-	 {
-	    cout << endl << "IPC exception dispatching client msg" << endl;
-	    abort();
-	 }
+         try
+         {
+            my_qs->outgoing->insert_last_wait(msg);
+            msg = 0;
+         }
+         catch(ListClosed & )
+         {
+            break;
+         }
+         catch(IPCException & )
+         {
+            cout << endl << "IPC exception dispatching client msg" << endl;
+            PEGASUS_TEST_ASSERT(0);
+         }
       }
       pegasus_yield();
 
@@ -241,21 +225,21 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
       FAKE_MESSAGE *msg = 0;
       try
       {
-	 msg  = my_qs->outgoing->remove_wait((void *)my_handle);
+         msg  = my_qs->outgoing->remove_wait((void *)my_handle);
       }
       catch(ListClosed & )
       {
-	 break;
+         break;
       }
       catch(IPCException & )
       {
-	 abort();
+         PEGASUS_TEST_ASSERT(0);
       }
 
       if(msg != 0 )
       {
-//	 PEGASUS_DELETE(msg);
-	 replies++;  
+//         delete msg;
+         replies++;  
       }
       pegasus_yield();
    }
@@ -263,36 +247,19 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL client_receiving_thread(void *parm)
    return(0);
 }
 
-PEGASUS_NAMESPACE_END
-
-int main(int argc, char **argv)
+void testAsyncDQueue()
 {
-    PEGASUS_START_LEAK_CHECK();
-   
-    const char* tmpDir = getenv ("PEGASUS_TMP");
-    if (tmpDir == NULL)
-    {
-        tmpDir = ".";
-    }
-    String traceFile (tmpDir);
-    traceFile.append("/dq_memory_trace");
-
-   Tracer::setTraceFile (traceFile.getCString()); 
-   Tracer::setTraceComponents("Memory");  
-   Tracer::setTraceLevel(Tracer::LEVEL4); 
-   AutoPtr<dq_handle>(new peg_suballocator::SUBALLOC_HANDLE());
-
    read_write rw =
       { 
-	 new AsyncDQueue<FAKE_MESSAGE>(true, 100), 
-	 new AsyncDQueue<FAKE_MESSAGE>(true, 100)
+         new AsyncDQueue<FAKE_MESSAGE>(true, 100), 
+         new AsyncDQueue<FAKE_MESSAGE>(true, 100)
       };
 
    Thread *client_sender[20];
    Thread *server[10];
    int i;
-   FAKE_MESSAGE *test = PEGASUS_ARRAY_NEW(FAKE_MESSAGE, 10, dq_handle.get());
-   PEGASUS_ARRAY_DELETE(test);
+   FAKE_MESSAGE *test = new FAKE_MESSAGE[10];
+   delete [] test;
    
    
    for( i = 0; i < NUMBER_CLIENTS; i++)
@@ -315,9 +282,6 @@ int main(int argc, char **argv)
    rw.incoming->shutdown_queue();
    rw.outgoing->shutdown_queue();
 
-   PEGASUS_STOP_LEAK_CHECK();
-   PEGASUS_CHECK_FOR_LEAKS(dq_handle.get());
-
    for( i = 0; i < NUMBER_CLIENTS; i++)
    {
       client_sender[i]->join();
@@ -330,13 +294,141 @@ int main(int argc, char **argv)
       delete server[i];
    }
 
-   cout << NUMBER_MSGS << " messages using " << NUMBER_CLIENTS << " clients and " << NUMBER_SERVERS << " servers" << endl;
-   cout << endl << "total requests: " << requests.get() << "; total replies: " << replies.get() << endl;
-   cout << "unclaimed requests: " <<  rw.outgoing->count() << endl;
+   if (verbose)
+   {
+      cout << NUMBER_MSGS << " messages using " << NUMBER_CLIENTS <<
+          " clients and " << NUMBER_SERVERS << " servers" << endl;
+      cout << endl << "total requests: " << requests.get() <<
+          "; total replies: " << replies.get() << endl;
+      cout << "unclaimed requests: " <<  rw.outgoing->count() << endl;
+   }
+
    delete rw.incoming;
    delete rw.outgoing;
+}
 
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL firstToLast(void *parm)
+{
+    Thread* myHandle = (Thread*)parm;
+    DQueue<Uint32>* dqueue = (DQueue<Uint32>*)myHandle->get_parm();
 
-   
-   return 0;
+    for (Uint32 i = 0; i < 100000;)
+    {
+        Uint32* entry = 0;
+        try
+        {
+            entry = dqueue->remove_first();
+        }
+        catch(...)
+        {
+            PEGASUS_TEST_ASSERT(0);
+        }
+
+        if (entry != 0)
+        {
+            dqueue->insert_last(entry);
+            i++;
+        }
+    }
+
+    myHandle->exit_self((PEGASUS_THREAD_RETURN)1);
+    return(0);
+}
+
+PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL lastToFirst(void *parm)
+{
+    Thread* myHandle = (Thread*)parm;
+    DQueue<Uint32>* dqueue = (DQueue<Uint32>*)myHandle->get_parm();
+
+    for (Uint32 i = 0; i < 100000;)
+    {
+        Uint32* entry = 0;
+        try
+        {
+            entry = dqueue->remove_last();
+        }
+        catch(...)
+        {
+            PEGASUS_TEST_ASSERT(0);
+        }
+
+        if (entry != 0)
+        {
+            dqueue->insert_first(entry);
+            i++;
+        }
+    }
+
+    myHandle->exit_self((PEGASUS_THREAD_RETURN)1);
+    return(0);
+}
+
+void testDQueue()
+{
+    DQueue<Uint32> dqueue(true);
+    Uint32 myInt = 10;
+
+    for (Uint32 i = 0; i < 100000; i++)
+    {
+        dqueue.insert_last(&myInt);
+    }
+
+    Thread thread1(firstToLast, &dqueue, false);
+    Thread thread2(firstToLast, &dqueue, false);
+    Thread thread3(lastToFirst, &dqueue, false);
+    Thread thread4(lastToFirst, &dqueue, false);
+    Thread thread5(lastToFirst, &dqueue, false);
+    thread1.run();
+    thread2.run();
+    thread3.run();
+    thread4.run();
+    thread5.run();
+    thread1.join();
+    thread2.join();
+    thread3.join();
+    thread4.join();
+    thread5.join();
+
+    PEGASUS_TEST_ASSERT(dqueue.size() == 100000);
+
+    for (Uint32 i = 0; i < 100000; i++)
+    {
+        Uint32* entry = dqueue.remove_first();
+        PEGASUS_TEST_ASSERT(entry != 0);
+    }
+
+    PEGASUS_TEST_ASSERT(dqueue.size() == 0);
+}
+
+PEGASUS_NAMESPACE_END
+
+int main(int argc, char **argv)
+{
+    verbose = getenv("PEGASUS_TEST_VERBOSE");
+
+    const char* tmpDir = getenv ("PEGASUS_TMP");
+    if (tmpDir == NULL)
+    {
+        tmpDir = ".";
+    }
+    String traceFile (tmpDir);
+    traceFile.append("/dq_memory_trace");
+
+    Tracer::setTraceFile (traceFile.getCString()); 
+    Tracer::setTraceComponents("Memory");  
+    Tracer::setTraceLevel(Tracer::LEVEL4); 
+
+    try
+    {
+        testAsyncDQueue();
+        testDQueue();
+    }
+    catch (Exception& e)
+    {
+        cerr << argv[0] << " Exception: " << e.getMessage() << endl;
+        exit(1);
+    }
+
+    cout << argv[0] << " +++++ passed all tests" << endl;
+    return 0;
 }

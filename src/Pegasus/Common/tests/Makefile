@@ -42,6 +42,7 @@ DIRS = \
     Config \
     DateTime \
     Dir \
+    DQueue \
     DynLib \
     DynLoad \
     DynamicLibrary \

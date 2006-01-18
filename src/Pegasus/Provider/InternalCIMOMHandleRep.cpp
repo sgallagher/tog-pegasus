@@ -257,6 +257,10 @@ static OperationContext _filterOperationContext(const OperationContext& context)
         {
             temp.insert(AcceptLanguageListContainer(*pal));
         }
+        else
+        {
+            temp.insert(AcceptLanguageListContainer(AcceptLanguageList()));
+        }
     }
 
     try
@@ -459,6 +463,7 @@ CIMClass InternalCIMOMHandleRep::getClass(
 
     // copy and adjust, as needed, the operation context
     request->operationContext = _filterOperationContext(context);
+//  request->operationContext.get(AcceptLanguageListContainer::NAME);
 
     AutoPtr<CIMGetClassResponseMessage> response;
 

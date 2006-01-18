@@ -68,7 +68,7 @@ void BinaryMessageHandler::handleEnqueue(void)
 void BinaryMessageHandler::handleEnqueue(Message * message)
 {
    PEG_METHOD_ENTER(TRC_BINARY_MSG_HANDLER,
-		    "BinaryMessageHandler::_handleEnqueue(Message *)");
+		    "BinaryMessageHandler::handleEnqueue(Message *)");
    PEGASUS_ASSERT(message != 0);
 
    AsyncRequest * asyncRequest;
@@ -169,7 +169,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
 BinaryMessageHandler::handle_binary_message(void* parm)
 {
    PEG_METHOD_ENTER(TRC_BINARY_MSG_HANDLER,
-      "BinaryMessageHandler::_handle_async_request");
+      "BinaryMessageHandler::handle_binary_message");
 
    BinaryMessageHandler* myself =
       reinterpret_cast<BinaryMessageHandler*>(parm);
@@ -506,7 +506,10 @@ BinaryMessageHandler::_handleRequest(AsyncOpNode *op, Message *msg)
    }
    catch(...)
    {
-
+      // Should this exception really just be ignored?
+      // It seems like binary_message_handler should catch it.
+      PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+         "Unrecognized exception caught and ignored by _handleRequest().");
    }
    
    delete async_request;
@@ -542,6 +545,10 @@ BinaryMessageHandler::_handleResponse(AsyncOpNode *op, Message *msg)
       }
       catch(...)
       {
+          // Should this exception really just be ignored?
+          // It seems like binary_message_handler should catch it.
+          PEG_TRACE_STRING(TRC_DISCARDED_DATA, Tracer::LEVEL2,
+             "Unrecognized exception caught and ignored by _handleResponse().");
       }
       
    }

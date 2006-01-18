@@ -2285,6 +2285,7 @@ void CIMOperationRequestDispatcher::handleEnqueue(Message *request)
    }
 
    delete request;
+   PEG_METHOD_EXIT();
 
 }
 

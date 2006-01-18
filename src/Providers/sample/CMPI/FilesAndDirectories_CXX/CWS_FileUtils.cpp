@@ -106,7 +106,8 @@ CmpiInstance makeInstance(const char * classname,
       "FSCreationClassName",
       "FSName",
       "CreationClassName",
-      "Name"
+      "Name",
+      NULL
     };
     in.setPropertyFilter(filter,keys);
   }

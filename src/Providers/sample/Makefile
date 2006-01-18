@@ -43,6 +43,8 @@ DIRS = \
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
 DIRS += \
 	CMPI/CWS_Util \
+	CMPI/FilesAndDirectories_CXX \
+	CMPI/FilesAndDirectories_CXX/tests \
 	CMPI/ProcessIndication \
 	CMPI/ProcessIndication/tests \
 	CMPI/SampleClass \
@@ -53,9 +55,7 @@ DIRS += \
 ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
   DIRS += \
 	CMPI/FilesAndDirectories \
-	CMPI/FilesAndDirectories/tests \
-	CMPI/FilesAndDirectories_CXX \
-	CMPI/FilesAndDirectories_CXX/tests
+	CMPI/FilesAndDirectories/tests
 endif
 
 endif

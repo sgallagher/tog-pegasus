@@ -133,7 +133,7 @@ void ComputerSystemProvider::getInstance(
      }
 
     // return instance of specified class
-    CIMInstance instance = _buildInstance(ref.getClassName());
+    CIMInstance instance = _cs.buildInstance(ref.getClassName());
 
     handler.processing();
     handler.deliver(instance);
@@ -169,7 +169,7 @@ void ComputerSystemProvider::enumerateInstances(
                                  CIMNamespaceName(),  // Namespace not required
                                  CLASS_EXTENDED_COMPUTER_SYSTEM,
                                  keys);
-      CIMInstance instance = _buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
+      CIMInstance instance = _cs.buildInstance(CLASS_EXTENDED_COMPUTER_SYSTEM);
       instance.setPath(instanceName);
       handler.deliver(instance);
     }
@@ -252,79 +252,6 @@ void ComputerSystemProvider::initialize(CIMOMHandle& handle)
 void ComputerSystemProvider::terminate(void)
 {
     delete this;
-}
-
-
-CIMInstance ComputerSystemProvider::_buildInstance(const CIMName& className)
-{
-    CIMInstance instance(className);
-    CIMProperty p;
-
-    //-- fill in properties for CIM_ComputerSystem
-    if (_cs.getCaption(p)) instance.addProperty(p);
-
-    if (_cs.getDescription(p)) instance.addProperty(p);
-
-    if (_cs.getInstallDate(p)) instance.addProperty(p);
-
-    if (_cs.getStatus(p)) instance.addProperty(p);
-
-    if (_cs.getCreationClassName(p)) instance.addProperty(p);
-
-    if (_cs.getName(p)) instance.addProperty(p);
-
-    if (_cs.getNameFormat(p)) instance.addProperty(p);
-
-    if (_cs.getPrimaryOwnerName(p)) instance.addProperty(p);
-
-    if (_cs.getPrimaryOwnerContact(p)) instance.addProperty(p);
-
-    if (_cs.getRoles(p)) instance.addProperty(p);
-
-    if (_cs.getOtherIdentifyingInfo(p)) instance.addProperty(p);
-
-    if (_cs.getIdentifyingDescriptions(p)) instance.addProperty(p);
-
-    if (_cs.getDedicated(p)) instance.addProperty(p);
-
-    if (_cs.getResetCapability(p)) instance.addProperty(p);
-
-    if (_cs.getPowerManagementCapabilities(p)) instance.addProperty(p);
-
-    if (_cs.getOperationalStatus(p)) instance.addProperty(p);
-
-    if (_cs.getElementName(p)) instance.addProperty(p);
-
-    // Done if we are servicing CIM_ComputerSystem
-    if (className.equal (CLASS_CIM_COMPUTER_SYSTEM))
-      return instance;
-
-    // Fill in properties for CIM_UnitaryComputerSystem
-    if (_cs.getInitialLoadInfo(p)) instance.addProperty(p);
-
-    if (_cs.getLastLoadInfo(p)) instance.addProperty(p);
-
-    if (_cs.getPowerManagementSupported(p)) instance.addProperty(p);
-
-    if (_cs.getPowerState(p)) instance.addProperty(p);
-
-    if (_cs.getWakeUpType(p)) instance.addProperty(p);
-
-    // Done if we are servicing CIM_UnitaryComputerSystem
-    if (className.equal (CLASS_CIM_UNITARY_COMPUTER_SYSTEM))
-      return instance;
-
-    // Fill in properties for <Extended>_ComputerSystem
-    if (className.equal (CLASS_EXTENDED_COMPUTER_SYSTEM))
-    {
-       if(_cs.getPrimaryOwnerPager(p)) instance.addProperty(p);
-       if(_cs.getSecondaryOwnerName(p)) instance.addProperty(p);
-       if(_cs.getSecondaryOwnerContact(p)) instance.addProperty(p);
-       if(_cs.getSecondaryOwnerPager(p)) instance.addProperty(p);
-       if(_cs.getSerialNumber(p)) instance.addProperty(p);
-       if(_cs.getIdentificationNumber(p)) instance.addProperty(p);
-    }
-    return instance;
 }
 
 void ComputerSystemProvider::_checkClass(CIMName& className)

@@ -94,6 +94,19 @@ Boolean ComputerSystem::getStatus(CIMProperty& p)
   return true;
 }
 
+Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
+{
+  Array<Uint16> opStatus;
+  opStatus.append(2); // OK
+  p = CIMProperty(PROPERTY_OPERATIONAL_STATUS, opStatus);
+  return true;
+}
+
+Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
+{
+  return false;
+}
+
 Boolean ComputerSystem::getNameFormat(CIMProperty& p)
 {
   p = CIMProperty(PROPERTY_NAME_FORMAT,String(NAME_FORMAT));
@@ -225,14 +238,6 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
   return false;
 }
 
-Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
-{
-  Array<Uint16> opStatus;
-  opStatus.append(2); // OK
-  p = CIMProperty(PROPERTY_OPERATIONALSTATUS, opStatus);
-  return true;
-}
-
 Boolean ComputerSystem::getElementName(CIMProperty& p)
 {
   // We're just going to re-use the caption
@@ -248,3 +253,4 @@ String ComputerSystem::getHostName(void)
 {
     return System::getHostName();
 }
+

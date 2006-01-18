@@ -30,6 +30,7 @@
 // Author: Karl Schopmeyer (k.schopmeyer@opengrooup.org)
 //
 // Modified By:
+//              Alex Dunfey, EMC (Dunfey_alexander@emc.com) for PEP 244
 //
 //%////////////////////////////////////////////////////////////////////////////
 
@@ -62,33 +63,36 @@
 PEGASUS_USING_PEGASUS;
 
 /**
-    The InteropProvider provides information and manipulates the
-    following classes from the DMTF CIM_Interop schema:
-    CIM_Namespace - Creation and deletion of namespaces
-    Note: Effective Pegasus 2.4, it processes PG_Namespace
-    __Namespace - Creation and deletion of namespaces (deprecated)
-    CIM_ObjectManager - Reports on the status of the object manager
-    CIM_ObjectManagerCommunicationMechanism - Reports on CIMOM communications
-    COM_CIMXMLCommunicationMechanism - Reports on CIMXML communications
-    CIM_ProtocolAdapter
-    
-    Associations
-    NamespaceinManager
-    
-    creation and deletion of namespaces using the __namespace class
-    Note however, that the DMTF specification model does not define a class for
-    __namespace so that it is, a "false" class.  We assume that it has the
-    same characteristics as the CIM_namespace class defined in CIM 2.6.
+ * The InteropProvider services the Interop classes of the DMTF CIM Schema
+ * in the root/PG_InterOp namespace (as well as some related cross-namespace
+ * associations in other namespaces). Through this implementation, combined
+ * with the SLP provider and one or more vendor-supplied SMI providers, the
+ * Pegasus WBEM Server is able to provide a fully-functional implementation of
+ * the SMI-S Server profile (currently, version 1.1.0).
+ *
+ * The following is a list of the association and instance classes supported
+ * by this provider in the root/PG_InterOp namespace:
+ *
+ *  PG_CIMXMLCommunicationMechanism (CIM_CIMXMLCommunicationMechanism)
+ *  PG_CommMechanismForManager (CIM_CommMechanismForManager)
+ *  PG_ComputerSystem (CIM_ComputerSystem)
+ *  PG_ElementConformsToProfile (CIM_ElementConformsToProfile)
+ *  PG_ElementSoftwareIdentity (CIM_ElementSoftwareIdentity)
+ *  PG_HostedAccessPoint (CIM_HostedAccessPoint)
+ *  PG_HostedObjectManager (CIM_HostedService)
+ *  PG_Namespace (CIM_Namespace)
+ *  PG_NamespaceInManager (CIM_NamespaceInManager)
+ *  PG_ObjectManager (CIM_ObjectManager)
+ *  PG_ReferencedProfile (CIM_ReferencedProfile)
+ *  PG_RegisteredProfile (CIM_RegisteredProfile)
+ *  PG_RegisteredSubProfile (CIM_RegisteredSubProfile)
+ *  PG_SoftwareIdentity (CIM_SoftwareIdentity)
+ *  PG_SubProfileRequiredProfile (CIM_SubProfileRequiresProfile)
+ *  
+ */
 
-    This provider implements the following functions:
-    - createInstance		( adds a new namespace to the repository)
-    - getInstance		( Gets one instance of any supported object)
-    - modifyInstance		( Limited Support - selected fields in CIM_Namespace)
-    - enumerateInstances	( Lists all namespaces of all supported classes)
-    - enumerateInstanceNames	( Lists all namespace names of all supported classes )
-    - reference and associations 
-    TBD
-*/
+typedef Array<CIMName> CIMNameArray;
+typedef Array<CIMNamespaceName> CIMNamespaceArray;
 
 class PEGASUS_INTEROPPROVIDER_LINKAGE InteropProvider :
 	public CIMInstanceProvider, public CIMAssociationProvider
@@ -196,7 +200,7 @@ public:
     {
         // delete self. this is necessary because the entry point for this object allocated it, and
         // the module is responsible for its memory management.
-        delete this;
+        //delete this;
     }
 
 private:
@@ -301,27 +305,40 @@ private:
         const OperationContext & context,
         const CIMObjectPath & objectName,
         const CIMName & resultClass,
-        String & originRole=String(),
+        String & originRole,
+        String & targetRole,
         const CIMPropertyList & propertyList=CIMPropertyList(),
-        const CIMName & targetClass=CIMName(),
-        String & targetRole=String());
+        const CIMName & targetClass=CIMName());
 
     CIMInstance localGetInstance(
         const OperationContext & context,
         const CIMObjectPath & instanceName,
         const CIMPropertyList & propertyList);
 
-        // Repository Instance variable
-       CIMOMHandle cimomHandle;
-       CIMRepository*   repository;
-       // local save for name of object manager
-       String objectManagerName;
-       String hostName;
-       CIMClass profileCapabilitiesClass;
-       CIMClass softwareIdentityClass;
-       Array<Uint16> providerClassifications;
-       Mutex interopMut;
-       bool namespacesInitialized;
+    void cacheProfileRegistrationInfo();
+    void verifyCachedInfo();
+
+    bool validAssocClassForObject(
+        const CIMName & assocClass, const CIMName & originClass,
+        const CIMNamespaceName & opNamespace,
+        String & originProperty, String & targetProperty);
+
+    // Repository Instance variable
+    CIMOMHandle cimomHandle;
+    CIMRepository*   repository;
+    // local save for name of object manager
+    String objectManagerName;
+    String hostName;
+    CIMClass profileCapabilitiesClass;
+    CIMClass softwareIdentityClass;
+    Array<Uint16> providerClassifications;
+    Mutex interopMut;
+    bool namespacesInitialized;
+
+    // Registration info to cache
+    Array<String> profileIds;
+    Array<CIMNameArray> conformingElements;
+    Array<CIMNamespaceArray> elementNamespaces;
 };
 
 #endif // InteropProvider_h

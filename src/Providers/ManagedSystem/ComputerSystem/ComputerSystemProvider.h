@@ -63,6 +63,8 @@
 // Name is overridden in CIM_ComputerSystem
 // #define PROPERTY_NAME                     "Name"
 #define PROPERTY_STATUS                      "Status"
+#define PROPERTY_OPERATIONAL_STATUS          "OperationalStatus"
+#define PROPERTY_STATUS_DESCRIPTIONS         "StatusDescriptions"
 
 // CIM_LogicalElement
 // -- none --
@@ -86,7 +88,6 @@
 #define METHOD_SET_POWER_STATE               "SetPowerState"
 #define METHOD_SET_POWER_STATE_WITH_OPTIONS  "SetPowerStateWithOptions"
 #define PROPERTY_ELEMENTNAME                 "ElementName"
-#define PROPERTY_OPERATIONALSTATUS           "OperationalStatus"
 
 // CIM_UnitaryComputerSystem
 #define PROPERTY_INITIAL_LOAD_INFO           "InitialLoadInfo"
@@ -156,9 +157,6 @@ class ComputerSystemProvider: public CIMInstanceProvider
 
       CIMOMHandle _ch;
       ComputerSystem _cs;
-
-      /** Builds a filled-in instance. */
-      CIMInstance _buildInstance(const CIMName& className);
 
       void _checkClass(CIMName& className);
 };

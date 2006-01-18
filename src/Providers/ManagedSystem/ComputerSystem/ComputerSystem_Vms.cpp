@@ -244,6 +244,20 @@ Boolean ComputerSystem::getStatus(CIMProperty& p)
     return true;
 }
 
+Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
+{
+    Array<Uint16> opStatus;
+    opStatus.append(2); // OK
+    p = CIMProperty(PROPERTY_OPERATIONAL_STATUS, opStatus);
+    return true;
+}
+
+Boolean ComputerSystem::getStatusDescriptions(CIMProperty& p)
+{
+  // not supported.
+  return false;
+}
+
 Boolean ComputerSystem::getNameFormat(CIMProperty& p)
 {
     // hardcoded
@@ -511,14 +525,6 @@ Boolean ComputerSystem::getIdentificationNumber(CIMProperty& p)
 {
   // Not supported
   return false;
-}
-
-Boolean ComputerSystem::getOperationalStatus(CIMProperty& p)
-{
-    Array<Uint16> opStatus;
-    opStatus.append(2); // OK
-    p = CIMProperty(PROPERTY_OPERATIONALSTATUS, opStatus);
-    return true;
 }
 
 Boolean ComputerSystem::getElementName(CIMProperty& p)

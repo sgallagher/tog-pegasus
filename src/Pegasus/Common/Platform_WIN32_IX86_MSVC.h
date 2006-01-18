@@ -79,7 +79,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#ifdef PEGASUS_INTERNALONLY
 // Suppress this warning: "identifier was truncated to '255' characters in the
 // debug information":
 #pragma warning( disable : 4786 )
@@ -100,6 +99,7 @@
 #pragma warning ( disable : 4355 )
 
 // Suppress this warning: 'type' : forcing value to bool 'true' or 'false' (performance warning)
+#ifdef PEGASUS_INTERNALONLY
 #pragma warning( disable : 4800 ) 
 #endif
 

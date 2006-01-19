@@ -1,0 +1,318 @@
+//
+// Classes below copied from CIM 2.9 Schema
+//
+
+// ===================================================================
+// ComputerSystem
+// ===================================================================
+   [Version ( "2.7.0" ), Description (
+       "A class derived from System that is a special collection of "
+       "ManagedSystemElements. This collection provides compute "
+       "capabilities and serves as aggregation point to associate one "
+       "or more of the following elements: FileSystem, "
+       "OperatingSystem, Processor and Memory (Volatile and/or "
+       "NonVolatile Storage).")]
+class CIM_ComputerSystem : CIM_System {
+
+      [Override ( "NameFormat" ), Description (
+          "The ComputerSystem object and its derivatives are Top Level "
+          "Objects of CIM. They provide the scope for numerous "
+          "components. Having unique System keys is required. The "
+          "NameFormat property identifies how the ComputerSystem Name "
+          "is generated. The NameFormat ValueMap qualifier defines the "
+          "various mechanisms for assigning the name. Note that "
+          "another name can be assigned and used for the "
+          "ComputerSystem that better suit a business, using the "
+          "inherited ElementName property."), 
+       ValueMap { "Other", "IP", "Dial", "HID", "NWA", "HWA", "X25",
+          "ISDN", "IPX", "DCC", "ICD", "E.164", "SNA", "OID/OSI",
+          "WWN", "NAA" }]
+   string NameFormat;
+
+      [Description (
+          "OtherIdentifyingInfo captures additional data, beyond "
+          "System Name information, that could be used to identify a "
+          "ComputerSystem. One example would be to hold the Fibre "
+          "Channel World-Wide Name (WWN) of a node. Note that if only "
+          "the Fibre Channel name is available and is unique (able to "
+          "be used as the System key), then this property would be "
+          "NULL and the WWN would become the System key, its data "
+          "placed in the Name property."), 
+       MaxLen ( 256 ), ArrayType ( "Indexed" ), 
+       ModelCorrespondence { 
+          "CIM_ComputerSystem.IdentifyingDescriptions" }]
+   string OtherIdentifyingInfo[];
+
+      [Description (
+          "An array of free-form strings providing explanations and "
+          "details behind the entries in the OtherIdentifying Info "
+          "array. Note, each entry of this array is related to the "
+          "entry in OtherIdentifyingInfo that is located at the same "
+          "index."), 
+       ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_ComputerSystem.OtherIdentifyingInfo" 
+          }]
+   string IdentifyingDescriptions[];
+
+      [Description (
+          "Enumeration indicating whether the ComputerSystem is a "
+          "special-purpose System (ie, dedicated to a particular use), "
+          "versus being 'general purpose'. For example, one could "
+          "specify that the System is dedicated to \"Print\" "
+          "(value=11) or acts as a \"Hub\" (value=8). \n"
+          "A clarification is needed with respect to the value 17 "
+          "(\"Mobile User Device\"). An example of a dedicated user "
+          "device is a mobile phone or a barcode scanner in a store "
+          "that communicates via radio frequency. These systems are "
+          "quite limited in functionality and programmability, and are "
+          "not considered 'general purpose' computing platforms. "
+          "Alternately, an example of a mobile system that is 'general "
+          "purpose' (i.e., is NOT dedicated) is a hand-held computer. "
+          "Although limited in its programmability, new software can "
+          "be downloaded and its functionality expanded by the user."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+          "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+          "20" }, 
+       Values { "Not Dedicated", "Unknown", "Other", "Storage",
+          "Router", "Switch", "Layer 3 Switch",
+          "Central Office Switch", "Hub", "Access Server", "Firewall",
+          "Print", "I/O", "Web Caching", "Management", "Block Server",
+          "File Server", "Mobile User Device", "Repeater",
+          "Bridge/Extender", "Gateway" }, 
+       MappingStrings { "MIB.IETF|MIB-II.sysServices" },
+          ArrayType ( "Indexed" ), 
+       ModelCorrespondence { 
+          "CIM_ComputerSystem.OtherDedicatedDescriptions" }]
+   uint16 Dedicated[];
+
+      [Description (
+          "A string describing how or why the system is dedicated when "
+          "the Dedicated array includes the value 2, \"Other\"."), 
+       ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_ComputerSystem.Dedicated" }]
+   string OtherDedicatedDescriptions[];
+
+      [Description (
+          "If enabled (value = 4), the ComputerSystem can be reset via "
+          "hardware (e.g. the power and reset buttons). If disabled "
+          "(value = 3), hardware reset is not allowed. In addition to "
+          "Enabled and Disabled, other Values for the property are "
+          "also defined - \"Not Implemented\" (5), \"Other\" (1) and "
+          "\"Unknown\" (2)."), 
+       ValueMap { "1", "2", "3", "4", "5" }, 
+       Values { "Other", "Unknown", "Disabled", "Enabled",
+          "Not Implemented" }, 
+       MappingStrings { "MIF.DMTF|System Hardware Security|001.4" }]
+   uint16 ResetCapability;
+
+      [Deprecated { "CIM_PowerManagementCapabilities.PowerCapabilities" 
+          }, Description (
+          "An enumerated array describing the power management "
+          "capabilities of the ComputerSystem. The use of this "
+          "property has been deprecated. Instead, the Power "
+          "Capabilites property in an associated PowerManagement "
+          "Capabilities class should be used."), 
+       ValueMap { "0", "1", "2", "3", "4", "5", "6", "7" }, 
+       Values { "Unknown", "Not Supported", "Disabled", "Enabled",
+          "Power Saving Modes Entered Automatically",
+          "Power State Settable", "Power Cycling Supported",
+          "Timed Power On Supported" }, 
+       MappingStrings { "MIF.DMTF|System Power Controls|001.2" }]
+   uint16 PowerManagementCapabilities[];
+
+      [Deprecated { "CIM_PowerManagementService.SetPowerState" }, 
+       Description (
+          "Sets the power state of the computer. The use of this "
+          "method has been deprecated. Instead, use the SetPowerState "
+          "method in the associated PowerManagementService class.")]
+   uint32 SetPowerState( 
+         [IN, Description (
+             "The Desired state for the COmputerSystem."), 
+          ValueMap { "1", "2", "3", "4", "5", "6", "7", "8" }, 
+          Values { "Full Power", "Power Save - Low Power Mode",
+             "Power Save - Standby", "Power Save - Other",
+             "Power Cycle", "Power Off", "Hibernate", "Soft Off" }]
+      uint32 PowerState, 
+         [IN, Description (
+             "Time indicates when the power state should be set, "
+             "either as a regular date-time value or as an interval "
+             "value (where the interval begins when the method "
+             "invocation is received.")]
+      datetime Time); 
+};
+
+// ==================================================================
+// RegisteredProfile
+// ==================================================================
+   [Version ( "2.8.0" ), Description (
+       "A RegisteredProfile describes a set of CIM Schema classes with "
+       "required properties and/or methods, necessary to manage a "
+       "real-world entity or to support a usage scenario, in an "
+       "interoperable fashion. RegisteredProfiles can be defined by "
+       "the DMTF or other standards organizations. Note that this "
+       "class should not be confused with CIM_Profile, which collects "
+       "SettingData instances, to be applied as a 'configuration "
+       "profile' for an element. \n"
+       "A RegisteredProfile is a named 'standard' for CIM-based "
+       "management of a particular System, subsystem, Service or other "
+       "entity, for a specified set of uses. It is a complete, "
+       "standalone definition, as opposed to the subclass "
+       "RegisteredSubProfile, which requires a scoping profile for "
+       "context. \n"
+       "The uses for a RegisteredProfile or SubProfile MUST be "
+       "specified in the document that defines the profile. Examples "
+       "of Profiles are to manage various aspects of an Operating "
+       "System, Storage Array, or Database. The name of the profile is "
+       "defined and scoped by its authoring organization.")]
+class CIM_RegisteredProfile : CIM_ManagedElement {
+
+      [Key, Description (
+          "Within the scope of the instantiating Namespace, InstanceID "
+          "opaquely and uniquely identifies an instance of this class. "
+          "In order to ensure uniqueness within the NameSpace, the "
+          "value of InstanceID SHOULD be constructed using the "
+          "following 'preferred' algorithm: \n"
+          "<OrgID>:<LocalID> \n"
+          "Where <OrgID> and <LocalID> are separated by a colon ':', "
+          "and where <OrgID> MUST include a copyrighted, trademarked "
+          "or otherwise unique name that is owned by the business "
+          "entity creating/defining the InstanceID, or is a registered "
+          "ID that is assigned to the business entity by a recognized "
+          "global authority. (This is similar to the <Schema "
+          "Name>_<Class Name> structure of Schema class names.) In "
+          "addition, to ensure uniqueness, <OrgID> MUST NOT contain a "
+          "colon (':'). When using this algorithm, the first colon to "
+          "appear in InstanceID MUST appear between <OrgID> and "
+          "<LocalID>. \n"
+          "<LocalID> is chosen by the organizational entity and SHOULD "
+          "not be re-used to identify different underlying "
+          "(real-world) elements. If the above 'preferred' algorithm "
+          "is not used, the defining entity MUST assure that the "
+          "resultant InstanceID is not re-used across any InstanceIDs "
+          "produced by this or other providers for this instance's "
+          "NameSpace. \n"
+          "For DMTF defined instances, the 'preferred' algorithm MUST "
+          "be used with the <OrgID> set to 'CIM'.")]
+   string InstanceID;
+
+      [Required, Description (
+          "The organization that defines this profile."), 
+       ValueMap { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
+          "11", "12", "13", "14", "15", "16", "17", "18", "19" }, 
+       Values { "Other", "DMTF", "CompTIA",
+          "Consortium for Service Innovation", "FAST", "GGF", "INTAP",
+          "itSMF", "NAC", 
+          //10 
+          "Northwest Energy Efficiency Alliance", "SNIA", "TM Forum",
+          "The Open Group", "ANSI", "IEEE", "IETF", "INCITS", "ISO",
+          "W3C" }, 
+       ModelCorrespondence { 
+          "CIM_RegisteredProfile.OtherRegisteredOrganization" }]
+   uint16 RegisteredOrganization;
+
+      [Description (
+          "A free-form string providing a description of the "
+          "organization when 1, \"Other\", is specified for the "
+          "RegisteredOrganization."), 
+       MaxLen ( 256 ), 
+       ModelCorrespondence { 
+          "CIM_RegisteredProfile.RegisteredOrganization" }]
+   string OtherRegisteredOrganization;
+
+      [Required, Description (
+          "The name of this registered profile. Since multiple "
+          "versions can exist for the same RegisteredName, the "
+          "combination of RegisteredName, RegisteredOrganization, and "
+          "RegisteredVersion MUST uniquely identify the registered "
+          "profile within the scope of the organization."), 
+       MaxLen ( 256 )]
+   string RegisteredName;
+
+      [Required, Description (
+          "The version of this profile. The string representing the "
+          "version MUST be in the form: \n"
+          "M + \".\" + N + \".\" + U \n"
+          "Where: \n"
+          "M - The major version (in numeric form) describing the "
+          "profile's creation or last modification. \n"
+          "N - The minor version (in numeric form) describing the "
+          "profile's creation or last modification. \n"
+          "U - The update (e.g. errata, patch, ..., in numeric form) "
+          "describing the profile's creation or last modification.")]
+   string RegisteredVersion;
+
+      [Required, Description (
+          "This property signifies the advertisement for the profile "
+          "information. It is used by the advertising services of the "
+          "WBEM infrastructure to determine what should be advertised, "
+          "via what mechanisms. The property is an array so that the "
+          "profile MAY be advertised using several mechanisms. Note: "
+          "If this property is null/uninitialized, this is equivalent "
+          "to specifying the value 2, \"Not Advertised\"."), 
+       ValueMap { "1", "2", "3" }, 
+       Values { "Other", "Not Advertised", "SLP" },
+          ArrayType ( "Indexed" ), 
+       ModelCorrespondence { 
+          "CIM_RegisteredProfile.AdvertiseTypeDescriptions" }]
+   uint16 AdvertiseTypes[];
+
+      [Description (
+          "A free-form string providing additional information related "
+          "to the AdvertiseType. A description MUST be provided when "
+          "the AdvertiseType is 1, \"Other\". An entry in this array "
+          "corresponds to the entry in the AdvertiseTypes array at the "
+          "same index. It is not expected that additional descriptions "
+          "are needed if the Type is set to \"Not Advertised\" or "
+          "\"SLP\". However, as the SLP template expands, or as other "
+          "advertisement mechanisms are defined, support for "
+          "additional descriptions may be needed. This array is "
+          "defined to support this."), 
+       ArrayType ( "Indexed" ), 
+       ModelCorrespondence { "CIM_RegisteredProfile.AdvertiseTypes" }]
+   string AdvertiseTypeDescriptions[];
+};
+
+// ==================================================================
+// ElementConformsToProfile
+// ==================================================================
+   [Association, Version ( "2.8.0" ), Description (
+       "The CIM_ElementConformsToProfile association defines the "
+       "RegisteredProfiles to which the referenced ManagedElement is "
+       "conformant. Note: This association may apply to any Managed "
+       "Element. Typical usage will apply it to a higher level "
+       "instance, such as a System, NameSpace, or Service. When "
+       "applied to a higher level instance, all constituent parts MUST "
+       "behave appropriately in support of the ManagedElement's "
+       "conformance to the named RegisteredProfile.")]
+class CIM_ElementConformsToProfile {
+
+      [Key, Description (
+          "The RegisteredProfile to which the ManagedElement conforms.")]
+   CIM_RegisteredProfile REF ConformantStandard;
+
+      [Key, Description (
+          "The ManagedElement that conforms to the RegisteredProfile.")]
+   CIM_ManagedElement REF ManagedElement;
+};
+
+//
+// Classes above copied from CIM 2.9 Schema
+//
+
+class PG_SampleComputerSystem : CIM_ComputerSystem
+{
+    [Key]
+    uint16 providerType;
+};
+
+class PG_SampleComputerSystem1 : PG_SampleComputerSystem
+{
+};
+
+class PG_SampleComputerSystem2 : PG_SampleComputerSystem
+{
+};
+
+class PG_SampleElementConformsToProfile : CIM_ElementConformsToProfile
+{
+};

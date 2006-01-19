@@ -3760,7 +3760,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
             String dependentName;
             String profileOrgName;
             String dependentOrgName;
-            if(currentProfile == 1) // Other
+            if(currentProfile == 0) // Other
             {
                 if(otherProfilesIndex == numOtherProfiles)
                 {
@@ -3792,7 +3792,7 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                 profileName = profileName.subString(index+1);
             }
 
-            if(currentDependent == 1) // Other
+            if(currentDependent == 0) // Other
             {
                 if(otherDependentsIndex == numOtherDependents)
                 {

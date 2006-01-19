@@ -1,0 +1,121 @@
+#pragma locale ("en_US")
+instance of PG_ProviderModule 
+{
+    Description = "Instance Providers for the SampleComputerSystem and SampleElementConformsToProfile classes";
+    Caption = "Instance Providers for the Server Profile Sample";
+    Name = "ServerProfileSampleProviderModule";
+    Vendor = "Pegasus";
+    Version = "1.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.1.0";
+    Location = "ServerProfileSampleProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    Name = "ServerProfileSampleProvider1";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    Name = "ServerProfileSampleProvider2";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider1";
+    CapabilityID = "SampleCS1";
+    ClassName = "PG_SampleComputerSystem1";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider2";
+    CapabilityID = "SampleCS2";
+    ClassName = "PG_SampleComputerSystem2";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider2";
+    CapabilityID = "SampleECTP2";
+    ClassName = "PG_SampleElementConformsToProfile";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 2, 3 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};
+
+instance of PG_ProviderProfileCapabilities
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider1";
+    CapabilityID = "ArrayProfile1";
+    RegisteredProfile = 9; // Array profile
+    RegisteredSubprofiles = { 2, 5, 32 }; // Access Points, Resource Ownership,
+                                          // Multiple Computer Systems
+    ProfileVersion = "1.1.0";
+    ConformingElements = { "PG_SampleComputerSystem1" };
+};
+
+instance of PG_ProviderProfileCapabilities
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider2";
+    CapabilityID = "ArrayProfile2";
+    RegisteredProfile = 9; // Array profile
+    RegisteredSubprofiles = { 32 }; // Multiple Computer Systems
+    ProfileVersion = "1.1.0";
+};
+
+instance of PG_ProviderProfileCapabilities
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider2";
+    CapabilityID = "OtherProfile2";
+    RegisteredProfile = 0; // Other
+    OtherRegisteredProfile = "SampleProfile";
+    RegisteredSubprofiles = { 0, 32, 0 }; // Other, MCS, Other
+    OtherRegisteredSubprofiles = { "SampleSubprofile1", "SampleSubprofile2" };
+    OtherRegisteredOrganization = "TEST";
+    ProfileVersion = "0.0.1";
+};
+
+instance of PG_ProviderReferencedProfiles
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider1";
+    CapabilityID = "SampleProvider1ReferencedProfiles";
+    RegisteredProfiles = { 9 }; // Array
+    DependentProfiles = { 46 }; // MCS
+    RegisteredProfileVersions = { "1.1.0" };
+    DependentProfileVersions = { "1.1.0" };
+};
+
+instance of PG_ProviderReferencedProfiles
+{
+    ProviderModuleName = "ServerProfileSampleProviderModule";
+    ProviderName = "ServerProfileSampleProvider2";
+    CapabilityID = "SampleProvider2ReferencedProfiles";
+    RegisteredProfiles = { 9, 0, 0 }; // Array, Other, Other
+    OtherRegisteredProfiles = { "DMTF:SampleProfile", "DMTF:SampleProfile" };
+    OtherRegisteredProfileOrganizations = { "TEST", "TEST" };
+    DependentProfiles = { 46, 0, 0 }; // MCS, Other, Other
+    OtherDependentProfiles= { "SampleSubprofile1", "SampleSubprofile2" };
+    OtherDependentProfileOrganizations = { "TEST", "TEST" };
+    RegisteredProfileVersions = { "1.1.0", "0.0.1", "0.0.1" };
+    DependentProfileVersions = { "1.1.0", "0.0.1", "0.0.1" };
+};

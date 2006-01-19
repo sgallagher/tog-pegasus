@@ -113,7 +113,8 @@ endif
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 FLAGS += -g -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 else
-FLAGS += -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -s -fno-enforce-eh-specs
+FLAGS += -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -s 
+  EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
   ifdef PEGASUS_OPTIMIZE_FOR_SIZE
     FLAGS += -Os
   else

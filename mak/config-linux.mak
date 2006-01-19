@@ -122,6 +122,8 @@ FLAGS += -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -s
   endif
 endif
 
+FLAGS += $(CXX_MACHINE_OPTIONS)
+
 ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes
 endif

@@ -32,4 +32,5 @@
 include $(ROOT)/mak/config-linux.mak
 
 ARCHITECTURE = X86_64
-
+CXX_MACHINE_OPTIONS = -m64
+LINK_MACHINE_OPTIONS = -m64

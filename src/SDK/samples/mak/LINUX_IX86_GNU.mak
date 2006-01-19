@@ -36,6 +36,10 @@ PLATFORM_SUFFIX = so
 
 DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 
+CXX_MACHINE_OPTIONS= -m32
+
+LINK_MACHINE_OPTIONS= -m32
+
 ## Options:
 ##     -O2          turns on level 2 optimization
 ##     -W           prints extra warning messages
@@ -48,13 +52,13 @@ DEFINES = -DPEGASUS_PLATFORM_$(PEGASUS_PLATFORM)
 ##       -rpath     adds a directory to the runtime library search path
 ##
 
-PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -fPIC
+PROGRAM_COMPILE_OPTIONS = -O2 -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -fPIC $(CXX_MACHINE_OPTIONS)
 
-PROGRAM_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
+PROGRAM_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) $(LINK_MACHINE_OPTIONS)
 
 LIBRARY_COMPILE_OPTIONS = $(PROGRAM_COMPILE_OPTIONS)
 
-LIBRARY_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR)
+LIBRARY_LINK_OPTIONS = -Xlinker -rpath -Xlinker $(PEGASUS_DEST_LIB_DIR) $(LINK_MACHINE_OPTIONS)
 
 SYS_LIBS = -ldl -lpthread -lcrypt
 
@@ -63,5 +67,3 @@ LIBRARY_LINK_COMMAND = $(COMPILE_COMMAND) -shared
 PROGRAM_LINK_COMMAND = $(COMPILE_COMMAND)
 
 LINK_OUT = -o
-
-          

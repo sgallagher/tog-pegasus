@@ -32,3 +32,5 @@
 include $(ROOT)/mak/config-linux.mak
 
 ARCHITECTURE = iX86
+CXX_MACHINE_OPTIONS= -m32
+LINK_MACHINE_OPTIONS= -m32

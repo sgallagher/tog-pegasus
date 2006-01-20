@@ -1115,7 +1115,7 @@ ContentLanguageList LocalizedProvider::_loadLocalizedProps(
 	// the last content language saved for ContentLanguageString
 	LanguageTag contentLT;
 	LanguageTag acceptLT;
-        Real32 acceptQV;
+        Real32 acceptQV = 0;
 
 	Boolean matchFound = false;
 	for (Uint32 alIndex = 0; alIndex < acceptLangs.size(); alIndex++)

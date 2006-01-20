@@ -30,6 +30,8 @@
 // Author: Nag Boranna, Hewlett-Packard Company (nagaraja.boranna@hp.com)
 //
 // Modified By: David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//              Sushma Fernandes,  Hewlett-Packard Company
+//                 sushma_fernandes@hp.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -73,10 +75,17 @@ PEGASUS_NAMESPACE_BEGIN
 //
 Boolean verifyClientOptionalCallback(SSLCertificateInfo &certInfo)
 {
+#if defined PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
     // SSL callback for the "optional" client verification setting
     // By always returning true, we allow the handshake to continue
     // even if the client sent no certificate or sent an untrusted certificate.
     return true;
+#else
+    //
+    // Return the OpenSSL verification result
+    //
+    return certInfo.getResponseCode();
+#endif
 }
 
 

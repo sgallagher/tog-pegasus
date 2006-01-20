@@ -528,6 +528,13 @@ ifdef PEGASUS_ENABLE_SLP
   endif
 endif
 
+#
+# Enable this flag to allow the handshake to continue regardless of verification result 
+#
+ifdef PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
+  DEFINES += -DPEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
+endif
+
 # set PEGASUS_DEBUG into the DEFINES if it exists.
 # Note that this flag is the general separator between
 # debug compiles and non-debug compiles and controls both

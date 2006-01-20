@@ -160,17 +160,19 @@ ifdef PEGASUS_HAS_SSL
 	@$(OPENSSL_COMMAND) ca -config $(OPENSSL_CNF) -gencrl -keyfile $(PEGASUS_HOME)/testca1.key -cert $(PEGASUS_HOME)/testca1.cert -out $(PEGASUS_HOME)/testca2.crl
 endif
 
-
 SSLCertificateTest1: test_setup
 ifdef PEGASUS_HAS_SSL
 	@$(RM) $(RESULTFILE)
 	@$(MAKE) -i -s SSLCertificateTest1_ignoreerror
 	@$(STRIPCRS)
+ifdef PEGASUS_OVERRIDE_SSL_CERT_VERIFICATION_RESULT
+	@$(DIFF) result.master.override result
+else
 	$(COMPARERESULTS)
+endif
 	@$(ECHO) +++ Test passed +++
 	#@$(RM) $(RESULTFILE) Leaving this file here for now, so we have it to debug any poststarttest failures
 endif
-
 
 SSLCertificateTest1_ignoreerror:
 ifdef PEGASUS_HAS_SSL
@@ -181,7 +183,7 @@ ifndef PEGASUS_PAM_AUTHENTICATION
     endif
 endif	
 	
-	@$(ECHO) "Connect with an expired certificate -- should get a 401" >> $(RESULTFILE)
+	@$(ECHO) "Connect with an expired certificate -- should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testexpired1.cert $(PEGASUS_HOME)/testexpired1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -189,7 +191,7 @@ endif
 	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testexpired1.cert >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)	
 	
-	@$(ECHO) "Connect with a not yet valid certificate -- should get a 401" >> $(RESULTFILE)
+	@$(ECHO) "Connect with a not yet valid certificate -- should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testnotyetvalid1.cert $(PEGASUS_HOME)/testnotyetvalid1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)  
 	
@@ -197,7 +199,7 @@ endif
 	@ssltrustmgr -a -c $(CURRENT_USER) -f $(PEGASUS_HOME)/testnotyetvalid1.cert >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)  
 
-	@$(ECHO) "Connect with an untrusted certificate -- should get a 401" >> $(RESULTFILE)
+	@$(ECHO) "Connect with an untrusted certificate -- should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -217,7 +219,7 @@ endif
 	@ssltrustmgr -r -i /C=US/ST=VIRGINIA/L=Fairfax/O=OpenGroup/OU=OpenPegasus/CN=TestSelfSigned1 -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect, this should fail and get 401'ed" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn1.cert $(PEGASUS_HOME)/testdn1.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -245,7 +247,7 @@ endif
 	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca1.crl >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect with the 1st certificate, this should fail with a connection failure" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 1st certificate, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -261,7 +263,7 @@ endif
 	@ssltrustmgr -a -R -f $(PEGASUS_HOME)/testca2.crl >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect with the 1st certificate, this should fail with a connection failure" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 1st certificate, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -269,7 +271,7 @@ endif
 	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect with the 3rd certificate, this should fail with a connection failure" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 3rd certificate, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
@@ -297,15 +299,15 @@ endif
 	@ssltrustmgr -r -i /C=US/ST=WASHINGTON/L=Seattle/O=OpenGroup/OU=OpenPegasus/CN=TestCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect with the 1st certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 1st certificate issued by the CA, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn2.cert $(PEGASUS_HOME)/testdn2.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect with the 2nd certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 2nd certificate issued by the CA, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn3.cert $(PEGASUS_HOME)/testdn3.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 	
-	@$(ECHO) "Try to connect with the 3rd certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the 3rd certificate issued by the CA, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testdn4.cert $(PEGASUS_HOME)/testdn4.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)	
 
@@ -345,11 +347,11 @@ endif
 	@ssltrustmgr -r -i /C=US/ST=California/L=Sacramento/O=OpenGroup/OU=OpenPegasus/CN=TestChainCA -n 0 >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
-	@$(ECHO) "Try to connect with the intermediate certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the intermediate certificate issued by the CA, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testinter.cert $(PEGASUS_HOME)/testinter.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
-	@$(ECHO) "Try to connect with the leaf certificate issued by the CA, this should get 401'ed" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect with the leaf certificate issued by the CA, this should fail" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testleaf.cert $(PEGASUS_HOME)/testleaf.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
@@ -361,7 +363,7 @@ endif
 	@ssltrustmgr -a -f $(PEGASUS_HOME)/testchca.cert >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 
-	@$(ECHO) "Try to connect, this should fail (401) since the root CA does not have an associated user name" >> $(RESULTFILE)
+	@$(ECHO) "Try to connect, this should fail since the root CA does not have an associated user name" >> $(RESULTFILE)
 	@TestCertClient $(PEGASUS_HOME)/testinter.cert $(PEGASUS_HOME)/testinter.key $(PEGASUS_HOME)/ssl.rnd >> $(RESULTFILE) $(REDIRECTERROR)
 	@$(ECHO) >> $(RESULTFILE)
 

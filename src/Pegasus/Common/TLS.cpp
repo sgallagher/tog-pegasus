@@ -36,6 +36,8 @@
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
 //         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //         David Dillard, Symantec Corp. (david_dillard@symantec.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -427,12 +429,14 @@ Boolean SSLSocket::isPeerVerificationEnabled()
 
 Array<SSLCertificateInfo*> SSLSocket::getPeerCertificateChain()
 {
+    Array<SSLCertificateInfo*> peerCertificate;
+
     if (_SSLCallbackInfo.get())
     {
-        return (_SSLCallbackInfo->_rep->peerCertificate);
+        peerCertificate = _SSLCallbackInfo->_rep->peerCertificate;
     }
 
-    return NULL;
+    return peerCertificate;
 }
 
 Boolean SSLSocket::isCertificateVerified()
@@ -442,7 +446,7 @@ Boolean SSLSocket::isCertificateVerified()
 
 
 //
-// MP_Socket (Multi-purpose Socket class
+// MP_Socket (Multi-purpose Socket class)
 //
 
 
@@ -643,7 +647,13 @@ Sint32 MP_Socket::connect() { return 0; }
 
 Boolean MP_Socket::isPeerVerificationEnabled() { return false; }
 
-Array<SSLCertificateInfo*> MP_Socket::getPeerCertificateChain() { return NULL; }
+Array<SSLCertificateInfo*> MP_Socket::getPeerCertificateChain()
+{
+//
+//  Return empty array
+//
+return Array<SSLCertificateInfo*>();
+}
 
 Boolean MP_Socket::isCertificateVerified() { return false; }
 

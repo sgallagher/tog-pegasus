@@ -33,6 +33,8 @@
 //              Heather Sterling, IBM (hsterl@us.ibm.com)
 //              Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //              David Dillard, Symantec Corp.  (david_dillard@symantec.com)
+//              Carol Ann Krug Graves, Hewlett-Packard Company
+//                  (carolann_graves@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -110,6 +112,13 @@ public:
 
     Boolean isCertificateVerified();
 
+    /**
+        Gets peer certificate chain.
+
+        @return array of SSLCertificateInfo pointers if there is an
+                    SSLCallbackInfo pointer,
+                Otherwise an empty array
+     */
     Array<SSLCertificateInfo*> getPeerCertificateChain();
 
 private:

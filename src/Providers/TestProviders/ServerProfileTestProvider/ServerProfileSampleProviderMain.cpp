@@ -48,13 +48,11 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String & nam
     if(String::equalNoCase(name, "ServerProfileSampleProvider1") ||
        String::equalNoCase(name, "ServerProfileSampleProvider1 (PROVIDER)"))
     {
-        cout << "Entry to ServerProfileSampleProvider1" << endl;
         return(new ServerProfileSampleProvider(1));
     }
     else if(String::equalNoCase(name, "ServerProfileSampleProvider2") ||
        String::equalNoCase(name, "ServerProfileSampleProvider2 (PROVIDER)"))
     {
-        cout << "Entry to ServerProfileSampleProvider2" << endl;
         return(new ServerProfileSampleProvider(2));
     }
     return(0);

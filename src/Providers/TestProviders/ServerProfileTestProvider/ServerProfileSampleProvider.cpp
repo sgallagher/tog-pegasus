@@ -213,7 +213,7 @@ void buildElementConformsInstance(
     newInst.setPath(newInst.buildPath(ecClass));
 }
 
-void ServerProfileSampleProvider::ServerProfileSampleProvider::initialize(
+void ServerProfileSampleProvider::initialize(
         CIMOMHandle & cimom)
 {
     static CIMNamespaceName sampleNamespace("test/TestProvider");

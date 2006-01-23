@@ -316,7 +316,7 @@ static const String INTEROP_PROVIDER_NAME("Interoperability Provider");
 static const String PEGASUS_MODULE_NAME = String(PEGASUS_CIMOM_GENERIC_NAME) +
     String(" ") + String(PEGASUS_PRODUCT_NAME);
 static const String PEGASUS_INTERNAL_PROVIDER_TYPE("Internal Control Provider");
-static const String PEGASUS_DYNAMIC("__DYNAMIC:");
+static const String PEGASUS_DYNAMIC("__DYNAMIC_");
 static const Uint32 PEGASUS_DYNAMIC_LEN(PEGASUS_DYNAMIC.size());
 
 // Create a context container to prevent reentry into the 
@@ -3803,8 +3803,8 @@ Array<CIMInstance> InteropProvider::enumReferencedProfileInstances()
                             getString());
                 }
 
-                dependentName = otherDependentProfiles[otherProfilesIndex];
-                dependentOrgName = otherDependentOrganizations[otherProfilesIndex++];
+                dependentName = otherDependentProfiles[otherDependentsIndex];
+                dependentOrgName = otherDependentOrganizations[otherDependentsIndex++];
             }
             else
             {
@@ -3979,7 +3979,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
         Array<CIMName> & elementList = conformingElements[i];
         Array<CIMNamespaceName> & namespaceList = elementNamespaces[i];
         Array<CIMObjectPath> conformingElementPaths;
-        for(Uint32 j = 0, m = conformingElements.size(); j < m; ++j)
+        for(Uint32 j = 0, m = elementList.size(); j < m; ++j)
         {
             CIMName & currentElement = elementList[j];
             CIMNamespaceName & currentNamespace = namespaceList[j];
@@ -4017,7 +4017,7 @@ Array<CIMInstance> InteropProvider::enumElementConformsToProfileInstances(
                         // current profile ID.
                         CIMObjectPath profilePath =
                             getRequiredValue<CIMObjectPath>(
-                                elementConformsInstances[j],
+                                elementConformsInstances[k],
                                 ELEMENTCONFORMSTOPROFILE_PROPERTY_CONFORMANTSTANDARD);
                         const Array<CIMKeyBinding> & keys =
                             profilePath.getKeyBindings();
@@ -4354,7 +4354,11 @@ void InteropProvider::cacheProfileRegistrationInfo()
         Array<CIMName> conformingElementsForProfile;
         Array<CIMNamespaceName> elementNamespacesForProfile;
 
-        if(propIndex == PEG_NOT_FOUND)
+        Array<String> elementClasses;
+        currentProfileInstance.getProperty(propIndex).getValue().get(
+            elementClasses);
+        //if(propIndex == PEG_NOT_FOUND)
+        if(elementClasses.size() == 0)
         {
             // Get the namespaces in which this provider operates and trim down
             // the list of capabilities instaces to just those that are related
@@ -4422,7 +4426,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
                         CIMNamespaceName curNamespace = curNamespaces[z];
                         Uint32 k = 0;
                         Uint32 x = namespacesForProvider.size();
-                        for(; k < x; ++x)
+                        for(; k < x; ++k)
                         {
                             if(curNamespace == namespacesForProvider[k])
                             {
@@ -4452,7 +4456,7 @@ void InteropProvider::cacheProfileRegistrationInfo()
                         // add it to the list
                         Array<CIMName> & subClasses =
                             subclassesForNamespace[foundIndex];
-                        for(k = 0, x = subClasses.size(); k < x; ++x)
+                        for(k = 0, x = subClasses.size(); k < x; ++k)
                         {
                             if(subClasses[k] == currentClass)
                             {
@@ -4470,9 +4474,9 @@ void InteropProvider::cacheProfileRegistrationInfo()
         }
         else
         {
-            Array<String> elementClasses;
-            currentProfileInstance.getProperty(propIndex).getValue().get(
-                elementClasses);
+            //Array<String> elementClasses;
+            //currentProfileInstance.getProperty(propIndex).getValue().get(
+            //    elementClasses);
             for(Uint32 j = 0, m = elementClasses.size(); j < m; ++j)
             {
                 CIMName elementClass(elementClasses[j]);

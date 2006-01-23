@@ -46,7 +46,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -155,7 +155,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -264,7 +264,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -373,7 +373,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -482,7 +482,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -591,7 +591,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -700,7 +700,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -809,7 +809,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -918,7 +918,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1027,7 +1027,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1136,7 +1136,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1245,7 +1245,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1354,7 +1354,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1463,7 +1463,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1572,7 +1572,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1681,7 +1681,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1790,7 +1790,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -1899,7 +1899,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2008,7 +2008,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2117,7 +2117,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2226,7 +2226,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2335,7 +2335,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2444,7 +2444,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2553,7 +2553,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2662,7 +2662,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2771,7 +2771,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2880,7 +2880,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -2989,7 +2989,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3098,7 +3098,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3207,7 +3207,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3316,7 +3316,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3425,7 +3425,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3534,7 +3534,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3643,7 +3643,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3752,7 +3752,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3861,7 +3861,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">
@@ -3970,7 +3970,7 @@ localhost
 </KEYBINDING>
 <KEYBINDING NAME="FSCreationClassName">
 <KEYVALUE VALUETYPE="string">
-CWS_FileSystem
+CIM_FileSystem
 </KEYVALUE>
 </KEYBINDING>
 <KEYBINDING NAME="FSName">

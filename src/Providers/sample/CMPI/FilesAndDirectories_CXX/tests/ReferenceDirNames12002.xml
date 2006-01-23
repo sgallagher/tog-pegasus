@@ -17,7 +17,7 @@
        <KEYVALUE VALUETYPE="string">localhost</KEYVALUE>
       </KEYBINDING>
       <KEYBINDING NAME="FSCreationClassName">
-       <KEYVALUE VALUETYPE="string">CWS_FileSystem</KEYVALUE>
+       <KEYVALUE VALUETYPE="string">CIM_FileSystem</KEYVALUE>
       </KEYBINDING>
       <KEYBINDING NAME="FSName">
        <KEYVALUE VALUETYPE="string">/Simulated/CMPI/tests/</KEYVALUE>

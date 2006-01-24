@@ -75,3 +75,17 @@ $(OBJ_DIR)/%.o: %.c $(ERROR)
 	@ $(TOUCH) $@
 	@ $(ECHO)
 endif
+
+ifeq ($(_NO_TMP_O), yes)
+$(OBJ_DIR)/%.o: %.s $(ERROR)
+	$(CC) -c -o $@ $(FLAGS) $(EXTRA_C_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.s
+	@ $(TOUCH) $@
+	@ $(ECHO)
+else
+$(OBJ_DIR)/%.o: %.s $(ERROR)
+	$(CC) -c -o $(_TMP_O) $(FLAGS) $(EXTRA_C_FLAGS) $(LOCAL_DEFINES) $(DEFINES) $(SYS_INCLUDES) $(INCLUDES) $*.s
+	@ $(COPY) $(_TMP_O) $@
+	@ $(RM) $(_TMP_O)
+	@ $(TOUCH) $@
+	@ $(ECHO)
+endif

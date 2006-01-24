@@ -406,8 +406,13 @@ int DependCmdMain(int argc, char** argv)
         if( dot == NULL )
                 ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
 
-        if ((strcmp(dot, ".cpp") != 0) && (strcmp(dot, ".c") != 0))
-            ErrorExit("bad extension: must be \".c\" or \".cpp\": " + fileName);
+        if ((strcmp(dot, ".cpp") != 0) &&
+            (strcmp(dot, ".c") != 0) &&
+            (strcmp(dot, ".s") != 0))
+        {
+            ErrorExit("bad extension: must be \".c\", \".cpp\", or \".s\": " +
+                fileName);
+        }
 
         string objectFileName;
 

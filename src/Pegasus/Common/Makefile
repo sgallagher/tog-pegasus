@@ -105,7 +105,7 @@ SOURCES1 = \
     Config.cpp \
     DeclContext.cpp \
     Dir.cpp \
-    DQueue.cpp \
+    DQueue.cpp
 
 SOURCES2 = \
     DynamicLibrary.cpp \
@@ -167,14 +167,18 @@ SOURCES2 = \
     peg_authorization.cpp \
     CommonUTF.cpp
 
-SOURCES = $(SOURCES1) $(SOURCES2)
-
 SOURCES_SLP = Attribute.cpp \
     CIMServerDescription.cpp
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)
-  SOURCES += $(SOURCES_SLP)
+  SOURCES2 += $(SOURCES_SLP)
 endif
+
+ifeq ($(PEGASUS_PLATFORM),HPUX_PARISC_ACC)
+  SOURCES2 += LoadAndClearWord_HPUX_PARISC_ACC.s
+endif
+
+SOURCES = $(SOURCES1) $(SOURCES2)
 
 ifeq ($(OS),linux)
   EXTRA_LIBRARIES += -lcrypt

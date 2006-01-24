@@ -308,7 +308,7 @@ CMPILocalProviderManager::_provider_ctrl (CTRL code, void *parm, void *ret)
         quantum++;
         CMPILocalProviderManager *myself =
           reinterpret_cast < CMPILocalProviderManager * >(parm);
-        CMPIProvider *provider;
+        CMPIProvider *provider = 0;
         Uint32 numProviders = myself->_providers.size ();
 
         if (numProviders)

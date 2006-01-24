@@ -241,7 +241,7 @@ const char* MessageTypeToString(Uint32 messageType)
 CIMOperationType Message::convertMessageTypetoCIMOpType(Uint32 type)
 {
 
-    CIMOperationType enum_type;
+    CIMOperationType enum_type = CIMOPTYPE_GET_CLASS;
     switch (type)
     {
         case CIM_GET_CLASS_REQUEST_MESSAGE:

@@ -411,7 +411,7 @@ void _testNotSupported()
     cout << "\n+++++ Test for Not Supported Static and Dynamic instance" << endl;
     Array<CIMObjectPath> marriageRefs;
     Array<CIMObjectPath> personRefs;
-    Uint32 nummarriageInstances ;
+    Uint32 nummarriageInstances = 0;
     Uint32 numpersonInstances ;
 
     try
@@ -504,7 +504,7 @@ void _testNotFound()
      cout << "\n+++++ Test for Supported Static and Not Found Dynamic instance" << endl;
      Array<CIMObjectPath> familyRefs;
      Array<CIMObjectPath> personRefs;
-     Uint32 numfamilyInstances ;
+     Uint32 numfamilyInstances = 0;
      Uint32 numpersonInstances ;
 
     try

@@ -1192,7 +1192,7 @@ void CQLValueRep::_setValue(CIMValue cv,Sint64 key)
 {
   PEG_METHOD_ENTER(TRC_CQL,"CQLValueRep::_setValue()");
   CIMValue tmp;
-  Uint32 index;
+  Uint32 index = 0;
 
   if(cv.isNull())
     {
@@ -1703,7 +1703,7 @@ void CQLValueRep::_resolveSymbolicConstant(const QueryContext& inQueryCtx)
    CIMValue valueMap;               // CIMValue for Value Map Qualifiers
    CIMValue values;                 // CIMValue for Values Qualifiers
    Boolean matchFound = false;      // Indicator for match Qualifier
-   Uint32 matchIndex;               // Placeholder for matched Qualifier
+   Uint32 matchIndex = 0;           // Placeholder for matched Qualifier
 
    if(lid.isScoped())
    {

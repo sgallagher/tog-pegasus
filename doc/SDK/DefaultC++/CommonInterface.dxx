@@ -1,6 +1,5 @@
   //@{
-    //@Include: ../../../src/Pegasus/Common/AcceptLanguages.h
-    //@Include: ../../../src/Pegasus/Common/AcceptLanguageElement.h
+    //@Include: ../../../src/Pegasus/Common/AcceptLanguageList.h
     //@Include: ../../../src/Pegasus/Common/Array.h
     //@Include: ../../../src/Pegasus/Common/ArrayInter.h
     //@Include: ../../../src/Pegasus/Common/Char16.h
@@ -24,13 +23,10 @@
     //@Include: ../../../src/Pegasus/Common/CIMType.h
     //@Include: ../../../src/Pegasus/Common/CIMValue.h
     //@Include: ../../../src/Pegasus/Common/Config.h
-    //@Include: ../../../src/Pegasus/Common/ContentLanguageElement.h
-    //@Include: ../../../src/Pegasus/Common/ContentLanguages.h
+    //@Include: ../../../src/Pegasus/Common/ContentLanguageList.h
     //@Include: ../../../src/Pegasus/Common/Exception.h
     //@Include: ../../../src/Pegasus/Common/Formatter.h
-    //@Include: ../../../src/Pegasus/Common/LanguageElement.h
-    //@Include: ../../../src/Pegasus/Common/LanguageElementContainer.h
-    //@Include: ../../../src/Pegasus/Common/LanguageParser.h
+    //@Include: ../../../src/Pegasus/Common/LanguageTag.h
     //@Include: ../../../src/Pegasus/Common/MessageLoader.h
     //@Include: ../../../src/Pegasus/Common/OperationContext.h
     //@Include: ../../../src/Pegasus/Common/Platform_LINUX_IA64_GNU.h

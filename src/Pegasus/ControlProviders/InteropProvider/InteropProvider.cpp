@@ -1194,14 +1194,18 @@ CIMInstance InteropProvider::_getInstanceCIMObjectManager(
         // from config parameters.
         // If PEGASUS_CIMOM_DESCRIPTION is non-zero length, use it.
         // Otherwise build form the components below.
+        String descriptionStatus;
+        String pegasusProductStatus(PEGASUS_PRODUCT_STATUS);
+        if(pegasusProductStatus.size() > 0)
+            descriptionStatus = " " + pegasusProductStatus;
 
         String description = (String(PEGASUS_CIMOM_DESCRIPTION).size() != 0) ?
                 String(PEGASUS_CIMOM_DESCRIPTION)
             :
                 String(PEGASUS_CIMOM_GENERIC_NAME) + " " +
                 String(PEGASUS_PRODUCT_NAME) + " Version " +
-                String(PEGASUS_PRODUCT_VERSION) + " " +
-                String(PEGASUS_PRODUCT_STATUS);
+                String(PEGASUS_PRODUCT_VERSION) +
+                descriptionStatus;
 
         _setPropertyValue(instance, CIMName("Description"), description);
 

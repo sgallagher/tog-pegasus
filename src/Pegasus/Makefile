@@ -30,35 +30,60 @@ ROOT=$(PEGASUS_ROOT)
 
 include $(ROOT)/mak/config.mak
 
-
 DIRS = \
     Common \
+    Common/tests \
     Query/QueryCommon \
-    Config \
-    Repository \
-    getoopt \
     Client \
-    Compiler \
-    Compiler/cmdline \
-    ExportClient \
+    Client/tests \
+    Config \
+    Config/tests \
+    Repository \
+    Repository/tests \
+    getoopt \
     WQL \
+    WQL/tests \
     CQL \
+    CQL/CQLCLI \
     Query/QueryExpression \
+    Query/QueryExpression/tests \
+    Query/QueryExpression/tests/Queries \
     Provider \
+    CQL/tests \
+    Compiler \
+    Compiler/tests \
+    Compiler/cmdline
+
+ifneq ($(OS),HPUX)
+    DIRS += \
+        Compiler/cmdline/tests
+endif
+
+DIRS += \
+    ExportClient \
+    ExportClient/tests \
     Server/ProviderRegistrationManager \
+    Server/ProviderRegistrationManager/tests \
     ExportServer \
+    ExportServer/tests \
+    Consumer/tests \
     Listener \
+    Listener/tests \
     Security/UserManager \
+    Security/UserManager/tests \
     Security/Authentication \
+    Security/Authentication/tests \
     ControlProviders/ConfigSettingProvider \
     ControlProviders/UserAuthProvider \
     ControlProviders/ProviderRegistrationProvider \
+    ControlProviders/ProviderRegistrationProvider/tests \
     ControlProviders/NamespaceProvider \
     HandlerService \
     IndicationService \
+    IndicationService/tests \
     ManagedClient \
-    DynListener
-
+    DynListener \
+    DynListener/tests
 
 ifdef PEGASUS_ENABLE_SYSTEM_LOG_HANDLER
     DIRS += \
@@ -71,118 +96,91 @@ ifdef PEGASUS_ENABLE_EMAIL_HANDLER
 endif
 
 DIRS += \
-        ProviderManager2 \
-	ProviderManager2/Default \
-	ProviderManager2/ProviderAgent \
-	ProviderManager2/tests \
-	ProviderManager2/Default/tests 
+    ProviderManager2 \
+    ProviderManager2/tests \
+    ProviderManager2/Default \
+    ProviderManager2/Default/tests \
+    ProviderManager2/ProviderAgent
 
 ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-DIRS += \
-	Provider/CMPI \
-	ProviderManager2/CMPI
+    DIRS += \
+        Provider/CMPI \
+        ProviderManager2/CMPI
 endif
 
-
 ifdef PEGASUS_ENABLE_REMOTE_CMPI
-  ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
- $(error Error: Remote CMPI is not currently supported on Windows.)
-  endif
-    DIRS += \
-	ProviderManager2/CMPIR \
-	ProviderManager2/CMPIR/tcpcomm 
+    ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+        $(error Error: Remote CMPI is not currently supported on Windows.)
+    endif
 
-  ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-   DIRS += \
-	ProviderManager2/CMPIR/native \
-	ProviderManager2/CMPIR/tcpcommrem \
-	ProviderManager2/CMPIR/daemon
-  endif
+    DIRS += \
+        ProviderManager2/CMPIR \
+        ProviderManager2/CMPIR/tcpcomm 
+
+    ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+        DIRS += \
+            ProviderManager2/CMPIR/native \
+            ProviderManager2/CMPIR/tcpcommrem \
+            ProviderManager2/CMPIR/daemon
+    endif
 endif
 
 ifdef PEGASUS_ENABLE_JMPI_PROVIDER_MANAGER
-  ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
-      DIRS += \
-         ProviderManager2/JMPI
-  endif
-  ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
-      DIRS += \
-         ProviderManager2/JMPI
-  endif
-  ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
-      DIRS += \
-         ProviderManager2/JMPI
-  endif
+    ifeq ($(PEGASUS_PLATFORM), WIN32_IX86_MSVC)
+        DIRS += \
+            ProviderManager2/JMPI
+    endif
+    ifeq ($(PEGASUS_PLATFORM),LINUX_IX86_GNU)
+        DIRS += \
+            ProviderManager2/JMPI
+    endif
+    ifeq ($(PEGASUS_PLATFORM),ZOS_ZSERIES_IBM)
+        DIRS += \
+            ProviderManager2/JMPI
+    endif
 endif
 
 ifdef PEGASUS_USE_PAM_STANDALONE_PROC
-DIRS += \
-	Security/Cimservera
+    DIRS += \
+        Security/Cimservera
 endif
 
 ifndef PEGASUS_DISABLE_PERFINST
-DIRS += \
-	ControlProviders/Statistic \
-	ControlProviders/Statistic/test
+    DIRS += \
+        ControlProviders/Statistic \
+        ControlProviders/Statistic/test
 endif
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)
-DIRS += \
-    ControlProviders/InteropProvider \
-    ControlProviders/InteropProvider/tests
-else
-    ifndef PEGASUS_DISABLE_PERFINST
     DIRS += \
         ControlProviders/InteropProvider \
         ControlProviders/InteropProvider/tests
-	endif
+else
+    ifndef PEGASUS_DISABLE_PERFINST
+        DIRS += \
+            ControlProviders/InteropProvider \
+            ControlProviders/InteropProvider/tests
+    endif
 endif
 
 ifndef PEGASUS_DISABLE_CQL
-DIRS += \
-	ControlProviders/QueryCapabilitiesProvider \
-	ControlProviders/QueryCapabilitiesProvider/tests
+    DIRS += \
+        ControlProviders/QueryCapabilitiesProvider \
+        ControlProviders/QueryCapabilitiesProvider/tests
 endif
-
 
 ifdef PEGASUS_HAS_SSL
-DIRS += \
-	ControlProviders/CertificateProvider
+    DIRS += \
+        ControlProviders/CertificateProvider
 endif
 
-
 DIRS += \
-	Server \
+    Server \
+    Server/tests \
     Handler/CIMxmlIndicationHandler \
     Handler/snmpIndicationHandler \
-    Common/tests \
-    Config/tests \
-    Repository/tests \
-    CQL/tests \
-    CQL/CQLCLI \
-    Query/QueryExpression/tests \
-    Query/QueryExpression/tests/Queries \
-    Server/tests \
-    Server/ProviderRegistrationManager/tests \
-    ExportClient/tests \
-    ExportServer/tests \
-    Client/tests \
-    Compiler/tests \
-    Security/Authentication/tests \
-    Security/UserManager/tests \
-    IndicationService/tests \
-    ControlProviders/ProviderRegistrationProvider/tests \
-    Listener/tests \
-    Consumer/tests \
     msg/Server \
     msg/CLI \
-    DynListener/tests \
-    WQL/tests \
     msg/Listener
-
-ifneq ($(OS),HPUX)
-  DIRS+= \
-    Compiler/cmdline/tests
-endif
 
 include $(ROOT)/mak/recurse.mak

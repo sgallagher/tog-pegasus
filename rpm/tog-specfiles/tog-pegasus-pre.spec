@@ -20,7 +20,7 @@ if [ -d %PEGASUS_REPOSITORY_DIR"/root#PG_Internal" ]; then
    fi
    /bin/mv %PEGASUS_REPOSITORY_DIR %PEGASUS_PREV_REPOSITORY_DIR
 fi
-if [ $1 -eq 1 ]; then
+if [ $1 -gt 0 ]; then
    #  Create the 'pegasus' user and group:
    /usr/sbin/groupadd pegasus > /dev/null 2>&1 || :;
    /usr/sbin/useradd -c "tog-pegasus OpenPegasus WBEM/CIM services" \

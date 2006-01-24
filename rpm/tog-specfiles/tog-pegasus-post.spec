@@ -3,6 +3,8 @@
 #           install   remove   upgrade  reinstall
 # %post        1        -         2         2
 #
+   export PEGASUS_ARCH_LIB=%PEGASUS_ARCH_LIB
+
    if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then
        # Running Repository Upgrade utility
        %PEGASUS_SBIN_DIR/repupgrade %PEGASUS_PREV_REPOSITORY_DIR \

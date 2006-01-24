@@ -472,9 +472,14 @@ prestage_cleanup: FORCE
 stage_PegasusProductDirectories: FORCE
 	$(foreach i, $(PEGASUS_SYSTEM_DIRECTORIES), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(i);)
 	$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(i);)
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_DEST_LIB_DIR)
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
+	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
 
 setpermissions_PegasusProductDirectories: FORCE
 	$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), $(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(i);)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_DIR)
+	$(MAKE) -f $(ROOT)/Makefile.Release setpermissions PERMISSIONS="$(Pr_xr_xr_x)" OWNER="$(INSTALL_USR)" GROUP="$(INSTALL_GRP)" OBJECT=$(PEGASUS_STAGING_DIR)$(PEGASUS_PROVIDER_LIB_DIR)
 
 stage_PegasusSocketDirectory: FORCE
 	$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)
@@ -857,10 +862,16 @@ create_ProductInstallationVerificationScript: FORCE
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_SYSTEM_DIRECTORIES), \
              $(ECHO-E) "ls -ld $(i)" >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+	@$(ECHO-E) "ls -ld $(PEGASUS_DEST_LIB_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "$(ECHO-E) \"\nPEGASUS-SPECIFIC DIRECTORIES\"" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(foreach i, $(PEGASUS_SPECIFIC_DIRECTORIES), \
              $(ECHO-E) "ls -ld $(i)" >> $(PEGASUS_HOME)/PegasusVerifyInstall;)
+	@$(ECHO-E) "ls -ld $(PEGASUS_PROVIDER_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
+	@$(ECHO-E) "ls -ld $(PEGASUS_PROVIDER_LIB_DIR)" \
+             >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_REPOSITORY_DIR)" \
              >> $(PEGASUS_HOME)/PegasusVerifyInstall
 	@$(ECHO-E) "ls -ld $(PEGASUS_LOCAL_DOMAIN_SOCKET_DIR)" \
@@ -997,6 +1008,11 @@ _append_PreambleToSpecFile: FORCE
 	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-intro.spec \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch.spec \
+             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%global PEGASUS_ARCH_LIB %{_lib}" >> \
+            $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global OPENSSL_HOME $(OPENSSL_HOME)" >> \
             $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global OPENSSL_BIN $(OPENSSL_BIN)" >> \
@@ -1047,9 +1063,6 @@ _append_PreambleToSpecFile: FORCE
              "%global PEGASUS_RPM_HOME \044RPM_BUILD_ROOT/build/tog-pegasus"\
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%global PEGASUS_INSTALL_LOG $(PEGASUS_LOG_DIR)/install.log"\
-             >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
-	@$(CAT) $(ROOT)/rpm/tog-specfiles/tog-pegasus-arch.spec \
              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
@@ -1121,7 +1134,7 @@ _append_postSectionToSpecFile_createSymbolicLinks: FORCE
 	@$(ECHO-E) "   #" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
             $(ECHO-E) "   ln -sf $(i)$(LIB_SUFFIX)\
-            $(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
+            $(PEGASUS_DEST_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "   # Create Symbolic Links for Packaged Provider Libraries"\
@@ -1129,7 +1142,7 @@ _append_postSectionToSpecFile_createSymbolicLinks: FORCE
 	@$(ECHO-E) "   #" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(foreach i, $(PEGASUS_PROVIDERS), $(ECHO-E) \
             "   ln -sf $(i)$(LIB_SUFFIX)\
-            $(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
+            $(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(ECHO-E) "" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 
@@ -1183,6 +1196,10 @@ _append_filesSectionToSpecFile: FORCE
              if [ $(i) != $(PEGASUS_CONFIG_DIR) ]; then \
                    $(ECHO-E) "%dir $(i)" >> \
              $(PEGASUS_RPM_SPEC_FILE_PATH); fi; fi; fi; fi;) 
+	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_DIR_2) " \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir $(PEGASUS_PROVIDER_LIB_DIR_2) " \
+              >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 	@$(ECHO-E) "%dir %attr($(Prwxr_x___), $(CIMSERVER_USR)," \
              "$(CIMSERVER_GRP)) $(PEGASUS_CONFIG_DIR)" \
@@ -1233,10 +1250,10 @@ _append_filesSectionToSpecFile: FORCE
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_BIN_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_DEST_LIB_DIR)/*$(LIB_SUFFIX)" \
+           "$(PEGASUS_DEST_LIB_DIR_2)/*$(LIB_SUFFIX)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_xr_x),$(INSTALL_USR),$(INSTALL_GRP))" \
-           "$(PEGASUS_PROVIDER_LIB_DIR)/*$(LIB_SUFFIX)" \
+           "$(PEGASUS_PROVIDER_LIB_DIR_2)/*$(LIB_SUFFIX)" \
            >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
 	@$(ECHO-E) "%attr($(Prwxr_x___),$(INSTALL_USR),$(INSTALL_GRP))" \
            "$(PEGASUS_SCRIPT_DIR)/*" >> $(PEGASUS_RPM_SPEC_FILE_PATH) 
@@ -1249,10 +1266,10 @@ _append_filesSectionToSpecFile: FORCE
             $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP))"\
             "$(PEGASUS_DOC_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
 	@$(foreach i, $(PEGASUS_LIBRARY_LINKS), \
-            $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
+            $(ECHO-E) "$(PEGASUS_DEST_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(foreach i, $(PEGASUS_PROVIDERS), \
-            $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR)/$(i)$(LIB_LINK_SUFFIX)" \
+            $(ECHO-E) "$(PEGASUS_PROVIDER_LIB_DIR_2)/$(i)$(LIB_LINK_SUFFIX)" \
             >> $(PEGASUS_RPM_SPEC_FILE_PATH);) 
 	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
 

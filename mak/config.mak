@@ -161,7 +161,7 @@ endif
 #
 # To use the PEGASUS_CIM_SCHEMA variable the Schema mof
 # files must be placed in the directory
-# $(PEGAUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
+# $(PEGASUS_ROOT)/Schemas/$(PEGASUS_CIM_SCHEMA)
 #
 # The value of PEGASUS_CIM_SCHEMA must conform to the
 # following syntax:

@@ -6,12 +6,6 @@ PEGASUS_ENABLE_MAKE_INSTALL = yes
 #OPENSSL_BIN=
 #PEGASUS_PLATFORM=
 
-ifeq ($(PEGASUS_PLATFORM), LINUX_X86_64_GNU)
-PEGASUS_ARCH_LIB=lib64
-else
-PEGASUS_ARCH_LIB=lib
-endif
-
 PEGASUS_OVERRIDE_PRODUCT_ID=yes
 PEGASUS_OVERRIDE_DEFAULT_RELEASE_DIRS=yes
 PEGASUS_PRODUCT_NAME="OpenPegasus"
@@ -41,8 +35,11 @@ PEGASUS_PROD_DIR = /usr
 PEGASUS_SBIN_DIR = $(PEGASUS_PROD_DIR)/sbin
 PEGASUS_BIN_DIR = $(PEGASUS_PROD_DIR)/bin
 PEGASUS_DEST_LIB_DIR = $(PEGASUS_PROD_DIR)/$(PEGASUS_ARCH_LIB)
+PEGASUS_DEST_LIB_DIR_2 = $(PEGASUS_PROD_DIR)/%PEGASUS_ARCH_LIB
 PEGASUS_PROVIDER_DIR = $(PEGASUS_PROD_DIR)/$(PEGASUS_ARCH_LIB)/Pegasus
+PEGASUS_PROVIDER_DIR_2 = $(PEGASUS_PROD_DIR)/%PEGASUS_ARCH_LIB/Pegasus
 PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_DIR)/providers
+PEGASUS_PROVIDER_LIB_DIR_2 = $(PEGASUS_PROVIDER_DIR_2)/providers
 
 PEGASUS_DOC_DIR = /usr/share/doc/tog-pegasus-2.5
 PEGASUS_MAN_DIR = /usr/share/man
@@ -108,7 +105,6 @@ PEGASUS_SYSTEM_DIRECTORIES = \
    /usr \
    /usr/sbin \
    /usr/bin \
-   /usr/$(PEGASUS_ARCH_LIB) \
    /usr/share \
    /usr/share/doc \
    /usr/share/man \
@@ -123,8 +119,6 @@ PEGASUS_SYSTEM_DIRECTORIES = \
 
 PEGASUS_SPECIFIC_DIRECTORIES = \
    /usr/share/doc/tog-pegasus-2.5 \
-   /usr/$(PEGASUS_ARCH_LIB)/Pegasus \
-   /usr/$(PEGASUS_ARCH_LIB)/Pegasus/providers \
    /usr/share/Pegasus \
    /usr/share/Pegasus/scripts \
    /usr/share/Pegasus/mof \
@@ -136,11 +130,10 @@ PEGASUS_SPECIFIC_DIRECTORIES = \
    /var/lib/Pegasus/cache/localauth \
    /var/lib/Pegasus/cache/trace \
    /var/run/tog-pegasus \
-   /etc/Pegasus
+   /etc/Pegasus 
 
 PEGASUS_DIRECTORIES_TO_BE_REMOVED = \
    /usr/share/doc/tog-pegasus-2.5 \
-   /usr/$(PEGASUS_ARCH_LIB)/Pegasus \
    /usr/share/Pegasus \
    /var/lib/Pegasus \
    /var/run/tog-pegasus \

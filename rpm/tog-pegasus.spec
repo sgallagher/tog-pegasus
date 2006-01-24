@@ -92,29 +92,6 @@ sources.
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-intro.spec
 
-%global OPENSSL_HOME /usr/include/openssl
-%global OPENSSL_BIN /usr/bin
-%global PEGASUS_PEM_DIR /etc/Pegasus
-%global PEGASUS_SSL_CERT_FILE server.pem
-%global PEGASUS_SSL_KEY_FILE file.pem
-%global PEGASUS_SSL_TRUSTSTORE client.pem
-%global PAM_CONFIG_DIR /etc/pam.d
-%global PEGASUS_CONFIG_DIR /etc/Pegasus
-%global PEGASUS_VARDATA_DIR /var/lib/Pegasus
-%global PEGASUS_VARDATA_CACHE_DIR /var/lib/Pegasus/cache
-%global PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  /var/run/tog-pegasus/socket/cimxml.socket
-%global PEGASUS_CIMSERVER_START_FILE /var/run/tog-pegasus/cimserver.pid
-%global PEGASUS_REPOSITORY_DIR /var/lib/Pegasus/repository
-%global PEGASUS_PREV_REPOSITORY_DIR_NAME prev_repository
-%global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
-%global PEGASUS_PREV_REPOSITORY_DIR /var/lib/Pegasus/prev_repository
-%global PEGASUS_SBIN_DIR /usr/sbin
-%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.5
-
-%global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
-%global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
-%global PEGASUS_INSTALL_LOG /var/lib/Pegasus/log/install.log
-
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-arch.spec
 #
 %ifarch ia64
@@ -144,6 +121,30 @@ sources.
 %endif
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-arch.spec
+
+%global PEGASUS_ARCH_LIB %{_lib}
+%global OPENSSL_HOME /usr/include/openssl
+%global OPENSSL_BIN /usr/bin
+%global PEGASUS_PEM_DIR /etc/Pegasus
+%global PEGASUS_SSL_CERT_FILE server.pem
+%global PEGASUS_SSL_KEY_FILE file.pem
+%global PEGASUS_SSL_TRUSTSTORE client.pem
+%global PAM_CONFIG_DIR /etc/pam.d
+%global PEGASUS_CONFIG_DIR /etc/Pegasus
+%global PEGASUS_VARDATA_DIR /var/lib/Pegasus
+%global PEGASUS_VARDATA_CACHE_DIR /var/lib/Pegasus/cache
+%global PEGASUS_LOCAL_DOMAIN_SOCKET_PATH  /var/run/tog-pegasus/socket/cimxml.socket
+%global PEGASUS_CIMSERVER_START_FILE /var/run/tog-pegasus/cimserver.pid
+%global PEGASUS_REPOSITORY_DIR /var/lib/Pegasus/repository
+%global PEGASUS_PREV_REPOSITORY_DIR_NAME prev_repository
+%global PEGASUS_REPOSITORY_PARENT_DIR /var/lib/Pegasus
+%global PEGASUS_PREV_REPOSITORY_DIR /var/lib/Pegasus/prev_repository
+%global PEGASUS_SBIN_DIR /usr/sbin
+%global PEGASUS_DOC_DIR /usr/share/doc/tog-pegasus-2.5
+
+%global PEGASUS_RPM_ROOT  $RPM_BUILD_DIR/$RPM_PACKAGE_NAME-$RPM_PACKAGE_VERSION
+%global PEGASUS_RPM_HOME $RPM_BUILD_ROOT/build/tog-pegasus
+%global PEGASUS_INSTALL_LOG /var/lib/Pegasus/log/install.log
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-packages.spec
 #
@@ -281,18 +282,18 @@ if [ $1 -eq 1 ]; then
 
    # Create Symbolic Links for SDK Libraries
    #
-   ln -sf libpegclient.so.1 /usr/lib/libpegclient.so
-   ln -sf libpegcommon.so.1 /usr/lib/libpegcommon.so
-   ln -sf libpegprovider.so.1 /usr/lib/libpegprovider.so
-   ln -sf libDefaultProviderManager.so.1 /usr/lib/libDefaultProviderManager.so
-   ln -sf libCIMxmlIndicationHandler.so.1 /usr/lib/libCIMxmlIndicationHandler.so
-   ln -sf libCMPIProviderManager.so.1 /usr/lib/libCMPIProviderManager.so
+   ln -sf libpegclient.so.1 /usr/%PEGASUS_ARCH_LIB/libpegclient.so
+   ln -sf libpegcommon.so.1 /usr/%PEGASUS_ARCH_LIB/libpegcommon.so
+   ln -sf libpegprovider.so.1 /usr/%PEGASUS_ARCH_LIB/libpegprovider.so
+   ln -sf libDefaultProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/libDefaultProviderManager.so
+   ln -sf libCIMxmlIndicationHandler.so.1 /usr/%PEGASUS_ARCH_LIB/libCIMxmlIndicationHandler.so
+   ln -sf libCMPIProviderManager.so.1 /usr/%PEGASUS_ARCH_LIB/libCMPIProviderManager.so
 
    # Create Symbolic Links for Packaged Provider Libraries
    #
-   ln -sf libComputerSystemProvider.so.1 /usr/lib/Pegasus/providers/libComputerSystemProvider.so
-   ln -sf libOSProvider.so.1 /usr/lib/Pegasus/providers/libOSProvider.so
-   ln -sf libProcessProvider.so.1 /usr/lib/Pegasus/providers/libProcessProvider.so
+   ln -sf libComputerSystemProvider.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libComputerSystemProvider.so
+   ln -sf libOSProvider.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libOSProvider.so
+   ln -sf libProcessProvider.so.1 /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libProcessProvider.so
 
 
 # Start of section pegasus/rpm/tog-specfiles/tog-pegasus-post.spec
@@ -300,6 +301,8 @@ if [ $1 -eq 1 ]; then
 #           install   remove   upgrade  reinstall
 # %post        1        -         2         2
 #
+   export PEGASUS_ARCH_LIB=%PEGASUS_ARCH_LIB
+
    if [ -d %PEGASUS_PREV_REPOSITORY_DIR ]; then
        # Running Repository Upgrade utility
        %PEGASUS_SBIN_DIR/repupgrade %PEGASUS_PREV_REPOSITORY_DIR \
@@ -378,8 +381,6 @@ fi;
 %files
 %defattr(600, root, pegasus, 755)
 %dir /usr/share/doc/tog-pegasus-2.5
-%dir /usr/lib/Pegasus
-%dir /usr/lib/Pegasus/providers
 %dir /usr/share/Pegasus
 %dir /usr/share/Pegasus/scripts
 %dir /usr/share/Pegasus/mof
@@ -390,6 +391,8 @@ fi;
 %dir /var/lib/Pegasus/log
 %dir /var/lib/Pegasus/cache/localauth
 %dir /var/run/tog-pegasus
+%dir /usr/%PEGASUS_ARCH_LIB/Pegasus 
+%dir /usr/%PEGASUS_ARCH_LIB/Pegasus/providers 
 
 %dir %attr(750, root, pegasus) /etc/Pegasus
 %dir %attr(1555,root,pegasus) /var/run/tog-pegasus/socket
@@ -413,8 +416,8 @@ fi;
 
 %attr(750,root,pegasus) /usr/sbin/*
 %attr(755,root,pegasus) /usr/bin/*
-%attr(755,root,pegasus) /usr/lib/*.so.1
-%attr(755,root,pegasus) /usr/lib/Pegasus/providers/*.so.1
+%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/*.so.1
+%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so.1
 %attr(750,root,pegasus) /usr/share/Pegasus/scripts/*
 %attr(644,root,pegasus) /usr/share/man/man1/*
 %attr(640,root,pegasus) /usr/share/man/man8/*
@@ -422,15 +425,15 @@ fi;
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.5/Admin_Guide_Release.pdf
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.5/PegasusSSLGuidelines.htm
 %doc %attr(444,root,pegasus) /usr/share/doc/tog-pegasus-2.5/license.txt
-/usr/lib/libpegclient.so
-/usr/lib/libpegcommon.so
-/usr/lib/libpegprovider.so
-/usr/lib/libDefaultProviderManager.so
-/usr/lib/libCIMxmlIndicationHandler.so
-/usr/lib/libCMPIProviderManager.so
-/usr/lib/Pegasus/providers/libComputerSystemProvider.so
-/usr/lib/Pegasus/providers/libOSProvider.so
-/usr/lib/Pegasus/providers/libProcessProvider.so
+/usr/%PEGASUS_ARCH_LIB/libpegclient.so
+/usr/%PEGASUS_ARCH_LIB/libpegcommon.so
+/usr/%PEGASUS_ARCH_LIB/libpegprovider.so
+/usr/%PEGASUS_ARCH_LIB/libDefaultProviderManager.so
+/usr/%PEGASUS_ARCH_LIB/libCIMxmlIndicationHandler.so
+/usr/%PEGASUS_ARCH_LIB/libCMPIProviderManager.so
+/usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libComputerSystemProvider.so
+/usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libOSProvider.so
+/usr/%PEGASUS_ARCH_LIB/Pegasus/providers/libProcessProvider.so
 
 %files devel
 %defattr(644,root,pegasus,755)
@@ -438,7 +441,7 @@ fi;
 /usr/share/Pegasus/samples
 /usr/share/doc/tog-pegasus-2.5/*
 /usr/share/Pegasus/html
-%attr(755,root,pegasus) /usr/lib/Pegasus/providers/*.so
+%attr(755,root,pegasus) /usr/%PEGASUS_ARCH_LIB/Pegasus/providers/*.so
 
 %if %{PEGASUS_BUILD_TEST_RPM}
 %files test

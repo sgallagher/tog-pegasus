@@ -215,12 +215,8 @@ public:
     /** Checks whether the datetime is an interval.
         @return True if the datetime is an interval value, false otherwise.
     */
-    Boolean isInterval();
-
-    /** Checks whether the datetime is an interval.
-        @return True if the datetime is an interval value, false otherwise.
-    */
     Boolean isInterval() const;
+    Boolean isInterval();
 
     /** Compares the CIMDateTime object to another CIMDateTime object for
         equality.

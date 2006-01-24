@@ -181,6 +181,11 @@ void CIMClientRep::_connect()
     _httpConnection = httpConnection.release();
     _requestEncoder.reset(requestEncoder.release());
     _responseDecoder->setEncoderQueue(_requestEncoder.get());
+      
+    //pass endcoder and decoder a pointer to CIMClientRep::perfDataStore
+    _requestEncoder->setDataStorePointer(&perfDataStore);
+    _responseDecoder->setDataStorePointer(&perfDataStore);
+
     _connected = true;
 }
 
@@ -1086,11 +1091,9 @@ Message* CIMClientRep::_doRequest(
 
 
         //gathering statistical information about client operation
-     ClientPerfDataStore* perfDataStore = ClientPerfDataStore::Instance();
-     perfDataStore->reset();
-     perfDataStore->setOperationType(request->getType());
-     perfDataStore->setMessageID(request->messageId);
-
+     perfDataStore.reset();
+     perfDataStore.setOperationType(request->getType());
+     perfDataStore.setMessageID(request->messageId);
 
     // Sending a new request, so clear out the response Content-Languages
     responseContentLanguages.clear();
@@ -1238,16 +1241,16 @@ Message* CIMClientRep::_doRequest(
 
                 //check that client side statistics are valid before handing them to the
                 // client application via a call back
-                Boolean re_check = perfDataStore->checkMessageIDandType(cimResponse->messageId,
+                Boolean re_check = perfDataStore.checkMessageIDandType(cimResponse->messageId,
                                                                         cimResponse->getType());
-
-                if (re_check && !perfDataStore->getStatError() && perfDataStore->isClassRegistered())
+     
+                if (re_check && !perfDataStore.getStatError() && perfDataStore.isClassRegistered())
                 {
                    //if callback method throws an exception it will be seen by the client
                    //no try/catch block is used here intentionaly - becasue exceptions
                    //come from the client application so client app. should handle them
-                   ClientOpPerformanceData item = perfDataStore->createPerfDataStruct();
-                   perfDataStore->handler_prt->handleClientOpPerformanceData(item);
+                   ClientOpPerformanceData item = perfDataStore.createPerfDataStruct();
+                   perfDataStore.handler_prt->handleClientOpPerformanceData(item);
 
                 }//end of if statmet that call the callback method
                 return response;
@@ -1352,17 +1355,15 @@ void CIMClientRep::compareObjectPathtoCurrentConnection(const CIMObjectPath& obj
 
 void CIMClientRep::registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler)
 {
-   ClientPerfDataStore* perfDataStore = ClientPerfDataStore::Instance();
-   perfDataStore->handler_prt = &handler;
-   perfDataStore->setClassRegistered(true);
+   perfDataStore.handler_prt = &handler;
+   perfDataStore.setClassRegistered(true);
 }
 
 
 void CIMClientRep::deregisterClientOpPerformanceDataHandler()
 {
-    ClientPerfDataStore* perfDataStore = ClientPerfDataStore::Instance();
-    perfDataStore->handler_prt = NULL;
-    perfDataStore->setClassRegistered(false);
+    perfDataStore.handler_prt = NULL;
+    perfDataStore.setClassRegistered(false);
 }
 
 

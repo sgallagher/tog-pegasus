@@ -46,7 +46,7 @@
 #include <Pegasus/Common/CIMMessage.h>
 #include <Pegasus/Client/ClientAuthenticator.h>
 #include <Pegasus/Client/Linkage.h>
-#include "ClientPerfDataStore.h"
+#include <Pegasus/Client/ClientPerfDataStore.h>
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -73,6 +73,13 @@ public:
 
     /** This method is called when a message is enqueued on this queue. */
     virtual void handleEnqueue();
+
+    /**
+     * This methods gives the Encoder access to the ClientPerfDataStore that
+     * is in CIMClientRep. A pointer to the CIMClientRep::ClientPerfDataStore 
+     * is passed in
+     */
+    void setDataStorePointer(ClientPerfDataStore* perfDataStore_ptr);
 
 private:
 
@@ -155,6 +162,7 @@ private:
     ClientAuthenticator* _authenticator;
     // Controls client trace output. 1 = con, 2 == log
     Uint32 _showOutput;
+    ClientPerfDataStore* dataStore_prt;
 };
 
 PEGASUS_NAMESPACE_END

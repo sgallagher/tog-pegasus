@@ -62,7 +62,7 @@ class PEGASUS_CLIENT_LINKAGE ClientPerfDataStore
 {
 public:
 
-    static ClientPerfDataStore* Instance();
+    ClientPerfDataStore();
 
     /**Resets all the data members to 0
     */
@@ -143,14 +143,10 @@ protected:
     TimeValue _networkEndTime;
     TimeValue _networkStartTime;
 
-
-
-
-    //using the singleton pattern - constructors are made unusable
-    ClientPerfDataStore();
-    ClientPerfDataStore(const ClientPerfDataStore&);
-    ClientPerfDataStore& operator= (const ClientPerfDataStore&);
-
+private:
+    // Make copy-constructor and assignment operator private
+    ClientPerfDataStore(const ClientPerfDataStore & dataStore);
+    ClientPerfDataStore& operator=(const ClientPerfDataStore& dataStore);
 };
 
 

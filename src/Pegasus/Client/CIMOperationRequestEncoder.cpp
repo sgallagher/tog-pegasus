@@ -208,6 +208,11 @@ void CIMOperationRequestEncoder::handleEnqueue()
     //delete message;
 }
 
+void CIMOperationRequestEncoder::setDataStorePointer(
+    ClientPerfDataStore* perfDataStore_ptr)
+{   dataStore_prt = perfDataStore_ptr;
+}
+
 // l10n Added accept language and content language support starting here
 
 void CIMOperationRequestEncoder::_encodeCreateClassRequest(
@@ -868,12 +873,7 @@ void CIMOperationRequestEncoder::_sendRequest(Buffer& buffer)
 
     HTTPMessage * http_request = new HTTPMessage(buffer);
 
-            /* collecting statistical information 
-                - requestSize (contentLength) and network Start Time
-            */
-    ClientPerfDataStore* dataStore_prt = ClientPerfDataStore::Instance();
-
-        //these variables are needed to call HTTPMessage::parse, all we need is contentLength
+    //these variables are needed to call HTTPMessage::parse, all we need is contentLength
     String startLine;
     Array<HTTPHeader>  headers;
 	Uint32  contentLength;

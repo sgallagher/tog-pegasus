@@ -41,16 +41,11 @@
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
-ClientPerfDataStore* ClientPerfDataStore::current_Store = NULL;
 
-ClientPerfDataStore* ClientPerfDataStore::Instance(){
-   static ClientPerfDataStore current_Store; 
-   return &current_Store;
-}
+ClientPerfDataStore::ClientPerfDataStore(){
+   _classRegistered = false;
+} 
 
-ClientPerfDataStore::ClientPerfDataStore()
-{
-}
 
 void ClientPerfDataStore::reset()
 {

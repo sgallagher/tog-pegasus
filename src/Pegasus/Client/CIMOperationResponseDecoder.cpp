@@ -116,13 +116,16 @@ void CIMOperationResponseDecoder::handleEnqueue()
     delete message;
 }
 
+void CIMOperationResponseDecoder::setDataStorePointer(
+    ClientPerfDataStore* perfDataStore_ptr)
+{   dataStore = perfDataStore_ptr;
+}
+
 void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
 {
     //
     // Parse the HTTP message:
     //
-
-    ClientPerfDataStore* dataStore = ClientPerfDataStore::Instance();
     TimeValue networkEndTime = TimeValue::getCurrentTime();
 
     String  connectClose;
@@ -426,7 +429,6 @@ void CIMOperationResponseDecoder::_handleHTTPMessage(HTTPMessage* httpMessage)
     String serverTime;
     if(HTTPMessage::lookupHeader(headers, "WBEMServerResponseTime", serverTime, true))
     {
-        //cout << "serverTime was set it is " << serverTime.getCString() << endl;
         Uint32 sTime = (Uint32) atol(serverTime.getCString());
         dataStore->setServerTime(sTime);
     }

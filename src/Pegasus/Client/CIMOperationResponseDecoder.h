@@ -99,6 +99,12 @@ public:
     /** This method is called when a message is enqueued on this queue. */
     virtual void handleEnqueue();
 
+    /**
+     * This methods gives the Decoder access to the ClientPerfDataStore that
+     * is in CIMClientRep. A pointer to  the CIMClientRep::ClientPerfDataStore
+     * is passed in*/
+    void setDataStorePointer(ClientPerfDataStore* perfDataStore_ptr);
+
 private:
 
     void _handleHTTPMessage(
@@ -238,6 +244,8 @@ private:
 
     // Controls decoder client displays 1 = con, 2 = log display
     Uint32               _showInput;
+
+    ClientPerfDataStore* dataStore;
 };
 
 PEGASUS_NAMESPACE_END

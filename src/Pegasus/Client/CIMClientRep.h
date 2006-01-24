@@ -68,10 +68,10 @@
 #include <Pegasus/Client/CIMClientException.h>
 #include <Pegasus/Client/Linkage.h>
 #include <Pegasus/Client/CIMClientInterface.h>
+#include <Pegasus/Client/ClientPerfDataStore.h>
 
 #include "CIMOperationResponseDecoder.h"
 #include "CIMOperationRequestEncoder.h"
-#include "ClientPerfDataStore.h"
 
 
 PEGASUS_NAMESPACE_BEGIN
@@ -329,6 +329,7 @@ private:
     String _connectHost;
     Uint32 _connectPortNumber;
     AutoPtr<SSLContext> _connectSSLContext;
+    ClientPerfDataStore perfDataStore;
 
     // l10n
     AcceptLanguageList requestAcceptLanguages;

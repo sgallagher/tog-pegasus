@@ -75,9 +75,9 @@ DIRS += \
 	CMPI/TestProviderThreaded/tests
 
 ifndef PEGASUS_DISABLE_CQL
-#DIRS += \
-#	CMPI/TestIndications \
-#	CMPI/TestIndications/tests        temporarily disabled, see bug 4280
+DIRS += \
+	CMPI/TestIndications \
+	CMPI/TestIndications/tests
 
 ifdef PEGASUS_ENABLE_EXECQUERY
 DIRS += \

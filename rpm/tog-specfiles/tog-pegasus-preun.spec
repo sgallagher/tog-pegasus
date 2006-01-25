@@ -14,6 +14,7 @@ if [ $1 -eq 0 ]; then
    [ -d %PEGASUS_VARDATA_CACHE_DIR ]  && rm -rf %PEGASUS_VARDATA_CACHE_DIR;
    rm -f %PEGASUS_LOCAL_DOMAIN_SOCKET_PATH;
    rm -f %PEGASUS_CIMSERVER_START_FILE;
+   rm -f %CIMSERVER_LOCK_FILE;
 fi
 #
 # End of section pegasus/rpm/tog-specfiles/tog-pegasus-preun.spec

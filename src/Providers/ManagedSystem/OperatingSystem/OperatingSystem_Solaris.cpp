@@ -352,22 +352,25 @@ Boolean OperatingSystem::getNumberOfProcesses(Uint32& numberOfProcesses)
 
    Uint32 count;
    DIR *procdir;
-   struct dirent entry, *result;
    regex_t process_pattern_compiled;
    const char process_pattern[] = "^[1-9][0-9]*$";
+
+   char buffer[sizeof(dirent) + MAXNAMELEN + 1];
+   struct dirent* entry = (struct dirent*)buffer;
+   struct dirent* result = 0;
 
    count = 0;
    if ((procdir = opendir("/proc")))
    {
       if (regcomp(&process_pattern_compiled, process_pattern, 0) == 0)
       {
-         while (readdir_r(procdir, &entry, &result) == 0 && result != NULL)
+         while (readdir_r(procdir, entry, &result) == 0 && result != NULL)
          {
 #if defined (PEGASUS_PLATFORM_LINUX_GENERIC_GNU) && !defined(PEGASUS_OS_LSB)
-            if (entry.d_type != DT_DIR)
+            if (entry->d_type != DT_DIR)
                continue;
 #endif
-            if (regexec(&process_pattern_compiled, entry.d_name,
+            if (regexec(&process_pattern_compiled, entry->d_name,
                         0, NULL, 0) == 0)
                count++;
          }

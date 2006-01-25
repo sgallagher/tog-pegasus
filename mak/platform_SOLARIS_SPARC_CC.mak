@@ -113,7 +113,7 @@ FLAGS = -O4 -KPIC -mt -xildoff -s -xipo=1
 endif
 
 # Need warnings:
-FLAGS += +w +w3
+FLAGS += +w
 
 ##==============================================================================
 ##

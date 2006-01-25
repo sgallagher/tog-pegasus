@@ -106,27 +106,50 @@ ifeq ($(SUNOS_VERSION), 5.8)
 DEFINES += -DSUNOS_5_8
 endif
 
-
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 FLAGS = -g -KPIC -mt -xs -xildoff
 else
 FLAGS = -O4 -KPIC -mt -xildoff -s -xipo=1
 endif
 
-SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet
+# Need warnings:
+FLAGS += +w +w3
+
+##==============================================================================
+##
+## COMMON_SYS_LIBS
+##
+##     Build the common list of libraries used in linking both libraries and
+##     programs.
+##
+##==============================================================================
+
+COMMON_SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet
 
 ifeq ($(SUNOS_VERSION), 5.6)
-SYS_LIBS += -lposix4
+COMMON_SYS_LIBS += -lposix4
 else
-SYS_LIBS += -lrt
+COMMON_SYS_LIBS += -lrt
 endif
 
 # on SunOS 5.8 use the alternate (kernel LWP) thread model that is standard on 
 # SunOS 5.9 and 5.10
 # 
 ifeq ($(SUNOS_VERSION), 5.8)
-SYS_LIBS += -R /usr/lib/lwp
+COMMON_SYS_LIBS += -R /usr/lib/lwp
 endif
 
+##==============================================================================
+##
+## SYS_LIBS (system libraries needed to build programs)
+##
+##==============================================================================
+SYS_LIBS = $(COMMON_SYS_LIBS) $(EXTRA_LIBRARIES)
 
-SYS_LIBS += $(EXTRA_LIBRARIES)
+##==============================================================================
+##
+## LIBRARY_SYS_LIBS (system libraries needed to build other libraries)
+##
+##==============================================================================
+LIBRARY_SYS_LIBS = $(COMMON_SYS_LIBS)
+

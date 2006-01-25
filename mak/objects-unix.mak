@@ -37,7 +37,6 @@
 ################################################################################
 
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
-GCC_VERSION=$(word 3, $(shell $(CXX) --version))
 ifneq ($(GCC_VERSION), 2.9.5)
     _NO_TMP_O=yes
 endif

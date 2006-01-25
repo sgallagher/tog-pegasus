@@ -86,6 +86,11 @@ ifndef PEGASUS_PLATFORM
 endif
 
 ################################################################################
+ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
+    GCC_VERSION = $(shell g++ -dumpversion)
+else
+    GCC_VERSION =
+endif
 
 OBJ_DIR = $(HOME_DIR)/obj/$(DIR)
 BIN_DIR = $(HOME_DIR)/bin

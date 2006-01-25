@@ -98,7 +98,11 @@ inline ThreadStatus Thread::run()
     {
         pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
     }
+#if defined SUNOS_5_7
     pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
+#else
+    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_OTHER);
+#endif
 
     int rc;
     rc = pthread_create((pthread_t *)&_handle.thid,
@@ -128,7 +132,11 @@ inline ThreadStatus Thread::run()
         pthread_attr_setdetachstate(&_handle.thatt, PTHREAD_CREATE_DETACHED);
     }
 #ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_GNU	
+#if defined SUNOS_5_7
     pthread_attr_setschedpolicy(&_handle.thatt, SCHED_RR);
+#else
+    pthread_attr_setschedpolicy(&_handle.thatt, SCHED_OTHER);
+#endif
 #endif // PEGASUS_PLATFORM_SOLARIS_SPARC_GNU
 
 #ifdef PEGASUS_OS_OS400

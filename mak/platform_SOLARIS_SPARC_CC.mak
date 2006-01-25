@@ -85,9 +85,27 @@ DEFINES += -DTYPE_CONV
 
 SUNOS_VERSION = $(shell uname -r)
 
+
+# Pegasus requires the kernel LWP thread model.
+# It doesn't exist on SunOS 5.6 or 5.7 so thery are no longer supported.
+#
 ifeq ($(SUNOS_VERSION), 5.6)
 DEFINES += -DSUNOS_5_6
+    $(error SunOS version 5.6 is not supportted)
 endif
+
+# Pegasus requires the kernel LWP thread model.
+# It doesn't exist on SunOS 5.6 or 5.7 so thery are no longer supported.
+#
+ifeq ($(SUNOS_VERSION), 5.7)
+DEFINES += -DSUNOS_5_7
+    $(error SunOS version 5.7 is not supportted)
+endif
+
+ifeq ($(SUNOS_VERSION), 5.8)
+DEFINES += -DSUNOS_5_8
+endif
+
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
 FLAGS = -g -KPIC -mt -xs -xildoff
@@ -102,5 +120,13 @@ SYS_LIBS += -lposix4
 else
 SYS_LIBS += -lrt
 endif
+
+# on SunOS 5.8 use the alternate (kernel LWP) thread model that is standard on 
+# SunOS 5.9 and 5.10
+# 
+ifeq ($(SUNOS_VERSION), 5.8)
+SYS_LIBS += -R /usr/lib/lwp
+endif
+
 
 SYS_LIBS += $(EXTRA_LIBRARIES)

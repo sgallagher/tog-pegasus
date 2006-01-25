@@ -38,12 +38,8 @@ SOURCES = async_callback.cpp
 
 include $(ROOT)/mak/program.mak
 
-ifeq ($(OS),solaris)
-tests: 
-	$(ECHO) "+++++ $(PROGRAM) not run on this OS ($(OS)). See bug #4602"
-else
 tests:
 	$(ECHO) "+++++ $(PROGRAM) OS = $(OS) "
 	$(PROGRAM)
-endif
+
 poststarttests:

@@ -43,7 +43,6 @@ endif
 
 LIBRARIES = \
     pegmanagedclient \
-    pegclient \
     pegcommon
 
 PROGRAM = MCCATestClient

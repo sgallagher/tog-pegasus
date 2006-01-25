@@ -39,6 +39,9 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#ifdef PEGASUS_PLATFORM_ZOS_ZSERIES_IBM
+#include <pthread.h>
+#endif
 
 #include <Pegasus/Provider/CMPI/cmpidt.h>
 #include <Pegasus/Provider/CMPI/cmpift.h>
@@ -276,8 +279,9 @@ make_InstanceWithProperties (const CMPIBroker * broker, const CMPIObjectPath * o
         }
       else if (prop_data.type == CMPI_char16)
         {
+          val.char16 = 'c';
           CMSetProperty (inst, _name,
-                         _name, CMPI_char16);
+                         &val, CMPI_char16);
         }
       else if (prop_data.type == CMPI_uint64)
       {
@@ -335,7 +339,7 @@ make_InstanceWithProperties (const CMPIBroker * broker, const CMPIObjectPath * o
 	     }
       else if (prop_data.type == CMPI_real32)
       {
-	      	val.real64 = 1.23 ;
+	      	val.real32 = 1.23F ;
 	      CMSetProperty(inst, _name,
 			      &val, CMPI_real32);
 	    }

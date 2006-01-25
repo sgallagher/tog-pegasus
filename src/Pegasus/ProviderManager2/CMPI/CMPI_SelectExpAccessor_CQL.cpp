@@ -123,7 +123,7 @@ CMPI_SelectExpAccessor_CQL::_constructInstance ()
                   _instance.
                     addProperty (CIMProperty
                                  (CIMName (name),
-                                  Sint16 (data.value.sint16)));
+                                  Sint8 (data.value.sint8)));
                   break;
                 case CMPI_sint64:
                   _instance.
@@ -169,7 +169,7 @@ CMPI_SelectExpAccessor_CQL::_constructInstance ()
                 case CMPI_uint8:
                   _instance.
                     addProperty (CIMProperty
-                                 (CIMName (name), Uint8 (data.value.uint32)));
+                                 (CIMName (name), Uint8 (data.value.uint8)));
                   break;
                 case CMPI_uint64:
                   _instance.

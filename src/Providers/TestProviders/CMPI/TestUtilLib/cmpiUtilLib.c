@@ -39,7 +39,9 @@
 #include <stdarg.h>
 #include <ctype.h>
 #if defined(CMPI_PLATFORM_WIN32_IX86_MSVC)
+#define PEGASUS_64BIT_CONVERSION_WIDTH "I64"
 #else
+#define PEGASUS_64BIT_CONVERSION_WIDTH "ll"
 #include <unistd.h>
 #endif
 
@@ -143,7 +145,6 @@ strCMPIValueState (CMPIValueState state)
       return "Unknown state";
 
     }
-  return "";
 
 }
 
@@ -425,7 +426,7 @@ char * _CMPIValueToString (CMPIData data)
    switch(data.type) {
       case CMPI_char16:
          valuestring = malloc(100*sizeof(char));
-         sprintf(valuestring, "%c", data.value.char16);
+         sprintf(valuestring, "0x%04X", data.value.char16);
          return valuestring;
       case CMPI_sint8:
          valuestring = malloc(100*sizeof(char));
@@ -453,11 +454,11 @@ char * _CMPIValueToString (CMPIData data)
          return valuestring;
       case CMPI_sint64:
          valuestring = malloc(100*sizeof(char));
-         sprintf(valuestring, "%lld", data.value.sint64);
+         sprintf(valuestring, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", data.value.sint64);
          return valuestring;
       case CMPI_uint64:
          valuestring = malloc(100*sizeof(char));
-         sprintf(valuestring, "%llu", data.value.uint64);
+         sprintf(valuestring, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", data.value.uint64);
          return valuestring;
       case CMPI_string: {
          if (CMIsNullObject(data.value.string)) return NULL;
@@ -472,15 +473,11 @@ char * _CMPIValueToString (CMPIData data)
          return valuestring;
       case CMPI_real32:
          valuestring = malloc(100*sizeof(char));
-         sprintf(valuestring, "%.16e", data.value.real32);
+         sprintf(valuestring, "%.6f", (double)data.value.real32);
          return valuestring;
       case CMPI_real64:
          valuestring = malloc(100*sizeof(char));
-#ifdef PEGASUS_PLATFORM_LINUX_PPC_GNU
-         sprintf(valuestring, "%.32f", data.value.real64);
-#else
-         sprintf(valuestring, "%.32le", data.value.real64);
-#endif
+         sprintf(valuestring, "%.12f", (double)data.value.real64);
          return valuestring;
       case CMPI_dateTime: {
          CMPIStatus status = {CMPI_RC_OK, NULL};
@@ -526,7 +523,9 @@ evalute_selectcond (const CMPISelectCond * cond, CMPIAccessor *accessor, void *p
   CMPIPredOp pred_op;
   CMPIString *left_side = NULL;
   CMPIString *right_side = NULL;
+#ifdef CMPI_VER_100
   CMPIBoolean evalRes = CMPI_false;
+#endif
   CMPICount cnt;
   unsigned int idx;
 
@@ -699,7 +698,7 @@ instance_accessor (const char *name, void *param)
     {
       data.type = CMPI_uint32;
       data.state = CMPI_goodValue;
-      data.value.uint64 = 32;
+      data.value.uint32 = 32;
     }
   else if (strcmp ("n16", name) == 0)
     {
@@ -711,7 +710,7 @@ instance_accessor (const char *name, void *param)
     {
       data.type = CMPI_uint8;
       data.state = CMPI_goodValue;
-      data.value.uint16 = 8;
+      data.value.uint8 = 8;
      }
   else if (strcmp ("s64", name) == 0)
     {
@@ -735,7 +734,7 @@ instance_accessor (const char *name, void *param)
     {
       data.type = CMPI_sint8;
       data.state = CMPI_goodValue;
-      data.value.sint16 = 0xFF;
+      data.value.sint8 = (CMPISint8)0xFF;
     }
   else if (strcmp ("r64", name) == 0)
     {

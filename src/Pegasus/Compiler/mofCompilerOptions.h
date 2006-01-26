@@ -107,6 +107,7 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
     _emit_xml(false),
     _ot(compilerCommonDefs::USE_REPOSITORY),
     _trace(false),
+    _no_usage_warning(false),
     _traceos(0),
     _erroros(0),
     _warningos(0)

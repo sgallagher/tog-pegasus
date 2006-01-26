@@ -100,7 +100,6 @@ PEGASUS_USING_PEGASUS;
 
 #define DEFAULT_SERVER_AND_PORT "localhost:5988"
 
-#ifndef DISABLE_CIMMOFL_WARNING
 ostream &
 cimmofl_warning(ostream &os) {
 
@@ -114,7 +113,6 @@ cimmofl_warning(ostream &os) {
 
   return os;
 }
-#endif
 
 ostream &
 help(ostream &os, int progtype) {
@@ -228,6 +226,17 @@ help(ostream &os, int progtype) {
   }
 #endif
 
+  if (progtype == 1) 
+  {
+      help.append(
+      "    -W                  - Suppress the usage warning (i.e., Warning:\n"
+      "                          Use of cimmofl can corrupt the CIM Server\n"
+      "                          Repository. cimmofl should only be used\n"
+      "                          under very controlled situations. cimmof\n"
+      "                          is the recommended OpenPegasus MOF\n"
+      "                          compiler.)\n");
+  }
+
   if(progtype == 1)
   {
       help.append("\n\nWarning: Use of cimmofl can corrupt the CIM Server Repository.\n");
@@ -314,6 +323,7 @@ static struct optspec optspecs[] =
     {(char*)"CIMRepository", REPOSITORYDIR, true, getoopt::MUSTHAVEARG},
     {(char*)"N", REPOSITORYNAME, false, getoopt::MUSTHAVEARG},
     {(char*)"M", REPOSITORYMODE, false, getoopt::MUSTHAVEARG},
+    {(char*)"W", NO_USAGE_WARNING, false, getoopt::NOARG},
     {(char*)"", OPTEND_CIMMOFL, false, getoopt::NOARG}
 };
 
@@ -672,6 +682,9 @@ processCmdLine(int argc, char **argv, mofCompilerOptions &cmdlinedata,
       case OPTEND_CIMMOFL:
       case OPTEND_CIMMOF: return -1;  // shouldn't happen
 	break;
+
+      case NO_USAGE_WARNING:
+        cmdlinedata.set_no_usage_warning();
       }
       type = c;
   }

@@ -53,7 +53,6 @@
 #include "vfyptrs.cinc"
 #include <stdio.h>
 #include "OS400ConvertChar.h"
-#define DISABLE_CIMMOFL_WARNING
 #endif
 
 PEGASUS_USING_STD;
@@ -71,9 +70,7 @@ extern "C++" int processCmdLine(int, char **, mofCompilerOptions &, ostream &);
 
 extern "C++" ostream& help(ostream& os, int progtype);
 
-#ifndef DISABLE_CIMMOFL_WARNING 
 extern "C++" ostream& cimmofl_warning(ostream& os);
-#endif
 
 #ifdef PEGASUS_OS_OS400
 // Escape message generator for os400, reports errors that cimmofl encounters.
@@ -208,8 +205,8 @@ main(int argc, char ** argv) {
     return ret;
   }
 
-#ifndef DISABLE_CIMMOFL_WARNING 
-  if (cmdline.is_local())
+#ifndef PEGASUS_OS_OS400
+  if (cmdline.is_local() && !cmdline.get_no_usage_warning())
   {
         cimmofl_warning(cerr);
   }

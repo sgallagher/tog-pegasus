@@ -69,6 +69,7 @@ enum opttypes {FILESPEC,
              OPTEND_CIMMOF,    //PEP167
 	       REPOSITORYNAME,
 	       REPOSITORYMODE,
+	       NO_USAGE_WARNING,
              OPTEND_CIMMOFL};  //PEP167
 
 struct optspec {

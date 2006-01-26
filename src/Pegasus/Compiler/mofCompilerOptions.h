@@ -90,6 +90,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
 #ifdef PEGASUS_OS_OS400
   Boolean         _quiet;
 #endif
+  Boolean         _no_usage_warning;
+
   PEGASUS_STD(ostream)      *_traceos;
   PEGASUS_STD(ostream)      *_erroros;
   PEGASUS_STD(ostream)      *_warningos;
@@ -175,6 +177,8 @@ class PEGASUS_COMPILER_LINKAGE mofCompilerOptions {
       {return _warningos ? (ostream&)*_warningos : (ostream&)cerr;}
   void set_namespacePath(const String &path) { _namespacePath = path; }
   const String &get_namespacePath() const  { return _namespacePath; }
+  void set_no_usage_warning() { _no_usage_warning = true; }
+  Boolean get_no_usage_warning() const { return _no_usage_warning; }
 };
 
 #endif

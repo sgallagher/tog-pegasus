@@ -83,6 +83,12 @@ Options :
     -R, --CIMRepository - Specify the repository directory
     -N                  - Specify the repository name - defaults to "repository"
     -M                  - Repository mode [XML, BIN] - defaults to "XML"
+    -W                  - Suppress the usage warning (i.e., Warning:
+                          Use of cimmofl can corrupt the CIM Server
+                          Repository. cimmofl should only be used
+                          under very controlled situations. cimmof
+                          is the recommended OpenPegasus MOF
+                          compiler.)
 
 
 Warning: Use of cimmofl can corrupt the CIM Server Repository.
@@ -113,6 +119,12 @@ Options :
     -R, --CIMRepository - Specify the repository directory
     -N                  - Specify the repository name - defaults to "repository"
     -M                  - Repository mode [XML, BIN] - defaults to "XML"
+    -W                  - Suppress the usage warning (i.e., Warning:
+                          Use of cimmofl can corrupt the CIM Server
+                          Repository. cimmofl should only be used
+                          under very controlled situations. cimmof
+                          is the recommended OpenPegasus MOF
+                          compiler.)
 
 
 Warning: Use of cimmofl can corrupt the CIM Server Repository.

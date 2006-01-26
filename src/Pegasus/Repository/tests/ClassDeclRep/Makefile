@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = ClassDeclRep
+PROGRAM = TestClassDeclRep
 SOURCES = ClassDeclRep.cpp
 POST_LIBRARIES = -L$(ROOT)/src/PegasusRepository -lPegasusRepository
 

@@ -54,7 +54,7 @@ include $(ROOT)/mak/config.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 LOCAL_CLEAN_TARGET=local-clean
 
-PROGRAM = CompareRepositories
+PROGRAM = TestCompareRepositories
 SOURCES = 
 
 ##

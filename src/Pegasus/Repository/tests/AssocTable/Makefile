@@ -33,14 +33,14 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = AssocTable
+PROGRAM = TestAssocTable
 SOURCES = AssocTable.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
 	$(RM) $(TMP_DIR)/associations.tbl
-	AssocTable
+	$(PROGRAM)
 	$(RM) $(TMP_DIR)/associations.tbl
 
 poststarttests:

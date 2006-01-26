@@ -53,7 +53,7 @@ ifdef PEGASUS_ENABLE_REPOSITORY_INSTANCE_FILTER
 endif
 
 
-PROGRAM = Repository2
+PROGRAM = TestRepository2
 SOURCES = Repository2.cpp
 
 include $(ROOT)/mak/program.mak

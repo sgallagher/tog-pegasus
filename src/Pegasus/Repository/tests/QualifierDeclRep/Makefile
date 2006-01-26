@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = QualifierDeclRep
+PROGRAM = TestQualifierDeclRep
 SOURCES = QualifierDeclRep.cpp
 
 include $(ROOT)/mak/program.mak

@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = EnumerateClassNames
+PROGRAM = TestEnumerateClassNames
 SOURCES = EnumerateClassNames.cpp
 
 include $(ROOT)/mak/program.mak

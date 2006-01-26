@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = LoadRepository
+PROGRAM = TestLoadRepository
 
 SOURCES = LoadRepository.cpp
 

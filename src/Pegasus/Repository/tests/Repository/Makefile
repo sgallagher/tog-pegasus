@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = Repository
+PROGRAM = TestRepository
 SOURCES = Repository.cpp
 
 include $(ROOT)/mak/program.mak

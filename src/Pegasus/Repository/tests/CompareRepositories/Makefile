@@ -35,7 +35,7 @@ include ../libraries.mak
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 LOCAL_CLEAN_TARGET=local-clean
 
-PROGRAM = CompareRepositories
+PROGRAM = TestCompareRepositories
 SOURCES = CompareRepositories.cpp
 
 include $(ROOT)/mak/program.mak

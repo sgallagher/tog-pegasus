@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = SharedInheritanceTree
+PROGRAM = TestSharedInheritanceTree
 SOURCES = SharedInheritanceTree.cpp
 
 include $(ROOT)/mak/program.mak

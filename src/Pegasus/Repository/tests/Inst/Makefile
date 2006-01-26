@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = Inst
+PROGRAM = TestInst
 SOURCES = Inst.cpp
 
 include $(ROOT)/mak/program.mak
@@ -41,7 +41,7 @@ include $(ROOT)/mak/program.mak
 tests:
 	$(RM) $(TMP_DIR)/X.idx
 	$(RM) $(TMP_DIR)/X.instances
-	Inst
+	$(PROGRAM)
 	$(RM) $(TMP_DIR)/X.idx
 	$(RM) $(TMP_DIR)/X.instances
 

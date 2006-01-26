@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = NameSpace
+PROGRAM = TestNameSpace
 SOURCES = NameSpace.cpp
 
 include $(ROOT)/mak/program.mak

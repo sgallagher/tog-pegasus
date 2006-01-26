@@ -33,13 +33,13 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = InheritanceTree
+PROGRAM = TestInheritanceTree
 SOURCES = InheritanceTree.cpp
 
 include $(ROOT)/mak/program.mak
 
 tests:
-	InheritanceTree
+	$(PROGRAM)
 
 poststarttests:
 

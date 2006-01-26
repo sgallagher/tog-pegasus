@@ -33,7 +33,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = LoadClass
+PROGRAM = TestLoadClass
 SOURCES = LoadClass.cpp
 
 include $(ROOT)/mak/program.mak

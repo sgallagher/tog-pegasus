@@ -194,14 +194,13 @@ private:
         Private, unimplemented copy constructor to avoid implicit use of
         the default copy constructor
     */
-    AnonymousPipe (const AnonymousPipe & anonymousPipe) {}
+    AnonymousPipe (const AnonymousPipe & anonymousPipe);
 
     /**
         Private, unimplemented assignment operator to avoid implicit use of 
         the default assignment operator
     */
-    AnonymousPipe & operator= (const AnonymousPipe & anonymousPipe) 
-        {return *this;}
+    AnonymousPipe & operator= (const AnonymousPipe & anonymousPipe);
 
 #if defined (PEGASUS_OS_TYPE_WINDOWS)
     typedef HANDLE AnonymousPipeHandle;

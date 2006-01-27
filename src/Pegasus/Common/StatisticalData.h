@@ -55,6 +55,9 @@ PEGASUS_NAMESPACE_BEGIN
 #define STAT_GETSTARTTIME \
 TimeValue startTime = TimeValue::getCurrentTime();
 
+#define STAT_PMS_PROVIDERSTART                               \
+response->setStartServerTime(request->getStartServerTime()); \
+response->setStartProviderTime(TimeValue::getCurrentTime());
 
 #define STAT_PMS_PROVIDEREND \
 response->endProvider();            \

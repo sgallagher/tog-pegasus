@@ -60,6 +60,28 @@
 #include <Pegasus/ProviderManager2/ProviderManagerService.h>
 #include <Pegasus/ProviderManager2/ProviderType.h>
 
+#define HandleCatch(handler)                                                   \
+catch(CIMException & e)                                                        \
+{                                                                              \
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,                      \
+                     "Exception: " + e.getMessage());                          \
+    handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage());   \
+}                                                                              \
+    catch(Exception & e)                                                       \
+{                                                                              \
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,                      \
+                     "Exception: " + e.getMessage());                          \
+    handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage());\
+}                                                                              \
+    catch(...)                                                                 \
+{                                                                              \
+    PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,                      \
+                     "Exception: Unknown");                                    \
+    handler.setStatus(CIM_ERR_FAILED, "Unknown error.");                       \
+}                                                                              \
+response->endProvider();
+
+
 PEGASUS_NAMESPACE_BEGIN
 
 // auto variable to protect provider during operations
@@ -329,7 +351,7 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         ph.GetProvider().getInstance(
             context,
@@ -338,30 +360,8 @@ Message * DefaultProviderManager::handleGetInstanceRequest(const Message * messa
             request->includeClassOrigin,
             propertyList,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -427,7 +427,7 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         ph.GetProvider().enumerateInstances(
             context,
@@ -436,30 +436,8 @@ Message * DefaultProviderManager::handleEnumerateInstancesRequest(const Message 
             request->includeClassOrigin,
             propertyList,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -524,36 +502,14 @@ Message * DefaultProviderManager::handleEnumerateInstanceNamesRequest(const Mess
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         ph.GetProvider().enumerateInstanceNames(
             context,
             objectPath,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -619,37 +575,15 @@ Message * DefaultProviderManager::handleCreateInstanceRequest(const Message * me
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         ph.GetProvider().createInstance(
             context,
             objectPath,
             request->newInstance,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -717,7 +651,7 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         ph.GetProvider().modifyInstance(
             context,
@@ -726,30 +660,8 @@ Message * DefaultProviderManager::handleModifyInstanceRequest(const Message * me
             request->includeQualifiers,
             propertyList,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -815,36 +727,14 @@ Message * DefaultProviderManager::handleDeleteInstanceRequest(const Message * me
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         ph.GetProvider().deleteInstance(
             context,
             objectPath,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -917,37 +807,15 @@ Message * DefaultProviderManager::handleExecQueryRequest(const Message * message
 
         pm_service_op_lock op_lock(&ph.GetProvider());
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         ph.GetProvider().execQuery(
             context,
             objectPath,
             qx,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -1010,7 +878,7 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().associators(
@@ -1024,30 +892,8 @@ Message * DefaultProviderManager::handleAssociatorsRequest(const Message * messa
             request->includeClassOrigin,
             request->propertyList,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -1112,7 +958,7 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-		STAT_GETSTARTTIME;
+		STAT_PMS_PROVIDERSTART;
         pm_service_op_lock op_lock(&ph.GetProvider());
 
         ph.GetProvider().associatorNames(
@@ -1123,30 +969,8 @@ Message * DefaultProviderManager::handleAssociatorNamesRequest(const Message * m
             request->role,
             request->resultRole,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -1211,7 +1035,7 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.references: " +
@@ -1228,30 +1052,8 @@ Message * DefaultProviderManager::handleReferencesRequest(const Message * messag
             request->includeClassOrigin,
             request->propertyList,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -1316,7 +1118,7 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
 		context.insert(request->operationContext.get(AcceptLanguageListContainer::NAME)); 
 	    context.insert(request->operationContext.get(ContentLanguageListContainer::NAME)); 
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.referenceNames: " +
@@ -1330,30 +1132,8 @@ Message * DefaultProviderManager::handleReferenceNamesRequest(const Message * me
             request->resultClass,
             request->role,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -1413,7 +1193,7 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
 
         CIMName propertyName = request->propertyName;
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.getProperty: " +
@@ -1427,30 +1207,8 @@ Message * DefaultProviderManager::handleGetPropertyRequest(const Message * messa
             objectPath,
             propertyName,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -1511,7 +1269,7 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
         CIMName propertyName = request->propertyName;
         CIMValue propertyValue = request->newValue;
 
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.setProperty: " +
@@ -1526,30 +1284,8 @@ Message * DefaultProviderManager::handleSetPropertyRequest(const Message * messa
             propertyName,
             propertyValue,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -1614,7 +1350,7 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
         instanceReference.setNameSpace(request->nameSpace);
 
         // forward request
-        STAT_GETSTARTTIME;
+        STAT_PMS_PROVIDERSTART;
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
             "Calling provider.invokeMethod: " +
@@ -1628,30 +1364,8 @@ Message * DefaultProviderManager::handleInvokeMethodRequest(const Message * mess
             request->methodName,
             request->inParameters,
             handler);
-
-        STAT_PMS_PROVIDEREND;
     }
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown error.");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 
@@ -2104,7 +1818,7 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
         OpProviderHolder ph = providerManager.getProvider(
             name.getPhysicalName(), name.getLogicalName());
 
-		STAT_GETSTARTTIME
+		STAT_PMS_PROVIDERSTART
 
         PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
                        "Calling provider.: " +
@@ -2130,32 +1844,8 @@ Message *DefaultProviderManager::handleExportIndicationRequest(const Message *me
       ph.GetProvider().consumeIndication(context,
                                 request->destinationPath,
                                 indication_copy);
-
-	  STAT_PMS_PROVIDEREND
-
     }
-
-    catch(CIMException & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(e.getCode(), e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(Exception & e)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: " + e.getMessage());
-
-        handler.setStatus(CIM_ERR_FAILED, e.getContentLanguages(), e.getMessage()); // l10n
-    }
-    catch(...)
-    {
-        PEG_TRACE_STRING(TRC_PROVIDERMANAGER, Tracer::LEVEL4,
-            "Exception: Unknown");
-
-        handler.setStatus(CIM_ERR_FAILED, "Unknown Error");
-    }
+    HandleCatch(handler);
 
     PEG_METHOD_EXIT();
 

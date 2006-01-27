@@ -240,140 +240,174 @@ main (int argc, char **argv)
 PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL
 client_func (void *parm)
 {
-  Thread *myself = reinterpret_cast < Thread * >(parm);
+    Thread *myself = reinterpret_cast < Thread * >(parm);
 
-  test_async_queue *client = new test_async_queue (test_async_queue::CLIENT);
+    test_async_queue *client = new test_async_queue (test_async_queue::CLIENT);
 
-  // find the server 
-  Array < Uint32 > services;
-  while (services.size () == 0)
+    // find the server 
+    Array < Uint32 > services;
+    while (services.size () == 0)
     {
-      client->find_services (String ("server"), 0, 0, &services);
-      // It is a good idea to yield to other threads. You should do this,
-      // but this test-case stresses situations in which does not happend.
-      //pegasus_yield ();
+        client->find_services (String ("server"), 0, 0, &services);
+        // It is a good idea to yield to other threads. You should do this,
+        // but this test-case stresses situations in which does not happen.
+        //pegasus_yield ();
     }
 
-  AtomicInt rq_count;
-  if (verbose)
-    cout << "testing low-level async send " << endl;
-  do
+    if (verbose)
     {
-      // The problem on multi-processor machines is that if we make it continue on
-      // sending the messages, and the MessageQueueService does not get to pickup
-      // the messages, the machine can crawl to halt with about 300-400 threads
-      // and ever-continuing number of them created. This is an evil stress test
-      // so lets leave it behind.
-        try {
-          Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
+        cout << "testing low-level async send " << endl;
+    }
 
-          AsyncOpNode *op = client->get_op ();
-          AsyncOperationStart *async_rq =
-            new AsyncOperationStart (client->get_next_xid (),
-                                     op,
-                                     services[0],
-                                     client->getQueueId (),
-                                     false,
-                                     cim_rq);
-          client->SendAsync (op,
-                             services[0],
-                             test_async_queue::async_handleEnqueue,
-                             client, (void *) 0);
-
-        } catch (const PEGASUS_STD(bad_alloc) &)
-	{
-		cerr <<" Out of memory! Continuing tests." << endl;
-	}
-      rq_count++;
-      // You really ought to allow other threads to their job (like picking up
-      // all of these messages, but we  want to stress test unfair circumstances. 
-      //pegasus_yield ();
-      if (verbose)
+    Uint32 requestCount = 0;
+    while (requestCount < 10000)
+    {
+        // The problem on multi-processor machines is that if we make it
+        // continue on sending the messages, and the MessageQueueService
+        // does not get to pick up the messages, the machine can crawl to
+        // halt with about 300-400 threads and ever-continuing number of
+        // them created. This is an evil stress test so lets leave it behind.
+        try
         {
-          if (test_async_queue::msg_count.get () % 100 == 0)
-            cout << (test_async_queue::msg_count.get () /
-                     10) << "%% complete" << endl;
+            Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
+
+            AsyncOpNode *op = client->get_op();
+            AsyncOperationStart *async_rq =
+                new AsyncOperationStart(
+                    client->get_next_xid(),
+                    op,
+                    services[0],
+                    client->getQueueId(),
+                    false,
+                    cim_rq);
+            client->SendAsync(
+                op,
+                services[0],
+                test_async_queue::async_handleEnqueue,
+                client,
+                (void *) 0);
         }
-    }
-  while (test_async_queue::msg_count.get () < 1000);
-
-  if (verbose)
-   cout << "Waiting until all messages are flushed. " << endl;
-  while (test_async_queue::msg_count.get() != rq_count.get())
-  {
-	pegasus_yield();
-  }
-  test_async_queue::msg_count = 0;
-  rq_count = 0; 
-  if (verbose)
-    cout << "testing fast safe async send " << endl;
-  do
-    {
-      // The problem on multi-processor machines is that if we make it continue on
-      // sending the messages, and the MessageQueueService does not get to pickup
-      // the messages, the machine can crawl to halt with about 300-400 threads
-      // and ever-continuing number of them created. 
-      try 
+        catch (const PEGASUS_STD(bad_alloc) &)
         {
-          Message *cim_rq = new Message (CIM_GET_INSTANCE_REQUEST_MESSAGE);
-
-          client->SendAsync (cim_rq,
-                             services[0],
-                             test_async_queue::async_handleSafeEnqueue,
-                             client, (void *) NULL);
-        } catch (const PEGASUS_STD(bad_alloc) &) {
-		cerr <<" Out of memory! Continuing tests." << endl;
-	}
-      rq_count++;
-      //pegasus_yield ();
-      if (verbose)
-        {
-          if (test_async_queue::msg_count.get () % 100 == 0)
-            cout << (test_async_queue::msg_count.get () /
-                     10) << "%% complete" << endl;
+            cerr << "Out of memory! Continuing tests." << endl;
+            continue;
         }
+        requestCount++;
 
+        // You really ought to allow other threads to their job (like picking
+        // up all of these messages, but we want to stress test unfair
+        // circumstances. 
+        //pegasus_yield ();
     }
-  while (test_async_queue::msg_count.get () < 1000);
-  if (verbose)
-   cout << "Waiting until all messages are flushed. " << endl;
-  while (test_async_queue::msg_count.get() != rq_count.get())
-  {
-	pegasus_yield();
-  }
-  if (verbose)
-    cout << "sending stop to server " << endl;
-  try {
-  	CimServiceStop *stop = new CimServiceStop (client->get_next_xid (),
-                                             0,
-                                             services[0],
-                                             client->getQueueId (),
-                                             true);
 
-  	AsyncMessage *reply = client->SendWait (stop);
-  	delete stop;
-  	delete reply;
-  } catch (const PEGASUS_STD(bad_alloc) &)
-  {
-	cerr <<" Out of memory! Continuing tests." << endl;
-  }
-  // wait for the server to shut down 
-  while (services.size () > 0)
+    if (verbose)
     {
-      client->find_services (String ("server"), 0, 0, &services);
-      pegasus_yield ();
+        cout << "Waiting until all messages are flushed." << endl;
+    }
+    while (test_async_queue::msg_count.get() != requestCount)
+    {
+        if (verbose)
+        {
+            if (test_async_queue::msg_count.get() % (requestCount/10) == 0)
+            {
+                cout << test_async_queue::msg_count.get() / (requestCount/100)
+                    << "% complete" << endl;
+            }
+        }
+        pegasus_yield();
     }
 
+    if (verbose)
+    {
+        cout << "testing fast safe async send" << endl;
+    }
 
-  if (verbose)
-    cout << "shutting down client" << endl;
+    test_async_queue::msg_count = 0;
+    requestCount = 0; 
+    while (requestCount < 10000)
+    {
+        // The problem on multi-processor machines is that if we make it
+        // continue on sending the messages, and the MessageQueueService
+        // does not get to pick up the messages, the machine can crawl to
+        // halt with about 300-400 threads and ever-continuing number of
+        // them created.
+        try 
+        {
+            Message *cim_rq = new Message(CIM_GET_INSTANCE_REQUEST_MESSAGE);
 
-  client->deregister_service ();
-  client->_shutdown_incoming_queue ();
+            client->SendAsync(
+                cim_rq,
+                services[0],
+                test_async_queue::async_handleSafeEnqueue,
+                client,
+                (void *) NULL);
+        }
+        catch (const PEGASUS_STD(bad_alloc) &)
+        {
+            cerr <<" Out of memory! Continuing tests." << endl;
+            continue;
+        }
+        requestCount++;
+        //pegasus_yield ();
+    }
 
-  delete client;
-  myself->exit_self ((PEGASUS_THREAD_RETURN) 1);
-  return (0);
+    if (verbose)
+    {
+        cout << "Waiting until all messages are flushed. " << endl;
+    }
+    while (test_async_queue::msg_count.get() != requestCount)
+    {
+        if (verbose)
+        {
+            if (test_async_queue::msg_count.get() % (requestCount/10) == 0)
+            {
+                cout << test_async_queue::msg_count.get() / (requestCount/100)
+                    << "% complete" << endl;
+            }
+        }
+        pegasus_yield();
+    }
+
+    if (verbose)
+    {
+        cout << "sending stop to server " << endl;
+    }
+    try
+    {
+        CimServiceStop *stop = new CimServiceStop(
+            client->get_next_xid (),
+            0,
+            services[0],
+            client->getQueueId (),
+            true);
+
+        AsyncMessage *reply = client->SendWait (stop);
+        delete stop;
+        delete reply;
+    }
+    catch (const PEGASUS_STD(bad_alloc) &)
+    {
+        cerr <<" Out of memory! Continuing tests." << endl;
+    }
+
+    // wait for the server to shut down 
+    while (services.size () > 0)
+    {
+        client->find_services (String ("server"), 0, 0, &services);
+        pegasus_yield ();
+    }
+
+    if (verbose)
+    {
+        cout << "shutting down client" << endl;
+    }
+
+    client->deregister_service();
+    client->_shutdown_incoming_queue();
+
+    delete client;
+    myself->exit_self((PEGASUS_THREAD_RETURN) 1);
+    return (0);
 }
 
 

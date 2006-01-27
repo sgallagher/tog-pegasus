@@ -219,27 +219,30 @@ int test(int argc, char** argv)
         PEGASUS_TEST_ASSERT(t1 <= t2);
         PEGASUS_TEST_ASSERT(t2 > t1);
         PEGASUS_TEST_ASSERT(t2 >=t1);
+        PEGASUS_TEST_ASSERT(String::compare(t1,t2) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t2,t1) > 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 1) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t2, t1, 1) > 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 10) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t2, t1, 10) > 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 0) == 0);
         t2 = t1;
         PEGASUS_TEST_ASSERT(t1 <= t2);
         PEGASUS_TEST_ASSERT(t1 >= t2);
-
-        // comparison and equals
-        // the compare is for null term strings.
-        // Therefore following does not work
-        // the compare operators cover the problem
-        // for String objects.
-        // PEGASUS_TEST_ASSERT(String::compare(t1,t2) == -1);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2) == 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 0) == 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 1) == 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 10) == 0);
 
 
         // Tests for compare with same length
         t1 = "abc";
         t2 = "def";
         PEGASUS_TEST_ASSERT(t1 < t2);
-
-        // comparison and equals
-        // compare is for null term strings
-        // therefore following does not work.
-        //PEGASUS_TEST_ASSERT(String::compare(t1,t2) == -1);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t2, t1) > 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 10) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 0) == 0);
       
         t1 = "abc";
         t2 = "ABC";
@@ -254,8 +257,9 @@ int test(int argc, char** argv)
         t1 = "1000";
         t2 = "1001";
         PEGASUS_TEST_ASSERT(String::compareNoCase(t1,t2) < 0);
-        PEGASUS_TEST_ASSERT(String::compare(t1,t2) < 0);
-        PEGASUS_TEST_ASSERT(String::compare(t1,t2, 3) == 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2) < 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 3) == 0);
+        PEGASUS_TEST_ASSERT(String::compare(t1, t2, 4) < 0);
 
 #ifdef PEGASUS_HAS_ICU
         //

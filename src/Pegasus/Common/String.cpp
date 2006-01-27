@@ -298,16 +298,6 @@ static int _compareNoUTF8(const Uint16* s1, const char* s2)
     return c1 - c2;
 }
 
-static int _compare(const Uint16* s1, const Uint16* s2, size_t n)
-{
-    // This should only be called when s1 and s2 have the same length.
-
-    while (n-- && (*s1++ - *s2++) == 0)
-        ;
-
-    return s1[-1] - s2[-1];
-}
-
 static inline void _copy(Uint16* s1, const Uint16* s2, size_t n)
 {
     memcpy(s1, s2, n * sizeof(Uint16));
@@ -1102,11 +1092,23 @@ void String::toUpper()
 
 int String::compare(const String& s1, const String& s2, Uint32 n)
 {
-    PEGASUS_ASSERT(n <= s1._rep->size);
-    PEGASUS_ASSERT(n <= s2._rep->size);
+    const Uint16* p1 = s1._rep->data;
+    const Uint16* p2 = s2._rep->data;
 
-    // Ignoring error in which n is greater than s1.size() or s2.size()
-    return _compare(s1._rep->data, s2._rep->data, n);
+    while (n--)
+    {
+        int r = *p1++ - *p2++;
+        if (r)
+        {
+            return r;
+        }
+        else if (!p1[-1])
+        {
+            // We must have encountered a null terminator in both s1 and s2
+            return 0;
+        }
+    }
+    return 0;
 }
 
 int String::compare(const String& s1, const String& s2)

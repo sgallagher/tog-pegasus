@@ -4,7 +4,7 @@ instance of PG_ProviderModule
     Description = "Instance Provider for the CIMOMSampleClass";
     Caption = "Instance Provider for the CIMOMSampleClass";
     Name = "LargeDataProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "1.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.1.0";

@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "A test provider to test variations of instances provider might return.";
     Caption = "Pegasus Test Instance Provider Module";
     Name = "TestInstanceProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.5.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.5.0";

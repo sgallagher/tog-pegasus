@@ -36,7 +36,7 @@ instance of PG_ProviderModule
 {
    Name = "LinuxCDROMDriveProviderModule";
    Location = "LinuxCDROMDriveProvider";
-   Vendor = "Pegasus Community";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "C++Default";
    InterfaceVersion = "2.1.0";

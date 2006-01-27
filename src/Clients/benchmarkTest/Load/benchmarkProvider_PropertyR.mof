@@ -4,7 +4,7 @@ instance of PG_ProviderModule
 {
    Name = "benchmarkProviderModule";
    Location = "benchmarkProviderModule";
-   Vendor = "Pegasus Community";
+   Vendor = "OpenPegasus";
    Version = "2.2.0";
    InterfaceType = "C++Default";
    InterfaceVersion = "2.3.0";

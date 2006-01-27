@@ -8,7 +8,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIExecQueryProviderModule";
   // The library name on disk
    Location = "cmpiTestExecQueryProvider"; 
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";

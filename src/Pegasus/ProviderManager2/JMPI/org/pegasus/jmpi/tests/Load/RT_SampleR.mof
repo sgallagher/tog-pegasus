@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "Sample JMPI Round Trip Indication Provider";
     Caption = "Sample JMPI Round Trip Indication Provider";
     Name = "JMPI_RT_SampleProviderModule1";
-    Vendor = "JMPI";
+    Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "JMPI";
     InterfaceVersion = "2.2.0";
@@ -35,7 +35,7 @@ instance of PG_ProviderModule
     Description = "Sample JMPI Round Trip Indication Provider";
     Caption = "Sample JMPI Round Trip Indication Provider";
     Name = "JMPI_RT_SampleProviderModule2";
-    Vendor = "JMPI";
+    Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "JMPI";
     InterfaceVersion = "2.2.0";

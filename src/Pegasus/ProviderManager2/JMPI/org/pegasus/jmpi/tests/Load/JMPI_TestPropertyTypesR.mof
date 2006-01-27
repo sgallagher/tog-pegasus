@@ -2,7 +2,7 @@ instance of PG_ProviderModule
 {
    Name = "JMPI_TestPropertyTypesModule";
    Location = "JMPI_TestPropertyTypes.jar:org/pegasus/jmpi/tests/JMPI_TestPropertyTypes/JMPI_TestPropertyTypes";
-   Vendor = "Pegasus Community";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "JMPI";
    InterfaceVersion = "1.0.0";

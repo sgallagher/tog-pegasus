@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "The Sample Pegasus Association Provider Module that implements the Sample_TeacherStudent and Sample_AdvisorStudent association classes";
     Caption = "Sample Pegasus Association Provider Module";
     Name = "SampleAssociationProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.3.0";

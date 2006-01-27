@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "Indication Stress Test Consumer Provider";
     Caption = "Indication Stress Test Consumer Provider";
     Name = "IndicationStressTestConsumerModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.3.0";

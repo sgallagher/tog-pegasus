@@ -8,7 +8,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIIndicationProviderModule";
   // The library name on disk
    Location = "cmpiTestIndicationProvider"; 
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";
@@ -44,7 +44,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIMethodProviderModule";
   // The library name on disk
    Location = "cmpiTestMethodProvider"; 
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";
@@ -80,7 +80,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIFail_1ProviderModule";
   // The library name on disk
    Location = "cmpiTestFail_1Provider"; 
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";
@@ -116,7 +116,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIFail_2ProviderModule";
   // The library name on disk
    Location = "cmpiTestFail_2Provider"; 
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";
@@ -153,7 +153,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIFail_3ProviderModule";
   // The library name on disk
    Location = "cmpiTestFail_3Provider"; 
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";
@@ -189,7 +189,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIFail_4ProviderModule";
   // The library name on disk
    Location = "cmpiTestFail_4Provider"; 
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";
@@ -226,7 +226,7 @@ instance of PG_ProviderModule
    Name = "TestCMPIThreadProviderModule";
   // The library name on disk
    Location = "cmpiTestCMPIThreadProvider";
-   Vendor = "SBLIM";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";

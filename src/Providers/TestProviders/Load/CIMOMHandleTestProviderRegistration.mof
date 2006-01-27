@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "A test provider to test CIMOMHandle function.";
     Caption = "Pegasus CIMOMHandle Test Provider Module";
     Name = "CIMOMHandleTestProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.5.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.5.0";

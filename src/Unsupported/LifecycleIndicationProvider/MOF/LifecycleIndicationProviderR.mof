@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "The Sample Pegasus Lifecycle Indication Provider Module that implements instance lifecycle indications for Sample_LifecycleIndicationProviderClass";
     Caption = "Sample Pegasus Lifecycle Indication Provider Module";
     Name = "SampleLifecycleIndicationProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.5.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.5.0";

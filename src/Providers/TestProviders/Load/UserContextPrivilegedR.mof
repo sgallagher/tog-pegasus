@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "Test Provider for Privileged UserContext";
     Caption = "User Context Test";
     Name = "UserContextPrivilegedModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.5.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.5.0";

@@ -7,7 +7,7 @@ instance of PG_ProviderModule
     Description = "The  Family provider that implements the PersonDynamic, LineageDynamic, LabeledLineageDynamic Classes";
     Caption = "Family Pegasus Provider Module";
     Name = "FamilyProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.3.0";

@@ -31,7 +31,7 @@ instance of PG_ProviderModule
 {
    Name = "ProcessorProviderModule";
    Location = "ProcessorProviderModule";
-   Vendor = "Pegasus Community";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "C++Default";
    InterfaceVersion = "2.1.0";

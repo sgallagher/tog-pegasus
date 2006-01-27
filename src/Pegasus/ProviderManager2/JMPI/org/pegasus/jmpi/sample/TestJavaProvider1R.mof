@@ -5,7 +5,7 @@ instance of PG_ProviderModule
 {
    Name = "TestJavaProvider1Module";
    Location = "org/pegasus/providers/TestJavaProvider1";
-   Vendor = "Pegasus Community";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "JMPI";
    InterfaceVersion = "2.0.0";

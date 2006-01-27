@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "The Test Association Provider Module implements the TEST_PERSON, Class";
     Caption = "Test Association Pegasus Provider Module";
     Name = "TestAggregationOutputProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "1.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.3.0";

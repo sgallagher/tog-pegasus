@@ -38,7 +38,7 @@ instance of PG_ProviderModule
    Name = "FilesAndDirectoriesModule";
    //The library name on disk
    Location = "FilesAndDirectories";
-   Vendor = "Pegasus";
+   Vendor = "OpenPegasus";
    Version = "2.0.0";
    InterfaceType = "CMPI";
    InterfaceVersion = "2.0.0";

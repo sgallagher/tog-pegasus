@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "Test Provider for CIMServer UserContext";
     Caption = "User Context Test";
     Name = "UserContextCIMServerModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.5.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.5.0";

@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "Test provider for extrinsic method support";
     Caption = "Pegasus Method Test Provider Module";
     Name = "MethodTestProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.5.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.5.0";

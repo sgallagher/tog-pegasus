@@ -4,7 +4,7 @@
 instance of PG_ProviderModule
 {
     Name = "OperatingSystemProvider (MODULE)";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     InterfaceType = "PG_DefaultC++";
     InterfaceVersion = "2.0.0";
     Location = "OperatingSystemProvider";

@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "Simple Display Consumer Provider";
     Caption = "Simple Display Consumer Provider";
     Name = "SimpleDisplayConsumerModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.3.0";

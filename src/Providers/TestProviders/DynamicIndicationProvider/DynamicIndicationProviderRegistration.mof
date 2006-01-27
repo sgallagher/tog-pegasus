@@ -6,7 +6,7 @@ instance of PG_ProviderModule
 {
    Name = "DynamicIndicationProvider";
    Location = "DynamicIndicationProvider";
-   Vendor = "IBM";
+   Vendor = "OpenPegasus";
    Version = "5.1.0";
    InterfaceType = "C++Default";
    InterfaceVersion = "2.5.0";

@@ -4,7 +4,7 @@ instance of PG_ProviderModule
     Description = "Timing Provider Sample";
     Caption = "Timing Provider Sample";
     Name = "TimingProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "1.0";
     InterfaceType = "C++Default";
     InterfaceVersion = "2.1.0";

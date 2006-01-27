@@ -5,7 +5,7 @@ instance of PG_ProviderModule
     Description = "The Pegasus Association Provider Module that implements Sample_InstanceProviderClass";
     Caption = "Pegasus Association Test Provider Module";
     Name = "AssociationTestProviderModule";
-    Vendor = "Pegasus";
+    Vendor = "OpenPegasus";
     Version = "2.0.0";
     InterfaceType = "PG_DefaultC++";
     InterfaceVersion = "2.0.0";

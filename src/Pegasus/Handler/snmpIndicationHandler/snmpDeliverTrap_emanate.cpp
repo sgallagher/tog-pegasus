@@ -607,13 +607,29 @@ char * snmpDeliverTrap_emanate::_getIPAddress(const CString& hostName)
     struct hostent *targetHostInfo;
     struct in_addr in;
 
-#ifdef PEGASUS_OS_SOLARIS
-#define HOSTENT_BUFF_SIZE	8192
-    char			buf[HOSTENT_BUFF_SIZE];
-    struct hostent		h_result;
-    int				h_errorp;
-    targetHostInfo=gethostbyname_r(hostName, &h_result, buff,
-					HOSTENT_BUFF_SIZE, &h_errorp);
+#if defined(PEGASUS_OS_LINUX)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        gethostbyname_r(
+            hostName,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &targetHostInfo,
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        targetHostInfo = gethostbyname_r(
+            (char *)hostName,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntryErrno);
 #else
     targetHostInfo = gethostbyname(hostName);
 #endif

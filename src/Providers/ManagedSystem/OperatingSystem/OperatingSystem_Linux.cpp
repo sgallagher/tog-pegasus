@@ -152,35 +152,46 @@ Boolean OperatingSystem::getName(String& osName)
 /**
    getUtilGetHostName method for the Linux implementation of the OS Provider
 
-   Gets the name of the host system from gethostname and gethostbyname.
+   Gets the name of the host system from gethostname and gethostbyname_r.
 
   */
 
 static Boolean getUtilGetHostName(String& csName)
 {
-     char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-     struct  hostent *he;
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+    struct hostent *hostEntry;
 
-     if (gethostname(hostName, sizeof(hostName)) != 0)
-     {
-         return false;
-     }
-     hostName[sizeof(hostName)-1] = 0;
+    if (gethostname(hostName, sizeof(hostName)) != 0)
+    {
+        return false;
+    }
+    hostName[sizeof(hostName)-1] = 0;
 
-     // Now get the official hostname.  If this call fails then return
-     // the value from gethostname().
+    // Now get the official hostname.  If this call fails then return
+    // the value from gethostname().
 
-     he=gethostbyname(hostName);
-     if (he)
-     {
-         csName.assign(he->h_name);
-     }
-     else
-     {
-         csName.assign(hostName);
-     }
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
 
-     return true;
+    gethostbyname_r(
+        hostName,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntry,
+        &hostEntryErrno);
+
+    if (hostEntry)
+    {
+        csName.assign(hostEntry->h_name);
+    }
+    else
+    {
+        csName.assign(hostName);
+    }
+
+    return true;
 }
 
 Boolean OperatingSystem::getCSName(String& csName)

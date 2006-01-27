@@ -571,30 +571,7 @@ String System::getHostName()
 
 String System::getFullyQualifiedHostName ()
 {
-#if defined(PEGASUS_OS_HPUX) || defined(PEGASUS_OS_AIX) || defined(PEGASUS_OS_LINUX) || defined(PEGASUS_OS_OS400)
-    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-    struct hostent *he;
-    String fqName;
-
-    if (gethostname(hostName, sizeof(hostName)) != 0)
-    {
-        return String::EMPTY;
-    }
-    hostName[sizeof(hostName)-1] = 0;
-
-    if ((he = gethostbyname (hostName)))
-    {
-        strncpy(hostName, he->h_name, sizeof(hostName)-1);
-    }
-
-#if defined(PEGASUS_OS_OS400)
-    EtoA(hostName);
-#endif
-
-    fqName.assign (hostName);
-
-    return fqName;
-#elif defined(PEGASUS_OS_ZOS)
+#if defined(PEGASUS_OS_ZOS)
     char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
     String fqName;
     struct addrinfo *resolv;
@@ -634,10 +611,53 @@ String System::getFullyQualifiedHostName ()
 
     return fqName;
 #else
-    //
-    //  ATTN: Implement this method to return the fully qualified host name
-    //
-    return String::EMPTY;
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+
+    if (gethostname(hostName, sizeof(hostName)) != 0)
+    {
+        return String::EMPTY;
+    }
+    hostName[sizeof(hostName)-1] = 0;
+
+    struct hostent *hostEntry;
+
+# if defined(PEGASUS_OS_LINUX)
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
+
+    gethostbyname_r(
+        hostName,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntry,
+        &hostEntryErrno);
+# elif defined(PEGASUS_OS_SOLARIS)
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
+
+    hostEntry = gethostbyname_r(
+        hostName,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntryErrno);
+# else
+    hostEntry = gethostbyname(hostName);
+# endif
+
+    if (hostEntry)
+    {
+        strncpy(hostName, hostEntry->h_name, sizeof(hostName)-1);
+    }
+
+# if defined(PEGASUS_OS_OS400)
+    EtoA(hostName);
+# endif
+
+    return String(hostName);
 #endif
 }
 

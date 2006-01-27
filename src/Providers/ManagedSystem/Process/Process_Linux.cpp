@@ -767,30 +767,41 @@ NOTES             :
 */
 String Process::getCSName(void) const
 {
-     char    hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-     struct  hostent *he;
-     String csName;
+    char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+    struct hostent *hostEntry;
+    String csName;
 
-     if (gethostname(hostName, sizeof(hostName)) != 0)
-     {
-         return String::EMPTY;
-     }
-     hostName[sizeof(hostName)-1] = 0;
+    if (gethostname(hostName, sizeof(hostName)) != 0)
+    {
+        return String::EMPTY;
+    }
+    hostName[sizeof(hostName)-1] = 0;
 
-     // Now get the official hostname.  If this call fails then return
-     // the value from gethostname().
+    // Now get the official hostname.  If this call fails then return
+    // the value from gethostname().
 
-     he=gethostbyname(hostName);
-     if (he)
-     {
-         csName.assign(he->h_name);
-     }
-     else
-     {
-         csName.assign(hostName);
-     }
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
 
-     return csName;
+    gethostbyname_r(
+        hostName,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntry,
+        &hostEntryErrno);
+
+    if (hostEntry)
+    {
+        csName.assign(hostEntry->h_name);
+    }
+    else
+    {
+        csName.assign(hostName);
+    }
+
+    return csName;
 }
 
 // This table is used by getOSName to determine the exact Linux OS on which

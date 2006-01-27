@@ -123,9 +123,9 @@ static Boolean _MakeAddress(
    unsigned long tmp_addr = inet_addr(ebcdicHost);
 #else
    unsigned long tmp_addr = inet_addr((char *)hostname);
-    #endif
+#endif
 
-   struct hostent *entry;
+   struct hostent* hostEntry;
 
 // Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
 //       A better solution would be to use inet_aton() or equivalent, as
@@ -133,37 +133,52 @@ static Boolean _MakeAddress(
 
    if (tmp_addr == 0xFFFFFFFF)  // if hostname is not an IP address
    {
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#define HOSTENT_BUFF_SIZE        8192
-      char      buf[HOSTENT_BUFF_SIZE];
-      int       h_errorp;
-      struct    hostent hp;
+#if defined(PEGASUS_OS_LINUX)
+      char hostEntryBuffer[8192];
+      struct hostent hostEntryStruct;
+      int hostEntryErrno;
 
-      entry = gethostbyname_r((char *)hostname, &hp, buf,
-                                HOSTENT_BUFF_SIZE, &h_errorp);
+      gethostbyname_r(
+          hostname,
+          &hostEntryStruct,
+          hostEntryBuffer,
+          sizeof(hostEntryBuffer),
+          &hostEntry,
+          &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+      char hostEntryBuffer[8192];
+      struct hostent hostEntryStruct;
+      int hostEntryErrno;
+
+      hostEntry = gethostbyname_r(
+          (char *)hostname,
+          &hostEntryStruct,
+          hostEntryBuffer,
+          sizeof(hostEntryBuffer),
+          &hostEntryErrno);
 #elif defined(PEGASUS_OS_OS400)
-      entry = gethostbyname(ebcdicHost);
+      hostEntry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
-      char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
       if (String::equalNoCase("localhost",String(hostname)))
       {
+          char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
           gethostname( hostName, sizeof( hostName ) );
           hostName[sizeof(hostName)-1] = 0;
-          entry = gethostbyname(hostName);
+          hostEntry = gethostbyname(hostName);
       } else {
-          entry = gethostbyname((char *)hostname);
+          hostEntry = gethostbyname((char *)hostname);
       }
 #else
-      entry = gethostbyname((char *)hostname);
+      hostEntry = gethostbyname((char *)hostname);
 #endif
-      if(!entry)
+      if (!hostEntry)
       {
-    return false;
+          return false;
       }
 
       memset(&address, 0, sizeof(address));
-      memcpy(&address.sin_addr, entry->h_addr, entry->h_length);
-      address.sin_family = entry->h_addrtype;
+      memcpy(&address.sin_addr, hostEntry->h_addr, hostEntry->h_length);
+      address.sin_family = hostEntry->h_addrtype;
       address.sin_port = htons(port);
    }     
    else    // else hostname *is* a dotted-decimal IP address

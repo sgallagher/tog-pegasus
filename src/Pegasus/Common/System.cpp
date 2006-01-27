@@ -205,24 +205,50 @@ char *System::extract_file_path(const char *fullpath, char *dirname)
 
 String System::getHostIP(const String &hostName)
 {
-    struct hostent * phostent;
-    struct in_addr   inaddr;
-    String ipAddress = String::EMPTY;
-    CString csName = hostName.getCString();
-    const char * ccName = csName;
-#ifndef PEGASUS_OS_OS400
-    if ((phostent = ::gethostbyname(ccName)) != NULL)
-#else
+    struct hostent* hostEntry;
+    struct in_addr inaddr;
+    String ipAddress;
+    CString hostNameCString = hostName.getCString();
+    const char* hostNamePtr = hostNameCString;
+
+#if defined(PEGASUS_OS_LINUX)
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
+
+    gethostbyname_r(
+        hostNamePtr,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntry,
+        &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+    char hostEntryBuffer[8192];
+    struct hostent hostEntryStruct;
+    int hostEntryErrno;
+
+    hostEntry = gethostbyname_r(
+        (char *)hostNamePtr,
+        &hostEntryStruct,
+        hostEntryBuffer,
+        sizeof(hostEntryBuffer),
+        &hostEntryErrno);
+#elif defined(PEGASUS_OS_OS400)
     char ebcdicHost[PEGASUS_MAXHOSTNAMELEN];
-    if (strlen(ccName) < PEGASUS_MAXHOSTNAMELEN)
-        strcpy(ebcdicHost, ccName);
+    if (strlen(hostNamePtr) < PEGASUS_MAXHOSTNAMELEN)
+        strcpy(ebcdicHost, hostNamePtr);
     else
         return ipAddress;
     AtoE(ebcdicHost);
-    if ((phostent = ::gethostbyname(ebcdicHost)) != NULL)
+    hostEntry = gethostbyname(ebcdicHost);
+#else
+    hostEntry = gethostbyname(hostNamePtr);
 #endif
+
+    if (hostEntry)
     {
-        ::memcpy( &inaddr, phostent->h_addr,4);
+        ::memcpy( &inaddr, hostEntry->h_addr,4);
 #if defined(PEGASUS_OS_OS400)
         char * gottenIPAdress = NULL;
         gottenIPAdress = ::inet_ntoa( inaddr );
@@ -274,48 +300,63 @@ Uint32 System::_acquireIP(const char* hostname)
 	Uint32 tmp_addr = inet_addr((char *) hostname);
 #endif
 
-	struct hostent *entry;
+    struct hostent* hostEntry;
 
 // Note: 0xFFFFFFFF is actually a valid IP address (255.255.255.255).
 //       A better solution would be to use inet_aton() or equivalent, as
 //       inet_addr() is now considered "obsolete".
 
     if (tmp_addr == 0xFFFFFFFF)  // if hostname is not an IP address
-	{
-#ifdef PEGASUS_PLATFORM_SOLARIS_SPARC_CC
-#define HOSTENT_BUFF_SIZE        8192
-		char      buf[HOSTENT_BUFF_SIZE];
-		int       h_errorp;
-		struct    hostent hp;
+    {
+#if defined(PEGASUS_OS_LINUX)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
 
-		entry = gethostbyname_r((char *)hostname, &hp, buf,
-								HOSTENT_BUFF_SIZE, &h_errorp);
+        gethostbyname_r(
+            hostname,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntry,
+            &hostEntryErrno);
+#elif defined(PEGASUS_OS_SOLARIS)
+        char hostEntryBuffer[8192];
+        struct hostent hostEntryStruct;
+        int hostEntryErrno;
+
+        hostEntry = gethostbyname_r(
+            (char *)hostname,
+            &hostEntryStruct,
+            hostEntryBuffer,
+            sizeof(hostEntryBuffer),
+            &hostEntryErrno);
 #elif defined(PEGASUS_OS_OS400)
-		entry = gethostbyname(ebcdicHost);
+        hostEntry = gethostbyname(ebcdicHost);
 #elif defined(PEGASUS_OS_ZOS)
-		char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
-		if (String::equalNoCase("localhost",String(hostname)))
-		{
-			gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
-			hostName[sizeof(hostName)-1] = 0;
-			entry = gethostbyname(hostName);
-		} else
-		{
-			entry = gethostbyname((char *)hostname);
-		}
+        char hostName[PEGASUS_MAXHOSTNAMELEN + 1];
+        if (String::equalNoCase("localhost",String(hostname)))
+        {
+            gethostname( hostName, PEGASUS_MAXHOSTNAMELEN );
+            hostName[sizeof(hostName)-1] = 0;
+            hostEntry = gethostbyname(hostName);
+        } else
+        {
+            hostEntry = gethostbyname((char *)hostname);
+        }
 #else
-		entry = gethostbyname((char *)hostname);
+        hostEntry = gethostbyname((char *)hostname);
 #endif
-		if (!entry)
+        if (!hostEntry)
 		{
 			return 0xFFFFFFFF;
 		}
 		unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
 
-		ip_part1 = entry->h_addr[0];
-		ip_part2 = entry->h_addr[1];
-		ip_part3 = entry->h_addr[2];
-		ip_part4 = entry->h_addr[3];
+		ip_part1 = hostEntry->h_addr[0];
+		ip_part2 = hostEntry->h_addr[1];
+		ip_part3 = hostEntry->h_addr[2];
+		ip_part4 = hostEntry->h_addr[3];
 		ip = ip_part1;
 		ip = (ip << 8) + ip_part2;
 		ip = (ip << 8) + ip_part3;
@@ -326,11 +367,11 @@ Uint32 System::_acquireIP(const char* hostname)
 		// resolve hostaddr to a real host entry
 		// casting to (const char *) as (char *) will work as (void *) too, those it fits all platforms
 #ifndef PEGASUS_OS_OS400
-        entry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+        hostEntry = gethostbyaddr((const char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #else
-		entry = gethostbyaddr((char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
+		hostEntry = gethostbyaddr((char *) &tmp_addr, sizeof(tmp_addr), AF_INET);
 #endif
-		if (entry == 0)
+		if (hostEntry == 0)
 		{
 			// error, couldn't resolve the ip
 			return 0xFFFFFFFF;
@@ -339,10 +380,10 @@ Uint32 System::_acquireIP(const char* hostname)
 
 			unsigned char ip_part1,ip_part2,ip_part3,ip_part4;
 
-			ip_part1 = entry->h_addr[0];
-			ip_part2 = entry->h_addr[1];
-			ip_part3 = entry->h_addr[2];
-			ip_part4 = entry->h_addr[3];
+			ip_part1 = hostEntry->h_addr[0];
+			ip_part2 = hostEntry->h_addr[1];
+			ip_part3 = hostEntry->h_addr[2];
+			ip_part4 = hostEntry->h_addr[3];
 			ip = ip_part1;
 			ip = (ip << 8) + ip_part2;
 			ip = (ip << 8) + ip_part3;

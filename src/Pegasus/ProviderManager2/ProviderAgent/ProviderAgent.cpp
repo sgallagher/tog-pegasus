@@ -88,8 +88,8 @@ ProviderAgent::ProviderAgent(
     const String& agentId,
     AnonymousPipe* pipeFromServer,
     AnonymousPipe* pipeToServer)
-  : _threadPool(0, "ProviderAgent", 0, 0, deallocateWait),
-    _providerManagerRouter(_indicationCallback)
+  : _providerManagerRouter(_indicationCallback),
+    _threadPool(0, "ProviderAgent", 0, 0, deallocateWait)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERAGENT, "ProviderAgent::ProviderAgent");
 

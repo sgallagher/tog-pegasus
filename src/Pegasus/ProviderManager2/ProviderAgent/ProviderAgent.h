@@ -174,11 +174,6 @@ private:
     Boolean _terminating;
 
     /**
-        A thread pool used for asynchronous processing of provider operations.
-     */
-    ThreadPool _threadPool;
-
-    /**
         The ProviderManagerRouter to which all provider operations are
         forwarded for processing.
      */
@@ -206,6 +201,11 @@ private:
         ProviderManagerRouter::_subscriptionInitComplete member variable.
      */
     Boolean _subscriptionInitComplete;
+
+    /**
+        A thread pool used for asynchronous processing of provider operations.
+     */
+    ThreadPool _threadPool;
 };
 
 PEGASUS_NAMESPACE_END

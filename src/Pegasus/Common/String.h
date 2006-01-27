@@ -421,34 +421,36 @@ public:
     void toUpper();
 #endif
 
-    /** Compare the first n characters of the two strings.
-    @param s1 First null-terminated string for the comparison.
-    @param s2 Second null-terminated string for the comparison.
-    @param n Number of characters to compare.
-    @return Return -1 If s1 is lexographically less than s2; if they are
-    equivalent return 0; otherwise return 1.
+    /**
+        Compares the first n characters of two String objects.
+        @param s1 The first String to compare.
+        @param s2 The second String to compare.
+        @param n The maximum number of characters to compare.
+        @return Returns a negative integer if the first n characters of s1
+        are lexographically less than s2, 0 if the first n characters of s1
+        and s2 are equal, and a positive integer otherwise.
     */
     static int compare(const String& s1, const String& s2, Uint32 n);
 
-    /** Compare two null-terminated strings.
-    @param s1 First null-terminated string for the comparison.
-    @param s2 Second null-terminated string for the comparison.
-    @return Return -1 if s1 is less than s2; if equal return 0;
-    otherwise return 1.
+    /**
+        Compares two String objects.
+        @param s1 The first String to compare.
+        @param s2 The second String to compare.
+        @return Returns a negative integer if s1 is lexographically less
+        than s2, 0 if s1 and s2 are equal, and a positive integer otherwise.
 
-    NOTE: Use the comparison operators <,<= > >= to compare
-    String objects.
+        NOTE: Use the comparison operators <,<= > >= to compare
+        String objects.
     */
     static int compare(const String& s1, const String& s2);
 
-    /** Compare two null-terminated strings but ignore case.
-    @param s1 First null-terminated string for the comparison.
-    @param s2 Second null-terminated string for the comparison.
-    @return Return -1 if s1 is less than s2; if equal return 0;
-    otherwise return 1.
-
-    NOTE: Use the comparison operators <,<= > >= to compare
-    String objects.
+    /**
+        Compares two String objects, ignoring case differences.
+        @param s1 The first String to compare.
+        @param s2 The second String to compare.
+        @return Returns a negative integer if s1 is lexographically less
+        than s2, 0 if s1 and s2 are equal, and a positive integer otherwise.
+        (Case differences are ignored in all cases.)
     */
     static int compareNoCase(const String& s1, const String& s2);
 

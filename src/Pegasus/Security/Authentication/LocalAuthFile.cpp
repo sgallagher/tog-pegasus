@@ -209,19 +209,10 @@ String LocalAuthFile::create()
     outfs.clear();
 
     //
-    // 2. Set file permission to read only by the owner.
+    // 2. Set file permission to read/write by the owner only.
     //
-#if defined(PEGASUS_OS_OS400)
-    CString tempName = filePathCString;
-    const char * tmp = tempName;
-    AtoE((char *)tmp);
-    Sint32 ret = chmod(tmp, S_IRUSR);
-#elif defined(PEGASUS_OS_TYPE_WINDOWS)
-    Sint32 ret = 0;
-#else
-    Sint32 ret = chmod(filePathCString, S_IRUSR);
-#endif
-    if ( ret == -1)
+
+    if ( !FileSystem::changeFilePermissions(filePath, S_IRUSR | S_IWUSR) )
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
@@ -251,7 +242,33 @@ String LocalAuthFile::create()
     outfs.close();
 
     //
-    // 4. Change the file owner to the requesting user.
+    // 4. Set file permission to read only by the owner.
+    //
+
+    if ( !FileSystem::changeFilePermissions (filePath, S_IRUSR ) )
+    {
+        String errorMsg = strerror(errno);
+        PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
+            "Failed to change mode on file: " + filePath 
+            + ", err is: " + errorMsg);
+        PEG_METHOD_EXIT();
+        
+        // Unable to change the local auth file permissions, remove the file 
+        // and throw CannotOpenFile error.
+
+        if (filePath.size())
+        {
+            if (FileSystem::exists(filePath))
+            {
+                FileSystem::removeFile(filePath);
+            }
+        }
+
+        throw CannotOpenFile (filePath);
+    }
+
+    //
+    // 5. Change the file owner to the requesting user.
     //
 #if !defined(PEGASUS_OS_TYPE_WINDOWS)
     if (!_changeFileOwner(filePath))

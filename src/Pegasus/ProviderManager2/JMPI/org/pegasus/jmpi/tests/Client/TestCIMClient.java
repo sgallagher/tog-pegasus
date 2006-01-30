@@ -1,4 +1,4 @@
-//%2005////////////////////////////////////////////////////////////////////////
+//%2006////////////////////////////////////////////////////////////////////////
 //
 // Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
 // Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
@@ -8,6 +8,8 @@
 // IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
 // Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
 // EMC Corporation; VERITAS Software Corporation; The Open Group.
+// Copyright (c) 2006 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+// EMC Corporation; Symantec Corporation; The Open Group.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -46,7 +48,7 @@
 //
 // Contributor(s):
 //
-// $Id: TestCIMClient.java,v 1.3 2005/02/05 23:00:34 karl Exp $
+// $Id: TestCIMClient.java,v 1.4 2006/01/30 16:18:13 karl Exp $
 //
 // Revision 1.7  2001/08/05 15:13:31   bpatil
 // -  Added Pegasus CIMServer support

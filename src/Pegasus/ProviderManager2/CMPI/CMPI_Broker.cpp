@@ -268,8 +268,26 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         CMPI_Object *obj =
-             new CMPI_Object(new CMPI_InstEnumeration(new Array<CIMInstance>(en)));
+
+         // Workaround for bugzilla 4677
+         // When running out of process the returned instances don't contain
+         // a name space. Create a writable copy of the array and add the
+         // namespace from the input parameters.
+         Array<CIMInstance> * aInst = new Array<CIMInstance>(en);
+         for (unsigned int index=0;index < aInst->size(); index++)
+         {
+             CIMInstance& myInst = (*aInst)[index];
+             CIMObjectPath orgCop = myInst.getPath();
+             orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+             (*aInst)[index].setPath(orgCop);
+         }
+
+         CMPI_Object *obj = new CMPI_Object(new CMPI_InstEnumeration(aInst));
+
+         /*CMPI_Object *obj =
+             new CMPI_Object(new CMPI_InstEnumeration(new Array<CIMInstance>(en)));*/
+         // End of workaround for bugzilla 4677
+
          return (CMPI_InstEnumeration*)obj->getHdl();
 
       }
@@ -334,8 +352,26 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         CMPI_Object *obj =
-             new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+
+         // Workaround for bugzilla 4677
+         // When running out of process the returned instances don't contain
+         // a name space. Create a writable copy of the array and add the
+         // namespace from the input parameters.
+         Array<CIMObject> * aInst = new Array<CIMObject>(en);
+         for (unsigned int index=0;index < aInst->size(); index++)
+         {
+             CIMObject& myInst = (*aInst)[index];
+             CIMObjectPath orgCop = myInst.getPath();
+             orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+             (*aInst)[index].setPath(orgCop);
+         }
+
+         CMPI_Object *obj = new CMPI_Object(new CMPI_ObjEnumeration(aInst));
+
+         /*CMPI_Object *obj =
+                new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));*/
+         // End of workaround for bugzilla 4677
+
          return (CMPI_ObjEnumeration *)obj->getHdl();
 
       }
@@ -408,8 +444,25 @@ extern "C" {
          CM_ClassOrigin(flgs),
          props);
          if (rc) CMSetStatus(rc,CMPI_RC_OK);
-         CMPI_Object *obj =
-             new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));
+         // Workaround for bugzilla 4677
+         // When running out of process the returned instances don't contain
+         // a name space. Create a writable copy of the array and add the
+         // namespace from the input parameters.
+         Array<CIMObject> * aInst = new Array<CIMObject>(en);
+         for (unsigned int index=0;index < aInst->size(); index++)
+         {
+             CIMObject& myInst = (*aInst)[index];
+             CIMObjectPath orgCop = myInst.getPath();
+             orgCop.setNameSpace(CM_ObjectPath(cop)->getNameSpace());
+             (*aInst)[index].setPath(orgCop);
+         }
+
+         CMPI_Object *obj = new CMPI_Object(new CMPI_ObjEnumeration(aInst));
+
+         /*CMPI_Object *obj =
+                new CMPI_Object(new CMPI_ObjEnumeration(new Array<CIMObject>(en)));*/
+         // End of workaround for bugzilla 4677
+
          return (CMPI_ObjEnumeration *)obj->getHdl();
       }
       catch (const CIMException &e) {

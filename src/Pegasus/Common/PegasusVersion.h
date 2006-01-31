@@ -85,6 +85,34 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
         PLATFORM_COMPONENT_VERSION " " PLATFORM_COMPONENT_STATUS "("
         COMPONENT_BUILD_DATE ")";
 
+// This macro can be examined by preprocessor directives (i.e., #if) to 
+// make compile time branch decisions based on the Pegasus version number. 
+// When read from left to right, the bytes have the following meaning:
+//
+//     Byte 0: major version number
+//     Byte 1: minor version number
+//     Byte 2: revision
+//     Byte 3: reserved
+//
+// This macro appeared for the first time in version 2.5.1 (0x02050100).
+// Hence its absence indicates a version earlier than that. The following
+// tests for a Pegasus version of at least 2.5.1:
+//
+//   #if defined(PEGASUS_VERSION_NUMBER)
+//     ..
+//   #endif
+//
+// And this tests whether the version is greater than 2.5.2:
+//
+//    #if defined(PEGASUS_VERSION_NUMBER) && PEGASUS_VERSION_NUMBER > 0x02050200
+//      ..
+//    #endif
+//
+// CAUTION: always check whether PEGASUS_VERSION_NUMBER is defined when 
+// integrating with versions prior to 2.5.1.
+//
+#define PEGASUS_VERSION_NUMBER 0x02050100
+
 #endif /* PEGASUS_OS_HPUX */
 
 PEGASUS_NAMESPACE_END

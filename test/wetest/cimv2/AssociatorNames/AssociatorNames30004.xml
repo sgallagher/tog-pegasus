@@ -12,7 +12,7 @@
      </INSTANCENAME>
     </IPARAMVALUE>
     <IPARAMVALUE NAME="AssocClass">
-      <CLASSNAME NAME=""/>^
+      <CLASSNAME NAME=""/>
     </IPARAMVALUE>
    </IMETHODCALL>
   </SIMPLEREQ>

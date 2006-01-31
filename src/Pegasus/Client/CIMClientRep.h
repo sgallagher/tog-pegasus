@@ -83,7 +83,7 @@ PEGASUS_NAMESPACE_BEGIN
 // CIMClientRep
 //
 ///////////////////////////////////////////////////////////////////////////////
-class CIMClientRep : public CIMClientInterface
+class PEGASUS_CLIENT_LINKAGE CIMClientRep : public CIMClientInterface
 {
 public:
 

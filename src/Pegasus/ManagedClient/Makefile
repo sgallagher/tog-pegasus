@@ -46,6 +46,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 LOCAL_DEFINES = -DPEGASUS_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegmanagedclient
+    pegclient \
 
 LIBRARIES = \
     pegcommon
@@ -59,19 +60,9 @@ endif
 PRE_DEPEND_INCLUDES = -I./depends
 
 SOURCES = \
-    ../Client/CIMClientRep.cpp \
     CIMManagedClient.cpp \
-    ../Client/CIMOperationRequestEncoder.cpp \
-    ../Client/CIMOperationResponseDecoder.cpp \
-    ../Client/ClientAuthenticator.cpp \
-    ../Client/CIMClientException.cpp \
-    ../Client/ClientPerfDataStore.cpp \
-    ../Client/ClientOpPerformanceDataHandler.cpp \
     CIMClientConnection.cpp \
     CIMDefaultClientConnectionManager.cpp    
-
-SOURCES_SLP = \
-    ../Client/CIMServerDiscovery.cpp
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)
   SOURCES += $(SOURCES_SLP)

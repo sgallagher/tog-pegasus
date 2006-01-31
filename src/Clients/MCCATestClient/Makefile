@@ -43,6 +43,7 @@ ifdef PEGASUS_HAS_SSL
    SYS_INCLUDES += -I$(OPENSSL_HOME)/include
 endif
 
+    pegclient \
 LIBRARIES = \
     pegmanagedclient \
     pegcommon

@@ -46,9 +46,9 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 LOCAL_DEFINES = -DPEGASUS_CLIENT_INTERNAL -DPEGASUS_INTERNALONLY
 
 LIBRARY = pegmanagedclient
-    pegclient \
 
 LIBRARIES = \
+    pegclient \
     pegcommon
 
 ifeq ($(PEGASUS_ENABLE_SLP),true)

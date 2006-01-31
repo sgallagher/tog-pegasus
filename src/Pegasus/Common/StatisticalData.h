@@ -61,6 +61,9 @@ TimeValue startTime = TimeValue::getCurrentTime();
 response->setStartServerTime(request->getStartServerTime()); \
 response->setStartProviderTime(TimeValue::getCurrentTime());
 
+#define STAT_RESPONSEEND \
+response->endProvider();
+
 #define STAT_PMS_PROVIDEREND \
 response->endProvider();            \
 response->setStartServerTime(request->getStartServerTime()); \
@@ -124,7 +127,9 @@ if (StatisticalData::current()->copyGSD)\
 	 out << "WBEMServerResponseTime: " << (Uint32) serverResponseTime << "\r\n";
 #else
 #define STAT_GETSTARTTIME
+#define STAT_PMS_PROVIDERSTART
 #define STAT_PMS_PROVIDEREND
+#define STAT_RESPONSEEND
 #define STAT_SERVERSTART
 #define STAT_SERVEREND
 #define STAT_SERVEREND_ERROR

@@ -81,7 +81,7 @@ catch(CIMException & e)                                                        \
                      "Exception: Unknown");                                    \
     handler.setStatus(CIM_ERR_FAILED, "Unknown error.");                       \
 }                                                                              \
-response->endProvider();
+STAT_RESPONSEEND
 
 
 PEGASUS_NAMESPACE_BEGIN

@@ -126,7 +126,7 @@ FLAGS += +w
 ##
 ##==============================================================================
 
-COMMON_SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet
+COMMON_SYS_LIBS = -lpthread -ldl -lsocket -lnsl -lxnet -lCstd
 
 ifeq ($(SUNOS_VERSION), 5.6)
 COMMON_SYS_LIBS += -lposix4

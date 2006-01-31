@@ -213,8 +213,16 @@ String LocalAuthFile::create()
     //
     // 2. Set file permission to read/write by the owner only.
     //
+    
+    #if defined(PEGASUS_OS_TYPE_WINDOWS)
+      Boolean success = 
+          FileSystem::changeFilePermissions(filePath, _S_IREAD | _S_IWRITE);
+    #else
+      Boolean success = 
+          FileSystem::changeFilePermissions(filePath, S_IRUSR | S_IWUSR);
+    #endif
 
-    if ( !FileSystem::changeFilePermissions(filePath, S_IRUSR | S_IWUSR) )
+    if ( !success )
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,
@@ -246,8 +254,15 @@ String LocalAuthFile::create()
     //
     // 4. Set file permission to read only by the owner.
     //
+    #if defined(PEGASUS_OS_TYPE_WINDOWS)
+      success = 
+          FileSystem::changeFilePermissions(filePath, _S_IREAD);
+    #else
+      success = 
+          FileSystem::changeFilePermissions(filePath, S_IRUSR);
+    #endif
 
-    if ( !FileSystem::changeFilePermissions (filePath, S_IRUSR ) )
+    if ( !success )
     {
         String errorMsg = strerror(errno);
         PEG_TRACE_STRING(TRC_AUTHENTICATION, Tracer::LEVEL4,

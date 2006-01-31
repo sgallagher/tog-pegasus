@@ -571,11 +571,13 @@ Boolean MP_Socket::isPeerVerificationEnabled()
 
 Array<SSLCertificateInfo*> MP_Socket::getPeerCertificateChain()
 {
+    Array<SSLCertificateInfo*> peerCertificate;
+
     if (_isSecure)
     {
-        return (_sslsock->getPeerCertificateChain());
+        peerCertificate = _sslsock->getPeerCertificateChain();
     }
-    return NULL;
+    return peerCertificate;
 }
 
 Boolean MP_Socket::isCertificateVerified()

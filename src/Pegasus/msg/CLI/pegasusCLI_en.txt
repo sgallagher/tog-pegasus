@@ -672,6 +672,8 @@ en:table {
 
         Clients.repupgrade.RepositoryUpgrade.HIGHER_VERSION_OLD_CLASS:string {"PGC01015: Warning: The old repository contains a class {0} in namespace {1} that has a higher version number than the new repository class. This class may have to be manually imported."}
 
+        Clients.repupgrade.RepositoryUpgrade.OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR:string {"PGC01016: Error reading old repository dependent class {0} in namespace {1}."}
+
         // ==========================================================
         // Start of messages from platform-specific files
         // ==========================================================

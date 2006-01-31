@@ -160,7 +160,7 @@ static const char REPOSITORY_UPGRADE_UNKNOWN_ERROR []    =
                 "Unknown error encountered during upgrade. ";
 
 static const char REPOSITORY_UPGRADE_UNKNOWN_ERROR_KEY []    =
-   "Clients.repupgrade.RepositoryUpgrade.REPOSITORY_UPGRADE_UNKNOWN_ERROR_KEY";
+   "Clients.repupgrade.RepositoryUpgrade.REPOSITORY_UPGRADE_UNKNOWN_ERROR";
 
 static const char REPOSITORY_DOES_NOT_EXIST [] =
                 "The specified location $0 does not exist. ";
@@ -172,74 +172,80 @@ static const char NAMESPACE_CREATION_ERROR [] =
                 "Error creating namespace $0.";
 
 static const char NAMESPACE_CREATION_ERROR_KEY [] =
-           "Clients.repupgrade.RepositoryUpgrade.NAMESPACE_CREATION_ERROR_KEY";
+           "Clients.repupgrade.RepositoryUpgrade.NAMESPACE_CREATION_ERROR";
 
 static const char CLASS_CREATION_ERROR [] =
                 "Error creating class $0 in namespace $1.";
 
 static const char CLASS_CREATION_ERROR_KEY [] =
-                "Clients.repupgrade.RepositoryUpgrade.CLASS_CREATION_ERROR_KEY";
+                "Clients.repupgrade.RepositoryUpgrade.CLASS_CREATION_ERROR";
 
 static const char INSTANCE_CREATION_ERROR [] =
                 "Error creating instance in namespace $0. ";
 
 static const char INSTANCE_CREATION_ERROR_KEY [] =
-             "Clients.repupgrade.RepositoryUpgrade.INSTANCE_CREATION_ERROR_KEY";
+             "Clients.repupgrade.RepositoryUpgrade.INSTANCE_CREATION_ERROR";
 
 static const char QUALIFIER_CREATION_ERROR [] =
                 "Error creating qualifier $0 in namespace $1.";
 
 static const char QUALIFIER_CREATION_ERROR_KEY [] =
-            "Clients.repupgrade.RepositoryUpgrade.QUALIFIER_CREATION_ERROR_KEY";
+            "Clients.repupgrade.RepositoryUpgrade.QUALIFIER_CREATION_ERROR";
 
 static const char OLD_CLASS_RETRIEVAL_ERROR [] =
                 "Error reading old repository class $0 in namespace $1.";
 
 static const char OLD_CLASS_RETRIEVAL_ERROR_KEY [] =
-            "Clients.repupgrade.RepositoryUpgrade.OLDCLASS_RETRIEVAL_ERROR_KEY";
+            "Clients.repupgrade.RepositoryUpgrade.OLDCLASS_RETRIEVAL_ERROR";
+
+static const char OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR [] =
+                "Error reading old repository dependent class $0 in namespace $1.";
+
+static const char OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR_KEY [] =
+      "Clients.repupgrade.RepositoryUpgrade.OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR";
 
 static const char NEW_CLASS_RETRIEVAL_ERROR [] =
                 "Error reading new repository class $0 in namespace $1.";
 
 static const char NEW_CLASS_RETRIEVAL_ERROR_KEY [] =
-           "Clients.repupgrade.RepositoryUpgrade.NEW_CLASS_RETRIEVAL_ERROR_KEY";
+           "Clients.repupgrade.RepositoryUpgrade.NEW_CLASS_RETRIEVAL_ERROR";
 
 static const char LIBRARY_LOAD_ERROR [] =
                 "Error loading special handling library $0.";
 
 static const char LIBRARY_LOAD_ERROR_KEY [] =
-                "Clients.repupgrade.RepositoryUpgrade.LIBRARY_LOAD_ERROR_KEY";
+                "Clients.repupgrade.RepositoryUpgrade.LIBRARY_LOAD_ERROR";
 
 static const char LIBRARY_ENTRY_POINT_ERROR [] =
                 "Error trying to get entry point symbol in library $0.";
 
 static const char LIBRARY_ENTRY_POINT_ERROR_KEY [] =
-                "Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR_KEY";
+                "Clients.repupgrade.RepositoryUpgrade.LIBRARY_ENTRY_POINT_ERROR";
 
 static const char CLASS_XML_OUTPUT_FILE [] =
               "CIM/XML request for this class has been logged to file $0 ";
 
 static const char CLASS_XML_OUTPUT_FILE_KEY [] =
-              "Clients.repupgrade.RepositoryUpgrade.CLASS_XML_OUTPUT_FILE_KEY";
+              "Clients.repupgrade.RepositoryUpgrade.CLASS_XML_OUTPUT_FILE";
 
 static const char INSTANCE_XML_OUTPUT_FILE [] =
              "CIM/XML request for this instance has been logged to file $0.";
 
 static const char INSTANCE_XML_OUTPUT_FILE_KEY [] =
-          "Clients.repupgrade.RepositoryUpgrade.INSTANCE_XML_OUTPUT_FILE_KEY";
+          "Clients.repupgrade.RepositoryUpgrade.INSTANCE_XML_OUTPUT_FILE";
 
 static const char QUALIFIER_XML_OUTPUT_FILE [] =
             "CIM/XML request for this qualifier has been logged to file $0.";
 
 static const char QUALIFIER_XML_OUTPUT_FILE_KEY [] =
-          "Clients.repupgrade.RepositoryUpgrade.QUALIFIER_XML_OUTPUT_FILE_KEY";
+          "Clients.repupgrade.RepositoryUpgrade.QUALIFIER_XML_OUTPUT_FILE";
 
 static const char HIGHER_VERSION_OLD_CLASS [] =
          "Warning: The old repository contains a class $0 in namespace $1 that has a higher version number than the new repository class. This class may have to be manually imported.";
 
 
 static const char HIGHER_VERSION_OLD_CLASS_KEY [] =
-         "Clients.repupgrade.RepositoryUpgrade.HIGHER_VERSION_OLD_CLASS_KEY";
+         "Clients.repupgrade.RepositoryUpgrade.HIGHER_VERSION_OLD_CLASS";
 
 const String RepositoryUpgrade::_FILE_EXTENSION
                                               = ".xml";
@@ -1743,7 +1749,7 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
         {
             if (ce.getCode() == CIM_ERR_NOT_FOUND)
             {
-                CIMName className(ce.getMessage());
+                CIMName dependentClassName(ce.getMessage());
 
                 //
                 // Check if the error was due to a non-existent class, if so
@@ -1751,8 +1757,46 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 // because a dependent class of an Association class
                 // has not yet been created.
                 //
-                if (! Contains( existingClasses, className))
+                if (! Contains( existingClasses, dependentClassName))
                 {
+                    // 
+                    // Check if the class that we depend on exists in 
+                    // the old repository.
+                    // If it doesn't exist, error out.
+                    //
+                    try
+                    { 
+                        oldClass = _oldRepository->getClass(
+                                            namespaceName,
+                                            dependentClassName,
+                                            true,
+                                            true,
+                                            true);
+
+                    }
+                    catch (CIMException& ce)
+                    {
+                        //
+                        // We have an exception case here.
+                        //
+                        String message = localizeMessage (MSG_PATH,
+                               REPOSITORY_UPGRADE_FAILURE_KEY,
+                               REPOSITORY_UPGRADE_FAILURE) + " " +
+
+                              localizeMessage ( MSG_PATH,
+                              CLASS_CREATION_ERROR_KEY,
+                              CLASS_CREATION_ERROR,
+                              className.getString(),
+                              namespaceName.getString()) + " " +
+
+                               localizeMessage (MSG_PATH,
+                               OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR_KEY,
+                               OLD_DEPENDENT_CLASS_RETRIEVAL_ERROR,
+                               dependentClassName.getString(),
+                               namespaceName.getString());
+
+                         throw RepositoryUpgradeException(message);
+                    }
 #ifdef REPUPGRADE_DEBUG
                     cout << "Adding to retry list Class name : "
                          << ce.getMessage() << endl;
@@ -1762,8 +1806,8 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
                 else
                 {
                     _logCreateClassError (namespaceName,
-                                              oldClass,
-                                              (ce.getMessage()+". "));
+                                      oldClass,
+                                      (ce.getMessage()+". "));
                 }
             }
             else
@@ -1775,13 +1819,14 @@ Uint32 RepositoryUpgrade::_addClassToRepository (
         }
         catch (Exception& e)
         {
-            _logCreateClassError (namespaceName,
+           _logCreateClassError (namespaceName,
                                       oldClass,
                                       (e.getMessage()+". "));
         }
         catch (...)
         {
-            _logCreateClassError (namespaceName,
+           _logCreateClassError (namespaceName,
+
                                       oldClass,
                                       String::EMPTY);
         }

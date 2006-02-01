@@ -111,12 +111,19 @@ ifdef PEGASUS_PAM_AUTHENTICATION
 
 endif
 
+FLAGS += -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
 
 ifdef PEGASUS_USE_DEBUG_BUILD_OPTIONS 
-FLAGS += -g -fPIC -W -Wall -Wno-unused  -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT
+  FLAGS += -g
 else
-FLAGS += -fPIC -W -Wall -Wno-unused -D_GNU_SOURCE -DTHREAD_SAFE -D_REENTRANT -s 
-  EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
+  FLAGS += -s
+  #
+  # The -fno-enforce-eh-specs is not available in 2.9.5 and it probably
+  # appeared in the 3.0 series of compilers.
+  #
+  ifeq ($(shell expr $(GCC_VERSION) '>=' 3.0), 1)
+    EXTRA_CXX_FLAGS += -fno-enforce-eh-specs
+  endif
   ifdef PEGASUS_OPTIMIZE_FOR_SIZE
     FLAGS += -Os
   else

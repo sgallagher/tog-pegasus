@@ -1277,25 +1277,6 @@ OOPProviderManagerRouter::~OOPProviderManagerRouter()
     PEG_METHOD_EXIT();
 }
 
-// Private, unimplemented constructor
-OOPProviderManagerRouter::OOPProviderManagerRouter()
-{
-}
-
-// Private, unimplemented constructor
-OOPProviderManagerRouter::OOPProviderManagerRouter(
-    const OOPProviderManagerRouter&)
-    : ProviderManagerRouter(*this)
-{
-}
-
-// Private, unimplemented assignment operator
-OOPProviderManagerRouter& OOPProviderManagerRouter::operator=(
-    const OOPProviderManagerRouter&)
-{
-    return *this;
-}
-
 Message* OOPProviderManagerRouter::processMessage(Message* message)
 {
     PEG_METHOD_ENTER(TRC_PROVIDERMANAGER,

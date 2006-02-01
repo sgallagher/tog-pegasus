@@ -49,7 +49,7 @@ PEGASUS_THREAD_RETURN PEGASUS_THREAD_CDECL test_thread(void* parm)
 {
     for (;;)
     {
-	const size_t N = 10000000;
+	const size_t N = 1000000;
 
 	for (size_t i = 0; i < N; i++)
 	{

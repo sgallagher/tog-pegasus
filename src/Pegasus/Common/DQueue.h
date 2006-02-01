@@ -60,7 +60,7 @@ private:
     AutoPtr<AtomicInt> _actual_count;
     DQueue *_dq_next;
     static DQueue<L> *_headOfFreeList;
-    static const int BLOCK_SIZE;
+    enum { BLOCK_SIZE = 200 };
     static Mutex _alloc_mut;
 
 public:
@@ -190,7 +190,7 @@ private: // asyncdqueue
     AsyncDQueue *_dq_next;
 
     static AsyncDQueue *_headOfFreeList;
-    static const int BLOCK_SIZE;
+    enum { BLOCK_SIZE = 20 };
     static Mutex _alloc_mut;
 
     /**
@@ -365,7 +365,6 @@ public:
 };
 
 template<class L> DQueue<L> * DQueue<L>::_headOfFreeList = 0;
-template<class L> const int DQueue<L>::BLOCK_SIZE = 200;
 template<class L> Mutex DQueue<L>::_alloc_mut;
 
 template<class L> void *DQueue<L>::operator new(size_t size)
@@ -411,7 +410,6 @@ template<class L> void DQueue<L>::operator delete(void *dead, size_t size)
 }
 
 template<class L> AsyncDQueue<L> * AsyncDQueue<L>::_headOfFreeList =0;
-template<class L> const int AsyncDQueue<L>::BLOCK_SIZE = 20;
 template<class L> Mutex AsyncDQueue<L>::_alloc_mut;
 
 template<class L> void * AsyncDQueue<L>::operator new(size_t size)

@@ -133,6 +133,12 @@ endif
 
 FLAGS += $(CXX_MACHINE_OPTIONS)
 
+ifdef PEGASUS_ENABLE_GCOV
+  FLAGS += -ftest-coverage -fprofile-arcs
+  SYS_LIBS += -lgcc -lgcov
+  EXTRA_LIBRARIES += -lgcc -lgcov
+endif
+
 ifndef PEGASUS_USE_MU_DEPEND
 PEGASUS_HAS_MAKEDEPEND = yes
 endif

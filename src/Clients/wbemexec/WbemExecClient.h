@@ -211,8 +211,8 @@ private:
     String _getLocalHostName();
     String _promptForPassword();
 
-    AutoPtr<Monitor> _monitor;//PEP101
-    AutoPtr<HTTPConnector> _httpConnector;//PEP101
+    Monitor* _monitor;//PEP101
+    HTTPConnector* _httpConnector;//PEP101
     HTTPConnection* _httpConnection;
 
     Uint32 _timeoutMilliseconds;

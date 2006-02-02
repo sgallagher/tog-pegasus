@@ -99,18 +99,27 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
     _timeoutMilliseconds(timeoutMilliseconds),
     _connected(false),
     _isRemote( false ),
-    _password( String::EMPTY )
+    _password(String::EMPTY)
 {
-    //
-    // Create Monitor and HTTPConnector
-    //
-    _monitor.reset(new Monitor());
-    _httpConnector.reset(new HTTPConnector(_monitor.get()));
+    // CAUTION: 
+    //    Using private AutoPtr<> data members for these objects causes linker
+    //    errors on some SOLARIS_SPARC_CC platforms.
+
+    _monitor = 0;
+    _httpConnector = 0;
+
+    AutoPtr<Monitor> monitor(new Monitor());
+    AutoPtr<HTTPConnector> httpConnector(new HTTPConnector(monitor.get()));
+
+    _monitor = monitor.release();
+    _httpConnector = httpConnector.release();
 }
 
 WbemExecClient::~WbemExecClient()
 {
-   disconnect();
+    disconnect();
+    delete _monitor;
+    delete _httpConnector;
 }
 
 void WbemExecClient::handleEnqueue()

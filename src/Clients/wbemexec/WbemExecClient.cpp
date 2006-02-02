@@ -118,8 +118,8 @@ WbemExecClient::WbemExecClient(Uint32 timeoutMilliseconds)
 WbemExecClient::~WbemExecClient()
 {
     disconnect();
-    delete _monitor;
     delete _httpConnector;
+    delete _monitor;
 }
 
 void WbemExecClient::handleEnqueue()

@@ -179,6 +179,12 @@ void drive_LanguageTag()
         LanguageTag lt3 = lt2;
         LanguageTag lt4("EN-us-Ca");
         LanguageTag lt5("en-US-mn");
+        LanguageTag lt6;
+        LanguageTag lt7 = lt6;
+        LanguageTag lt8 = lt1;
+        lt7 = lt1;
+        lt8 = lt6;
+        lt8 = lt1;
 
         PEGASUS_TEST_ASSERT(lt1 == lt2);
         PEGASUS_TEST_ASSERT(lt1 == lt3);
@@ -186,6 +192,8 @@ void drive_LanguageTag()
         PEGASUS_TEST_ASSERT(lt1 == lt4);
         PEGASUS_TEST_ASSERT(lt1 != lt5);
         PEGASUS_TEST_ASSERT(lt3 != lt5);
+        PEGASUS_TEST_ASSERT(lt1 == lt8);
+        PEGASUS_TEST_ASSERT(lt7 == lt8);
 
         // Test invalid language tag:  Empty string
         {
@@ -496,6 +504,33 @@ void drive_AcceptLanguageList()
 
         al1 = al;
         PEGASUS_TEST_ASSERT(al1 == al);
+
+        al1 = al1;
+        PEGASUS_TEST_ASSERT(al1 == al);
+
+        al1.remove(0);
+        PEGASUS_TEST_ASSERT(al1 != al);
+
+        // Test inequality operator
+        {
+            AcceptLanguageList list1;
+            AcceptLanguageList list2;
+
+            list1.insert(LanguageTag("en-US"), 1);
+            list1.insert(LanguageTag("fr"), 0.8);
+            list2 = list1;
+            PEGASUS_TEST_ASSERT(list1 == list2);
+
+            list2.remove(1);
+            PEGASUS_TEST_ASSERT(list1 != list2);
+
+            list2.insert(LanguageTag("fr"), 0.7);
+            PEGASUS_TEST_ASSERT(list1 != list2);
+
+            list2.remove(1);
+            list2.insert(LanguageTag("de"), 0.8);
+            PEGASUS_TEST_ASSERT(list1 != list2);
+        }
 
         // Test clear() method
 
@@ -832,6 +867,12 @@ void drive_ContentLanguageList()
         ContentLanguageList cl1;
         cl1 = cl;
         PEGASUS_TEST_ASSERT(cl1 == cl);
+
+        cl1 = cl1;
+        PEGASUS_TEST_ASSERT(cl1 == cl);
+
+        cl1.remove(0);
+        PEGASUS_TEST_ASSERT(cl1 != cl);
 
         // Test clear() method
 

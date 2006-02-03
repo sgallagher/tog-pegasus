@@ -37,7 +37,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = modifyInstances
+PROGRAM = TestProvidMgrModifyInstances
 
 SOURCES = modifyInstances.cpp
 

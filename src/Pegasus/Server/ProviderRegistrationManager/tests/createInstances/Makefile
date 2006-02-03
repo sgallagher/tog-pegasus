@@ -37,7 +37,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = createInstances
+PROGRAM = TestPrvRegMgrCreateInstances
 
 SOURCES = createInstances.cpp
 

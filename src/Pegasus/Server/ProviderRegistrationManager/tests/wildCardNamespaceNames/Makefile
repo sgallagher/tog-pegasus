@@ -37,7 +37,7 @@ EXTRA_INCLUDES = $(SYS_INCLUDES)
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = wildCardNamespaceNames
+PROGRAM = TestPrvRegMgrWildCardNamespaceNames
 
 SOURCES = wildCardNamespaceNames.cpp
 

@@ -35,7 +35,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = InstAlias
+PROGRAM = TestInstAlias
 SOURCES = InstAlias.cpp
 
 include $(ROOT)/mak/program.mak

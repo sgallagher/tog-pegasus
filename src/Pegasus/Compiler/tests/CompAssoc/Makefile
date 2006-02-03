@@ -35,7 +35,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = CompAssoc
+PROGRAM = TestCompAssoc
 SOURCES = CompAssoc.cpp
 
 include $(ROOT)/mak/program.mak

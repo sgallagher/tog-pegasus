@@ -35,7 +35,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = Thread
+PROGRAM = TestThread
 SOURCES = Thread.cpp
 
 include $(ROOT)/mak/program.mak

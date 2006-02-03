@@ -35,7 +35,7 @@ include ../libraries.mak
 
 LOCAL_DEFINES = -DPEGASUS_INTERNALONLY
 
-PROGRAM = IPC
+PROGRAM = TestIPC
 SOURCES = IPC.cpp
 
 include $(ROOT)/mak/program.mak

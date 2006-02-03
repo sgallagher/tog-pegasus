@@ -35,8 +35,7 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = AssociationClient
-
+PROGRAM = TestPegClientAssociationClient
 SOURCES = AssociationClient.cpp
 
 include $(ROOT)/mak/program.mak

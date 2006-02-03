@@ -35,8 +35,7 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = InvokeMethod2
-
+PROGRAM = TestPegClientInvokeMethod2
 SOURCES = InvokeMethod2.cpp
 
 include $(ROOT)/mak/program.mak

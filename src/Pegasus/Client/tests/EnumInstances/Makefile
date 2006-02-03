@@ -35,7 +35,7 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = EnumInstances
+PROGRAM = TestPegClientEnumInstances
 
 SOURCES = EnumInstances.cpp
 

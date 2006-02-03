@@ -35,8 +35,8 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES) $(ACE_INCLUDES)
 
-PROGRAM = Client
-
+# NOTE Name conflicts with the Clients/TestClient so extra character added
+PROGRAM = TestPegClientClient
 SOURCES = Client.cpp
 
 include $(ROOT)/mak/program.mak

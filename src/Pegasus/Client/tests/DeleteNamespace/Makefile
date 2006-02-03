@@ -41,7 +41,7 @@ include ../libraries.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
-PROGRAM = DeleteNamespace
+PROGRAM = TestPegClientDeleteNamespace
 
 SOURCES = DeleteNamespace.cpp
 

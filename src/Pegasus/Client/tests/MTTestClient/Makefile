@@ -41,7 +41,7 @@ LIBRARIES = \
     pegclient \
     pegcliutils 
 
-PROGRAM = MTTestClient
+PROGRAM = TestMTTestClient
 SOURCES = MTTestClient.cpp 
 
 include $(ROOT)/mak/program.mak

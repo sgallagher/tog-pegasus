@@ -40,7 +40,7 @@ ifeq ($(PEGASUS_ENABLE_SLP),true)
   FLAGS += -DPEGASUS_ENABLE_SLP
 endif
 
-PROGRAM = TestSLPClient
+PROGRAM = TestPegClientSLPClient
 
 SOURCES = slpclient.cpp
 

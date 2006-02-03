@@ -29,7 +29,7 @@
 #//
 #//==============================================================================
 ROOT = ../../../../..
-DIR = Pegasus/Compiler/tests/CompAssoc
+DIR = Pegasus/Compiler/tests/InstAlias
 include $(ROOT)/mak/config.mak
 include ../libraries.mak
 

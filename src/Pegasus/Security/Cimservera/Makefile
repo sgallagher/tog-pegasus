@@ -30,7 +30,7 @@
 #//==============================================================================
 ROOT = ../../../..
 
-DIR = cimservera
+DIR = Pegasus/Security/Cimservera
 
 include $(ROOT)/mak/config.mak
 

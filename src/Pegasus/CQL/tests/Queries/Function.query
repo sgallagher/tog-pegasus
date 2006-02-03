@@ -10,7 +10,7 @@
 #############
 # Datetime to microsecond
 #############
-select * from CQL_TestPropertyTypes where 63259376185000000 = DATETIMETOMICROSECOND(PropertyDateTime)
+select * from CQL_TestPropertyTypes where 63259462585000000 = DATETIMETOMICROSECOND(PropertyDateTime)
 select * from CQL_TestPropertyTypes where 1066666660424123456 = DATETIMETOMICROSECOND(PropertyInterval)
 
 # Errors
@@ -290,7 +290,7 @@ select * FROM CQL_TestPropertyTypes where DATETIME(54) = PropertyDateTime
 #############
 # microsecondToTimestamp
 #############
-select * FROM CQL_TestPropertyTypes where MICROSECONDTOTIMESTAMP(63259376185000000) = PropertyDateTime
+select * FROM CQL_TestPropertyTypes where MICROSECONDTOTIMESTAMP(63259462585000000) = PropertyDateTime
 
 # Errors
 select * FROM CQL_TestPropertyTypes where MICROSECONDTOTIMESTAMP('63259370000') = PropertyDateTime

@@ -36,6 +36,7 @@
 //              Carol Ann Krug Graves, Hewlett-Packard Company
 //                (carolann_graves@hp.com)
 //              Willis White (PEP 192)
+//              Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -107,24 +108,28 @@ int main(int argc, char** argv)
         Boolean te1 = false;
 
      
-         CIMDateTime te;
-         try{
-         te.set("2000122412****.002000+360");  //this is not leagal
-         }
-         catch(Exception & e){
-             te1 = true;
-         } 
-         PEGASUS_TEST_ASSERT(te1);
-         te1 =false;
+        CIMDateTime te;
+        try
+        {
+            te.set("2000122412****.002000+360");  //this is not leagal
+        }
+        catch(const InvalidDateTimeFormatException&)
+        {
+            te1 = true;
+        } 
+        PEGASUS_TEST_ASSERT(te1);
+        te1 =false;
 
         
-         String stri = "20001224122***.******+360";
-        try{
+        String stri = "20001224122***.******+360";
+        try
+        {
             CIMDateTime st(stri); 
-                     }
-        catch (InvalidDateTimeFormatException& r){
+        }
+        catch (const InvalidDateTimeFormatException&)
+        {
             te1 = true;
-         }
+        }
         PEGASUS_TEST_ASSERT(te1);
         te1 =false;
 
@@ -132,116 +137,127 @@ int main(int argc, char** argv)
                         form least significant place and going up
                         */
         String str_test2 = "20001224120000.002*00+360";
-       try{
-           CIMDateTime cdt_test2(str_test2); 
-                    }
-       catch (InvalidDateTimeFormatException& r){
-           te1 = true;
+        try
+        {
+            CIMDateTime cdt_test2(str_test2); 
         }
-       PEGASUS_TEST_ASSERT(te1);
-       te1 = false;
+        catch (const InvalidDateTimeFormatException&)
+        {
+            te1 = true;
+        }
+        PEGASUS_TEST_ASSERT(te1);
+        te1 = false;
        
-        try{
+        try
+        {
             CIMDateTime stt("200012*4120000.002000+360");
         }
-        catch (InvalidDateTimeFormatException& r){
+        catch (const InvalidDateTimeFormatException&)
+        {
             te1 = true;
         }
         PEGASUS_TEST_ASSERT(te1);
         te1 = false;
 
          
-                                /* check for UTC*/
-         String str_test1 = "20001012010920.002000+3*0";
-         try{
-             CIMDateTime cdt_test1(str_test1); 
-         }
-         catch (InvalidDateTimeFormatException& r){
-             te1 = true;
-          }
-         PEGASUS_TEST_ASSERT(te1);
+        /* check for UTC*/
+        String str_test1 = "20001012010920.002000+3*0";
+        try
+        {
+            CIMDateTime cdt_test1(str_test1); 
+        }
+        catch (const InvalidDateTimeFormatException&)
+        {
+            te1 = true;
+        }
+        PEGASUS_TEST_ASSERT(te1);
         
 
-                            /*  check days and UTC field when object is an interval*/  
-      
-          String str_test3 = "20001012010920.002000:000";
-          try{
-              CIMDateTime cdt_test3(str_test3); 
-          }
-          catch (InvalidDateTimeFormatException& r){
+        /*  check days and UTC field when object is an interval*/  
+
+        String str_test3 = "20001012010920.002000:000";
+        try
+        {
+            CIMDateTime cdt_test3(str_test3); 
+        }
+        catch (const InvalidDateTimeFormatException&)
+        {
             te1 = false;
-           }
-          PEGASUS_TEST_ASSERT(te1);
-          te1 = false;
+        }
+        PEGASUS_TEST_ASSERT(te1);
+        te1 = false;
 
     
-          String str_test4 = "20001012010920.002000:100";
-          try{
-              CIMDateTime cdt_test4(str_test4); 
-          }
-          catch (InvalidDateTimeFormatException& r){
-              te1 = true;
-           }
-          PEGASUS_TEST_ASSERT(te1);
-          te1 = false;
+        String str_test4 = "20001012010920.002000:100";
+        try
+        {
+            CIMDateTime cdt_test4(str_test4); 
+        }
+        catch (const InvalidDateTimeFormatException&)
+        {
+            te1 = true;
+        }
+        PEGASUS_TEST_ASSERT(te1);
+        te1 = false;
 
-          // Check for invalid non-ASCII character
-          try
-          {
-              String str = "20001012010920.002000:000";
-              str[7] = Char16(0x0132);
-              CIMDateTime cdt(str); 
-          }
-          catch (const InvalidDateTimeFormatException&)
-          {
-              te1 = true;
-          }
-          PEGASUS_TEST_ASSERT(te1);
-          te1 = false;
+        // Check for invalid non-ASCII character
+        try
+        {
+            String str = "20001012010920.002000:000";
+            str[7] = Char16(0x0132);
+            CIMDateTime cdt(str); 
+        }
+        catch (const InvalidDateTimeFormatException&)
+        {
+            te1 = true;
+        }
+        PEGASUS_TEST_ASSERT(te1);
+        te1 = false;
 
-                               /* verify CIMDateTime::CIMDateTime(const Uint64 microSec, Boolena) 
-                               and toMicroSeconds()*/ 
-         try{
-            int out_loop =1;
+        // verify CIMDateTime::CIMDateTime(const Uint64 microSec, Boolean)
+        // and toMicroSeconds()
+        try
+        {
             Uint64 co = 1;
-            while (co <20) {
+            while (co <20)
+            {
                 Uint64 num_day =   PEGASUS_UINT64_LITERAL(86400000000)*co;
                 CIMDateTime cdt1 = CIMDateTime(num_day, true);
-
-                if (cdt1.toMicroSeconds() != (PEGASUS_UINT64_LITERAL(86400000000)*co)){     
-                    PEGASUS_TEST_ASSERT(false);
-                }
+                PEGASUS_TEST_ASSERT(cdt1.toMicroSeconds() ==
+                    PEGASUS_UINT64_LITERAL(86400000000)*co);
                 co = co +2;
             }
-         }
-         catch(Exception & e){
-            PEGASUS_TEST_ASSERT(false);
         }
-        catch(exception &  e){
-            PEGASUS_TEST_ASSERT(false);
-        }
-
-
-   
-        CIMDateTime cdt1 = CIMDateTime("00000001000000.123456:000");
-        Uint64 re1 = cdt1.toMicroSeconds();
-        if ((re1 != PEGASUS_UINT64_LITERAL(86400123456))) {
-            PEGASUS_TEST_ASSERT(false);                                                 
-        }
-                                                                     
-
-        CIMDateTime cdt2 = CIMDateTime("00000101000000.123456+000");
-        Uint64 re2 = cdt2.toMicroSeconds();
-        if ((re2 != 123456)) {
+        catch(...)
+        {
             PEGASUS_TEST_ASSERT(false);
         }
 
-        CIMDateTime cdt3 = CIMDateTime("00000000030000.123456:000");
-        Uint64 re3 = cdt3.toMicroSeconds();
-        Uint64 comp = (PEGASUS_UINT64_LITERAL(3600000000)*3)+123456;
-        if ((comp != re3)) {
-            PEGASUS_TEST_ASSERT(false);                                              
+
+        {
+            CIMDateTime cdt = CIMDateTime("00010101000000.000000+000");
+            Uint64 us = cdt.toMicroSeconds();
+            PEGASUS_TEST_ASSERT(us == (Uint64)366*24*60*60*1000000);
         }
+
+        {
+            CIMDateTime cdt = CIMDateTime("00000001000000.123456:000");
+            Uint64 us = cdt.toMicroSeconds();
+            PEGASUS_TEST_ASSERT(us == PEGASUS_UINT64_LITERAL(86400123456));
+        }
+
+        {
+            CIMDateTime cdt = CIMDateTime("00000101000000.123456+000");
+            Uint64 us = cdt.toMicroSeconds();
+            PEGASUS_TEST_ASSERT(us == PEGASUS_UINT64_LITERAL(123456));
+        }
+
+        {
+            CIMDateTime cdt = CIMDateTime("00000000030000.123456:000");
+            Uint64 us = cdt.toMicroSeconds();
+            PEGASUS_TEST_ASSERT(us == (Uint64)3*60*60*1000000+123456);
+        }
+
 
         /*CIMDateTime con1 = CIMDateTime(864003660000000,false);
         //CIMDateTime con_comp = CIMDateTime("00270519010100.000000+000");
@@ -253,21 +269,15 @@ int main(int argc, char** argv)
             PEGASUS_TEST_ASSERT(false);
         }  */   
 
-      
-        Uint64 real =  PEGASUS_UINT64_LITERAL(8640000000000000);
-        Uint64 fake =  PEGASUS_UINT64_LITERAL(8637408000000000);
 
-        CIMDateTime realC = CIMDateTime(real, false);
-        CIMDateTime fakeC = CIMDateTime(fake, false);
-
-        Uint64 realN = realC.toMicroSeconds();
-        if (real != realN) {
-            PEGASUS_TEST_ASSERT(false);
+        {
+            Uint64 n = PEGASUS_UINT64_LITERAL(8640000000000000);
+            PEGASUS_TEST_ASSERT(n == CIMDateTime(n, false).toMicroSeconds());
         }
 
-        Uint64 fakeN = fakeC.toMicroSeconds();
-        if (fake != fakeN) {
-            PEGASUS_TEST_ASSERT(false);
+        {
+            Uint64 n = PEGASUS_UINT64_LITERAL(8637408000000000);
+            PEGASUS_TEST_ASSERT(n == CIMDateTime(n, false).toMicroSeconds());
         }
 
                 
@@ -324,7 +334,69 @@ int main(int argc, char** argv)
             PEGASUS_TEST_ASSERT(false);
         }
 
-                                                                                                    
+        // Test overflow on timestamp construction from microseconds
+        {
+            CIMDateTime dt = CIMDateTime("99991231235959.999999-000");
+            Uint64 microseconds = dt.toMicroSeconds();
+            Boolean gotException = false;
+            try
+            {
+                CIMDateTime x = CIMDateTime(microseconds+1, false);
+            }
+            catch (const DateTimeOutOfRangeException&)
+            {
+                gotException = true;
+            }
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test overflow on timestamp construction from microseconds from UTC
+        {
+            Boolean gotException = false;
+            try
+            {
+                CIMDateTime dt = CIMDateTime("99991231235959.999999-001");
+                CIMDateTime x = CIMDateTime(dt.toMicroSeconds(), false);
+            }
+            catch (const DateTimeOutOfRangeException&)
+            {
+                gotException = true;
+            }
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test overflow on interval construction from microseconds
+        {
+            CIMDateTime dt = CIMDateTime("99999999235959.999999:000");
+            Uint64 microseconds = dt.toMicroSeconds();
+            Boolean gotException = false;
+            try
+            {
+                CIMDateTime x = CIMDateTime(microseconds+1, true);
+            }
+            catch (const DateTimeOutOfRangeException&)
+            {
+                gotException = true;
+            }
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Test overflow on timestamp construction from large, valid interval
+        {
+            CIMDateTime dt = CIMDateTime("99999999235959.999999:000");
+            Uint64 microseconds = dt.toMicroSeconds();
+            Boolean gotException = false;
+            try
+            {
+                CIMDateTime x = CIMDateTime(microseconds, false);
+            }
+            catch (const DateTimeOutOfRangeException&)
+            {
+                gotException = true;
+            }
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
                                    // testing toMicroSeconds when object has wild cards
 
         CIMDateTime tms_cdt1 = CIMDateTime("00000000000000.12****:000");
@@ -414,325 +486,226 @@ int main(int argc, char** argv)
              PEGASUS_TEST_ASSERT(false);
          }  
 
-                               /*verfiying function put into getDifference in PEP 192*/ 
 
-      CIMDateTime vgD1 = CIMDateTime("20040520041401.000000+000");
-      CIMDateTime vgDsub1 = CIMDateTime("20040520041400.000000+000");
-      Sint64 diff1 = CIMDateTime::getDifference(vgDsub1,vgD1);
-      Sint64 vcom = 1000000;
-      Sint32 vdiv = diff1/vcom;
-      Sint32 rvdiv = diff1%vcom;
-      if (diff1 != vcom) {
-          cout << "subtraction of " << vgDsub1.toString() << " form " \
-               << vgD1.toString() << " should have equaled 1000000" << endl;
-          PEGASUS_TEST_ASSERT(false);
-      }
+        //
+        // Tests for getDifference.
+        //
 
-    
-      CIMDateTime vgD2 = CIMDateTime("20040521041400.00****+050");
-      CIMDateTime vgDsub2 = CIMDateTime("20040520041400.000000+050");
-      Sint64 diff2 = CIMDateTime::getDifference(vgDsub2,vgD2);
-      Sint64 vcom2 = PEGASUS_UINT64_LITERAL(86400000000);
-      Sint32 vdiv2 = diff2/1000000;
-      Sint32 rvdiv2 = diff2%1000000;
-      if (diff2 != vcom2) {
-          cout << "subtraction of " << vgDsub2.toString() << " form " \
-              << vgD2.toString() << " should have equaled 86400000000" << endl;
-          PEGASUS_TEST_ASSERT(false);
-      }
-
-
-      CIMDateTime vgD3 = CIMDateTime("20040520041400.000000+120");
-      CIMDateTime vgDsub3 = CIMDateTime("20040520041400.000***+000");
-      Sint64 diff3 = CIMDateTime::getDifference(vgDsub3,vgD3);
-      Sint64 vcom3 = -PEGASUS_SINT64_LITERAL(7200000000);
-      Sint32 vdiv3 = diff3/1000000;
-      Sint32 rvdiv3 = diff3%1000000;
-      if (diff3 != vcom3) {
-          cout << "subtraction of " << vgDsub2.toString() << " form " \
-              << vgD2.toString() << " is wrong" << endl;
-          PEGASUS_TEST_ASSERT(false);
-      }
-
-            
-        //
-        // Tests for getCurrentDateTime and getDifference.
-        //
-        CIMDateTime         startTime, finishTime;
-        Sint64              differenceInMicroseconds;
-    
-        //
-        // Call getCurrentDateTime
-        //
-        //startTime = CIMDateTime::getCurrentDateTime();
-        //finishTime = CIMDateTime::getCurrentDateTime();
-    
-        // Set the start and finish times
-        startTime.set("20020507170000.000000-480");
-        finishTime.set("20020507170000.000000-300");
-    
-        //
-        // Call getDifference
-        //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
-    
-        if (verbose)
+        // One second difference
         {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-    
-        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
-            -PEGASUS_SINT64_LITERAL(10800000000));
-    
-        //
-        //  Test date difference with microseconds
-        //
-        // Set the start and finish times
-        startTime.clear ();
-        finishTime.clear ();
-        finishTime.set ("20020507170000.000003-480");
-        startTime.set ("20020507170000.000000-300");
-    
-        //
-        // Call getDifference
-        //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime, 
-            finishTime);
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-    
-        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
-            PEGASUS_SINT64_LITERAL(10800000003));
-    
-        // Set the start and finish times
-        startTime.clear ();
-        finishTime.clear ();
-        finishTime.set ("20020507170000.000000-480");
-        startTime.set ("20020507170000.000003-300");
-    
-        //
-        // Call getDifference
-        //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime, 
-            finishTime);
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
-            PEGASUS_SINT64_LITERAL(10799999997));
-    
-        // Set the start and finish times
-        startTime.clear();
-        finishTime.clear();
-        finishTime.set("20020507170000.000000-480");
-        startTime.set("20020507170000.000000-300");
-    
-        //
-        // Call getDifference
-        //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-    
-        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
-            PEGASUS_SINT64_LITERAL(10800000000));
-    
-        // Set the start and finish times
-        startTime.clear();
-        startTime.set("20020507170000.000000+330");
-        finishTime.clear(); 
-        finishTime.set("20020507170000.000000-480");
-    
-        //
-        // Call getDifference
-        //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-    
-        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
-            PEGASUS_SINT64_LITERAL(48600000000));
-    
-        // Set the start and finish times
-        startTime.clear();
-        finishTime.clear(); 
-        finishTime.set("20020507170000.000000+330");
-        startTime.set("20020507170000.000000-480");
-    
-        //
-        // Call getDifference
-        //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-    
-        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
-            -PEGASUS_SINT64_LITERAL(48600000000));
-    
-        //
-        //  ATTN-CAKG-P2-20020819: the following test currently returns an 
-        //  incorrect result on Windows
-        //
-        //
-        // Set the start and finish times
-        //
-        startTime.set ("19011214000000.000000-000");
-        finishTime.set("19011215000000.000000-000");
-    
-        //
-        // Call getDifference
-        //
-        try 
-        {
-            differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-                finishTime);
-        }
-        catch(const DateTimeOutOfRangeException&)
-        {
-        }
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-            char buffer [32];
-            sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d",
-                differenceInMicroseconds);
-            cout << "differenceInMicroseconds : " << buffer << endl;
-        }
-    
-            
-        //
-        // Set the start and finish times
-        //
-        startTime.set ("20370101000000.000000-000");
-        finishTime.set("20370102000000.000000-000");
-    
-        //
-        // Call getDifference
-        //
-        differenceInMicroseconds = CIMDateTime::getDifference (startTime,
-            finishTime);
-    
-        if (verbose)
-        {
-            cout << "Format              : yyyymmddhhmmss.mmmmmmsutc" << endl;
-            cout << "Start date time is  : " << startTime << endl;
-            cout << "Finish date time is : " << finishTime << endl;
-        }
-    
-        PEGASUS_TEST_ASSERT (differenceInMicroseconds == 
-            PEGASUS_SINT64_LITERAL(86400000000));
-
-    
-        // Check for interval
-        CIMDateTime 	 startInterval;
-        CIMDateTime		 finishInterval;
-        Sint64      	 intervalDifferenceInMicroseconds;
-    
-        startInterval.set  ("00000001010100.000000:000");
-        finishInterval.set ("00000001010200.000000:000");
-
-    
-        if (verbose)
-        {
-            cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
-            cout << "Start interval is   : " << startInterval << endl;
-            cout << "Finish interval is  : " << finishInterval << endl;
-        }
-    
-        intervalDifferenceInMicroseconds = CIMDateTime::getDifference
-                                         (startInterval, finishInterval);
-    
-        PEGASUS_TEST_ASSERT ( startInterval.isInterval() == true );
-        PEGASUS_TEST_ASSERT ( intervalDifferenceInMicroseconds == 60000000 );
-
-    
-        //
-        //  Test maximum interval difference
-        //
-        startInterval.set  ("00000000000000.000000:000");
-        finishInterval.set ("99999999235959.999999:000");
-    
-        if (verbose)
-        {
-            cout << "Format              : ddddddddhhmmss.mmmmmm:000" << endl;
-            cout << "Start interval is   : " << startInterval << endl;
-            cout << "Finish interval is  : " << finishInterval << endl;
+            CIMDateTime dt1 = CIMDateTime("20040520041400.000000+000");
+            CIMDateTime dt2 = CIMDateTime("20040520041401.000000+000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == 1000000);
         }
 
-    
-        intervalDifferenceInMicroseconds = CIMDateTime::getDifference
-                                         (startInterval, finishInterval);
-    
-        PEGASUS_TEST_ASSERT ( startInterval.isInterval() == true );
-        PEGASUS_TEST_ASSERT ( intervalDifferenceInMicroseconds == 
-            PEGASUS_SINT64_LITERAL(8639999999999999999) );
-
-    
+        // One day difference, with wildcards
         {
-            Boolean bad = false;
+            CIMDateTime dt1 = CIMDateTime("20040520041400.000000+050");
+            CIMDateTime dt2 = CIMDateTime("20040521041400.00****+050");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // UTC difference, with wildcards
+        {
+            CIMDateTime dt1 = CIMDateTime("20040520041400.000***+000");
+            CIMDateTime dt2 = CIMDateTime("20040520041400.000000+120");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == -PEGASUS_SINT64_LITERAL(7200000000));
+        }
+
+        // Century non-leap year
+        {
+            CIMDateTime dt1 = CIMDateTime("19000228041400.000000+000");
+            CIMDateTime dt2 = CIMDateTime("19000301041400.000000+000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // Century leap year
+        {
+            CIMDateTime dt1 = CIMDateTime("20000229041400.000000+000");
+            CIMDateTime dt2 = CIMDateTime("20000301041400.000000+000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // Non-leap year
+        {
+            CIMDateTime dt1 = CIMDateTime("20030228041400.000000+000");
+            CIMDateTime dt2 = CIMDateTime("20030301041400.000000+000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // Regular leap year
+        {
+            CIMDateTime dt1 = CIMDateTime("20040229041400.000000+000");
+            CIMDateTime dt2 = CIMDateTime("20040301041400.000000+000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // Non-leap year
+        {
+            CIMDateTime dt1 = CIMDateTime("20050228041400.000000+000");
+            CIMDateTime dt2 = CIMDateTime("20050301041400.000000+000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // UTC difference
+        {
+            CIMDateTime dt1 = CIMDateTime("20020507170000.000000-300");
+            CIMDateTime dt2 = CIMDateTime("20020507170000.000000-480");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(10800000000));
+        }
+    
+        // Negative UTC difference
+        {
+            CIMDateTime dt1 = CIMDateTime("20020507170000.000000-480");
+            CIMDateTime dt2 = CIMDateTime("20020507170000.000000-300");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == -PEGASUS_SINT64_LITERAL(10800000000));
+        }
+
+        // Another UTC difference
+        {
+            CIMDateTime dt1 = CIMDateTime("20020507170000.000000+330");
+            CIMDateTime dt2 = CIMDateTime("20020507170000.000000-480");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(48600000000));
+        }
+
+        // Another negative UTC difference
+        {
+            CIMDateTime dt1 = CIMDateTime("20020507170000.000000-480");
+            CIMDateTime dt2 = CIMDateTime("20020507170000.000000+330");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == -PEGASUS_SINT64_LITERAL(48600000000));
+        }
+
+        // Microseconds difference
+        {
+            CIMDateTime dt1 = CIMDateTime("20020507170000.000000-300");
+            CIMDateTime dt2 = CIMDateTime("20020507170000.000003-480");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(10800000003));
+        }
+
+        // Microseconds difference
+        {
+            CIMDateTime dt1 = CIMDateTime("20020507170000.000003-300");
+            CIMDateTime dt2 = CIMDateTime("20020507170000.000000-480");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(10799999997));
+        }
+
+        // One day difference a long time ago
+        {
+            CIMDateTime dt1 = CIMDateTime("19011214000000.000000-000");
+            CIMDateTime dt2 = CIMDateTime("19011215000000.000000-000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // One day difference a long time into the future
+        {
+            CIMDateTime dt1 = CIMDateTime("20370101000000.000000-000");
+            CIMDateTime dt2 = CIMDateTime("20370102000000.000000-000");
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == PEGASUS_SINT64_LITERAL(86400000000));
+        }
+
+        // One minute interval difference
+        {
+            CIMDateTime dt1 = CIMDateTime("00000001010100.000000:000");
+            CIMDateTime dt2 = CIMDateTime("00000001010200.000000:000");
+            PEGASUS_TEST_ASSERT(dt1.isInterval());
+            PEGASUS_TEST_ASSERT(dt2.isInterval());
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(diff == 60000000);
+        }
+
+        // Largest interval difference
+        {
+            CIMDateTime dt1 = CIMDateTime("00000000000000.000000:000");
+            CIMDateTime dt2 = CIMDateTime("99999999235959.999999:000");
+            PEGASUS_TEST_ASSERT(dt1.isInterval());
+            PEGASUS_TEST_ASSERT(dt2.isInterval());
+            Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            PEGASUS_TEST_ASSERT(
+                diff == PEGASUS_SINT64_LITERAL(8639999999999999999));
+        }
+
+        // Mismatched interval and timestamp
+        {
+            CIMDateTime dt1 = CIMDateTime("00000001010100.000000:000");
+            CIMDateTime dt2 = CIMDateTime("20020507170000.000000-480");
+            PEGASUS_TEST_ASSERT(dt1.isInterval());
+            PEGASUS_TEST_ASSERT(!dt2.isInterval());
+            Boolean gotException = false;
+            try
+            {
+                Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            }
+            catch (const InvalidDateTimeFormatException&)
+            {
+                gotException = true;
+            }
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+        // Mismatched timestamp and interval
+        {
+            CIMDateTime dt1 = CIMDateTime("20040229041400.000000+000");
+            CIMDateTime dt2 = CIMDateTime("99999999235959.999999:000");
+            PEGASUS_TEST_ASSERT(!dt1.isInterval());
+            PEGASUS_TEST_ASSERT(dt2.isInterval());
+            Boolean gotException = false;
+            try
+            {
+                Sint64 diff = CIMDateTime::getDifference(dt1, dt2);
+            }
+            catch (const InvalidDateTimeFormatException&)
+            {
+                gotException = true;
+            }
+            PEGASUS_TEST_ASSERT(gotException);
+        }
+
+
+        //
+        // Tests for getCurrentDateTime
+        //
+        {
+            CIMDateTime currentTime1;
+            CIMDateTime currentTime2;
+            Boolean gotException = false;
     
             try
             {
-                CIMDateTime::getDifference(startInterval, finishTime);
-            }
-            catch (InvalidDateTimeFormatException&)
-            {
-                bad = true;
-            }
-    
-            PEGASUS_TEST_ASSERT(bad);
-        }
-
-        {
-            Boolean good = true;
-    
-            try
-            {
-                CIMDateTime currDT = CIMDateTime::getCurrentDateTime();
-            }
-            catch (InvalidDateTimeFormatException&)
-            {
-                good = false;
+                currentTime1 = CIMDateTime::getCurrentDateTime();
+                currentTime2 = CIMDateTime::getCurrentDateTime();
             }
             catch (...)
             {
-                good = false;
+                gotException = true;
             }
     
-            PEGASUS_TEST_ASSERT(good);
+            PEGASUS_TEST_ASSERT(!gotException);
+
+            // The literal value is approximately February 1, 2006.
+            PEGASUS_TEST_ASSERT(currentTime1.toMicroSeconds() >
+                PEGASUS_UINT64_LITERAL(63306000000000000));
+
+            // We don't expect the two getCurrentDateTime calls to happen more
+            // than a second apart.
+            PEGASUS_TEST_ASSERT(
+                CIMDateTime::getDifference(currentTime1, currentTime2) <=
+                1000000);
         }
 
 

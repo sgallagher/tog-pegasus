@@ -87,6 +87,13 @@ static const Uint64 _ONE_HOUR = PEGASUS_UINT64_LITERAL(3600000000);
 static const Uint64 _ONE_MINUTE = 60000000;
 static const Uint64 _ONE_SECOND = 1000000;
 
+static const Uint32 _DAYS_IN_YEAR_0 = 366;
+
+// The number of days preceding the (zero-based) specified month (for
+// non-leap years)
+static const Uint32 _MONTH_DAYS[12] =
+    {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+
 
  /* the CIMDateTimeRep class holds the data for the CIMDateTime class as it's protected
 data members.It also allows for "setting" and "getting" of individual components of
@@ -347,284 +354,134 @@ CIMDateTime::CIMDateTime(const CIMDateTime& x)
     rep.release();
 }
 
-/*constructs a CIMDateTime object from micro second value.
-pusdo code:
-check to make sure
-    if not interval{
-        check to make sure number of micro seconds is not greater then or equal to
-        10,000 years (uper bound of time stamp)
-     }
-    if interval {
-        check to make sure heck to make surenumber of micro seconds is not greater
-        then or equal to 100 millon years (uperbound of interval)
-    }
-
-    number of days = day_sub1
-
-    if interval{
-        get number of 400 year blocks  (number of days in 400 years is always the same)
-        While (numer of days after taking out 400 year blocks > 365){
-            if (not a leap year){
-                subtract 365 days from tottal
-            }
-            else{
-                subtract 366 days from toatal
-            }
-        }
-
-        tottal number of years = year
-
-        if (year we are calculating months for is a leap year){
-            add one to end date of Feb and add on to start end end days of all month after Feb
-        }
-
-        if (number of days left after taking of years is between 334 and 365){
-            we are in the 12th month
-            subtract months from number of days left
-         }
-         else if (number of days left after taking of years is between 334 and 304){
-            we are in the 11th month
-            subtract months from number of days left
-
-
-            ...
-
-
-         esle if (number of days left after taking of years is between 31 and 0){
-            we are in the 1st month
-            subtract months from number of days left
-         }
-         else{
-            we should never get to this code
-         }
-
-         get number of days left
-    }
-
-    get number of hours, minutes, seconds, and microseconds
-
-    build string representaion of object
-
-    send string to set()
- */
 CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval)
 {
-    if (microSec >= _TEN_THOUSAND_YEARS && !interval) { //time stamps must be less then number of micro Seconds in 10,000 years
-        MessageLoaderParms parmsTS("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
-               "trying to create a CIMDateTime object (time stamp) greater then the year 10,000");
-        throw DateTimeOutOfRangeException(parmsTS);
-    }
-    if (microSec >= _HUNDRED_MILLION_DAYS && interval) { //intervals must be less then the number of microseconds in 100 million days
-        MessageLoaderParms parmsIN("Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
-               "can't create a CIMDateTime object (interval) greater then the year 100 million days");
-         throw DateTimeOutOfRangeException(parmsIN);
+    if (microSec >= _TEN_THOUSAND_YEARS && !interval)
+    {
+        MessageLoaderParms parms(
+            "Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
+            "Cannot create a CIMDateTime time stamp beyond the year 10,000");
+        throw DateTimeOutOfRangeException(parms);
     }
 
+    if (microSec >= _HUNDRED_MILLION_DAYS && interval)
+    {
+        MessageLoaderParms parms(
+            "Common.Exception.DATETIME_OUT_OF_RANGE_EXCEPTION",
+            "Cannot create a CIMDateTime interval greater than 100 million "
+                "days");
+        throw DateTimeOutOfRangeException(parms);
+    }
 
-    //Set of Strings that hold part parts of datetime    100,000,000
-    String year, ye_mo, ye_mo_da, ye_mo_da_ho, ye_mo_da_ho_mn, ye_mo_da_ho_mn_se, final;
+    Uint32 year = 0;
+    Uint32 month = 0;
+    Uint32 day = 0;
+    Uint32 hour = 0;
+    Uint32 minute = 0;
+    Uint32 second = 0;
+    Uint32 microsecond = 0;
+    char buffer[26];
 
-    Uint32 day_sub1 = (Uint32)(microSec/_ONE_DAY);
-    Uint32 days_in400 = 146097;
+    microsecond = microSec % 1000000;
+    microSec /= 1000000;
 
-    if (!interval) {
-        Uint32 blocks_400 = day_sub1/days_in400;  //calculates the number of 400 year blocks in number
-        Uint32 blocks_rem = day_sub1%days_in400;  //clauclates number of day after 400 year blocks are removed
-        Uint32 days_rem = blocks_rem;
+    second = microSec % 60;
+    microSec /= 60;
 
+    minute = microSec % 60;
+    microSec /= 60;
 
-        /*While loop computes number of years form number of day
-        taking into accoutn leap years
-        */
-        //cout << " days_rem in constuctor that takes Micro = " << days_rem << endl;
-        Uint32 i = 1;
-        Uint32 count = 0;
-        Uint32 leap_next = 1;
+    hour = microSec % 24;
+    microSec /= 24;
 
-        /*  ((i%4 == 0) && (i%100 != 0)) || (i%400 == 0)) is only true for leap years. So this while
-        loop says "do if days_rem >= for non-leap years or days_rem >= 366 for leap years
-        */
-        while ((days_rem >= 365 && !(((i%4 == 0) && (i%100 != 0)) || (i%400 == 0))) || (days_rem >= 366 && (((i%4 == 0) && (i%100 != 0)) || (i%400 == 0)))) {
-            if (!(((i%4 == 0) && (i%100 != 0)) || (i%400 == 0))) {
-                days_rem = days_rem - 365;
-                count = count + 1;
-                i = i+1;
-                leap_next = leap_next + 1;
+    if (interval)
+    {
+        day = microSec;
+
+        sprintf(
+            buffer,
+            "%08u%02u%02u%02u.%06u:000",
+            day,
+            hour,
+            minute,
+            second,
+            microsecond);
+    }
+    else
+    {
+        Uint32 daysRemaining = microSec;
+        if (daysRemaining >= _DAYS_IN_YEAR_0)
+        {
+            const Uint32 _DAYS_IN_400_YEARS = 146097;
+            const Uint32 _DAYS_IN_100_YEARS = 36524;
+            const Uint32 _DAYS_IN_4_YEARS = 1461;
+
+            // Account for year 0
+            year = 1;
+            daysRemaining -= _DAYS_IN_YEAR_0;
+
+            year += (daysRemaining / _DAYS_IN_400_YEARS) * 400;
+            daysRemaining -=
+                daysRemaining / _DAYS_IN_400_YEARS * _DAYS_IN_400_YEARS;
+
+            year += (daysRemaining / _DAYS_IN_100_YEARS) * 100;
+            daysRemaining -=
+                daysRemaining / _DAYS_IN_100_YEARS * _DAYS_IN_100_YEARS;
+
+            year += (daysRemaining / _DAYS_IN_4_YEARS) * 4;
+            daysRemaining -=
+                daysRemaining / _DAYS_IN_4_YEARS * _DAYS_IN_4_YEARS;
+
+            year += daysRemaining / 365;
+            daysRemaining -= daysRemaining / 365 * 365;
+        }
+
+        // Determine whether this is a leap year
+        Boolean leapYear =
+            (((year%4 == 0) && (year%100 != 0)) || (year%400 == 0));
+
+        // Calculate the month
+        for (Uint32 m = 12; m > 0; m--)
+        {
+            Uint32 monthDays = _MONTH_DAYS[m-1];
+            if ((m > 2) && leapYear)
+            {
+                monthDays += 1;
             }
-            else{
-                days_rem = days_rem - 366;
-                count = count + 1;
-                i = i + 1;
-                leap_next = 0;
-                 //cout << "leap year" << endl;
+
+            if (daysRemaining >= monthDays)
+            {
+                month = m;
+                daysRemaining -= monthDays;
+                break;
             }
         }
 
-      // cout << "leap next = " << leap_next << " and count = " << count << " days_rem = " << days_rem << endl;
-        Uint32 tot_year = (blocks_400 * 400) + count;
+        // Calculate the day (days of the month start with 1)
+        day = daysRemaining + 1;
 
-        //converting number of years from Uint32 -> String
-        char buffer_year [10];
-        sprintf(buffer_year, "%04d", tot_year);
-        year = String(buffer_year);
-        if (tot_year > 9999) {
-            PEGASUS_ASSERT(false);
-            // the calculated year should never be greater then 9999
-        }
-
-
-        /*Switch block is used to calculate the the number of months from the number of days
-        left after years are subtracted.
-        */
-
-        Uint16 lp = 0;
-
-        /*lp is 0 for non leap years and 1 for leap years
-        */
-        if ((((i%4 == 0) && (i%100 != 0)) || (i%400 == 0))) {
-            lp = 1;
-           // cout << "months are being calculated for a leap year" << endl;
-        }
-
-        char bu_day [5];
-        sprintf(bu_day, "%02d", days_rem);
-
-
-
-        /* this block of if else statments figures out the number of months. When it subtracts
-        days it is subtracting whole days. i.e. if 0 days for the year means Jan. 1
-        */
-        if (days_rem < Uint32(365+lp) && (days_rem >= Uint32(334+lp))) {
-            ye_mo = year.append(String("12"));
-            days_rem = days_rem - (334+lp);
-        }
-        else if((days_rem < Uint32(334+lp)) && (days_rem >= Uint32(304+lp))){
-            ye_mo = year.append(String("11"));
-            days_rem = days_rem - (304+lp);
-        }
-        else if((days_rem < Uint32(304+lp)) && (days_rem >= Uint32(273+lp))){
-            ye_mo = year.append(String("10"));
-            days_rem = days_rem - (273+lp);
-        }
-        else if((days_rem < Uint32(273+lp)) && (days_rem >= Uint32(243+lp))){
-            ye_mo = year.append(String("09"));
-            days_rem = days_rem - (243+lp);
-        }
-        else if((days_rem < Uint32(243+lp)) && (days_rem >= Uint32(212+lp))){
-            ye_mo = year.append(String("08"));
-            days_rem = days_rem - (212+lp);
-        }
-        else if((days_rem < Uint32(212+lp)) && (days_rem >= Uint32(181+lp))){
-            ye_mo = year.append(String("07"));
-            days_rem = days_rem - (181+lp);
-        }
-        else if((days_rem < Uint32(181+lp)) && (days_rem >= Uint32(151+lp))){
-            ye_mo = year.append(String("06"));
-            days_rem = days_rem - (151+lp);
-        }
-        else if((days_rem < Uint32(151+lp)) && (days_rem >= Uint32(120+lp))){
-            ye_mo = year.append(String("05"));
-            days_rem = days_rem - (120+lp);
-        }
-        else if((days_rem < Uint32(120+lp)) && (days_rem >= Uint32(90+lp))){
-            ye_mo = year.append(String("04"));
-            days_rem = days_rem - (90+lp);
-        }
-        else if((days_rem < Uint32(90+lp)) && (days_rem >= Uint32(59+lp))){
-            ye_mo = year.append(String("03"));
-            days_rem = days_rem - (59+lp);
-        }
-        else if((days_rem < Uint32(59+lp)) && (days_rem >= 31)){
-            ye_mo = year.append(String("02"));
-            days_rem = days_rem - 31;
-        }
-        else if(days_rem < 31){
-            ye_mo = year.append(String("01"));
-        }
-        else{
-            // this code should never be exicuted
-            Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                "Error when caculating months in CIMDateTime::CIMDateTime(Uint \
-                          microSec, Boolean interval)");
-            PEGASUS_ASSERT(false);
-        }
-
-       char bu_mon [5];
-       sprintf(bu_mon, "%02d", days_rem);
-      // cout << "this is the days left after months is taken " << String(bu_mon) << endl;
-
-
-               //converting number of days from from Uint32 -> String
-        char buffer_day [5];
-        sprintf(buffer_day, "%02d", (days_rem+1));   // day of the month is never 0 (1-31)
-        ye_mo_da = ye_mo.append(buffer_day);
-
-    }  //end of if(!interval)
-    else {
-
-      // cout << "number is an interval" << endl;
-        char buffer_day [20];
-        sprintf(buffer_day, "%08d", day_sub1);
-        ye_mo_da = String(buffer_day);
+        sprintf(
+            buffer,
+            "%04u%02u%02u%02u%02u%02u.%06u+000",
+            year,
+            month,
+            day,
+            hour,
+            minute,
+            second,
+            microsecond);
     }
-
-   //cout << "when days are added the string is  " << ye_mo_da << endl;
-
-    //get hours, minutes, seconds and microseconds
-    Uint64 after_ymd = microSec%_ONE_DAY;
-
-    Uint32 hour_num = (Uint32)(after_ymd/_ONE_HOUR);
-    Uint32 after_ymdh = (Uint32)(after_ymd%_ONE_HOUR);
-
-    Uint32 min_num = after_ymdh/_ONE_MINUTE;
-    Uint32 after_ymdhm = after_ymdh%_ONE_MINUTE;
-
-    Uint32 sec_num = after_ymdhm/_ONE_SECOND;
-
-    Uint32 mic_num = after_ymdhm%_ONE_SECOND;
-
-
-
-    //converting hours, minutes, seconds and microseconds from Uint32 -> String
-
-    char buffer_hour [10];
-    sprintf(buffer_hour, "%02d", hour_num);
-    ye_mo_da_ho = ye_mo_da.append(buffer_hour);
-        //cout << "when hours are added the string is  " << ye_mo_da_ho << endl;
-
-    char buffer_min [10];
-    sprintf(buffer_min, "%02d", min_num);
-    ye_mo_da_ho_mn = ye_mo_da_ho.append(buffer_min);
-       //cout << "when minutes are added the string is  " << ye_mo_da_ho_mn << endl;
-
-
-    char buffer_sec [10];
-    sprintf(buffer_sec, "%02d", sec_num);
-    ye_mo_da_ho_mn_se = ye_mo_da_ho_mn.append(buffer_sec);
-   //cout << "when seconds are adder string is  " << ye_mo_da_ho_mn_se << endl;
-
-    char buffer_mic [15];
-    if (interval) {     //adding correct UCT off set depending on wether object should be an interval or not
-        sprintf(buffer_mic, ".%06d:000", mic_num);
-    }
-    else{
-        sprintf(buffer_mic, ".%06d+000", mic_num);
-    }
-    final = ye_mo_da_ho_mn_se.append(buffer_mic);
-    //cout << "when at the end of constructor that takes Uint64 created string is  " << final  << endl << endl;
 
     _rep = new CIMDateTimeRep();
     AutoPtr<CIMDateTimeRep> rep(_rep);
 
-    if (!_set(final)) {
-        Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                    "CIMDateTime::CIMDateTime(Uint64 microSec, Boolean interval) failed");
-        throw InvalidDateTimeFormatException(); //can't pass message to this exceptions
+    if (!_set(String(buffer)))
+    {
+        PEGASUS_ASSERT(false);
     }
 
     rep.release();
 }
-
 
 /*copies CIMDateTimeRep from passed in paramiter to the the callers CIMDateTimeRep
 effectivly copies value of one CIMDateTime to another. All data in held in
@@ -1030,186 +887,109 @@ Uint64 CIMDateTime::toMicroSeconds() const
 }
 
 
-
-/*returns number of Micro seconds represented by a CIMDateTime object
-*/
+// Returns the number of microseconds represented by a CIMDateTime object
 Uint64 CIMDateTime::_toMicroSeconds()
 {
+    Uint64 microseconds = 0;
 
-    Uint64 mic = 0;
-    Uint64 sec = 0;
-    Uint64 min = 0;
-    Uint64 hor = 0;
-    Uint64 day = 0;
-    Uint64 mon = 0;
-    Uint64 yea = 0;
-    Uint64 date = 0;
-    Uint64 yea_400 = 0;
-    Uint64 day_400 =0;
-
-    Uint32 mic_sp= _rep->microSec.find('*');
-    if (mic_sp == PEG_NOT_FOUND) {
-        mic = atol(_rep->microSec.getCString());
+    // Retrieve the microseconds component from the CIMDateTime object
+    Uint32 microsecondsSplatIndex = _rep->microSec.find('*');
+    Uint32 microsecondsComponent = 0;
+    if (microsecondsSplatIndex == PEG_NOT_FOUND)
+    {
+        microsecondsComponent = atol(_rep->microSec.getCString());
     }
-    else if (mic_sp > 0) {
-        String subMic = _rep->microSec.subString(0, mic_sp);
-        mic = Uint64(atol(subMic.getCString()) * pow((double)10,(double)(6-mic_sp)));
+    else if (microsecondsSplatIndex > 0)
+    {
+        String subMic = _rep->microSec.subString(0, microsecondsSplatIndex);
+        microsecondsComponent = (Uint32)atol(subMic.getCString()) *
+            (Uint32)pow((double)10,(double)(6-microsecondsSplatIndex));
     }
-    else{
-        mic = 0;
+    else
+    {
+        microsecondsComponent = 0;
     }
+    microseconds += microsecondsComponent;
 
-
-    if (_rep->seconds.find('*') == PEG_NOT_FOUND) {
-        sec = atol(_rep->seconds.getCString()) * 1000000;
-    }
-
-    if (_rep->minutes.find('*') == PEG_NOT_FOUND) {
-        min = atol(_rep->minutes.getCString()) * _ONE_MINUTE;
+    // Retrieve the seconds component from the CIMDateTime object
+    if (_rep->seconds.find('*') == PEG_NOT_FOUND)
+    {
+        Uint64 secondsComponent = atol(_rep->seconds.getCString());
+        microseconds += secondsComponent * 1000000;
     }
 
-    if (_rep->hours.find('*') == PEG_NOT_FOUND) {
-        hor = (atol(_rep->hours.getCString())) * _ONE_HOUR;
+    // Retrieve the minutes component from the CIMDateTime object
+    if (_rep->minutes.find('*') == PEG_NOT_FOUND)
+    {
+        Uint64 minutesComponent = atol(_rep->minutes.getCString());
+        microseconds += minutesComponent * _ONE_MINUTE;
     }
 
+    // Retrieve the hours component from the CIMDateTime object
+    if (_rep->hours.find('*') == PEG_NOT_FOUND)
+    {
+        Uint64 hoursComponent = atol(_rep->hours.getCString());
+        microseconds += hoursComponent * _ONE_HOUR;
+    }
 
- //cout << "this is what the object holds year - " << _rep->year << " months - " << /
-    // _rep->month << " - days  " << _rep->days << endl << "hour - " << _rep->hours << endl;
-// cout << "minute - " << _rep->minutes << endl;
-
-
-    if (!isInterval()) {
-
-        /* change years into micro Seconds. Taking leap years into accout there are 146,097
-         days every 400 years. Remainder years outside of 400 year blocks will be handled by
-         a while loop
-         */
-        Uint64 yea_num = 0;
-
-        if (_rep->year.find('*') == PEG_NOT_FOUND) {
-            yea_num = atol(_rep->year.getCString());
+    if (isInterval())
+    {
+        // Retrieve the days component from the CIMDateTime object
+        if (_rep->days.find('*') == PEG_NOT_FOUND)
+        {
+            Uint64 daysComponent = atol(_rep->days.getCString());
+            microseconds += daysComponent * _ONE_DAY;
+        }
+    }
+    else
+    {
+        // Retrieve the day component from the CIMDateTime object
+        if (_rep->days.find('*') == PEG_NOT_FOUND)
+        {
+            Uint64 dayComponent = atol(_rep->days.getCString());
+            microseconds += (dayComponent-1) * _ONE_DAY;
         }
 
+        // Retrieve the month and year components from the CIMDateTime object
+        if (_rep->year.find('*') == PEG_NOT_FOUND)
+        {
+            Uint64 yearComponent = atol(_rep->year.getCString());
 
-        Uint64 yea_400 = yea_num/400;
-        Uint64 day_400  = yea_400 * 146097;
+            // Retrieve the month component from the CIMDateTime object.
+            if (_rep->month.find('*') == PEG_NOT_FOUND)
+            {
+                Uint32 monthComponent = atol(_rep->month.getCString());
+                PEGASUS_ASSERT((monthComponent > 0) && (monthComponent < 13));
 
-        Uint32 count_le = 0;
-        Uint32 count_r = 0;
-        Uint64 yea_rem = yea_num%400;
-        Uint32 leap_next = 0;
-        Uint32 count = 1;
-        Uint16 lp = 0;
-        Uint64 day_rem;
+                Uint32 monthDays = _MONTH_DAYS[monthComponent-1];
+                if ((monthComponent > 2) && ((yearComponent%400 == 0) ||
+                    ((yearComponent%4 == 0) && (yearComponent%100 != 0))))
+                {
+                    // Add the leap day
+                    monthDays += 1;
+                }
 
-
-           // (((count%4 == 0) && (count%100 != 0)) || (count%400 == 0)) is only true for leap years
-        for (Uint32 i=1; i<=yea_rem; i++) {
-            if (!(((count%4 == 0) && (count%100 != 0)) || (count%400 == 0))) {
-                count_r = count_r + 1;
-                count = count + 1;
-                leap_next = leap_next + 1;
+                // Convert months to days and then to microseconds
+                microseconds += monthDays * _ONE_DAY;
             }
-            else {
-                count_le = count_le + 1;
-                count = count + 1;
-                leap_next = 0;
+
+            if (yearComponent > 0)
+            {
+                // Convert years into microseconds, factoring in leap years
+                yearComponent -= 1;
+                microseconds +=
+                    (_DAYS_IN_YEAR_0 +
+                     yearComponent/400 * 146097 +
+                     yearComponent%400/100 * 36524 +
+                     yearComponent%100/4 * 1461 +
+                     yearComponent%4 * 365) *
+                    _ONE_DAY;
             }
-        }
-
-
-        /*lp is 0 for non leap years and 1 for leap years
-        */
-        if ((((count%4 == 0) && (count%100 != 0)) || (count%400 == 0))) {
-            lp = 1;
-           //cout << "months are being calculated for a leap year" << endl;
-        }
-
-
-        if (_rep->month.find('*') == PEG_NOT_FOUND) {
-
-            //get number of days eqivalent to number of months in the object and multipy by number of
-            //micro seconds in a day
-            switch (atol(_rep->month.getCString())) { //months can't be equal to zero
-            case 1:
-                mon = 00;
-                break;
-            case 2:
-                mon = 31 * _ONE_DAY;
-                break;
-            case 3:
-                mon = ((59+lp) * _ONE_DAY);
-                break;
-            case 4:
-                mon = ((90+lp) * _ONE_DAY);
-                break;
-            case 5:
-                mon = ((120+lp) * _ONE_DAY);
-                break;
-            case 6:
-                mon = ((151+lp) * _ONE_DAY);
-                break;
-            case 7:
-                mon = ((181+lp) * _ONE_DAY);
-                break;
-            case 8:
-                mon = ((212+lp) * _ONE_DAY);
-                break;
-            case 9:
-                mon = ((243+lp) * _ONE_DAY);
-                break;
-            case 10:
-                mon = ((273+lp) * _ONE_DAY);
-                break;
-            case 11:
-                mon = ((304+lp) * _ONE_DAY);
-                break;
-            case 12:
-                mon = ((334+lp) * _ONE_DAY);
-                break;
-            default:
-               // cout << "error calculating months" << endl;
-               // cout << "this is data " << (String)_rep->data << endl;
-                Tracer::trace(__FILE__,__LINE__,TRC_CIM_DATA,Tracer::LEVEL2,
-                              "Code should never reach this point in \
-                              CIMDateTime::_toMicroSecdonds() ");
-                PEGASUS_ASSERT(false);
-                throw InvalidDateTimeFormatException();
-            }
-        } // end of if(!interval) block
-
-
-
-        day_rem = (count_le * 366) + (count_r * 365);
-        Uint64 yea = (day_rem+day_400) * _ONE_DAY;
-
-
-        if (_rep->days.find('*') == PEG_NOT_FOUND) {
-            day = ((atol(_rep->days.getCString()))-1) * _ONE_DAY;   //time stamp "days" go from 1-31 ther is no zero
-        }
-        day += yea; // not sure why this is needed but yea doesn't hold it's vlaue outside of
-                    //the if!(interval) block
-
-        //y_dd = yea/PEGASUS_UINT64_LITERAL(86400000000);  //this is just here to illistate need for "day+=yea"
-        //  cout << " this is at the end of the not interval block and year is " << y_dd << endl;
-
-    }// end of if(!interval)
-
-    else{
-        if (_rep->days.find('*') == PEG_NOT_FOUND) {
-            day = (atol(_rep->days.getCString())) * _ONE_DAY;
         }
     }
 
-
-    // Uint32 y_dd = yea/PEGASUS_UINT64_LITERAL(86400000000);   //this is just here to illistate need for "day+=yea"
-   // cout << " this is right before the addition and year is " << y_dd << endl;
-
-    date = mic+sec+min+hor+day+mon; //yea is not include becaue it is included in the day value of TimeStamps
-
-    return date;
+    return microseconds;
 }
-
 
 
 /*compare two CIMDateTime objects for equality

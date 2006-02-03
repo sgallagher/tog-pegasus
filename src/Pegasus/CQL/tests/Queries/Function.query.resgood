@@ -17,7 +17,7 @@ Statement with error = select * from CQL_TestPropertyTypes where PropertyStringS
 There were 5 statements that did NOT parse.
 =========Evaluate Query==============
 =========     0     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE 63259376185000000 = DATETIMETOMICROSECOND(PropertyDateTime)
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE 63259462585000000 = DATETIMETOMICROSECOND(PropertyDateTime)
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE
@@ -1410,7 +1410,7 @@ ERROR!
 Parameter 1 for function DATETIME has type Uint64.  It must be type String.
 
 =========     157     =========
------Query: SELECT * FROM CQL_TestPropertyTypes  WHERE MICROSECONDTOTIMESTAMP(63259376185000000) = PropertyDateTime
+-----Query: SELECT * FROM CQL_TestPropertyTypes  WHERE MICROSECONDTOTIMESTAMP(63259462585000000) = PropertyDateTime
 
 -----Instance: //a.b.com/root/SampleProvider:CQL_TestPropertyTypes.InstanceId=1
 TRUE

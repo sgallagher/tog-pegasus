@@ -42,7 +42,7 @@ LIBRARIES = \
     pegquerycommon \
     pegcommon
 
-PROGRAM = RegularExpression
+PROGRAM = TestCQLRegularExpression
 SOURCES = RegularExpression.cpp
 
 include $(ROOT)/mak/program.mak

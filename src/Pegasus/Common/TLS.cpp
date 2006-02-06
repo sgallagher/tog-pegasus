@@ -38,8 +38,9 @@
 //         Heather Sterling, IBM (hsterl@us.ibm.com)
 //         Josephine Eskaline Joyce, IBM (jojustin@in.ibm.com) for PEP#101
 //         David Dillard, Symantec Corp. (david_dillard@symantec.com)
-//              Carol Ann Krug Graves, Hewlett-Packard Company
+//         Carol Ann Krug Graves, Hewlett-Packard Company
 //                  (carolann_graves@hp.com)
+//         Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4549
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -314,6 +315,7 @@ Sint32 SSLSocket::accept()
                 //
                 if (_exportConnection)
                 {
+                    X509_free(client_cert);
                     PEG_METHOD_EXIT();
                     return -1;
                 }

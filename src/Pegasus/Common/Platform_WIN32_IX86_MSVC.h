@@ -105,6 +105,17 @@
 #pragma warning( disable : 4800 ) 
 #endif
 
+// VC 8 specific pragmas
+#if _MSC_VER >= 1400
+// Suppress this warning: '<function>' was declared deprecated
+// This warning is supported beginning with VC 8.
+#pragma warning ( disable : 4996 )
+
+// Suppress this warning: behavior change: an object of POD type constructed with an
+// initializer of the form () will be default-initialized
+#pragma warning ( disable : 4345 )
+#endif
+
 //
 // Prior to Microsoft Visual Studio 7.0, there were no stream inserters for
 // __int64 and unsigned __int64. We declare them if the _MSC_VER is less than
@@ -117,16 +128,16 @@ namespace std
 {
     inline ostream& operator<<(ostream& os, const unsigned __int64& x)
     {
-	char buffer[64];
-	sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
-	return os << buffer;
+        char buffer[64];
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "u", x);
+        return os << buffer;
     }
 
     inline ostream& operator<<(ostream& os, const __int64& x)
     {
-	char buffer[64];
-	sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
-	return os << buffer;
+        char buffer[64];
+        sprintf(buffer, "%" PEGASUS_64BIT_CONVERSION_WIDTH "d", x);
+        return os << buffer;
     }
 }
 #endif /* _MSC_VER < 1300 */

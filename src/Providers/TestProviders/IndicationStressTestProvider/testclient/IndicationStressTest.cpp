@@ -32,6 +32,7 @@
 // Author: Dave Sudlik, IBM (dsudlik@us.ibm.com)
 //
 // Modified By: Jim Wunderlich (Jim_Wunderlich@prodigy.net)
+//              Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4400
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -1307,9 +1308,17 @@ int _beginTest(CIMClient& workClient, const char* opt,
                  << currentClientResidentIndicationCount << endl;
             cout << "+++++     Out of Sequence = "
                  << seqNumberErrors.get() << endl;
-            cout << "+++++     Avg. Send-Recv Delta time = "
-                 << (long)(sendRecvDeltaTimeTotal/1000)/sendRecvDeltaTimeCnt
-                 << " milli-seconds" << endl;
+            if (sendRecvDeltaTimeCnt)
+            {
+                cout << "+++++     Avg. Send-Recv Delta time = "
+                     << (long)(sendRecvDeltaTimeTotal/1000)/sendRecvDeltaTimeCnt
+                     << " milli-seconds" << endl;
+            }
+            else
+            {
+                cout << "+++++     Avg. Send-Recv Delta time = "
+                     << "*** No Indications Received ***" << endl;
+            }
             cout << "+++++     Min. Send-Recv Delta time = "
                  << sendRecvDeltaTimeMin/1000
                  << " milli-seconds" << endl;

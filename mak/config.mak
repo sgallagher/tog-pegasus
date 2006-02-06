@@ -89,7 +89,11 @@ endif
 
 ################################################################################
 ifeq ($(findstring _GNU, $(PEGASUS_PLATFORM)), _GNU)
-    GCC_VERSION = $(shell g++ -dumpversion)
+    ifdef CXX
+      GCC_VERSION = $(shell $(CXX) -dumpversion)
+    else
+      GCC_VERSION = $(shell g++ -dumpversion)
+    endif
 else
     GCC_VERSION =
 endif

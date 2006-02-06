@@ -31,7 +31,7 @@
 //
 // Author: Warren Otsuka, Hewlett-Packard Company (warren.otsuka@hp.com)
 //
-// Modified By: 
+// Modified By: Aruran, IBM (ashanmug@in.ibm.com) for Bug# 4592
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,11 @@
     {"exportSSLTrustStore", "/etc/opt/tog-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/tog-pegasus/crl"},
     {"repositoryDir",       "/var/opt/tog-pegasus/repository"},
+#if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
     {"providerDir",         "/opt/tog-pegasus/providers/lib:/usr/lib/cmpi"},
+#else
+    {"providerDir",         "/opt/tog-pegasus/providers/lib"},
+#endif
     {"messageDir",         "/opt/tog-pegasus/share/locale/ICU_Messages"},
 #endif
 #endif
@@ -92,7 +96,11 @@
     {"exportSSLTrustStore", "/etc/opt/lsb-pegasus/indication_trust"},
     {"crlStore",            "/etc/opt/lsb-pegasus/crl"},
     {"repositoryDir",       "/var/opt/lsb-pegasus/repository"},
+#if defined(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER)
     {"providerDir",         "/opt/lsb-pegasus/providers:/usr/lib/cmpi"},
+#else
+    {"providerDir",         "/opt/lsb-pegasus/providers"},
+#endif
 #endif
 #if !defined(PEGASUS_USE_RELEASE_CONFIG_OPTIONS) && !defined(PEGASUS_USE_RELEASE_DIRS)
     {"bogus", "MyBogusValue"} // Remove this line if others are added

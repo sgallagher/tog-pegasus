@@ -54,7 +54,7 @@ endif
 # Enable CMPI by default.
 #
 ifndef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
-PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=yes
+PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER=true
 endif
 
 #########################################################################

@@ -44,12 +44,6 @@ ifndef ROOT
     include $(ROOT)/mak/config.mak
 endif
 
-ifndef OPENSSL_BIN
-    OPENSSL_BIN = $(OPENSSL_HOME)/bin
-endif
-
-    OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
-
 ifeq ($(OS),win32)
     STRIPCRS = stripcrs $(RESULTFILE) $(MASTERRESULTFILE)
     DIFF = mu compare

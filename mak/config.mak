@@ -498,6 +498,20 @@ ifdef PEGASUS_USE_NET_SNMP
   DEFINES += -DPEGASUS_USE_NET_SNMP
 endif
 
+ifdef PEGASUS_HAS_SSL
+ ifndef OPENSSL_BIN
+    OPENSSL_BIN = $(OPENSSL_HOME)/bin
+ endif
+ OPENSSL_COMMAND = $(OPENSSL_BIN)/openssl
+ ifndef OPENSSL_SET_SERIAL_SUPPORTED
+    ifneq (, $(findstring 0.9.6, $(shell $(OPENSSL_COMMAND) version)))
+        OPENSSL_SET_SERIAL_SUPPORTED = false
+    else
+        OPENSSL_SET_SERIAL_SUPPORTED = true
+    endif
+endif
+endif
+
 #
 # PEGASUS_ENABLE_SLP and PEGASUS_DISABLE_SLP
 #

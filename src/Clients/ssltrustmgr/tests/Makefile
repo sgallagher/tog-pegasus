@@ -40,6 +40,18 @@ RESULTFILE =  $(TMP_DIR)/result
 MASTERRESULTFILE = $(ROOT)/src/$(DIR)/result.master
 OPENSSL_CNF = openssl.cnf
 
+ifeq ($(OPENSSL_SET_SERIAL_SUPPORTED),true)
+    SETSERIAL_0 = -set_serial 0 
+    SETSERIAL_1 = -set_serial 1
+    SETSERIAL_2 = -set_serial 2
+    SETSERIAL_3 = -set_serial 3
+else
+    SETSERIAL_0 =
+    SETSERIAL_1 =
+    SETSERIAL_2 =
+    SETSERIAL_3 =
+endif
+
 tests:
 
 poststarttests:
@@ -117,33 +129,33 @@ ifdef PEGASUS_HAS_SSL
 	@#
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn1.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn1.key -out $(PEGASUS_HOME)/testdn1.csr < testdn1.txt
-	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testdn1.csr -out $(PEGASUS_HOME)/testdn1.cert -req -signkey $(PEGASUS_HOME)/testdn1.key -days 356
+	@$(OPENSSL_COMMAND) x509 -in $(PEGASUS_HOME)/testdn1.csr -out $(PEGASUS_HOME)/testdn1.cert -req -signkey $(PEGASUS_HOME)/testdn1.key $(SETSERIAL_0) -days 356
 	@$(RM) $(PEGASUS_HOME)/testdn1.csr
 	@#
 	@# Create a self-signed CA
 	@#
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testca1.key 1024
-	@$(OPENSSL_COMMAND) req -new -key $(PEGASUS_HOME)/testca1.key -x509 -config $(OPENSSL_CNF) -days 365 -out $(PEGASUS_HOME)/testca1.cert < testca1.txt
+	@$(OPENSSL_COMMAND) req -new -key $(PEGASUS_HOME)/testca1.key -x509 -config $(OPENSSL_CNF) $(SETSERIAL_0) -days 365 -out $(PEGASUS_HOME)/testca1.cert < testca1.txt
 	@#
 	@# Create a certificate signed by the CA
 	@#
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn2.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn2.key -out $(PEGASUS_HOME)/testdn2.csr < testdn2.txt
-	@$(OPENSSL_COMMAND) x509 -req -days 365 -in $(PEGASUS_HOME)/testdn2.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn2.cert
+	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_1) -days 365 -in $(PEGASUS_HOME)/testdn2.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn2.cert
 	@$(RM) $(PEGASUS_HOME)/testdn2.csr
 	@#
 	@# Create a second test certificate signed by the CA
 	@#
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn3.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn3.key -out $(PEGASUS_HOME)/testdn3.csr < testdn3.txt
-	@$(OPENSSL_COMMAND) x509 -req -days 365 -in $(PEGASUS_HOME)/testdn3.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn3.cert
+	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_2) -days 365 -in $(PEGASUS_HOME)/testdn3.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn3.cert
 	@$(RM) $(PEGASUS_HOME)/testdn3.csr
 	@#
 	@# Create a third test certificate signed by the CA
 	@#
 	@$(OPENSSL_COMMAND) genrsa -out $(PEGASUS_HOME)/testdn4.key 1024
 	@$(OPENSSL_COMMAND) req -config $(OPENSSL_CNF) -new -key $(PEGASUS_HOME)/testdn4.key -out $(PEGASUS_HOME)/testdn4.csr < testdn4.txt
-	@$(OPENSSL_COMMAND) x509 -req -days 365 -in $(PEGASUS_HOME)/testdn4.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn4.cert
+	@$(OPENSSL_COMMAND) x509 -req $(SETSERIAL_3) -days 365 -in $(PEGASUS_HOME)/testdn4.csr -CA $(PEGASUS_HOME)/testca1.cert -CAkey $(PEGASUS_HOME)/testca1.key -CAcreateserial -out $(PEGASUS_HOME)/testdn4.cert
 	@$(RM) $(PEGASUS_HOME)/testdn4.csr
 	@#
 	@# Create a CRL issued by the test CA and revoke a certificate

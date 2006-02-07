@@ -38,13 +38,14 @@ include $(ROOT)/mak/config.mak
 LIBRARY = CIMOMHandleTestProvider
 
 LIBRARIES = \
-	pegcommon \
-	pegprovider
+    pegcommon \
+    pegprovider
 
 SOURCES = \
-	CIMOMHandleTestProviderMain.cpp \
-	TestProviderA.cpp \
-	TestProviderB.cpp \
+    CIMOMHandleTestProviderMain.cpp \
+    TestProviderA.cpp \
+    TestProviderB.cpp \
+    TestOperationsProvider.cpp
 
 include $(ROOT)/mak/library.mak
 

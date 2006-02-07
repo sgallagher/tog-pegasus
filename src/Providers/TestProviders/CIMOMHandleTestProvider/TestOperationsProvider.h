@@ -28,116 +28,44 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 //==============================================================================
-#pragma locale("en_US")
+//
+// Author: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
+//
+// Modified By:
+//
+//%/////////////////////////////////////////////////////////////////////////////
 
-class TST_InstanceZ
+#ifndef _TestOperationsProvider_h
+#define _TestOperationsProvider_h
+
+#include <Pegasus/Common/Config.h>
+#include <Pegasus/Provider/CIMMethodProvider.h>
+
+PEGASUS_NAMESPACE_BEGIN
+
+class TestOperationsProvider : public CIMMethodProvider
 {
-    [key]
-    string Name;
+public:
+    TestOperationsProvider();
+    virtual ~TestOperationsProvider();
 
-    string s;
+    // CIMProvider interface
+    virtual void initialize(CIMOMHandle& cimom);
+    virtual void terminate();
+
+    // CIMMethodProvider interface
+    virtual void invokeMethod(
+        const OperationContext & context,
+        const CIMObjectPath & objectReference,
+        const CIMName & methodName,
+        const Array<CIMParamValue> & inParameters,
+        MethodResultResponseHandler & handler);
+
+private:
+
+    CIMOMHandle _cimom;
 };
 
+PEGASUS_NAMESPACE_END
 
-class TST_InstanceA
-{
-    [key]
-    string Name;
-
-    string s;
-};
-
-class TST_InstanceB
-{
-    [key]
-    string Name;
-
-    string s;
-};
-
-
-instance of TST_InstanceZ
-{
-    Name = "001";
-    s = "TST_InstanceZ.Name=\"001\"";
-};
-
-instance of TST_InstanceZ
-{
-    Name = "002";
-    s = "TST_InstanceZ.Name=\"002\"";
-};
-
-instance of TST_InstanceZ
-{
-    Name = "003";
-    s = "TST_InstanceZ.Name=\"003\"";
-};
-
-
-// Classes used by the TestOperationsProvider in CIMOMHandleTestProvider
-
-[Abstract]
-class TST_OperationsBase
-{
-    string Description;
-};
-
-class TST_Operations1 : TST_OperationsBase
-{
-    [Key] uint32 key;
-};
-
-class TST_Operations2 : TST_OperationsBase
-{
-    [Key] uint32 key;
-};
-
-[Association]
-class TST_OperationsAssoc : TST_OperationsBase
-{
-    [Key] TST_Operations1 REF a;
-    [Key] TST_Operations2 REF b;
-};
-
-class TST_OperationsDriver : TST_OperationsBase
-{
-    [Key, Description("Unused")] uint32 key;
-    [Static] uint32 testCIMOMHandle();
-    [Static] uint32 testMethod([IN] string param1, [IN, OUT] uint32 param2);
-};
-
-// Instances used by the TestOperationsProvider in CIMOMHandleTestProvider
-
-instance of TST_Operations1
-{
-    Description = "Test instance 1";
-    key = 1;
-};
-
-instance of TST_Operations1
-{
-    Description = "Test instance 2";
-    key = 2;
-};
-
-instance of TST_Operations2
-{
-    Description = "Test instance 3";
-    key = 3;
-};
-
-instance of TST_OperationsAssoc
-{
-    Description = "Test association instance 1";
-    a = "TST_Operations1.key=1";
-    b = "TST_Operations2.key=3";
-};
-
-instance of TST_OperationsAssoc
-{
-    Description = "Test association instance 2";
-    a = "TST_Operations1.key=2";
-    b = "TST_Operations2.key=3";
-};
-
+#endif

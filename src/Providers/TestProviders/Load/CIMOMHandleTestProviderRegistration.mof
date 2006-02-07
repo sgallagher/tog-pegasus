@@ -77,3 +77,21 @@ instance of PG_ProviderCapabilities
     SupportedProperties = NULL;
     SupportedMethods = NULL;
 };
+
+instance of PG_Provider
+{
+    ProviderModuleName = "CIMOMHandleTestProviderModule";
+    Name = "TestOperationsProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "CIMOMHandleTestProviderModule";
+    ProviderName = "TestOperationsProvider";
+    CapabilityID = "001";
+    ClassName = "TST_OperationsDriver";
+    Namespaces = { "test/TestProvider" };
+    ProviderType = { 5 };  // Method Provider
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

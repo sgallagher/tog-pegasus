@@ -31,7 +31,7 @@
 //
 // Author: Chip Vincent (cvincent@us.ibm.com)
 //
-// Modified By:
+// Modified By: Roger Kumpf, Hewlett-Packard Company (roger_kumpf@hp.com)
 //
 //%/////////////////////////////////////////////////////////////////////////////
 
@@ -212,6 +212,22 @@ void Test3(CIMClient& client)
     }
 }
 
+// Call the TestOperationsProvider to test each of the CIMOMHandle operations.
+void TestOperations(CIMClient& client)
+{
+    Array<CIMParamValue> in;
+    Array<CIMParamValue> out;
+    CIMValue returnValue = client.invokeMethod(
+        CIMNamespaceName("test/TestProvider"),
+        CIMObjectPath("TST_OperationsDriver"),
+        CIMName("testCIMOMHandle"),
+        in,
+        out);
+    Uint32 rc;
+    returnValue.get(rc);
+    PEGASUS_TEST_ASSERT(rc == 0);
+}
+
 int main(int argc, char** argv)
 {
     verbose = getenv("PEGASUS_TEST_VERBOSE");
@@ -222,9 +238,45 @@ int main(int argc, char** argv)
     {
         client.connectLocal();
 
-        Test1(client);
-        Test2(client);
-        Test3(client);
+        if (argc == 1)
+        {
+            Test1(client);
+            Test2(client);
+            Test3(client);
+            TestOperations(client);
+        }
+        else if ((argc == 2) && (strcmp(argv[1], "clean") == 0))
+        {
+            try
+            {
+                client.deleteClass(
+                    CIMNamespaceName("test/TestProvider"),
+                    CIMName("TST_OperationsTemp"));
+            }
+            catch (const CIMException&)
+            {
+                // Ignore exception; the class must not have existed
+            }
+
+            try
+            {
+                client.deleteInstance(
+                    CIMNamespaceName("test/TestProvider"),
+                    CIMObjectPath("TST_Operations1.key=3"));
+            }
+            catch (const CIMException&)
+            {
+                // Ignore exception; the instance must not have existed
+            }
+
+            return 0;
+        }
+        else
+        {
+            cerr << "Usage:  " << argv[0] << endl;
+            cerr << "        " << argv[0] << " clean" << endl;
+            return 1;
+        }
     }
     catch(const CIMException & e)
     {

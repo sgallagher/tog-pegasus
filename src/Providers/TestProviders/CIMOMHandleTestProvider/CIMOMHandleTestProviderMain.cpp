@@ -40,6 +40,7 @@
 
 #include "TestProviderA.h"
 #include "TestProviderB.h"
+#include "TestOperationsProvider.h"
 
 PEGASUS_NAMESPACE_BEGIN
 
@@ -52,6 +53,10 @@ extern "C" PEGASUS_EXPORT CIMProvider * PegasusCreateProvider(const String& prov
     else if(String::equalNoCase(providerName, "TestProviderB"))
     {
         return(new TestProviderB());
+    }
+    else if (String::equalNoCase(providerName, "TestOperationsProvider"))
+    {
+        return(new TestOperationsProvider());
     }
 
     return(0);

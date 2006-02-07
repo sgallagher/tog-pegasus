@@ -44,18 +44,11 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
-// chuck 2.4
-// l10n start
 static void deleteContentLanguage(void* data)
 {
-   if (data != NULL)
-   {
-      ContentLanguageList* cl = static_cast<ContentLanguageList*>(data);
-      delete cl;
-   }
+    ContentLanguageList* cl = static_cast<ContentLanguageList*>(data);
+    delete cl;
 }
-// l10n end
-
 
 /**
     This class is used to prevent concurrent access to a non-reentrant
@@ -287,21 +280,6 @@ ClientCIMOMHandleRep::~ClientCIMOMHandleRep()
 
         delete _client;
     }
-}
-
-// Private, unimplemented copy constructor
-ClientCIMOMHandleRep::ClientCIMOMHandleRep(const ClientCIMOMHandleRep& rep)
-  : CIMOMHandleRep()
-{
-    PEGASUS_ASSERT(0);
-}
-
-// Private, unimplemented assignment operator
-ClientCIMOMHandleRep& ClientCIMOMHandleRep::operator=(
-    const ClientCIMOMHandleRep& rep)
-{
-    PEGASUS_ASSERT(0);
-    return *this;
 }
 
 

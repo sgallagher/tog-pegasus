@@ -97,8 +97,7 @@ repository:
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestAggregationOutputProvider.mof
 	@ echo +++++ Registering TestAggregationOutputProvider ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" TestAggregationOutputProviderR.mof
-
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
 
@@ -163,8 +162,7 @@ repositoryServer:
 	@ cimmof "-n$(TESTPROVIDERNS)" TestAggregationOutputProvider.mof
 	@ echo +++++ Registering TestAggregationOutputProvider ...
 	@ cimmof "-n$(INTEROPNS)" TestAggregationOutputProviderR.mof
-
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Loading TestCMPI_ProviderSchema class definitions into $(TESTPROVIDERNS) namespace ...
 	@ cimmof   "-n$(TESTPROVIDERNS)" TestCMPI_ProviderSchema.mof
 	@ $(ECHO) +++++ Registering TestCMPI_ProviderRegistration ...
@@ -210,7 +208,7 @@ unregister:
 unregisterproviders:
 	cimprovider -r -m IndicationStressTestProviderModule
 	cimprovider -r -m MethodTestProviderModule
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m TestCMPIIndicationProviderModule
 	cimprovider -r -m TestCMPIMethodProviderModule
 	cimprovider -r -m TestCMPIFail_1ProviderModule

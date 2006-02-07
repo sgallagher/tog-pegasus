@@ -104,7 +104,7 @@ DIRS += \
     ProviderManager2/Default/tests \
     ProviderManager2/ProviderAgent
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
     DIRS += \
         Provider/CMPI \
         ProviderManager2/CMPI

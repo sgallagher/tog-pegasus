@@ -78,8 +78,7 @@ repository:
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(INTEROPNS)" InstanceQueryProviderR.mof
 endif
-
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmofl "-R$(REPOSITORY_DIR)" "-N$(REPOSITORY_NAME)" "-M$(REPOSITORY_MODE)" "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
@@ -124,8 +123,7 @@ repositoryServer:
 ifdef PEGASUS_ENABLE_EXECQUERY
 	@ cimmof "-n$(INTEROPNS)" InstanceQueryProviderR.mof
 endif
-
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	@ $(ECHO) +++++ Installing the MOF file for CMPI Providers
 	@ cimmof "-n$(SAMPLEPROVIDERNS)" CWS_FilesAndDir.mof
 	@ $(ECHO) +++++ Registering FilesAndDir schema Providers  ...
@@ -165,7 +163,7 @@ endif
 	cimprovider -r -m RT_IndicationProviderModule
 	cimprovider -r -m SampleLocalizedProviderModule
 	cimprovider -r -m SimpleDisplayConsumerModule
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 	cimprovider -r -m FilesAndDirectoriesModule
 	cimprovider -r -m CMPI_RT_SampleProviderModule
 	cimprovider -r -m FilesAndDirectoriesModule_CXX

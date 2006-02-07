@@ -60,7 +60,7 @@ DIRS = \
 	TestAggregationOutputProvider \
 	TestAggregationOutputProvider/testclient
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 DIRS += \
 	CMPI/TestUtilLib \
 	CMPI/TestMethod \

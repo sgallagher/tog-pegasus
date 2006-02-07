@@ -42,7 +42,7 @@ DIRS = \
 	LocalizedProvider \
 	LocalizedProvider/msg
 
-ifdef PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER
+ifeq ($(PEGASUS_ENABLE_CMPI_PROVIDER_MANAGER), true)
 DIRS += \
 	CMPI/CWS_Util \
 	CMPI/FilesAndDirectories \

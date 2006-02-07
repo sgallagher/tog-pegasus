@@ -319,11 +319,16 @@ int main(int argc, char** argv)
             includeClassOrigin);
 
         // First print the header for table of values
-        printf("%-25s%10s %10s %10s %10s %10s\n%-25s%10s %10s %10s %10s %10s\n%-25s\n",
-            "CIM", "Number of", "CIM Server", "Provider",
-            "Request", "Response",
-            "Operation", "Requests", "Time", "Time", "Size", "Size",
-            "-------------------------------------------------------------------------------");
+        printf("%-25s%10s %10s %10s %10s %10s\n",
+    "Operation", "Number of", "Server", "Provider", "Request", "Response");
+
+	printf("%-25s%10s %10s %10s %10s %10s\n",
+    "Type", "Requests", "Time", "Time", "Size", "Size");
+
+	printf("%-25s%10s %10s %10s %10s %10s\n",
+    " ", " ", "(usec)", "(usec)", "(bytes)", "(bytes)");
+
+        printf("%-25s\n", "-------------------------------------------------------------------------------");
 
         // This section of code loops through all the instances of 
         // CIM_CIMOMStatisticalData (one for each intrinsic request type) and

@@ -40,33 +40,45 @@
 
 PEGASUS_NAMESPACE_BEGIN
 
+
+// The table on the right represents the mapping from the enumerated types
+// in the CIM_CIMOMStatisticalDate class ValueMap versus the internal 
+// message type defined in Message.cpp. This conversion is performed by 
+// getOpType() in CIMOMStatDataProvider.cpp.
+//
+
 String StatisticalData::requestName[] = 
 {
-    "GET_CLASS",
-    "GET_INSTANCE",
-    "EXPORT_INDICATION",
-    "DELETE_CLASS",
-    "DELETE_INSTANCE",
-    "CREATE_CLASS",
-    "CREATE_INSTANCE",
-    "MODIFY_CLASS",
-    "MODIFY_INSTANCE",
-    "ENUMERATE_CLASSES",
-    "ENUMERATE_CLASS_NAMES",
-    "ENUMERATE_INSTANCES",
-    "ENUMERATE_INSTANCE_NAMES",
-    "EXEC_QUERY",
-    "ASSOCIATORS",
-    "ASSOCIATOR_NAMES",
-    "REFERENCES",
-    "REFERENCE_NAMES",
-    "GET_PROPERTY",
-    "SET_PROPERTY",
-    "GET_QUALIFIER",
-    "SET_QUALIFIER",
-    "DELETE_QUALIFIER",
-    "ENUMERATE_QUALIFIERS",
-    "INVOKE_METHOD"
+                                    // Enumerated     ValueMap Value 
+                                    // value from     from class
+                                    // internal       CIM_StatisticalData
+                                    // message type
+                                    // -------------- -------------------
+  "GetClass",                       //     1           3  
+  "GetInstance",                    //     2           4  
+  "IndicationDelivery",             //     3           26  
+  "DeleteClass",                    //     4           5  
+  "DeleteInstance",                 //     5           6  
+  "CreateClass",                    //     6           7  
+  "CreateInstance",                 //     7           8
+  "ModifyClass",                    //     8           9
+  "ModifyInstance",                 //     9          10 
+  "EnumerateClasses",               //    10          11  
+  "EnumerateClassNames",            //    11          12  
+  "EnumerateInstances",             //    12          13  
+  "EnumerateInstanceNames",         //    13          14  
+  "ExecQuery",                      //    14          15  
+  "Associators",                    //    15          16  
+  "AssociatorNames",                //    16          17  
+  "References",                     //    17          18  
+  "ReferenceNames",                 //    18          19  
+  "GetProperty",                    //    19          20  
+  "SetProperty",                    //    20          21  
+  "GetQualifier",                   //    21          22  
+  "SetQualifier",                   //    22          23  
+  "DeleteQualifier",                //    23          24  
+  "EnumerateQualifiers",            //    24          25  
+  "InvokeMethod"                    //    25          Not Present
 };
 
 const Uint32 StatisticalData::length = NUMBER_OF_TYPES;

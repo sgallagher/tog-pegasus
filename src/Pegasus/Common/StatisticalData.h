@@ -149,7 +149,7 @@ class PEGASUS_COMMON_LINKAGE StatisticalData
       enum StatRequestType{
          GET_CLASS,
          GET_INSTANCE,
-	 EXPORT_INDICATION,
+	 INDICATION_DELIVERY,
          DELETE_CLASS,
          DELETE_INSTANCE,
          CREATE_CLASS,

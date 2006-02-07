@@ -888,7 +888,7 @@ TestRemoteSecurity:
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
 
 TestAuthorization:
-	DeleteNamespace -a -user guest -password guest
+	TestPegClientDeleteNamespace -a -user guest -password guest
 	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
 	TestClient -user guest -password guest $(system):5988
 	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true

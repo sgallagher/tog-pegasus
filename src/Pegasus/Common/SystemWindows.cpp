@@ -439,8 +439,26 @@ String System::encryptPassword(const char* password, const char* salt)
     return String(pcSalt) + String((char *)pbBuffer);
 }
 
+String processUserName;
+Mutex processUserNameMut;
+
 Boolean System::isSystemUser(const char* userName)
 {
+    if(processUserName.size() == 0)
+    {
+        // Lock and recheck the processUserName length in case two threads
+        // enter this block simultaneously
+        AutoMutex mut(processUserNameMut);
+        if(processUserName.size() == 0)
+        {
+            processUserName = getEffectiveUserName();
+        }
+    }
+    if(processUserName == userName)
+    {
+      return true;
+    }
+
     Boolean isSystemUser = false;
 
     char mUserName[UNLEN+1];

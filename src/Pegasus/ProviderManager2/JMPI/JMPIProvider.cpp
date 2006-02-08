@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -56,35 +56,49 @@ PEGASUS_USING_STD;
 
 // set current operations to 1 to prevent an unload
 // until the provider has had a chance to initialize
-JMPIProvider::JMPIProvider(const String & name,
-		   JMPIProviderModule *module,
-		   ProviderVector *mv)
-   : _module(module), _cimom_handle(0), _name(name),
-     _no_unload(0), _rm(0)
+JMPIProvider::JMPIProvider (const String       &name,
+                            JMPIProviderModule *module,
+                            ProviderVector     *mv)
 {
-   _current_operations = 1;
+   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(name, module, mv)"<<PEGASUS_STD(endl));
+
+   _module               = module;
+   _cimom_handle         = 0;
+   _java_cimom_handle    = new CIMOMHandle ();
+   _name                 = name;
+   _no_unload            = false;
+   _rm                   = 0;
+   _current_operations   = 1;
    _currentSubscriptions = 0;
-   miVector=*mv;
-   jProvider=mv->jProvider;
-   jProviderClass=mv->jProviderClass;
-   noUnload=false;
-   cachedClass=NULL;
+   miVector              = *mv;
+   jProvider             = mv->jProvider;
+   jProviderClass        = mv->jProviderClass;
+   noUnload              = false;
+   cachedClass           = NULL;
 }
 
-JMPIProvider::JMPIProvider(JMPIProvider *pr)
-  : _module(pr->_module), _cimom_handle(0), _name(pr->_name),
-    _no_unload(0), _rm(0)
+JMPIProvider::JMPIProvider (JMPIProvider *pr)
 {
-   _current_operations = 1;
+   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::JMPIProvider(pr)"<<PEGASUS_STD(endl));
+
+   _module               = pr->_module;
+   _cimom_handle         = 0;
+   _java_cimom_handle    = new CIMOMHandle ();
+   _name                 = pr->_name;
+   _no_unload            = pr->noUnload;
+   _rm                   = 0;
+   _current_operations   = 1;
    _currentSubscriptions = 0;
-   miVector=pr->miVector;
-   _cimom_handle=new CIMOMHandle();
-   noUnload=pr->noUnload;
-   cachedClass=NULL;
+   miVector              = pr->miVector;
+   noUnload              = pr->noUnload;
+   cachedClass           = NULL;
 }
 
 JMPIProvider::~JMPIProvider(void)
 {
+   DDD(PEGASUS_STD(cout)<<"--- JMPIProvider::~JMPIProvider()"<<PEGASUS_STD(endl));
+
+   delete _java_cimom_handle;
    delete cachedClass;
 }
 
@@ -142,7 +156,7 @@ void JMPIProvider::initialize(CIMOMHandle& cimom)
 
        JMPIjvm::checkException(env);
 
-       jint    jCimomRef = DEBUG_ConvertCToJava (CIMOMHandle*, jint, &cimom);
+       jint    jCimomRef = DEBUG_ConvertCToJava (CIMOMHandle*, jint, _java_cimom_handle);
        jobject jch       = env->NewObject(jv->CIMOMHandleClassRef,
                                           JMPIjvm::jv.CIMOMHandleNewISt,
                                           jCimomRef,

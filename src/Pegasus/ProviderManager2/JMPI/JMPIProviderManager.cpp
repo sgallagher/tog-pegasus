@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -621,13 +621,28 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->instanceName.getClassName(),
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->instanceName.getClassName(),
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -672,13 +687,28 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->instanceName.getClassName(),
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->instanceName.getClassName(),
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstanceRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -721,13 +751,28 @@ Message * JMPIProviderManager::handleGetInstanceRequest(const Message * message)
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->instanceName.getClassName(),
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->instanceName.getClassName(),
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->instanceName.getClassName()<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleGetInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -922,13 +967,28 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -965,13 +1025,28 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                     CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
-                    CIMClass             cls = pr._cimom_handle->getClass(context,
-                                                                          request->nameSpace,
-                                                                          ciRet->getClassName(),
-                                                                          false,
-                                                                          true,
-                                                                          true,
-                                                                          CIMPropertyList());
+                    CIMClass cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
                     const CIMObjectPath& op  = ciRet->getPath();
                     CIMObjectPath        iop = ciRet->buildPath(cls);
 
@@ -992,13 +1067,28 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass (context,
+                                                 request->nameSpace,
+                                                 request->className,
+                                                 false,
+                                                 true,
+                                                 true,
+                                                 CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -1034,13 +1124,28 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                     CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
-                    CIMClass             cls = pr._cimom_handle->getClass(context,
-                                                                          request->nameSpace,
-                                                                          ciRet->getClassName(),
-                                                                          false,
-                                                                          true,
-                                                                          true,
-                                                                          CIMPropertyList());
+                    CIMClass             cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
                     const CIMObjectPath& op  = ciRet->getPath();
                     CIMObjectPath        iop = ciRet->buildPath(cls);
 
@@ -1066,13 +1171,28 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -1107,13 +1227,28 @@ Message * JMPIProviderManager::handleEnumerateInstancesRequest(const Message * m
                     CIMInstance *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
 
                     /* Fix for 4237 */
-                    CIMClass             cls = pr._cimom_handle->getClass(context,
-                                                                          request->nameSpace,
-                                                                          ciRet->getClassName(),
-                                                                          false,
-                                                                          true,
-                                                                          true,
-                                                                          CIMPropertyList());
+                    CIMClass cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstancesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
                     const CIMObjectPath& op  = ciRet->getPath();
                     CIMObjectPath        iop = ciRet->buildPath(cls);
 
@@ -1286,13 +1421,28 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -1339,13 +1489,28 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -1392,13 +1557,28 @@ Message * JMPIProviderManager::handleEnumerateInstanceNamesRequest(const Message
 
             JMPIjvm::checkException(env);
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleEnumerateInstanceNamesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -2050,13 +2230,28 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
             jstring jqueryLanguage = env->NewStringUTF(request->queryLanguage.getCString());
             jstring jquery         = env->NewStringUTF(request->query.getCString());
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -2109,13 +2304,28 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
             jstring jqueryLanguage = env->NewStringUTF(request->queryLanguage.getCString());
             jstring jquery         = env->NewStringUTF(request->query.getCString());
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -2168,13 +2378,28 @@ Message * JMPIProviderManager::handleExecQueryRequest(const Message * message) t
             jstring jqueryLanguage = env->NewStringUTF(request->queryLanguage.getCString());
             jstring jquery         = env->NewStringUTF(request->query.getCString());
 
-            CIMClass cls = pr._cimom_handle->getClass(context,
-                                                      request->nameSpace,
-                                                      request->className,
-                                                      false,
-                                                      true,
-                                                      true,
-                                                      CIMPropertyList());
+            CIMClass cls;
+
+            try
+            {
+               DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+               AutoMutex lock (pr._cimomMutex);
+
+               cls = pr._cimom_handle->getClass(context,
+                                                request->nameSpace,
+                                                request->className,
+                                                false,
+                                                true,
+                                                true,
+                                                CIMPropertyList());
+               DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<request->className<<PEGASUS_STD(endl));
+            }
+            catch (CIMException e)
+            {
+               DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleExecQueryRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+               throw;
+            }
+
             CIMClass *pcls = new CIMClass (cls);
 
             JMPIjvm::checkException(env);
@@ -2419,13 +2644,28 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
                     JMPIjvm::checkException(env);
 
                     CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
-                    CIMClass             cls   = pr._cimom_handle->getClass(context,
-                                                                            request->nameSpace,
-                                                                            ciRet->getClassName(),
-                                                                            false,
-                                                                            true,
-                                                                            true,
-                                                                            CIMPropertyList());
+                    CIMClass             cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
                     const CIMObjectPath& op    = ciRet->getPath();
                     CIMObjectPath        iop   = ciRet->buildPath(cls);
 
@@ -2497,13 +2737,28 @@ Message * JMPIProviderManager::handleAssociatorsRequest(const Message * message)
 
                     jint                 jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
                     CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
-                    CIMClass             cls       = pr._cimom_handle->getClass(context,
-                                                                                request->nameSpace,
-                                                                                ciRet->getClassName(),
-                                                                                false,
-                                                                                true,
-                                                                                true,
-                                                                                CIMPropertyList());
+                    CIMClass             cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleAssociatorsRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
                     const CIMObjectPath& op        = ciRet->getPath();
                     CIMObjectPath        iop       = ciRet->buildPath(cls);
 
@@ -2958,13 +3213,28 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
                     JMPIjvm::checkException(env);
 
                     CIMInstance         *ciRet = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
-                    CIMClass             cls   = pr._cimom_handle->getClass(context,
-                                                                            request->nameSpace,
-                                                                            ciRet->getClassName(),
-                                                                            false,
-                                                                            true,
-                                                                            true,
-                                                                            CIMPropertyList());
+                    CIMClass             cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
                     const CIMObjectPath& op    = ciRet->getPath();
                     CIMObjectPath        iop   = ciRet->buildPath(cls);
 
@@ -3030,13 +3300,28 @@ Message * JMPIProviderManager::handleReferencesRequest(const Message * message) 
 
                     jint                 jciRetRef = env->CallIntMethod(jciRet,JMPIjvm::jv.CIMInstanceCInst);
                     CIMInstance         *ciRet     = DEBUG_ConvertJavaToC (jint, CIMInstance*, jciRetRef);
-                    CIMClass             cls       = pr._cimom_handle->getClass(context,
-                                                                                request->nameSpace,
-                                                                                ciRet->getClassName(),
-                                                                                false,
-                                                                                true,
-                                                                                true,
-                                                                                CIMPropertyList());
+                    CIMClass             cls;
+
+                    try
+                    {
+                       DDD (PEGASUS_STD(cout)<<"enter: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                       AutoMutex lock (pr._cimomMutex);
+
+                       cls = pr._cimom_handle->getClass(context,
+                                                        request->nameSpace,
+                                                        ciRet->getClassName(),
+                                                        false,
+                                                        true,
+                                                        true,
+                                                        CIMPropertyList());
+                       DDD (PEGASUS_STD(cout)<<"exit: cimom_handle->getClass("<<__LINE__<<") "<<ciRet->getClassName()<<PEGASUS_STD(endl));
+                    }
+                    catch (CIMException e)
+                    {
+                       DDD (PEGASUS_STD(cout)<<"--- JMPIProviderManager::handleReferencesRequest: Error: Caught CIMExcetion during cimom_handle->getClass("<<__LINE__<<") "<<PEGASUS_STD(endl));
+                       throw;
+                    }
+
                     const CIMObjectPath& op        = ciRet->getPath();
                     CIMObjectPath        iop       = ciRet->buildPath(cls);
 

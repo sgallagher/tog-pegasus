@@ -553,6 +553,56 @@ ifdef PEGASUS_ENABLE_SLP
   endif
 endif
 
+
+############################################################################
+#
+# PEGASUS_USE_OPENSLP
+#
+# Environment variable to set openslp as SLP environment to use
+# for SLP Directory and User Agents.
+#
+# Allows enabling use of openslp interfaces for slp instead of the
+# internal pegasus slp agent.  Note that this does not disable the
+# compilation of the internal agent code, etc.  However, it assumes
+# openslp is installed on the platform and changes the interfaces
+# to match this.  At this moment, this is a change specifically for
+# adaptec but we expect to generalize it to provide openslp as a
+# generalized alternative to ldapslp.
+# to use this. To set this function up, 
+#
+# Use this variable in conjunction with PEGASUS_OPENSLP_HOME
+# to enable OpenSlp as the slp implementation.  
+#
+# NOTE that it has no affect if the PEGASUS_ENABLE_SLP etc. flags are not set.
+#
+
+ifdef PEGASUS_USE_OPENSLP
+   ifeq ($(PEGASUS_ENABLE_SLP),true)
+      DEFINES += -DPEGASUS_USE_OPENSLP
+    else
+      $(error PEGASUS_USE_OPENSLP defined but PEGASUS_ENABLE_SLP is not true. Please correct this inconsistency)
+    endif
+endif
+
+
+############################################################################
+#
+# PEGASUS_OPENSLP_HOME
+#
+# Environment variable to set home location for OpenSLP include and library
+# files if they are located somewhere other than /usr/include and /usr/lib. 
+#
+# PEGASUS_USE_OPENSLP must also be defined for this environment variable
+# to have any effect.
+#
+# This is the directory level within which both the include and lib 
+# directories holding the OpenSLP files will be found.  
+#
+# EG: If the are located in /opt/OpenSLP/include and /opt/OpenSLP/lib 
+#     then this environment variable should be set to /opt/OpenSLP.
+#
+
+
 #
 # Enable this flag to allow the handshake to continue regardless of verification result 
 #

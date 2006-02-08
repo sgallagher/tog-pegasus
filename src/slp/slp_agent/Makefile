@@ -36,6 +36,19 @@ include $(ROOT)/mak/config.mak
 
 EXTRA_INCLUDES = $(SYS_INCLUDES)
 
+########################################################################
+ifdef PEGASUS_USE_OPENSLP
+ifdef PEGASUS_OPENSLP_HOME
+	EXTRA_INCLUDES += -I$(PEGASUS_OPENSLP_HOME)/include
+
+	EXTRA_LIBRARIES += -L$(PEGASUS_OPENSLP_HOME)/lib
+endif
+	EXTRA_LIBRARIES += -lslp
+endif
+
+
+###########################################################################
+
 LOCAL_DEFINES = -DPEGASUS_SLP_INTERNAL
 
 LIBRARY = pegslp

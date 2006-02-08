@@ -38,6 +38,10 @@
 
 #include "peg_slp_agent.h"
 
+#ifdef PEGASUS_USE_OPENSLP
+#include <slp.h>
+#endif  /* PEGASUS_USE_OPENSLP */
+
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
 
@@ -101,6 +105,19 @@ sa_reg_params::~sa_reg_params(void)
    if(scopes)
       free(scopes);
 }
+
+#ifdef PEGASUS_USE_OPENSLP
+void SLPRegCallback(SLPHandle slp_handle, SLPError errcode, void* cookie)
+{
+	/* return the error code in the cookie */ 
+    *(SLPError*)cookie = errcode; 
+    /* You could do something else here like print out  */ 
+    /* the errcode, etc.  Remember, as a general rule,  */ 
+    /* do not try to do too much in a callback because  */ 
+    /* it is being executed by the same thread that is  */ 
+    /* reading slp packets from the wire.               */ 
+} 
+#endif /* PEGASUS_USE_OPENSLP */
 
 
 slp_service_agent::slp_service_agent(void)
@@ -275,6 +292,26 @@ Boolean slp_service_agent::srv_register(const char* url,
    rp = new sa_reg_params(url, attributes, type, scopes, lifetime);
    
    _internal_regs.insert(url, rp);
+
+#ifdef PEGASUS_USE_OPENSLP
+	SLPHandle slp_handle = 0;
+	SLPError  slpErr = SLP_OK;
+	SLPError  callbackErr = SLP_OK;
+	if ((slpErr = SLPOpen(NULL, SLP_FALSE, &slp_handle)) == SLP_OK)
+	{
+		slpErr = SLPReg(slp_handle, url, lifetime, type, attributes, SLP_TRUE, SLPRegCallback, &callbackErr);
+		if ((slpErr != SLP_OK) || (callbackErr != SLP_OK))
+		{
+			SLPClose(slp_handle);
+			return false;
+		}
+		SLPClose(slp_handle);
+	}
+	else
+	{
+		return false;
+	}
+#endif /* PEGASUS_USE_OPENSLP */
    
    
    return true;
@@ -286,12 +323,34 @@ void slp_service_agent::unregister(void)
 {
    if(_initialized.get() == 0 )
       throw UninitializedObjectException();
+#ifndef PEGASUS_USE_OPENSLP
    _should_listen = 0;
    _listen_thread.join();
+#endif  /* PEGASUS_USE_OPENSLP */
    
    while(slp_reg_table::Iterator i = _internal_regs.start())
    {
       sa_reg_params *rp = i.value();
+#ifdef PEGASUS_USE_OPENSLP
+      SLPHandle slp_handle = 0;
+      SLPError slpErr = SLP_OK;
+      SLPError callbackErr=SLP_OK;
+      if ((slpErr = SLPOpen(NULL, SLP_FALSE, &slp_handle)) == SLP_OK)
+      {
+         slpErr = SLPDereg(slp_handle, rp->url, SLPRegCallback, &callbackErr);
+         if ((slpErr != SLP_OK) || (callbackErr != SLP_OK))
+         {
+            SLPClose(slp_handle);
+            continue;  // No need to report error since we're probably shutting down anyway.
+         }
+         SLPClose(slp_handle);
+      }
+      else
+      {
+         continue;  // No need to report error since we're probably shutting down anyway.
+      }
+#endif  /* PEGASUS_USE_OPENSLP */
+
       _internal_regs.remove(rp->url);
       delete rp;
    }
@@ -343,17 +402,20 @@ void slp_service_agent::start_listener(void)
    // see if we need to use an slp directory agent 
    if(_initialized.get() == 0 )
       throw UninitializedObjectException();
-   
+
+#ifndef PEGASUS_USE_OPENSLP   
    _using_das = _find_das(_rep, NULL, "DEFAULT");
    
    _should_listen = 1;
    _listen_thread.run();
+#endif /* PEGASUS_USE_OPENSLP */
    
 }
 
 PEGASUS_THREAD_RETURN 
 PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
 {
+#ifndef PEGASUS_USE_OPENSLP
    Thread *myself = (Thread *)parm;
    if(myself == 0)
       throw NullPointer();
@@ -405,6 +467,7 @@ PEGASUS_THREAD_CDECL slp_service_agent::service_listener(void *parm)
       _LSLP_SLEEP(1);
    }
    myself->exit_self((PEGASUS_THREAD_RETURN) 0) ;
+#endif /* PEGASUS_USE_OPENSLP */
    return(0);
 }
 

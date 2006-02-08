@@ -17,7 +17,7 @@
 #// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 #// sell copies of the Software, and to permit persons to whom the Software is
 #// furnished to do so, subject to the following conditions:
-#// 
+#//
 #// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 #// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 #// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -28,86 +28,21 @@
 #// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #//
 #//==============================================================================
-JAVAROOT = ../../..
-ROOT = ../../../../../../..
+ROOT = ../../../../../../../../..
 
 include $(ROOT)/mak/config.mak
 
-.SUFFIXES: .java .class .jar
+.SUFFIXES:
+.SUFFIXES: .java .class
 
 .java.class:
-	javac -classpath $(JAVAROOT) $*.java
+	javac -classpath $(PEGASUS_HOME)/lib/JMPIImpl.jar $*.java
 
-PACKAGEDIR = org/pegasus/jmpi
+CLASSES = JMPI_TestDataType.class
 
-   CLASSES = \
-   CIMClass.class \
-   CIMInstance.class \
-   CIMDataType.class \
-   CIMDateTime.class \
-   CIMElement.class \
-   CIMException.class \
-   CIMInstanceException.class \
-   CIMInstance.class \
-   CIMMethod.class \
-   CIMNameSpace.class \
-   CIMObject.class \
-   CIMObjectPath.class \
-   CIMOMHandle.class \
-   ProviderCIMOMHandle.class \
-   CIMProperty.class \
-   CIMValue.class \
-   CIMQualifier.class \
-   CIMQualifierType.class \
-   CIMDataType.class \
-   CIMFlavor.class \
-   CIMScope.class \
-   CIMArgument.class \
-   \
-   CIMProvider.class \
-   CIMInstanceProvider.class \
-   CIMAssociatorProvider.class \
-   CIMMethodProvider.class \
-   \
-   InstanceProvider.class \
-   InstanceProvider2.class \
-   MethodProvider.class \
-   AssociatorProvider.class \
-   EventProvider.class \
-   PropertyProvider.class \
-   \
-   SelectExp.class \
-   FromExp.class \
-   NonJoinExp.class \
-   SelectList.class \
-   QueryExp.class \
-   JMPIQueryExp.class \
-   WQLExp.class \
-   \
-   UnsignedNumber.class \
-   UnsignedInt16.class \
-   UnsignedInt32.class \
-   UnsignedInt64.class \
-   UnsignedInt8.class \
-   \
-   CIMNameSpace.class \
-   CIMClient.class \
-   InstEnumeration.class \
-   PathEnumeration.class \
-   QualEnumeration.class \
-   \
-   JarClassLoader.class
-
-PFXCLASSES=$(addprefix -C ../../.. org/pegasus/jmpi/,$(CLASSES))
-
-all build: $(PEGASUS_HOME)/lib/JMPIImpl.jar $(CLASSES)
+all build: $(CLASSES)
 
 depend:
 
 clean:
-	-$(RM) *.class
-	-$(RM) $(PEGASUS_HOME)/lib/JMPIImpl.jar
-
-$(PEGASUS_HOME)/lib/JMPIImpl.jar: $(CLASSES)
-	jar -cf $@ $(PFXCLASSES)
-
+	$(RM) $(CLASSES)

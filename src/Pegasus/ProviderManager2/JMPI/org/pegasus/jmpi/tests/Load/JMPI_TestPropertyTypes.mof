@@ -75,11 +75,11 @@ class JMPI_TestPropertyTypes:JMPI_TestElement
       "a boolean property of JMPI_TestPropertyTypes")]
    boolean PropertyBoolean;
 
-     [Description (
+      [Description (
       "a real32 property of JMPI_TestPropertyTypes")]
    real32 PropertyReal32;
 
-     [Description (
+      [Description (
       "a real64 property of JMPI_TestPropertyTypes")]
    real64 PropertyReal64;
 
@@ -91,6 +91,61 @@ class JMPI_TestPropertyTypes:JMPI_TestElement
       "a char16 property of JMPI_TestPropertyTypes")]
    char16 PropertyChar16;
 
+      [Description (
+      "an object property of JMPI_TestPropertyTypes"), EmbeddedObject]
+   string PropertyObject;
+
+      [Description (
+      "an array of uint8s property of JMPI_TestPropertyTypes")]
+   uint8 PropertyArrayUint8[];
+
+      [Description (
+      "an array of uint16s property of JMPI_TestPropertyTypes")]
+   uint16 PropertyArrayUint16[];
+
+      [Description (
+      "an array of uint32s property of JMPI_TestPropertyTypes")]
+   uint32 PropertyArrayUint32[];
+
+      [Description (
+      "an array of uint64s property of JMPI_TestPropertyTypes")]
+   uint64 PropertyArrayUint64[];
+
+      [Description (
+      "an array of sint8s property of JMPI_TestPropertyTypes")]
+   sint8 PropertyArraySint8[];
+
+      [Description (
+      "an array of sint16s property of JMPI_TestPropertyTypes")]
+   sint16 PropertyArraySint16[];
+
+      [Description (
+      "an array of sint32s property of JMPI_TestPropertyTypes")]
+   sint32 PropertyArraySint32[];
+
+      [Description (
+      "an array of sint64s property of JMPI_TestPropertyTypes")]
+   sint64 PropertyArraySint64[];
+
+      [Description (
+      "an array of booleans property of JMPI_TestPropertyTypes")]
+   boolean PropertyArrayBoolean[];
+
+      [Description (
+      "an array of real32s property of JMPI_TestPropertyTypes")]
+   real32 PropertyArrayReal32[];
+
+      [Description (
+      "an array of real64s property of JMPI_TestPropertyTypes")]
+   real64 PropertyArrayReal64[];
+
+      [Description (
+      "an array of datetimes property of JMPI_TestPropertyTypes")]
+   datetime PropertyArrayDatetime[];
+
+      [Description (
+      "an array of char16s property of JMPI_TestPropertyTypes")]
+   char16 PropertyArrayChar16[];
+
    String SayHello();
-      
 };

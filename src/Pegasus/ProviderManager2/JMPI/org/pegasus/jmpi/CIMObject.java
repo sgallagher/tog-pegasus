@@ -17,7 +17,7 @@
 // rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
 // sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
 // ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
 // "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
@@ -29,20 +29,82 @@
 //
 //==============================================================================
 //
-// Author:      Adrian Schuur, schuur@de.ibm.com 
-//
-// Modified By:
+// Author:      Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
 package org.pegasus.jmpi;
 
-public class UnsignedInt32 extends UnsignedNumber  {
+public class CIMObject
+{
+    int         cInst;
+    boolean     fIsClass;
+    CIMClass    cimClass;
+    CIMInstance cimInstance;
 
-    public UnsignedInt32(long num)  throws java.lang.NumberFormatException {
-       super((long)num,(long)0xffffffff,"Not an unsigned 32 bit integer (" + num + ")");
+    private native int  _newClass               (int cInst);
+    private native int  _newInstance            (int cInst);
+    private native void _finalize               (int cInst);
+
+    protected void finalize ()
+    {
+       _finalize (cInst);
     }
 
-    public UnsignedInt32(java.lang.String str) throws java.lang.NumberFormatException {
-        super(str,(long)0xffffffff,"Not an unsigned 32 bit integer (" + str + ")");
+    public CIMObject (CIMClass cc)
+    {
+        cInst       = _newClass (cc.cInst);
+        fIsClass    = true;
+        cimClass    = cc;
+        cimInstance = null;
+    }
+
+    public CIMObject (CIMInstance ci)
+    {
+        cInst       = _newInstance (ci.cInst);
+        fIsClass    = false;
+        cimClass    = null;
+        cimInstance = ci;
+    }
+
+    public CIMObject (int inst, boolean isClass)
+    {
+        if (isClass)
+        {
+            cInst       = _newClass (inst);
+            fIsClass    = true;
+            cimClass    = new CIMClass (inst);
+            cimInstance = null;
+        }
+        else
+        {
+            cInst       = _newInstance (inst);
+            fIsClass    = true;
+            cimClass    = null;
+            cimInstance = new CIMInstance (inst);
+        }
+    }
+
+    public CIMClass getCIMClass ()
+    {
+        return cimClass;
+    }
+
+    public CIMInstance getCIMInstance ()
+    {
+        return cimInstance;
+    }
+
+    public boolean isClass ()
+    {
+        return fIsClass;
+    }
+
+    public boolean isInstance ()
+    {
+        return !fIsClass;
+    }
+
+    static {
+       System.loadLibrary ("JMPIProviderManager");
     }
 }

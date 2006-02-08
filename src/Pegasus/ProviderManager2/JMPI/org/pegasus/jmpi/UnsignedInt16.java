@@ -34,18 +34,15 @@
 // Modified By:
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
-
 package org.pegasus.jmpi;
 
 public class UnsignedInt16 extends UnsignedNumber {
 
     public UnsignedInt16(int num)  {
-       super((long)num,(long)0xffff,"Not an unsigned 16 bit integer");
+       super((long)num,(long)0xffff,"Not an unsigned 16 bit integer (" + num + ")");
     }
 
     public UnsignedInt16(java.lang.String str) throws java.lang.NumberFormatException {
-        super(str,(long)0xffff,"Not an unsigned 16 bit integer");
+        super(str,(long)0xffff,"Not an unsigned 16 bit integer (" + str + ")");
     }
 }
-

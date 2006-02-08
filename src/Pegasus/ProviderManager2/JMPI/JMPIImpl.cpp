@@ -57,7 +57,6 @@
 #include <Pegasus/Common/CIMInstance.h>
 #include <Pegasus/Common/CIMObjectPath.h>
 #include <Pegasus/Common/CIMProperty.h>
-#include <Pegasus/Common/CIMType.h>
 #include <Pegasus/Common/OperationContext.h>
 #include <Pegasus/Provider/CIMOMHandle.h>
 #include <Pegasus/Client/CIMClient.h>
@@ -113,6 +112,8 @@ const char* classNames[]={
 /*28*/ "org/pegasus/jmpi/CIMFlavor",
 /*29*/ "org/pegasus/jmpi/CIMArgument",
 /*30*/ "org/pegasus/jmpi/CIMInstanceException",
+/*31*/ "org/pegasus/jmpi/CIMObject",
+/*32*/ "java/lang/Character",
 };
 
 const METHOD_STRUCT instanceMethodNames[]={
@@ -162,6 +163,8 @@ const METHOD_STRUCT instanceMethodNames[]={
 /*43 CIMExceptionNewStObOb   */ { /*CIMException  */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V" },
 /*44 CIMExceptionNewStObObOb */ { /*CIMException  */13, "<init>",          "(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)V" },
 /*45 CIMValueNewI            */ { /*CIMValue      */19, "<init>",          "(I)V" },
+/*46 CIMObjectNewIZ          */ { /*CIMObject     */31, "<init>",          "(IZ)V" },
+/*47 CharacterNewC           */ { /*Character     */32, "<init>",          "(C)V" },
 };
 
 const METHOD_STRUCT staticMethodNames[]={
@@ -2410,18 +2413,33 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMDataType__1toString
    _dataType *dt  = DEBUG_ConvertJavaToC (jint, _dataType*, jDt);
    jstring    str = NULL;
 
-   if (dt->_type & 0x10) {
-      char tmp[32];
-      strcpy(tmp,jTypeToChars[dt->_type-0x10]);
-      strcat(tmp,"[]");
-      str=jEnv->NewStringUTF(tmp);
+   if (dt->_type & 0x10)
+   {
+      bool   fSuccess = false;
+      String tmp      = _dataType::convertJavaTypeToChars (dt->_type-0x10, &fSuccess);
+
+      if (!fSuccess)
+         return str;
+
+      tmp = tmp + "[]";
+
+      str = jEnv->NewStringUTF(tmp.getCString());
    }
-   else if (dt->_type & 0x20) {
-      String tmp=dt->_refClass+" REF";
-      str=jEnv->NewStringUTF(tmp.getCString());
+   else if (dt->_type == 0x20 + 1) // REFERENCE
+   {
+      String tmp = dt->_refClass + " REF";
+
+      str = jEnv->NewStringUTF(tmp.getCString());
    }
-   else {
-      str=jEnv->NewStringUTF(jTypeToChars[dt->_type]);
+   else
+   {
+      bool  fSuccess = false;
+      char *tmp      = _dataType::convertJavaTypeToChars (dt->_type, &fSuccess);
+
+      if (!fSuccess)
+         return str;
+
+      str = jEnv->NewStringUTF(tmp);
    }
 
    return str;
@@ -2435,14 +2453,6 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMDataType__1finalize
    delete dt;
 
    DEBUG_ConvertCleanup (jint, jDt);
-}
-
-CIMType toPtype (int jType)
-{
-  if (jType > 13)
-     return (CIMType)14;
-  return
-     (CIMType)(jTypeToPType[jType]);
 }
 
 
@@ -2526,16 +2536,25 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMArgument__1setName
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMArgument__1getType
       (JNIEnv *jEnv, jobject jThs, jint jP)
 {
-   CIMParamValue *cp   = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jP);
-   const CIMValue cv   = cp->getValue();
+   CIMParamValue *cp       = DEBUG_ConvertJavaToC (jint, CIMParamValue*, jP);
+   const CIMValue cv       = cp->getValue();
    String         ref;
-   _dataType     *type = new _dataType(pTypeToJType[cv.getType()],
-                                       cv.getArraySize(),
-                                       false,
-                                       false,
-                                       cv.isArray(),
-                                       ref,
-                                       true);
+   bool           fSuccess = false;
+   int            iJType   = 0;
+   _dataType     *type     = 0;
+
+   iJType = _dataType::convertCTypeToJavaType (cv.getType(), &fSuccess);
+
+   if (fSuccess)
+   {
+      type = new _dataType (iJType,
+                            cv.getArraySize(),
+                            false,
+                            false,
+                            cv.isArray(),
+                            ref,
+                            true);
+   }
 
    return DEBUG_ConvertCToJava (_dataType*, jint, type);
 }
@@ -2722,12 +2741,28 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMProperty__1addValue
          darr.append(d);
       }
       break;
+   case CIMTYPE_CHAR16: {
+         Char16 c16;
+         cvin->get(c16);
+         Array<Char16> c16arr;
+         cv.get(c16arr);
+         c16arr.append(c16);
+      }
+      break;
    case CIMTYPE_STRING: {
          String str;
          cvin->get(str);
          Array<String> strarr;
          cv.get(strarr);
          strarr.append(str);
+      }
+      break;
+   case CIMTYPE_DATETIME: {
+         CIMDateTime dt;
+         cvin->get(dt);
+         Array<CIMDateTime> dtarr;
+         cv.get(dtarr);
+         dtarr.append(dt);
       }
       break;
    case CIMTYPE_REFERENCE: {
@@ -2803,15 +2838,24 @@ JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMProperty__1getRefClassName
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1getType
       (JNIEnv *jEnv, jobject jThs, jint jP)
 {
-   CIMProperty  *cp   = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
-   String        ref  = cp->getReferenceClassName().getString();
-   _dataType    *type = new _dataType(pTypeToJType[cp->getType()],
-                                      cp->getArraySize(),
-                                      ref.size() ? true : false,
-                                      false,
-                                      cp->isArray(),
-                                      ref,
-                                      true);
+   CIMProperty  *cp        = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
+   String        ref       = cp->getReferenceClassName().getString();
+   bool           fSuccess = false;
+   int            iJType   = 0;
+   _dataType     *type     = 0;
+
+   iJType = _dataType::convertCTypeToJavaType (cp->getType(), &fSuccess);
+
+   if (fSuccess)
+   {
+      type = new _dataType (iJType,
+                            cp->getArraySize(),
+                            ref.size() ? true : false,
+                            false,
+                            cp->isArray(),
+                            ref,
+                            true);
+   }
 
    return DEBUG_ConvertCToJava (_dataType*, jint, type);
 }
@@ -2819,17 +2863,28 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1getType
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMProperty__1setType
       (JNIEnv *jEnv, jobject jThs, jint jP, jint jDt)
 {
-   CIMProperty  *cp = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
-   _dataType    *dt = (_dataType*)jDt;
+   CIMProperty  *cp       = DEBUG_ConvertJavaToC (jint, CIMProperty*, jP);
+   _dataType    *dt       = DEBUG_ConvertJavaToC (jint, _dataType*, jDt);
    CIMValue      val;
+   bool          fSuccess = false;
+   CIMType       cType    = CIMTYPE_BOOLEAN;
 
-   val.setNullValue(toPtype(dt->_type),dt->_array);
+   cType = _dataType::convertJavaTypeToCType (dt->_type, &fSuccess);
 
-   CIMProperty *np = new CIMProperty(cp->getName(),val);
+   if (fSuccess)
+   {
+      val.setNullValue (cType, dt->_array);
 
-   delete cp;
+      CIMProperty *np = new CIMProperty (cp->getName (), val);
 
-   return DEBUG_ConvertCToJava (CIMProperty*, jint, np);
+      delete cp;
+
+      return DEBUG_ConvertCToJava (CIMProperty*, jint, np);
+   }
+   else
+   {
+      return DEBUG_ConvertCToJava (CIMProperty*, jint, cp);
+   }
 }
 
 JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMProperty__1getIdentifier
@@ -3083,7 +3138,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1short
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
 
-JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue_makeInt
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1makeInt
       (JNIEnv *jEnv, jobject jThs, jlong ji, jboolean notSigned)
 {
    CIMValue *cv = NULL;
@@ -3136,7 +3191,7 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1string
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
 
-JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1ref
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1cop
       (JNIEnv *jEnv, jobject jThs, jint jR)
 {
    CIMObjectPath *ref = DEBUG_ConvertJavaToC (jint, CIMObjectPath*, jR);
@@ -3150,6 +3205,24 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1datetime
 {
    CIMDateTime *dt = DEBUG_ConvertJavaToC (jint, CIMDateTime*, jDT);
    CIMValue    *cv = new CIMValue(*dt);
+
+   return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1char16
+      (JNIEnv *jEnv, jobject jThs, jchar jChar16)
+{
+   Char16       c16 (jChar16);
+   CIMValue    *cv  = new CIMValue(c16);
+
+   return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1object
+      (JNIEnv *jEnv, jobject jThs, jint jO)
+{
+   CIMObject *co = DEBUG_ConvertJavaToC (jint, CIMObject*, jO);
+   CIMValue  *cv = new CIMValue(*co);
 
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
@@ -3191,6 +3264,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1byteArray
       cv=new CIMValue(s8);
    }
 
+   jEnv->ReleaseShortArrayElements(jshortA, jsA, len);
+
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
 
@@ -3214,6 +3289,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1shortArray
          s16.append((Sint16)jiA[i]);
       cv=new CIMValue(s16);
    }
+
+   jEnv->ReleaseIntArrayElements(jintA, jiA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
@@ -3239,6 +3316,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1intArray
       cv=new CIMValue(s32);
    }
 
+   jEnv->ReleaseLongArrayElements(jlongA, jlA, len);
+
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
 
@@ -3262,6 +3341,8 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1longArray
          s64.append((Sint64)jlA[i]);
       cv=new CIMValue(s64);
    }
+
+   jEnv->ReleaseLongArrayElements(jlongA, jlA, len);
 
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
@@ -3300,10 +3381,48 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1booleanArray
       bA.append((Boolean)jbA[i]);
    cv=new CIMValue(bA);
 
+   jEnv->ReleaseBooleanArrayElements(jboolA, jbA, len);
+
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
 
-JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1refArray
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1floatArray
+  (JNIEnv *jEnv, jobject jThs, jfloatArray jfloatA)
+{
+   CIMValue     *cv  = NULL;
+   jboolean      b;
+   jsize         len = jEnv->GetArrayLength(jfloatA);
+   jfloat       *jfA = jEnv->GetFloatArrayElements(jfloatA,&b);
+   Array<float>  fA;
+
+   for (jsize i=0;i<len;i++)
+      fA.append((float)jfA[i]);
+   cv=new CIMValue(fA);
+
+   jEnv->ReleaseFloatArrayElements(jfloatA, jfA, len);
+
+   return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1doubleArray
+  (JNIEnv *jEnv, jobject jThs, jdoubleArray jdoubleA)
+{
+   CIMValue      *cv  = NULL;
+   jboolean       b;
+   jsize          len = jEnv->GetArrayLength(jdoubleA);
+   jdouble       *jdA = jEnv->GetDoubleArrayElements(jdoubleA,&b);
+   Array<double>  dA;
+
+   for (jsize i=0;i<len;i++)
+      dA.append((double)jdA[i]);
+   cv=new CIMValue(dA);
+
+   jEnv->ReleaseDoubleArrayElements(jdoubleA, jdA, len);
+
+   return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1copArray
       (JNIEnv *jEnv, jobject jThs, jintArray jintA)
 {
    CIMValue             *cv  = NULL;
@@ -3316,15 +3435,75 @@ JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1refArray
       cA.append(*((CIMObjectPath*)jiA[i]));
    cv=new CIMValue(cA);
 
+   jEnv->ReleaseIntArrayElements(jintA, jiA, len);
+
+   return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1datetimeArray
+      (JNIEnv *jEnv, jobject jThs, jintArray jintA)
+{
+   CIMValue           *cv  = NULL;
+   jboolean            b;
+   jsize               len = jEnv->GetArrayLength(jintA);
+   jint               *jiA = jEnv->GetIntArrayElements(jintA,&b);
+   Array<CIMDateTime>  cA;
+
+   for (jsize i=0;i<len;i++)
+      cA.append(*((CIMDateTime*)jiA[i]));
+   cv=new CIMValue(cA);
+
+   jEnv->ReleaseIntArrayElements(jintA, jiA, len);
+
+   return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1objectArray
+      (JNIEnv *jEnv, jobject jThs, jintArray jintA)
+{
+   CIMValue           *cv  = NULL;
+   jboolean            b;
+   jsize               len = jEnv->GetArrayLength(jintA);
+   jint               *jiA = jEnv->GetIntArrayElements(jintA,&b);
+   Array<CIMObject>    cA;
+
+   for (jsize i=0;i<len;i++)
+      cA.append(*((CIMObject*)jiA[i]));
+   cv=new CIMValue(cA);
+
+   jEnv->ReleaseIntArrayElements(jintA, jiA, len);
+
+   return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1char16Array
+      (JNIEnv *jEnv, jobject jThs, jcharArray jcharA)
+{
+   CIMValue      *cv  = NULL;
+   jboolean       b;
+   jsize          len = jEnv->GetArrayLength(jcharA);
+   jchar         *jcA = jEnv->GetCharArrayElements(jcharA,&b);
+   Array<Char16>  cA;
+
+   for (jsize i=0;i<len;i++)
+      cA.append(Char16 (jcA[i]));
+   cv=new CIMValue(cA);
+
+   jEnv->ReleaseCharArrayElements(jcharA, jcA, len);
+
    return DEBUG_ConvertCToJava (CIMValue*, jint, cv);
 }
 
 JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMValue__1getType
       (JNIEnv *jEnv, jobject jThs, jint jP)
 {
-   CIMValue *cv = DEBUG_ConvertJavaToC (jint, CIMValue*, jP);
+   CIMValue *cv       = DEBUG_ConvertJavaToC (jint, CIMValue*, jP);
+   bool      fSuccess = false;
+   int       iJType   = 0;
 
-   return DEBUG_ConvertCToJava (int, jint, pTypeToJType[cv->getType()]);
+   iJType = _dataType::convertCTypeToJavaType (cv->getType(), &fSuccess);
+
+   return DEBUG_ConvertCToJava (int, jint, iJType);
 }
 
 JNIEXPORT jstring JNICALL Java_org_pegasus_jmpi_CIMValue__1toString
@@ -3342,231 +3521,486 @@ JNIEXPORT jobject JNICALL Java_org_pegasus_jmpi_CIMValue__1getValue
 
    CIMValue *cv = DEBUG_ConvertJavaToC (jint, CIMValue*, jV);
 
-   if (cv->isNull())
+   if (cv->isNull ())
       return NULL;
 
-   CIMType type=cv->getType();
+   CIMType type = cv->getType ();
 
-   if (!cv->isArray()) {
-      switch (type) {
+   if (!cv->isArray ())
+   {
+      switch (type)
+      {
       case CIMTYPE_BOOLEAN:
          Boolean bo;
          cv->get(bo);
-         return jEnv->NewObject(JMPIjvm::jv.BooleanClassRef,JMPIjvm::jv.BooleanNewZ,bo);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.BooleanClassRef,
+                                 JMPIjvm::jv.BooleanNewZ,
+                                 bo);
       case CIMTYPE_SINT8:
          Sint8 s8;
          cv->get(s8);
-         return jEnv->NewObject(JMPIjvm::jv.ByteClassRef,JMPIjvm::jv.ByteNewB,s8);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.ByteClassRef,
+                                 JMPIjvm::jv.ByteNewB,
+                                 s8);
       case CIMTYPE_UINT8:
          Uint8 u8;
          cv->get(u8);
-         return jEnv->NewObject(JMPIjvm::jv.UnsignedInt8ClassRef,JMPIjvm::jv.UnsignedInt8NewS,u8);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.UnsignedInt8ClassRef,
+                                 JMPIjvm::jv.UnsignedInt8NewS,
+                                 u8);
       case CIMTYPE_SINT16:
          Sint16 s16;
          cv->get(s16);
-         return jEnv->NewObject(JMPIjvm::jv.ShortClassRef,JMPIjvm::jv.ShortNewS,s16);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.ShortClassRef,
+                                 JMPIjvm::jv.ShortNewS,
+                                 s16);
       case CIMTYPE_UINT16:
          Uint16 u16;
          cv->get(u16);
-         return jEnv->NewObject(JMPIjvm::jv.UnsignedInt16ClassRef,JMPIjvm::jv.UnsignedInt16NewI,u16);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.UnsignedInt16ClassRef,
+                                 JMPIjvm::jv.UnsignedInt16NewI,
+                                 u16);
       case CIMTYPE_SINT32:
          Sint32 s32;
          cv->get(s32);
-         return jEnv->NewObject(JMPIjvm::jv.IntegerClassRef,JMPIjvm::jv.IntegerNewI,s32);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.IntegerClassRef,
+                                 JMPIjvm::jv.IntegerNewI,
+                                 s32);
       case CIMTYPE_UINT32:
          Uint32 u32;
          cv->get(u32);
-         return jEnv->NewObject(JMPIjvm::jv.UnsignedInt32ClassRef,JMPIjvm::jv.UnsignedInt32NewJ,u32);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.UnsignedInt32ClassRef,
+                                 JMPIjvm::jv.UnsignedInt32NewJ,
+                                 u32);
       case CIMTYPE_SINT64:
          Sint64 s64;
          cv->get(s64);
-         return jEnv->NewObject(JMPIjvm::jv.LongClassRef,JMPIjvm::jv.LongNewJ,s64);
-         break;
-      case CIMTYPE_UINT64: {
-            Uint64 u64;
-            cv->get(u64);
-            jobject big=jEnv->CallStaticObjectMethod(JMPIjvm::jv.BigIntegerClassRef,JMPIjvm::jv.BigIntegerValueOf,u64);
-            return jEnv->NewObject(JMPIjvm::jv.UnsignedInt64ClassRef,JMPIjvm::jv.UnsignedInt64NewBi,big);
-         }
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.LongClassRef,
+                                 JMPIjvm::jv.LongNewJ,
+                                 s64);
+      case CIMTYPE_UINT64:
+      {
+         Uint64 u64;
+         cv->get(u64);
+         jobject jBIG = jEnv->CallStaticObjectMethod (JMPIjvm::jv.BigIntegerClassRef,
+                                                      JMPIjvm::jv.BigIntegerValueOf,
+                                                      u64);
+         return jEnv->NewObject (JMPIjvm::jv.UnsignedInt64ClassRef,
+                                 JMPIjvm::jv.UnsignedInt64NewBi,
+                                 jBIG);
+      }
       case CIMTYPE_REAL32:
          float f;
          cv->get(f);
-         return jEnv->NewObject(JMPIjvm::jv.FloatClassRef,JMPIjvm::jv.FloatNewF,f);
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.FloatClassRef,
+                                 JMPIjvm::jv.FloatNewF,
+                                 f);
       case CIMTYPE_REAL64:
          double d;
          cv->get(d);
-         return jEnv->NewObject(JMPIjvm::jv.DoubleClassRef,JMPIjvm::jv.DoubleNewD,d);
-         break;
-      case CIMTYPE_STRING: {
-            String s;
-            jstring str;
-            cv->get(s);
-            str=jEnv->NewStringUTF(s.getCString());
-            return str;
-         }
-         break;
-      case CIMTYPE_REFERENCE:  {
-            CIMObjectPath ref;
-            cv->get(ref);
-            jint jOp = DEBUG_ConvertCToJava (CIMObjectPath*, jint, new CIMObjectPath(ref));
-            return jEnv->NewObject(JMPIjvm::jv.CIMObjectPathClassRef,JMPIjvm::jv.CIMObjectPathNewI,jOp);
-         }
-         break;
+         return jEnv->NewObject (JMPIjvm::jv.DoubleClassRef,
+                                 JMPIjvm::jv.DoubleNewD,
+                                 d);
+      case CIMTYPE_STRING:
+      {
+         String s;
+         cv->get(s);
+         return jEnv->NewStringUTF(s.getCString());
+      }
+      case CIMTYPE_REFERENCE:
+      {
+         CIMObjectPath ref;
+         cv->get(ref);
+         jint jOp = DEBUG_ConvertCToJava (CIMObjectPath*, jint, new CIMObjectPath(ref));
+         return jEnv->NewObject (JMPIjvm::jv.CIMObjectPathClassRef,
+                                 JMPIjvm::jv.CIMObjectPathNewI,
+                                 jOp);
+      }
       case CIMTYPE_CHAR16:
-         throwCIMException(jEnv,"+++ Char16 not yet supported");
-         break;
-      case CIMTYPE_DATETIME: {
-            CIMDateTime dt;
-            cv->get(dt);
-            jint jDT = DEBUG_ConvertCToJava (CIMDateTime*, jint, new CIMDateTime(dt));
-            return jEnv->NewObject(JMPIjvm::jv.CIMDateTimeClassRef,JMPIjvm::jv.CIMDateTimeNewI,jDT);
-         }
-         break;
+      {
+         Char16 c16;
+         cv->get(c16);
+         return jEnv->NewObject (JMPIjvm::jv.CharacterClassRef,
+                                 JMPIjvm::jv.CharacterNewC,
+                                 (jchar)c16);
+      }
+      case CIMTYPE_DATETIME:
+      {
+         CIMDateTime dt;
+         cv->get(dt);
+         jint jDT = DEBUG_ConvertCToJava (CIMDateTime*, jint, new CIMDateTime(dt));
+         return jEnv->NewObject (JMPIjvm::jv.CIMDateTimeClassRef,
+                                 JMPIjvm::jv.CIMDateTimeNewI,
+                                 jDT);
+      }
       case CIMTYPE_OBJECT:
-         throwCIMException(jEnv,"+++ Object not yet supported");
-         break;
+      {
+         CIMObject co;
+         cv->get(co);
+         if (co.isClass ())
+         {
+            jint jCC = DEBUG_ConvertCToJava (CIMClass*, jint, new CIMClass(co));
+
+            return jEnv->NewObject (JMPIjvm::jv.CIMObjectClassRef,
+                                    JMPIjvm::jv.CIMObjectNewIZ,
+                                    jCC,
+                                    (jboolean)true);
+         }
+         else
+         {
+            jint jCI = DEBUG_ConvertCToJava (CIMInstance*, jint, new CIMInstance(co));
+
+            return jEnv->NewObject (JMPIjvm::jv.CIMObjectClassRef,
+                                    JMPIjvm::jv.CIMObjectNewIZ,
+                                    jCI,
+                                    (jboolean)false);
+         }
+      }
       default:
          throwCIMException(jEnv,"+++ unsupported type: ");
       }
    }
-   else {
-      switch (type) {
-      case CIMTYPE_BOOLEAN: {
-            Array<Boolean> bo;
-            cv->get(bo);
-            int s=bo.size();
-            jobjectArray jbooleanA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.BooleanClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jbooleanA, i,
-                  jEnv->NewObject(JMPIjvm::jv.BooleanClassRef,JMPIjvm::jv.BooleanNewZ,bo[i]));
-            return jbooleanA;
-         }
-         break;
-      case CIMTYPE_SINT8: {
-            Array<Sint8> s8;
-            cv->get(s8);
-            int s=s8.size();
-            jobjectArray jbyteA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.ByteClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jbyteA, i,
-               jEnv->NewObject(JMPIjvm::jv.ByteClassRef,JMPIjvm::jv.ByteNewB,s8[i]));
-            return jbyteA;
-         }
-         break;
-      case CIMTYPE_UINT8: {
-            Array<Uint8> u8;
-            cv->get(u8);
-            int s=u8.size();
-            jobjectArray jshortA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.UnsignedInt8ClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jshortA, i,
-               jEnv->NewObject(JMPIjvm::jv.UnsignedInt8ClassRef,JMPIjvm::jv.UnsignedInt8NewS,u8[i]));
-            return jshortA;
-         }
-         break;
-      case CIMTYPE_SINT16: {
-            Array<Sint16> s16;
-            cv->get(s16);
-            int s=s16.size();
-            jobjectArray jshortA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.ShortClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jshortA, i,
-               jEnv->NewObject(JMPIjvm::jv.ShortClassRef,JMPIjvm::jv.ShortNewS,s16[i]));
-            return jshortA;
-         }
-         break;
-      case CIMTYPE_UINT16: {
-            Array<Uint16> u16;
-            cv->get(u16);
-            int s=u16.size();
-            jobjectArray jintA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.UnsignedInt16ClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jintA, i,
-               jEnv->NewObject(JMPIjvm::jv.UnsignedInt16ClassRef,JMPIjvm::jv.UnsignedInt16NewI,u16[i]));
-            return jintA;
-         }
-         break;
-      case CIMTYPE_SINT32: {
-            Array<Sint32> s32;
-            cv->get(s32);
-            int s=s32.size();
-            jobjectArray jintA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.IntegerClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jintA, i,
-               jEnv->NewObject(JMPIjvm::jv.IntegerClassRef,JMPIjvm::jv.IntegerNewI,s32[i]));
-            return jintA;
-         }
-         break;
-      case CIMTYPE_UINT32: {
-            Array<Uint32> u32;
-            cv->get(u32);
-            int s=u32.size();
-            jobjectArray jlongA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.UnsignedInt32ClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jlongA, i,
-               jEnv->NewObject(JMPIjvm::jv.UnsignedInt32ClassRef,JMPIjvm::jv.UnsignedInt32NewJ,u32[i]));
-            return jlongA;
-         }
-         break;
-      case CIMTYPE_SINT64: {
-            Array<Sint64> s64;
-            cv->get(s64);
-            int s=s64.size();
-            jobjectArray jlongA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.LongClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jlongA, i,
-               jEnv->NewObject(JMPIjvm::jv.LongClassRef,JMPIjvm::jv.LongNewJ,s64[i]));
-            return jlongA;
-         }
-         break;
+   else
+   {
+      switch (type)
+      {
+      case CIMTYPE_BOOLEAN:
+      {
+         Array<Boolean> bo;
+
+         cv->get(bo);
+
+         int          s         = bo.size();
+         jobjectArray jbooleanA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                      JMPIjvm::jv.BooleanClassRef,
+                                                                      0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement(jbooleanA,
+                                        i,
+                                        jEnv->NewObject (JMPIjvm::jv.BooleanClassRef,
+                                                         JMPIjvm::jv.BooleanNewZ,
+                                                         bo[i]));
+         return jbooleanA;
+      }
+      case CIMTYPE_SINT8:
+      {
+         Array<Sint8> s8;
+
+         cv->get(s8);
+
+         int          s      = s8.size();
+         jobjectArray jbyteA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                   JMPIjvm::jv.ByteClassRef,
+                                                                   0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jbyteA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.ByteClassRef,
+                                                          JMPIjvm::jv.ByteNewB,
+                                                          s8[i]));
+         return jbyteA;
+      }
+      case CIMTYPE_UINT8:
+      {
+         Array<Uint8> u8;
+
+         cv->get(u8);
+
+         int          s       = u8.size();
+         jobjectArray jshortA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                    JMPIjvm::jv.UnsignedInt8ClassRef,
+                                                                    0);
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jshortA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.UnsignedInt8ClassRef,
+                                                          JMPIjvm::jv.UnsignedInt8NewS,
+                                                          u8[i]));
+         return jshortA;
+      }
+      case CIMTYPE_SINT16:
+      {
+         Array<Sint16> s16;
+
+         cv->get(s16);
+
+         int          s       = s16.size();
+         jobjectArray jshortA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                    JMPIjvm::jv.ShortClassRef,
+                                                                    0);
+
+         for (int i=0; i < s; i++) 
+            jEnv->SetObjectArrayElement (jshortA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.ShortClassRef,
+                                                          JMPIjvm::jv.ShortNewS,
+                                                          s16[i]));
+         return jshortA;
+      }
+      case CIMTYPE_UINT16:
+      {
+         Array<Uint16> u16;
+
+         cv->get(u16);
+
+         int          s     = u16.size();
+         jobjectArray jintA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                  JMPIjvm::jv.UnsignedInt16ClassRef,
+                                                                  0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jintA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.UnsignedInt16ClassRef,
+                                                          JMPIjvm::jv.UnsignedInt16NewI,
+                                                          u16[i]));
+         return jintA;
+      }
+      case CIMTYPE_SINT32:
+      {
+         Array<Sint32> s32;
+
+         cv->get(s32);
+
+         int          s     = s32.size();
+         jobjectArray jintA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                  JMPIjvm::jv.IntegerClassRef,
+                                                                  0);
+
+         for (int i=0; i < s; i++) 
+            jEnv->SetObjectArrayElement (jintA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.IntegerClassRef,
+                                                          JMPIjvm::jv.IntegerNewI,
+                                                          s32[i]));
+         return jintA;
+      }
+      case CIMTYPE_UINT32:
+      {
+         Array<Uint32> u32;
+
+         cv->get(u32);
+
+         int          s      = u32.size();
+         jobjectArray jlongA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                   JMPIjvm::jv.UnsignedInt32ClassRef,
+                                                                   0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jlongA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.UnsignedInt32ClassRef,
+                                                          JMPIjvm::jv.UnsignedInt32NewJ,
+                                                          u32[i]));
+         return jlongA;
+      }
+      case CIMTYPE_SINT64:
+      {
+         Array<Sint64> s64;
+
+         cv->get(s64);
+
+         int          s      = s64.size();
+         jobjectArray jlongA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                   JMPIjvm::jv.LongClassRef,
+                                                                   0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jlongA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.LongClassRef,
+                                                          JMPIjvm::jv.LongNewJ,
+                                                          s64[i]));
+         return jlongA;
+      }
       case CIMTYPE_UINT64:
-         throwCIMException(jEnv,"+++ UnisgnetInt64 not yet supported");
-         break;
-      case CIMTYPE_REAL32: {
-            Array<Real32> r32;
-            cv->get(r32);
-            int s=r32.size();
-            jobjectArray jfloatA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.FloatClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jfloatA, i,
-               jEnv->NewObject(JMPIjvm::jv.FloatClassRef,JMPIjvm::jv.FloatNewF,r32[i]));
-            return jfloatA;
+      {
+         Array<Uint64> u64;
+
+         cv->get(u64);
+
+         int          s     = u64.size();
+         jobjectArray ju64A = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                  JMPIjvm::jv.UnsignedInt64ClassRef,
+                                                                  0);
+
+         for (int i=0; i < s; i++)
+         {
+            jobject jBIG = jEnv->CallStaticObjectMethod (JMPIjvm::jv.BigIntegerClassRef,
+                                                         JMPIjvm::jv.BigIntegerValueOf,
+                                                         u64[i]);
+
+            jEnv->SetObjectArrayElement (ju64A,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.UnsignedInt64ClassRef,
+                                                          JMPIjvm::jv.UnsignedInt64NewBi,
+                                                          jBIG));
          }
-         break;
-      case CIMTYPE_REAL64: {
-            Array<Real64> r64;
-            cv->get(r64);
-            int s=r64.size();
-            jobjectArray jdoubleA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.DoubleClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jdoubleA, i,
-               jEnv->NewObject(JMPIjvm::jv.DoubleClassRef,JMPIjvm::jv.DoubleNewD,r64[i]));
-            return jdoubleA;
-         }
-         break;
-      case CIMTYPE_STRING: {
-            Array<String> str;
-            cv->get(str);
-            int s=str.size();
-            jobjectArray jstringA=(jobjectArray)jEnv->NewObjectArray(s,JMPIjvm::jv.StringClassRef,0);
-            for (int i=0; i < s; i++) jEnv->SetObjectArrayElement(jstringA, i,
-               jEnv->NewStringUTF(str[i].getCString()));
-            return jstringA;
-         }
-         break;
+         return ju64A;
+      }
+      case CIMTYPE_REAL32:
+      {
+         Array<Real32> r32;
+
+         cv->get(r32);
+
+         int          s       = r32.size();
+         jobjectArray jfloatA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                    JMPIjvm::jv.FloatClassRef,
+                                                                    0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jfloatA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.FloatClassRef,
+                                                          JMPIjvm::jv.FloatNewF,
+                                                          r32[i]));
+         return jfloatA;
+      }
+      case CIMTYPE_REAL64:
+      {
+         Array<Real64> r64;
+
+         cv->get(r64);
+
+         int          s        = r64.size();
+         jobjectArray jdoubleA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                     JMPIjvm::jv.DoubleClassRef,
+                                                                     0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jdoubleA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.DoubleClassRef,
+                                                          JMPIjvm::jv.DoubleNewD,
+                                                          r64[i]));
+         return jdoubleA;
+      }
+      case CIMTYPE_STRING:
+      {
+         Array<String> str;
+
+         cv->get(str);
+
+         int          s        = str.size();
+         jobjectArray jstringA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                     JMPIjvm::jv.StringClassRef,
+                                                                     0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jstringA,
+                                         i,
+                                         jEnv->NewStringUTF (str[i].getCString()));
+         return jstringA;
+      }
       case CIMTYPE_REFERENCE:
-         throwCIMException(jEnv,"+++ Reference not yet supported");
-         break;
+      {
+         Array<CIMObjectPath> ref;
+
+         cv->get(ref);
+
+         int          s     = ref.size();
+         jobjectArray jrefA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                  JMPIjvm::jv.CIMObjectPathClassRef,
+                                                                  0);
+
+         for (int i=0; i < s; i++)
+         {
+            jint jOP = DEBUG_ConvertCToJava (CIMObjectPath*, jint, new CIMObjectPath(ref[i]));
+
+            jEnv->SetObjectArrayElement (jrefA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.CIMObjectPathClassRef,
+                                                          JMPIjvm::jv.CIMObjectPathNewI,
+                                                          jOP));
+         }
+         return jrefA;
+      }
       case CIMTYPE_CHAR16:
-         throwCIMException(jEnv,"+++ Char16 not yet supported");
-         break;
+      {
+         Array<Char16> c16;
+
+         cv->get(c16);
+
+         int          s     = c16.size();
+         jobjectArray jc16A = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                  JMPIjvm::jv.CharacterClassRef,
+                                                                  0);
+
+         for (int i=0; i < s; i++)
+            jEnv->SetObjectArrayElement (jc16A,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.CharacterClassRef,
+                                                          JMPIjvm::jv.CharacterNewC,
+                                                          (jchar)c16[i]));
+
+         return jc16A;
+      }
       case CIMTYPE_DATETIME:
-         throwCIMException(jEnv,"+++ DateTime not yet supported");
-         break;
+      {
+         Array<CIMDateTime> dt;
+
+         cv->get(dt);
+
+         int          s    = dt.size();
+         jobjectArray jdtA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                 JMPIjvm::jv.CIMDateTimeClassRef,
+                                                                 0);
+
+         for (int i=0; i < s; i++)
+         {
+            jint jDT = DEBUG_ConvertCToJava (CIMDateTime*, jint, new CIMDateTime(dt[i]));
+
+            jEnv->SetObjectArrayElement (jdtA,
+                                         i,
+                                         jEnv->NewObject (JMPIjvm::jv.CIMDateTimeClassRef,
+                                                          JMPIjvm::jv.CIMDateTimeNewI,
+                                                          jDT));
+         }
+         return jdtA;
+      }
       case CIMTYPE_OBJECT:
-         throwCIMException(jEnv,"+++ Object not yet supported");
-         break;
+      {
+         Array<CIMObject> co;
+
+         cv->get(co);
+
+         int          s    = co.size();
+         jobjectArray jcoA = (jobjectArray)jEnv->NewObjectArray (s,
+                                                                 JMPIjvm::jv.CIMObjectClassRef,
+                                                                 0);
+
+         for (int i=0; i < s; i++)
+         {
+            if (co[i].isClass ())
+            {
+               jint jCC = DEBUG_ConvertCToJava (CIMClass*, jint, new CIMClass(co[i]));
+
+               jEnv->SetObjectArrayElement (jcoA,
+                                            i,
+                                            jEnv->NewObject (JMPIjvm::jv.CIMObjectClassRef,
+                                                             JMPIjvm::jv.CIMObjectNewIZ,
+                                                             jCC,
+                                                             (jboolean)true));
+            }
+            else
+            {
+               jint jCI = DEBUG_ConvertCToJava (CIMInstance*, jint, new CIMInstance(co[i]));
+
+               jEnv->SetObjectArrayElement (jcoA,
+                                            i,
+                                            jEnv->NewObject (JMPIjvm::jv.CIMObjectClassRef,
+                                                             JMPIjvm::jv.CIMObjectNewIZ,
+                                                             jCI,
+                                                             (jboolean)false));
+            }
+         }
+         return jcoA;
+      }
       default:
-      throwCIMException(jEnv,"+++ unsupported type: ");
+         throwCIMException(jEnv,"+++ unsupported type: ");
       }
    }
 
@@ -4541,6 +4975,46 @@ JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMClient__1finalize
    delete cCc;
 
    DEBUG_ConvertCleanup (jint, jCc);
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newClass
+  (JNIEnv *jEnv, jobject jThs, jobject jCc)
+{
+   CIMClass *cCc = DEBUG_ConvertJavaToC (jint, CIMClass*, jCc);
+
+   try {
+      CIMObject *cCo = new CIMObject (*cCc);
+
+      return DEBUG_ConvertCToJava (CIMObject*, jint, cCo);
+   }
+   Catch(jEnv);
+
+   return 0;
+}
+
+JNIEXPORT jint JNICALL Java_org_pegasus_jmpi_CIMObject__1newInstance
+  (JNIEnv *jEnv, jobject jThs, jobject jCi)
+{
+   CIMInstance *cCi = DEBUG_ConvertJavaToC (jint, CIMInstance*, jCi);
+
+   try {
+      CIMObject *cCo = new CIMObject (*cCi);
+
+      return DEBUG_ConvertCToJava (CIMObject*, jint, cCo);
+   }
+   Catch(jEnv);
+
+   return 0;
+}
+
+JNIEXPORT void JNICALL Java_org_pegasus_jmpi_CIMObject__1finalize
+  (JNIEnv *jEnv, jobject jThs, jint jInst)
+{
+   CIMObject *co = DEBUG_ConvertJavaToC (jint, CIMObject*, jInst);
+
+   delete co;
+
+   DEBUG_ConvertCleanup (jint, jInst);
 }
 
 } // extern "C"

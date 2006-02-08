@@ -34,7 +34,6 @@
 // Modified By: Mark Hamzy, hamzy@us.ibm.com
 //
 //%/////////////////////////////////////////////////////////////////////////////
-
 package org.pegasus.jmpi;
 
 import java.util.*;
@@ -52,6 +51,7 @@ public class CIMDataType
 {
    public static final int  SIZE_SINGLE    = 0;
    public static final int  SIZE_UNLIMITED = 1;
+   public static final int  SIZE_LIMITED   = 2;
 
    private final static int ARRAY          = 0x10;
    private final static int OTHER          = 0x20;
@@ -71,6 +71,7 @@ public class CIMDataType
    public static final int  REAL64         = 12;
    public static final int  DATETIME       = 13;
    public static final int  CHAR16         = 14;
+   public static final int  OBJECT         = 15;
 
    public static final int  UINT8_ARRAY    = ARRAY + UINT8;
    public static final int  SINT8_ARRAY    = ARRAY + SINT8;
@@ -86,6 +87,7 @@ public class CIMDataType
    public static final int  REAL64_ARRAY   = ARRAY + REAL64;
    public static final int  DATETIME_ARRAY = ARRAY + DATETIME;
    public static final int  CHAR16_ARRAY   = ARRAY + CHAR16;
+   public static final int  OBJECT_ARRAY   = ARRAY + OBJECT;
 
    public static final int  REFERENCE      = OTHER + 1;
 
@@ -106,7 +108,7 @@ public class CIMDataType
 
    protected void finalize ()
    {
-      _finalize(cInst);
+      _finalize (cInst);
    }
 
    CIMDataType (int     ci,
@@ -117,61 +119,66 @@ public class CIMDataType
 
    public CIMDataType (int type)
    {
-      if (type>INVALID && type<=CHAR16)
-         cInst=_new(type);
-      else if (type>=UINT8_ARRAY && type<=CHAR16_ARRAY)
-         cInst=_newAr(type,0);
+      if (type>=UINT8 && type<=OBJECT)
+         cInst=_new (type);
+      else if (type>=UINT8_ARRAY && type<=OBJECT_ARRAY)
+         cInst=_newAr (type,0);
       else if (type==REFERENCE)
-         cInst=_newRef(REFERENCE,"");
+         cInst=_newRef (REFERENCE,"");
       else
-         cInst=_new(INVALID);
+         cInst=_new (INVALID);
    }
 
    public CIMDataType (int type,
                        int size)
    {
-      if (type>=UINT8_ARRAY && type<=CHAR16_ARRAY)
-         cInst=_newAr(type,size);
+      if (type>=UINT8_ARRAY && type<=OBJECT_ARRAY)
+         cInst=_newAr (type,size);
       else
-         cInst=_new(INVALID);
+         cInst=_new (INVALID);
    }
 
    public CIMDataType (String ref)
    {
-      cInst=_newRef(REFERENCE,ref);
+      cInst=_newRef (REFERENCE,ref);
    }
 
    public boolean isArrayType ()
    {
-      return _isArray(cInst);
+      return _isArray (cInst);
    }
+
    public boolean isReferenceType ()
    {
-      return _isReference(cInst);
+      return _isReference (cInst);
    }
+
    public int getType ()
    {
-      return _getType(cInst);
+      return _getType (cInst);
    }
+
    public int getSize ()
    {
-      return _getSize(cInst);
+      return _getSize (cInst);
    }
+
    public String getRefClassName ()
    {
-      return _getRefClassName(cInst);
+      return _getRefClassName (cInst);
    }
+
    public String toString ()
    {
-      return _toString(cInst);
+      return _toString (cInst);
    }
 
    public static CIMDataType getPredefinedType (int type)
    {
-      return new CIMDataType(type);
+      return new CIMDataType (type);
    }
 
    static {
-      System.loadLibrary("JMPIProviderManager");
+      System.loadLibrary ("JMPIProviderManager");
    }
 };

@@ -85,6 +85,8 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
         PLATFORM_COMPONENT_VERSION " " PLATFORM_COMPONENT_STATUS "("
         COMPONENT_BUILD_DATE ")";
 
+#endif /* PEGASUS_OS_HPUX */
+
 // This macro can be examined by preprocessor directives (i.e., #if) to 
 // make compile time branch decisions based on the Pegasus version number. 
 // When read from left to right, the bytes have the following meaning:
@@ -112,8 +114,6 @@ static const char *PLATFORM_EMBEDDED_IDENTIFICATION_STRING =
 // integrating with versions prior to 2.5.1.
 //
 #define PEGASUS_VERSION_NUMBER 0x02050100
-
-#endif /* PEGASUS_OS_HPUX */
 
 PEGASUS_NAMESPACE_END
 

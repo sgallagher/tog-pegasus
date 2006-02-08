@@ -39,6 +39,8 @@
 #include "CIMOMStatDataProvider.h"
 
 #include <Pegasus/Common/PegasusVersion.h>
+#include <Pegasus/Common/Message.h>
+
 
 PEGASUS_USING_STD;
 PEGASUS_NAMESPACE_BEGIN
@@ -307,43 +309,145 @@ void CIMOMStatDataProvider::checkObjectManager()
 }
 
 
-
+// The range of operation types is defined in Message.h  as 1-113. 
+// For operation types with values grater than 39, forty is subtracted 
+// (in StatisticalData.h and Message.cpp
+//
+// This conversion makes make the OperationType attribute of the 
+// CIM_CIMOMStatisticalData instances agree with DMTF spec.
+// The CIM_StatisticalData class specifys type 0 as "unknown" 
+// and 1 as "other"
+//
+// The internal message types are subject to change so the symblic 
+// enumerated values are used within a select statement rather than 
+// a one dimensional array that is simply indexed to determine the 
+// output type. 
 
 Uint16 CIMOMStatDataProvider::getOpType(Uint16 type)
 {
-	Uint16 ty, outType;
-// the rang of operation types is defined in Message.cpp as 1-113. For operation types
-// with values grater then 39 fourty is subtracted (in StatisticalData.h and Message.cpp
-
-// This conversion makes make the OperationType attribute of the CIM_CIMOMStatisticalData
-// instances agree with DMTF spec.
-		
+    Uint16 outType;
 
 
-	ty = type;
+    switch (type)
+    {
+        case DUMMY_MESSAGE:
+	  outType=0;
+	  break;
 
- 	if ((ty==0) || (ty==1))
- 		{outType = type+3;
-	//	printf("ty was 0 or 1\n");
-	}
- 
- 	else if ((ty >=3) && (ty <= 23))
- 		{outType = ty + 2;
-	//	printf("ty was between 3 and 23\n");
-	}
- 
- 	else if ((ty == 2) || ((ty > 23) && (ty < 73)))
- 		{ outType = 1;
-	//	printf("ty was between 32 and 73 or it was 2\n");
-	}
- 
- 	else 
- 	{ outType = 0;
-	//printf("ty was out of this world\n");
-	}
+	case CIM_GET_CLASS_REQUEST_MESSAGE:
+	  outType= 3 ;
+	  break;
 
-//	printf("about to return form getOpType\n");
-	return outType;
+	case CIM_GET_INSTANCE_REQUEST_MESSAGE:
+	  outType= 4;
+	  break;
+
+	case CIM_DELETE_CLASS_REQUEST_MESSAGE:
+	  outType= 5;
+	  break;
+
+	case CIM_DELETE_INSTANCE_REQUEST_MESSAGE:
+	  outType= 6;
+	  break;
+
+	case CIM_CREATE_CLASS_REQUEST_MESSAGE:
+	  outType= 7;
+	  break;
+
+	case CIM_CREATE_INSTANCE_REQUEST_MESSAGE:
+	  outType= 8;
+	  break;
+
+	case CIM_MODIFY_CLASS_REQUEST_MESSAGE:
+	  outType= 9;
+	  break;
+
+	case CIM_MODIFY_INSTANCE_REQUEST_MESSAGE:
+	  outType= 10;
+	  break;
+
+	case CIM_ENUMERATE_CLASSES_REQUEST_MESSAGE:
+	  outType= 11;
+	  break;
+
+	case CIM_ENUMERATE_CLASS_NAMES_REQUEST_MESSAGE:
+	  outType= 12;
+	  break;
+
+	case CIM_ENUMERATE_INSTANCES_REQUEST_MESSAGE:
+	  outType= 13;
+	  break;
+
+	case CIM_ENUMERATE_INSTANCE_NAMES_REQUEST_MESSAGE:
+	  outType= 14;
+	  break;
+
+	case CIM_EXEC_QUERY_REQUEST_MESSAGE:
+	  outType= 15;
+	  break;
+
+	case CIM_ASSOCIATORS_REQUEST_MESSAGE:
+	  outType= 16;
+	  break;
+
+	case CIM_ASSOCIATOR_NAMES_REQUEST_MESSAGE:
+	  outType= 17;
+	  break;
+
+	case CIM_REFERENCES_REQUEST_MESSAGE:
+	  outType= 18;
+	  break;
+
+	case CIM_REFERENCE_NAMES_REQUEST_MESSAGE:
+	  outType= 19;
+	  break;
+
+	case CIM_GET_PROPERTY_REQUEST_MESSAGE:
+	  outType= 20;
+	  break;
+
+	case CIM_SET_PROPERTY_REQUEST_MESSAGE:
+	  outType= 21;
+	  break;
+
+	case CIM_GET_QUALIFIER_REQUEST_MESSAGE:
+	  outType= 22;
+	  break;
+
+	case CIM_SET_QUALIFIER_REQUEST_MESSAGE:
+	  outType= 23;
+	  break;
+
+	case CIM_DELETE_QUALIFIER_REQUEST_MESSAGE:
+	  outType= 24;
+	  break;
+
+	case CIM_ENUMERATE_QUALIFIERS_REQUEST_MESSAGE:
+	  outType= 25;
+	  break;
+
+	case  CIM_EXPORT_INDICATION_REQUEST_MESSAGE:
+	  outType= 26;
+	  break;
+
+	case CIM_INVOKE_METHOD_REQUEST_MESSAGE:
+	  outType= 1;
+	  break;
+
+        default:
+	  // If this is a response type then ouput "other"
+	  if (type < CIM_DELETE_SUBSCRIPTION_RESPONSE_MESSAGE)
+	    outType=1;
+	  else
+	    // This type is unknown so output "Unknown"
+	    outType=0;
+	  break;
+
+
+    }
+
+    // printf("about to return form getOpType type = %d, outType = %d\n",type, outType);
+    return outType;
 }
 
 

@@ -183,7 +183,7 @@ public:
     //defined in PegasusVersion.h
     virtual const char* getCompleteVersion() const
     {
-      if (PEGASUS_PRODUCT_STATUS == "" )
+      if (*PEGASUS_PRODUCT_STATUS == '\0' )
 	return PEGASUS_PRODUCT_VERSION;
       else
 	return PEGASUS_PRODUCT_VERSION " " PEGASUS_PRODUCT_STATUS;      

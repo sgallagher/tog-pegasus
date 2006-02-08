@@ -46,169 +46,194 @@ PEGASUS_NAMESPACE_BEGIN
 class OperationContextRep;
 
 /**
-Contains context information from clients in objects referred to as containers.
-
-<p>The OperationContext class carries information about
-the context in which the client program issued the request. The OperationContext 
-class contains containers that specify types of information. 
-Currently, the only supported container is the container that specifies
-the identity of the user. Providers must use the user container
-to determine whether the requested operation should be 
-permitted on behalf of
-the issuing user.
-
-For example, providers can get the user name information from the
-IdentityContext in an OperationContext as shown below:
-
-    <PRE>
-    IdentityContainer container(context.get(IdentityContainer::NAME));
-    String userName = container.getUserName();
-    </PRE>
-</p>
+    An OperationContext object holds information about the context of an
+    operation, using various Container classes.  The Container subclasses
+    define the set of information that may be available in the
+    OperationContext.
 */
 class PEGASUS_COMMON_LINKAGE OperationContext
 {
 public:
+
     /**
-        An element of client context information.
-    
-        <p>The <tt>Container</tt> object carries the information that
-        the provider may access. A container name determines which
-        container is used. Currently, only the container
-        carrying the user identity of the client is available.</p>
+        A Container subclass object holds a piece of context information
+        for an operation.
     */
     class PEGASUS_COMMON_LINKAGE Container
     {
     public:
 
-        /** Destructs Container.
+        /**
+            Destructs the Container.
         */
-        virtual ~Container(void);
+        virtual ~Container();
 
-        /** REVIEWERS: Insert description here. What parameters 
-        need to be described, if any?
+        /**
+            Returns the unique name for a Container type.
+            @return The String name of the Container type.
         */
-        virtual String getName(void) const = 0;
+        virtual String getName() const = 0;
 
-        /** Makes a copy of the Container object. Caller is responsible 
-            for deleting dynamically allocated memory by calling 
-            destroy() method.
+        /**
+            Makes a copy of the Container object.  The caller is responsible 
+            for cleaning up the copy by calling destroy() method.
+            @return A pointer to the new Container object.
         */
-        virtual Container * clone(void) const = 0;
+        virtual Container* clone() const = 0;
 
-        /** Cleans up the object, including dynamically allocated memory.
-            This should only be used to clean up memory allocated using 
-            the clone() method.
+        /**
+            Cleans up a Container object that was created by the clone()
+            method.
         */
-        virtual void destroy(void) = 0;
+        virtual void destroy() = 0;
     };
 
-public:
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    /**
+        Constructs an empty OperationContext object.
     */
-    OperationContext(void);
+    OperationContext();
 
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
-    @param context Specifies the name of the OperationContext container.
+    /**
+        Constructs a copy of an OperationContext object.  The newly
+        constructed OperationContext object is independent from the source
+        object.
+        @param context The OperationContext object to copy.
     */
-    OperationContext(const OperationContext & context);
+    OperationContext(const OperationContext& context);
 
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    /**
+        Destructs the OperationContext.
     */
-    virtual ~OperationContext(void);
+    virtual ~OperationContext();
 
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
-    @param context Specifies the name of the OperationContext container.
+    /**
+        Assigns the value of the specified OperationContext object to this
+        OperationContext.  As a result, this OperationContext object will
+        contain the same set of Containers as in the specified object.
+        @param context The OperationContext object to copy.
     */
-    OperationContext & operator=(const OperationContext & context);
+    OperationContext& operator=(const OperationContext& context);
 
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
+    /**
+        Removes all the Containers from the OperationContext.
     */
-    void clear(void);
+    void clear();
 
-    /** This operation is used to retrieve the container based on the key name.
-	* Note: If the key is not present, the Exception("Common.OperationContext.OBJECT_NOT_FOUND") is thrown.
-    @param containerName Specifies the name of the String container.
+    /**
+        Retrieves the specified Container object from the OperationContext.
+        @param containerName The name of the Container type to retrieve.
+        @return A reference to the specified Container object.
+        @exception Exception if the OperationContext does not contain the
+        specified Container type.
     */
-    
-    const Container & get(const String& containerName) const;
+    const Container& get(const String& containerName) const;
 
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the container.
+    /**
+        Replaces an OperationContext Container with the specified Container
+        object of the same type.
+        @param container The Container to set in the OperationContext.
+        @exception Exception if the OperationContext does not contain the
+        specified Container type.
     */
-    void set(const Container & container);
+    void set(const Container& container);
 
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the container.
+    /**
+        Inserts a Container into the OperationContext.
+        @param container The Container to insert into the OperationContext.
+        @exception Exception if the OperationContext already contains a
+        Container of this type.
     */
-    void insert(const Container & container);
+    void insert(const Container& container);
 
-
-    /** REVIEWERS:Insert description here. What parameters need descriptions?
-    @param containerName Specifies the name of the container.
+    /**
+        Removes a Container from the OperationContext.
+        @param containerName The name of the Container type to remove from
+        the OperationContext.
+        @exception Exception if the OperationContext does not contain the
+        specified Container type.
     */
     void remove(const String& containerName);
 
 protected:
     OperationContextRep* _rep;
-
 };
 
 
 class IdentityContainerRep;
 
-/// Insert description here. 
+/**
+    An IdentityContainer object holds the identity of a user associated with
+    an operation.  For example, a provider must use this Container to
+    determine whether to perform an operation on the behalf of the requesting
+    user.
+*/
 class PEGASUS_COMMON_LINKAGE IdentityContainer
     : virtual public OperationContext::Container
 {
 public:
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-        @param container Specifies the name of the Container.
+    /**
+        Constructs an IdentityContainer object from the specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not an IdentityContainer object.
     */
-    IdentityContainer(const OperationContext::Container & container);
+    IdentityContainer(const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-        @param container Specifies the name of the IdentityContainer.
+    /**
+        Constructs a copy of the specified IdentityContainer.
+        @param container The IdentityContainer object to copy.
     */
-    IdentityContainer(const IdentityContainer & container);
+    IdentityContainer(const IdentityContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-        @param userName Specifies the name of the String.
+    /**
+        Constructs an IdentityContainer with a specified user name.
+        @param userName A String user name for this identity.
     */
-    IdentityContainer(const String & userName);
+    IdentityContainer(const String& userName);
 
-    /** REVIEWERS: Insert description here.
+    /**
+        Destructs the IdentityContainer.
     */
-    virtual ~IdentityContainer(void);
+    virtual ~IdentityContainer();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-        @param container Specifies the name of the IdentityContainer.
+    /**
+        Assigns the value of the specified IdentityContainer object to this
+        object.
+        @param container The IdentityContainer object to copy.
     */
-    IdentityContainer & operator=(const IdentityContainer & container);
+    IdentityContainer& operator=(const IdentityContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this IdentityContainer object.  The caller is
+        responsible for cleaning up the copy by calling destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Cleans up an IdentityContainer object that was created by the
+        clone() method.
     */
-    virtual void destroy(void);
+    virtual void destroy();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Gets the user name from the IdentityContainer object.
+        @return A String containing the user name identity.
     */
-    String getUserName(void) const;
+    String getUserName() const;
 
 protected:
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    */
     IdentityContainerRep* _rep;
 
 private:
@@ -218,53 +243,82 @@ private:
 
 class SubscriptionInstanceContainerRep;
 
+/**
+    A SubscriptionInstanceContainer object holds a CIMInstance associated
+    with an indication subscription.
+*/
 class PEGASUS_COMMON_LINKAGE SubscriptionInstanceContainer
     : virtual public OperationContext::Container
 {
 public:
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a SubscriptionInstanceContainer object from the
+        specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not a SubscriptionInstanceContainer object.
     */
-    SubscriptionInstanceContainer
-        (const OperationContext::Container & container);
+    SubscriptionInstanceContainer(
+        const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a copy of the specified SubscriptionInstanceContainer.
+        @param container The SubscriptionInstanceContainer object to copy.
     */
-    SubscriptionInstanceContainer
-        (const SubscriptionInstanceContainer & container);
+    SubscriptionInstanceContainer(
+        const SubscriptionInstanceContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a SubscriptionInstanceContainer with the specified
+        subscription instance.
+        @param subscriptionInstance The subscription instance to be held by
+        this Container.
     */
-    SubscriptionInstanceContainer(const CIMInstance & subscriptionInstance);
+    SubscriptionInstanceContainer(const CIMInstance& subscriptionInstance);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Destructs the SubscriptionInstanceContainer.
     */
-    virtual ~SubscriptionInstanceContainer(void);
+    virtual ~SubscriptionInstanceContainer();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param operator Specifies the name of the SubscriptionInstanceContainer
+    /**
+        Assigns the value of the specified SubscriptionInstanceContainer
+        object to this object.
+        @param container The SubscriptionInstanceContainer object to copy.
     */
-    SubscriptionInstanceContainer & operator=
-        (const SubscriptionInstanceContainer & container);
+    SubscriptionInstanceContainer& operator=(
+        const SubscriptionInstanceContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this SubscriptionInstanceContainer object.  The
+        caller is responsible for cleaning up the copy by calling destroy()
+        method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Cleans up a SubscriptionInstanceContainer object that was created
+        by the clone() method.
     */
-    virtual void destroy(void);
+    virtual void destroy();
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Gets the subscription instance from the SubscriptionInstanceContainer.
+        @return A CIMInstance representing a subscription.
     */
-    CIMInstance getInstance(void) const;
+    CIMInstance getInstance() const;
 
 protected:
     SubscriptionInstanceContainerRep* _rep;
@@ -273,64 +327,104 @@ private:
     SubscriptionInstanceContainer();    // Unimplemented
 };
 
+
 class SubscriptionFilterConditionContainerRep;
 
+/**
+    A SubscriptionFilterConditionContainer object holds the filter condition
+    and query language associated with an indication subscription.  The
+    filter condition is equivalent to only the "WHERE" clause of a filter
+    query.
+*/
 class PEGASUS_COMMON_LINKAGE SubscriptionFilterConditionContainer
     : virtual public OperationContext::Container
 {
 public:
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a SubscriptionFilterConditionContainer object from the
+        specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not a SubscriptionFilterConditionContainer object.
     */
-    SubscriptionFilterConditionContainer
-        (const OperationContext::Container & container);
+    SubscriptionFilterConditionContainer(
+        const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param conainer REVIEWERS: Insert description here.
+    /**
+        Constructs a copy of the specified
+        SubscriptionFilterConditionContainer.
+        @param container The SubscriptionFilterConditionContainer object
+        to copy.
     */
-    SubscriptionFilterConditionContainer
-        (const SubscriptionFilterConditionContainer & container);
+    SubscriptionFilterConditionContainer(
+        const SubscriptionFilterConditionContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param filterCondition REVIEWERS: Insert description here.
-    @param queryLanguage REVIEWERS: Insert description here.
+    /**
+        Constructs a SubscriptionFilterConditionContainer with the specified
+        filter condition and query language.
+        @param filterCondition The query condition String associated with an
+        indication subscription filter.
+        @param queryLanguage The query language String associated with an
+        indication subscription filter.
     */
-    SubscriptionFilterConditionContainer
-        (const String & filterCondition, 
-        const String & queryLanguage);
+    SubscriptionFilterConditionContainer(
+        const String& filterCondition, 
+        const String& queryLanguage);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Destructs the SubscriptionFilterConditionContainer.
     */
-    virtual ~SubscriptionFilterConditionContainer(void);
+    virtual ~SubscriptionFilterConditionContainer();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container REVIEWERS: Insert description here.
+    /**
+        Assigns the value of the specified SubscriptionFilterConditionContainer
+        object to this object.
+        @param container The SubscriptionFilterConditionContainer object to
+        copy.
     */
-    SubscriptionFilterConditionContainer & operator=
-        (const SubscriptionFilterConditionContainer & container);
+    SubscriptionFilterConditionContainer& operator=(
+        const SubscriptionFilterConditionContainer& container);
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this SubscriptionFilterConditionContainer object.
+        The caller is responsible for cleaning up the copy by calling
+        destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Cleans up a SubscriptionFilterConditionContainer object that was
+        created by the clone() method.
     */
-    virtual void destroy(void);
+    virtual void destroy();
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Gets the filter query condition from the
+        SubscriptionFilterConditionContainer.  Note that the filter query
+        condition is equivalent to only the "WHERE" clause of a filter query.
+        @return The query condition String associated with an indication
+        subscription filter.
     */
-    String getFilterCondition(void) const;
+    String getFilterCondition() const;
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Gets the query language from the SubscriptionFilterConditionContainer.
+        @return The query language String associated with an indication
+        subscription filter.
     */
-    String getQueryLanguage(void) const;
+    String getQueryLanguage() const;
 
 protected:
     SubscriptionFilterConditionContainerRep* _rep;
@@ -342,88 +436,110 @@ private:
 
 class SubscriptionFilterQueryContainerRep;
 
-/** The SubscriptionFilterQueryContainer class contains a query filter string and
-    a query language string.  The query filter contains the whole SELECT statement
-    from the filter associated with the subscription.  This is different than
-    the filter condition string in SubscriptionFilterConditionContainer, which
-    only contains the WHERE clause of the filter.  The query language string
-    contains the language of the filter (eg. "WQL", "CIM:CQL"). 
-
-    <pre>
-    This container may be used by providers that wish to filter indications.
-    The query filter and query langauge strings may used to constuct a QueryExpression
-    object for parsing and evaluation.
-    </pre>
+/**
+    A SubscriptionFilterQueryContainer object holds the query filter
+    and query language associated with an indication subscription, as well
+    as the source namespace of the filter.  The query filter contains the
+    whole query string ("SELECT" statement) from the subscription filter
+    instance.  (This differs from the filter condition string in
+    SubscriptionFilterConditionContainer, which only contains the "WHERE"
+    clause of the filter.)
 */
 class PEGASUS_COMMON_LINKAGE SubscriptionFilterQueryContainer
     : virtual public OperationContext::Container
 {
 public:
-    /** The name of this container.  This is set to "SubscriptionFilterQueryContainer".
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
 
-    /** Copy constructor.
-    @param container The container to be copied. It must be of type 
-    SubscriptionFilterQueryContainer.
-    @exception DynamicCastFailedException If the parameter is not the correct type.
+    /**
+        Constructs a SubscriptionFilterQueryContainer object from the
+        specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not a SubscriptionFilterQueryContainer object.
     */
-    SubscriptionFilterQueryContainer
-        (const OperationContext::Container & container);
+    SubscriptionFilterQueryContainer(
+        const OperationContext::Container& container);
 
-    /** Copy constructor
-    @param container The container to be copied. 
+    /**
+        Constructs a copy of the specified SubscriptionFilterQueryContainer.
+        @param container The SubscriptionFilterQueryContainer object to copy.
     */
-    SubscriptionFilterQueryContainer
-        (const SubscriptionFilterQueryContainer & container);
+    SubscriptionFilterQueryContainer(
+        const SubscriptionFilterQueryContainer& container);
 
-    /** Constructor
-    @param filterQuery String containing the query filter.
-    @param queryLanguage String containing the language of the query filter.
+    /**
+        Constructs a SubscriptionFilterQueryContainer with the specified
+        filter query, query language, and source namespace.
+        @param filterQuery The filter query String associated with an
+        indication subscription filter.
+        @param queryLanguage The query language String associated with an
+        indication subscription filter.
+        @param sourceNameSpace The CIMNamespaceName of the source namespace
+        associated with an indication subscription filter.
     */
-    SubscriptionFilterQueryContainer
-      (const String & filterQuery,
-       const String & queryLanguage,
-       const CIMNamespaceName & sourceNameSpace);
+    SubscriptionFilterQueryContainer(
+       const String& filterQuery,
+       const String& queryLanguage,
+       const CIMNamespaceName& sourceNameSpace);
 
-    /** Destructor
+    /**
+        Destructs the SubscriptionFilterQueryContainer.
     */
-    virtual ~SubscriptionFilterQueryContainer(void);
+    virtual ~SubscriptionFilterQueryContainer();
 
-    /** Assignment
-    @param container Container from which to assign.
+    /**
+        Assigns the value of the specified SubscriptionFilterQueryContainer
+        object to this object.
+        @param container The SubscriptionFilterQueryContainer object to copy.
     */
-    SubscriptionFilterQueryContainer & operator=
-        (const SubscriptionFilterQueryContainer & container);
+    SubscriptionFilterQueryContainer& operator=(
+        const SubscriptionFilterQueryContainer& container);
 
-    /** Returns the name of this container. 
-    @return Name of this container.
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** Creates a duplicate of this container.
-    @return Pointer to the cloned container.
+    /**
+        Makes a copy of this SubscriptionFilterQueryContainer object.
+        The caller is responsible for cleaning up the copy by calling
+        destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** Deletes this container. 
+    /**
+        Cleans up a SubscriptionFilterQueryContainer object that was
+        created by the clone() method.
     */
-    virtual void destroy(void);
+    virtual void destroy();
 
-    /** Returns the query filter string.
-    @return The query filter string.    
+    /**
+        Gets the filter query from the SubscriptionFilterQueryContainer.
+        @return The query String associated with an indication subscription
+        filter.
     */
-    String getFilterQuery(void) const;
+    String getFilterQuery() const;
 
-    /** Returns the query language string.
-    @return The query language string.    
+    /**
+        Gets the filter query language from the
+        SubscriptionFilterQueryContainer.
+        @return The query language String associated with an indication
+        subscription filter.
     */
-    String getQueryLanguage(void) const;
+    String getQueryLanguage() const;
 
-    /** Returns the source namespace for the filter.
-    @return The source namespace.    
+    /**
+        Gets the source namespace from the SubscriptionFilterQueryContainer.
+        @return The source namespace associated with an indication
+        subscription filter.
     */
-    CIMNamespaceName getSourceNameSpace(void) const;
+    CIMNamespaceName getSourceNameSpace() const;
 
 protected:
     SubscriptionFilterQueryContainerRep* _rep;
@@ -432,61 +548,92 @@ private:
     SubscriptionFilterQueryContainer();    // Unimplemented
 };
 
-    /**REVIEWERS: Insert class description here.
-    */
+
 class SubscriptionInstanceNamesContainerRep;
 
-    /**REVIEWERS: Insert class description here.
-    */
+/**
+    A SubscriptionInstanceNamesContainer object holds a list of subscription
+    instance names.  This can be used to limit the set of subscriptions that
+    are considered targets for an indication when it is generated, which is
+    necessary for a provider to generate localized indications or to
+    implement a subscription's repeat notification policy.
+*/
 class PEGASUS_COMMON_LINKAGE SubscriptionInstanceNamesContainer
     : virtual public OperationContext::Container
 {
 public:
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a SubscriptionInstanceNamesContainer object from the
+        specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not a SubscriptionInstanceNamesContainer object.
     */
-    SubscriptionInstanceNamesContainer
-        (const OperationContext::Container & container);
+    SubscriptionInstanceNamesContainer(
+        const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a copy of the specified SubscriptionInstanceNamesContainer.
+        @param container The SubscriptionInstanceNamesContainer object to copy.
     */
-    SubscriptionInstanceNamesContainer
-        (const SubscriptionInstanceNamesContainer & container);
+    SubscriptionInstanceNamesContainer(
+        const SubscriptionInstanceNamesContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a SubscriptionInstanceNamesContainer with the specified
+        list of subscription instance names.
+        @param subscriptionInstanceNames A CIMObjectPath Array with the names
+        of indication subscription instances.
     */
-    SubscriptionInstanceNamesContainer
-        (const Array<CIMObjectPath> & subscriptionInstanceNames);
+    SubscriptionInstanceNamesContainer(
+        const Array<CIMObjectPath>& subscriptionInstanceNames);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Destructs the SubscriptionInstanceNamesContainer.
     */
-    virtual ~SubscriptionInstanceNamesContainer(void);
+    virtual ~SubscriptionInstanceNamesContainer();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container REVIEWERS: Insert description here.
+    /**
+        Assigns the value of the specified SubscriptionInstanceNamesContainer
+        object to this object.
+        @param container The SubscriptionInstanceNamesContainer object to copy.
     */
-    SubscriptionInstanceNamesContainer & operator=
-        (const SubscriptionInstanceNamesContainer & container);
+    SubscriptionInstanceNamesContainer& operator=(
+        const SubscriptionInstanceNamesContainer& container);
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this SubscriptionInstanceNamesContainer object.
+        The caller is responsible for cleaning up the copy by calling
+        destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Cleans up a SubscriptionInstanceNamesContainer object that was
+        created by the clone() method.
     */
-    virtual void destroy(void);
+    virtual void destroy();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Gets the list of subscription instance names from the
+        SubscriptionInstanceNamesContainer.
+        @return A CIMObjectPath Array of indication subscription instance
+        names.
     */
-    Array<CIMObjectPath> getInstanceNames(void) const;
+    Array<CIMObjectPath> getInstanceNames() const;
 
 protected:
     SubscriptionInstanceNamesContainerRep* _rep;
@@ -495,236 +642,331 @@ private:
     SubscriptionInstanceNamesContainer();    // Unimplemented
 };
 
-    ///Insert class description here. 
-class PEGASUS_COMMON_LINKAGE TimeoutContainer : virtual public OperationContext::Container
+
+/**
+    A TimeoutContainer object holds an operation timeout value, in
+    milliseconds.
+*/
+class PEGASUS_COMMON_LINKAGE TimeoutContainer
+    : virtual public OperationContext::Container
 {
-   public:
+public:
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
-      static const String NAME;
+    static const String NAME;
       
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a TimeoutContainer object from the specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not a TimeoutContainer object.
     */
-      TimeoutContainer(const OperationContext::Container & container);
+    TimeoutContainer(const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a TimeoutContainer with the specified timeout value.
+        @param timeout An integer timeout value (in milliseconds).
     */
-      TimeoutContainer(Uint32 timeout);
+    TimeoutContainer(Uint32 timeout);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-      virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this TimeoutContainer object.  The caller is
+        responsible for cleaning up the copy by calling destroy() method.
+        @return A pointer to the new Container object.
     */
-      virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Cleans up a TimeoutContainer object that was created by the clone()
+        method.
     */
-      virtual void destroy(void);
+    virtual void destroy();
       
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Gets the timeout value from the TimeoutContainer.
+        @return An integer timeout value (in milliseconds).
     */
-      Uint32 getTimeOut(void) const;
-   protected:
-      Uint32 _value;
-   private:
-      TimeoutContainer(void);
+    Uint32 getTimeOut() const;
+
+protected:
+    Uint32 _value;
+
+private:
+    TimeoutContainer();
 };
 
-
-// l10n
-/////////////////////////////////////////////////////////////////////////////
-// Start - Containers used for globalization
-/////////////////////////////////////////////////////////////////////////////
 
 #ifdef PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
 class AcceptLanguageListContainerRep;
 
 /** <I><B>Experimental Interface</B></I><BR>
- */
+    An AcceptLanguageListContainer object holds a list of languages that
+    are acceptable in the response for a given operation.
+*/
 class PEGASUS_COMMON_LINKAGE AcceptLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    */
-    AcceptLanguageListContainer
-        (const OperationContext::Container & container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs an AcceptLanguageListContainer object from the
+        specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not an AcceptLanguageListContainer object.
     */
-    AcceptLanguageListContainer
-        (const AcceptLanguageListContainer & container);
+    AcceptLanguageListContainer(
+        const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a copy of the specified AcceptLanguageListContainer.
+        @param container The AcceptLanguageListContainer object to copy.
     */
-    AcceptLanguageListContainer(const AcceptLanguageList & languages);
+    AcceptLanguageListContainer(
+        const AcceptLanguageListContainer& container);
+
+    /**
+        Constructs an AcceptLanguageListContainer with the specified
+        accept language list.
+        @param languages An AcceptLanguageList with the response languages
+        that are acceptable in this context.
+    */
+    AcceptLanguageListContainer(const AcceptLanguageList& languages);
     
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Destructs the AcceptLanguageListContainer.
     */
-    virtual ~AcceptLanguageListContainer(void);
+    virtual ~AcceptLanguageListContainer();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Assigns the value of the specified AcceptLanguageListContainer
+        object to this object.
+        @param container The AcceptLanguageListContainer object to copy.
     */
-    AcceptLanguageListContainer & operator=
-        (const AcceptLanguageListContainer & container);
+    AcceptLanguageListContainer& operator=(
+        const AcceptLanguageListContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this AcceptLanguageListContainer object.  The caller
+        is responsible for cleaning up the copy by calling destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Cleans up an AcceptLanguageListContainer object that was created by
+        the clone() method.
     */
-    virtual void destroy(void);
+    virtual void destroy();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Gets the list of acceptable response languages from the
+        AcceptLanguageListContainer.
+        @return An AcceptLanguageList with the response languages that are
+        acceptable in this context.
     */
-    AcceptLanguageList getLanguages(void) const;
+    AcceptLanguageList getLanguages() const;
 
 protected:
-   AcceptLanguageListContainerRep* _rep;
+    AcceptLanguageListContainerRep* _rep;
 
 private:
     AcceptLanguageListContainer();    // Unimplemented
 };
 
-    /** REVIEWERS: Insert class description here. 
-    */
+
 class SubscriptionLanguageListContainerRep;
 
-    /** <I><B>Experimental Interface</B></I><BR>
-    * REVIEWERS: Insert class description here. 
-    */
+/** <I><B>Experimental Interface</B></I><BR>
+    A SubscriptionLanguageListContainer object holds a list of languages that
+    are acceptable in the indications associated with a given subscription.
+*/
 class PEGASUS_COMMON_LINKAGE SubscriptionLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
     
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a SubscriptionLanguageListContainer object from the
+        specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not a SubscriptionLanguageListContainer object.
     */
-    SubscriptionLanguageListContainer
-        (const OperationContext::Container & container);
+    SubscriptionLanguageListContainer(
+        const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a copy of the specified SubscriptionLanguageListContainer.
+        @param container The SubscriptionLanguageListContainer object to copy.
     */
-    SubscriptionLanguageListContainer
-        (const SubscriptionLanguageListContainer & container);
+    SubscriptionLanguageListContainer(
+        const SubscriptionLanguageListContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Constructs a SubscriptionLanguageListContainer with the specified
+        accept language list.
+        @param languages An AcceptLanguageList with the languages that are
+        acceptable in the indications associated with a given subscription.
     */
-    SubscriptionLanguageListContainer(const AcceptLanguageList & languages);
+    SubscriptionLanguageListContainer(const AcceptLanguageList& languages);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Destructs the SubscriptionLanguageListContainer.
     */
-    virtual ~SubscriptionLanguageListContainer(void); 
+    virtual ~SubscriptionLanguageListContainer(); 
      
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the SubscriptionLanguageListContainer.
-    */    
-    SubscriptionLanguageListContainer & operator=
-        (const SubscriptionLanguageListContainer & container);
-
-    /** REVIEWERS: Insert description here. 
+    /**
+        Assigns the value of the specified SubscriptionLanguageListContainer
+        object to this object.
+        @param container The SubscriptionLanguageListContainer object to copy.
     */
-    virtual String getName(void) const;
+    SubscriptionLanguageListContainer& operator=(
+        const SubscriptionLanguageListContainer& container);
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Makes a copy of this SubscriptionLanguageListContainer object.
+        The caller is responsible for cleaning up the copy by calling
+        destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual void destroy(void);
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Cleans up a SubscriptionLanguageListContainer object that was created
+        by the clone() method.
     */
-    AcceptLanguageList getLanguages(void) const;
+    virtual void destroy();
+
+    /**
+        Gets the list of languages that are acceptable in indications from the
+        AcceptLanguageListContainer.
+        @return An AcceptLanguageList with the languages that are acceptable
+        in the indications associated with a given subscription.
+    */
+    AcceptLanguageList getLanguages() const;
 
 protected:
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    */
     SubscriptionLanguageListContainerRep* _rep;
 
 private:
     SubscriptionLanguageListContainer();    // Unimplemented
 };    
 
-    /** REVIEWERS: Insert class description here. 
-    */
+
 class ContentLanguageListContainerRep;
-    /** <I><B>Experimental Interface</B></I><BR>
-    * REVIEWERS: Insert class description here. 
-    */
+
+/** <I><B>Experimental Interface</B></I><BR>
+    A ContentLanguageListContainer object holds a list of languages that
+    are contained in the associated data.
+*/
 class PEGASUS_COMMON_LINKAGE ContentLanguageListContainer
     : virtual public OperationContext::Container
 {
 public:
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the OperationContext container.
+    /**
+        Constructs a ContentLanguageListContainer object from the
+        specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not a ContentLanguageListContainer object.
     */
-    ContentLanguageListContainer
-        (const OperationContext::Container & container);
+    ContentLanguageListContainer(
+        const OperationContext::Container& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the ContentLanguageListContainer.
+    /**
+        Constructs a copy of the specified ContentLanguageListContainer.
+        @param container The ContentLanguageListContainer object to copy.
     */
-    ContentLanguageListContainer
-        (const ContentLanguageListContainer & container);
+    ContentLanguageListContainer(
+        const ContentLanguageListContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param languages Specifies the name of the ContentLanguageList container.
+    /**
+        Constructs a ContentLanguageListContainer with the specified
+        content language list.
+        @param languages A ContentLanguageList with the languages that are
+        contained in the associated data.
     */
-    ContentLanguageListContainer(const ContentLanguageList & languages);
+    ContentLanguageListContainer(const ContentLanguageList& languages);
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Destructs the ContentLanguageListContainer.
     */
-    virtual ~ContentLanguageListContainer(void);
+    virtual ~ContentLanguageListContainer();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the ContentLanguageListContainer.
+    /**
+        Assigns the value of the specified ContentLanguageListContainer
+        object to this object.
+        @param container The ContentLanguageListContainer object to copy.
     */
-    ContentLanguageListContainer & operator=
-        (const ContentLanguageListContainer & container);
+    ContentLanguageListContainer& operator=(
+        const ContentLanguageListContainer& container);
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this ContentLanguageListContainer object.  The caller
+        is responsible for cleaning up the copy by calling destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Cleans up a ContentLanguageListContainer object that was created
+        by the clone() method.
     */
-    virtual void destroy(void);
+    virtual void destroy();
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Gets the list of content languages from the
+        ContentLanguageListContainer.
+        @return A ContentLanguageList with the languages that are contained
+        in the associated data.
     */
-    ContentLanguageList getLanguages(void) const;
+    ContentLanguageList getLanguages() const;
 
 protected:
-    /** REVIEWERS: Insert description here. 
-    */
-   ContentLanguageListContainerRep* _rep;
+    ContentLanguageListContainerRep* _rep;
 
 private:
     ContentLanguageListContainer();    // Unimplemented
@@ -732,63 +974,80 @@ private:
 
 #endif  // PEGASUS_USE_EXPERIMENTAL_INTERFACES
 
-/////////////////////////////////////////////////////////////////////////////
-// End - Containers used for globalization
-/////////////////////////////////////////////////////////////////////////////
 
 class SnmpTrapOidContainerRep;
 
+/**
+    An SnmpTrapOidContainer object holds an SNMP trap OID that corresponds
+    to the associated data.
+*/
 class PEGASUS_COMMON_LINKAGE SnmpTrapOidContainer
     : virtual public OperationContext::Container
 {
 public:
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        The unique name for this container type.
     */
     static const String NAME;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the container.  
+    /**
+        Constructs an SnmpTrapOidContainer object from the specified Container.
+        @param container The Container object to copy.
+        @exception DynamicCastFailedException If the specified Container
+        object is not an SnmpTrapOidContainer object.
     */
-    SnmpTrapOidContainer
-        (const OperationContext::Container & container);
+    SnmpTrapOidContainer(const OperationContext::Container& container);
     
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the SnmpTrapOidContainer container.   
+    /**
+        Constructs a copy of the specified SnmpTrapOidContainer.
+        @param container The SnmpTrapOidContainer object to copy.
     */
-    SnmpTrapOidContainer
-        (const SnmpTrapOidContainer & container);
+    SnmpTrapOidContainer(const SnmpTrapOidContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param snmpTrapOid Specifies the name of the String container.
+    /**
+        Constructs an SnmpTrapOidContainer with the specified SNMP trap OID.
+        @param snmpTrapOid A String containing an SNMP trap OID.
     */
-    SnmpTrapOidContainer(const String & snmpTrapOid);
+    SnmpTrapOidContainer(const String& snmpTrapOid);
 
-    /** REVIEWERS: Insert description here. 
+    /**
+        Destructs the SnmpTrapOidContainer.
     */
-    virtual ~SnmpTrapOidContainer(void);
+    virtual ~SnmpTrapOidContainer();
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    @param container Specifies the name of the SnmpTrapOidContainer.
+    /**
+        Assigns the value of the specified SnmpTrapOidContainer
+        object to this object.
+        @param container The SnmpTrapOidContainer object to copy.
     */
-    SnmpTrapOidContainer & operator=
-        (const SnmpTrapOidContainer & container);
+    SnmpTrapOidContainer& operator=(const SnmpTrapOidContainer& container);
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Returns the unique name for this Container type.
+        @return The String name of the Container type.
     */
-    virtual String getName(void) const;
+    virtual String getName() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
+    /**
+        Makes a copy of this SnmpTrapOidContainer object.  The caller is
+        responsible for cleaning up the copy by calling destroy() method.
+        @return A pointer to the new Container object.
     */
-    virtual OperationContext::Container * clone(void) const;
+    virtual OperationContext::Container* clone() const;
 
-    /** REVIEWERS: Insert description here. What parameters need descriptions?
-    */    
-    virtual void destroy(void);
-
-    /** REVIEWERS: Insert description here. 
+    /**
+        Cleans up an SnmpTrapOidContainer object that was created
+        by the clone() method.
     */
-    String getSnmpTrapOid(void) const;
+    virtual void destroy();
+
+    /**
+        Gets the SNMP trap OID from the SnmpTrapOidContainer.
+        @return A String with the SNMP trap OID corresponding to the
+        associated data.
+    */
+    String getSnmpTrapOid() const;
 
 protected:
     SnmpTrapOidContainerRep* _rep;

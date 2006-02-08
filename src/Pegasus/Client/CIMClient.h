@@ -58,84 +58,49 @@ PEGASUS_NAMESPACE_BEGIN
 
 class CIMClientInterface;
 
+/**
+    The CIMClient class provides an interface for a client application
+    to communicate with a CIM Server.  The client application specifies
+    the target CIM Server by providing connection parameters and
+    authentication credentials (as necessary).
 
-/** This class provides the interface that a client uses to communicate
-with a CIM server.  This class constructs a CIM client on the local host 
-(default) or the specified host.  This class invokes the CIM object 
-manager for this client to perform operations such as, adding, modifying, 
-or deleting a CIM class, CIM instance, and CIM qualifier type in a 
-namespace.  
-
-A client connects to a CIM Object Manager to establish an initial 
-connection when it needs to perform CIM operations.  
-
-This class defines the external client operations for Pegasus These
-operations are based on the WBEM operations defined in the DMTF CIM
-CIMOperations over HTTP operations Specification. They duplicate the names,
-functions, and parameters of those CIMOperations. Each WBEM operation is a
-method in this class.
-The CIMClient Class includes all of the operations defined in version
-1.1 Final of the DMTF CIM Operations over HTTP specification.
-    
-The CIMClient class performs the following functions:
-   <ul>
-   <li> connection services to local host or specified host through <tt>connect<tt>
-    methods
-    <li>Language choice services for the connection through a set of language
-    selection functions.
-    <li>Execution of CIM Operations as defined in the DMTF CIM Operations over
-    HTTP specification using methods with almost exactly the same names and the
-    same parameter sets as the operations defined in that document. Note that one key
-    difference is that if errors occur in these operations, rather than returning an
-    error code, these C++ methods all return errors that occurred on the remote server
-    as well as any local errors through exceptions. 
-   </ul>
-
-<B>Exceptions and the CIMClient APIs</B> - TBD
-DOCUMENTATIONSTATUS: in process.  Generally documentation in place but much reflects
-    the spec, not our APIs.  Also exception processing needs work. KS 12 Nov 2003
+    The CIMClient class models the functionality defined in the DMTF's
+    Specification for CIM Operations over HTTP version 1.1, using similar
+    operations and parameters.
 */
 class PEGASUS_CLIENT_LINKAGE CIMClient
 {
 public:
 
-    /** Constructs a CIM Client object with null values (default constructor).
+    /**
+        Constructs a CIMClient object.
     */
     CIMClient();
 
-    /** Destructor for a CIM Client object.
+    /**
+        Destructs a CIMClient object.
     */
     ~CIMClient();
 
-    /** gets the current timeout value in milliseconds for the CIMClient object.
+    /**
+        Gets the currently configured timeout value for the CIMClient object.
+        @return An integer indicating the currently configured timeout
+        value (in milliseconds).
     */
     Uint32 getTimeout() const;
 
-    /** Sets the timeout in milliseconds for the CIMClient.
-        @param timeoutMilliseconds Defines the number of milliseconds the
-        CIMClient will wait for a response to an outstanding request.  If a
-        request times out, the connection gets reset (disconnected and
-        reconnected).  Default is 20 seconds (20000 milliseconds).
+    /**
+        Sets the timeout value for CIMClient operations.  If an operation
+        response is not received within this timeout value, a
+        ConnectionTimeoutException is thrown and the connection is reset.
+        The default timeout value is 20 seconds (20000 milliseconds).
+        @param timeoutMilliseconds An integer specifying the timeout value
+        (in milliseconds).
     */
     void setTimeout(Uint32 timeoutMilliseconds);
 
-    /** Creates an HTTP connection with the CIM server defined by the host and portNumber.
-        @param host Specifies the server as a String that the client connects to.
-        @param portNumber Uint32 defines the port number for the server and client to use.
-        @param userName String that defines the name of the user that the client is connecting as.
-        @param password String that contains the password of the user the client is connecting as.
-        @return The return is void. Any normal return indicates a successful connection. Any exception
-        indicates an error in the attempt to connect.
-        @exception AlreadyConnectedException
-            If a connection between the client and CIM server is already established.
-        @exception InvalidLocatorException
-            If the specified address is improperly formed.
-        @exception CannotCreateSocketException
-            If a socket cannot be created.
-        @exception CannotConnectException
-            If the socket connection fails.
-        @exception CIMClientConnectionException
-            If any other failure occurs.
+    /** Connects to the CIM Server at the specified host name and port number.
+        Example usage:
         <PRE>
             CIMClient client;
             String host("localhost");
@@ -148,8 +113,21 @@ public:
                 cerr << "Pegasus Exception: " << e.getMessage() <<
                     ". Trying to connect to " << host << endl;
             }
-        
         </PRE>
+        @param host A String host name to connect to.
+        @param portNumber A Uint32 port number to connect to.
+        @param userName A String specifying the user name for the connection.
+        @param password A String containing the password of the specified user.
+        @exception AlreadyConnectedException
+            If the CIMClient is already connected to a CIM Server.
+        @exception InvalidLocatorException
+            If the specified address is improperly formed.
+        @exception CannotCreateSocketException
+            If a socket cannot be created.
+        @exception CannotConnectException
+            If the socket connection fails.
+        @exception CIMClientConnectionException
+            If any other failure occurs.
     */
     void connect(
         const String& host,
@@ -158,17 +136,15 @@ public:
         const String& password
     );
 
-    /** Creates an HTTP connection with the server defined by the URL address.
-        @param host Specifies the server that the client connects to.  The server
-        is specified as a String.
-        @param portNumber Uint32 defines the port number for the server and client to use.
-        @param sslContext Specifies the SSL context to use for this connection.
-        @param userName String that defines the name of the user that 
-        the client is connecting as.
-        @param password String containing the password of the user
-        the client is connecting as.
+    /** Connects to the CIM Server at the specified host name, port number
+        and SSL context.
+        @param host A String host name to connect to.
+        @param portNumber A Uint32 port number to connect to.
+        @param sslContext The SSL context to use for this connection.
+        @param userName A String specifying the user name for the connection.
+        @param password A String containing the password of the specified user.
         @exception AlreadyConnectedException
-            If a connection between the client and CIM server is already established.
+            If the CIMClient is already connected to a CIM Server.
         @exception InvalidLocatorException
             If the specified address is improperly formed.
         @exception CannotCreateSocketException
@@ -186,18 +162,24 @@ public:
         const String& password
     );
 
-    /** Creates connection to the server for
-        Local clients. The connectLocal connects to the CIM server
-        running on the local system in the default location.  The
-        connection is automatically authenticated for the current
-        user.
-        @See connect - The exceptions are defined in connect.
+    /** Connects to the local CIM Server as the current user.  Authentication
+        is performed automatically, so no credentials are required for this
+        connection.
+        @exception AlreadyConnectedException
+            If the CIMClient is already connected to a CIM Server.
+        @exception CannotCreateSocketException
+            If a socket cannot be created.
+        @exception CannotConnectException
+            If the socket connection fails.
+        @exception CIMClientConnectionException
+            If any other failure occurs.
     */
     void connectLocal();
 
-    /** If the connection to the server was open, the connection with the server closes;
-        otherwise, it returns.  Before opening a new connection, clients should 
-        use this method to close the open connection.  
+    /**
+        Disconnects from the CIM Server.  If no connection is established,
+        this method has no effect.  A CIMClient with an existing connection
+        must be disconnected before establishing a new connection.
     */
     void disconnect();
 
@@ -247,7 +229,6 @@ public:
     ContentLanguageList getResponseContentLanguages() const;
 
     /** <I><B>Experimental Interface</B></I><BR>
-       REVIEWERS: Complete this
     */
     void setRequestDefaultLanguages();
 #endif // PEGASUS_USE_EXPERIMENTAL_INTERFACES
@@ -1809,13 +1790,19 @@ public:
         Array<CIMParamValue>& outParameters
     );
 
-    /**Registers a ClientOpPerformanceDataHandler object. Only one Handler can be registered
-    at a time. A subsequent registration replaces a previous one.
-    @param handler The ClientOpPerformanceDataHandler object instance being registered.
+    /**
+        Registers a ClientOpPerformanceDataHandler object.  The specified
+        object is called with performance data relative to each operation
+        performed by this CIMClient object.  Only one
+        ClientOpPerformanceDataHandler can be registered at a time.
+        A subsequent registration replaces the previous one.
+        @param handler The ClientOpPerformanceDataHandler object to register.
     */
-    void registerClientOpPerformanceDataHandler(ClientOpPerformanceDataHandler & handler);
+    void registerClientOpPerformanceDataHandler(
+        ClientOpPerformanceDataHandler & handler);
 
-    /**Un-Registers a client statistics ClientOpPerformanceDataHandler.
+    /**
+        Unregisters the current ClientOpPerformanceDataHandler, if applicable.
     */
     void deregisterClientOpPerformanceDataHandler();
 

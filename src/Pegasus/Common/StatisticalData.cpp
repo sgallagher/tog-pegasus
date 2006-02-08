@@ -54,31 +54,31 @@ String StatisticalData::requestName[] =
                                     // internal       CIM_StatisticalData
                                     // message type
                                     // -------------- -------------------
-  "GetClass",                       //     1           3  
-  "GetInstance",                    //     2           4  
-  "IndicationDelivery",             //     3           26  
-  "DeleteClass",                    //     4           5  
-  "DeleteInstance",                 //     5           6  
-  "CreateClass",                    //     6           7  
-  "CreateInstance",                 //     7           8
-  "ModifyClass",                    //     8           9
-  "ModifyInstance",                 //     9          10 
-  "EnumerateClasses",               //    10          11  
-  "EnumerateClassNames",            //    11          12  
-  "EnumerateInstances",             //    12          13  
-  "EnumerateInstanceNames",         //    13          14  
-  "ExecQuery",                      //    14          15  
-  "Associators",                    //    15          16  
-  "AssociatorNames",                //    16          17  
-  "References",                     //    17          18  
-  "ReferenceNames",                 //    18          19  
-  "GetProperty",                    //    19          20  
-  "SetProperty",                    //    20          21  
-  "GetQualifier",                   //    21          22  
-  "SetQualifier",                   //    22          23  
-  "DeleteQualifier",                //    23          24  
-  "EnumerateQualifiers",            //    24          25  
-  "InvokeMethod"                    //    25          Not Present
+  "GetClass",                       //     0           3  
+  "GetInstance",                    //     1           4  
+  "IndicationDelivery",             //     2           26  
+  "DeleteClass",                    //     3           5  
+  "DeleteInstance",                 //     4           6  
+  "CreateClass",                    //     5           7  
+  "CreateInstance",                 //     6           8
+  "ModifyClass",                    //     7           9
+  "ModifyInstance",                 //     8          10 
+  "EnumerateClasses",               //     9          11  
+  "EnumerateClassNames",            //    10          12  
+  "EnumerateInstances",             //    11          13  
+  "EnumerateInstanceNames",         //    12          14  
+  "ExecQuery",                      //    13          15  
+  "Associators",                    //    14          16  
+  "AssociatorNames",                //    15          17  
+  "References",                     //    16          18  
+  "ReferenceNames",                 //    17          19  
+  "GetProperty",                    //    18          20  
+  "SetProperty",                    //    19          21  
+  "GetQualifier",                   //    20          22  
+  "SetQualifier",                   //    21          23  
+  "DeleteQualifier",                //    22          24  
+  "EnumerateQualifiers",            //    23          25  
+  "InvokeMethod"                    //    24          Not Present
 };
 
 const Uint32 StatisticalData::length = NUMBER_OF_TYPES;

@@ -1,0 +1,30 @@
+
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+   Name = "TestJavaProviderAModule";
+   Location = "TestJavaProviderA.jar:org/pegasus/jmpi/sample/TestJavaProviderA";
+   Vendor = "OpenPegasus";
+   Version = "2.0.0";
+   InterfaceType = "JMPI";
+   InterfaceVersion = "2.0.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "TestJavaProviderAModule";
+   Name = "TestJavaProviderA";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "TestJavaProviderAModule";
+   ProviderName = "TestJavaProviderA";
+   CapabilityID = "1";
+   ClassName = "TestJavaProviderA";
+   Namespaces = {"root/cimv2"};
+   ProviderType = { 2 }; //  Instance provider
+   SupportedProperties = NULL;
+};
+

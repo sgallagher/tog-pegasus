@@ -1,0 +1,11 @@
+
+#pragma locale ("en_US")
+
+
+class TestJavaProvider
+{
+   [key]
+   String Identifier;
+   String Data;
+};
+

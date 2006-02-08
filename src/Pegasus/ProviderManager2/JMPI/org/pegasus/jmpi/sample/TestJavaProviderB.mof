@@ -2,10 +2,10 @@
 #pragma locale ("en_US")
 
 
-class TestJavaProvider1
+class TestJavaProviderB
 {
    [key]
    String Identifier;
-   String data;
+   String Data;
 };
 

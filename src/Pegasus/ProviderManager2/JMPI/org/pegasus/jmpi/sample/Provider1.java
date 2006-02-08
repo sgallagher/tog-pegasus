@@ -36,11 +36,11 @@
 //%/////////////////////////////////////////////////////////////////////////////
 
 
-package org.pegasus.providers;
+package org.pegasus.jmpi.sample;
 
 import java.util.Vector;
 import java.util.Enumeration;
-import org.pegasus.jmpi.InstanceProvider;
+import org.pegasus.jmpi.InstanceProvider2;
 import org.pegasus.jmpi.CIMObjectPath;
 import org.pegasus.jmpi.CIMClass;
 import org.pegasus.jmpi.CIMInstance;

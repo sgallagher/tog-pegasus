@@ -47,9 +47,42 @@ PEGASUS_NAMESPACE_BEGIN
 #ifdef PEGASUS_OVERRIDE_PRODUCT_ID
 # include <Pegasus/Common/ProductVersion.h>
 #else
+//
+// The Pegasus version string should be changed immediatly after a release
+// to include the word development and should then be changed immediatly
+// prior to release to remove it. Leaving the Version set to the prior release
+// makes it difficult to determine a development version from a released
+//  version that may be in use.
+//
+// The sequence would look like:
+//  # define PEGASUS_PRODUCT_VERSION "2.5"
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.1"
+//  # define PEGASUS_PRODUCT_STATUS  "Development"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.1"
+//  # define PEGASUS_PRODUCT_STATUS  "Pre-Release"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.1"
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.2"
+//  # define PEGASUS_PRODUCT_STATUS  "Development"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.2"
+//  # define PEGASUS_PRODUCT_STATUS  "Pre-Release"
+//
+//  # define PEGASUS_PRODUCT_VERSION "2.5.2"
+//  # define PEGASUS_PRODUCT_STATUS  ""       // Blank implies Released 
+// 
+
+
 # define PEGASUS_PRODUCT_NAME    "CIM Server"
-# define PEGASUS_PRODUCT_VERSION "2.5"
-# define PEGASUS_PRODUCT_STATUS  ""
+
+# define PEGASUS_PRODUCT_STATUS  "Pre-Release"
+# define PEGASUS_PRODUCT_VERSION "2.5.1"
+
 # define PEGASUS_CIMOM_GENERIC_NAME "Pegasus"
 // If the following is non-zero length it becomes SLP description.
 # define PEGASUS_CIMOM_DESCRIPTION ""
